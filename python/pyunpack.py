@@ -5,6 +5,7 @@ class MemPtr:
 		self.mem = mem
 		self.shiftreg = shifter
 		self.pos = len(mem)
+		print "Set up with {0:02x} {0:08b} in the shift register".format(shifter)
 
 	def _peek(self, offset):
 		return ord(self.mem[offset])
@@ -15,13 +16,16 @@ class MemPtr:
 		return answer
 
 	def peekm(self):
-		return self._peekm()
+		a = self._peekm()
+		print "Read {0:02x} unpacked data from {1:08x}".format(a, self.pos)
+		return a
 
 	def _getbit(self):
-		#print "getbit", self.pos, hex(self.shiftreg)
+		print "Shift register start {0:02x} {0:08b}".format(self.shiftreg)
 		if self.shiftreg==128:
 			#print "INIT"
 			a = s = self._peekm()
+			print "Read {0:02x} {0:08b} bitstream data from {1:08x}".format(a, self.pos)
 			s &= 127
 			s <<= 1
 			s |= 1
@@ -34,6 +38,8 @@ class MemPtr:
 			self.shiftreg = s
 		a &= 128
 		a >>= 7
+		print "Shift register end   {0:02x} {0:08b}".format(self.shiftreg)
+		print ">>bit>>", a
 		return a
 
 	def getbit(self):
@@ -52,31 +58,43 @@ class MemPtr:
 		print "BITS", s, answer
 		return answer
 
+	def offset(self):
+		return self.pos
+
 import array
 
 class Result:
 	
-	def __init__(self, expect):
-		print "Result!", expect
-		self.a = array.array('B', chr(0)*expect)
-		self.ptr = expect
+	def __init__(self, size, expect):
+		print "Result!", size
+		self.a = array.array('B', chr(0)*size)
+		self.pos = size
+		self.expect = array.array('B', expect) if expect else None
 		
-	def isend(self, x):
-		self.ptr -= 1
-		self.a[self.ptr] = x
+	def isend(self, g):
+		self.pos -= 1
+		self.a[self.pos] = g
+		if self.expect:
+			x = self.expect[self.pos]
+			if x!=g:
+				msg = "Got {0:02x} but expected {1:02x} at {2:08x}".format(g, x, self.pos)
+				assert False, msg
+
 		
 	def send(self, x):
-		print "SENDING", hex(x)
+		print "SENDING {0:02x} to {1:08x}".format(x, self.pos)
 		self.isend(x)
 
 	def copy(self, length, offset):
-		print "COPYING", length, offset
+		print "COPYING {0} from offset {1:08x} to {2:08x}".format(length, offset, self.pos)
 		for _ in xrange(length):
-			self.isend(self.a[self.ptr+offset])
+			self.isend(self.a[self.pos+offset])
+
+	def offset(self):
+		return self.pos
 
 	def done(self):
-		print "DONE?", self.ptr
-		return self.ptr==0
+		return self.pos==0
 
 def load_file(name):
 	with open(name, 'r') as f:
@@ -89,16 +107,28 @@ def dump(m):
 	print s
 
 
-MODESTORE = (
+#ModeChoice
+#dc.l    41000       8
+#dc.l    20000       7
+#dc.l    9500        6
+#dc.l    6000        5
+#dc.l    3200        4
+#dc.l    1700        3
+#dc.l    770     2
+#dc.l    360     1
+#dc.l    0       0
 
-	(
+
+UNPACKED_MODESTORE = (
 		( 0x00, 0x00, 0x00, 0x00 ),				#0	0
 		( 0x01, 0x02, 0x02, 0x03 ),				#4	1
 		( 0x03, 0x04, 0x06, 0x0d ),				#8	2
 		( 0x0002, 0x0002, 0x0002, 0x0002 ),		#12	3
 		( 0x0006, 0x000a, 0x000a, 0x0012 ),		#20	4
-	),
+	)
 
+OFFSET_MODESTORE = (
+	# 0
 	(
 		( 0x04, 0x04, 0x04, 0x04 ),
 		( 0x04, 0x04, 0x04, 0x04 ),
@@ -107,6 +137,7 @@ MODESTORE = (
 		( 0x0040, 0x0040, 0x0040, 0x0040 ),
 	),
 
+	# 1
 	(
 		( 0x04, 0x05, 0x06, 0x06 ),
 		( 0x05, 0x05, 0x05, 0x05 ),
@@ -115,6 +146,7 @@ MODESTORE = (
 		( 0x0060, 0x0080, 0x00c0, 0x00c0 ),
 	),
 
+	# 2
 	(
 		( 0x04, 0x05, 0x06, 0x06 ),
 		( 0x06, 0x06, 0x06, 0x06 ),
@@ -123,6 +155,7 @@ MODESTORE = (
 		( 0x00a0, 0x00c0, 0x0100, 0x0100 ),
 	),
 
+	# 3 <<<<<<<<<<
 	(
 		( 0x04, 0x05, 0x06, 0x07 ),
 		( 0x06, 0x06, 0x07, 0x07 ),
@@ -131,6 +164,7 @@ MODESTORE = (
 		( 0x00a0, 0x00c0, 0x0180, 0x0200 ),
 	),
 
+	# 4
 	(
 		( 0x05, 0x06, 0x06, 0x07 ),
 		( 0x06, 0x07, 0x08, 0x08 ),
@@ -139,6 +173,7 @@ MODESTORE = (
 		( 0x00c0, 0x0180, 0x0280, 0x0300 ),
 	),
 
+	# 5
 	(
 		( 0x05, 0x06, 0x06, 0x07 ),
 		( 0x06, 0x08, 0x08, 0x09 ),
@@ -147,6 +182,7 @@ MODESTORE = (
 		( 0x00c0, 0x0280, 0x0280, 0x0500 ),
 	),
 
+	# 6
 	(
 		( 0x05, 0x06, 0x06, 0x07 ),
 		( 0x06, 0x08, 0x08, 0x09 ),
@@ -155,6 +191,7 @@ MODESTORE = (
 		( 0x00c0, 0x0280, 0x0280, 0x0500 ),
 	),
 
+	# 7
 	(
 		( 0x05, 0x06, 0x06, 0x07 ),
 		( 0x06, 0x08, 0x09, 0x09 ),
@@ -163,6 +200,7 @@ MODESTORE = (
 		( 0x00c0, 0x0280, 0x0480, 0x0500 ),
 	),
 
+	# 8
 	(
 		( 0x05, 0x06, 0x06, 0x07 ),
 		( 0x06, 0x08, 0x09, 0x0a ),
@@ -173,25 +211,43 @@ MODESTORE = (
 
 )
 
-			#    0  1  2  3  4  5
-LenBase		= ( 14, 6, 5, 4, 3, 2, )
-LenRead		= (  8, 3, 0, 0, 0, 0, )
-LenMode		= (  3, 3, 3, 2, 1, 0, )
+#    123456
+#00110010			32
+#00110000000110
+#      00000110		06
+
+# COPY 4, OFFSET 0
+# UNPACKED 1
+
+#00110000000110
+#00110000000110 
+#00110000000110
+			#    0  1  2  3   4  5
+			#             001 01 1
+LenBase		= ( 14, 6, 5, 4,  3, 2, )
+LenRead		= (  8, 3, 0, 0,  0, 0, )
+LenMode		= (  3, 3, 3, 2,  1, 0, )
 
 
 MAGIC_SIZE = 4
 HEAD_SIZE = 18
 
-def read_mode_store(m, modestore, localmode):
+def read_mode_store(m, modestore, localmode, reason):
+	print "read_mode_store starts to get", reason
 	if m.getbit():
-		return m.getbits(modestore[0][localmode])
+		print "SHORT"
+		answer = m.getbits(modestore[0][localmode]+1)
 	else:
 		# MedLongMS
 		if m.getbit():
-			return m.getbits(modestore[1][localmode])+modestore[3][localmode]
+			print "MEDIUM!"
+			answer = m.getbits(modestore[1][localmode]+1)+modestore[3][localmode]
 		else:
 		# LongMS
-			return m.getbits(modestore[2][localmode])+modestore[4][localmode]
+			print "LONG!"
+			answer = m.getbits(modestore[2][localmode]+1)+modestore[4][localmode]
+	print "read_mode_store got", answer
+	return answer
 
 	###ReadModeStore
 	###	moveq	#0,d1
@@ -219,13 +275,15 @@ def read_mode_store(m, modestore, localmode):
 	###	jmp	(a2)
 	###	
 
+data = load_file("wfnsh.packed.bin")
 data = load_file("bigTT.lbm")
 assert data[:MAGIC_SIZE]=='DHp2'
 fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
 assert packedlength==len(data)
 print "header", packmode, hex(shifter)
 
-result = Result(fullength)
+#expect = load_file("wfnsh.unpacked.bin")
+result = Result(fullength, None)
 
 restore_from_the_end = min(packedlength, HEAD_SIZE)
 print restore_from_the_end
@@ -241,9 +299,11 @@ for _ in xrange(unpacked):
 
 # 01101001101000000011111111100000011000000011111111100000011000000011100110100000
 
-modestore = MODESTORE[packmode]
+offset_modestore = OFFSET_MODESTORE[packmode]
+print "MODESTORE", packmode, repr(offset_modestore)
 
 while not result.done():
+	print "offsets>>>", m.offset(), result.offset()
 	v = 5
 	while v!=0 and m.getbit()==0:
 		v -= 1
@@ -257,13 +317,14 @@ while not result.done():
 	length = m.getbits(read)
 	length += base
 
-	offset = read_mode_store(m, modestore, localmode)
-	unpacked = read_mode_store(m, modestore, localmode)
+	offset = read_mode_store(m, offset_modestore, localmode, "offset")
+	unpacked = read_mode_store(m, UNPACKED_MODESTORE, localmode, "unpacked length")
+
 
 	result.copy(length, offset)
+
 	for _ in xrange(unpacked):
 		result.send(m.peekm())
-
 
 with open("answer.lbm", 'w') as f:
 	result.a.tofile(f)
