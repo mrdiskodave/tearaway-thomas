@@ -62,7 +62,6 @@ class DestinationFile:
 			else:
 				print "Correct!"
 
-		
 	def send(self, x):
 		print "OUT: {0:08x} {0:02x}".format(self.pos, x)
 		self.isend(x)
@@ -90,125 +89,59 @@ def load_file(name):
 #dc.l    360     1
 #dc.l    0       0
 
-
 UNPACKED_MODESTORE = (
-		( 0x00, 0x00, 0x00, 0x00 ),				#0	0
-		( 0x01, 0x02, 0x02, 0x03 ),				#4	1
-		( 0x03, 0x04, 0x06, 0x0d ),				#8	2
-	)
-
-OFFSET_MODESTORE = (
-	# 0
-	(
-		( 0x04, 0x04, 0x04, 0x04 ),
-		( 0x04, 0x04, 0x04, 0x04 ),
-		( 0x05, 0x05, 0x05, 0x05 ),
-	),
-
-	# 1
-	(
-		( 0x04, 0x05, 0x06, 0x06 ),
-		( 0x05, 0x05, 0x05, 0x05 ),
-		( 0x06, 0x06, 0x05, 0x05 ),
-	),
-
-	# 2
-	(
-		( 0x04, 0x05, 0x06, 0x06 ),
-		( 0x06, 0x06, 0x06, 0x06 ),
-		( 0x07, 0x07, 0x07, 0x07 ),
-	),
-
-	(
-		( 0x04, 0x05, 0x06, 0x07 ),
-		( 0x06, 0x06, 0x07, 0x07 ),
-		( 0x07, 0x08, 0x08, 0x08 ),
-	),
-
-	# 4
-	(
-		( 0x05, 0x06, 0x06, 0x07 ),
-		( 0x06, 0x07, 0x08, 0x08 ),
-		( 0x07, 0x08, 0x09, 0x09 ),
-	),
-
-	# 5
-	(
-		( 0x05, 0x06, 0x06, 0x07 ),
-		( 0x06, 0x08, 0x08, 0x09 ),
-		( 0x07, 0x09, 0x0a, 0x0a ),
-	),
-
-	# 6
-	(
-		( 0x05, 0x06, 0x06, 0x07 ),
-		( 0x06, 0x08, 0x08, 0x09 ),
-		( 0x07, 0x09, 0x0b, 0x0b ),
-	),
-
-	# 7
-	(
-		( 0x05, 0x06, 0x06, 0x07 ),
-		( 0x06, 0x08, 0x09, 0x09 ),
-		( 0x07, 0x0a, 0x0b, 0x0c ),
-	),
-
-	# 8
-	(
-		( 0x05, 0x06, 0x06, 0x07 ),
-		( 0x06, 0x08, 0x09, 0x0a ),
-		( 0x07, 0x0a, 0x0c, 0x0d ),
-	),
-
+	(  1, 1, 1, 1 ),
+	(  2, 3, 3, 4 ),
+	(  4, 5, 7,14 ),
 )
 
-#for m in OFFSET_MODESTORE:
-
-
-
-#for x in range(5, -1, -1):
-#	print "( {0}, {1}, {2} ), # ".format(LenBase[x], LenRead[x], LenMode[x])
-#sys.exit(1)
-
-MAGIC_SIZE = 4
-HEAD_SIZE = 18
-
-def read_mode_store(m, modestore, localmode, reason):
-	xs = modestore[0][localmode]+1
-	xm = modestore[1][localmode]+1
-	xl = modestore[2][localmode]+1
-	if m.getbit():
-		answer = m.getbits(xs)
-	else:
-		if m.getbit():
-			# MedLongMS
-			answer = m.getbits(xm)+(1<<xs)
-		else:
-			# LongMS
-			answer = m.getbits(xl)+(1<<xs)+(1<<xm)
-	return answer
-
-data = load_file("wfnsh.packed.bin")
-#data = load_file("bigTT.lbm")
-assert data[:MAGIC_SIZE]=='DHp2'
-fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
-assert packedlength==len(data)
-print "header", packmode, hex(shifter)
-
-expect = load_file("wfnsh.unpacked.bin")
-result = DestinationFile(fullength, expect)
-
-restore_from_the_end = min(packedlength, HEAD_SIZE)
-
-data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
-
-m = SourceFile(data, shifter)
-
-for _ in xrange(unpacked):
-	result.send(m.peekm())
-
-
-offset_modestore = OFFSET_MODESTORE[packmode]
+OFFSET_MODESTORES = (
+	( # 0
+		(  5, 5, 5, 5 ),
+		(  5, 5, 5, 5 ),
+		(  6, 6, 6, 6 ),
+	),
+	( # 1
+		(  5, 6, 7, 7 ),
+		(  6, 6, 6, 6 ),
+		(  7, 7, 6, 6 ),
+	),
+	( # 2
+		(  5, 6, 7, 7 ),
+		(  7, 7, 7, 7 ),
+		(  8, 8, 8, 8 ),
+	),
+	( # 3
+		(  5, 6, 7, 8 ),
+		(  7, 7, 8, 8 ),
+		(  8, 9, 9, 9 ),
+	),
+	( # 4
+		(  6, 7, 7, 8 ),
+		(  7, 8, 9, 9 ),
+		(  8, 9,10,10 ),
+	),
+	( # 5
+		(  6, 7, 7, 8 ),
+		(  7, 9, 9,10 ),
+		(  8,10,11,11 ),
+	),
+	( # 6
+		(  6, 7, 7, 8 ),
+		(  7, 9, 9,10 ),
+		(  8,10,12,12 ),
+	),
+	( # 7
+		(  6, 7, 7, 8 ),
+		(  7, 9,10,10 ),
+		(  8,11,12,13 ),
+	),
+	( # 8
+		(  6, 7, 7, 8 ),
+		(  7, 9,10,11 ),
+		(  8,11,13,14 ),
+	),
+)
 
 base_read_mode = (
 	(  2, 0, 0 ), # 0: 1               length 2
@@ -219,41 +152,67 @@ base_read_mode = (
 	( 14, 8, 3 ), # 5: 00000xxxxxxxx   length 14-269 inclusive (n.b. no '1' on this one)
 )
 
-while not result.done():
+MAGIC_SIZE = 4
+HEAD_SIZE = 18
+
+def read_mode_store(src, modestore, mode, reason):
+	xs = modestore[0][mode]
+	xm = modestore[1][mode]
+	xl = modestore[2][mode]
+	if src.getbit():
+		answer = src.getbits(xs)
+	else:
+		if src.getbit():
+			answer = src.getbits(xm)+(1<<xs)
+		else:
+			answer = src.getbits(xl)+(1<<xs)+(1<<xm)
+	return answer
+
+data = load_file("wfnsh.packed.bin")
+#data = load_file("bigTT.lbm")
+
+# check the magic number
+assert data[:MAGIC_SIZE]=='DHp2'
+
+# read the header
+fullength, packedlength, unpacked, mode_store_choice, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
+assert packedlength==len(data)
+
+# set up the destination buffer
+expect = load_file("wfnsh.unpacked.bin")
+dest = DestinationFile(fullength, expect)
+
+# the header was added by moving the bytes under it to the end
+# so now we reverse this process
+# (this allows for decompression in-place ... not that we need to do this in the modern era with memory coming out of our ears)
+restore_from_the_end = min(packedlength, HEAD_SIZE)
+data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
+
+src = SourceFile(data, shifter)
+
+
+offset_modestore = OFFSET_MODESTORES[mode_store_choice]
+
+for _ in xrange(unpacked):
+	dest.send(src.peekm())
+
+while not dest.done():
 	x = 0
-	while x!=5 and m.getbit()==0:
+	while x!=5 and src.getbit()==0:
 		x += 1
-	base, read, localmode = base_read_mode[x]
-	print "basereadmode", base, read, localmode
+	base, read, mode = base_read_mode[x]
+	print "basereadmode", base, read, mode
 
-	length = m.getbits(read)
-	length += base
+	length = base + src.getbits(read)
+	offset = read_mode_store(src, offset_modestore, mode, "offset")
+	unpacked = read_mode_store(src, UNPACKED_MODESTORE, mode, "unpacked length")
 
-	offset = read_mode_store(m, offset_modestore, localmode, "offset")
-	unpacked = read_mode_store(m, UNPACKED_MODESTORE, localmode, "unpacked length")
-	#print "need to read {0} unpacked bytes".format(unpacked)
-
-
-	result.copy(length, offset)
+	dest.copy(length, offset)
 
 	for _ in xrange(unpacked):
-		result.send(m.peekm())
+		dest.send(src.peekm())
 
 with open("answer.lbm", 'w') as f:
-	result.a.tofile(f)
+	dest.a.tofile(f)
 
-
-THE_END = """
-
->>> ''.join([ hex(ord(c))[2:] for c in "DHp2" ])
-'44487032'
->>> 0x44487032
-1145598002
->>>
-
-
-  606  ilbmtoppm < answer.lbm | ppmtogif >answer.gif
-
-
-"""
-
+#ilbmtoppm < answer.lbm | ppmtogif >answer.gif
