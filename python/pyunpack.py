@@ -89,59 +89,76 @@ def load_file(name):
 #dc.l    360     1
 #dc.l    0       0
 
-UNPACKED_MODESTORE = (
-	(  1, 1, 1, 1 ),
-	(  2, 3, 3, 4 ),
-	(  4, 5, 7,14 ),
-)
-
-OFFSET_MODESTORES = (
+MODESTORES = (
 	( # 0
-		(  5, 5, 5, 5 ),
-		(  5, 5, 5, 5 ),
-		(  6, 6, 6, 6 ),
+		(  5,  5,  6 ),
+		(  5,  5,  6 ),
+		(  5,  5,  6 ),
+		(  5,  5,  6 ),
 	),
 	( # 1
-		(  5, 6, 7, 7 ),
-		(  6, 6, 6, 6 ),
-		(  7, 7, 6, 6 ),
+		(  5,  6,  7 ),
+		(  6,  6,  7 ),
+		(  7,  6,  6 ),
+		(  7,  6,  6 ),
 	),
 	( # 2
-		(  5, 6, 7, 7 ),
-		(  7, 7, 7, 7 ),
-		(  8, 8, 8, 8 ),
+		(  5,  7,  8 ),
+		(  6,  7,  8 ),
+		(  7,  7,  8 ),
+		(  7,  7,  8 ),
 	),
 	( # 3
-		(  5, 6, 7, 8 ),
-		(  7, 7, 8, 8 ),
-		(  8, 9, 9, 9 ),
+		(  5,  7,  8 ),
+		(  6,  7,  9 ),
+		(  7,  8,  9 ),
+		(  8,  8,  9 ),
 	),
 	( # 4
-		(  6, 7, 7, 8 ),
-		(  7, 8, 9, 9 ),
-		(  8, 9,10,10 ),
+		(  6,  7,  8 ),
+		(  7,  8,  9 ),
+		(  7,  9, 10 ),
+		(  8,  9, 10 ),
 	),
 	( # 5
-		(  6, 7, 7, 8 ),
-		(  7, 9, 9,10 ),
-		(  8,10,11,11 ),
+		(  6,  7,  8 ),
+		(  7,  9, 10 ),
+		(  7,  9, 11 ),
+		(  8, 10, 11 ),
 	),
 	( # 6
-		(  6, 7, 7, 8 ),
-		(  7, 9, 9,10 ),
-		(  8,10,12,12 ),
+		(  6,  7,  8 ),
+		(  7,  9, 10 ),
+		(  7,  9, 12 ),
+		(  8, 10, 12 ),
 	),
 	( # 7
-		(  6, 7, 7, 8 ),
-		(  7, 9,10,10 ),
-		(  8,11,12,13 ),
+		(  6,  7,  8 ),
+		(  7,  9, 11 ),
+		(  7, 10, 12 ),
+		(  8, 10, 13 ),
 	),
 	( # 8
-		(  6, 7, 7, 8 ),
-		(  7, 9,10,11 ),
-		(  8,11,13,14 ),
+		(  6,  7,  8 ),
+		(  7,  9, 11 ),
+		(  7, 10, 13 ),
+		(  8, 11, 14 ),
+	),
+	( # 9
+		(  1,  2,  4 ),
+		(  1,  3,  5 ),
+		(  1,  3,  7 ),
+		(  1,  4, 14 ),
 	),
 )
+
+#for z, ms in enumerate(MODESTORES):
+#	print "( #", str(z)
+#	for y in range(0, 4):
+#		line = ', '.join([ str(ms[x][y]).rjust(2) for x in range(0, 3) ])
+#		print "\t( "+line+" ),"
+#	print "),"
+#sys.exit(1)
 
 base_read_mode = (
 	(  2, 0, 0 ), # 0: 1               length 2
@@ -156,9 +173,9 @@ MAGIC_SIZE = 4
 HEAD_SIZE = 18
 
 def read_mode_store(src, modestore, mode, reason):
-	xs = modestore[0][mode]
-	xm = modestore[1][mode]
-	xl = modestore[2][mode]
+	xs = modestore[mode][0]
+	xm = modestore[mode][1]
+	xl = modestore[mode][2]
 	if src.getbit():
 		answer = src.getbits(xs)
 	else:
@@ -191,7 +208,7 @@ data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
 src = SourceFile(data, shifter)
 
 
-offset_modestore = OFFSET_MODESTORES[mode_store_choice]
+offset_modestore = MODESTORES[mode_store_choice]
 
 for _ in xrange(unpacked):
 	dest.send(src.peekm())
@@ -205,7 +222,7 @@ while not dest.done():
 
 	length = base + src.getbits(read)
 	offset = read_mode_store(src, offset_modestore, mode, "offset")
-	unpacked = read_mode_store(src, UNPACKED_MODESTORE, mode, "unpacked length")
+	unpacked = read_mode_store(src, MODESTORES[9], mode, "unpacked length")
 
 	dest.copy(length, offset)
 
