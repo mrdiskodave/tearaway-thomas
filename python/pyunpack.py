@@ -93,11 +93,13 @@ def load_file(name):
 #dc.l    770     2
 #dc.l    360     1
 #dc.l    0       0
+# ---------------------------------------------------------------------------
 
 MODESTORES = (
+	#      0  01  00  << column selection based on the bits that read_modestore reads
 	( # 0
-		(  5,  5,  6 ),
-		(  5,  5,  6 ),
+		(  5,  5,  6 ), # V row is chosen based on 'kind'
+		(  5,  5,  6 ), # V
 		(  5,  5,  6 ),
 		(  5,  5,  6 ),
 	),
@@ -157,15 +159,12 @@ MODESTORES = (
 	),
 )
 
-#for z, ms in enumerate(MODESTORES):
-#	print "( #", str(z)
-#	for y in range(0, 4):
-#		line = ', '.join([ str(ms[x][y]).rjust(2) for x in range(0, 3) ])
-#		print "\t( "+line+" ),"
-#	print "),"
-#sys.exit(1)
-
-base_read_mode = (
+COMPRESSION_TYPES = (
+	#  base read kind
+	#  base is the number is the basic length of the pattern (we're definately copying that many bytes)
+	#  read is the number of bits to read that might extend the length of the pattern
+	#  kind is used to select a row from the modestore
+	#  B  R  K
 	(  2, 0, 0 ), # 0: 1               length 2
 	(  3, 0, 1 ), # 1: 01              length 3
 	(  4, 0, 2 ), # 2: 001             length 4
@@ -173,31 +172,33 @@ base_read_mode = (
 	(  6, 3, 3 ), # 4: 00001xxx        length 6-13   inclusive
 	( 14, 8, 3 ), # 5: 00000xxxxxxxx   length 14-269 inclusive (n.b. no '1' on this one)
 )
+MAXIMUM_COMPRESSION_TYPE = len(COMPRESSION_TYPES)-1
 
-MAGIC_SIZE = 4
 HEAD_SIZE = 18
+MAGIC = 'DHp2'
+MAGIC_SIZE = len(MAGIC)
 
-def read_mode_store(src, modestore, mode, reason):
-	xs = modestore[mode][0]
-	xm = modestore[mode][1]
-	xl = modestore[mode][2]
+# ---------------------------------------------------------------------------
+
+def read_modestore(src, modestore, kind):
+	s, m, l = modestore[kind]
 	if src.getBit():
-		answer = src.getBits(xs)
+		answer = src.getBits(s)
 	else:
 		if src.getBit():
-			answer = src.getBits(xm)+(1<<xs)
+			answer = src.getBits(m)+(1<<s)
 		else:
-			answer = src.getBits(xl)+(1<<xs)+(1<<xm)
+			answer = src.getBits(l)+(1<<s)+(1<<m)
 	return answer
 
 data = load_file("wfnsh.packed.bin")
 #data = load_file("bigTT.lbm")
 
 # check the magic number
-assert data[:MAGIC_SIZE]=='DHp2'
+assert data[:MAGIC_SIZE]==MAGIC
 
 # read the header
-fullength, packedlength, unpacked, mode_store_choice, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
+fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
 assert packedlength==len(data)
 
 # set up the destination buffer
@@ -212,22 +213,20 @@ data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
 
 src = SourceFile(array.array('B', data), shifter)
 
-
-offset_modestore = MODESTORES[mode_store_choice]
+offset_modestore = MODESTORES[packmode]
 
 for _ in xrange(unpacked):
 	dest.send(src.getByte())
 
 while not dest.done():
 	x = 0
-	while x!=5 and src.getBit()==0:
+	while x!=MAXIMUM_COMPRESSION_TYPE and src.getBit()==0:
 		x += 1
-	base, read, mode = base_read_mode[x]
-	print "basereadmode", base, read, mode
+	base, read, kind = COMPRESSION_TYPES[x]
 
 	length = base + src.getBits(read)
-	offset = read_mode_store(src, offset_modestore, mode, "offset")
-	unpacked = read_mode_store(src, MODESTORES[9], mode, "unpacked length")
+	offset = read_modestore(src, offset_modestore, kind)
+	unpacked = read_modestore(src, MODESTORES[9], kind)
 
 	dest.copy(length, offset)
 
