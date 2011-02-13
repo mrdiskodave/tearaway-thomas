@@ -16,8 +16,9 @@ import sys
 #dc.l    360     1
 #dc.l    0       0
 
-MODESTORES = (
-	#      0  01  00  << column selection based on the bits that read_modestore reads
+# 0 - 8 used for reading the offset based on pack_mode
+OFFSET_MODESTORES = (
+	#      S   M   L    << Small (0), Medium (01) or Large (00) reach : column selection based on the bits that read_modestore reads
 	( # 0
 		(  5,  5,  6 ), # V row is chosen based on 'kind'
 		(  5,  5,  6 ), # V
@@ -72,12 +73,15 @@ MODESTORES = (
 		(  7, 10, 13 ),
 		(  8, 11, 14 ),
 	),
-	( # 9
-		(  1,  2,  4 ),
-		(  1,  3,  5 ),
-		(  1,  3,  7 ),
-		(  1,  4, 14 ),
-	),
+)
+
+# used for reading the length of unpacked data
+UNPACKED_MODESTORE = (
+	#  S   M   L    << Small (0), Medium (01) or Large (00) reach : column selection based on the bits that read_modestore reads
+	(  1,  2,  4 ), # V row is chosen based on 'kind'
+	(  1,  3,  5 ), # V
+	(  1,  3,  7 ),
+	(  1,  4, 14 ),
 )
 
 COMPRESSION_TYPES = (
@@ -174,13 +178,11 @@ class DestinationFile:
 		return self.pos==0
 
 # ---------------------------------------------------------------------------
-# SUBROUTINE
 
 def decompress(data, expect):
-
-	def load_file(name):
-		with open(name, 'r') as f:
-			return f.read()
+	def copy(src, dest, amount):
+		for _ in xrange(unpacked):
+			dest.send(src.getByte())
 
 	def read_modestore(src, modestore, kind):
 		s, m, l = modestore[kind]
@@ -197,31 +199,29 @@ def decompress(data, expect):
 		return answer
 
 	# read the header
-	magic, fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLLBB', data[:HEAD_SIZE])
+	magic, full_length, packed_length, unpacked, pack_mode, shifter  = struct.unpack('>LLLLBB', data[:HEAD_SIZE])
 	assert magic == MAGIC
 	data_length = len(data)
 
 	# the header was added by moving the bytes under it to the end
 	# so now we reverse this process
 	# (this allows for decompression in-place)
-	restore_from_the_end = min(packedlength, HEAD_SIZE)
+	restore_from_the_end = min(packed_length, HEAD_SIZE)
 	for x in range(restore_from_the_end):
-		data[x] = data[packedlength-restore_from_the_end+x]
+		data[x] = data[packed_length-restore_from_the_end+x]
 	data_length -= restore_from_the_end
 
 	# grow the buffer to accomodate the fully decompressed file
-	while len(data) < fullength:
+	while len(data) < full_length:
 		data.append(0)
 
 	# set up our src and destination classes (addressing the same buffer)
 	src = SourceFile(data, data_length, shifter)
 	dest = DestinationFile(data, expect)
 
-	offset_modestore = MODESTORES[packmode]
+	offset_modestore = OFFSET_MODESTORES[pack_mode]
 
-	for _ in xrange(unpacked):
-		dest.send(src.getByte())
-
+	copy(src, dest, unpacked)
 	while not dest.done():
 		x = 0
 		while x!=MAXIMUM_COMPRESSION_TYPE and src.getBit()==0:
@@ -230,27 +230,23 @@ def decompress(data, expect):
 
 		length = base + src.getBits(read)
 		offset = read_modestore(src, offset_modestore, kind)
-		unpacked = read_modestore(src, MODESTORES[9], kind)
+		unpacked = read_modestore(src, UNPACKED_MODESTORE, kind)
 
 		dest.copy(length, offset)
-
-		for _ in xrange(unpacked):
-			dest.send(src.getByte())
+		copy(src, dest, unpacked)
 
 # ---------------------------------------------------------------------------
-# testing
+# TESTING
 
 if __name__ == "__main__":
 	def load_file(name):
 		with open(name, 'r') as f:
-			return f.read()
+			return array.array('B', f.read())
 
 	#data = load_file("bigTT.lbm")
 	data = load_file("wfnsh.packed.bin")
-	data = array.array('B', data)
 
 	expect = load_file("wfnsh.unpacked.bin")
-	expect = array.array('B', expect)
 	#expect = None
 
 	decompress(data, expect)
