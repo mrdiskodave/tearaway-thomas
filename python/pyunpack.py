@@ -1,5 +1,6 @@
 import struct
 import array
+import sys
 
 class SourceFile:
 	def __init__(self, mem, shifter=128):
@@ -32,7 +33,9 @@ class SourceFile:
 		return a
 
 	def getbit(self):
-		return self._getbit()
+		answer = self._getbit()
+		#print "bit:{0}".format(answer)
+		return answer
 
 	def getbits(self, count):
 		answer = 0
@@ -180,12 +183,9 @@ OFFSET_MODESTORE = (
 
 )
 
-			#    0  1  2  3   4  5
-			#             001 01 1
-LenBase		= ( 14, 6, 5, 4,  3, 2, )
-LenRead		= (  8, 3, 0, 0,  0, 0, )
-LenMode		= (  3, 3, 3, 2,  1, 0, )
-
+#for x in range(5, -1, -1):
+#	print "( {0}, {1}, {2} ), # ".format(LenBase[x], LenRead[x], LenMode[x])
+#sys.exit(1)
 
 MAGIC_SIZE = 4
 HEAD_SIZE = 18
@@ -224,14 +224,21 @@ for _ in xrange(unpacked):
 
 offset_modestore = OFFSET_MODESTORE[packmode]
 
-while not result.done():
-	v = 5
-	while v!=0 and m.getbit()==0:
-		v -= 1
+base_read_mode = (
+	(  2, 0, 0 ), # 0: 1               length 2
+	(  3, 0, 1 ), # 1: 01              length 3
+	(  4, 0, 2 ), # 2: 001             length 4
+	(  5, 0, 3 ), # 3: 0001            length 5
+	(  6, 3, 3 ), # 4: 00001xxx        length 6-13   inclusive
+	( 14, 8, 3 ), # 5: 00000xxxxxxxx   length 14-269 inclusive (n.b. no '1' on this one)
+)
 
-	base = LenBase[v]
-	read = LenRead[v]
-	localmode = LenMode[v]
+while not result.done():
+	x = 0
+	while x!=5 and m.getbit()==0:
+		x += 1
+	base, read, localmode = base_read_mode[x]
+	print "basereadmode", base, read, localmode
 
 	length = m.getbits(read)
 	length += base
