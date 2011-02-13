@@ -160,10 +160,10 @@ MODESTORES = (
 )
 
 COMPRESSION_TYPES = (
-	#  base read kind
-	#  base is the number is the basic length of the pattern (we're definately copying that many bytes)
-	#  read is the number of bits to read that might extend the length of the pattern
-	#  kind is used to select a row from the modestore
+	#  Base Read Kind:
+	#  * base is the minimum length of the pattern (we're definately copying that many bytes)
+	#  * read is the number of bits to read that might extend the length of the pattern
+	#  * kind is used to select a row from the modestore
 	#  B  R  K
 	(  2, 0, 0 ), # 0: 1               length 2
 	(  3, 0, 1 ), # 1: 01              length 3
@@ -183,16 +183,23 @@ MAGIC_SIZE = len(MAGIC)
 def read_modestore(src, modestore, kind):
 	s, m, l = modestore[kind]
 	if src.getBit():
+		# small
 		answer = src.getBits(s)
 	else:
 		if src.getBit():
+			# medium (allowing that we didn't use small)
 			answer = src.getBits(m)+(1<<s)
 		else:
+			# large (allowing that we didn't use small or medium)
 			answer = src.getBits(l)+(1<<s)+(1<<m)
 	return answer
 
+
 data = load_file("wfnsh.packed.bin")
 #data = load_file("bigTT.lbm")
+
+expect = load_file("wfnsh.unpacked.bin")
+expect = array.array('B', expect)
 
 # check the magic number
 assert data[:MAGIC_SIZE]==MAGIC
@@ -202,8 +209,7 @@ fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLBB', 
 assert packedlength==len(data)
 
 # set up the destination buffer
-expect = load_file("wfnsh.unpacked.bin")
-dest = DestinationFile(array.array('B', chr(0) * fullength), array.array('B', expect))
+dest = DestinationFile(array.array('B', chr(0) * fullength), expect)
 
 # the header was added by moving the bytes under it to the end
 # so now we reverse this process
