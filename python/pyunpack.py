@@ -2,86 +2,8 @@ import struct
 import array
 import sys
 
-
 # ---------------------------------------------------------------------------
-
-class SourceFile:
-	def __init__(self, mem, pos, shifter=128):
-		self.mem = mem
-		self.pos = pos
-		self.shiftreg = shifter
-
-	def _read(self):
-		self.pos -= 1
-		return self.mem[self.pos]
-
-	def _getBit(self):
-		if self.shiftreg==128:
-			a = s = self._read()
-			print "IN : {0:08x} {1:02x} {1:08b} bitstream data".format(self.pos, a)
-			s &= 127
-			s <<= 1
-			s |= 1
-		else:
-			a = s = self.shiftreg
-			s &= 127
-			s <<= 1
-		self.shiftreg = s
-		return a >> 7
-
-	# public methods:
-	def getByte(self):
-		a = self._read()
-		print "IN : {0:08x} {1:02x} {2:8s} unpacked data".format(self.pos, a, '')
-		return a
-
-	def getBit(self):
-		answer = self._getBit()
-		#print "bit:{0}".format(answer)
-		return answer
-
-	def getBits(self, count):
-		answer = 0
-		for _ in range(count):
-			a = self._getBit()
-			answer <<= 1
-			answer |= a
-		return answer
-
-class DestinationFile:
-	def __init__(self, mem, expect):
-		self.mem = mem
-		self.pos = len(mem)
-		self.expect = expect
-		
-	def _write(self, data):
-		self.pos -= 1
-		self.mem[self.pos] = data
-		if self.expect:
-			expected = self.expect[self.pos]
-			if expected!=data:
-				msg = "Got {0:02x} but expected {1:02x} at {2:08x}".format(data, expected, self.pos)
-				assert False, msg
-			else:
-				print "Correct!"
-
-	def send(self, x):
-		print "OUT: {0:08x} {0:02x}".format(self.pos, x)
-		self._write(x)
-
-	def copy(self, length, offset):
-		print "OUT: {0:08x} +{1:x}*{2:x}".format(self.pos, offset, length)
-		for _ in xrange(length):
-			self._write(self.mem[self.pos+offset])
-
-	def done(self):
-		return self.pos==0
-
-# ---------------------------------------------------------------------------
-
-def load_file(name):
-	with open(name, 'r') as f:
-		return f.read()
+# CONSTANTS
 
 #ModeChoice
 #dc.l    41000       8
@@ -93,7 +15,6 @@ def load_file(name):
 #dc.l    770     2
 #dc.l    360     1
 #dc.l    0       0
-# ---------------------------------------------------------------------------
 
 MODESTORES = (
 	#      0  01  00  << column selection based on the bits that read_modestore reads
@@ -178,69 +99,164 @@ HEAD_SIZE = 18
 MAGIC = 0x44487032 # 'DHp2'
 
 # ---------------------------------------------------------------------------
+# CLASSES
 
-def read_modestore(src, modestore, kind):
-	s, m, l = modestore[kind]
-	if src.getBit():
-		# small
-		answer = src.getBits(s)
-	else:
-		if src.getBit():
-			# medium (allowing that we didn't use small)
-			answer = src.getBits(m)+(1<<s)
+class SourceFile:
+	def __init__(self, mem, pos, shifter=128):
+		self.mem = mem
+		self.pos = pos
+		self.shiftreg = shifter
+
+	def _read(self):
+		self.pos -= 1
+		return self.mem[self.pos]
+
+	def _getBit(self):
+		if self.shiftreg==128:
+			a = s = self._read()
+			print "IN : {0:08x} {1:02x} {1:08b} bitstream data".format(self.pos, a)
+			s &= 127
+			s <<= 1
+			s |= 1
 		else:
-			# large (allowing that we didn't use small or medium)
-			answer = src.getBits(l)+(1<<s)+(1<<m)
-	return answer
+			a = s = self.shiftreg
+			s &= 127
+			s <<= 1
+		self.shiftreg = s
+		return a >> 7
 
+	# public methods:
+	def getByte(self):
+		a = self._read()
+		print "IN : {0:08x} {1:02x} {2:8s} unpacked data".format(self.pos, a, '')
+		return a
 
-data = load_file("wfnsh.packed.bin")
-data = array.array('B', data)
-#data = load_file("bigTT.lbm")
+	def getBit(self):
+		answer = self._getBit()
+		#print "bit:{0}".format(answer)
+		return answer
 
-expect = load_file("wfnsh.unpacked.bin")
-expect = array.array('B', expect)
+	def getBits(self, count):
+		answer = 0
+		for _ in range(count):
+			a = self._getBit()
+			answer <<= 1
+			answer |= a
+		return answer
 
-# read the header
-magic, fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLLBB', data[:HEAD_SIZE])
-assert magic == MAGIC
-data_length = len(data)
-assert packedlength==len(data)
+class DestinationFile:
+	def __init__(self, mem, expect):
+		self.mem = mem
+		self.pos = len(mem)
+		self.expect = expect
+		
+	def _write(self, data):
+		self.pos -= 1
+		self.mem[self.pos] = data
+		if self.expect:
+			expected = self.expect[self.pos]
+			if expected!=data:
+				msg = "Got {0:02x} but expected {1:02x} at {2:08x}".format(data, expected, self.pos)
+				assert False, msg
+			else:
+				print "Correct!"
 
-# the header was added by moving the bytes under it to the end
-# so now we reverse this process
-# (this allows for decompression in-place)
-restore_from_the_end = min(packedlength, HEAD_SIZE)
-for x in range(restore_from_the_end):
-	data[x] = data[packedlength-restore_from_the_end+x]
-data_length -= restore_from_the_end
+	def send(self, x):
+		print "OUT: {0:08x} {0:02x}".format(self.pos, x)
+		self._write(x)
 
-src = SourceFile(data, data_length, shifter)
+	def copy(self, length, offset):
+		print "OUT: {0:08x} +{1:x}*{2:x}".format(self.pos, offset, length)
+		for _ in xrange(length):
+			self._write(self.mem[self.pos+offset])
 
-# set up the destination buffer
-dest = DestinationFile(array.array('B', chr(0) * fullength), expect)
+	def done(self):
+		return self.pos==0
 
-offset_modestore = MODESTORES[packmode]
+# ---------------------------------------------------------------------------
+# SUBROUTINE
 
-for _ in xrange(unpacked):
-	dest.send(src.getByte())
+def decompress(data, expect):
 
-while not dest.done():
-	x = 0
-	while x!=MAXIMUM_COMPRESSION_TYPE and src.getBit()==0:
-		x += 1
-	base, read, kind = COMPRESSION_TYPES[x]
+	def load_file(name):
+		with open(name, 'r') as f:
+			return f.read()
 
-	length = base + src.getBits(read)
-	offset = read_modestore(src, offset_modestore, kind)
-	unpacked = read_modestore(src, MODESTORES[9], kind)
+	def read_modestore(src, modestore, kind):
+		s, m, l = modestore[kind]
+		if src.getBit():
+			# small
+			answer = src.getBits(s)
+		else:
+			if src.getBit():
+				# medium (allowing that we didn't use small)
+				answer = src.getBits(m)+(1<<s)
+			else:
+				# large (allowing that we didn't use small or medium)
+				answer = src.getBits(l)+(1<<s)+(1<<m)
+		return answer
 
-	dest.copy(length, offset)
+	# read the header
+	magic, fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLLBB', data[:HEAD_SIZE])
+	assert magic == MAGIC
+	data_length = len(data)
+
+	# the header was added by moving the bytes under it to the end
+	# so now we reverse this process
+	# (this allows for decompression in-place)
+	restore_from_the_end = min(packedlength, HEAD_SIZE)
+	for x in range(restore_from_the_end):
+		data[x] = data[packedlength-restore_from_the_end+x]
+	data_length -= restore_from_the_end
+
+	# grow the buffer to accomodate the fully decompressed file
+	while len(data) < fullength:
+		data.append(0)
+
+	# set up our src and destination classes (addressing the same buffer)
+	src = SourceFile(data, data_length, shifter)
+	dest = DestinationFile(data, expect)
+
+	offset_modestore = MODESTORES[packmode]
 
 	for _ in xrange(unpacked):
 		dest.send(src.getByte())
 
-with open("answer.lbm", 'w') as f:
-	dest.mem.tofile(f)
+	while not dest.done():
+		x = 0
+		while x!=MAXIMUM_COMPRESSION_TYPE and src.getBit()==0:
+			x += 1
+		base, read, kind = COMPRESSION_TYPES[x]
 
-#ilbmtoppm < answer.lbm | ppmtogif >answer.gif
+		length = base + src.getBits(read)
+		offset = read_modestore(src, offset_modestore, kind)
+		unpacked = read_modestore(src, MODESTORES[9], kind)
+
+		dest.copy(length, offset)
+
+		for _ in xrange(unpacked):
+			dest.send(src.getByte())
+
+# ---------------------------------------------------------------------------
+# testing
+
+if __name__ == "__main__":
+	def load_file(name):
+		with open(name, 'r') as f:
+			return f.read()
+
+	#data = load_file("bigTT.lbm")
+	data = load_file("wfnsh.packed.bin")
+	data = array.array('B', data)
+
+	expect = load_file("wfnsh.unpacked.bin")
+	expect = array.array('B', expect)
+	#expect = None
+
+	decompress(data, expect)
+
+	with open("answer.lbm", 'w') as f:
+		data.tofile(f)
+
+	#ilbmtoppm < answer.lbm | ppmtogif >answer.gif
+
