@@ -6,9 +6,9 @@ import sys
 # ---------------------------------------------------------------------------
 
 class SourceFile:
-	def __init__(self, mem, shifter=128):
+	def __init__(self, mem, pos, shifter=128):
 		self.mem = mem
-		self.pos = len(mem)
+		self.pos = pos
 		self.shiftreg = shifter
 
 	def _read(self):
@@ -175,8 +175,7 @@ COMPRESSION_TYPES = (
 MAXIMUM_COMPRESSION_TYPE = len(COMPRESSION_TYPES)-1
 
 HEAD_SIZE = 18
-MAGIC = 'DHp2'
-MAGIC_SIZE = len(MAGIC)
+MAGIC = 0x44487032 # 'DHp2'
 
 # ---------------------------------------------------------------------------
 
@@ -196,28 +195,30 @@ def read_modestore(src, modestore, kind):
 
 
 data = load_file("wfnsh.packed.bin")
+data = array.array('B', data)
 #data = load_file("bigTT.lbm")
 
 expect = load_file("wfnsh.unpacked.bin")
 expect = array.array('B', expect)
 
-# check the magic number
-assert data[:MAGIC_SIZE]==MAGIC
-
 # read the header
-fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
+magic, fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLLBB', data[:HEAD_SIZE])
+assert magic == MAGIC
+data_length = len(data)
 assert packedlength==len(data)
-
-# set up the destination buffer
-dest = DestinationFile(array.array('B', chr(0) * fullength), expect)
 
 # the header was added by moving the bytes under it to the end
 # so now we reverse this process
-# (this allows for decompression in-place ... not that we need to do this in the modern era with memory coming out of our ears)
+# (this allows for decompression in-place)
 restore_from_the_end = min(packedlength, HEAD_SIZE)
-data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
+for x in range(restore_from_the_end):
+	data[x] = data[packedlength-restore_from_the_end+x]
+data_length -= restore_from_the_end
 
-src = SourceFile(array.array('B', data), shifter)
+src = SourceFile(data, data_length, shifter)
+
+# set up the destination buffer
+dest = DestinationFile(array.array('B', chr(0) * fullength), expect)
 
 offset_modestore = MODESTORES[packmode]
 
