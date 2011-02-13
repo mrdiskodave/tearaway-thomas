@@ -1,11 +1,10 @@
 import struct
 
-class MemPtr:
+class SourceFile:
 	def __init__(self, mem, shifter=128):
 		self.mem = mem
 		self.shiftreg = shifter
 		self.pos = len(mem)
-		print "Set up with {0:02x} {0:08b} in the shift register".format(shifter)
 
 	def _peek(self, offset):
 		return ord(self.mem[offset])
@@ -15,58 +14,45 @@ class MemPtr:
 		answer = self._peek(self.pos)
 		return answer
 
-	def peekm(self):
-		a = self._peekm()
-		print "Read {0:02x} unpacked data from {1:08x}".format(a, self.pos)
-		return a
-
 	def _getbit(self):
-		print "Shift register start {0:02x} {0:08b}".format(self.shiftreg)
 		if self.shiftreg==128:
-			#print "INIT"
 			a = s = self._peekm()
-			print "Read {0:02x} {0:08b} bitstream data from {1:08x}".format(a, self.pos)
+			print "IN : {0:08x} {1:02x} {1:08b} bitstream data".format(self.pos, a)
 			s &= 127
 			s <<= 1
 			s |= 1
 			self.shiftreg = s
 		else:
-			#print "SHIFT"
 			a = s = self.shiftreg
 			s &= 127
 			s <<= 1
 			self.shiftreg = s
 		a &= 128
 		a >>= 7
-		print "Shift register end   {0:02x} {0:08b}".format(self.shiftreg)
-		print ">>bit>>", a
+		return a
+
+	# public methods:
+
+	def peekm(self):
+		a = self._peekm()
+		print "IN : {0:08x} {1:02x} {2:8s} unpacked data".format(self.pos, a, '')
 		return a
 
 	def getbit(self):
-		a = self._getbit()
-		print "BIT", a
-		return a
+		return self._getbit()
 
 	def getbits(self, count):
 		answer = 0
-		s = ''
 		for _ in range(count):
 			a = self._getbit()
-			s = s + str(a)
 			answer <<= 1
 			answer |= a
-		print "BITS", s, answer
 		return answer
-
-	def offset(self):
-		return self.pos
 
 import array
 
 class Result:
-	
 	def __init__(self, size, expect):
-		print "Result!", size
 		self.a = array.array('B', chr(0)*size)
 		self.pos = size
 		self.expect = array.array('B', expect) if expect else None
@@ -82,16 +68,13 @@ class Result:
 
 		
 	def send(self, x):
-		print "SENDING {0:02x} to {1:08x}".format(x, self.pos)
+		print "OUT: {0:08x} {0:02x}".format(self.pos, x)
 		self.isend(x)
 
 	def copy(self, length, offset):
-		print "COPYING {0} from offset {1:08x} to {2:08x}".format(length, offset, self.pos)
+		print "OUT: {0:08x} +{1:x}*{2:x}".format(self.pos, offset, length)
 		for _ in xrange(length):
 			self.isend(self.a[self.pos+offset])
-
-	def offset(self):
-		return self.pos
 
 	def done(self):
 		return self.pos==0
@@ -99,12 +82,6 @@ class Result:
 def load_file(name):
 	with open(name, 'r') as f:
 		return f.read()
-
-def dump(m):
-	s = ''
-	for _ in xrange(80):
-		s = str(m.getbit())+s
-	print s
 
 
 #ModeChoice
@@ -233,20 +210,15 @@ MAGIC_SIZE = 4
 HEAD_SIZE = 18
 
 def read_mode_store(m, modestore, localmode, reason):
-	print "read_mode_store starts to get", reason
 	if m.getbit():
-		print "SHORT"
 		answer = m.getbits(modestore[0][localmode]+1)
 	else:
 		# MedLongMS
 		if m.getbit():
-			print "MEDIUM!"
 			answer = m.getbits(modestore[1][localmode]+1)+modestore[3][localmode]
 		else:
 		# LongMS
-			print "LONG!"
 			answer = m.getbits(modestore[2][localmode]+1)+modestore[4][localmode]
-	print "read_mode_store got", answer
 	return answer
 
 	###ReadModeStore
@@ -276,23 +248,20 @@ def read_mode_store(m, modestore, localmode, reason):
 	###	
 
 data = load_file("wfnsh.packed.bin")
-data = load_file("bigTT.lbm")
+#data = load_file("bigTT.lbm")
 assert data[:MAGIC_SIZE]=='DHp2'
 fullength, packedlength, unpacked, packmode, shifter  = struct.unpack('>LLLBB', data[MAGIC_SIZE:HEAD_SIZE])
 assert packedlength==len(data)
 print "header", packmode, hex(shifter)
 
-#expect = load_file("wfnsh.unpacked.bin")
+expect = load_file("wfnsh.unpacked.bin")
 result = Result(fullength, None)
 
 restore_from_the_end = min(packedlength, HEAD_SIZE)
-print restore_from_the_end
 
-print len(data)
 data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
-print len(data)
 
-m = MemPtr(data, shifter)
+m = SourceFile(data, shifter)
 
 for _ in xrange(unpacked):
 	result.send(m.peekm())
@@ -300,10 +269,8 @@ for _ in xrange(unpacked):
 # 01101001101000000011111111100000011000000011111111100000011000000011100110100000
 
 offset_modestore = OFFSET_MODESTORE[packmode]
-print "MODESTORE", packmode, repr(offset_modestore)
 
 while not result.done():
-	print "offsets>>>", m.offset(), result.offset()
 	v = 5
 	while v!=0 and m.getbit()==0:
 		v -= 1
@@ -312,13 +279,12 @@ while not result.done():
 	read = LenRead[v]
 	localmode = LenMode[v]
 
-	print "basereadmode", base, read, localmode
-
 	length = m.getbits(read)
 	length += base
 
 	offset = read_mode_store(m, offset_modestore, localmode, "offset")
 	unpacked = read_mode_store(m, UNPACKED_MODESTORE, localmode, "unpacked length")
+	#print "need to read {0} unpacked bytes".format(unpacked)
 
 
 	result.copy(length, offset)
@@ -530,6 +496,8 @@ end
 1145598002
 >>>
 
+
+  606  ilbmtoppm < answer.lbm | ppmtogif >answer.gif
 
 
 """
