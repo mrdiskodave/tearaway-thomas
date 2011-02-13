@@ -2,19 +2,22 @@ import struct
 import array
 import sys
 
+
+# ---------------------------------------------------------------------------
+
 class SourceFile:
 	def __init__(self, mem, shifter=128):
-		self.mem = array.array('B', mem)
-		self.shiftreg = shifter
+		self.mem = mem
 		self.pos = len(mem)
+		self.shiftreg = shifter
 
-	def _peekm(self):
+	def _read(self):
 		self.pos -= 1
 		return self.mem[self.pos]
 
-	def _getbit(self):
+	def _getBit(self):
 		if self.shiftreg==128:
-			a = s = self._peekm()
+			a = s = self._read()
 			print "IN : {0:08x} {1:02x} {1:08b} bitstream data".format(self.pos, a)
 			s &= 127
 			s <<= 1
@@ -27,52 +30,54 @@ class SourceFile:
 		return a >> 7
 
 	# public methods:
-	def peekm(self):
-		a = self._peekm()
+	def getByte(self):
+		a = self._read()
 		print "IN : {0:08x} {1:02x} {2:8s} unpacked data".format(self.pos, a, '')
 		return a
 
-	def getbit(self):
-		answer = self._getbit()
+	def getBit(self):
+		answer = self._getBit()
 		#print "bit:{0}".format(answer)
 		return answer
 
-	def getbits(self, count):
+	def getBits(self, count):
 		answer = 0
 		for _ in range(count):
-			a = self._getbit()
+			a = self._getBit()
 			answer <<= 1
 			answer |= a
 		return answer
 
 class DestinationFile:
-	def __init__(self, size, expect):
-		self.a = array.array('B', chr(0)*size)
-		self.pos = size
-		self.expect = array.array('B', expect) if expect else None
+	def __init__(self, mem, expect):
+		self.mem = mem
+		self.pos = len(mem)
+		self.expect = expect
 		
-	def isend(self, g):
+	def _write(self, data):
 		self.pos -= 1
-		self.a[self.pos] = g
+		self.mem[self.pos] = data
 		if self.expect:
-			x = self.expect[self.pos]
-			if x!=g:
-				msg = "Got {0:02x} but expected {1:02x} at {2:08x}".format(g, x, self.pos)
+			expected = self.expect[self.pos]
+			if expected!=data:
+				msg = "Got {0:02x} but expected {1:02x} at {2:08x}".format(data, expected, self.pos)
 				assert False, msg
 			else:
 				print "Correct!"
 
 	def send(self, x):
 		print "OUT: {0:08x} {0:02x}".format(self.pos, x)
-		self.isend(x)
+		self._write(x)
 
 	def copy(self, length, offset):
 		print "OUT: {0:08x} +{1:x}*{2:x}".format(self.pos, offset, length)
 		for _ in xrange(length):
-			self.isend(self.a[self.pos+offset])
+			self._write(self.mem[self.pos+offset])
 
 	def done(self):
 		return self.pos==0
+
+# ---------------------------------------------------------------------------
 
 def load_file(name):
 	with open(name, 'r') as f:
@@ -176,13 +181,13 @@ def read_mode_store(src, modestore, mode, reason):
 	xs = modestore[mode][0]
 	xm = modestore[mode][1]
 	xl = modestore[mode][2]
-	if src.getbit():
-		answer = src.getbits(xs)
+	if src.getBit():
+		answer = src.getBits(xs)
 	else:
-		if src.getbit():
-			answer = src.getbits(xm)+(1<<xs)
+		if src.getBit():
+			answer = src.getBits(xm)+(1<<xs)
 		else:
-			answer = src.getbits(xl)+(1<<xs)+(1<<xm)
+			answer = src.getBits(xl)+(1<<xs)+(1<<xm)
 	return answer
 
 data = load_file("wfnsh.packed.bin")
@@ -197,7 +202,7 @@ assert packedlength==len(data)
 
 # set up the destination buffer
 expect = load_file("wfnsh.unpacked.bin")
-dest = DestinationFile(fullength, expect)
+dest = DestinationFile(array.array('B', chr(0) * fullength), array.array('B', expect))
 
 # the header was added by moving the bytes under it to the end
 # so now we reverse this process
@@ -205,31 +210,31 @@ dest = DestinationFile(fullength, expect)
 restore_from_the_end = min(packedlength, HEAD_SIZE)
 data = data[-restore_from_the_end:]+data[HEAD_SIZE:-restore_from_the_end]
 
-src = SourceFile(data, shifter)
+src = SourceFile(array.array('B', data), shifter)
 
 
 offset_modestore = MODESTORES[mode_store_choice]
 
 for _ in xrange(unpacked):
-	dest.send(src.peekm())
+	dest.send(src.getByte())
 
 while not dest.done():
 	x = 0
-	while x!=5 and src.getbit()==0:
+	while x!=5 and src.getBit()==0:
 		x += 1
 	base, read, mode = base_read_mode[x]
 	print "basereadmode", base, read, mode
 
-	length = base + src.getbits(read)
+	length = base + src.getBits(read)
 	offset = read_mode_store(src, offset_modestore, mode, "offset")
 	unpacked = read_mode_store(src, MODESTORES[9], mode, "unpacked length")
 
 	dest.copy(length, offset)
 
 	for _ in xrange(unpacked):
-		dest.send(src.peekm())
+		dest.send(src.getByte())
 
 with open("answer.lbm", 'w') as f:
-	dest.a.tofile(f)
+	dest.mem.tofile(f)
 
 #ilbmtoppm < answer.lbm | ppmtogif >answer.gif
