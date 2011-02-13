@@ -87,7 +87,7 @@ UNPACKED_MODESTORE = (
 COMPRESSION_TYPES = (
 	#  Base Read Kind:
 	#  * base is the minimum length of the pattern (we're definately copying that many bytes)
-	#  * read is the number of bits to read that might extend the length of the pattern
+	#  * read is the number of bits to read that might extend the base length of the pattern
 	#  * kind is used to select a row from the modestore
 	#  B  R  K
 	(  2, 0, 0 ), # 0: 1               length 2
@@ -211,11 +211,11 @@ def decompress(data, expect):
 		data[x] = data[packed_length-restore_from_the_end+x]
 	data_length -= restore_from_the_end
 
-	# grow the buffer to accomodate the fully decompressed file
+	# grow the array to accomodate the fully decompressed file
 	while len(data) < full_length:
 		data.append(0)
 
-	# set up our src and destination classes (addressing the same buffer)
+	# set up our src and dest classes (addressing the same data array)
 	src = SourceFile(data, data_length, shifter)
 	dest = DestinationFile(data, expect)
 
