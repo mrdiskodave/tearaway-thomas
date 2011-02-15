@@ -2,33 +2,42 @@ import array
 import struct
 import sys
 
-MAGIC = struct.unpack(">L", "PGBK")[0]
 
-# http://en.wikipedia.org/wiki/Planar_(computer_graphics)
-#
-# p = bit plane values
-# s = bit length of them
-# returns = values read across the planes (i.e. the chunky values)
-# * values come out in plane MSB to LSB order
-# * p[0] produces the new chunky MSB
-# * p[s-1] produces the new chunky LSB
-def chunkify(p, s):
-	answer = []
-	for x in range(s):
-		ba = 0
-		for c in p:
-			bitpos = s-x-1
-			ba <<= 1
-			ba |= (c & (1<<bitpos)) >> bitpos
-		answer.append(ba)
-	return answer
-			
-assert chunkify([1, 0, 7], 3)==[1, 1, 5]
-assert chunkify([1, 0, 7], 4)==[0, 1, 1, 5]
+def get_block_accessor(blk_filename):
 
+	MAGIC = struct.unpack(">L", "PGBK")[0]
 
-if __name__ == "__main__":
-	import sys
+	# http://en.wikipedia.org/wiki/Planar_(computer_graphics)
+	#
+	# p = the bit-plane values
+	# s = the number of bits in use in each value
+	# returns = values read across the planes (i.e. the chunky values)
+	# * values come out in plane MSB to LSB order
+	# * p[0] produces the new chunky MSB
+	# * p[s-1] produces the new chunky LSB
+	def chunkify(p, s):
+		answer = []
+		for x in range(s):
+			ba = 0
+			for c in p:
+				bitpos = s-x-1
+				ba <<= 1
+				ba |= (c & (1<<bitpos)) >> bitpos
+			answer.append(ba)
+		return answer
+
+	# see that bitwise gets flipped around to become bytewise:
+	assert chunkify([0b001,
+                     0b000,
+                     0b111], 3)==[0b001,
+                                  0b001,
+                                  0b101]
+	assert chunkify([0b0001,
+	                 0b0000,
+					 0b0111], 4)==[0b000,
+					               0b001,
+					               0b001,
+                                   0b101]
 
 	def load_file(name):
 		with open(name, 'r') as f:
@@ -37,15 +46,10 @@ if __name__ == "__main__":
 	def load_array_file(name):
 		return array.array('B', load_file(name))
 
-	def save_file(name, data):
-		with open(name, 'w') as f:
-			f.write(data)
-
 	def getword(data, idx):
 		return data[idx]*256+data[idx+1]
 
 
-def get_block_accessor(blk_filename):
 	data = load_array_file(blk_filename)
 	data = array.array('B', data)
 	magic, spals, blkpals, mapsegstart, mapsegend = struct.unpack('>LLLLL', data[:20])
@@ -57,13 +61,10 @@ def get_block_accessor(blk_filename):
 	mapsegend += 4
 
 	number_of_blocks = mapsegstart-blkpals
-	print "number_of_blocks", number_of_blocks
-	print number_of_blocks
 
 	block_pals = [ data[blkpals+x] for x in range(number_of_blocks) ] 
 
 	number_of_pals = (blkpals-spals)/16
-	print "number_of_pals", number_of_pals
 	pals = []
 	for pal in range(number_of_pals):
 		palbase = spals + pal*16
@@ -75,17 +76,16 @@ def get_block_accessor(blk_filename):
 			g *= 16
 			b *= 16
 			pa.append(( r, g, b ))
-		print pa
 		pals.append(pa)
 	
 	assert len(pals)==number_of_pals
 	assert mapsegstart+number_of_blocks*128 == mapsegend
 
 	# just close around whatever we happen to need from the above
-	def answer(b):
-		if b>=number_of_blocks: return None
-		blkbase = mapsegstart+b*128
-		pal = pals[block_pals[b]]
+	def answer(block_number):
+		if block_number>=number_of_blocks: return None
+		blkbase = mapsegstart+block_number*128
+		pal = pals[block_pals[block_number]]
 		br = blkbase
 		lines = []
 		for y in range(16):
@@ -101,22 +101,14 @@ def get_block_accessor(blk_filename):
 		return lines
 	return answer
 
-def save_ppm(name, lines):
-	answer = []
-	answer.append("P3")
-	answer.append("# block number "+str(b))
-	answer.append("16 16")
-	answer.append("255")
+def write_p6_header(f, w, h):
+	f.write("P6\n")
+	f.write("{0} {1}\n".format(w, h))
+	f.write("255\n")
 
+def write_p6_grid(f, lines):
 	for line in lines:
-		line = [ "{0:3} {1:3} {2:3}".format(pix[0], pix[1], pix[2]) for pix in line ]
-		line = "  ".join(line)
-		answer.append(line)
-
-	answer.append("")
-	answer.append("")
-	answer = '\n'.join(answer)
-	save_file(name, answer)
+		f.write(''.join([struct.pack('BBB', *pix) for pix in line ]))
 
 
 ba = get_block_accessor("tt_unpacked/blkw")
@@ -125,7 +117,10 @@ while 1:
 	lines = ba(b)
 	if not lines: break;
 	print "exporting block", b
-	save_ppm("b/blk"+str(b)+".ppm", lines)
+	name = "b/blk"+str(b)+".ppm"
+	with open(name, 'w') as f:
+		write_p6_header(f, 16, 16)
+		write_p6_grid(f, lines)
 	b += 1
 
 
@@ -143,6 +138,11 @@ P3
 0  0  0    0  0  0    0 15  7    0  0  0
 15  0 15    0  0  0    0  0  0    0  0  0
 
+-               line = [ "{0:3} {1:3} {2:3}".format(pix[0], pix[1], pix[2]) for pix in line ]
+-               line = "  ".join(line)
+-               answer.append(line)
+^^^ that is how you format into a P3
+just that we are doing P6 now as its >4 times smaller
 
 
 	move.l  AKblocks,a0^M
