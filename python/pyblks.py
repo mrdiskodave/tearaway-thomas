@@ -44,11 +44,12 @@ if __name__ == "__main__":
 	def getword(data, idx):
 		return data[idx]*256+data[idx+1]
 
-	data = load_array_file("tt_unpacked/blkw")
+
+def get_block_accessor(blk_filename):
+	data = load_array_file(blk_filename)
 	data = array.array('B', data)
 	magic, spals, blkpals, mapsegstart, mapsegend = struct.unpack('>LLLLL', data[:20])
 	assert magic == MAGIC
-
 
 	spals += 4
 	blkpals += 4
@@ -80,17 +81,13 @@ if __name__ == "__main__":
 	assert len(pals)==number_of_pals
 	assert mapsegstart+number_of_blocks*128 == mapsegend
 
-	for b in range(number_of_blocks):
-		answer = []
-		answer.append("P3")
-		answer.append("# block number "+str(b))
-		answer.append("16 16")
-		answer.append("255")
+	# just close around whatever we happen to need from the above
+	def answer(b):
+		if b>=number_of_blocks: return None
 		blkbase = mapsegstart+b*128
-		#for y in range(64):
-		#	print hex(getword(data, blkbase+y*2))
 		pal = pals[block_pals[b]]
 		br = blkbase
+		lines = []
 		for y in range(16):
 			p0 = getword(data, br)
 			br += 2
@@ -98,16 +95,37 @@ if __name__ == "__main__":
 			br += 2
 			p2 = getword(data, br)
 			br += 2
-			row = chunkify((p0,p1,p2), 16)
-			row = [ pal[pix] for pix in row ]
-			row = [ "{0:3} {1:3} {2:3}".format(pix[0], pix[1], pix[2]) for pix in row ]
-			row = "   ".join(row)
-			answer.append(row)
-		answer.append("")
-		answer.append("")
-		answer = '\n'.join(answer)
-		print "exporting block", b
-		save_file("b/blk"+str(b)+".ppm", answer)
+			line = chunkify((p0,p1,p2), 16)
+			line = [ pal[pix] for pix in line ]
+			lines.append(line)
+		return lines
+	return answer
+
+ba = get_block_accessor("tt_unpacked/blkw")
+b = 0
+while 1:
+	lines = ba(b)
+	if not lines: break;
+
+	answer = []
+	answer.append("P3")
+	answer.append("# block number "+str(b))
+	answer.append("16 16")
+	answer.append("255")
+
+	for line in lines:
+		line = [ "{0:3} {1:3} {2:3}".format(pix[0], pix[1], pix[2]) for pix in line ]
+		line = "   ".join(line)
+		answer.append(line)
+
+	answer.append("")
+	answer.append("")
+	answer = '\n'.join(answer)
+	print "exporting block", b
+	save_file("b/blk"+str(b)+".ppm", answer)
+	b += 1
+
+
 
 
 
