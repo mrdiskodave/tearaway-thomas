@@ -101,12 +101,7 @@ def get_block_accessor(blk_filename):
 		return lines
 	return answer
 
-ba = get_block_accessor("tt_unpacked/blkw")
-b = 0
-while 1:
-	lines = ba(b)
-	if not lines: break;
-
+def save_ppm(name, lines):
 	answer = []
 	answer.append("P3")
 	answer.append("# block number "+str(b))
@@ -115,14 +110,22 @@ while 1:
 
 	for line in lines:
 		line = [ "{0:3} {1:3} {2:3}".format(pix[0], pix[1], pix[2]) for pix in line ]
-		line = "   ".join(line)
+		line = "  ".join(line)
 		answer.append(line)
 
 	answer.append("")
 	answer.append("")
 	answer = '\n'.join(answer)
+	save_file(name, answer)
+
+
+ba = get_block_accessor("tt_unpacked/blkw")
+b = 0
+while 1:
+	lines = ba(b)
+	if not lines: break;
 	print "exporting block", b
-	save_file("b/blk"+str(b)+".ppm", answer)
+	save_ppm("b/blk"+str(b)+".ppm", lines)
 	b += 1
 
 
