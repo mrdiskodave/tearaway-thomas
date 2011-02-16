@@ -2,7 +2,12 @@ import array
 import struct
 import sys
 
+# blocks size in bytes
+BLKSIZE = 2*16*4
 
+# map size in blocks
+MXS = 256
+MYS = 128
 
 woodRT = (
 	( 40,24,29,53,83,84,64,85,88,89,69 ),
@@ -121,12 +126,12 @@ def get_block_accessor(blk_filename):
 	#sys.exit(1)
 	
 	assert len(pals)==number_of_pals
-	assert mapsegstart+number_of_blocks*128 == mapsegend
+	assert mapsegstart+number_of_blocks*BLKSIZE == mapsegend
 
 	# just close around whatever we happen to need from the above
 	def block_accessor(block_number):
 		if block_number>=number_of_blocks: return None
-		blkbase = mapsegstart+block_number*128
+		blkbase = mapsegstart+block_number*BLKSIZE
 		pal = pals[block_pals[block_number]]
 		br = blkbase
 		lines = []
@@ -198,18 +203,21 @@ def get_map_from_level(level):
 
 level = load_array_file("tt_unpacked/w0.map")
 
+def mapidx(x, y):
+	return y*MXS+x
+
 map = get_map_from_level(level)
 apply_rt(map, woodRT)
 print "Saving ..."
 block_accessor = get_block_accessor("tt_unpacked/blkw")
 mi = 0
 with open("t.ppm", 'w') as f:
-	write_p6_header(f, 256*16, 128*16)
-	for ly in xrange(128):
+	write_p6_header(f, MXS*16, MYS*16)
+	for ly in xrange(MYS):
 		print ly, mi
 		longlines = None
-		for lx in xrange(256):
-			b = map[mi]
+		for lx in xrange(MXS):
+			b = map[mapidx(lx, ly)]
 			mi += 1
 			lines = block_accessor(b)
 			if longlines:
