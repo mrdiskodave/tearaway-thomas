@@ -38,7 +38,7 @@ ghostRT	= (
 
 
 def apply_rt(map, rt):
-	print "applying rt"
+	#print "applying rt"
 	c = 0
 	import random
 	for x in xrange(len(map)):
@@ -46,7 +46,7 @@ def apply_rt(map, rt):
 			if map[x] in line:
 				map[x] = random.choice(line)
 				c += 1
-	print "{0}/{1} blocks changed".format(c, len(map))
+	#print "{0}/{1} blocks changed".format(c, len(map))
 
 def load_file(name):
 	with open(name, 'r') as f:
@@ -119,10 +119,7 @@ def get_block_accessor(blk_filename):
 			if idx==0: col = 0
 			if idx==7: col = 0xf0f
 			r, g, b = col>>8&15, col>>4&15, col&15
-			#r *= 16
-			#g *= 16
-			#b *= 16
-			print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
+			#print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
 			pa.append(( r, g, b ))
 		pals.append(pa)
 	#sys.exit(1)
@@ -176,7 +173,7 @@ def get_map_from_level(level):
 	map = array.array('H', [ 0 for _ in xrange(0x8000) ])
 	# copy the compressed level in
 	se = get_word(level, 0)
-	print "length={0:04x}".format(se)
+	#print "length={0:04x}".format(se)
 	assert se&1==0
 	se >>= 1
 	for x in xrange(se):
@@ -190,7 +187,7 @@ def get_map_from_level(level):
 	while se!=0:
 		se -= 1
 		x = map[se]
-		print "read={0:04x}".format(x)
+		#print "read={0:04x}".format(x)
 		r = 1
 		if x&0x8000:
 			x ^= 0xffff
@@ -206,7 +203,8 @@ def get_map_from_level(level):
 
 
 
-def convert_map(block_accessor, name):
+def convert_map(block_accessor, name, rt):
+	print "Converting", name
 	level = load_array_file("tt_unpacked/"+name+".map")
 
 	def mapidx(x, y):
@@ -220,28 +218,34 @@ def convert_map(block_accessor, name):
 		return False
 
 	map = get_map_from_level(level)
-	#col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
+	col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
 	row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
 
-	apply_rt(map, woodRT)
-	print "Saving ..."
+	if rt: apply_rt(map, rt)
 	with open(name+".ppm", 'w') as f:
-		write_p6_header(f, MXS*16, row.count(True)*16)
+		write_p6_header(f, col.count(True)*16, row.count(True)*16)
 		for ly in xrange(MYS):
-			print ly, row[ly]
 			if row[ly]:
 				longlines = None
 				for lx in xrange(MXS):
-					lines = block_accessor(map[mapidx(lx, ly)])
-					if longlines:
-						for line, longline in zip(lines, longlines):
-							longline.extend(line)
-					else:
-						longlines = lines
+					if col[lx]:
+						lines = block_accessor(map[mapidx(lx, ly)])
+						if longlines:
+							for line, longline in zip(lines, longlines):
+								longline.extend(line)
+						else:
+							longlines = lines
 				write_p6_grid(f, longlines)
 
+def convert_world(name, rt):
+	block_accessor = get_block_accessor("tt_unpacked/blk"+name)
+	for x in range(10):
+		convert_map(block_accessor, name+str(x), woodRT)
 
-block_accessor = get_block_accessor("tt_unpacked/blkw")
-convert_map(block_accessor, "w0")
+convert_world("w", woodRT)
+convert_world("i", iceRT)
+convert_world("g", ghost)
+convert_world("t")
+convert_world("f")
 	
 
