@@ -9,6 +9,8 @@ BLKSIZE = 2*16*4
 MXS = 256
 MYS = 128
 
+CACHE = {}
+
 woodRT = (
 	( 40,24,29,53,83,84,64,85,88,89,69 ),
 	( 20,4,9,33 ),
@@ -206,26 +208,34 @@ level = load_array_file("tt_unpacked/w0.map")
 def mapidx(x, y):
 	return y*MXS+x
 
+def is_full(map, x, y, dx, dy, r):
+	for _ in xrange(r):
+		if map[mapidx(x, y)]!=0: return True
+		x += dx
+		y += dy
+	return False
+
 map = get_map_from_level(level)
+#col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
+row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
+
 apply_rt(map, woodRT)
 print "Saving ..."
 block_accessor = get_block_accessor("tt_unpacked/blkw")
-mi = 0
 with open("t.ppm", 'w') as f:
-	write_p6_header(f, MXS*16, MYS*16)
+	write_p6_header(f, MXS*16, row.count(True)*16)
 	for ly in xrange(MYS):
-		print ly, mi
-		longlines = None
-		for lx in xrange(MXS):
-			b = map[mapidx(lx, ly)]
-			mi += 1
-			lines = block_accessor(b)
-			if longlines:
-				for line, longline in zip(lines, longlines):
-					longline.extend(line)
-			else:
-				longlines = lines
-		write_p6_grid(f, longlines)
+		print ly, row[ly]
+		if row[ly]:
+			longlines = None
+			for lx in xrange(MXS):
+				lines = block_accessor(map[mapidx(lx, ly)])
+				if longlines:
+					for line, longline in zip(lines, longlines):
+						longline.extend(line)
+				else:
+					longlines = lines
+			write_p6_grid(f, longlines)
 
 #save_all_blocks(block_accessor)
 
