@@ -1,6 +1,5 @@
 import struct
 import array
-import sys
 
 # ---------------------------------------------------------------------------
 # CONSTANTS
@@ -28,8 +27,8 @@ OFFSET_MODESTORES = (
 	( # 1
 		(  5,  6,  7 ),
 		(  6,  6,  7 ),
-		(  7,  6,  6 ),
-		(  7,  6,  6 ),
+		(  7,  6,  6 ),	# ?!
+		(  7,  6,  6 ), # !?
 	),
 	( # 2
 		(  5,  7,  8 ),
@@ -179,7 +178,13 @@ class DestinationFile:
 
 # ---------------------------------------------------------------------------
 
-def decompress(data, expect):
+def get_unpacked_size(data):
+	if len(data)<HEAD_SIZE: return None
+	magic, full_length = struct.unpack('>LL', data[:8])
+	if magic != MAGIC: return None
+	return full_length
+
+def decompress(data, expect=None):
 	def copy(src, dest, amount):
 		for _ in xrange(unpacked):
 			dest.send(src.getByte())
@@ -235,24 +240,47 @@ def decompress(data, expect):
 		dest.copy(length, offset)
 		copy(src, dest, unpacked)
 
+	return data			# the same 'data' object we were given, but decompressed in place
+
 # ---------------------------------------------------------------------------
 # TESTING
 
+
 if __name__ == "__main__":
+	import sys
+
 	def load_file(name):
 		with open(name, 'r') as f:
 			return array.array('B', f.read())
 
-	#data = load_file("bigTT.lbm")
-	data = load_file("wfnsh.packed.bin")
+	def save_file(name, data):
+		with open(name, 'w') as f:
+			data.tofile(f)
 
-	expect = load_file("wfnsh.unpacked.bin")
+	#data = load_file("bigTT.lbm")
 	#expect = None
 
+	# self test
+	print "=== SELF TEST"
+	import os
+	our_path = os.path.dirname(__file__)
+	data = load_file(os.path.join(our_path, "wfnsh.packed.bin"))
+	expect = load_file(os.path.join(our_path, "wfnsh.unpacked.bin"))
 	decompress(data, expect)
 
-	with open("answer.lbm", 'w') as f:
-		data.tofile(f)
+	# action
+	print "=== PROCESSING"
+	args = sys.argv[1:]
+	for filename in args:
+		print "=== Processing {0}".format(filename)
+		data = load_file(filename)
+		if get_unpacked_size(data) is None:
+			print "Not packed"
+		else:
+			print "Unpacking"
+			data = decompress(data)
+			print "Saving "+filename
+			save_file(filename, data)
 
 	#ilbmtoppm < answer.lbm | ppmtogif >answer.gif
 
