@@ -203,88 +203,45 @@ def get_map_from_level(level):
 	assert de==0
 	return map
 
-level = load_array_file("tt_unpacked/w0.map")
 
-def mapidx(x, y):
-	return y*MXS+x
 
-def is_full(map, x, y, dx, dy, r):
-	for _ in xrange(r):
-		if map[mapidx(x, y)]!=0: return True
-		x += dx
-		y += dy
-	return False
 
-map = get_map_from_level(level)
-#col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
-row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
+def convert_map(block_accessor, name):
+	level = load_array_file("tt_unpacked/"+name+".map")
 
-apply_rt(map, woodRT)
-print "Saving ..."
+	def mapidx(x, y):
+		return y*MXS+x
+
+	def is_full(map, x, y, dx, dy, r):
+		for _ in xrange(r):
+			if map[mapidx(x, y)]!=0: return True
+			x += dx
+			y += dy
+		return False
+
+	map = get_map_from_level(level)
+	#col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
+	row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
+
+	apply_rt(map, woodRT)
+	print "Saving ..."
+	with open(name+".ppm", 'w') as f:
+		write_p6_header(f, MXS*16, row.count(True)*16)
+		for ly in xrange(MYS):
+			print ly, row[ly]
+			if row[ly]:
+				longlines = None
+				for lx in xrange(MXS):
+					lines = block_accessor(map[mapidx(lx, ly)])
+					if longlines:
+						for line, longline in zip(lines, longlines):
+							longline.extend(line)
+					else:
+						longlines = lines
+				write_p6_grid(f, longlines)
+
+
 block_accessor = get_block_accessor("tt_unpacked/blkw")
-with open("t.ppm", 'w') as f:
-	write_p6_header(f, MXS*16, row.count(True)*16)
-	for ly in xrange(MYS):
-		print ly, row[ly]
-		if row[ly]:
-			longlines = None
-			for lx in xrange(MXS):
-				lines = block_accessor(map[mapidx(lx, ly)])
-				if longlines:
-					for line, longline in zip(lines, longlines):
-						longline.extend(line)
-				else:
-					longlines = lines
-			write_p6_grid(f, longlines)
+convert_map(block_accessor, "w0")
+	
 
-#save_all_blocks(block_accessor)
-
-
-
-
-
-END = """
-
-P3
-# feep.ppm
-4 4
-15
-0  0  0    0  0  0    0  0  0   15  0 15
-0  0  0    0 15  7    0  0  0    0  0  0
-0  0  0    0  0  0    0 15  7    0  0  0
-15  0 15    0  0  0    0  0  0    0  0  0
-
--               line = [ "{0:3} {1:3} {2:3}".format(pix[0], pix[1], pix[2]) for pix in line ]
--               line = "  ".join(line)
--               answer.append(line)
-^^^ that is how you format into a P3
-just that we are doing P6 now as its >4 times smaller
-
-
-	move.l  AKblocks,a0^M
-	cmp.l   #"PGBK",(a0)+^M
-	bne ERnoPGBK^M
-	^M
-	movem.l (a0),a1/a2/a3/a4^M
-	add.l   a0,a1^M
-	add.l   a0,a2^M
-	add.l   a0,a3^M
-	add.l   a0,a4^M
-	addq.l  #2,a1^M
-	move.l  a1,spals^M
-	subq.l  #2,a1^M
-	move.l  a2,blkpals^M
-	move.l  a3,MapSegBase^M
-	move.l  a4,MapSegEnd^M
-	^M
-	move.l  a3,d0^M
-	sub.l   a2,d0^M
-	move.w  d0,blk_cnt^M
-
-when done do
-
-find . -name '*.ppm' -printf 'pnmtopng <%p >%p.png\n' | sh
-rename -v 's/ppm.png/png/' *
-rm *.ppm
-
-"""
