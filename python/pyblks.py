@@ -1,7 +1,6 @@
 import array
 import struct
 import sys
-import re
 
 # blocks size in bytes
 BLKSIZE = 2*16*4
@@ -254,184 +253,70 @@ def convert_world(name, rt=None):
 #	for x in range(10):
 #		convert_map(block_accessor, name+str(x), woodRT)
 
-#convert_world("w", woodRT)
-#convert_world("i", iceRT)
-#convert_world("g", ghostRT)
-#convert_world("t")
-#convert_world("f")
+def convert_worlds():
+	convert_world("w", woodRT)
+	convert_world("i", iceRT)
+	convert_world("g", ghostRT)
+	convert_world("t")
+	convert_world("f")
 	
 # ---------------------------------------------------------------------------
 import shelltools
-
-BYTES_PER_PIXEL = 3
-
-class Img:
-	@staticmethod
-	def create(w, h):
-		return Img._createNew(w, h, None)
-
-	@staticmethod
-	def createFromData(w, h, d):
-		return Img._createNew(w, h, d)
-
-	@staticmethod
-	def _createNew(w, h, d):
-		i = Img()
-		i.base = 0
-		i.stride = w*BYTES_PER_PIXEL
-		i.w = w
-		i.h = h
-
-		expect = w*h*BYTES_PER_PIXEL
-		if d is None:
-			d = array.array('B', chr(255) * expect )
-
-		i.d = d
-
-		diff = expect-len(d)
-		if diff!=0:
-			if diff>0:
-				msg = "File fell short by {0} byte(s)".format(diff)
-			else:
-				msg = "File has {0} extra byte(s) on the end".format(diff)
-			assert False, msg
-		return i
-
-	@staticmethod
-	def createFromP6(s):
-		assert s[0] == 'P'
-		assert s[1] == '6'
-		s = s[2:]
-		args = []
-		while len(args)<3:
-			m = re.match(r"(.*?)(#.*)?\n", s)
-			assert m
-			stuff = m.group(1)
-			s = s[len(m.group()):]
-			for x in stuff.split():
-				args.append(int(x))
-
-		width, height, max = args
-
-		assert max==255
-		return Img.createFromData(width, height, array.array('B', s))
-
-	def isSubImage(self):
-		return self.base!=0 or self.w*self.h*BYTES_PER_PIXEL!=len(self.d)
-
-	def _ca(self, x, y):
-		assert x<self.w, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
-		assert y<self.h, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
-		return self.base+x*3+y*self.stride
-
-	def view(self, x=0, y=0, w=None, h=None):
-		if w is None: w = self.w - x
-		if h is None: h = self.h - y
-		assert x>=0
-		assert y>=0
-		assert w>=0
-		assert h>=0
-		assert x+w<=self.w
-		assert y+h<=self.h
-		i = Img()
-		i.base = self._ca(x, y)
-		i.stride = self.stride
-		i.w = w
-		i.h = h
-		i.d = self.d
-		return i
-
-	def get(self, x, y):
-		a = self._ca(x, y)
-		return self.d[a], self.d[a+1], self.d[a+2]
-
-	def put(self, x, y, c):
-		#print "{0},{1} with {2!r}".format(x, y, c)
-		a = self._ca(x, y)
-		self.d[a] = c[0]
-		self.d[a+1] = c[1]
-		self.d[a+2] = c[2]
-
-	def overwrite(self, simg):
-		for y in range(self.h):
-			for x in range(self.w):
-				p = simg.get(x, y)
-				self.put(x, y, p)
-
-	def findReplace(self, f, r):
-		for y in range(self.h):
-			for x in range(self.w):
-				if self.get(x, y)==f:
-					self.put(x, y, r)
-
-	def test(self, c):
-		for y in range(self.h):
-			for x in range(self.w):
-				a = self.get(x, y)
-				#print "Got {0} from {1},{2}".format(a, x, y)
-				if a!=c:
-					return False
-		return True
-
-	def copy(self):
-		i = Img.create(self.w, self.h)
-		i.overwrite(self)
-		return i
-
-	def _unsub(self):
-		if self.isSubImage():
-			return self.copy()
-		return self
-
-	def saveP6(self, name):
-		self = self._unsub()
-		with open(name, 'w') as f:
-			write_p6_header(f, self.w, self.h, 255)
-			self.d.tofile(f)
-
-	def dump(self):
-		for y in range(self.h):
-			print [ self.get(x, y) for x in range(self.w) ]
+import img
 
 class BookReader:
-	def __init__(self, img, ux, uy, sx=None):
-		self.ux = ux
-		self.uy = uy
-		if sx is None:
-			sx = img.w//ux
-		self.sx = sx
+	def __init__(self, img, w, h, total_across=None):
+		self.w = w
+		self.h = h
+		if total_across is None:
+			total_across = img.w//w
+		self.total_across = total_across
 
 	def start(self, counter):
-		y = counter / self.sx
-		x = counter % self.sx
-		x *= self.ux
-		y *= self.uy
+		y = counter / self.total_across
+		x = counter % self.total_across
+		x *= self.w
+		y *= self.h
 		return x, y
 
 def load_ilbm(name):
-	return Img.createFromP6(shelltools.Cmd.shellf("ilbmtoppm {0}", name).do(both=True).check().stdout)
+	return img.Img.createFromP6(shelltools.Cmd.shellf("ilbmtoppm {0}", name).do(both=True).check().stdout)
 	
-chars = "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'"
-i = load_ilbm("orig/gfx/other/bits/font.lbm")	
-i.findReplace((0,0,96), TRANS)
-r = BookReader(i, 16, 11)
-for x, c in enumerate(chars):
-	n = Img.create(16, 11)
-	n.overwrite(i.view(*r.start(x)))
+def convert_font():
+	chars = "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'"
+	i = load_ilbm("orig/gfx/other/bits/font.lbm")	
+	i.findReplace((0,0,96), TRANS)
+	r = BookReader(i, 16, 11)
+	for x, c in enumerate(chars):
+		n = img.Img.create(r.w, r.h)
+		n.overwrite(i.view(*r.start(x)))
 
-	#print "-" * 15
-	w = 16
-	while True:
-		#print "slice", w
-		assert w!=0
-		sub = n.view(w-1, 0, 1, None)
-		#sub.dump()
-		if not sub.test(TRANS): break
-		w -= 1
+		w = 16
+		while True:
+			assert w!=0
+			sub = n.view(w-1, 0, 1, None)
+			if not sub.test(TRANS): break
+			w -= 1
 
-	name = "font/"+str(ord(c))+".ppm"
-	print "SAVE", name, c, w
-	n.view(0, 0, w, None).saveP6(name)
+		name = "font/"+str(ord(c))+".ppm"
+		print "SAVE", name, c, w
+		n.view(0, 0, w, None).saveP6(name)
+
+def convert_tt():
+	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
+	i.findReplace((0,144,240),TRANS)
+	r = BookReader(i, 32, 32, 8)
+	for x in xrange(0, 64+8+3):
+		b = r.start(x)
+		print x, b
+		n = img.Img.create(r.w, r.h)
+		n.overwrite(i.view(*b))
+		name = "tearaway/"+str(x)+".ppm"
+		n.saveP6(name)
+
+#convert_worlds()
+convert_font()
+convert_tt()
 
 # ---------------------------------------------------------------------------
 # ( cd font && find . -name "*.ppm" -exec echo 'pnmtopng {} >{}.png' \; | sh )
