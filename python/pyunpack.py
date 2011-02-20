@@ -4,17 +4,6 @@ import array
 # ---------------------------------------------------------------------------
 # CONSTANTS
 
-#ModeChoice
-#dc.l    41000       8
-#dc.l    20000       7
-#dc.l    9500        6
-#dc.l    6000        5
-#dc.l    3200        4
-#dc.l    1700        3
-#dc.l    770     2
-#dc.l    360     1
-#dc.l    0       0
-
 # 0 - 8 used for reading the offset based on pack_mode
 OFFSET_MODESTORES = (
 	#      S   M   L    << Small (0), Medium (01) or Large (00) reach : column selection based on the bits that read_modestore reads

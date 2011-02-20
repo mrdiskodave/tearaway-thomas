@@ -1,6 +1,7 @@
 import array
 import struct
 import sys
+import re
 
 # blocks size in bytes
 BLKSIZE = 2*16*4
@@ -116,11 +117,14 @@ def get_block_accessor(blk_filename):
 		pa = []
 		for idx in range(8):
 			col = get_word(data, palbase+idx*2)
-			if idx==0: col = 0
-			if idx==7: col = 0xf0f
 			r, g, b = col>>8&15, col>>4&15, col&15
+			r *= 0x11
+			g *= 0x11
+			b *= 0x11
 			#print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
 			pa.append(( r, g, b ))
+		pa[0] = ( 0x00, 0x00, 0x00 )
+		pa[7] = ( 0xff, 0x01, 0xff )
 		pals.append(pa)
 	#sys.exit(1)
 	
@@ -147,24 +151,24 @@ def get_block_accessor(blk_filename):
 		return lines
 	return block_accessor
 
-def write_p6_header(f, w, h):
+def write_p6_header(f, w, h, max):
 	f.write("P6\n")
 	f.write("{0} {1}\n".format(w, h))
-	f.write("15\n")
+	f.write("{0}\n".format(max))
 
 def write_p6_grid(f, lines):
 	for line in lines:
 		f.write(''.join([struct.pack('BBB', *pix) for pix in line ]))
 
-def save_all_blocks(block_accessor):
+def save_all_blocks(world, block_accessor):
 	b = 0
 	while 1:
 		lines = block_accessor(b)
 		if not lines: break;
-		print "exporting block", b
-		name = "b/blk"+str(b)+".ppm"
+		name = "blocks/b{0}{1:x}.ppm".format(world, b)
+		print "exporting", name
 		with open(name, 'w') as f:
-			write_p6_header(f, 16, 16)
+			write_p6_header(f, 16, 16, 255)
 			write_p6_grid(f, lines)
 		b += 1
 
@@ -182,17 +186,23 @@ def get_map_from_level(level):
 	se -= 1
 	map[0] = map[se]
 	# unpack it in situe
-	# (it is also subject to DHp2 later)
+	# (it is also unpacked from DHp2 earlier)
 	de = 0x8000
 	while se!=0:
+		# read a value pre-decrement
 		se -= 1
 		x = map[se]
-		#print "read={0:04x}".format(x)
-		r = 1
+		# what is it?
 		if x&0x8000:
+			# it is is a run
+			# the data is the first value NOTed
 			x ^= 0xffff
+			# then there is another value which is a repeat count (in DBF form)
 			se -= 1
 			r = map[se]+1
+		else:
+			# it is just a single unpacked value
+			r = 1
 		for _ in xrange(r):
 			#print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
 			de -= 1
@@ -205,7 +215,7 @@ def get_map_from_level(level):
 
 def convert_map(block_accessor, name, rt):
 	print "Converting", name
-	level = load_array_file("tt_unpacked/"+name+".map")
+	level = load_array_file("odata/"+name+".map")
 
 	def mapidx(x, y):
 		return y*MXS+x
@@ -223,13 +233,14 @@ def convert_map(block_accessor, name, rt):
 
 	if rt: apply_rt(map, rt)
 	with open(name+".ppm", 'w') as f:
-		write_p6_header(f, col.count(True)*16, row.count(True)*16)
+		write_p6_header(f, col.count(True)*16, row.count(True)*16, 255)
 		for ly in xrange(MYS):
 			if row[ly]:
 				longlines = None
 				for lx in xrange(MXS):
 					if col[lx]:
 						lines = block_accessor(map[mapidx(lx, ly)])
+						assert lines
 						if longlines:
 							for line, longline in zip(lines, longlines):
 								longline.extend(line)
@@ -237,15 +248,106 @@ def convert_map(block_accessor, name, rt):
 							longlines = lines
 				write_p6_grid(f, longlines)
 
-def convert_world(name, rt):
-	block_accessor = get_block_accessor("tt_unpacked/blk"+name)
-	for x in range(10):
-		convert_map(block_accessor, name+str(x), woodRT)
+def convert_world(name, rt=None):
+	block_accessor = get_block_accessor("odata/blk"+name)
+	save_all_blocks(name, block_accessor)
+#	for x in range(10):
+#		convert_map(block_accessor, name+str(x), woodRT)
 
-convert_world("w", woodRT)
-convert_world("i", iceRT)
-convert_world("g", ghost)
-convert_world("t")
-convert_world("f")
+#convert_world("w", woodRT)
+#convert_world("i", iceRT)
+#convert_world("g", ghostRT)
+#convert_world("t")
+#convert_world("f")
 	
+# ---------------------------------------------------------------------------
+import shelltools
+
+class Img:
+	def __init__(self, w, h, d=None):
+		self.w = w
+		self.h = h
+		self.d = d
+
+		expect = w*h*3
+		if d is None:
+			d = array.array('B', chr(0) * expect )
+
+		diff = expect-len(d)
+		if diff!=0:
+			if diff>0:
+				msg = "File fell short by {0} byte(s)".format(diff)
+			else:
+				msg = "File has {0} extra byte(s) on the end".format(diff)
+			assert False, msg
+
+	def _ca(self, x, y):
+		assert x<self.w
+		assert y<self.h
+		return y*self.w*3+x
+
+	def get(self, x, y):
+		a = self._ca(x, y)
+		return self.d[a], self.d[a+1], self.d[a+2]
+
+	def put(self, x, y, c):
+		a = self._ca(x, y)
+		self.d[a] = c[0]
+		self.d[a+1] = c[1]
+		self.d[a+2] = c[2]
+
+	def copyFrom(self, other, sx, sy, sxs, sys):
+		for y in range(sy):
+			for x in range(sx):
+				self.put(self.get(sx+x, sy+y))
+
+	def saveP6(self, name):
+		with open(name, 'w') as f:
+			write_p6_header(f, self.w, self.h, 255)
+			f.write(self.d)
+
+class BookReader:
+	def __init__(self, img, ux, uy, sx=None):
+		self.ux = ux
+		self.uy = uy
+		if sx is None:
+			sx = img.w//ux
+		self.sx = sx
+
+	def start(self, counter):
+		y = counter / self.sx
+		x = counter % self.sx
+		x *= self.ux
+		y *= self.uy
+		return x, y
+
+def load_ilbm(name):
+	s = shelltools.Cmd.shellf("ilbmtoppm {0}", name).do(both=True).check().stdout
+	assert s[0] == 'P'
+	assert s[1] == '6'
+	s = s[2:]
+	args = []
+	while len(args)<3:
+		m = re.match(r"(.*?)(#.*)?\n", s)
+		assert m
+		stuff = m.group(1)
+		s = s[len(m.group()):]
+		for x in stuff.split():
+			args.append(int(x))
+
+	width, height, max = args
+
+	assert max==255
+	return Img(width, height, array.array('B', s))
+	
+i = load_ilbm("orig/gfx/other/bits/font.lbm")	
+r = BookReader(i, 16, 11)
+for x in range(0, 47):
+	bx, by = r.start(x)
+	n = Img(16, 11)
+	n.copyFrom(i, bx, by, 16, 11)
+	n.writeP6("xxx"+str(x)+".ppm")
+
+# ---------------------------------------------------------------------------
+
 

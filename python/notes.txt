@@ -1,0 +1,32 @@
+
+
+
+/media/d3/large/q/z/old/things_to_keep/SaveIt2/ARCHIVE/PCProjects/keymedia/Mag/Copy of current/Mag.java
+
+
+#ModeChoice
+#dc.l    41000       8
+#dc.l    20000       7
+#dc.l    9500        6
+#dc.l    6000        5
+#dc.l    3200        4
+#dc.l    1700        3
+#dc.l    770     2
+#dc.l    360     1
+#dc.l    0       0
+
+
+num_chars=48^M
+fontchars   dc.b    " abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'_"^M
+dc.b    10^M
+dc.b    11,11,11,11,10,10,11,11,09,11 abcdefghij^M
+dc.b    11,11,11,11,11,10,11,11,11,09 klmnopqrst^M
+dc.b    11,11,11,11,11,11       uvwxyz....^M
+dc.b    11,11,11,11,11,11,11,11,11,11 1-9,0^M
+dc.b    5,11,5,11   .-!?^M
+dc.b    4,7,7,10,6,6,4,-1   ,<>/()'^M
+even^M
+
+
+looks like out source is mostly
+/media/d3/large/q/z/old/things_to_keep/SaveIt2/ARCHIVE/AMIGA/amiga/GOT/tt
