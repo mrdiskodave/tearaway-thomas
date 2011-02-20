@@ -263,6 +263,8 @@ def convert_world(name, rt=None):
 # ---------------------------------------------------------------------------
 import shelltools
 
+BYTES_PER_PIXEL = 3
+
 class Img:
 	@staticmethod
 	def create(w, h):
@@ -276,11 +278,11 @@ class Img:
 	def _createNew(w, h, d):
 		i = Img()
 		i.base = 0
-		i.stride = w*3
+		i.stride = w*BYTES_PER_PIXEL
 		i.w = w
 		i.h = h
 
-		expect = w*h*3
+		expect = w*h*BYTES_PER_PIXEL
 		if d is None:
 			d = array.array('B', chr(255) * expect )
 
@@ -293,13 +295,32 @@ class Img:
 			else:
 				msg = "File has {0} extra byte(s) on the end".format(diff)
 			assert False, msg
-
 		return i
+
+	def isSubImage(self):
+		return self.base!=0 or self.w*self.h*BYTES_PER_PIXEL!=len(self.d)
 
 	def _ca(self, x, y):
 		assert x<self.w, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
-		assert y<self.h
+		assert y<self.h, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
 		return self.base+x*3+y*self.stride
+
+	def subImage(self, x=0, y=0, w=None, h=None):
+		if w is None: w = self.w - x
+		if h is None: h = self.h - y
+		assert x>=0
+		assert y>=0
+		assert w>=0
+		assert h>=0
+		assert x+w<=self.w
+		assert y+h<=self.h
+		i = Img()
+		i.base = self._ca(x, y)
+		i.stride = self.stride
+		i.w = w
+		i.h = h
+		i.d = self.d
+		return i
 
 	def get(self, x, y):
 		a = self._ca(x, y)
@@ -312,10 +333,11 @@ class Img:
 		self.d[a+1] = c[1]
 		self.d[a+2] = c[2]
 
-	def copyFrom(self, simg, sx, sy, dx, dy, oxs, oys):
-		for y in range(oys):
-			for x in range(oxs):
-				self.put(dx+x, dy+y, simg.get(sx+x, sy+y))
+	def overwrite(self, simg, sx=0, sy=0):
+		for y in range(self.h):
+			for x in range(self.w):
+				p = simg.get(sx+x, sy+y)
+				self.put(x, y, p)
 
 	def findReplace(self, f, r):
 		for y in range(self.h):
@@ -323,10 +345,29 @@ class Img:
 				if self.get(x, y)==f:
 					self.put(x, y, r)
 
+	def test(self, c):
+		for y in range(self.h):
+			for x in range(self.w):
+				a = self.get(x, y)
+				print "Got {0} from {1},{2}".format(a, x, y)
+				if a!=c:
+					return False
+		return True
+
 	def saveP6(self, name):
-		with open(name, 'w') as f:
-			write_p6_header(f, self.w, self.h, 255)
-			self.d.tofile(f)
+		if self.isSubImage():
+			print "UNSUB!!!!!!!!!!!!!!!"
+			i = Img.create(self.w, self.h)
+			i.overwrite(self)
+			i.saveP6(name)
+		else:
+			with open(name, 'w') as f:
+				write_p6_header(f, self.w, self.h, 255)
+				self.d.tofile(f)
+
+	def dump(self):
+		for y in range(self.h):
+			print [ self.get(x, y) for x in range(self.w) ]
 
 class BookReader:
 	def __init__(self, img, ux, uy, sx=None):
@@ -362,17 +403,35 @@ def load_ilbm(name):
 	assert max==255
 	return Img.createFromData(width, height, array.array('B', s))
 	
+chars = "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'"
+assert len(chars)==47
+#11,11,11,11,10,10,11,11,09,11 abcdefghij
+#11,11,11,11,11,10,11,11,11,09 klmnopqrst
+#11,11,11,11,11,11             uvwxyz
+#11,11,11,11,11,11,11,11,11,11 1-9,0
+#5,11,5,11
+#4,7,7,10,6,6,4
+
 i = load_ilbm("orig/gfx/other/bits/font.lbm")	
 i.findReplace((0,0,96), TRANS)
 r = BookReader(i, 16, 11)
-for x in range(0, 47):
-	bx, by = r.start(x)
-	print "SOURCE", bx, by
+for x, c in enumerate(chars):
 	n = Img.create(16, 11)
-	n.copyFrom(i, bx, by, 0, 0, 16, 11)
-	name = "font/"+str(x)+".ppm"
-	print "SAVE", name
-	n.saveP6(name)
+	n.overwrite(i, *r.start(x))
+
+	print "-" * 15
+	w = 16
+	while True:
+		print "slice", w
+		assert w!=0
+		sub = n.subImage(w-1, 0, 1, None)
+		sub.dump()
+		if not sub.test(TRANS): break
+		w -= 1
+
+	name = "font/"+str(ord(c))+".ppm"
+	print "SAVE", name, w
+	n.subImage(0, 0, w, None).saveP6(name)
 
 # ---------------------------------------------------------------------------
 
