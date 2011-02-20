@@ -10,7 +10,7 @@ BLKSIZE = 2*16*4
 MXS = 256
 MYS = 128
 
-CACHE = {}
+TRANS = ( 0xff, 0x01, 0xff )
 
 woodRT = (
 	( 40,24,29,53,83,84,64,85,88,89,69 ),
@@ -124,7 +124,7 @@ def get_block_accessor(blk_filename):
 			#print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
 			pa.append(( r, g, b ))
 		pa[0] = ( 0x00, 0x00, 0x00 )
-		pa[7] = ( 0xff, 0x01, 0xff )
+		pa[7] = TRANS
 		pals.append(pa)
 	#sys.exit(1)
 	
@@ -264,14 +264,27 @@ def convert_world(name, rt=None):
 import shelltools
 
 class Img:
-	def __init__(self, w, h, d=None):
-		self.w = w
-		self.h = h
-		self.d = d
+	@staticmethod
+	def create(w, h):
+		return Img._createNew(w, h, None)
+
+	@staticmethod
+	def createFromData(w, h, d):
+		return Img._createNew(w, h, d)
+
+	@staticmethod
+	def _createNew(w, h, d):
+		i = Img()
+		i.base = 0
+		i.stride = w*3
+		i.w = w
+		i.h = h
 
 		expect = w*h*3
 		if d is None:
-			d = array.array('B', chr(0) * expect )
+			d = array.array('B', chr(255) * expect )
+
+		i.d = d
 
 		diff = expect-len(d)
 		if diff!=0:
@@ -281,30 +294,39 @@ class Img:
 				msg = "File has {0} extra byte(s) on the end".format(diff)
 			assert False, msg
 
+		return i
+
 	def _ca(self, x, y):
-		assert x<self.w
+		assert x<self.w, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
 		assert y<self.h
-		return y*self.w*3+x
+		return self.base+x*3+y*self.stride
 
 	def get(self, x, y):
 		a = self._ca(x, y)
 		return self.d[a], self.d[a+1], self.d[a+2]
 
 	def put(self, x, y, c):
+		#print "{0},{1} with {2!r}".format(x, y, c)
 		a = self._ca(x, y)
 		self.d[a] = c[0]
 		self.d[a+1] = c[1]
 		self.d[a+2] = c[2]
 
-	def copyFrom(self, other, sx, sy, sxs, sys):
-		for y in range(sy):
-			for x in range(sx):
-				self.put(self.get(sx+x, sy+y))
+	def copyFrom(self, simg, sx, sy, dx, dy, oxs, oys):
+		for y in range(oys):
+			for x in range(oxs):
+				self.put(dx+x, dy+y, simg.get(sx+x, sy+y))
+
+	def findReplace(self, f, r):
+		for y in range(self.h):
+			for x in range(self.w):
+				if self.get(x, y)==f:
+					self.put(x, y, r)
 
 	def saveP6(self, name):
 		with open(name, 'w') as f:
 			write_p6_header(f, self.w, self.h, 255)
-			f.write(self.d)
+			self.d.tofile(f)
 
 class BookReader:
 	def __init__(self, img, ux, uy, sx=None):
@@ -338,15 +360,19 @@ def load_ilbm(name):
 	width, height, max = args
 
 	assert max==255
-	return Img(width, height, array.array('B', s))
+	return Img.createFromData(width, height, array.array('B', s))
 	
 i = load_ilbm("orig/gfx/other/bits/font.lbm")	
+i.findReplace((0,0,96), TRANS)
 r = BookReader(i, 16, 11)
 for x in range(0, 47):
 	bx, by = r.start(x)
-	n = Img(16, 11)
-	n.copyFrom(i, bx, by, 16, 11)
-	n.writeP6("xxx"+str(x)+".ppm")
+	print "SOURCE", bx, by
+	n = Img.create(16, 11)
+	n.copyFrom(i, bx, by, 0, 0, 16, 11)
+	name = "font/"+str(x)+".ppm"
+	print "SAVE", name
+	n.saveP6(name)
 
 # ---------------------------------------------------------------------------
 
