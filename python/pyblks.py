@@ -1,6 +1,9 @@
 import array
 import struct
 import sys
+import shelltools
+import img
+import os
 
 # blocks size in bytes
 BLKSIZE = 2*16*4
@@ -58,42 +61,56 @@ def load_array_file(name):
 def get_word(data, idx):
 	return data[idx]*256+data[idx+1]
 
+def get_a_palette(data, palbase):
+	pa = []
+	for idx in range(8):
+		col = get_word(data, palbase+idx*2)
+		r, g, b = col>>8&15, col>>4&15, col&15
+		r *= 0x11
+		g *= 0x11
+		b *= 0x11
+		#print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
+		pa.append(( r, g, b ))
+	return pa
+
+
+# http://en.wikipedia.org/wiki/Planar_(computer_graphics)
+#
+# p = the bit-plane values
+# s = the number of bits in use in each value
+# returns = values read across the planes (i.e. the chunky values)
+# * values come out in plane MSB to LSB order
+# * p[0] produces the new chunky MSB
+# * p[s-1] produces the new chunky LSB
+def chunkify(p, s):
+	answer = []
+	for x in range(s):
+		ba = 0
+		for c in p:
+			bitpos = s-x-1
+			ba <<= 1
+			ba |= (c & (1<<bitpos)) >> bitpos
+		answer.append(ba)
+	return answer
+
+# see that bitwise gets flipped around to become bytewise:
+assert chunkify([0b001,
+				 0b000,
+				 0b111], 3)==[0b001,
+							  0b001,
+							  0b101]
+assert chunkify([0b0001,
+				 0b0000,
+				 0b0111], 4)==[0b000,
+							   0b001,
+							   0b001,
+							   0b101]
+
+
+
 def get_block_accessor(blk_filename):
 
 	MAGIC = struct.unpack(">L", "PGBK")[0]
-
-	# http://en.wikipedia.org/wiki/Planar_(computer_graphics)
-	#
-	# p = the bit-plane values
-	# s = the number of bits in use in each value
-	# returns = values read across the planes (i.e. the chunky values)
-	# * values come out in plane MSB to LSB order
-	# * p[0] produces the new chunky MSB
-	# * p[s-1] produces the new chunky LSB
-	def chunkify(p, s):
-		answer = []
-		for x in range(s):
-			ba = 0
-			for c in p:
-				bitpos = s-x-1
-				ba <<= 1
-				ba |= (c & (1<<bitpos)) >> bitpos
-			answer.append(ba)
-		return answer
-
-	# see that bitwise gets flipped around to become bytewise:
-	assert chunkify([0b001,
-                     0b000,
-                     0b111], 3)==[0b001,
-                                  0b001,
-                                  0b101]
-	assert chunkify([0b0001,
-	                 0b0000,
-					 0b0111], 4)==[0b000,
-					               0b001,
-					               0b001,
-                                   0b101]
-
 
 	data = load_array_file(blk_filename)
 	data = array.array('B', data)
@@ -112,20 +129,10 @@ def get_block_accessor(blk_filename):
 	number_of_pals = (blkpals-spals)/16
 	pals = []
 	for pal in range(number_of_pals):
-		palbase = spals + pal*16
-		pa = []
-		for idx in range(8):
-			col = get_word(data, palbase+idx*2)
-			r, g, b = col>>8&15, col>>4&15, col&15
-			r *= 0x11
-			g *= 0x11
-			b *= 0x11
-			#print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
-			pa.append(( r, g, b ))
+		pa = get_a_palette(data, spals + pal*16)
 		pa[0] = ( 0x00, 0x00, 0x00 )
 		pa[7] = TRANS
 		pals.append(pa)
-	#sys.exit(1)
 	
 	assert len(pals)==number_of_pals
 	assert mapsegstart+number_of_blocks*BLKSIZE == mapsegend
@@ -159,6 +166,13 @@ def write_p6_grid(f, lines):
 	for line in lines:
 		f.write(''.join([struct.pack('BBB', *pix) for pix in line ]))
 
+def post_process_ppm(name):
+	assert name.endswith(".ppm")
+	newname = name[:-3]+"png"
+	print "into", newname
+	shelltools.Cmd.shellf("pnmtopng {0} >{1}", name, newname).do().check()
+	os.remove(name)
+
 def save_all_blocks(world, block_accessor):
 	b = 0
 	while 1:
@@ -169,6 +183,7 @@ def save_all_blocks(world, block_accessor):
 		with open(name, 'w') as f:
 			write_p6_header(f, 16, 16, 255)
 			write_p6_grid(f, lines)
+		post_process_ppm(name)
 		b += 1
 
 def get_map_from_level(level):
@@ -231,7 +246,8 @@ def convert_map(block_accessor, name, rt):
 	row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
 
 	if rt: apply_rt(map, rt)
-	with open(name+".ppm", 'w') as f:
+	fname = name+".ppm"
+	with open(fname, 'w') as f:
 		write_p6_header(f, col.count(True)*16, row.count(True)*16, 255)
 		for ly in xrange(MYS):
 			if row[ly]:
@@ -246,12 +262,13 @@ def convert_map(block_accessor, name, rt):
 						else:
 							longlines = lines
 				write_p6_grid(f, longlines)
+	post_process_ppm(fname)
 
 def convert_world(name, rt=None):
 	block_accessor = get_block_accessor("odata/blk"+name)
 	save_all_blocks(name, block_accessor)
-#	for x in range(10):
-#		convert_map(block_accessor, name+str(x), woodRT)
+	for x in range(10):
+		convert_map(block_accessor, name+str(x), woodRT)
 
 def convert_worlds():
 	convert_world("w", woodRT)
@@ -261,8 +278,6 @@ def convert_worlds():
 	convert_world("f")
 	
 # ---------------------------------------------------------------------------
-import shelltools
-import img
 
 class BookReader:
 	def __init__(self, img, w, h, total_across=None):
@@ -301,6 +316,8 @@ def convert_font():
 		name = "font/"+str(ord(c))+".ppm"
 		print "SAVE", name, c, w
 		n.view(0, 0, w, None).saveP6(name)
+		post_process_ppm(name)
+
 
 def convert_tt():
 	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
@@ -313,8 +330,9 @@ def convert_tt():
 		n.overwrite(i.view(*b))
 		name = "tearaway/"+str(x)+".ppm"
 		n.saveP6(name)
+		post_process_ppm(name)
 
-#convert_worlds()
+convert_worlds()
 convert_font()
 convert_tt()
 
