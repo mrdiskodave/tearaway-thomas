@@ -22,7 +22,7 @@ class Img:
 
 		expect = w*h*Img.BYTES_PER_PIXEL
 		if d is None:
-			d = array.array('B', chr(255) * expect )
+			d = array.array('B', chr(0) * expect )
 
 		i.d = d
 
@@ -84,27 +84,31 @@ class Img:
 		return self.d[a], self.d[a+1], self.d[a+2]
 
 	def put(self, x, y, c):
-		#print "{0},{1} with {2!r}".format(x, y, c)
+		#print "put {0},{1} with {2!r}".format(x, y, c)
 		a = self._ca(x, y)
 		self.d[a] = c[0]
 		self.d[a+1] = c[1]
 		self.d[a+2] = c[2]
 
 	def overwrite(self, simg):
-		for y in range(self.h):
-			for x in range(self.w):
-				p = simg.get(x, y)
-				self.put(x, y, p)
+		assert simg
+		w = min(self.w, simg.w)
+		h = min(self.h, simg.h)
+		w *= 3
+		for y in xrange(h):
+			srco = simg._ca(0, y)
+			desto = self._ca(0, y)
+			self.d[desto:desto+w] = simg.d[srco:srco+w]
 
 	def findReplace(self, f, r):
-		for y in range(self.h):
-			for x in range(self.w):
+		for y in xrange(self.h):
+			for x in xrange(self.w):
 				if self.get(x, y)==f:
 					self.put(x, y, r)
 
 	def test(self, c):
-		for y in range(self.h):
-			for x in range(self.w):
+		for y in xrange(self.h):
+			for x in xrange(self.w):
 				a = self.get(x, y)
 				#print "Got {0} from {1},{2}".format(a, x, y)
 				if a!=c:
@@ -132,6 +136,10 @@ class Img:
 			write_header(f, self.w, self.h, 255)
 			self.d.tofile(f)
 
+	def saveRaw(self, f):
+		self = self._unsub()
+		self.d.tofile(f)
+
 	def dump(self):
-		for y in range(self.h):
-			print [ self.get(x, y) for x in range(self.w) ]
+		for y in xrange(self.h):
+			print [ self.get(x, y) for x in xrange(self.w) ]

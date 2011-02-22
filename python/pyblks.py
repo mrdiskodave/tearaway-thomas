@@ -4,6 +4,7 @@ import sys
 import shelltools
 import img
 import os
+import re
 
 # blocks size in bytes
 BLKSIZE = 2*16*4
@@ -12,7 +13,13 @@ BLKSIZE = 2*16*4
 MXS = 256
 MYS = 128
 
+# palette size in colours
+PALCOLS = 8
+PALSIZE = PALCOLS*2
+
 TRANS = ( 0xff, 0x01, 0xff )
+
+NEWDATA = "newdata"
 
 woodRT = (
 	( 40,24,29,53,83,84,64,85,88,89,69 ),
@@ -68,7 +75,7 @@ def get_word(data, idx):
 
 def get_a_palette(data, palbase):
 	pa = []
-	for idx in xrange(8):
+	for idx in xrange(PALCOLS):
 		col = get_word(data, palbase+idx*2)
 		r, g, b = col>>8&15, col>>4&15, col&15
 		r *= 0x11
@@ -88,6 +95,7 @@ def get_a_palette(data, palbase):
 # * p[0] produces the new chunky MSB
 # * p[s-1] produces the new chunky LSB
 def chunkify(p, s):
+	#print "planes:"+repr(p)
 	answer = []
 	for x in xrange(s):
 		ba = 0
@@ -118,10 +126,10 @@ def get_block_list(blk_filename):
 	MAGIC = struct.unpack(">L", "PGBK")[0]
 
 	data = load_array_file(blk_filename)
-	data = array.array('B', data)
 	magic, spals, blkpals, mapsegstart, mapsegend = struct.unpack('>LLLLL', data[:20])
 	assert magic == MAGIC
 
+	# skip the magic
 	spals += 4
 	blkpals += 4
 	mapsegstart += 4
@@ -131,10 +139,10 @@ def get_block_list(blk_filename):
 
 	block_pals = [ data[blkpals+x] for x in xrange(number_of_blocks) ] 
 
-	number_of_pals = (blkpals-spals)/16
+	number_of_pals = (blkpals-spals)/PALSIZE
 	pals = []
 	for pal in xrange(number_of_pals):
-		pa = get_a_palette(data, spals + pal*16)
+		pa = get_a_palette(data, spals + pal*PALSIZE)
 		pa[0] = ( 0x00, 0x00, 0x00 )
 		pa[7] = TRANS
 		pals.append(pa)
@@ -178,15 +186,11 @@ def post_process_ppm(name):
 	os.remove(name)
 
 def save_all_blocks(world, block_accessor):
-	b = 0
-	while 1:
-		i = block_accessor[b]
-		if not i: break;
-		name = "blocks/b{0}{1:x}.ppm".format(world, b)
+	for b, i in enumerate(block_accessor):
+		name = os.path.join(NEWDATA, "blocks", "{0}{4:X}.ppm".format(world, b))
 		print "exporting", name
 		i.saveP6(name)
 		post_process_ppm(name)
-		b += 1
 
 def get_map_from_level(level):
 	# commision 64K of words
@@ -266,7 +270,7 @@ def convert_map(block_accessor, name, rt):
 	if rt:
 		validate_rt(name, len(block_accessor), rt)
 		apply_rt(map, rt)
-	fname = name+".ppm"
+	fname = os.path.join(NEWDATA, "maps", name+".ppm")
 	with open(fname, 'w') as f:
 		write_p6_header(f, w*16, h*16, 255)
 		i = img.Img.create(w*16, 16)
@@ -276,15 +280,12 @@ def convert_map(block_accessor, name, rt):
 					if scrx is not None:
 						b = block_accessor[map[mapidx(mapx, mapy)]]
 						i.view(16*scrx, 0).overwrite(b)
-				#rowname = name+"__row"+str(scry)+".ppm"
-				#i.saveP6(rowname)
-				#post_process_ppm(rowname)
 				i.saveRaw(f)
 	post_process_ppm(fname)
 
 def convert_world(name, rt=None):
 	block_accessor = get_block_list("odata/blk"+name)
-#	save_all_blocks(name, block_accessor)
+	save_all_blocks(name, block_accessor)
 	for x in xrange(10):
 		convert_map(block_accessor, name+str(x), rt)
 
@@ -331,11 +332,10 @@ def convert_font():
 			if not sub.test(TRANS): break
 			w -= 1
 
-		name = "font/"+str(ord(c))+".ppm"
+		name = os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c)))
 		print "SAVE", name, c, w
 		n.view(0, 0, w, None).saveP6(name)
 		post_process_ppm(name)
-
 
 def convert_tt():
 	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
@@ -346,12 +346,100 @@ def convert_tt():
 		print x, b
 		n = img.Img.create(r.w, r.h)
 		n.overwrite(i.view(*b))
-		name = "tearaway/"+str(x)+".ppm"
+		name = os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x))
 		n.saveP6(name)
 		post_process_ppm(name)
 
+def convert_bob(world, name):
+	i = load_array_file("odata/"+world+name)
+
+	BOBaddx=0
+	BOBaddy=2
+	BOBsx=4
+	BOBsy=6
+	BOBpix15=8
+	BOBrastlen=10
+	BOBmaskadd=12
+	BOBdata=14
+
+	MAGIC = struct.unpack(">L", name)[0]
+	magic, framecount,  = struct.unpack(">LH", i[0:6])
+	assert magic==MAGIC
+	print framecount, "frame(s)"
+
+	bobpal = get_a_palette(i, 6)
+
+	offset = 6+PALSIZE
 
 
+	for frame in xrange(framecount):
+		addx, addy, sx, sy, pix15, rastlen, maskadd = struct.unpack(">hhHHHHH", i[offset:offset+14])
+		offset += 14
+
+		print "FRAME", frame
+
+		#print addx, addy
+		#print sx, sy
+		print pix15
+		#print rastlen, maskadd
+		#	-14 -37
+		#	4 38
+		#	6
+		#	16 12
+
+		assert sx%1==0
+		unused = pix15-1
+		assert unused>=0
+
+		zz = img.Img.create(sx*8-unused, sy)
+		for y in xrange(sy):
+			s = ""
+			for x in xrange(sx/2):
+				q = offset + x*2
+				p2 = get_word(i, q)
+				q += sx
+				p1 = get_word(i, q)
+				q += sx
+				p0 = get_word(i, q)
+				q += sx
+				pm = get_word(i, q)
+				s += "{0:016b}".format(pm)
+
+				line = chunkify((p0,p1,p2), 16)
+				mask = chunkify((pm,), 16)
+				for j in xrange(0, 16):
+					if mask[j]:
+						c = bobpal[line[j]]
+					else:
+						c = TRANS
+					xd = x*16+j
+					if xd<zz.w:
+						zz.put(xd, y, c)
+			#print s
+			offset += rastlen
+		fname = os.path.join(NEWDATA, "bobs", "{0}_{1:03}.ppm".format(world+name, frame))
+		zz.saveP6(fname)
+		post_process_ppm(fname)
+
+def convert_bobs():
+	world = '0'
+	s = load_file("ttgfx_defs.s")
+	for line in s.split('\n'):
+		m = re.match(r"([wigtf]).*_GFX", line)
+		if m:
+			world = m.group(1)
+		m = re.match(r'.*"(....)"', line)
+		if m:
+			name = m.group(1)
+			print world, name
+			convert_bob(world, name)
+
+
+
+
+
+convert_bobs()	
+sys.exit(1)
 convert_worlds()
 convert_font()
 convert_tt()
