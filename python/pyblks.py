@@ -51,6 +51,11 @@ def apply_rt(map, rt):
 				c += 1
 	#print "{0}/{1} blocks changed".format(c, len(map))
 
+def validate_rt(name, mb, rt):
+	for line in rt:
+		for b in line:
+			assert b<mb, str(b)
+
 def load_file(name):
 	with open(name, 'r') as f:
 		return f.read()
@@ -63,7 +68,7 @@ def get_word(data, idx):
 
 def get_a_palette(data, palbase):
 	pa = []
-	for idx in range(8):
+	for idx in xrange(8):
 		col = get_word(data, palbase+idx*2)
 		r, g, b = col>>8&15, col>>4&15, col&15
 		r *= 0x11
@@ -84,7 +89,7 @@ def get_a_palette(data, palbase):
 # * p[s-1] produces the new chunky LSB
 def chunkify(p, s):
 	answer = []
-	for x in range(s):
+	for x in xrange(s):
 		ba = 0
 		for c in p:
 			bitpos = s-x-1
@@ -108,7 +113,7 @@ assert chunkify([0b0001,
 
 
 
-def get_block_accessor(blk_filename):
+def get_block_list(blk_filename):
 
 	MAGIC = struct.unpack(">L", "PGBK")[0]
 
@@ -124,11 +129,11 @@ def get_block_accessor(blk_filename):
 
 	number_of_blocks = mapsegstart-blkpals
 
-	block_pals = [ data[blkpals+x] for x in range(number_of_blocks) ] 
+	block_pals = [ data[blkpals+x] for x in xrange(number_of_blocks) ] 
 
 	number_of_pals = (blkpals-spals)/16
 	pals = []
-	for pal in range(number_of_pals):
+	for pal in xrange(number_of_pals):
 		pa = get_a_palette(data, spals + pal*16)
 		pa[0] = ( 0x00, 0x00, 0x00 )
 		pa[7] = TRANS
@@ -137,14 +142,13 @@ def get_block_accessor(blk_filename):
 	assert len(pals)==number_of_pals
 	assert mapsegstart+number_of_blocks*BLKSIZE == mapsegend
 
-	# just close around whatever we happen to need from the above
-	def block_accessor(block_number):
-		if block_number>=number_of_blocks: return None
+	answer = []
+	for block_number in xrange(number_of_blocks):
 		blkbase = mapsegstart+block_number*BLKSIZE
 		pal = pals[block_pals[block_number]]
 		br = blkbase
-		lines = []
-		for y in range(16):
+		i = img.Img.create(16, 16)
+		for y in xrange(16):
 			p2 = get_word(data, br)
 			br += 2
 			p1 = get_word(data, br)
@@ -152,10 +156,10 @@ def get_block_accessor(blk_filename):
 			p0 = get_word(data, br)
 			br += 2
 			line = chunkify((p0,p1,p2), 16)
-			line = [ pal[pix] for pix in line ]
-			lines.append(line)
-		return lines
-	return block_accessor
+			for x, pix in enumerate(line):
+				i.put(x, y, pal[pix])
+		answer.append(i)
+	return answer
 
 def write_p6_header(f, w, h, max):
 	f.write("P6\n")
@@ -176,13 +180,11 @@ def post_process_ppm(name):
 def save_all_blocks(world, block_accessor):
 	b = 0
 	while 1:
-		lines = block_accessor(b)
-		if not lines: break;
+		i = block_accessor[b]
+		if not i: break;
 		name = "blocks/b{0}{1:x}.ppm".format(world, b)
 		print "exporting", name
-		with open(name, 'w') as f:
-			write_p6_header(f, 16, 16, 255)
-			write_p6_grid(f, lines)
+		i.saveP6(name)
 		post_process_ppm(name)
 		b += 1
 
@@ -245,30 +247,46 @@ def convert_map(block_accessor, name, rt):
 	col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
 	row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
 
-	if rt: apply_rt(map, rt)
+	def schem(l):
+		#print repr(l)
+		answer = []
+		v = 0
+		for t in l:
+			if t:
+				answer.append(v)
+				v += 1
+			else:
+				answer.append(None)
+		assert v==l.count(True), "{0} != {1}".format(v, l.count(True))
+		return v, answer
+
+	w, col = schem(col)
+	h, row = schem(row)
+
+	if rt:
+		validate_rt(name, len(block_accessor), rt)
+		apply_rt(map, rt)
 	fname = name+".ppm"
 	with open(fname, 'w') as f:
-		write_p6_header(f, col.count(True)*16, row.count(True)*16, 255)
-		for ly in xrange(MYS):
-			if row[ly]:
-				longlines = None
-				for lx in xrange(MXS):
-					if col[lx]:
-						lines = block_accessor(map[mapidx(lx, ly)])
-						assert lines
-						if longlines:
-							for line, longline in zip(lines, longlines):
-								longline.extend(line)
-						else:
-							longlines = lines
-				write_p6_grid(f, longlines)
+		write_p6_header(f, w*16, h*16, 255)
+		i = img.Img.create(w*16, 16)
+		for mapy, scry in enumerate(row):
+			if scry is not None:
+				for mapx, scrx in enumerate(col):
+					if scrx is not None:
+						b = block_accessor[map[mapidx(mapx, mapy)]]
+						i.view(16*scrx, 0).overwrite(b)
+				#rowname = name+"__row"+str(scry)+".ppm"
+				#i.saveP6(rowname)
+				#post_process_ppm(rowname)
+				i.saveRaw(f)
 	post_process_ppm(fname)
 
 def convert_world(name, rt=None):
-	block_accessor = get_block_accessor("odata/blk"+name)
-	save_all_blocks(name, block_accessor)
-	for x in range(10):
-		convert_map(block_accessor, name+str(x), woodRT)
+	block_accessor = get_block_list("odata/blk"+name)
+#	save_all_blocks(name, block_accessor)
+	for x in xrange(10):
+		convert_map(block_accessor, name+str(x), rt)
 
 def convert_worlds():
 	convert_world("w", woodRT)
@@ -331,6 +349,8 @@ def convert_tt():
 		name = "tearaway/"+str(x)+".ppm"
 		n.saveP6(name)
 		post_process_ppm(name)
+
+
 
 convert_worlds()
 convert_font()

@@ -30,3 +30,39 @@ even^M
 
 looks like out source is mostly
 /media/d3/large/q/z/old/things_to_keep/SaveIt2/ARCHIVE/AMIGA/amiga/GOT/tt
+
+
+
+
+
+BOBaddx=0   W^M
+BOBaddy=2   W^M
+BOBsx=4 W^M
+BOBsy=6 W^M
+BOBpix15=8  W^M
+BOBrastlen=10   W^M
+BOBmaskadd=12   W^M
+BOBdata=14  Bs^M
+
+
+skip_frame	; IN	a0=frame
+	move.w	BOBsy(a0),d0
+	mulu	BOBrastlen(a0),d0	=size of data
+	lea	BOBdata(a0,d0.w),a0
+	rts
+
+
+0000000: 6265 6172 0018 0098 0cca 0983 0000 0432  bear...........2
+0000010: 0a94 0863 0652 fff2 ffdb 0004 0026 0006  ...c.R.......&..
+0000020: 0010 000c 0000 0000 0000 0000 0e00 7000  ..............p.
+0000030: 0e00 7000 0000 7000 0000 7000 1fff f800  ..p...p...p.....
+0000040: 1fff f800 03ff 9000 03ff 9000 0fff f800  ................
+0000050: 0fff f800 0303 1000 03ff 1000 07ff f800  ................
+0000060: 07ff f800 0584 a000 07fd a000 07ff f000  ................
+
+
+29m40.711s
+
+
+real    3m8.845s
+
