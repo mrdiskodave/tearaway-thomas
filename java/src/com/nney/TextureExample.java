@@ -10,12 +10,19 @@ package com.nney;
  * Can anyone explain why?
  */
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+
+import javax.imageio.ImageIO;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+
+import com.nney.utils.ClassResourceOpenable;
 
 public class TextureExample {
 	private static final int SCREEN_HEIGHT = 600;
@@ -82,6 +89,29 @@ public class TextureExample {
 	}
 
 	private void initTexture() {
+		InputStream is;
+		try {
+			is = new ClassResourceOpenable(TextureExample.class, "000.png").open();
+			BufferedImage i = ImageIO.read(is);
+			int w = i.getWidth();
+			int h = i.getHeight();
+			int[] pixels = i.getRGB(0, 0, w, h, null, 0, w);
+			for (int y=0; y<h; y++) {
+				for (int x=0; x<w; x++) {
+					int o = w*y + x;
+					int p = pixels[o];
+					System.out.println(String.format("%03d %03d %08x", x, y, p));
+				}
+			}
+			int z = 5;
+			z++;
+			
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
 		textureId = GL11.glGenTextures();
 		bindTexture();
 		ByteBuffer buffer = ByteBuffer.allocateDirect(TEXTURE_BUFFER_SIZE);
