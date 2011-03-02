@@ -1,6 +1,11 @@
 import array
 import re
 
+def write_p6_header(f, w, h, max):
+	f.write("P6\n")
+	f.write("{0} {1}\n".format(w, h))
+	f.write("{0}\n".format(max))
+
 class Img:
 	BYTES_PER_PIXEL = 3
 
@@ -132,14 +137,9 @@ class Img:
 		return self
 
 	def saveP6(self, name):
-		def write_header(f, w, h, max):
-			f.write("P6\n")
-			f.write("{0} {1}\n".format(w, h))
-			f.write("{0}\n".format(max))
-
 		self = self._unsub()
 		with open(name, 'w') as f:
-			write_header(f, self.w, self.h, 255)
+			write_p6_header(f, self.w, self.h, 255)
 			self.d.tofile(f)
 
 	def saveRaw(self, f):

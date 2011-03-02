@@ -177,16 +177,25 @@ def get_block_list(blk_filename):
 		answer.append(i)
 	return answer
 
-def write_p6_header(f, w, h, max):
-	f.write("P6\n")
-	f.write("{0} {1}\n".format(w, h))
-	f.write("{0}\n".format(max))
+class Cascade:
+	def __init__(self, f):
+		self.f = f
 
-def write_p6_grid(f, lines):
-	for line in lines:
-		f.write(''.join([struct.pack('BBB', *pix) for pix in line ]))
+	def getCurrentName(self):
+		return self.f
 
-def post_process_ppm(name):
+	def assignNewName(self, n):
+		os.remove(self.f)
+		self.f = n
+
+	def saveP6(self, i):
+		i.saveP6(self.f)
+
+	def toPNG(self):
+		post_process_ppm(self)
+
+def post_process_ppm(c):
+	name = c.getCurrentName()
 	assert name.endswith(".ppm")
 	newname = name[:-3]+"png"
 	print "into", newname
@@ -194,14 +203,13 @@ def post_process_ppm(name):
 	#f = "pnmtopng {0} >{1}"
 	f = "pnmtopng -transparent =rgb:"+TRANS2+" {0} >{1}"
 	shelltools.Cmd.shellf(f, name, newname).do().check()
-	os.remove(name)
+	c.assignNewName(newname)
 
 def save_all_blocks(world, block_accessor):
 	for b, i in enumerate(block_accessor):
-		name = os.path.join(NEWDATA, "blocks", "{0}{1:04x}.ppm".format(world, b))
-		print "exporting", name
-		i.saveP6(name)
-		post_process_ppm(name)#map block
+		cas = Cascade(os.path.join(NEWDATA, "blocks", "{0}{1:04x}.ppm".format(world, b)))
+		cas.saveP6(i)
+		cas.toPNG()#map block
 
 def get_map_from_level(level):
 	# commision 64K of words
@@ -283,7 +291,7 @@ def convert_map(block_accessor, name, rt):
 		apply_rt(map, rt)
 	fname = os.path.join(NEWDATA, "maps", name+".ppm")
 	with open(fname, 'w') as f:
-		write_p6_header(f, w*16, h*16, 255)
+		img.write_p6_header(f, w*16, h*16, 255)
 		i = img.Img.create(w*16, 16)
 		for mapy, scry in enumerate(row):
 			if scry is not None:
@@ -297,8 +305,8 @@ def convert_map(block_accessor, name, rt):
 def convert_world(name, rt=None):
 	block_accessor = get_block_list("odata/blk"+name)
 	save_all_blocks(name, block_accessor)
-	for x in xrange(10):
-		convert_map(block_accessor, name+str(x), rt)
+#	for x in xrange(10):
+#		convert_map(block_accessor, name+str(x), rt)
 
 def convert_worlds():
 	convert_world("w", woodRT)
@@ -353,10 +361,9 @@ def convert_font():
 			if not sub.test(TRANS): break
 			w -= 1
 
-		name = os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c)))
-		print "SAVE", name, c, w
-		n.view(0, 0, w, None).saveP6(name)
-		post_process_ppm(name)#font character
+		cas = Cascade(os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c))))
+		cas.saveP6(n.view(0, 0, w, None))
+		cas.toPNG()#font character
 
 def convert_tt():
 	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
@@ -367,9 +374,9 @@ def convert_tt():
 		print x, b
 		n = img.Img.create(r.w, r.h)
 		n.overwrite(i.view(*b))
-		name = os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x))
-		n.saveP6(name)
-		post_process_ppm(name)#tearaway sprite
+		cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
+		cas.saveP6(n)
+		cas.toPNG()#tearaway frame
 
 def convert_bob(world, name):
 	i = load_array_file("odata/"+world+name)
@@ -438,9 +445,9 @@ def convert_bob(world, name):
 						zz.put(xd, y, c)
 			#print s
 			offset += rastlen
-		fname = os.path.join(NEWDATA, "bobs", "{0}_{1:03}.ppm".format(world+name, frame))
-		zz.saveP6(fname)
-		post_process_ppm(fname)#bob frame
+		cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}_{1:03}.ppm".format(world+name, frame)))
+		cas.saveP6(zz)
+		cas.toPNG()#bob frame
 
 def convert_bobs():
 	world = '0'
