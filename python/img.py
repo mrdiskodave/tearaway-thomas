@@ -106,6 +106,12 @@ class Img:
 				if self.get(x, y)==f:
 					self.put(x, y, r)
 
+	def map(self, f):
+		for y in xrange(self.h):
+			for x in xrange(self.w):
+				c = self.get(x, y)
+				self.put(x, y, f(c))
+
 	def test(self, c):
 		for y in xrange(self.h):
 			for x in xrange(self.w):

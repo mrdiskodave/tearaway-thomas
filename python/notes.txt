@@ -66,3 +66,184 @@ skip_frame	; IN	a0=frame
 
 real    3m8.845s
 
+
+How do you represent 5,6,5bit 16-bit High Color http://en.wikipedia.org/wiki/Highcolor 
+as #RRGGBB?
+
+(25r65 * value) / (1<<bits)           for each component?
+
+#848284
+
+r max 31
+g max 63
+b max 31
+
+r value 16
+b value 32
+g value 16
+
+10000xxx
+     100
+100000xx
+      10
+
+
+
+
+
+My 16bit screen has 5bits for red, 6bits for green and 5bits for blue as is common
+http://en.wikipedia.org/wiki/Highcolor#16-bit_highcolor
+
+int redBits = GL11.glGetInteger(GL11.GL_RED_BITS);
+int greenBits = GL11.glGetInteger(GL11.GL_GREEN_BITS);
+int blueBits = GL11.glGetInteger(GL11.GL_BLUE_BITS);
+
+confirms this
+
+the example for loop at http://www.opengl.org/resources/faq/technical/color.htm
+suggests that if you set numPrims to 2^(redBits+greenBits+blueBits) you'll visit every color value
+
+GL11.glColor3ub((byte)0, (byte)0, (byte)0xf8);
+
+http://linux.die.net/man/3/glcolor3ui
+
+http://www.opengl.org/resources/faq/technical/color.htm example code seems to be wrong.
+Consider the case where the loop walks all colors i.e. when numPrims is  2^(redBits+greenBits+blueBits).
+It never submits the largest representable value (e.g. 0xffffffff). It only submits the largest color component
+shifted up to the top of the integer (e.g. 0xff000000). Consequently it never reaches full intensity because,
+as http://linux.die.net/man/3/glcolor3ui says "Unsigned integer color components, when specified,
+are linearly mapped to floating-point values such that the largest representable value maps to 1.0 (full intensity),
+and 0 maps to 0.0 (zero intensity)."
+
+
+  0 0000
+  1 0839
+  2 1073
+  3 18ad
+  4 20e7
+  5 2921
+  6 315a
+  7 3994
+  8 41ce*
+  9 4a08
+ 10 5242
+ 11 5a7b
+ 12 62b5*
+ 13 6aef*
+ 14 7329
+ 15 7b63
+ 16 839c*
+ 17 8bd6*
+ 18 9410
+ 19 9c4a
+ 20 a484*
+ 21 acbd*
+ 22 b4f7*
+ 23 bd31
+ 24 c56b*
+ 25 cda5
+ 26 d5de
+ 27 de18
+ 28 e652
+ 29 ee8c
+ 30 f6c6
+ 31 ff00
+
+  0 0000
+  1 040c
+  2 0818
+  3 0c24
+  4 1030
+  5 143c
+  6 1849
+  7 1c55
+  8 2061
+  9 246d
+ 10 2879
+ 11 2c86
+ 12 3092
+ 13 349e
+ 14 38aa
+ 15 3cb6
+ 16 40c3
+ 17 44cf
+ 18 48db
+ 19 4ce7
+ 20 50f3
+ 21 5500
+ 22 590c
+ 23 5d18
+ 24 6124
+ 25 6530
+ 26 693c
+ 27 6d49
+ 28 7155
+ 29 7561
+ 30 796d
+ 31 7d79
+ 32 8186
+ 33 8592
+ 34 899e
+ 35 8daa
+ 36 91b6
+ 37 95c3
+ 38 99cf
+ 39 9ddb
+ 40 a1e7
+ 41 a5f3
+ 42 aa00
+ 43 ae0c
+ 44 b218
+ 45 b624
+ 46 ba30
+ 47 be3c
+ 48 c249
+ 49 c655
+ 50 ca61
+ 51 ce6d
+ 52 d279
+ 53 d686
+ 54 da92
+ 55 de9e
+ 56 e2aa
+ 57 e6b6
+ 58 eac3
+ 59 eecf
+ 60 f2db
+ 61 f6e7
+ 62 faf3
+ 63 ff00
+
+  0 0000
+  1 0839
+  2 1073
+  3 18ad
+  4 20e7
+  5 2921
+  6 315a
+  7 3994
+  8 41ce
+  9 4a08
+ 10 5242
+ 11 5a7b
+ 12 62b5
+ 13 6aef
+ 14 7329
+ 15 7b63
+ 16 839c
+ 17 8bd6
+ 18 9410
+ 19 9c4a
+ 20 a484
+ 21 acbd
+ 22 b4f7
+ 23 bd31
+ 24 c56b
+ 25 cda5
+ 26 d5de
+ 27 de18
+ 28 e652
+ 29 ee8c
+ 30 f6c6
+ 31 ff00
+

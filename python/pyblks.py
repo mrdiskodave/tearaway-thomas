@@ -17,7 +17,10 @@ MYS = 128
 PALCOLS = 8
 PALSIZE = PALCOLS*2
 
+# the colour we'll use to mean "transparent"
+# all Amiga colours are scaled up by 0x11 so 0x01 cannot happen
 TRANS = ( 0xff, 0x01, 0xff )
+TRANS2 = "/".join([ "{0:02x}".format(x) for x in TRANS ])    # i.e. "ff/01/ff"
 
 NEWDATA = "newdata"
 
@@ -73,16 +76,21 @@ def load_array_file(name):
 def get_word(data, idx):
 	return data[idx]*256+data[idx+1]
 
+def raise_colour(c):
+	r, g, b = c
+	r *= 0x11
+	g *= 0x11
+	b *= 0x11
+	return r, g, b
+
 def get_a_palette(data, palbase):
 	pa = []
 	for idx in xrange(PALCOLS):
 		col = get_word(data, palbase+idx*2)
-		r, g, b = col>>8&15, col>>4&15, col&15
-		r *= 0x11
-		g *= 0x11
-		b *= 0x11
-		#print "pal={0:04x} gives {1} {2} {3}".format(col, r, g, b)
-		pa.append(( r, g, b ))
+		c = col>>8&15, col>>4&15, col&15
+		c = raise_colour(c)
+		print "pal={0:04x} gives {1:02x} {2:02x} {3:02x}".format(col, *c)
+		pa.append(c)
 	return pa
 
 
@@ -182,15 +190,18 @@ def post_process_ppm(name):
 	assert name.endswith(".ppm")
 	newname = name[:-3]+"png"
 	print "into", newname
-	shelltools.Cmd.shellf("pnmtopng {0} >{1}", name, newname).do().check()
+	#f = "pnmtopng -force {0} >{1}"
+	#f = "pnmtopng {0} >{1}"
+	f = "pnmtopng -transparent =rgb:"+TRANS2+" {0} >{1}"
+	shelltools.Cmd.shellf(f, name, newname).do().check()
 	os.remove(name)
 
 def save_all_blocks(world, block_accessor):
 	for b, i in enumerate(block_accessor):
-		name = os.path.join(NEWDATA, "blocks", "{0}{4:X}.ppm".format(world, b))
+		name = os.path.join(NEWDATA, "blocks", "{0}{1:04x}.ppm".format(world, b))
 		print "exporting", name
 		i.saveP6(name)
-		post_process_ppm(name)
+		post_process_ppm(name)#map block
 
 def get_map_from_level(level):
 	# commision 64K of words
@@ -281,7 +292,7 @@ def convert_map(block_accessor, name, rt):
 						b = block_accessor[map[mapidx(mapx, mapy)]]
 						i.view(16*scrx, 0).overwrite(b)
 				i.saveRaw(f)
-	post_process_ppm(fname)
+	post_process_ppm(fname)#entire map
 
 def convert_world(name, rt=None):
 	block_accessor = get_block_list("odata/blk"+name)
@@ -299,7 +310,7 @@ def convert_worlds():
 # ---------------------------------------------------------------------------
 
 class BookReader:
-	def __init__(self, img, w, h, total_across=None):
+	def __init__(self, img, w=1, h=1, total_across=None):
 		self.w = w
 		self.h = h
 		if total_across is None:
@@ -314,12 +325,22 @@ class BookReader:
 		return x, y
 
 def load_ilbm(name):
-	return img.Img.createFromP6(shelltools.Cmd.shellf("ilbmtoppm {0}", name).do(both=True).check().stdout)
+	def lower_colour(c):
+		r, g, b = c
+		r >>= 4
+		g >>= 4
+		b >>= 4
+		return r, g, b
+
+	answer = img.Img.createFromP6(shelltools.Cmd.shellf("ilbmtoppm {0}", name).do(both=True).check().stdout)
+	answer.map(lower_colour)
+	answer.map(raise_colour)
+	return answer
 	
 def convert_font():
 	chars = "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'"
 	i = load_ilbm("orig/gfx/other/bits/font.lbm")	
-	i.findReplace((0,0,96), TRANS)
+	i.findReplace((0x00,0x00,0x66), TRANS)
 	r = BookReader(i, 16, 11)
 	for x, c in enumerate(chars):
 		n = img.Img.create(r.w, r.h)
@@ -335,11 +356,11 @@ def convert_font():
 		name = os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c)))
 		print "SAVE", name, c, w
 		n.view(0, 0, w, None).saveP6(name)
-		post_process_ppm(name)
+		post_process_ppm(name)#font character
 
 def convert_tt():
 	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
-	i.findReplace((0,144,240),TRANS)
+	i.findReplace((0x00,0x99,0xff),TRANS)
 	r = BookReader(i, 32, 32, 8)
 	for x in xrange(0, 64+8+3):
 		b = r.start(x)
@@ -348,19 +369,19 @@ def convert_tt():
 		n.overwrite(i.view(*b))
 		name = os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x))
 		n.saveP6(name)
-		post_process_ppm(name)
+		post_process_ppm(name)#tearaway sprite
 
 def convert_bob(world, name):
 	i = load_array_file("odata/"+world+name)
 
-	BOBaddx=0
-	BOBaddy=2
-	BOBsx=4
-	BOBsy=6
-	BOBpix15=8
-	BOBrastlen=10
-	BOBmaskadd=12
-	BOBdata=14
+	#BOBaddx=0
+	#BOBaddy=2
+	#BOBsx=4
+	#BOBsy=6
+	#BOBpix15=8
+	#BOBrastlen=10
+	#BOBmaskadd=12
+	#BOBdata=14
 
 	MAGIC = struct.unpack(">L", name)[0]
 	magic, framecount,  = struct.unpack(">LH", i[0:6])
@@ -419,7 +440,7 @@ def convert_bob(world, name):
 			offset += rastlen
 		fname = os.path.join(NEWDATA, "bobs", "{0}_{1:03}.ppm".format(world+name, frame))
 		zz.saveP6(fname)
-		post_process_ppm(fname)
+		post_process_ppm(fname)#bob frame
 
 def convert_bobs():
 	world = '0'
@@ -438,12 +459,72 @@ def convert_bobs():
 
 
 
-convert_bobs()	
-sys.exit(1)
-convert_worlds()
+
 convert_font()
 convert_tt()
+convert_bobs()	
+convert_worlds()
 
-# ---------------------------------------------------------------------------
-# ( cd font && find . -name "*.ppm" -exec echo 'pnmtopng {} >{}.png' \; | sh )
 
+
+
+
+
+
+_____END_____ = """
+
+1111111111111111------------
+
+
+11111000 11111100 11111000 f8 fc f8 bits available  5/6/5 
+11110010 11110010 11110010 f2 f2 f2 color requested
+11101111 11110111 11101111 ef f3 ef color returned
+
+
+
+
+
+got = img.Img.createFromP6(load_file("drawn.pnm"))
+
+def sc(c):
+	r, g, b = c
+	return "rgb:{0:02x}/{1:02x}/{2:02x}".format(r, g, b)
+
+i = img.Img.create(16, 16)
+for q in xrange(256):
+	x = q&15
+	y = q>>4
+	c = (q,q,q)
+	i.put(x, y, c)
+	g = got.get(x, y)
+	if c==g:
+		print "At x={0:-2} y={1:-2} texture.png has {2} but drawn.png has {3}".format(x, y, sc(c), sc(g))
+
+fn = "brights.ppm"
+i.saveP6(fn)
+post_process_ppm(fn)#brightness grid
+
+def make_mask(b, s=8):
+	spare = max(s-b, 0)
+	mask = -(1<<spare)
+	return mask
+
+mr = make_mask(5)
+mg =  make_mask(6)
+mb =  make_mask(5)
+print sc((mr, mg, mb))
+for q in xrange(256):
+	x = q&15
+	y = q>>4
+	c = (q,q,q)
+	pr = mr&q
+	pg = mg&q
+	pb = mb&q
+	g = (pr,pg,pb)
+	if c==g:
+		print "AT x={0:-2} y={1:-2} texture.png has {2} but drawn.png has {3}".format(x, y, sc(c), sc(g))
+
+
+
+
+"""
