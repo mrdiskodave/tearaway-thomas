@@ -7,7 +7,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-public class OpenGLBlitExample2 {
+public class OpenGlBlitExample {
 	private static final int SCREEN_HEIGHT = 200;
 	private static final int SCREEN_WIDTH = 300;
 
