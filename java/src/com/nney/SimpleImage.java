@@ -1,29 +1,26 @@
 package com.nney;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
-import com.nney.utils.Openable;
+import com.nney.utils.MemoryIoException;
 
 public class SimpleImage {
 	private int width;
 	private int height;
-	public int[] pixels;
+	private int[] pixels; // ARGB 32bit words
 
-	SimpleImage(Openable openable) {
+	SimpleImage(byte[] data) {
 		BufferedImage bufferedImage;
 		try {
-			InputStream is = openable.open();
-			bufferedImage = ImageIO.read(is);
-			is.close();
+			bufferedImage = ImageIO.read(new ByteArrayInputStream(data));
 		}
 		catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new MemoryIoException();
 		}
-	
 		this.width = bufferedImage.getWidth();
 		this.height = bufferedImage.getHeight();
 		this.pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
@@ -35,5 +32,9 @@ public class SimpleImage {
 
 	public int getWidth() {
 		return width;
+	}
+
+	public int getPixel(int x, int y) {
+		return this.pixels[y*width+x];
 	}
 }

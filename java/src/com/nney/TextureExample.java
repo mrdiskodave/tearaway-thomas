@@ -10,7 +10,9 @@ package com.nney;
  * Can anyone explain why?
  */
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
@@ -18,24 +20,24 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.utils.ClassResourceOpenable;
+import com.nney.utils.Openable;
+import com.nney.utils.Pump;
 
 public class TextureExample {
 	private static final int SCREEN_HEIGHT = 600;
 	private static final int SCREEN_WIDTH = 800;
 
-	private static final int TEXTURE_WIDTH = 32;
-	private static final int TEXTURE_HEIGHT = 32;
+	private Bob bob;
 
-	private int textureId;
-
-	private void bindTexture() {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+	private void configureTextureEngine() {
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 	}
-
 
 	private void initLwjglDisplay() {
 		try {
@@ -47,13 +49,14 @@ public class TextureExample {
 			throw new RuntimeException(e);
 		}
 	}
+
 	private void initOpenGL() {
 		discoverDisplayDepth();
 		resetOpenGl();
-		
+
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glClearColor(0.5f, 0.5f, 0.0f, 0.0f);
-		
+
 		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -61,7 +64,6 @@ public class TextureExample {
 		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
-
 
 	private void resetOpenGl() {
 		GL11.glDisable(GL11.GL_BLEND);
@@ -72,7 +74,6 @@ public class TextureExample {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glShadeModel(GL11.GL_FLAT);
 	}
-
 
 	private void discoverDisplayDepth() {
 		int r = GL11.glGetInteger(GL11.GL_RED_BITS);
@@ -85,26 +86,25 @@ public class TextureExample {
 	}
 
 	private void initTexture() {
-		ClassResourceOpenable openable = new ClassResourceOpenable(TextureExample.class, "000.png");
-
-		SimpleImage si = new SimpleImage(openable);
-		textureId = GL11.glGenTextures();
-		bindTexture();
-		ByteBuffer buffer = ByteBuffer.allocateDirect(si.getWidth()*si.getHeight()*4);
-		for (int y=0; y<si.getHeight(); y++) {
-			for (int x=0; x<si.getWidth(); x++) {
-				int p = si.pixels[si.getWidth()*y + x];
-				System.out.println(String.format("%03d %03d %08x", x, y, p));
-				buffer.put((byte) (p>>2*8)); // R
-				buffer.put((byte) (p>>1*8)); // G
-				buffer.put((byte) (p>>0*8)); // B
-				buffer.put((byte) (p>>3*8)); // A
-			}
+		byte[] b;
+		try {
+			// String fn = "000.png";
+			String fn = "0bgem_000.png";
+			ClassResourceOpenable openable = new ClassResourceOpenable(TextureExample.class, fn);
+			b = loadIntoByteArray(openable);
 		}
-		buffer.rewind();
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		SimpleImage si = new SimpleImage(b);
+		bob = new Bob(si);
+	}
 
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, si.getWidth(), si.getHeight(), 0,
-				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+	private byte[] loadIntoByteArray(Openable openable) throws IOException {
+		InputStream in = openable.open();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		new Pump(in, out).processToEof();
+		return out.toByteArray();
 	}
 
 	/**
@@ -112,29 +112,12 @@ public class TextureExample {
 	 */
 	private void render() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		bindTexture();
-		
+		configureTextureEngine();
 
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-//		GL11.glColor4f(1.0f,1.0f,1.0f,0.0f);
-//		GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ZERO);
-//		GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		int dx = 100;
+		int dy = 100;
 
-		float destination = 100f;
-		int scale = 1;
-
-		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0);
-		GL11.glVertex2f(destination, destination);
-		GL11.glTexCoord2f(1, 0);
-		GL11.glVertex2f(destination + TEXTURE_WIDTH * scale, destination);
-		GL11.glTexCoord2f(1, 1);
-		GL11.glVertex2f(destination + TEXTURE_WIDTH * scale, destination + TEXTURE_HEIGHT * scale);
-		GL11.glTexCoord2f(0, 1);
-		GL11.glVertex2f(destination, destination + TEXTURE_HEIGHT * scale);
-		GL11.glEnd();
+		bob.draw(dx, dy);
 	}
 
 	private void startTheExample() {

@@ -1,5 +1,6 @@
 package com.nney;
 
+
 import java.nio.ByteBuffer;
 
 import org.lwjgl.LWJGLException;
@@ -7,6 +8,21 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
+/**
+ * <p>An example of pixel perfect blitting with proper alpha "masking" onto
+ * an <b>existing</b> background. No dependencies except for lwjgl itself.
+ * 
+ * <p>A big improvement on 
+ * <a href="http://lwjgl.org/wiki/index.php?title=Slick-Util_Library_-_Part_1_-_Loading_Images_for_LWJGL">this</a>
+ * which
+ * <ul>
+ * <li>loads an external file
+ * <li>isn't pixel perfect
+ * <li>doesn't mask onto an existing background but just onto a colour they select(?!)
+ * </ul>
+ * 
+ * <p>provided entirely free (MIT license) with the hope that it is useful.
+ */
 public class OpenGlBlitExample {
 	private static final int SCREEN_HEIGHT = 200;
 	private static final int SCREEN_WIDTH = 300;
@@ -26,20 +42,6 @@ public class OpenGlBlitExample {
 			throw new RuntimeException(e);
 		}
 	}
-	private void initOpenGL() {
-		resetOpenGl();
-		
-		GL11.glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
-		
-		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glLoadIdentity();
-		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-	}
-
-
 	private void resetOpenGl() {
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_DITHER);
@@ -50,6 +52,18 @@ public class OpenGlBlitExample {
 		GL11.glShadeModel(GL11.GL_FLAT);
 	}
 
+	private void initOpenGL() {
+		resetOpenGl();
+		
+		GL11.glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
+		
+		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+	}
 	private void initTexture() {
 		// generate a texture that is a blue triangle
 		ByteBuffer buffer = ByteBuffer.allocateDirect(TEXTURE_WIDTH*TEXTURE_HEIGHT*4);
