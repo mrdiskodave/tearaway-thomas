@@ -23,7 +23,8 @@ public class Bob {
 		return a;
 	}
 
-	public Bob(SimpleImage si) {
+	public Bob(byte[] data) {
+		SimpleImage si = new SimpleImage(data);
 		imageW = si.getWidth();
 		imageH = si.getHeight();
 		// TODO: do we always need to do this?

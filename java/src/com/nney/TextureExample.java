@@ -96,8 +96,8 @@ public class TextureExample {
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		SimpleImage si = new SimpleImage(b);
-		bob = new Bob(si);
+		
+		bob = new Bob(b);
 	}
 
 	private byte[] loadIntoByteArray(Openable openable) throws IOException {
