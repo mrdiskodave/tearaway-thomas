@@ -20,6 +20,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.utils.ClassResourceOpenable;
+import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.Pump;
 
@@ -88,16 +89,15 @@ public class TextureExample {
 	private void initTexture() {
 		byte[] b;
 		try {
-			// String fn = "000.png";
-			String fn = "0bgem_000.png";
-			ClassResourceOpenable openable = new ClassResourceOpenable(TextureExample.class, fn);
+//			Openable openable = new ClassResourceOpenable(TextureExample.class, "0bgem_000.png");
+			Openable openable = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\bobs\\wbear_000.png");
 			b = loadIntoByteArray(openable);
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		
-		bob = new Bob(b);
+		bob = Bob.fromLargeImage(b);
 	}
 
 	private byte[] loadIntoByteArray(Openable openable) throws IOException {
