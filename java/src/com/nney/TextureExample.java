@@ -28,8 +28,11 @@ public class TextureExample {
 	private static final int SCREEN_HEIGHT = 600;
 	private static final int SCREEN_WIDTH = 800;
 
-	private Bob bob;
-
+	private static final int FRAMES = 8;
+	
+	private Bob[] bob = new Bob[FRAMES];
+	private int currentFrame;
+	
 	private void configureTextureEngine() {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
@@ -87,17 +90,18 @@ public class TextureExample {
 	}
 
 	private void initTexture() {
-		byte[] b;
-		try {
-//			Openable openable = new ClassResourceOpenable(TextureExample.class, "0bgem_000.png");
-			Openable openable = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\bobs\\wbear_000.png");
-			b = loadIntoByteArray(openable);
+		for (int x=0; x<FRAMES; x++) {
+			byte[] b;
+			try {
+				Openable openable = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\bobs\\wbear_00"+Integer.toString(x)+".png");
+				b = loadIntoByteArray(openable);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			
+			bob[x] = Bob.fromLargeImage(b);
 		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		
-		bob = Bob.fromLargeImage(b);
 	}
 
 	private byte[] loadIntoByteArray(Openable openable) throws IOException {
@@ -117,7 +121,10 @@ public class TextureExample {
 		int dx = 100;
 		int dy = 100;
 
-		bob.draw(dx, dy);
+		bob[currentFrame].draw(dx, dy);
+		
+		currentFrame++;
+		currentFrame %= FRAMES;
 	}
 
 	private void startTheExample() {
@@ -129,7 +136,7 @@ public class TextureExample {
 			render();
 
 			Display.update();
-			Display.sync(20);
+			Display.sync(15);
 
 			if (Display.isCloseRequested()) {
 				Display.destroy();
