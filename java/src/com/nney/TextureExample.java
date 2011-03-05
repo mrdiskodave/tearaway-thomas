@@ -10,28 +10,17 @@ package com.nney;
  * Can anyone explain why?
  */
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.utils.FileOpenable;
-import com.nney.utils.Openable;
-import com.nney.utils.Pump;
-
 public class TextureExample {
 	private static final int SCREEN_HEIGHT = 600;
 	private static final int SCREEN_WIDTH = 800;
 
-	private static final int FRAMES = 8;
-	
-	private Bob[] bob = new Bob[FRAMES];
-	private int currentFrame;
-	
+	private Anim anim;
+
 	private void configureTextureEngine() {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
@@ -89,29 +78,9 @@ public class TextureExample {
 	}
 
 	private void initTexture() {
-		AnimSpec w = new AnimSpec(128, new FramesSpec("wbear", 0, 1, 2, 3, 4, 5, 6, 7));
-		
-		
-		for (int x=0; x<FRAMES; x++) {
-			byte[] b;
-			try {
-				Openable openable = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\bobs\\wbear_00"+Integer.toString(x)+".png");
-				b = loadIntoByteArray(openable);
-			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			
-			bob[x] = Bob.fromLargeImage(b);
-		}
+		anim = new Anim(128, "wbear,0,1,2,3,4,5,6,7");
 	}
 
-	private byte[] loadIntoByteArray(Openable openable) throws IOException {
-		InputStream in = openable.open();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		new Pump(in, out).processToEof();
-		return out.toByteArray();
-	}
 
 	/**
 	 * Draw a quad with the texture on it.
@@ -122,11 +91,7 @@ public class TextureExample {
 
 		int dx = 100;
 		int dy = 100;
-
-		bob[currentFrame].draw(dx, dy);
-		
-		currentFrame++;
-		currentFrame %= FRAMES;
+		anim.next().draw(dx, dy);
 	}
 
 	private void startTheExample() {

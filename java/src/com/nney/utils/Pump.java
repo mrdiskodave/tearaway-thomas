@@ -1,5 +1,6 @@
 package com.nney.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,5 +36,12 @@ public class Pump {
 			length -= got;
 		}
 		return done;
+	}
+	
+	static public byte[] loadIntoByteArray(Openable openable) throws IOException {
+		InputStream in = openable.open();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		new Pump(in, out).processToEof();
+		return out.toByteArray();
 	}
 }
