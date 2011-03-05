@@ -1,53 +1,65 @@
 package com.nney;
 
-
 public class Bob {
-	private final int subX;
-	private final int subY;
+	private final int handleX;
+	private final int handleY;
 	private Texture texture;
 
-	public Bob(int subX, int subY, SimpleImage si) {
-		this.subX = subX;
-		this.subY = subY;
+	/**
+	 * Create a {@link Bob}.
+	 * @param si An image to use.
+	 * @param handleX The x coordinate of the handle within the given image (0 the left). 
+	 * @param handleY The y coordinate of the handle within the given image (0 the top).
+	 */
+	private Bob(SimpleImage si, int handleX, int handleY) {
+		this.handleX = handleX;
+		this.handleY = handleY;
 		this.texture = new Texture(si);
 	}
 
 	/**
-	 * Make a bob from a large image.
+	 * Make a {@link Bob} from a large image.
 	 * 
-	 * The image must have odd (not even) dimensions so that it has an obvious
-	 * centre pixel. The centre pixel is where the bob is handled by. When you
-	 * ask to paint it at <code>x/y</code> you will be positioning it on screen
-	 * by that centre pixel. Next, the image has all the transparency shaved off
-	 * the top, bottom, left and right before being stored away for later use.
+	 * The image must have odd dimensions (i.e. not even) so that it has an
+	 * obvious centre pixel. The centre pixel will be the bob's "handle". Next,
+	 * the image has all the transparency shaved off the top, bottom, left and
+	 * right before being returned as a {@link Bob}.
 	 * 
 	 * @param someRawGraphicsFile
-	 *            All the bytes from a graphics file. It'll need to support 
+	 *            All the bytes from a graphics file. It'll need to support
 	 *            transparency. PNG definitely works.
 	 */
 	static Bob fromLargeImage(byte[] someRawGraphicsFile) {
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
 
+		// Establish where the handle is
 		assert si.getWidth() % 2 == 1;
 		assert si.getHeight() % 2 == 1;
+		int handleX = si.getWidth() / 2;
+		int handleY = si.getHeight() / 2;
 
+		// Establish the bounds of the bob
+		// (as it is surrounded on all four sides by transparency)
 		Bounds bounds = si.getBounds();
 
-		int midX = si.getWidth() / 2;
-		int midY = si.getHeight() / 2;
-
-		int subX = midX - bounds.left;
-		int subY = midY - bounds.top;
-
+		// Crop it to those bounds
 		si = si.crop(bounds);
+		handleX -= bounds.left;
+		handleY -= bounds.top;
 
-		return new Bob(subX, subY, si);
+		// and that is us!
+		return new Bob(si, handleX, handleY);
 	}
 
+	/**
+	 * Draw the bob.
+	 * 
+	 * @param dx Where to put the handle (the rest of the bob is drawn around it, of course).
+	 * @param dy
+	 */
 	public void draw(int dx, int dy) {
-		dx -= subX;
-		dy -= subY;
+		dx -= handleX;
+		dy -= handleY;
 		texture.draw(dx, dy);
 	}
-
 }

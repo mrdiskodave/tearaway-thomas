@@ -22,5 +22,5 @@ public class Anim {
 	/**
 	 * The frames themselves.
 	 */
-	List<Frame> frames = new ArrayList<Frame>();
+	List<Bob> frames = new ArrayList<Bob>();
 }
