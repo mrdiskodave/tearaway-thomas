@@ -1,11 +1,11 @@
 package com.nney;
 
 public class AnimSpec {
-	int rate;
-	String[] frameNames;
+	int defaultRate;
+	FramesSpec[] frameNames;
 	
-	AnimSpec(int rate, String... frameNames) {
-		this.rate = rate;
+	AnimSpec(int defaultRate, FramesSpec... frameNames) {
+		this.defaultRate = defaultRate;
 		this.frameNames = frameNames;
 	}
 }

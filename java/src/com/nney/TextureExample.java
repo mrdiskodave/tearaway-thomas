@@ -19,7 +19,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.Pump;
@@ -90,6 +89,9 @@ public class TextureExample {
 	}
 
 	private void initTexture() {
+		AnimSpec w = new AnimSpec(128, new FramesSpec("wbear", 0, 1, 2, 3, 4, 5, 6, 7));
+		
+		
 		for (int x=0; x<FRAMES; x++) {
 			byte[] b;
 			try {

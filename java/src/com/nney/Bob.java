@@ -54,7 +54,7 @@ public class Bob {
 	/**
 	 * Draw the bob.
 	 * 
-	 * @param dx Where to put the handle (the rest of the bob is drawn around it, of course).
+	 * @param dx Where to put the handle (the rest of the bob is drawn that location).
 	 * @param dy
 	 */
 	public void draw(int dx, int dy) {
