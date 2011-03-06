@@ -7,11 +7,12 @@ public class Bear {
 	Anim climbing;
 	private Anim suprise;
 
-	void load(FrameHub frameHub) {
-		walkingLeft = new Anim(128, frameHub.getFrames("wbear,n8"));
-		facingForwards = new Anim(0, frameHub.getFrames("n"));
-		walkingRight = new Anim(128, frameHub.getFrames("n8"));
-		climbing = new Anim(128, frameHub.getFrames("c6"));
-		suprise = new Anim(0, frameHub.getFrames("n"));
+	void load(FrameFinder ff, FrameGetter fg) {
+		ff.setFile("wbear");
+		walkingLeft = new Anim(128, fg.get(ff.next(8)));
+		facingForwards = new Anim(0, fg.get(ff.next()));
+		walkingRight = new Anim(128, fg.get(ff.next(8)));
+		climbing = new Anim(128, fg.get(ff.cycle(6)));
+		suprise = new Anim(0, fg.get(ff.next()));
 	}
 }

@@ -48,9 +48,9 @@ public class Main {
 	}
 
 	private void initTexture() {
-		FrameHub frameHub = new FrameHub(new FrameFinder(), new FrameLoader(), new FrameRenderer());
+		FrameGetter frameHub = new FrameGetter(new FrameLoader(), new FrameRenderer());
 		Bear bear = new Bear();
-		bear.load(frameHub);
+		bear.load(new FrameFinder(), frameHub);
 		anim = bear.climbing;
 	}
 

@@ -13,82 +13,36 @@ public class FrameFinder {
 	String file;
 	int pos;
 
-	//
-	// ---------------------------------------------
-	// parser
-	//
-	//
-
-	private static int parseIntOrDefault(String s, int d) {
-		if (s.length() == 0)
-			return d;
-		return Integer.parseInt(s);
+	public void move(int distance) {
+		pos += distance;
 	}
 
-	Frame[] parse(String descr) {
-		List<Frame> frames = new ArrayList<Frame>();
-		for (String item : descr.split(",")) {
-			char command = item.charAt(0);
-			String arg = item.substring(1);
-			switch (command) {
-			case 'w':
-			case '0':
-				// select a file
-				// TODO: substitute 'w' for the world id
-				setFile(item);
-				break;
-			case 'n':
-				// a number of frames
-				int counter = parseIntOrDefault(arg, 1);
-				getFrames(frames, counter);
-				break;
-			case 'c':
-				// a cycle of frames
-				// forwards
-				getCycle(frames, arg);
-				break;
-			case 'm':
-				// move within the frames
-				move(arg);
-				break;
-			default:
-				assert false : command;
-			}
-		}
-		return (Frame[]) frames.toArray(new Frame[frames.size()]);
-	}
-
-	//
-	// ---------------------------------------------
-	// commands
-	//
-	//
-	
-	private void move(String arg) {
-		pos += parseIntOrDefault(arg, 0);
-	}
-
-	private void setFile(String item) {
-		file = item;
+	public void setFile(String name) {
+		file = name;
 		pos = 0;
 	}
 
-	private void getFrames(List<Frame> frames, int counter) {
-		for (int x = 0; x < counter; x++) {
-			frames.add(new Frame(file, pos));
+	public List<Frame> next(int number) {
+		List<Frame> answer = new ArrayList<Frame>();
+		for (int x = 0; x < number; x++) {
+			answer.add(new Frame(file, pos));
 			pos++;
 		}
+		return answer;
 	}
 	
+	public List<Frame> next() {
+		return next(1);
+	}
 
-	private void getCycle(List<Frame> frames, String arg) {
-		int counter = parseIntOrDefault(arg, 1);
-		assert counter > 2;
-		getFrames(frames, counter);
+	public List<Frame> cycle(int length) {
+		assert length > 2;
+		List<Frame> answer = next(length);
 		// back (need not repeat start or end of cycle)
-		int p = frames.size() - 2;
-		for (int x = 0; x < counter - 2; x++) {
-			frames.add(frames.get(p - x));
+		int p = answer.size() - 2;
+		for (int x = 0; x < length - 2; x++) {
+			answer.add(answer.get(p - x));
 		}
+		return answer;
 	}
 }
