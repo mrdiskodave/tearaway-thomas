@@ -4,8 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FrameFinder {
-	String cFile;
-	int cNumber;
+	//
+	// ---------------------------------------------
+	// state
+	//
+	//
+
+	String file;
+	int pos;
+
+	//
+	// ---------------------------------------------
+	// parser
+	//
+	//
 
 	private static int parseIntOrDefault(String s, int d) {
 		if (s.length() == 0)
@@ -19,25 +31,64 @@ public class FrameFinder {
 			char command = item.charAt(0);
 			String arg = item.substring(1);
 			switch (command) {
-			case 'n':
-				for (int x = 0; x < parseIntOrDefault(arg, 1); x++) {
-					frames.add(new Frame(cFile, cNumber));
-					cNumber++;
-				}
-				break;
 			case 'w':
 			case '0':
-				// TODO: substitue 'w' for the world id
-				cFile = item;
-				cNumber = 0;
+				// select a file
+				// TODO: substitute 'w' for the world id
+				setFile(item);
 				break;
-			case 'j':
-				cNumber = parseIntOrDefault(arg, 0);
+			case 'n':
+				// a number of frames
+				int counter = parseIntOrDefault(arg, 1);
+				getFrames(frames, counter);
+				break;
+			case 'c':
+				// a cycle of frames
+				// forwards
+				getCycle(frames, arg);
+				break;
+			case 'm':
+				// move within the frames
+				move(arg);
 				break;
 			default:
 				assert false : command;
 			}
 		}
 		return (Frame[]) frames.toArray(new Frame[frames.size()]);
+	}
+
+	//
+	// ---------------------------------------------
+	// commands
+	//
+	//
+	
+	private void move(String arg) {
+		pos += parseIntOrDefault(arg, 0);
+	}
+
+	private void setFile(String item) {
+		file = item;
+		pos = 0;
+	}
+
+	private void getFrames(List<Frame> frames, int counter) {
+		for (int x = 0; x < counter; x++) {
+			frames.add(new Frame(file, pos));
+			pos++;
+		}
+	}
+	
+
+	private void getCycle(List<Frame> frames, String arg) {
+		int counter = parseIntOrDefault(arg, 1);
+		assert counter > 2;
+		getFrames(frames, counter);
+		// back (need not repeat start or end of cycle)
+		int p = frames.size() - 2;
+		for (int x = 0; x < counter - 2; x++) {
+			frames.add(frames.get(p - x));
+		}
 	}
 }

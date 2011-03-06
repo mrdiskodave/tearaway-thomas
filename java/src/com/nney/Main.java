@@ -1,21 +1,11 @@
 package com.nney;
 
-/*
- * I've been trying and failing to get an -exact- blit of a 2D sprite and have boiled it down to this:
- * 
- * This example makes and draws a 16x16 texture of rgb:0xf2/0xf2/0xf2 
- * resulting in a 16x16 on-screen box of an entirely different colour: rgb:0xef/0xf3/0xef (239/243/239)
- * which is very strange!
- * 
- * Can anyone explain why?
- */
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-public class TextureExample {
+public class Main {
 	private static final int SCREEN_HEIGHT = 600;
 	private static final int SCREEN_WIDTH = 800;
 
@@ -59,7 +49,9 @@ public class TextureExample {
 
 	private void initTexture() {
 		FrameHub frameHub = new FrameHub(new FrameFinder(), new FrameLoader(), new FrameRenderer());
-		anim = new Anim(128, frameHub.getFrames("wbear,n8"));
+		Bear bear = new Bear();
+		bear.load(frameHub);
+		anim = bear.climbing;
 	}
 
 
@@ -94,7 +86,7 @@ public class TextureExample {
 	}
 
 	public static void main(String[] argv) {
-		TextureExample textureExample = new TextureExample();
+		Main textureExample = new Main();
 		textureExample.startTheExample();
 	}
 }
