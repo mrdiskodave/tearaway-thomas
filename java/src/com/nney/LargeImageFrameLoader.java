@@ -18,7 +18,8 @@ import com.nney.utils.OpenableTools;
 public abstract class LargeImageFrameLoader implements FrameLoader {
 	@Override
 	public Bob load(Frame f) {
-		byte[] someRawGraphicsFile = OpenableTools.load(findData(f));
+		Openable data = findData(f);
+		byte[] someRawGraphicsFile = OpenableTools.load(data);
 		return bobFromLargeImage(someRawGraphicsFile);
 	}
 

@@ -11,14 +11,28 @@ import com.nney.utils.MemoryIoException;
 public class SimpleImage {
 	final private int width;
 	final private int height;
+	
+	final private int start;
+	final private int realWidth;
+	
 	final private int[] pixels; // ARGB 32bit words
 
-	SimpleImage(int width, int height) {
+	private SimpleImage(int width, int height, int start, int realWidth, int[] pixels) {
+		this.width = width;
+		this.height = height;
+		this.start = start;
+		this.realWidth = realWidth;
+		this.pixels = pixels;
+	}
+	
+	private SimpleImage(int width, int height, int[] pixels) {
 		this.width = width;
 		this.height = height;
 		this.pixels = new int[width * height];
+		start = 0;
+		realWidth = width;
 	}
-
+	
 	SimpleImage(byte[] someFileFormatToDecode) {
 		BufferedImage bufferedImage;
 		try {
@@ -31,6 +45,8 @@ public class SimpleImage {
 		this.width = bufferedImage.getWidth();
 		this.height = bufferedImage.getHeight();
 		this.pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+		start = 0;
+		realWidth = width;
 	}
 
 	public int getHeight() {
@@ -44,7 +60,7 @@ public class SimpleImage {
 	private int computeOffset(int x, int y) {
 		assert x < width;
 		assert y < height;
-		return y * width + x;
+		return start + y * realWidth + x;
 	}
 
 	public int getPixel(int x, int y) {
@@ -54,7 +70,7 @@ public class SimpleImage {
 	public void putPixel(int x, int y, int c) {
 		this.pixels[computeOffset(x, y)] = c;
 	}
-
+	
 	private boolean testLine(int x, int y, int dx, int dy, int counter) {
 		int offset = computeOffset(x, y);
 		int distance = computeOffset(dx, dy);
@@ -114,24 +130,15 @@ public class SimpleImage {
 		return new Bounds(left, top, width, height);
 	}
 
-	public SimpleImage crop(int x, int y, int w, int h) {
-		assert x >= 0;
-		assert y >= 0;
-		assert w >= 0;
-		assert h >= 0;
-		assert x + w <= width;
-		assert y + h <= height;
 
-		SimpleImage answer = new SimpleImage(w, h);
-		for (int iy = 0; iy < h; iy++) {
-			for (int ix = 0; ix < w; ix++) {
-				answer.putPixel(ix, iy, getPixel(x + ix, y + iy));
-			}
-		}
-		return answer;
+	SimpleImage crop(int x, int y, int width, int height) {
+		int start = computeOffset(x, y);
+		return new SimpleImage(width, height, start, this.width, pixels);
 	}
+
 
 	public SimpleImage crop(Bounds bounds) {
 		return crop(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
+
 }

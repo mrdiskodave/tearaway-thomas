@@ -1,5 +1,7 @@
 package com.nney;
 
+// TODO: really this is a BobName
+// TODO: really a Bob (amiga: blitter object) might be better named a Sprite
 public class Frame {
 	public final String name;
 	public final int number;
