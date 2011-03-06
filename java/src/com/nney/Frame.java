@@ -9,4 +9,22 @@ public class Frame {
 		this.file = file;
 		this.number = number;
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		 if (!(other instanceof Frame))
+		      return false;
+		 Frame us = (Frame) other;
+		 return us.file.equals(file) && us.number==number;
+	}
+	
+	@Override
+	public int hashCode() {
+		return file.hashCode()+number;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Frame('%s', %d)", file, number);
+	}
 }
