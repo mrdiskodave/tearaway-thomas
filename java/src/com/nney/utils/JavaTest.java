@@ -324,7 +324,7 @@ public class JavaTest extends TestCase {
 		int x = 42;
 		do {
 			counter++;
-		} while (--x!=0);
+		} while (--x>0);
 		
 		assertEquals(42, counter);
 	}
