@@ -21,16 +21,6 @@ public class TextureExample {
 
 	private Anim anim;
 
-	private void configureTextureEngine() {
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-	}
-
 	private void initLwjglDisplay() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -44,7 +34,7 @@ public class TextureExample {
 
 	private void initOpenGL() {
 		discoverDisplayDepth();
-		resetOpenGl();
+		GlTools.reset();
 
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glClearColor(0.5f, 0.5f, 0.0f, 0.0f);
@@ -55,16 +45,6 @@ public class TextureExample {
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-	}
-
-	private void resetOpenGl() {
-		GL11.glDisable(GL11.GL_BLEND);
-		GL11.glDisable(GL11.GL_DITHER);
-		GL11.glDisable(GL11.GL_FOG);
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glDisable(GL11.GL_TEXTURE_1D);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glShadeModel(GL11.GL_FLAT);
 	}
 
 	private void discoverDisplayDepth() {
@@ -78,7 +58,8 @@ public class TextureExample {
 	}
 
 	private void initTexture() {
-		anim = new Anim(128, "wbear,0,1,2,3,4,5,6,7");
+		FrameHub frameHub = new FrameHub(new FrameFinder(), new FrameLoader(), new FrameRenderer());
+		anim = new Anim(128, frameHub.getFrames("wbear,n8"));
 	}
 
 
@@ -87,7 +68,7 @@ public class TextureExample {
 	 */
 	private void render() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		configureTextureEngine();
+		GlTools.configureFor2dBobs();
 
 		int dx = 100;
 		int dy = 100;

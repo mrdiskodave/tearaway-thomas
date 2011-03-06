@@ -35,8 +35,6 @@ public class Texture {
 		textCornerX = (float) imageW / textureW;
 		textCornerY = (float) imageH / textureH;
 
-		textureId = GL11.glGenTextures();
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 		ByteBuffer buffer = ByteBuffer.allocateDirect(textureW * textureH * 4);
 
 		if (SHOW_BOUNDING_BOX) {
@@ -66,6 +64,9 @@ public class Texture {
 		}
 		buffer.rewind();
 
+		GlTools.configureFor2dBobs();
+		textureId = GL11.glGenTextures();
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, textureW, textureH, 0,
 				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 	}
