@@ -5,6 +5,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
+import com.nney.utils.FileOpenable;
+
 public class Main {
 	private static final int SCREEN_HEIGHT = 600;
 	private static final int SCREEN_WIDTH = 800;
@@ -48,12 +50,21 @@ public class Main {
 	}
 
 	private void initTexture() {
-		FrameGetter frameHub = new FrameGetter(new FrameLoader(), new FrameRenderer());
+		LargeImageFrameLoader frameLoader = new LargeImageFrameLoader() {
+			@Override
+			FileOpenable loadData(Frame f) {
+				// all that is missing is knowledge of how to load those large frames!
+				String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%d.png", f.name, f.number);
+				FileOpenable data = new FileOpenable(filename);
+				return data;
+			}
+		};
+
+		FrameSource frameHub = new FrameSource(new FrameFinder(), frameLoader);
 		Bear bear = new Bear();
-		bear.load(new FrameFinder(), frameHub);
+		bear.loadGraphics(frameHub);
 		anim = bear.climbing;
 	}
-
 
 	/**
 	 * Draw a quad with the texture on it.

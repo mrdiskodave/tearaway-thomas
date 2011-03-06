@@ -17,7 +17,7 @@ public class FrameFinder {
 		pos += distance;
 	}
 
-	public void setFile(String name) {
+	public void selectInput(String name) {
 		file = name;
 		pos = 0;
 	}
@@ -31,10 +31,6 @@ public class FrameFinder {
 		return answer;
 	}
 	
-	public List<Frame> next() {
-		return next(1);
-	}
-
 	public List<Frame> cycle(int length) {
 		assert length > 2;
 		List<Frame> answer = next(length);

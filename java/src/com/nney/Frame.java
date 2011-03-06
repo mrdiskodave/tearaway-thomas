@@ -1,12 +1,12 @@
 package com.nney;
 
 public class Frame {
-	public final String file;
+	public final String name;
 	public final int number;
 
-	public Frame(String file, int number) {
-		assert file != null;
-		this.file = file;
+	public Frame(String name, int number) {
+		assert name != null;
+		this.name = name;
 		this.number = number;
 	}
 	
@@ -15,16 +15,16 @@ public class Frame {
 		 if (!(other instanceof Frame))
 		      return false;
 		 Frame us = (Frame) other;
-		 return us.file.equals(file) && us.number==number;
+		 return us.name.equals(name) && us.number==number;
 	}
 	
 	@Override
 	public int hashCode() {
-		return file.hashCode()+number;
+		return name.hashCode()+number;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("Frame('%s', %d)", file, number);
+		return String.format("Frame('%s', %d)", name, number);
 	}
 }
