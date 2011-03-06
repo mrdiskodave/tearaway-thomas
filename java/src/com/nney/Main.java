@@ -52,11 +52,10 @@ public class Main {
 	private void initTexture() {
 		LargeImageFrameLoader frameLoader = new LargeImageFrameLoader() {
 			@Override
-			FileOpenable loadData(Frame f) {
-				// all that is missing is knowledge of how to load those large frames!
+			FileOpenable findData(Frame f) {
+				// all that is missing is knowledge of how to find those large frames!
 				String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%d.png", f.name, f.number);
-				FileOpenable data = new FileOpenable(filename);
-				return data;
+				return new FileOpenable(filename);
 			}
 		};
 

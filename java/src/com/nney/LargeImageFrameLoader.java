@@ -1,6 +1,7 @@
 package com.nney;
 
 import com.nney.utils.FileOpenable;
+import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 /**
@@ -17,16 +18,11 @@ import com.nney.utils.OpenableTools;
 public abstract class LargeImageFrameLoader implements FrameLoader {
 	@Override
 	public Bob load(Frame f) {
-		FileOpenable data = loadData(f);
-		return load(data);
-	}
-
-	abstract FileOpenable loadData(Frame f);
-
-	protected Bob load(FileOpenable openable) {
-		byte[] someRawGraphicsFile = OpenableTools.load(openable);
+		byte[] someRawGraphicsFile = OpenableTools.load(findData(f));
 		return bobFromLargeImage(someRawGraphicsFile);
 	}
+
+	abstract Openable findData(Frame f);
 
 	private static Bob bobFromLargeImage(byte[] someRawGraphicsFile) {
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
