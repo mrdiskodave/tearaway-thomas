@@ -72,17 +72,39 @@ public class Texture {
 	}
 
 	public void draw(int dx, int dy) {
+//		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+//		GL11.glBegin(GL11.GL_QUADS);
+//		GL11.glTexCoord2f(0, 0);
+//		GL11.glVertex2f(dx, dy);
+//		GL11.glTexCoord2f(textCornerX, 0);
+//		GL11.glVertex2f(dx + imageW, dy);
+//		GL11.glTexCoord2f(textCornerX, textCornerY);
+//		GL11.glVertex2f(dx + imageW, dy + imageH);
+//		GL11.glTexCoord2f(0, textCornerY);
+//		GL11.glVertex2f(dx, dy + imageH);
+//		GL11.glEnd();
+
+		draw(dx, dy, 0, 0, imageW, imageH);
+	}
+
+	public void draw(int dx, int dy, int bx, int by, int w, int h) {
+		float fleft = (float) bx / textureW;
+		float ftop = (float) by / textureH;
+		float fright = (float) (w+bx) / textureW;
+		float fbottom = (float) (h+by) / textureH;
+		
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 		GL11.glBegin(GL11.GL_QUADS);
-		GL11.glTexCoord2f(0, 0);
+		GL11.glTexCoord2f(fleft, ftop);
 		GL11.glVertex2f(dx, dy);
-		GL11.glTexCoord2f(textCornerX, 0);
-		GL11.glVertex2f(dx + imageW, dy);
-		GL11.glTexCoord2f(textCornerX, textCornerY);
-		GL11.glVertex2f(dx + imageW, dy + imageH);
-		GL11.glTexCoord2f(0, textCornerY);
-		GL11.glVertex2f(dx, dy + imageH);
+		GL11.glTexCoord2f(fright, ftop);
+		GL11.glVertex2f(dx + w, dy);
+		GL11.glTexCoord2f(fright, fbottom);
+		GL11.glVertex2f(dx + w, dy + h);
+		GL11.glTexCoord2f(fleft, fbottom);
+		GL11.glVertex2f(dx, dy + h);
 		GL11.glEnd();
+		
 	}
 
 }

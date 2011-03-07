@@ -1,5 +1,6 @@
 package com.nney;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -12,6 +13,10 @@ public class Main {
 	private static final int SCREEN_WIDTH = 800;
 
 	private Anim anim;
+	private BlocksHolder bh;
+	private int counter;
+	private long lastTime;
+	private int qqq;
 
 	private void initLwjglDisplay() {
 		try {
@@ -27,7 +32,7 @@ public class Main {
 	private void initOpenGL() {
 		discoverDisplayDepth();
 		GlTools.reset();
-
+		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glClearColor(0.5f, 0.5f, 0.0f, 0.0f);
 
@@ -63,6 +68,9 @@ public class Main {
 		Bear bear = new Bear();
 		bear.loadGraphics(frameHub);
 		anim = bear.climbing;
+		
+		bh = new BlocksHolder(16, 8);
+		bh.load();
 	}
 
 	/**
@@ -72,25 +80,54 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
 
-		int dx = 100;
-		int dy = 100;
+		int dx=0, dy=0;
+
+		
+		
+		for (int z=0; z<40; z++) {
+			dx = qqq;
+			dy += 16;
+			for (int b=0; b<50; b++) {
+				bh.draw(b, dx, dy);
+				dx += 16;
+			}
+		}
+		qqq += 1;
+		
+		dx = 100;
+		dy = 100;
 		anim.next().draw(dx, dy);
+
 	}
 
 	private void startTheExample() {
 		initLwjglDisplay();
 		initOpenGL();
 		initTexture();
+		
+		int count = 100;
 
+		lastTime = System.nanoTime();
 		while (true) {
 			render();
 
 			Display.update();
-			Display.sync(15);
+			Display.sync(50);
 
 			if (Display.isCloseRequested()) {
 				Display.destroy();
 				break;
+			}
+		
+			counter ++;
+			if (counter==count) {
+				counter = 0;
+				long t = lastTime;
+				lastTime = System.nanoTime(); 
+				float z = lastTime - t;
+				z /= 1000000000;
+				float fps = (float) count / z;
+				Display.setTitle("FPS: "+fps);
 			}
 		}
 	}

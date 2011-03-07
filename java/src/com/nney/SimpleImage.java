@@ -16,6 +16,7 @@ public class SimpleImage {
 	final private int realWidth;
 	
 	final private int[] pixels; // ARGB 32bit words
+	final private boolean isView;
 
 	private SimpleImage(int width, int height, int start, int realWidth, int[] pixels) {
 		this.width = width;
@@ -23,6 +24,7 @@ public class SimpleImage {
 		this.start = start;
 		this.realWidth = realWidth;
 		this.pixels = pixels;
+		this.isView = true;
 	}
 	
 	private SimpleImage(int width, int height, int[] pixels) {
@@ -31,6 +33,11 @@ public class SimpleImage {
 		this.pixels = new int[width * height];
 		start = 0;
 		realWidth = width;
+		isView = false;
+	}
+	
+	static SimpleImage createEmpty(int w, int h) {
+		return new SimpleImage(w, h, new int[w*h]);
 	}
 	
 	SimpleImage(byte[] someFileFormatToDecode) {
@@ -47,6 +54,7 @@ public class SimpleImage {
 		this.pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
 		start = 0;
 		realWidth = width;
+		isView = false;
 	}
 
 	public int getHeight() {
@@ -131,14 +139,23 @@ public class SimpleImage {
 	}
 
 
-	SimpleImage crop(int x, int y, int width, int height) {
+	SimpleImage view(int x, int y, int width, int height) {
 		int start = computeOffset(x, y);
 		return new SimpleImage(width, height, start, this.width, pixels);
 	}
 
 
-	public SimpleImage crop(Bounds bounds) {
-		return crop(bounds.left, bounds.top, bounds.width, bounds.height);
+	public SimpleImage view(Bounds bounds) {
+		return view(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
+	public void overwriteWith(SimpleImage block) {
+		assert width==block.width;
+		assert height==block.height;
+		for (int y=0; y<height; y++) {
+			for (int x=0; x<width; x++) {
+				putPixel(x, y, block.getPixel(x, y));
+			}
+		}
+	}
 }

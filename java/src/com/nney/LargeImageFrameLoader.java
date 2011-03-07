@@ -39,7 +39,7 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 		Bounds bounds = si.getBounds();
 
 		// Crop it to those bounds
-		si = si.crop(bounds);
+		si = si.view(bounds);
 		handleX -= bounds.left;
 		handleY -= bounds.top;
 
