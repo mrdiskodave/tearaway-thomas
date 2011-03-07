@@ -74,7 +74,9 @@ public class Main {
 
 		String filename2 = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
 		bm = new MasksHolder(16, new FileOpenable(filename2));
-
+		boolean a = bm.test(0, 15, 15);
+		boolean b = bm.test(1, 15, 15);
+		assert a!=b;
 	}
 
 	/**
