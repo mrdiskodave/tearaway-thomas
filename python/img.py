@@ -59,6 +59,11 @@ class Img:
 		assert max==255
 		return Img.createFromData(width, height, array.array('B', s))
 
+	def clear(self, c):
+		for y in xrange(self.h):
+			for x in xrange(self.w):
+				self.put(x, y, c)
+
 	def isSubImage(self):
 		return self.base!=0 or self.w*self.h*Img.BYTES_PER_PIXEL!=len(self.d)
 

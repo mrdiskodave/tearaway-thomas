@@ -22,6 +22,8 @@ PALSIZE = PALCOLS*2
 TRANS = ( 0xff, 0x01, 0xff )
 TRANS2 = "/".join([ "{0:02x}".format(x) for x in TRANS ])    # i.e. "ff/01/ff"
 
+NONE = ( 0xff, 0x01, 0x01 )
+
 NEWDATA = "newdata"
 
 woodRT = (
@@ -144,6 +146,7 @@ def get_block_list(blk_filename):
 	mapsegend += 4
 
 	number_of_blocks = mapsegstart-blkpals
+	assert number_of_blocks%20==0
 
 	block_pals = [ data[blkpals+x] for x in xrange(number_of_blocks) ] 
 
@@ -177,6 +180,15 @@ def get_block_list(blk_filename):
 		answer.append(i)
 	return answer
 
+def change_suffix(s, ox, nx):
+	ox = "."+ox
+	nx = "."+nx
+	sn, sx = os.path.splitext(s)
+	assert sx == ox
+	return sn + nx
+
+assert change_suffix("hello.ppm", "ppm", "png")=="hello.png"
+
 class Cascade:
 	def __init__(self, f):
 		self.f = f
@@ -192,24 +204,34 @@ class Cascade:
 		i.saveP6(self.f)
 
 	def toPNG(self):
-		post_process_ppm(self)
+		name = self.f
+		newname = change_suffix(name, "ppm", "png")
+		print "into", newname
+		#f = "pnmtopng -force {0} >{1}"
+		#f = "pnmtopng {0} >{1}"
+		f = "pnmtopng -transparent =rgb:"+TRANS2+" {0} >{1}"
+		shelltools.Cmd.shellf(f, name, newname).do().check()
+		self.assignNewName(newname)
 
-def post_process_ppm(c):
-	name = c.getCurrentName()
-	assert name.endswith(".ppm")
-	newname = name[:-3]+"png"
-	print "into", newname
-	#f = "pnmtopng -force {0} >{1}"
-	#f = "pnmtopng {0} >{1}"
-	f = "pnmtopng -transparent =rgb:"+TRANS2+" {0} >{1}"
-	shelltools.Cmd.shellf(f, name, newname).do().check()
-	c.assignNewName(newname)
+	def capture(self):
+		a = load_file(self.f)
+		os.remove(self.f)
+		return a
 
 def save_all_blocks(world, block_accessor):
+	rows = len(block_accessor)/20
+	d = img.Img.create(20*16, rows*16)
+	d.clear(NONE)
 	for b, i in enumerate(block_accessor):
-		cas = Cascade(os.path.join(NEWDATA, "blocks", "{0}{1:04x}.ppm".format(world, b)))
-		cas.saveP6(i)
-		cas.toPNG()#map block
+		x = b%20
+		y = b/20
+		x *= 16
+		y *= 16
+		d.view(x, y).overwrite(i)
+
+	cas = Cascade(os.path.join(NEWDATA, "blocks", "{0}.ppm".format(world)))
+	cas.saveP6(d)
+	cas.toPNG()#map block
 
 def get_map_from_level(level):
 	# commision 64K of words
@@ -289,8 +311,8 @@ def convert_map(block_accessor, name, rt):
 	if rt:
 		validate_rt(name, len(block_accessor), rt)
 		apply_rt(map, rt)
-	fname = os.path.join(NEWDATA, "maps", name+".ppm")
-	with open(fname, 'w') as f:
+	cas = Cascade(os.path.join(NEWDATA, "maps", name+".ppm"))
+	with open(cas.getCurrentName(), 'w') as f:
 		img.write_p6_header(f, w*16, h*16, 255)
 		i = img.Img.create(w*16, 16)
 		for mapy, scry in enumerate(row):
@@ -300,11 +322,12 @@ def convert_map(block_accessor, name, rt):
 						b = block_accessor[map[mapidx(mapx, mapy)]]
 						i.view(16*scrx, 0).overwrite(b)
 				i.saveRaw(f)
-	post_process_ppm(fname)#entire map
+	cas.toPNG(fname)#entire map
 
 def convert_world(name, rt=None):
 	block_accessor = get_block_list("odata/blk"+name)
 	save_all_blocks(name, block_accessor)
+
 #	for x in xrange(10):
 #		convert_map(block_accessor, name+str(x), rt)
 
@@ -408,7 +431,7 @@ def convert_bob(world, name):
 
 		#print addx, addy
 		#print sx, sy
-		print pix15
+		#print pix15
 		#print rastlen, maskadd
 		#	-14 -37
 		#	4 38
@@ -419,9 +442,8 @@ def convert_bob(world, name):
 		unused = pix15-1
 		assert unused>=0
 
-		zz = img.Img.create(sx*8-unused, sy)
+		sprite = img.Img.create(sx*8-unused, sy)
 		for y in xrange(sy):
-			s = ""
 			for x in xrange(sx/2):
 				q = offset + x*2
 				p2 = get_word(i, q)
@@ -431,7 +453,6 @@ def convert_bob(world, name):
 				p0 = get_word(i, q)
 				q += sx
 				pm = get_word(i, q)
-				s += "{0:016b}".format(pm)
 
 				line = chunkify((p0,p1,p2), 16)
 				mask = chunkify((pm,), 16)
@@ -441,12 +462,33 @@ def convert_bob(world, name):
 					else:
 						c = TRANS
 					xd = x*16+j
-					if xd<zz.w:
-						zz.put(xd, y, c)
-			#print s
+					if xd<sprite.w:
+						sprite.put(xd, y, c)
 			offset += rastlen
-		cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}_{1:03}.ppm".format(world+name, frame)))
-		cas.saveP6(zz)
+
+		#
+		# centre sprite on a canvas
+		#
+		# i thought about exporting the addx addy values just prepended to the PNG file
+		# but then we're no longer using a standard format and it will limit our
+		# options for editting this stuff later
+		#
+
+		CANVAS_SIZE = 161
+		CANVAS_MIDDLE = CANVAS_SIZE//2
+
+		canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
+		canvas.clear(TRANS)
+		canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
+		# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
+
+		#put a little dot in the middle so I can see we're hitting the right place
+		#canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, (255, 0, 0))
+
+		#framestr = "" if framecount==1 else "_{0}".format(frame);
+		framestr = "_{0}".format(frame);
+		cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}{1}.ppm".format(world+name, framestr)))
+		cas.saveP6(canvas)
 		cas.toPNG()#bob frame
 
 def convert_bobs():
@@ -467,9 +509,9 @@ def convert_bobs():
 
 
 
-convert_font()
-convert_tt()
-convert_bobs()	
+#convert_font()
+#convert_tt()
+#convert_bobs()	
 convert_worlds()
 
 
