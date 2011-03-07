@@ -3,40 +3,54 @@ package com.nney;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nney.utils.FileOpenable;
-import com.nney.utils.Openable;
-import com.nney.utils.OpenableTools;
-
 public class BlocksHolder {
-	final int blockSize;
-	
-	final int gridSize;
-	
-	List<Texture> textures = new ArrayList<Texture>();
+	final private List<Texture> textures = new ArrayList<Texture>();
 
-	private int gridCap;
+	final private int blockSize;
+
+	final private int gridSize;
+
+	final private int gridCap;
+
+	final private int blockSizeShift;
+	final private int gridSizeShift;
+
+	final private int gridCapShift;
+
+	private int blockCount;
 	
-	BlocksHolder(int blockSize, int gridSize) {
+	public BlocksHolder(int blockSize, int gridSize) {
 		this.blockSize = blockSize;
 		this.gridSize = gridSize;
 		this.gridCap = gridSize*gridSize;
+		blockSizeShift = discoverShift(blockSize);
+		gridSizeShift = discoverShift(gridSize);
+		gridCapShift = discoverShift(gridCap);
 	}
 	
-	void load() {
+	static private int discoverShift(int v) {
+		for (int x=0; x<32; x++) {
+			int a = 1<<x;
+			if (a==v) return x;
+		}
+		assert false : v;
+		return 0;
+	}
+	
+	public void load() {
+		SrcBlockImg sbi = new SrcBlockImg(blockSize);
+		blockCount = sbi.getBlockCount();
+		
 		int pos = 0;
 		int palEdge = gridSize*blockSize;
 		SimpleImage pal = SimpleImage.createEmpty(palEdge, palEdge);
 		
-		for (int b=0; b<0x199+1; b++) {
-			String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\w%04x.png", b);
-			byte[] someRawGraphicsFile = OpenableTools.load(new FileOpenable(filename));
-			SimpleImage block = new SimpleImage(someRawGraphicsFile);
-			int x = pos%gridSize;
+		for (int b=0; b<sbi.getBlockCount(); b++) {
+			int x = pos&gridSize-1;
 			int y = pos/gridSize;
-			System.out.println(String.format("%03d %03d %03d", pos, x, y));
 			x *= blockSize;
 			y *= blockSize;
-			pal.view(x, y, blockSize, blockSize).overwriteWith(block);
+			pal.view(x, y, blockSize, blockSize).overwriteWith(sbi.getBlock(b));
 			pos++;
 			if (pos==gridCap) {
 				ship(pal, pos);
@@ -46,14 +60,6 @@ public class BlocksHolder {
 		if (pos!=0) {
 			ship(pal, pos);
 		}
-
-//		abstract Openable findData(Frame f);
-//
-//		private static Bob bobFromLargeImage(byte[] someRawGraphicsFile) {
-//			SimpleImage si = new SimpleImage(someRawGraphicsFile);
-//
-//			this.texture = new Texture(si);
-
 	}
 
 	private void ship(SimpleImage pal, int pos) {
@@ -61,16 +67,15 @@ public class BlocksHolder {
 		textures.add(new Texture(pal));
 	}
 	
-	void draw(int block, int dx, int dy) {
-		Texture t = textures.get(block / gridCap);
-		block %= gridCap;
-		int bx = block % gridSize;
-		int by = block / gridSize;
-		bx *= blockSize;
-		by *= blockSize;
-		t.draw(dx, dy, bx, by, blockSize, blockSize);
-		
-		
+	public void draw(int block, int dx, int dy) {
+		Texture t = textures.get(block >> gridCapShift);
+		block &= gridCap-1;
+		int bx = block & gridSize-1;
+		int by = block >> gridSizeShift;
+		t.draw(dx, dy, bx << blockSizeShift, by << blockSizeShift, blockSize, blockSize);
 	}
-
+	
+	public int getBlockCount() {
+		return blockCount;
+	}
 }

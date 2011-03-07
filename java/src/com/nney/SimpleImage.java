@@ -149,12 +149,12 @@ public class SimpleImage {
 		return view(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
-	public void overwriteWith(SimpleImage block) {
-		assert width==block.width;
-		assert height==block.height;
+	public void overwriteWith(SimpleImage src) {
+		assert width==src.width;
+		assert height==src.height;
 		for (int y=0; y<height; y++) {
 			for (int x=0; x<width; x++) {
-				putPixel(x, y, block.getPixel(x, y));
+				putPixel(x, y, src.getPixel(x, y));
 			}
 		}
 	}

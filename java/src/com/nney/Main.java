@@ -1,6 +1,5 @@
 package com.nney;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -82,18 +81,21 @@ public class Main {
 
 		int dx=0, dy=0;
 
-		
-		
+		// blocks demo
+		int bg = 0;
 		for (int z=0; z<40; z++) {
 			dx = qqq;
 			dy += 16;
 			for (int b=0; b<50; b++) {
-				bh.draw(b, dx, dy);
+				bh.draw(bg, dx, dy);
 				dx += 16;
+				bg ++;
+				bg %= bh.getBlockCount();
 			}
 		}
 		qqq += 1;
 		
+		// animation demo
 		dx = 100;
 		dy = 100;
 		anim.next().draw(dx, dy);
