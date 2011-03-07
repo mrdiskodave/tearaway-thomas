@@ -17,6 +17,9 @@ MYS = 128
 PALCOLS = 8
 PALSIZE = PALCOLS*2
 
+BLACK = (0,0,0)
+WHITE = (0xff,0xff,0xff)
+
 # the colour we'll use to mean "transparent"
 # all Amiga colours are scaled up by 0x11 so 0x01 cannot happen
 TRANS = ( 0xff, 0x01, 0xff )
@@ -25,6 +28,8 @@ TRANS2 = "/".join([ "{0:02x}".format(x) for x in TRANS ])    # i.e. "ff/01/ff"
 NONE = ( 0xff, 0x01, 0x01 )
 
 NEWDATA = "newdata"
+
+MAP_MAGIC = struct.unpack(">L", "PGBK")[0]
 
 woodRT = (
 	( 40,24,29,53,83,84,64,85,88,89,69 ),
@@ -131,13 +136,10 @@ assert chunkify([0b0001,
 
 
 
-def get_block_list(blk_filename):
+def get_block_list(data, get_masks):
 
-	MAGIC = struct.unpack(">L", "PGBK")[0]
-
-	data = load_array_file(blk_filename)
 	magic, spals, blkpals, mapsegstart, mapsegend = struct.unpack('>LLLLL', data[:20])
-	assert magic == MAGIC
+	assert magic == MAP_MAGIC
 
 	# skip the magic
 	spals += 4
@@ -150,33 +152,45 @@ def get_block_list(blk_filename):
 
 	block_pals = [ data[blkpals+x] for x in xrange(number_of_blocks) ] 
 
-	number_of_pals = (blkpals-spals)/PALSIZE
-	pals = []
-	for pal in xrange(number_of_pals):
-		pa = get_a_palette(data, spals + pal*PALSIZE)
-		pa[0] = ( 0x00, 0x00, 0x00 )
-		pa[7] = TRANS
-		pals.append(pa)
-	
-	assert len(pals)==number_of_pals
+	if not get_masks:
+		number_of_pals = (blkpals-spals)/PALSIZE
+		pals = []
+		for pal in xrange(number_of_pals):
+			pa = get_a_palette(data, spals + pal*PALSIZE)
+			pa[0] = ( 0x00, 0x00, 0x00 )
+			pa[7] = TRANS
+			pals.append(pa)
+		assert len(pals)==number_of_pals
+
 	assert mapsegstart+number_of_blocks*BLKSIZE == mapsegend
 
 	answer = []
 	for block_number in xrange(number_of_blocks):
 		blkbase = mapsegstart+block_number*BLKSIZE
-		pal = pals[block_pals[block_number]]
 		br = blkbase
 		i = img.Img.create(16, 16)
+
+		if get_masks:
+			br += 2*16*3
+		else:
+			pal = pals[block_pals[block_number]]
 		for y in xrange(16):
-			p2 = get_word(data, br)
-			br += 2
-			p1 = get_word(data, br)
-			br += 2
-			p0 = get_word(data, br)
-			br += 2
-			line = chunkify((p0,p1,p2), 16)
-			for x, pix in enumerate(line):
-				i.put(x, y, pal[pix])
+			if get_masks:
+				p0 = get_word(data, br)
+				br += 2
+				line = chunkify([p0], 16)
+				for x, pix in enumerate(line):
+					i.put(x, y, WHITE if pix else BLACK)
+			else:
+				p2 = get_word(data, br)
+				br += 2
+				p1 = get_word(data, br)
+				br += 2
+				p0 = get_word(data, br)
+				br += 2
+				line = chunkify((p0,p1,p2), 16)
+				for x, pix in enumerate(line):
+					i.put(x, y, pal[pix])
 		answer.append(i)
 	return answer
 
@@ -218,20 +232,22 @@ class Cascade:
 		os.remove(self.f)
 		return a
 
-def save_all_blocks(world, block_accessor):
-	rows = len(block_accessor)/20
-	d = img.Img.create(20*16, rows*16)
-	d.clear(NONE)
-	for b, i in enumerate(block_accessor):
-		x = b%20
-		y = b/20
-		x *= 16
-		y *= 16
-		d.view(x, y).overwrite(i)
+def save_all_blocks(world, data):
+	for mask in range(2):
+		block_accessor = get_block_list(data, mask)
+		rows = len(block_accessor)/20
+		d = img.Img.create(20*16, rows*16)
+		d.clear(NONE)
+		for b, i in enumerate(block_accessor):
+			x = b%20
+			y = b/20
+			x *= 16
+			y *= 16
+			d.view(x, y).overwrite(i)
 
-	cas = Cascade(os.path.join(NEWDATA, "blocks", "{0}.ppm".format(world)))
-	cas.saveP6(d)
-	cas.toPNG()#map block
+		cas = Cascade(os.path.join(NEWDATA, "blocks", "{0}{1}.ppm".format(world, "m" if mask else "")))
+		cas.saveP6(d)
+		cas.toPNG()#map block
 
 def get_map_from_level(level):
 	# commision 64K of words
@@ -325,8 +341,8 @@ def convert_map(block_accessor, name, rt):
 	cas.toPNG(fname)#entire map
 
 def convert_world(name, rt=None):
-	block_accessor = get_block_list("odata/blk"+name)
-	save_all_blocks(name, block_accessor)
+	data = load_array_file("odata/blk"+name)
+	save_all_blocks(name, data)
 
 #	for x in xrange(10):
 #		convert_map(block_accessor, name+str(x), rt)
