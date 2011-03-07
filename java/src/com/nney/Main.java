@@ -15,7 +15,8 @@ public class Main {
 	private BlocksHolder bh;
 	private int counter;
 	private long lastTime;
-	private int qqq;
+	private int scrollX;
+	private MasksHolder bm;
 
 	private void initLwjglDisplay() {
 		try {
@@ -68,8 +69,12 @@ public class Main {
 		bear.loadGraphics(frameHub);
 		anim = bear.climbing;
 		
-		bh = new BlocksHolder(16, 8);
-		bh.load();
+		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
+		bh = new BlocksHolder(16, 8, new FileOpenable(filename));
+
+		String filename2 = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
+		bm = new MasksHolder(16, new FileOpenable(filename2));
+
 	}
 
 	/**
@@ -82,18 +87,18 @@ public class Main {
 		int dx=0, dy=0;
 
 		// blocks demo
-		int bg = 0;
-		for (int z=0; z<40; z++) {
-			dx = qqq;
+		int blockNumber = 0;
+		for (int demoY=0; demoY<40; demoY++) {
+			dx = scrollX;
 			dy += 16;
-			for (int b=0; b<50; b++) {
-				bh.draw(bg, dx, dy);
+			for (int demoX=0; demoX<50; demoX++) {
+				bh.draw(blockNumber, dx, dy);
 				dx += 16;
-				bg ++;
-				bg %= bh.getBlockCount();
+				blockNumber ++;
+				blockNumber %= bh.getBlockCount();
 			}
 		}
-		qqq += 1;
+		scrollX += 1;
 		
 		// animation demo
 		dx = 100;

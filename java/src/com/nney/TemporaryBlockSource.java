@@ -1,20 +1,17 @@
 package com.nney;
 
-import com.nney.utils.FileOpenable;
+import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class SrcBlockImg {
+class TemporaryBlockSource {
 	private final int blockSize;
 	private final int blocksW;
 	private final int blockCount;
 	private final SimpleImage blocks;
 
-	SrcBlockImg(int blockSize) {
+	TemporaryBlockSource(Openable blocksOpenable, int blockSize) {
 		this.blockSize = blockSize;
-		
-		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\w.png");
-		byte[] someRawGraphicsFile = OpenableTools.load(new FileOpenable(filename));
-		blocks = new SimpleImage(someRawGraphicsFile);
+		blocks = new SimpleImage(OpenableTools.load(blocksOpenable));
 		int w = blocks.getWidth();
 		int h = blocks.getHeight();
 		assert w % blockSize == 0;
