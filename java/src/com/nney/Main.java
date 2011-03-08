@@ -119,7 +119,7 @@ public class Main {
 		initTexture();
 		
 		int count = 200;
-		int requested_fps = 50;
+		int requested_fps = 100;
 
 		lastTime = System.nanoTime();
 		while (true) {

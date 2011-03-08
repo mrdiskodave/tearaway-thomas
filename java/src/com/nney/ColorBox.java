@@ -9,6 +9,10 @@ import org.lwjgl.opengl.GL11;
  * Show's two boxes of colors according to two theories of how glcolor3ui()
  * might work. See the two inner classes RenderColourBoxAsPerLinuxManPage and
  * RenderColourBoxAsPerOpenGlExample for more info.
+ * 
+ * <p>
+ * RenderColourBoxAsPerLinuxManPage is the only one that comes out correct and
+ * is shown on the left.
  */
 public class ColorBox {
 	private static final int SCREEN_HEIGHT = 600;
@@ -50,6 +54,12 @@ public class ColorBox {
 	}
 
 	/**
+	 * <b>Scales</b> it up within the byte because this <a
+	 * href="http://linux.die.net/man/3/glcolor3ui">man page</a> talks about the
+	 * "largest representable value" probably meaning
+	 * "the largest represent value of that particular type" i.e. 255 here.
+	 * 
+	 * <p>
 	 * Does work. Produces 2^16 unique colors.
 	 */
 	class RenderColourBoxAsPerLinuxManPage extends Renderer {
@@ -59,10 +69,6 @@ public class ColorBox {
 			value >>>= bitPosition;
 			value &= mask;
 
-			// scale it within the byte
-			// because http://linux.die.net/man/3/glcolor3ui
-			// talks about the "largest representable value" could mean
-			// "the largest represent value of that particular type i.e. 255 here"
 			int answer = value * 255;
 			answer /= mask;
 			return answer;
@@ -70,8 +76,14 @@ public class ColorBox {
 	}
 
 	/**
-	 * Does not work. Produces 2^16 pixels but outputs many duplicate colors.
-	 * 4993 duplicates, as it turns out.
+	 * <b>Shifts</b> it up against the top of the byte just as this <a
+	 * href="http://www.opengl.org/resources/faq/technical/color.htm">opengl
+	 * example</a> does.
+	 * 
+	 * <p>
+	 * Does not work. Of the 2^16 pixels produced many (although unique color
+	 * values are sent) are taken as duplicate colors by OpenGL (4993
+	 * duplicates, as it turns out).
 	 */
 	class RenderColourBoxAsPerOpenGlExample extends Renderer {
 		@Override
@@ -80,11 +92,6 @@ public class ColorBox {
 			value >>>= bitPosition;
 			value &= mask;
 
-			// put it up against the top of the byte
-			// just as http://www.opengl.org/resources/faq/technical/color.htm
-			// does
-			// on the understanding the it will only take bits from as many bits
-			// as it needs
 			int answer = value << (8 - bitWidth);
 			return answer;
 		}
