@@ -66,6 +66,7 @@ public class BlocksHolder {
 	}
 
 	public void draw(int block, int dx, int dy) {
+		assert block>=0;
 		Texture t = textures[block >> gridCapShift];
 		block &= gridCapacity-1;
 		int bx = block & gridSize-1;

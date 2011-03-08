@@ -4,13 +4,16 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 public class GameMap {
-	final static public int MAP_WIDTH = 256;
-	final static public int MAP_HEIGHT = 128;
-	final static public int MAP_SIZE = MAP_WIDTH*MAP_HEIGHT;
+	final public static int MAP_WIDTH = 256;
+	final public static int MAP_HEIGHT = 128;
+	final public static int MAP_SIZE = MAP_WIDTH*MAP_HEIGHT;
 	final private short[] map = new short[MAP_SIZE];
 
-	int get_word(byte[] x, int o) {
-		return x[o] * 256 + x[o + 1];
+	private int get_word(byte[] x, int o) {
+		int answer = x[o] & 255;
+		answer<<= 8;
+		answer |= x[o+1]&255;
+		return answer;
 	}
 
 	public GameMap(Openable src) {
@@ -25,14 +28,12 @@ public class GameMap {
 		}
 
 		// fix it up
-		--se;
-		map[0] = map[se];
+		map[0] = map[--se];
 		// unpack it in situe
 		int de = 0x8000;
 		while (se != 0) {
 			// read the next value
-			--se;
-			int x = map[se];
+			int x = map[--se];
 			// what is it?
 			int r;
 			if ((x & 0x8000) != 0) {
@@ -40,22 +41,22 @@ public class GameMap {
 				// NOT it for the block number
 				x ^= 0xffff;
 				// and the next word is a repeat count
-				--se;
-				r = map[se] + 1;
+				r = map[--se] + 1;
 			}
 			else {
-				// or it hasn't in which case it is a regular block repeated once 
+				// or it hasn't in which case it is a regular block number (repeated once) 
 				r = 1;
 			}
 			// output the block
+			System.out.println(String.format("src=%04x dest=%04x repeat=%04x value=%04x", se, de, r, x&0xffff));
 			do {
-				--de;
-				map[de] = (short) x;
+				map[--de] = (short) x;
 			} while (--r > 0);
 		}
+		assert de==0 : de;
 	}
 	
-	int getBlock(int x, int y) {
+	public int getBlock(int x, int y) {
 		if (x<0 || x>=MAP_WIDTH || y<0 || y>=MAP_HEIGHT) return 0;
 		return map[y*MAP_WIDTH+x];
 	}

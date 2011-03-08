@@ -8,15 +8,16 @@ import org.lwjgl.opengl.GL11;
 import com.nney.utils.FileOpenable;
 
 public class Main {
-	private static final int SCREEN_HEIGHT = 600;
-	private static final int SCREEN_WIDTH = 800;
+	private static final int SCREEN_WIDTH = 400*2;
+	private static final int SCREEN_HEIGHT = 300*2;
 
 	private Anim anim;
-	private BlocksHolder bh;
+	private BlocksHolder blocksHolder;
 	private int counter;
 	private long lastTime;
 	private int scrollX;
-	private MasksHolder bm;
+	private MasksHolder maskHolder;
+	private GameMap gameMap;
 
 	private void initLwjglDisplay() {
 		try {
@@ -34,13 +35,13 @@ public class Main {
 		GlTools.reset();
 		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glClearColor(0.5f, 0.5f, 0.0f, 0.0f);
+		GL11.glClearColor(1.0f, 0.5f, 1.0f, 0.0f);
 
 		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
+		GL11.glOrtho(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 
@@ -67,16 +68,19 @@ public class Main {
 		FrameSource frameHub = new FrameSource(new FrameFinder(), frameLoader);
 		Bear bear = new Bear();
 		bear.loadGraphics(frameHub);
-		anim = bear.climbing;
+		anim = bear.walkingRight;
 		
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
-		bh = new BlocksHolder(16, 8, new FileOpenable(filename));
+		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
 
 		String filename2 = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
-		bm = new MasksHolder(16, new FileOpenable(filename2));
-		boolean a = bm.test(0, 15, 15);
-		boolean b = bm.test(1, 15, 15);
+		maskHolder = new MasksHolder(16, new FileOpenable(filename2));
+		boolean a = maskHolder.test(0, 15, 15);
+		boolean b = maskHolder.test(1, 15, 15);
 		assert a!=b;
+		
+		String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
+		gameMap = new GameMap(new FileOpenable(filename3));
 	}
 
 	/**
@@ -86,19 +90,19 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
 
-		int dx=0, dy=0;
 
-		// blocks demo
-		int blockNumber = 0;
-		for (int demoY=0; demoY<40; demoY++) {
-			dx = scrollX;
-			dy += 16;
-			for (int demoX=0; demoX<50; demoX++) {
-				bh.draw(blockNumber, dx, dy);
+		// scrolling map demo
+		int dx, dy=0;
+		int px = scrollX/16;
+		for (int demoY=0; demoY<20; demoY++) {
+			dx = ((~scrollX)&15)-16;
+			for (int demoX=0; demoX<30; demoX++) {
+				int blockNumber = gameMap.getBlock(50+demoX+px, 54+demoY);
+				assert blockNumber>=0;
+				blocksHolder.draw(blockNumber, dx, dy);
 				dx += 16;
-				blockNumber ++;
-				blockNumber %= bh.getBlockCount();
 			}
+			dy += 16;
 		}
 		scrollX += 1;
 		
@@ -114,14 +118,15 @@ public class Main {
 		initOpenGL();
 		initTexture();
 		
-		int count = 100;
+		int count = 200;
+		int requested_fps = 50;
 
 		lastTime = System.nanoTime();
 		while (true) {
 			render();
 
 			Display.update();
-			Display.sync(50);
+			Display.sync(requested_fps);
 
 			if (Display.isCloseRequested()) {
 				Display.destroy();
@@ -131,12 +136,14 @@ public class Main {
 			counter ++;
 			if (counter==count) {
 				counter = 0;
-				long t = lastTime;
+				long past = lastTime;
+				long present  = System.nanoTime();
+				float diff = present - past;
+				diff /= 1000000000;
+				float actual_fps = (float) count / diff;
+				Display.setTitle("FPS: "+actual_fps);
+				
 				lastTime = System.nanoTime(); 
-				float z = lastTime - t;
-				z /= 1000000000;
-				float fps = (float) count / z;
-				Display.setTitle("FPS: "+fps);
 			}
 		}
 	}
