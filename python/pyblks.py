@@ -19,13 +19,17 @@ PALSIZE = PALCOLS*2
 
 BLACK = (0,0,0)
 WHITE = (0xff,0xff,0xff)
+GREY  = (0x80,0x80,0x80)
+
+CENTRE_MARKER = None
+#CENTRE_MARKER = GREY
 
 # the colour we'll use to mean "transparent"
 # all Amiga colours are scaled up by 0x11 so 0x01 cannot happen
 TRANS = ( 0xff, 0x01, 0xff )
 TRANS2 = "/".join([ "{0:02x}".format(x) for x in TRANS ])    # i.e. "ff/01/ff"
 
-NONE = ( 0xff, 0x01, 0x01 )
+NONE  = ( 0xff, 0x01, 0x01 )
 
 NEWDATA = "newdata"
 
@@ -171,6 +175,14 @@ def get_block_list(data, get_masks):
 		i = img.Img.create(16, 16)
 
 		if get_masks:
+			i.clear(WHITE)
+			GREY = (0xc0, 0xc0, 0xc0)
+			for x in range(16):
+				i.put(0, x, GREY)
+				i.put(x, 0, GREY)
+				i.put(15, x, GREY)
+				i.put(x, 15, GREY)
+
 			br += 2*16*3
 		else:
 			pal = pals[block_pals[block_number]]
@@ -180,7 +192,8 @@ def get_block_list(data, get_masks):
 				br += 2
 				line = chunkify([p0], 16)
 				for x, pix in enumerate(line):
-					i.put(x, y, WHITE if pix else BLACK)
+					if not pix:
+						i.put(x, y, BLACK)
 			else:
 				p2 = get_word(data, br)
 				br += 2
@@ -234,11 +247,11 @@ class Cascade:
 
 def save_all_blocks(world, data):
 	for mask in range(2):
-		block_accessor = get_block_list(data, mask)
-		rows = len(block_accessor)/20
+		block_list = get_block_list(data, mask)
+		rows = len(block_list)/20
 		d = img.Img.create(20*16, rows*16)
 		d.clear(NONE)
-		for b, i in enumerate(block_accessor):
+		for b, i in enumerate(block_list):
 			x = b%20
 			y = b/20
 			x *= 16
@@ -281,7 +294,7 @@ def get_map_from_level(level):
 			# it is just a single unpacked value
 			r = 1
 		for _ in xrange(r):
-			#print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
+			print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
 			de -= 1
 			map[de] = x
 	assert de==0
@@ -290,8 +303,10 @@ def get_map_from_level(level):
 
 
 
-def convert_map(block_accessor, name, rt):
+def convert_map(block_data, name, rt):
 	print "Converting", name
+	block_list = get_block_list(block_data, False)
+
 	level = load_array_file("odata/"+name+".map")
 
 	def mapidx(x, y):
@@ -325,9 +340,9 @@ def convert_map(block_accessor, name, rt):
 	h, row = schem(row)
 
 	if rt:
-		validate_rt(name, len(block_accessor), rt)
+		validate_rt(name, len(block_list), rt)
 		apply_rt(map, rt)
-	cas = Cascade(os.path.join(NEWDATA, "maps", name+".ppm"))
+	cas = Cascade(os.path.join(NEWDATA, "mapimg", name+".ppm"))
 	with open(cas.getCurrentName(), 'w') as f:
 		img.write_p6_header(f, w*16, h*16, 255)
 		i = img.Img.create(w*16, 16)
@@ -335,17 +350,17 @@ def convert_map(block_accessor, name, rt):
 			if scry is not None:
 				for mapx, scrx in enumerate(col):
 					if scrx is not None:
-						b = block_accessor[map[mapidx(mapx, mapy)]]
+						b = block_list[map[mapidx(mapx, mapy)]]
 						i.view(16*scrx, 0).overwrite(b)
 				i.saveRaw(f)
-	cas.toPNG(fname)#entire map
+	cas.toPNG()#entire map
 
 def convert_world(name, rt=None):
 	data = load_array_file("odata/blk"+name)
-	save_all_blocks(name, data)
+	#save_all_blocks(name, data)
 
-#	for x in xrange(10):
-#		convert_map(block_accessor, name+str(x), rt)
+	for x in xrange(10):
+		convert_map(data, name+str(x), rt)
 
 def convert_worlds():
 	convert_world("w", woodRT)
@@ -413,9 +428,10 @@ def convert_tt():
 		print x, b
 		n = img.Img.create(r.w, r.h)
 		n.overwrite(i.view(*b))
-		cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
-		cas.saveP6(n)
-		cas.toPNG()#tearaway frame
+		centre_and_save("0", "tt", x, n, -15, -29)
+		#cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
+		#cas.saveP6(n)
+		#cas.toPNG()#tearaway frame
 
 def convert_bob(world, name):
 	i = load_array_file("odata/"+world+name)
@@ -482,30 +498,34 @@ def convert_bob(world, name):
 						sprite.put(xd, y, c)
 			offset += rastlen
 
-		#
-		# centre sprite on a canvas
-		#
-		# i thought about exporting the addx addy values just prepended to the PNG file
-		# but then we're no longer using a standard format and it will limit our
-		# options for editting this stuff later
-		#
+		centre_and_save(world, name, frame, sprite, addx, addy)
 
-		CANVAS_SIZE = 161
-		CANVAS_MIDDLE = CANVAS_SIZE//2
+def centre_and_save(world, name, frame, sprite, addx, addy):
+	#
+	# centre sprite on a canvas
+	#
+	# i thought about exporting the addx addy values just prepended to the PNG file
+	# but then we're no longer using a standard format and it will limit our
+	# options for editting this stuff later
+	#
 
-		canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
-		canvas.clear(TRANS)
-		canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
-		# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
+	CANVAS_SIZE = 161
+	CANVAS_MIDDLE = CANVAS_SIZE//2
 
-		#put a little dot in the middle so I can see we're hitting the right place
-		#canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, (255, 0, 0))
+	canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
+	canvas.clear(TRANS)
+	canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
+	# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
 
-		#framestr = "" if framecount==1 else "_{0}".format(frame);
-		framestr = "_{0}".format(frame);
-		cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}{1}.ppm".format(world+name, framestr)))
-		cas.saveP6(canvas)
-		cas.toPNG()#bob frame
+	#put a little dot in the middle so I can see we're hitting the right place
+	if CENTRE_MARKER:
+		canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
+
+	#framestr = "" if framecount==1 else "_{0}".format(frame);
+	framestr = "_{0}".format(frame);
+	cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}{1}.ppm".format(world+name, framestr)))
+	cas.saveP6(canvas)
+	cas.toPNG()#bob frame
 
 def convert_bobs():
 	world = '0'
@@ -525,9 +545,9 @@ def convert_bobs():
 
 
 
+convert_tt()
+convert_bobs()	
 #convert_font()
-#convert_tt()
-#convert_bobs()	
-convert_worlds()
+#convert_worlds()
 
 
