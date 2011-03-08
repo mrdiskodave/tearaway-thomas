@@ -4,30 +4,30 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 class TemporaryBlockSource {
-	private final int blockSize;
-	private final int blocksW;
+	private final int blockEdgeLength;
+	private final int blocksHorizontally;
 	private final int blockCount;
 	private final SimpleImage blocks;
 
-	TemporaryBlockSource(Openable blocksOpenable, int blockSize) {
-		this.blockSize = blockSize;
+	TemporaryBlockSource(Openable blocksOpenable, int blockEdgeLength) {
+		this.blockEdgeLength = blockEdgeLength;
 		blocks = new SimpleImage(OpenableTools.load(blocksOpenable));
-		int w = blocks.getWidth();
-		int h = blocks.getHeight();
-		assert w % blockSize == 0;
-		assert h % blockSize == 0;
-		blocksW = w / blockSize;
-		int blocksH = h / blockSize;
-		blockCount = blocksW*blocksH;
+		int allBlocksWidth = blocks.getWidth();
+		int allBlocksHeight = blocks.getHeight();
+		assert allBlocksWidth % blockEdgeLength == 0;
+		assert allBlocksHeight % blockEdgeLength == 0;
+		blocksHorizontally = allBlocksWidth / blockEdgeLength;
+		int blocksVertically = allBlocksHeight / blockEdgeLength;
+		blockCount = blocksHorizontally*blocksVertically;
 	}
 	
 	SimpleImage getBlock(int b) {
 		assert b < blockCount;
-		int x = b % blocksW;
-		int y = b / blocksW;
-		x *= blockSize;
-		y *= blockSize;
-		return blocks.view(x, y, blockSize, blockSize); 
+		int x = b % blocksHorizontally;
+		int y = b / blocksHorizontally;
+		x *= blockEdgeLength;
+		y *= blockEdgeLength;
+		return blocks.view(x, y, blockEdgeLength, blockEdgeLength); 
 	}
 
 	public int getBlockCount() {

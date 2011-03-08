@@ -3,9 +3,9 @@ package com.nney;
 import com.nney.utils.Openable;
 
 public class MasksHolder {
-	private int blockEdgeLength;
-	private int blockArea;
-	private BitArray maskSettings;
+	final private int blockEdgeLength;
+	final private int blockArea;
+	final private BitArray maskSettings;
 
 	public MasksHolder(int blockEdgeLength, Openable openable) {
 		TemporaryBlockSource t = new TemporaryBlockSource(openable, blockEdgeLength);
