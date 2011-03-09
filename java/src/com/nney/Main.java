@@ -8,8 +8,10 @@ import org.lwjgl.opengl.GL11;
 import com.nney.utils.FileOpenable;
 
 public class Main {
-	private static final int SCREEN_WIDTH = 400*2;
-	private static final int SCREEN_HEIGHT = 300*2;
+	private static final int ZOOM = 2;
+	
+	private static final int SCREEN_WIDTH = 400;
+	private static final int SCREEN_HEIGHT = 300;
 
 	private Anim anim;
 	private BlocksHolder blocksHolder;
@@ -24,7 +26,7 @@ public class Main {
 
 	private void initLwjglDisplay() {
 		try {
-			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT));
+			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM));
 			Display.create();
 			Display.setVSyncEnabled(true);
 		}
@@ -40,11 +42,11 @@ public class Main {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glClearColor(1.0f, 0.5f, 1.0f, 0.0f);
 
-		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		GL11.glViewport(0, 0, SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GL11.glOrtho(0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, -1);
+		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 
@@ -93,14 +95,13 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
 
-
 		// scrolling map demo
 		int pixelDestY = -16 + ((~screenY)&15);
 		int blockSrcY = screenY/16;
-		for (int loopY=0; loopY<SCREEN_HEIGHT/16; loopY++) {
+		for (int loopY=0; loopY<SCREEN_HEIGHT/16+1; loopY++) {
 			int pixelDestX = -16 + ((~screenX)&15);
 			int blockSrcX = screenX/16;
-			for (int loopX=0; loopX<SCREEN_WIDTH/16; loopX++) {
+			for (int loopX=0; loopX<SCREEN_WIDTH/16+1; loopX++) {
 				int blockNumber = gameMap.getBlock(50+blockSrcX+loopX, 54+blockSrcY);
 				assert blockNumber>=0;
 				blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
