@@ -15,7 +15,10 @@ public class Main {
 	private BlocksHolder blocksHolder;
 	private int counter;
 	private long lastTime;
-	private int scrollX;
+	
+	private int screenX;
+	private int screenY; 
+	
 	private MasksHolder maskHolder;
 	private GameMap gameMap;
 
@@ -92,24 +95,25 @@ public class Main {
 
 
 		// scrolling map demo
-		int dx, dy=0;
-		int px = scrollX/16;
-		for (int demoY=0; demoY<20; demoY++) {
-			dx = ((~scrollX)&15)-16;
-			for (int demoX=0; demoX<30; demoX++) {
-				int blockNumber = gameMap.getBlock(50+demoX+px, 54+demoY);
+		int pixelDestY = -16 + ((~screenY)&15);
+		int blockSrcY = screenY/16;
+		for (int loopY=0; loopY<SCREEN_HEIGHT/16; loopY++) {
+			int pixelDestX = -16 + ((~screenX)&15);
+			int blockSrcX = screenX/16;
+			for (int loopX=0; loopX<SCREEN_WIDTH/16; loopX++) {
+				int blockNumber = gameMap.getBlock(50+blockSrcX+loopX, 54+blockSrcY);
 				assert blockNumber>=0;
-				blocksHolder.draw(blockNumber, dx, dy);
-				dx += 16;
+				blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
+				pixelDestX += 16;
 			}
-			dy += 16;
+			pixelDestY += 16;
+			blockSrcY ++;
 		}
-		scrollX += 1;
+		
+		screenX += 1;
 		
 		// animation demo
-		dx = 100;
-		dy = 100;
-		anim.next().draw(dx, dy);
+		anim.next().draw(100, 100);
 
 	}
 
