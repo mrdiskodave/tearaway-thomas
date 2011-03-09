@@ -95,23 +95,32 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
 
-		// scrolling map demo
-		int pixelDestY = -16 + ((~screenY)&15);
-		int blockSrcY = screenY/16;
-		for (int loopY=0; loopY<SCREEN_HEIGHT/16+1; loopY++) {
-			int pixelDestX = -16 + ((~screenX)&15);
-			int blockSrcX = screenX/16;
-			for (int loopX=0; loopX<SCREEN_WIDTH/16+1; loopX++) {
-				int blockNumber = gameMap.getBlock(50+blockSrcX+loopX, 54+blockSrcY);
-				assert blockNumber>=0;
-				blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
-				pixelDestX += 16;
-			}
-			pixelDestY += 16;
-			blockSrcY ++;
-		}
+//		GL11.glLoadIdentity();
+//		GL11.glOrtho(0, SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM, 0, 1, -1);
 		
-		screenX += 1;
+		
+		int blockSize = 16;
+		int blockMask = blockSize-1;
+		
+		int pixelDestY = -blockSize + ((~screenY) & blockMask);
+		int blockSrcY = screenY / blockSize;
+		for (int loopY = 0; loopY < SCREEN_HEIGHT / blockSize + 1; loopY++) {
+			int pixelDestX = -blockSize + ((~screenX) & blockMask);
+			int blockSrcX = screenX / blockSize;
+			for (int loopX = 0; loopX < SCREEN_WIDTH / blockSize + 1; loopX++) {
+				int blockNumber = gameMap.getBlock(50 + blockSrcX + loopX, 54 + blockSrcY);
+				assert blockNumber >= 0;
+				// if (blockNumber!=0)
+				blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
+				pixelDestX += blockSize;
+			}
+			pixelDestY += blockSize;
+			blockSrcY++;
+		}
+		screenX++;
+		
+
+//		GL11.glLoadIdentity();
 		
 		// animation demo
 		anim.next().draw(100, 100);
