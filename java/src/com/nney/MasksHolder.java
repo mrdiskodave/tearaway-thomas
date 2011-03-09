@@ -25,7 +25,7 @@ public class MasksHolder {
 		}
 	}
 	
-	boolean test(int block, int x, int y) {
+	boolean inTheGround(int block, int x, int y) {
 		assert x<blockEdgeLength;
 		assert y<blockEdgeLength;
 		return maskSettings.test(blockArea*block + y * blockEdgeLength + x);

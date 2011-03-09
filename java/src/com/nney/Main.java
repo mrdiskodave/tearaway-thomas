@@ -10,19 +10,17 @@ import com.nney.utils.FileOpenable;
 public class Main {
 	private static final int ZOOM = 2;
 	
-	private static final int SCREEN_WIDTH = 400;
-	private static final int SCREEN_HEIGHT = 300;
+	public static final int SCREEN_WIDTH = 400;
+	public static final int SCREEN_HEIGHT = 300;
 
-	private Anim anim;
 	private BlocksHolder blocksHolder;
 	private int counter;
 	private long lastTime;
+
+	private World world = new World();
 	
-	private int screenX;
-	private int screenY; 
-	
-	private MasksHolder maskHolder;
-	private GameMap gameMap;
+
+	private Bear bear;
 
 	private void initLwjglDisplay() {
 		try {
@@ -71,21 +69,24 @@ public class Main {
 		};
 
 		FrameSource frameHub = new FrameSource(new FrameFinder(), frameLoader);
-		Bear bear = new Bear();
+		bear = new Bear();
 		bear.loadGraphics(frameHub);
-		anim = bear.walkingRight;
+		bear.c.x = 1200;
+		bear.c.y = 950;
 		
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
 
 		String filename2 = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
-		maskHolder = new MasksHolder(16, new FileOpenable(filename2));
-		boolean a = maskHolder.test(0, 15, 15);
-		boolean b = maskHolder.test(1, 15, 15);
-		assert a!=b;
+		world.maskHolder = new MasksHolder(16, new FileOpenable(filename2));
+//		boolean a = maskHolder.test(0, 15, 15);
+//		boolean b = maskHolder.test(1, 15, 15);
+//		assert a!=b;
 		
 		String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
-		gameMap = new GameMap(new FileOpenable(filename3));
+		world.gameMap = new GameMap(new FileOpenable(filename3));
+		world.screen.x = 970;
+		world.screen.y = 864;
 	}
 
 	/**
@@ -95,20 +96,18 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
 
-//		GL11.glLoadIdentity();
-//		GL11.glOrtho(0, SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM, 0, 1, -1);
-		
-		
 		int blockSize = 16;
 		int blockMask = blockSize-1;
 		
+		int screenX = world.screen.x;
+		int screenY = world.screen.y;
 		int pixelDestY = -blockSize + ((~screenY) & blockMask);
 		int blockSrcY = screenY / blockSize;
-		for (int loopY = 0; loopY < SCREEN_HEIGHT / blockSize + 1; loopY++) {
+		for (int loopY = 0; loopY < (SCREEN_HEIGHT + blockMask) / blockSize + 1; loopY++) {
 			int pixelDestX = -blockSize + ((~screenX) & blockMask);
 			int blockSrcX = screenX / blockSize;
-			for (int loopX = 0; loopX < SCREEN_WIDTH / blockSize + 1; loopX++) {
-				int blockNumber = gameMap.getBlock(50 + blockSrcX + loopX, 54 + blockSrcY);
+			for (int loopX = 0; loopX < (SCREEN_WIDTH + blockMask) / blockSize + 1; loopX++) {
+				int blockNumber = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);
 				assert blockNumber >= 0;
 				// if (blockNumber!=0)
 				blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
@@ -117,14 +116,10 @@ public class Main {
 			pixelDestY += blockSize;
 			blockSrcY++;
 		}
-		screenX++;
-		
+		world.scrollTowards(bear.c);
 
-//		GL11.glLoadIdentity();
-		
 		// animation demo
-		anim.next().draw(100, 100);
-
+		bear.draw(world);
 	}
 
 	private void startTheExample() {
