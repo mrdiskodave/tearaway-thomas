@@ -59,19 +59,22 @@ public class Main {
 	}
 
 	private void initTexture() {
-		LargeImageFrameLoader frameLoader = new LargeImageFrameLoader() {
+		FrameLoader frameLoader = new LargeImageFrameLoader() {
 			@Override
 			FileOpenable findData(Frame f) {
 				// all that is missing is knowledge of how to find those large frames!
-				String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%d.png", f.name, f.number);
+				String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%03d.png", f.name, f.number);
 				return new FileOpenable(filename);
 			}
 		};
+		
+		frameLoader = new FrameLoaderCache(frameLoader);
 
-		FrameSource frameHub = new FrameSource(new FrameFinder(), frameLoader);
+		AnimBuilder fs = new AnimBuilder(frameLoader);
+		
 		bear = new Bear();
-		bear.loadGraphics(frameHub);
-		bear.c.x = 1200;
+		bear.loadGraphics(fs);
+		bear.c.x = 2500;
 		bear.c.y = 950;
 		
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");

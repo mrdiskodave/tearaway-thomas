@@ -158,4 +158,18 @@ public class SimpleImage {
 			}
 		}
 	}
+
+	public SimpleImage map(WhereTo pixelMovement) {
+		SimpleImage answer = SimpleImage.createEmpty(getWidth(), getHeight());
+		Coord c = new Coord(); 
+		for (int y=0; y<height; y++) {
+			for (int x=0; x<width; x++) {
+				c.x = x;
+				c.y = y;
+				pixelMovement.move(c);
+				answer.putPixel(c.x, c.y, getPixel(x, y));
+			}
+		}
+		return answer;
+	}
 }

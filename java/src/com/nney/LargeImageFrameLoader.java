@@ -1,6 +1,5 @@
 package com.nney;
 
-import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
@@ -20,13 +19,23 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 	public Bob load(Frame f) {
 		Openable data = findData(f);
 		byte[] someRawGraphicsFile = OpenableTools.load(data);
-		return bobFromLargeImage(someRawGraphicsFile);
+		return bobFromLargeImage(someRawGraphicsFile, f);
 	}
 
 	abstract Openable findData(Frame f);
 
-	private static Bob bobFromLargeImage(byte[] someRawGraphicsFile) {
+	private static Bob bobFromLargeImage(byte[] someRawGraphicsFile, Frame f) {
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
+
+		if (f.fx==BobFX.MIRROR) {
+			final int w = si.getWidth();
+			WhereTo pixelMovement = new WhereTo() {
+				@Override
+				public void move(Coord c) {
+					c.x = w-1-c.x;
+				}};
+			si = si.map(pixelMovement);
+		}
 
 		// Establish where the handle is
 		assert si.getWidth() % 2 == 1;
@@ -44,6 +53,6 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 		handleY -= bounds.top;
 
 		// and that is us!
-		return new Bob(si, handleX, handleY);
+		return new Bob(si, handleX, handleY, f);
 	}
 }

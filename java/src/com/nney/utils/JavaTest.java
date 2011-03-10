@@ -14,6 +14,7 @@
 
 package com.nney.utils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -337,5 +338,20 @@ public class JavaTest extends TestCase {
 		}
 		
 		assertEquals(42, counter);
+	}
+	
+	public void testRerverse() {
+		ArrayList<Integer> s = new ArrayList<Integer>();
+		for (int x=0; x<4; x++) {
+			s.add(x);
+		}
+		ArrayList<Integer> n = new ArrayList<Integer>();
+		for (int x=s.size(); --x>=0;) {
+			n.add(s.get(x));
+		}
+		assertEquals(3, (int) n.get(0));
+		assertEquals(2, (int) n.get(1));
+		assertEquals(1, (int) n.get(2));
+		assertEquals(0, (int) n.get(3));
 	}
 }

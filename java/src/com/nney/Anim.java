@@ -20,23 +20,25 @@ public class Anim {
 	/**
 	 * The frames themselves.
 	 */
-	Bob[] frames;
+	Bob[] bobs;
 
-	private final int resetTo;
+	boolean repeat;
 
 	Bob next() {
 		acc += rate;
 		if (acc > 256) {
 			acc -= 256;
 			pos += 1;
-			if (pos >= frames.length) {
-				pos = resetTo;
-				if (pos < 0) {
-					pos += frames.length;
+			if (pos >= bobs.length) {
+				if (repeat) {
+					pos = 0;
+				}
+				else {
+					pos = bobs.length-1;
 				}
 			}
 		}
-		return frames[pos];
+		return bobs[pos];
 	}
 
 	/**
@@ -46,24 +48,12 @@ public class Anim {
 	 *            Between 0x100 meaning "every frame" and 0 meaning "never".
 	 * @param frames
 	 *            The frames to animate.
-	 * @param resetTo
-	 *            Where to go when all the frames have played. Positive values
-	 *            count forward from the start (0 is the first frame). Negative
-	 *            values count backward from the end (-1 is the last frame).
+	 * @param repeat
+	 *            Repeat or stop at the end?
 	 */
-	Anim(int rate, Bob[] frames, int resetTo) {
+	Anim(int rate, Bob[] frames, boolean repeat) {
 		this.rate = rate;
-		this.frames = frames;
-		this.resetTo = resetTo;
-	}
-
-	/**
-	 * Construct an animation which loops (the default).
-	 * 
-	 * @param rate
-	 * @param frames
-	 */
-	Anim(int rate, Bob[] frames) {
-		this(rate, frames, 0);
+		this.bobs = frames;
+		this.repeat = repeat;
 	}
 }

@@ -4,6 +4,7 @@ public class Bob {
 	private final int handleX;
 	private final int handleY;
 	private Texture texture;
+	public final Frame frame;
 
 	/**
 	 * Create a {@link Bob}.
@@ -11,10 +12,11 @@ public class Bob {
 	 * @param handleX The x coordinate of the handle within the given image (0 the left). 
 	 * @param handleY The y coordinate of the handle within the given image (0 the top).
 	 */
-	public Bob(SimpleImage si, int handleX, int handleY) {
+	public Bob(SimpleImage si, int handleX, int handleY, Frame frame) {
 		this.handleX = handleX;
 		this.handleY = handleY;
 		this.texture = new Texture(si);
+		this.frame = frame;
 	}
 
 	/**
