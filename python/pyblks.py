@@ -423,18 +423,34 @@ def convert_tt():
 	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
 	i.findReplace((0x00,0x99,0xff),TRANS)
 	r = BookReader(i, 32, 32, 8)
+	exporter = Exporter("0", "tt")
 	for x in xrange(0, 64+8+3):
 		b = r.start(x)
 		print x, b
 		n = img.Img.create(r.w, r.h)
 		n.overwrite(i.view(*b))
-		centre_and_save("0", "tt", x, n, -15, -29)
+		exporter.save(x, n, -15, -29)
+
 		#cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
 		#cas.saveP6(n)
 		#cas.toPNG()#tearaway frame
 
+FRAMESKIP = {
+	"wbear": range(0,8),
+	"0tt": range(8, 16)+range(24,32)+[39]+range(46,49)+range(53, 57)+range(64,70),
+	"wabee": range(7,11),
+	"wbird": range(6,11),
+	"gfran": [0,1,2,3],
+	#"ibear": range(15,
+	}
+
+print repr(FRAMESKIP)
+#sys.exit(1)
+
+
 def convert_bob(world, name):
 	i = load_array_file("odata/"+world+name)
+	exporter = Exporter(world, name)
 
 	#BOBaddx=0
 	#BOBaddy=2
@@ -498,9 +514,10 @@ def convert_bob(world, name):
 						sprite.put(xd, y, c)
 			offset += rastlen
 
-		centre_and_save(world, name, frame, sprite, addx, addy)
+		exporter.save(frame, sprite, addx, addy)
 
-def centre_and_save(world, name, frame, sprite, addx, addy):
+
+def xcentre_and_save(world, name, frame, sprite, addx, addy):
 	#
 	# centre sprite on a canvas
 	#
@@ -521,11 +538,26 @@ def centre_and_save(world, name, frame, sprite, addx, addy):
 	if CENTRE_MARKER:
 		canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
 
-	#framestr = "" if framecount==1 else "_{0}".format(frame);
-	framestr = "_{0}".format(frame);
+	#framestr = "" if framecount==1 else "_{0:03}".format(frame);
+	framestr = "_{0:03}".format(frame);
 	cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}{1}.ppm".format(world+name, framestr)))
 	cas.saveP6(canvas)
 	cas.toPNG()#bob frame
+
+class Exporter:
+	def __init__(self, world, name):
+		self.world = world
+		self.name = name
+		self.fctr = 0
+		self.frameSkip = set(FRAMESKIP.get(world+name, []))
+
+	def save(self, frame, sprite, addx, addy):
+		if frame in self.frameSkip:
+			print "SKIPPED!!!"
+		else:
+			xcentre_and_save(self.world, self.name, self.fctr, sprite, addx, addy)
+			print "SAVED"
+			self.fctr+=1
 
 def convert_bobs():
 	world = '0'
