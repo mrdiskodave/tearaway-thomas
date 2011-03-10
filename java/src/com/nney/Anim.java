@@ -1,58 +1,32 @@
 package com.nney;
 
 public class Anim {
-	/**
-	 * The animation rate from 256 (every frame) to 1 (every 256 frames) to 0
-	 * (never).
-	 */
-	int rate;
-
-	/**
-	 * Where we are in the frame list.
-	 */
-	int pos;
-
-	/**
-	 * Accumulator used to track how far rate progression towards next frame.
-	 */
-	int acc;
+	static public final int MAX_RATE = 256;
+	
+	final public int defaultRate;
 
 	/**
 	 * The frames themselves.
 	 */
-	Bob[] bobs;
+	final public Bob[] bobs;
 
-	boolean repeat;
-
-	Bob next() {
-		acc += rate;
-		if (acc > 256) {
-			acc -= 256;
-			pos += 1;
-			if (pos >= bobs.length) {
-				if (repeat) {
-					pos = 0;
-				}
-				else {
-					pos = bobs.length-1;
-				}
-			}
-		}
-		return bobs[pos];
-	}
+	/**
+	 * Does it repeat?
+	 */
+	final public boolean repeat;
 
 	/**
 	 * Construct an animation.
 	 * 
-	 * @param rate
-	 *            Between 0x100 meaning "every frame" and 0 meaning "never".
+	 * @param defaultRate
+	 *            Between {@link Anim#MAX_RATE} meaning "every frame" and 0 meaning "never".
 	 * @param frames
 	 *            The frames to animate.
 	 * @param repeat
 	 *            Repeat or stop at the end?
 	 */
-	Anim(int rate, Bob[] frames, boolean repeat) {
-		this.rate = rate;
+	Anim(int defaultRate, Bob[] frames, boolean repeat) {
+		this.defaultRate = defaultRate;
 		this.bobs = frames;
 		this.repeat = repeat;
 	}

@@ -7,6 +7,7 @@ public class Bear extends Alien {
 	private Anim animClimbing;
 	private Anim animSuprise;
 	private Anim animTurning;
+	private AnimPlayer ap;
 
 	void loadGraphics(AnimBuilder ab) {
 		ab.select("wbear");
@@ -15,10 +16,12 @@ public class Bear extends Alien {
 		animWalkingLeft = ab.otherWayTo(animWalkingRight).build();
 		animClimbing = ab.next(6).cycle().rate(80).repeat().build();
 		animSuprise = ab.next().build();
+		
+		ap = new AnimPlayer(animWalkingLeft);
 	}
 
 	public void draw(World world) {
-		animWalkingLeft.next().draw(c.x-world.screen.x, c.y-world.screen.y);
+		ap.next().draw(c.x-world.screen.x, c.y-world.screen.y);
 		world.fallOrRaise(c, 5);
 		c.x--;
 	}

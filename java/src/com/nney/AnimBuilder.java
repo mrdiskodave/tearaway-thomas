@@ -62,7 +62,7 @@ public class AnimBuilder {
 			Frame frame = bob.frame;
 			frames.add(new Frame(frame.name, frame.number, fx));
 		}
-		rate = other.rate;
+		rate = other.defaultRate;
 		repeat = other.repeat;
 		return this;
 	}

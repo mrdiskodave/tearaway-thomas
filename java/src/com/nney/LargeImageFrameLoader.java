@@ -27,6 +27,8 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 	private static Bob bobFromLargeImage(byte[] someRawGraphicsFile, Frame f) {
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
 
+		// other FrameLoaders (if there ever are any!) will have to think about how to implement this
+		// or maybe we generalise it (so it can move the handle) and we move it inside Bob ctor)
 		if (f.fx==BobFX.MIRROR) {
 			final int w = si.getWidth();
 			WhereTo pixelMovement = new WhereTo() {
