@@ -440,26 +440,32 @@ PLAYER_HANDLES.extend([
 	(3,0),
 ])
 
+TT_FRAME_COUNT = 64+8+3
+assert TT_FRAME_COUNT == len(PLAYER_HANDLES)
+
 def convert_tt():
-	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
-	i.findReplace((0x00,0x99,0xff),TRANS)
-	#i.findReplace((0x00,0x99,0xff),YELLOW)
-	r = BookReader(i, 32, 32, 8)
+	bg = TRANS
+
+	all_tt_frames = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
+	#all_tt_frames.findReplace((0x00,0x99,0xff),TRANS)
+	all_tt_frames.findReplace((0x00,0x99,0xff),bg)
+	r = BookReader(all_tt_frames, 32, 32, 8)
 	exporter = Exporter("0", "tt")
-	cnt = 64+8+3
-	assert cnt == len(PLAYER_HANDLES)
-	for x in xrange(cnt):
+	for x in xrange(TT_FRAME_COUNT):
 		b = r.start(x)
 		print x, b
-		n = img.Img.create(r.w, r.h)
-		n.overwrite(i.view(*b))
+		one_frame = img.Img.create(r.w, r.h)
+		#for x in xrange(one_frame.w): print x, one_frame.get(x, 0)
+		one_frame.overwrite(all_tt_frames.view(*b))
+		c = crop(one_frame, bg)
 
-
-
-		
 		hx, hy = PLAYER_HANDLES[x]
+		hx += c[0]
+		hy += c[1]
+		one_frame = one_frame.view(*c)
+		
 		#hx, hy = 0, 0
-		exporter.save(x, n, hx-15, hy-29)
+		exporter.save(x, one_frame, hx-15, hy-29)
 
 		#cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
 		#cas.saveP6(n)
@@ -548,22 +554,22 @@ def convert_bob(world, name):
 		exporter.save(frame, sprite, addx, addy)
 	exporter.done()
 
-def crop(s):
+def crop(s, c=TRANS):
 	left = 0
-	while s.view(left, 0, w=1).test(TRANS):
+	while s.view(left, 0, w=1).test(c):
 		left += 1
 
 	top = 0
-	while s.view(0, top, h=1).test(TRANS):
+	while s.view(0, top, h=1).test(c):
 		top += 1
 
 	right = s.w-1
-	while s.view(right, 0, w=1).test(TRANS):
+	while s.view(right, 0, w=1).test(c):
 		right -= 1
 	right += 1
 
 	bottom = s.h-1
-	while s.view(0, bottom, h=1).test(TRANS):
+	while s.view(0, bottom, h=1).test(c):
 		bottom -= 1
 	bottom += 1
 
