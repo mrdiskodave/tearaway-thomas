@@ -68,8 +68,8 @@ class Img:
 		return self.base!=0 or self.w*self.h*Img.BYTES_PER_PIXEL!=len(self.d)
 
 	def _ca(self, x, y):
-		assert x<self.w, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
-		assert y<self.h, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
+		assert 0<=x<self.w, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
+		assert 0<=y<self.h, "Can't address pixel {0},{1} in an image that measures {2},{3}".format(x, y, self.w, self.h)
 		return self.base+x*3+y*self.stride
 
 	def view(self, x=0, y=0, w=None, h=None):
