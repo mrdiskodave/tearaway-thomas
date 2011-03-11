@@ -457,7 +457,7 @@ def convert_tt():
 		one_frame = img.Img.create(r.w, r.h)
 		#for x in xrange(one_frame.w): print x, one_frame.get(x, 0)
 		one_frame.overwrite(all_tt_frames.view(*b))
-		c = crop(one_frame, bg)
+		c = one_frame.crop(bg)
 
 		hx, hy = PLAYER_HANDLES[x]
 		hx += c[0]
@@ -554,35 +554,12 @@ def convert_bob(world, name):
 		exporter.save(frame, sprite, addx, addy)
 	exporter.done()
 
-def crop(s, c=TRANS):
-	left = 0
-	while s.view(left, 0, w=1).test(c):
-		left += 1
-
-	top = 0
-	while s.view(0, top, h=1).test(c):
-		top += 1
-
-	right = s.w-1
-	while s.view(right, 0, w=1).test(c):
-		right -= 1
-	right += 1
-
-	bottom = s.h-1
-	while s.view(0, bottom, h=1).test(c):
-		bottom -= 1
-	bottom += 1
-
-	width = right - left
-	height = bottom - top
-	answer = (left, top, width, height)
-	return answer
 
 def is_mirror(a, b):
 	assert a.w == b.w
 	assert a.h == b.h
-	ca = crop(a)
-	cb = crop(b)
+	ca = a.crop(TRANS)
+	cb = b.crop(TRANS)
 	print "CA:"+repr(ca)
 	print "CB:"+repr(cb)
 	va = a.view(*ca)

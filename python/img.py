@@ -122,6 +122,30 @@ class Img:
 				c = self.get(x, y)
 				self.put(x, y, f(c))
 
+	def crop(self, c):
+		left = 0
+		while self.view(left, 0, w=1).test(c):
+			left += 1
+
+		top = 0
+		while self.view(0, top, h=1).test(c):
+			top += 1
+
+		right = self.w-1
+		while self.view(right, 0, w=1).test(c):
+			right -= 1
+		right += 1
+
+		bottom = self.h-1
+		while self.view(0, bottom, h=1).test(c):
+			bottom -= 1
+		bottom += 1
+
+		width = right - left
+		height = bottom - top
+		answer = (left, top, width, height)
+		return answer
+
 	def test(self, c):
 		for y in xrange(self.h):
 			for x in xrange(self.w):
