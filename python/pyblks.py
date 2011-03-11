@@ -612,28 +612,8 @@ class Exporter:
 		self.items = []
 
 	def save(self, frame, sprite, addx, addy):
-		#
-		# centre sprite on a canvas
-		#
-		# i thought about exporting the addx addy values just prepended to the PNG file
-		# but then we're no longer using a standard format and it will limit our
-		# options for editting this stuff later
-		#
-
-		CANVAS_SIZE = 161
-		CANVAS_MIDDLE = CANVAS_SIZE//2
-
-		canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
-		canvas.clear(TRANS)
-		canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
-		# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
-
-		#put a little dot in the middle so I can see we're hitting the right place
-		if CENTRE_MARKER:
-			canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
-
-		self.items.append(canvas)
-
+		assert frame==len(self.items)
+		self.items.append([sprite,addx,addy])
 
 	def framename(self, frame):
 		return "{0}_{1:03}".format(self.world+self.name, frame);
@@ -658,8 +638,31 @@ class Exporter:
 					print "FOUND A MIRROR with {0:5} confidence between frame {1}{2} and {3}{4}".format(score, self.framename(x), ac, self.framename(y), bc)
 			
 		for frame, item in enumerate(self.items):
+			sprite, addx, addy = item
+
+
+			#
+			# centre sprite on a canvas
+			#
+			# i thought about exporting the addx addy values just prepended to the PNG file
+			# but then we're no longer using a standard format and it will limit our
+			# options for editting this stuff later
+			#
+
+			CANVAS_SIZE = 161
+			CANVAS_MIDDLE = CANVAS_SIZE//2
+
+			canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
+			canvas.clear(TRANS)
+			canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
+			# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
+
+			#put a little dot in the middle so I can see we're hitting the right place
+			if CENTRE_MARKER:
+				canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
+
 			cas = Cascade(os.path.join(NEWDATA, "bobs", self.framename(frame)+".ppm"))
-			cas.saveP6(item)
+			cas.saveP6(canvas)
 			cas.toPNG()#bob frame
 
 def convert_bobs():
