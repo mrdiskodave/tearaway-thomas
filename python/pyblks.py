@@ -20,9 +20,11 @@ PALSIZE = PALCOLS*2
 BLACK = (0,0,0)
 WHITE = (0xff,0xff,0xff)
 GREY  = (0x80,0x80,0x80)
+CYAN  = (0x00,0xff,0xff)
+YELLOW= (0xff,0xff,0x00)
 
-CENTRE_MARKER = None
-#CENTRE_MARKER = GREY
+CENTRE_MARKER = CYAN
+#CENTRE_MARKER = None
 
 # the colour we'll use to mean "transparent"
 # all Amiga colours are scaled up by 0x11 so 0x01 cannot happen
@@ -419,28 +421,57 @@ def convert_font():
 		cas.saveP6(n.view(0, 0, w, None))
 		cas.toPNG()#font character
 
+
+PLAYER_HANDLES = []
+PLAYER_HANDLES.extend([ (0,0)  ] * 16) #walking
+PLAYER_HANDLES.extend([ (0,1)  ] * 16) #jumping   e.g. draw the 32x32 one pixel lower (i.e. the handle is one pixel HIGHER in the 32x32)
+PLAYER_HANDLES.extend([ (0,0)  ] *  6) #ladder use
+PLAYER_HANDLES.extend([ (0,0), (-1, 0)  ] ) #standing
+PLAYER_HANDLES.extend([ (0,0)  ] *  3) #head shaking
+PLAYER_HANDLES.extend([ (0,0)  ] *  6) #flying
+PLAYER_HANDLES.extend([ (0,0)  ] * 9) #monkeying
+PLAYER_HANDLES.extend([ (-8,0) ] *  6) #shinning down the left of a rope
+PLAYER_HANDLES.extend([ (4,0)  ] *  6) #shinning down the right of a rope
+PLAYER_HANDLES.extend([
+	(-6,0), # going round the rope
+	(-4,0),
+	(-1,0),
+	(2,0),
+	(3,0),
+])
+
 def convert_tt():
 	i = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
 	i.findReplace((0x00,0x99,0xff),TRANS)
+	#i.findReplace((0x00,0x99,0xff),YELLOW)
 	r = BookReader(i, 32, 32, 8)
 	exporter = Exporter("0", "tt")
-	for x in xrange(0, 64+8+3):
+	cnt = 64+8+3
+	assert cnt == len(PLAYER_HANDLES)
+	for x in xrange(cnt):
 		b = r.start(x)
 		print x, b
 		n = img.Img.create(r.w, r.h)
 		n.overwrite(i.view(*b))
-		exporter.save(x, n, -15, -29)
+
+
+
+		
+		hx, hy = PLAYER_HANDLES[x]
+		#hx, hy = 0, 0
+		exporter.save(x, n, hx-15, hy-29)
 
 		#cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
 		#cas.saveP6(n)
 		#cas.toPNG()#tearaway frame
+	exporter.done()
 
 FRAMESKIP = {
-	"wbear": range(0,8),
-	"0tt": range(8, 16)+range(24,32)+[39]+range(46,49)+range(53, 57)+range(64,70),
-	"wabee": range(7,11),
-	"wbird": range(6,11),
-	"gfran": [0,1,2,3],
+	#"wbear": range(0,8),
+	#"0tt": range(8, 16)+range(24,32)+[39]+range(46,49)+range(53, 57)+range(64,70),
+	#"wabee": range(7,11),
+	#"wbird": range(6,11),
+	#"gfran": [0,1,2,3],
 	#"ibear": range(15,
 	}
 
@@ -515,52 +546,119 @@ def convert_bob(world, name):
 			offset += rastlen
 
 		exporter.save(frame, sprite, addx, addy)
+	exporter.done()
 
+def crop(s):
+	left = 0
+	while s.view(left, 0, w=1).test(TRANS):
+		left += 1
 
-def xcentre_and_save(world, name, frame, sprite, addx, addy):
-	#
-	# centre sprite on a canvas
-	#
-	# i thought about exporting the addx addy values just prepended to the PNG file
-	# but then we're no longer using a standard format and it will limit our
-	# options for editting this stuff later
-	#
+	top = 0
+	while s.view(0, top, h=1).test(TRANS):
+		top += 1
 
-	CANVAS_SIZE = 161
-	CANVAS_MIDDLE = CANVAS_SIZE//2
+	right = s.w-1
+	while s.view(right, 0, w=1).test(TRANS):
+		right -= 1
+	right += 1
 
-	canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
-	canvas.clear(TRANS)
-	canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
-	# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
+	bottom = s.h-1
+	while s.view(0, bottom, h=1).test(TRANS):
+		bottom -= 1
+	bottom += 1
 
-	#put a little dot in the middle so I can see we're hitting the right place
-	if CENTRE_MARKER:
-		canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
+	width = right - left
+	height = bottom - top
+	answer = (left, top, width, height)
+	return answer
 
-	#framestr = "" if framecount==1 else "_{0:03}".format(frame);
-	framestr = "_{0:03}".format(frame);
-	cas = Cascade(os.path.join(NEWDATA, "bobs", "{0}{1}.ppm".format(world+name, framestr)))
-	cas.saveP6(canvas)
-	cas.toPNG()#bob frame
+def is_mirror(a, b):
+	assert a.w == b.w
+	assert a.h == b.h
+	ca = crop(a)
+	cb = crop(b)
+	print "CA:"+repr(ca)
+	print "CB:"+repr(cb)
+	va = a.view(*ca)
+	vb = b.view(*cb)
+	#print ca, cb
+	w = va.w
+	h = va.h
+	if w!=vb.w or h!=vb.h: return [ 0, 0, 0 ]
+
+	print "Comparing pixels ..."
+	score = 0
+	for y in range(h):
+		for x in range(w):
+			za = va.get(x, y) 
+			zb = vb.get(w-1-x, y)
+			#print za, zb, x, vb.w-1-x, y
+			if za==zb:
+				score += 1
+	print "SCORE", score, "AREA", w*h
+	fscore = (score*10000)/(w*h)
+	return [ fscore, ca, cb ]
 
 class Exporter:
 	def __init__(self, world, name):
 		self.world = world
 		self.name = name
-		self.fctr = 0
-		self.frameSkip = set(FRAMESKIP.get(world+name, []))
+		self.items = []
 
 	def save(self, frame, sprite, addx, addy):
-		if frame in self.frameSkip:
-			print "SKIPPED!!!"
-		else:
-			xcentre_and_save(self.world, self.name, self.fctr, sprite, addx, addy)
-			print "SAVED"
-			self.fctr+=1
+		#
+		# centre sprite on a canvas
+		#
+		# i thought about exporting the addx addy values just prepended to the PNG file
+		# but then we're no longer using a standard format and it will limit our
+		# options for editting this stuff later
+		#
+
+		CANVAS_SIZE = 161
+		CANVAS_MIDDLE = CANVAS_SIZE//2
+
+		canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
+		canvas.clear(TRANS)
+		canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
+		# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
+
+		#put a little dot in the middle so I can see we're hitting the right place
+		if CENTRE_MARKER:
+			canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
+
+		self.items.append(canvas)
+
+
+	def framename(self, frame):
+		return "{0}_{1:03}".format(self.world+self.name, frame);
+
+	def done(self):
+		print "**** DONE!!!!!!!!!!!!!!!!!!"
+		if False:
+			for x in range(len(self.items)):
+				best = [ 0, 0, 0, 0 ]
+				for y in range(x+1, len(self.items)):
+					a = self.items[x]
+					b = self.items[y]
+					print "Comparing frames {0} and {1}".format(self.framename(x), self.framename(y))
+					score = is_mirror(a, b)
+					print "got", repr(score)
+					if score[0]>best[0]:
+						print "Scored improved"
+						score.append(y)
+						best = score
+				if best[0]:
+					score, ac, bc, y = best
+					print "FOUND A MIRROR with {0:5} confidence between frame {1}{2} and {3}{4}".format(score, self.framename(x), ac, self.framename(y), bc)
+			
+		for frame, item in enumerate(self.items):
+			cas = Cascade(os.path.join(NEWDATA, "bobs", self.framename(frame)+".ppm"))
+			cas.saveP6(item)
+			cas.toPNG()#bob frame
 
 def convert_bobs():
 	world = '0'
+	done = set()
 	s = load_file("ttgfx_defs.s")
 	for line in s.split('\n'):
 		m = re.match(r"([wigtf]).*_GFX", line)
@@ -570,7 +668,10 @@ def convert_bobs():
 		if m:
 			name = m.group(1)
 			print world, name
-			convert_bob(world, name)
+			total = world+name
+			if not total in done:
+				convert_bob(world, name)
+				done.add(total)
 
 
 
@@ -578,8 +679,53 @@ def convert_bobs():
 
 
 convert_tt()
-convert_bobs()	
+#convert_bobs()	
 #convert_font()
 #convert_worlds()
 
+_END_ = """
 
+
+PA_handles
+	ds.w	16	0-15
+	rept	16
+	dc.b	0,1
+	endr
+	ds.w	26
+	dc.b	-8,0	58 left rope
+	dc.b	-8,0
+	dc.b	-8,0
+	dc.b	-8,0
+	dc.b	-8,0
+	dc.b	-8,0
+	dc.b	4,0	64 right rope
+	dc.b	4,0
+	dc.b	4,0
+	dc.b	4,0
+	dc.b	4,0
+	dc.b	4,0
+	dc.b	-6,0	70
+	dc.b	-4,0
+	dc.b	-1,0
+	dc.b	2,0
+	dc.b	3,0
+
+PA_runright	dc.b	105,00,01,02,03,04,05,06,07,-8
+PA_runleft	dc.b	105,15,14,13,12,11,10,09,08,-8
+PA_jumpright	dc.b	255,16,17,18,19,20,21,22,23,-8
+PA_jumpleft	dc.b	255,24,25,26,27,28,29,30,31,-8
+PA_stoodright	dc.b	0,38,-1
+PA_stoodleft	dc.b	0,39,-1
+PA_wobble	dc.b	128,40,41,42,41,-4
+PA_climb	dc.b	128,32,33,34,35,36,37,36,35,34,33,-10
+PA_flyright	dc.b	100,43,44,45,44,43,-1
+PA_flyleft	dc.b	100,46,47,48,47,46,-1
+PA_monkeyright	dc.b	80,49,50,51,52,-4
+PA_monkeyleft	dc.b	80,56,55,54,53,-4
+PA_monkeymid	dc.b	0,57,-1
+PA_ropeleft	dc.b	128,58,59,60,61,62,63,-6
+PA_roperight	dc.b	128,64,65,66,67,68,69,-6
+PA_ropel2r	dc.b	200,70,71,72,73,74,64,-1
+PA_roper2l	dc.b	200,74,73,72,71,70,58,-1
+
+"""
