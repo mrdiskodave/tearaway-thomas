@@ -560,19 +560,12 @@ class Sprite:
 		self.addx = addx
 		self.addy = addy
 
+NOT_MIRROR = 1<<64
+
 def is_mirror(a, b):
-	assert a.w == b.w
-	assert a.h == b.h
-	ca = a.crop(TRANS)
-	cb = b.crop(TRANS)
-	print "CA:"+repr(ca)
-	print "CB:"+repr(cb)
-	va = a.view(*ca)
-	vb = b.view(*cb)
-	#print ca, cb
-	w = va.w
-	h = va.h
-	if w!=vb.w or h!=vb.h: return [ 0, 0, 0 ]
+	if a.i.w!=b.i.w: return NOT_MIRROR
+	if a.i.h!=b.i.h: return NOT_MIRROR
+	if a.addy!=b.addy: return NOT_MIRROR
 
 	print "Comparing pixels ..."
 	score = 0
@@ -580,12 +573,11 @@ def is_mirror(a, b):
 		for x in range(w):
 			za = va.get(x, y) 
 			zb = vb.get(w-1-x, y)
-			#print za, zb, x, vb.w-1-x, y
-			if za==zb:
+			if za!=zb:
 				score += 1
-	print "SCORE", score, "AREA", w*h
-	fscore = (score*10000)/(w*h)
-	return [ fscore, ca, cb ]
+	#print "SCORE", score, "AREA", w*h
+	#fscore = (score*10000)/(w*h)
+	return fscore
 
 class Exporter:
 	def __init__(self, world, name):
@@ -603,21 +595,43 @@ class Exporter:
 	def done(self):
 		print "**** DONE!!!!!!!!!!!!!!!!!!"
 		if False:
-			for x in range(len(self.sprites)):
-				best = [ 0, 0, 0, 0 ]
-				for y in range(x+1, len(self.sprites)):
-					a = self.sprites[x]
-					b = self.sprites[y]
-					print "Comparing frames {0} and {1}".format(self.framename(x), self.framename(y))
-					score = is_mirror(a, b)
-					print "got", repr(score)
-					if score[0]>best[0]:
+			candidates = [ range(len(self.sprites)) ]
+			while 1:
+				if len(candidates)<2: break
+				first = candidates.pop(0)
+				best = NOT_MIRROR
+				choice = None
+				for other in candidates:
+					print "Comparing frames {0} and {1}".format(self.framename(first), self.framename(other))
+					sfirst = self.sprites[first]
+					sother = self.sprites[other]
+					score = is_mirror(sfirst, sother)
+					if score<best:
 						print "Scored improved"
-						score.append(y)
 						best = score
-				if best[0]:
-					score, ac, bc, y = best
-					print "FOUND A MIRROR with {0:5} confidence between frame {1}{2} and {3}{4}".format(score, self.framename(x), ac, self.framename(y), bc)
+						choice = other
+				if choice:
+					print "FOUND A MIRROR with {0:5} differing pixels frame {1} and {2}".format(best, self.framename(first), self.framename(choice))
+					candidates.remove(choice)
+
+#			taken = set()
+#			for x in range(len(self.sprites)):
+#				if x not in taken:
+#					best = NOT_MIRROR
+#					choice = None
+#					for y in range(x+1, len(self.sprites)):
+#						if y not in taken:
+#							print "Comparing frames {0} and {1}".format(self.framename(x), self.framename(y))
+#							sx = self.sprites[x]
+#							sy = self.sprites[y]
+#							score = is_mirror(sx, sy)
+#							if score<best:
+#								print "Scored improved"
+#								best = score
+#								choice = y
+#						if choice:
+#							print "FOUND A MIRROR with {0:5} differing pixels frame {1} and {2}".format(best, self.framename(x), self.framename(choice))
+#							taken.add(choice)
 			
 		for frame, sprite in enumerate(self.sprites):
 
