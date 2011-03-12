@@ -2,9 +2,12 @@ import array
 import struct
 import sys
 import shelltools
-import img
 import os
 import re
+
+import img
+import chunkify
+import mapunpack
 
 # blocks size in bytes
 BLKSIZE = 2*16*4
@@ -107,39 +110,6 @@ def get_a_palette(data, palbase):
 	return pa
 
 
-# http://en.wikipedia.org/wiki/Planar_(computer_graphics)
-#
-# p = the bit-plane values
-# s = the number of bits in use in each value
-# returns = values read across the planes (i.e. the chunky values)
-# * values come out in plane MSB to LSB order
-# * p[0] produces the new chunky MSB
-# * p[s-1] produces the new chunky LSB
-def chunkify(p, s):
-	#print "planes:"+repr(p)
-	answer = []
-	for x in xrange(s):
-		ba = 0
-		for c in p:
-			bitpos = s-x-1
-			ba <<= 1
-			ba |= (c & (1<<bitpos)) >> bitpos
-		answer.append(ba)
-	return answer
-
-# see that bitwise gets flipped around to become bytewise:
-assert chunkify([0b001,
-				 0b000,
-				 0b111], 3)==[0b001,
-							  0b001,
-							  0b101]
-assert chunkify([0b0001,
-				 0b0000,
-				 0b0111], 4)==[0b000,
-							   0b001,
-							   0b001,
-							   0b101]
-
 
 
 def get_block_list(data, get_masks):
@@ -192,7 +162,7 @@ def get_block_list(data, get_masks):
 			if get_masks:
 				p0 = get_word(data, br)
 				br += 2
-				line = chunkify([p0], 16)
+				line = chunkify.chunkify([p0], 16)
 				for x, pix in enumerate(line):
 					if not pix:
 						i.put(x, y, BLACK)
@@ -203,7 +173,7 @@ def get_block_list(data, get_masks):
 				br += 2
 				p0 = get_word(data, br)
 				br += 2
-				line = chunkify((p0,p1,p2), 16)
+				line = chunkify.chunkify((p0,p1,p2), 16)
 				for x, pix in enumerate(line):
 					i.put(x, y, pal[pix])
 		answer.append(i)
@@ -264,45 +234,6 @@ def save_all_blocks(world, data):
 		cas.saveP6(d)
 		cas.toPNG()#map block
 
-def get_map_from_level(level):
-	# commision 64K of words
-	map = array.array('H', [ 0 for _ in xrange(0x8000) ])
-	# copy the compressed level in
-	se = get_word(level, 0)
-	#print "length={0:04x}".format(se)
-	assert se&1==0
-	se >>= 1
-	for x in xrange(se):
-		map[x] = get_word(level, x*2)
-	# fix it up
-	se -= 1
-	map[0] = map[se]
-	# unpack it in situe
-	# (it is also unpacked from DHp2 earlier)
-	de = 0x8000
-	while se!=0:
-		# read a value pre-decrement
-		se -= 1
-		x = map[se]
-		# what is it?
-		if x&0x8000:
-			# it is is a run
-			# the data is the first value NOTed
-			x ^= 0xffff
-			# then there is another value which is a repeat count (in DBF form)
-			se -= 1
-			r = map[se]+1
-		else:
-			# it is just a single unpacked value
-			r = 1
-		for _ in xrange(r):
-			print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
-			de -= 1
-			map[de] = x
-	assert de==0
-	return map
-
-
 
 
 def convert_map(block_data, name, rt):
@@ -321,7 +252,7 @@ def convert_map(block_data, name, rt):
 			y += dy
 		return False
 
-	map = get_map_from_level(level)
+	map = mapunpack.get_map_from_level(level)
 	col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
 	row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
 
@@ -539,8 +470,8 @@ def convert_bob(world, name):
 				q += sx
 				pm = get_word(i, q)
 
-				line = chunkify((p0,p1,p2), 16)
-				mask = chunkify((pm,), 16)
+				line = chunkify.chunkify((p0,p1,p2), 16)
+				mask = chunkify.chunkify((pm,), 16)
 				for j in xrange(0, 16):
 					if mask[j]:
 						c = bobpal[line[j]]
@@ -560,24 +491,33 @@ class Sprite:
 		self.addx = addx
 		self.addy = addy
 
-NOT_MIRROR = 1<<64
+
+NOT_MIRROR = 0
+BEST_MIRROR = 100000
 
 def is_mirror(a, b):
-	if a.i.w!=b.i.w: return NOT_MIRROR
-	if a.i.h!=b.i.h: return NOT_MIRROR
+	w, h = a.i.w, a.i.h
+
+	if w!=b.i.w: return NOT_MIRROR
+	if h!=b.i.h: return NOT_MIRROR
 	if a.addy!=b.addy: return NOT_MIRROR
 
 	print "Comparing pixels ..."
 	score = 0
+	
 	for y in range(h):
 		for x in range(w):
-			za = va.get(x, y) 
-			zb = vb.get(w-1-x, y)
-			if za!=zb:
+			ca = a.i.get(x, y) 
+			cb = b.i.get(w-1-x, y)
+			if ca==cb:
 				score += 1
-	#print "SCORE", score, "AREA", w*h
-	#fscore = (score*10000)/(w*h)
+	print "SCORE", score, "AREA", w*h
+	fscore = (score*BEST_MIRROR )/(w*h)
+	print "ANSWER", fscore
 	return fscore
+
+
+MIRROR_ACTIONS = {}
 
 class Exporter:
 	def __init__(self, world, name):
@@ -594,8 +534,8 @@ class Exporter:
 
 	def done(self):
 		print "**** DONE!!!!!!!!!!!!!!!!!!"
-		if False:
-			candidates = [ range(len(self.sprites)) ]
+		if True:
+			candidates = range(len(self.sprites))
 			while 1:
 				if len(candidates)<2: break
 				first = candidates.pop(0)
@@ -606,13 +546,33 @@ class Exporter:
 					sfirst = self.sprites[first]
 					sother = self.sprites[other]
 					score = is_mirror(sfirst, sother)
-					if score<best:
+					if score>best:
 						print "Scored improved"
 						best = score
 						choice = other
+						if score==BEST_MIRROR: break;
 				if choice:
-					print "FOUND A MIRROR with {0:5} differing pixels frame {1} and {2}".format(best, self.framename(first), self.framename(choice))
-					candidates.remove(choice)
+					if best>=BEST_MIRROR*3/4:
+						af = -self.sprites[first].addx
+						ac = -self.sprites[choice].addx 
+						ac = self.sprites[choice].i.w-1-ac
+						assert af>=0
+						assert ac>=0
+						hd = af-ac
+
+
+						mdesc = self.framename(first)+'+'+self.framename(choice)
+						status = MIRROR_ACTIONS.get(mdesc, '?')
+						if status=='?' and best==BEST_MIRROR:
+							status = '!'
+						print "\t'{0}': '{1}', # MIRROR score {2:5} handle difference {3}".format(mdesc, status, best, hd)
+						if status in ['<', '>']:
+							print "remove the frame"
+							pass
+						if status in ['<', '>', '!']:
+							print "remove the candidate"
+							candidates.remove(choice)
+							pass
 
 #			taken = set()
 #			for x in range(len(self.sprites)):
