@@ -554,6 +554,11 @@ def convert_bob(world, name):
 		exporter.save(frame, sprite, addx, addy)
 	exporter.done()
 
+class Sprite:
+	def __init__(self, i, addx, addy):
+		self.i = i
+		self.addx = addx
+		self.addy = addy
 
 def is_mirror(a, b):
 	assert a.w == b.w
@@ -586,11 +591,11 @@ class Exporter:
 	def __init__(self, world, name):
 		self.world = world
 		self.name = name
-		self.items = []
+		self.sprites = []
 
-	def save(self, frame, sprite, addx, addy):
-		assert frame==len(self.items)
-		self.items.append([sprite,addx,addy])
+	def save(self, frame, i, addx, addy):
+		assert frame==len(self.sprites)
+		self.sprites.append(Sprite(i,addx,addy))
 
 	def framename(self, frame):
 		return "{0}_{1:03}".format(self.world+self.name, frame);
@@ -598,11 +603,11 @@ class Exporter:
 	def done(self):
 		print "**** DONE!!!!!!!!!!!!!!!!!!"
 		if False:
-			for x in range(len(self.items)):
+			for x in range(len(self.sprites)):
 				best = [ 0, 0, 0, 0 ]
-				for y in range(x+1, len(self.items)):
-					a = self.items[x]
-					b = self.items[y]
+				for y in range(x+1, len(self.sprites)):
+					a = self.sprites[x]
+					b = self.sprites[y]
 					print "Comparing frames {0} and {1}".format(self.framename(x), self.framename(y))
 					score = is_mirror(a, b)
 					print "got", repr(score)
@@ -614,8 +619,7 @@ class Exporter:
 					score, ac, bc, y = best
 					print "FOUND A MIRROR with {0:5} confidence between frame {1}{2} and {3}{4}".format(score, self.framename(x), ac, self.framename(y), bc)
 			
-		for frame, item in enumerate(self.items):
-			sprite, addx, addy = item
+		for frame, sprite in enumerate(self.sprites):
 
 
 			#
@@ -631,7 +635,7 @@ class Exporter:
 
 			canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
 			canvas.clear(TRANS)
-			canvas.view(CANVAS_MIDDLE+addx, CANVAS_MIDDLE+addy).overwrite(sprite)
+			canvas.view(CANVAS_MIDDLE+sprite.addx, CANVAS_MIDDLE+sprite.addy).overwrite(sprite.i)
 			# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
 
 			#put a little dot in the middle so I can see we're hitting the right place
