@@ -1,5 +1,7 @@
 package com.nney;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.GL11;
 
 public class GlTools {
@@ -25,5 +27,40 @@ public class GlTools {
 		GL11.glShadeModel(GL11.GL_FLAT);
 	}
 
+	private static final boolean SHOW_BOUNDING_BOX = false;
 
+	public static ByteBuffer makeByteBuffer(SimpleImage si, int w, int h) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(w * h * 4);
+		if (SHOW_BOUNDING_BOX) {
+			for (int x = 0; x < w * h; x++) {
+				buffer.put((byte) 0xff);
+				buffer.put((byte) 0);
+				buffer.put((byte) 0);
+				buffer.put((byte) 0xff);
+			}
+		}
+	
+		for (int y = 0; y < si.getHeight(); y++) {
+			for (int x = 0; x < si.getWidth(); x++) {
+				int p = si.getPixel(x, y);
+				int a = p >> 3 * 8;
+				if (a != 0) {
+					int r = p >> 2 * 8;
+					int g = p >> 1 * 8;
+					int b = p >> 0 * 8;
+					buffer.position((y * w + x) * 4);
+					buffer.put((byte) r);
+					buffer.put((byte) g);
+					buffer.put((byte) b);
+					buffer.put((byte) a);
+				}
+			}
+		}
+		buffer.rewind();
+		return buffer;
+	}
+
+	public static ByteBuffer makeByteBuffer(SimpleImage si) {
+		return makeByteBuffer(si, si.getWidth(), si.getHeight());
+	}
 }

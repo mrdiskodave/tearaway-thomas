@@ -40,7 +40,7 @@ public class SimpleImage {
 		isView = false;
 	}
 	
-	static SimpleImage createEmpty(int w, int h) {
+	static public SimpleImage createEmpty(int w, int h) {
 		return new SimpleImage(w, h, new int[w*h]);
 	}
 	
