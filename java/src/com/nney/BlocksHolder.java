@@ -3,6 +3,8 @@ package com.nney;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
+
 import com.nney.utils.Openable;
 
 public class BlocksHolder {
@@ -19,6 +21,8 @@ public class BlocksHolder {
 
 	final private int blockCount;
 	final private Texture[] textures;
+
+	private int listBase;
 	
 	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable) {
 		this.blockSize = blockSize;
@@ -54,6 +58,19 @@ public class BlocksHolder {
 			textures.add(new Texture(grid));
 		}
 		this.textures = (Texture[]) textures.toArray(new Texture[textures.size()]);
+		
+		preCompile();
+	}
+
+	private void preCompile() {
+		listBase = GL11.glGenLists(blockCount);
+		assert listBase!=0;
+		
+		for (int x=0; x<blockCount; x++) {
+			GL11.glNewList(listBase+x, GL11.GL_COMPILE);
+			idraw(x, 0, 0);
+			GL11.glEndList();
+		}
 	}
 	
 	static private int discoverShift(int v) {
@@ -65,13 +82,23 @@ public class BlocksHolder {
 		return 0;
 	}
 
-	public void draw(int block, int dx, int dy) {
+	private void idraw(int block, int dx, int dy) {
 		assert block>=0;
+		assert block<blockCount;
 		Texture t = textures[block >> gridCapShift];
 		block &= gridCapacity-1;
 		int bx = block & gridSize-1;
 		int by = block >> gridSizeShift;
 		t.draw(dx, dy, bx << blockSizeShift, by << blockSizeShift, blockSize, blockSize);
+	}
+	
+	public void draw(int block, int dx, int dy) {
+		assert block>=0;
+		assert block<blockCount;
+		GL11.glPushMatrix();
+		GL11.glTranslatef(dx, dy, 0);
+		GL11.glCallList(listBase+block);
+		GL11.glPopMatrix();
 	}
 	
 	public int getBlockCount() {
