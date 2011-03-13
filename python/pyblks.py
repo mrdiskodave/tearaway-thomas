@@ -296,7 +296,9 @@ def convert_font():
 	i = load_ilbm("orig/gfx/other/bits/font.lbm")	
 	i.findReplace((0x00,0x00,0x66), TRANS)
 	r = BookReader(i, 16, 11)
+	exporter = Exporter("0font")
 	for x, c in enumerate(chars):
+		print x
 		n = img.Img.create(r.w, r.h)
 		n.overwrite(i.view(*r.start(x)))
 
@@ -307,9 +309,12 @@ def convert_font():
 			if not sub.test(TRANS): break
 			w -= 1
 
-		cas = Cascade(os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c))))
-		cas.saveP6(n.view(0, 0, w, None))
-		cas.toPNG()#font character
+		exporter.save(n.view(0, 0, w, None), 0, 1-r.h)
+
+		#cas = Cascade(os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c))))
+		#cas.saveP6(n.view(0, 0, w, None))
+		#cas.toPNG()#font character
+	exporter.done()
 
 
 PLAYER_HANDLES = []
@@ -354,7 +359,7 @@ def convert_tt():
 		one_frame = one_frame.view(*c)
 		
 		#hx, hy = 0, 0
-		exporter.save(x, one_frame, hx-15, hy-29)
+		exporter.save(one_frame, hx-15, hy-29)
 
 		#cas = Cascade(os.path.join(NEWDATA, "tearaway", "{0:03}.ppm".format(x)))
 		#cas.saveP6(n)
@@ -440,7 +445,7 @@ def convert_bob(world, name):
 						sprite.put(xd, y, c)
 			offset += rastlen
 
-		exporter.save(frame, sprite, addx, addy)
+		exporter.save(sprite, addx, addy)
 	exporter.done()
 
 class Sprite:
@@ -519,11 +524,10 @@ class Exporter:
 		self.name = name
 		self.sprites = []
 
-	def save(self, frame, i, addx, addy):
-		assert frame==len(self.sprites)
+	def save(self, i, addx, addy):
 		self.sprites.append(Sprite(i,addx,addy))
 
-	def framename(self, frame, sep='_'):
+	def _framename(self, frame, sep='_'):
 		return "{0}{1}{2:03}".format(self.name, sep, frame);
 
 	def correct_mirrors(self):
@@ -534,7 +538,7 @@ class Exporter:
 			best = NOT_MIRROR
 			choice = None
 			for other in candidates:
-				#print "Comparing frames {0} and {1}".format(self.framename(first), self.framename(other))
+				#print "Comparing frames {0} and {1}".format(self._framename(first), self._framename(other))
 				sfirst = self.sprites[first]
 				sother = self.sprites[other]
 				score = is_mirror(sfirst, sother)
@@ -552,7 +556,7 @@ class Exporter:
 				hd = ac-af
 
 
-				mdesc = self.framename(first, '-')+'+'+self.framename(choice, '-')
+				mdesc = self._framename(first, '-')+'+'+self._framename(choice, '-')
 
 
 				action, pixchange = MIRROR_ACTIONS.get(mdesc, ('?', hd))
@@ -581,7 +585,7 @@ class Exporter:
 		for frame, sprite in enumerate(self.sprites):
 			canvas = sprite.centre_on_canvas()
 
-			cas = Cascade(os.path.join(NEWDATA, "bobs", self.framename(frame)+".ppm"))
+			cas = Cascade(os.path.join(NEWDATA, "bobs", self._framename(frame)+".ppm"))
 			cas.saveP6(canvas)
 			cas.toPNG()#bob frame
 
@@ -607,9 +611,9 @@ def convert_bobs():
 
 
 
-convert_tt()
+#convert_tt()
 #convert_bobs()	
-#convert_font()
+convert_font()
 #convert_worlds()
 
 _END_ = """
