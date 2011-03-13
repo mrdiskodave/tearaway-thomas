@@ -1,5 +1,9 @@
 package com.nney;
 
+import java.util.HashSet;
+
+import org.lwjgl.util.vector.Vector;
+
 public class World {
 
 	/**
@@ -14,6 +18,8 @@ public class World {
 	public Coord screen = new Coord();
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
+
+	public HashSet<Integer> keys;
 
 	public boolean inTheGround(Coord c) {
 		int block = gameMap.getBlock(c.x / 16, c.y / 16);
@@ -85,6 +91,11 @@ public class World {
 		if (neg) {
 			answer = -answer;
 		}
+		return answer;
+	}
+	
+	public boolean testKey(int key) {
+		boolean answer = keys.contains(key);
 		return answer;
 	}
 }

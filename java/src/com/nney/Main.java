@@ -1,6 +1,10 @@
 package com.nney;
 
+import java.util.HashSet;
+
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -14,19 +18,24 @@ public class Main {
 	public static final int SCREEN_HEIGHT = 300;
 
 	private BlocksHolder blocksHolder;
-	private int counter;
-	private long lastTime;
 
 	private World world = new World();
 	
 
 	private Bear bear;
 
-	private void initLwjglDisplay() {
+	private boolean closing;
+
+	private FpsReporter fpsRep;
+
+	public HashSet<Integer> keys = new HashSet<Integer>();
+
+	private void initLwjgl() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM));
 			Display.create();
 			Display.setVSyncEnabled(true);
+			Keyboard.create();
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
@@ -58,6 +67,7 @@ public class Main {
 		System.out.println(b);
 	}
 
+
 	private void initTexture() {
 		FrameLoader frameLoader = new LargeImageFrameLoader() {
 			@Override
@@ -88,6 +98,7 @@ public class Main {
 		
 		String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
 		world.gameMap = new GameMap(new FileOpenable(filename3));
+		world.keys = keys;
 		world.screen.x = 970;
 		world.screen.y = 864;
 	}
@@ -99,6 +110,16 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
 
+		drawTheMap();
+		
+		
+		world.scrollTowards(bear.c);
+
+		// animation demo
+		bear.draw(world);
+	}
+
+	private void drawTheMap() {
 		int blockSize = 16;
 		int blockMask = blockSize-1;
 		
@@ -119,45 +140,47 @@ public class Main {
 			pixelDestY += blockSize;
 			blockSrcY++;
 		}
-		world.scrollTowards(bear.c);
+	}
+	
+	private void handleKeyboard() {
+		while (Keyboard.next()) {
+			int key = Keyboard.getEventKey();
+			boolean down = Keyboard.getEventKeyState();
+			if (down) {
+				keys.add(key);
+			}
+			else {
+				keys.remove(key);
+			}
 
-		// animation demo
-		bear.draw(world);
+			if (key == Keyboard.KEY_SPACE && down) {
+				Mouse.setGrabbed(!Mouse.isGrabbed());
+			}
+		}
 	}
 
+
 	private void startTheExample() {
-		initLwjglDisplay();
+		initLwjgl();
 		initOpenGL();
 		initTexture();
 		
-		int count = 200;
 		int requested_fps = 100;
-
-		lastTime = System.nanoTime();
-		while (true) {
+		fpsRep = new FpsReporter(200);
+		while (!closing) {
+			handleKeyboard();
 			render();
-
+	
 			Display.update();
-			Display.sync(requested_fps);
-
 			if (Display.isCloseRequested()) {
-				Display.destroy();
-				break;
+				closing = true;
 			}
-		
-			counter ++;
-			if (counter==count) {
-				counter = 0;
-				long past = lastTime;
-				long present  = System.nanoTime();
-				float diff = present - past;
-				diff /= 1000000000;
-				float actual_fps = (float) count / diff;
-				Display.setTitle("FPS: "+actual_fps);
-				
-				lastTime = System.nanoTime(); 
-			}
+			Display.sync(requested_fps);
+	
+			fpsRep.reportFps();
+			Thread.yield();
 		}
+		Display.destroy();
 	}
 
 	public static void main(String[] argv) {
