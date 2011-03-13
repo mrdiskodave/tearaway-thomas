@@ -9,7 +9,6 @@ public class Bear extends Alien {
 	private Anim animClimbing;
 	private Anim animSuprise;
 	private Anim animTurning;
-	private AnimPlayer ap;
 
 	void loadGraphics(AnimBuilder ab) {
 		ab.select("wbear");
@@ -19,23 +18,23 @@ public class Bear extends Alien {
 //		animWalkingLeft = ab.otherWayTo(animWalkingRight).build();
 //		animClimbing = ab.next(6).cycle().rate(80).repeat().build();
 //		animSuprise = ab.next().build();
+		animPlayer.changeAnimation(animTurning);
 		
-		ap = new AnimPlayer(animTurning);
 	}
 
 	public void draw(World world) {
-		ap.next().draw(c.x-world.screen.x, c.y-world.screen.y);
+		animPlayer.next().draw(c.x-world.screen.x, c.y-world.screen.y);
 		world.fallOrRaise(c, 5);
 		if (world.testKey(Keyboard.KEY_Q)) {
 			c.x--;
-			ap.changeAnimation(animWalkingLeft);
+			animPlayer.changeAnimation(animWalkingLeft);
 		}
 		else if (world.testKey(Keyboard.KEY_W)) {
 			c.x++;
-			ap.changeAnimation(animWalkingRight);
+			animPlayer.changeAnimation(animWalkingRight);
 		}
 		else {
-			ap.pause();
+			animPlayer.pause();
 		}
 	}
 }

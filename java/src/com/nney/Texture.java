@@ -7,13 +7,12 @@ import org.lwjgl.opengl.GL11;
 public class Texture {
 	private static final boolean SHOW_BOUNDING_BOX = false;
 
-	int textureId;
-	int imageW;
-	int imageH;
+	private int textureId;
 	private int textureW;
 	private int textureH;
-	private float textCornerX;
-	private float textCornerY;
+
+	private int imageW;
+	private int imageH;
 
 	private int pow2(int x) {
 		int a = 2;
@@ -33,8 +32,8 @@ public class Texture {
 		textureH = pow2(imageH);
 		
 		// ... assuming that we do we can at least not blit the whole thing
-		textCornerX = (float) imageW / textureW;
-		textCornerY = (float) imageH / textureH;
+//		textCornerX = (float) imageW / textureW;
+//		textCornerY = (float) imageH / textureH;
 
 		ByteBuffer buffer = ByteBuffer.allocateDirect(textureW * textureH * 4);
 
@@ -72,20 +71,8 @@ public class Texture {
 				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 	}
 
-	public void draw(int dx, int dy) {
-//		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-//		GL11.glBegin(GL11.GL_QUADS);
-//		GL11.glTexCoord2f(0, 0);
-//		GL11.glVertex2f(dx, dy);
-//		GL11.glTexCoord2f(textCornerX, 0);
-//		GL11.glVertex2f(dx + imageW, dy);
-//		GL11.glTexCoord2f(textCornerX, textCornerY);
-//		GL11.glVertex2f(dx + imageW, dy + imageH);
-//		GL11.glTexCoord2f(0, textCornerY);
-//		GL11.glVertex2f(dx, dy + imageH);
-//		GL11.glEnd();
-
-		draw(dx, dy, 0, 0, imageW, imageH);
+	public void draw(int screenX, int screenY) {
+		draw(screenX, screenY, 0, 0, imageW, imageH);
 	}
 
 	public void draw(int screenX, int screenY, int textureX, int textureY, int w, int h) {

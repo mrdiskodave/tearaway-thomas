@@ -19,8 +19,7 @@ public class AnimPlayer {
 
 	private boolean pause;
 
-	public AnimPlayer(Anim anim) {
-		changeAnimation(anim);
+	public AnimPlayer() {
 	}
 	
 	public void changeAnimation(Anim anim2) {
@@ -42,6 +41,7 @@ public class AnimPlayer {
 	}
 	
 	public Bob next() {
+		assert anim!=null;
 		if (!pause) {
 			acc += rate;
 			if (acc > Anim.MAX_RATE) {
