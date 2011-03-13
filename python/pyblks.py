@@ -8,6 +8,7 @@ import re
 import img
 import chunkify
 import mapunpack
+import maprt
 
 # blocks size in bytes
 BLKSIZE = 2*16*4
@@ -39,48 +40,6 @@ NONE  = ( 0xff, 0x01, 0x01 )
 NEWDATA = "newdata"
 
 MAP_MAGIC = struct.unpack(">L", "PGBK")[0]
-
-woodRT = (
-	( 40,24,29,53,83,84,64,85,88,89,69 ),
-	( 20,4,9,33 ),
-	( 60,44,49,73 ),
-	( 304,305,324 ),
-	( 370,371,350 ),
-	( 276,296,278,298 ),
-	( 277,297,279,299 ),
-	( 332,334,336,338 ),
-	( 333,335,337,339 ),
-)
-
-iceRT = (
-	( 40,24,29,53,80,81,82,83,84,64,85,88,89,90,69,91,92 ),
-	( 20,4,9,33 ),
-	( 60,44,49,73 ),
-)
-
-ghostRT	= (
-	( 104,124 ),
-	( 107,127 ),
-	( 85,86 ),
-	( 145,146 ),
-)
-
-
-def apply_rt(map, rt):
-	#print "applying rt"
-	c = 0
-	import random
-	for x in xrange(len(map)):
-		for line in rt:
-			if map[x] in line:
-				map[x] = random.choice(line)
-				c += 1
-	#print "{0}/{1} blocks changed".format(c, len(map))
-
-def validate_rt(name, mb, rt):
-	for line in rt:
-		for b in line:
-			assert b<mb, str(b)
 
 def load_file(name):
 	with open(name, 'r') as f:
@@ -273,8 +232,8 @@ def convert_map(block_data, name, rt):
 	h, row = schem(row)
 
 	if rt:
-		validate_rt(name, len(block_list), rt)
-		apply_rt(map, rt)
+		maprt.validate_rt(name, len(block_list), rt)
+		maprt.apply_rt(map, rt)
 	cas = Cascade(os.path.join(NEWDATA, "mapimg", name+".ppm"))
 	with open(cas.getCurrentName(), 'w') as f:
 		img.write_p6_header(f, w*16, h*16, 255)
@@ -296,9 +255,9 @@ def convert_world(name, rt=None):
 		convert_map(data, name+str(x), rt)
 
 def convert_worlds():
-	convert_world("w", woodRT)
-	convert_world("i", iceRT)
-	convert_world("g", ghostRT)
+	convert_world("w", maprt.woodRT)
+	convert_world("i", maprt.iceRT)
+	convert_world("g", maprt.ghostRT)
 	convert_world("t")
 	convert_world("f")
 	
@@ -378,10 +337,9 @@ def convert_tt():
 	bg = TRANS
 
 	all_tt_frames = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
-	#all_tt_frames.findReplace((0x00,0x99,0xff),TRANS)
 	all_tt_frames.findReplace((0x00,0x99,0xff),bg)
 	r = BookReader(all_tt_frames, 32, 32, 8)
-	exporter = Exporter("0", "tt")
+	exporter = Exporter("0tt")
 	for x in xrange(TT_FRAME_COUNT):
 		b = r.start(x)
 		print x, b
@@ -418,7 +376,7 @@ print repr(FRAMESKIP)
 
 def convert_bob(world, name):
 	i = load_array_file("odata/"+world+name)
-	exporter = Exporter(world, name)
+	exporter = Exporter(world+name)
 
 	#BOBaddx=0
 	#BOBaddy=2
@@ -491,6 +449,29 @@ class Sprite:
 		self.addx = addx
 		self.addy = addy
 
+	def centre_on_canvas(self):
+		#
+		# centre sprite on a canvas
+		#
+		# i thought about exporting the addx addy values just prepended to the PNG file
+		# but then we're no longer using a standard format and it will limit our
+		# options for editting this stuff later
+		#
+
+		CANVAS_SIZE = 161
+		CANVAS_MIDDLE = CANVAS_SIZE//2
+
+		canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
+		canvas.clear(TRANS)
+		canvas.view(CANVAS_MIDDLE+self.addx, CANVAS_MIDDLE+self.addy).overwrite(self.i)
+		# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
+
+		#put a little dot in the middle so I can see we're hitting the right place
+		if CENTRE_MARKER:
+			canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
+
+		return canvas
+
 
 NOT_MIRROR = 0
 BEST_MIRROR = 100000
@@ -502,7 +483,7 @@ def is_mirror(a, b):
 	if h!=b.i.h: return NOT_MIRROR
 	if a.addy!=b.addy: return NOT_MIRROR
 
-	print "Comparing pixels ..."
+	#print "Comparing pixels ..."
 	score = 0
 	
 	for y in range(h):
@@ -511,17 +492,30 @@ def is_mirror(a, b):
 			cb = b.i.get(w-1-x, y)
 			if ca==cb:
 				score += 1
-	print "SCORE", score, "AREA", w*h
+	#print "SCORE", score, "AREA", w*h
 	fscore = (score*BEST_MIRROR )/(w*h)
-	print "ANSWER", fscore
+	#print "ANSWER", fscore
 	return fscore
 
 
-MIRROR_ACTIONS = {}
+MIRROR_ACTIONS = {
+	# so the first question is
+	# Stage1: Which one faces right?
+	# Stage2: After which there maybe a addx disagreement that needs resolving!
+	# Stage3: profit!
+	
+	'0tt_000+0tt_015': ('<',   0), # MIRROR score 100000
+	'0tt_001+0tt_014': ('<',   0), # MIRROR score 100000
+	'0tt_002+0tt_013': ('<',   0), # MIRROR score 100000
+	'0tt_003+0tt_012': ('<',   0), # MIRROR score 100000
+	'0tt_004+0tt_011': ('<',   0), # MIRROR score 100000
+	'0tt_005+0tt_010': ('<',   0), # MIRROR score 100000
+	'0tt_006+0tt_009': ('<',   0), # MIRROR score 100000
+	'0tt_007+0tt_008': ('<',   0), # MIRROR score 100000
+}
 
 class Exporter:
-	def __init__(self, world, name):
-		self.world = world
+	def __init__(self, name):
 		self.name = name
 		self.sprites = []
 
@@ -529,92 +523,63 @@ class Exporter:
 		assert frame==len(self.sprites)
 		self.sprites.append(Sprite(i,addx,addy))
 
-	def framename(self, frame):
-		return "{0}_{1:03}".format(self.world+self.name, frame);
+	def framename(self, frame, sep='_'):
+		return "{0}{1}{2:03}".format(self.name, sep, frame);
+
+	def correct_mirrors(self):
+		killframe = set()
+		candidates = range(len(self.sprites))
+		while len(candidates)>=2:
+			first = candidates.pop(0)
+			best = NOT_MIRROR
+			choice = None
+			for other in candidates:
+				#print "Comparing frames {0} and {1}".format(self.framename(first), self.framename(other))
+				sfirst = self.sprites[first]
+				sother = self.sprites[other]
+				score = is_mirror(sfirst, sother)
+				if score>best:
+					#print "Scored improved"
+					best = score
+					choice = other
+					if score==BEST_MIRROR: break;
+			if best>=BEST_MIRROR*3/4:
+				af = -self.sprites[first].addx
+				ac = -self.sprites[choice].addx 
+				ac = self.sprites[choice].i.w-1-ac
+				assert af>=0
+				assert ac>=0
+				hd = ac-af
+
+
+				mdesc = self.framename(first, '-')+'+'+self.framename(choice, '-')
+
+
+				action, pixchange = MIRROR_ACTIONS.get(mdesc, ('?', hd))
+				if action=='?' and best==BEST_MIRROR:
+					action = '!'
+				print "\t'{0}': ('{1}', {2:3}), # MIRROR score {3:5}".format(mdesc, action, pixchange, best)
+				if action in ['<', '>']:
+					#print "remove the frame"
+					if action=='<':
+						yes = first
+						no  = choice
+					else:
+						yes = choice
+						no  = first
+					killframe.add(no)
+					
+				if action in ['<', '>', '!']:
+					#print "remove the candidate"
+					candidates.remove(choice)
+					pass
 
 	def done(self):
 		print "**** DONE!!!!!!!!!!!!!!!!!!"
-		if True:
-			candidates = range(len(self.sprites))
-			while 1:
-				if len(candidates)<2: break
-				first = candidates.pop(0)
-				best = NOT_MIRROR
-				choice = None
-				for other in candidates:
-					print "Comparing frames {0} and {1}".format(self.framename(first), self.framename(other))
-					sfirst = self.sprites[first]
-					sother = self.sprites[other]
-					score = is_mirror(sfirst, sother)
-					if score>best:
-						print "Scored improved"
-						best = score
-						choice = other
-						if score==BEST_MIRROR: break;
-				if choice:
-					if best>=BEST_MIRROR*3/4:
-						af = -self.sprites[first].addx
-						ac = -self.sprites[choice].addx 
-						ac = self.sprites[choice].i.w-1-ac
-						assert af>=0
-						assert ac>=0
-						hd = af-ac
-
-
-						mdesc = self.framename(first)+'+'+self.framename(choice)
-						status = MIRROR_ACTIONS.get(mdesc, '?')
-						if status=='?' and best==BEST_MIRROR:
-							status = '!'
-						print "\t'{0}': '{1}', # MIRROR score {2:5} handle difference {3}".format(mdesc, status, best, hd)
-						if status in ['<', '>']:
-							print "remove the frame"
-							pass
-						if status in ['<', '>', '!']:
-							print "remove the candidate"
-							candidates.remove(choice)
-							pass
-
-#			taken = set()
-#			for x in range(len(self.sprites)):
-#				if x not in taken:
-#					best = NOT_MIRROR
-#					choice = None
-#					for y in range(x+1, len(self.sprites)):
-#						if y not in taken:
-#							print "Comparing frames {0} and {1}".format(self.framename(x), self.framename(y))
-#							sx = self.sprites[x]
-#							sy = self.sprites[y]
-#							score = is_mirror(sx, sy)
-#							if score<best:
-#								print "Scored improved"
-#								best = score
-#								choice = y
-#						if choice:
-#							print "FOUND A MIRROR with {0:5} differing pixels frame {1} and {2}".format(best, self.framename(x), self.framename(choice))
-#							taken.add(choice)
+		#self.correct_mirrors()
 			
 		for frame, sprite in enumerate(self.sprites):
-
-
-			#
-			# centre sprite on a canvas
-			#
-			# i thought about exporting the addx addy values just prepended to the PNG file
-			# but then we're no longer using a standard format and it will limit our
-			# options for editting this stuff later
-			#
-
-			CANVAS_SIZE = 161
-			CANVAS_MIDDLE = CANVAS_SIZE//2
-
-			canvas = img.Img.create(CANVAS_SIZE, CANVAS_SIZE)
-			canvas.clear(TRANS)
-			canvas.view(CANVAS_MIDDLE+sprite.addx, CANVAS_MIDDLE+sprite.addy).overwrite(sprite.i)
-			# an assert fail on the above statement just means the canvas is too small and CANVAS_SIZE needs increasing
-
-			#put a little dot in the middle so I can see we're hitting the right place
-			if CENTRE_MARKER:
-				canvas.put(CANVAS_MIDDLE, CANVAS_MIDDLE, CENTRE_MARKER)
+			canvas = sprite.centre_on_canvas()
 
 			cas = Cascade(os.path.join(NEWDATA, "bobs", self.framename(frame)+".ppm"))
 			cas.saveP6(canvas)

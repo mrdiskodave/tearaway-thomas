@@ -12,17 +12,24 @@ Shifting up to the top of the value
 (as http://www.opengl.org/resources/faq/technical/color.htm does)
 is wrong.
 
-Wrong way may pass for right at high bit depths, hiding the problem.
+Wrong in way may pass for right at high bit depths, hiding the problem.
 Maybe it even counts as an OpenGL gotcha?
 It is counter-intuitive that you cannot just shift up and have it work correctly in all circumstances.
-It certainly got me and it got the writers of http://www.opengl.org/resources/faq/technical/color.htm .
+It certainly got me and it got the writers of http://www.opengl.org/resources/faq/technical/color.htm too.
 
 The docs on that page
 "Again, use glColor3ui() (or glColor3us(), etc.) to specify the color with your values stored in the most significant bits of each parameter."
 are wrong too. At least they are consistent and wrong in the same way as the example code.
 
-Can something now be done to right this error? If you give me access (or the page source) and I'll gladly propose an alternative.
+Can something now be done to right this error? I've free time and I'm happy to help.
 
+
+
+---
+We don't address  sprites by the corner. Firstly animations are composed of many different sized rectangles of pixels (cropped as near as possible to the shifting artwork) so the corner moves. Secondly, using the corner is not generally expressive of game programmer intent. Instead: every sprite has a "handle": a pixel  specified by the artist - a stable point that is tracked across animation frames that the programmer uses to place the animation on screen. (when the artist draws the animation the handle, for him, the handle is just located in the middle of the screen). Where this is depends on the type of object - whatever would be best for the programmer. For floor standing things it is generally their feet.
+
+Nick (the artist) drew all the left and right facing things individually (rather than just drawing one and generating the other). 
+---
 
 
 
