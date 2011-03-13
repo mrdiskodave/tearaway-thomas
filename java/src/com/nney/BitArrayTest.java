@@ -21,7 +21,7 @@ public class BitArrayTest extends TestCase {
 					}
 				}
 				for (int indx = 0; indx < length; indx++) {
-					assertEquals(fixture.test(indx), expectations[indx]);
+					assertEquals(expectations[indx], fixture.test(indx));
 				}
 			}
 		}

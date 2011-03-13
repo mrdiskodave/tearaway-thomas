@@ -28,9 +28,9 @@ public class BlocksHolder {
 		this.blockSize = blockSize;
 		this.gridSize = gridSize;
 		this.gridCapacity = gridSize*gridSize;
-		blockSizeShift = discoverShift(blockSize);
-		gridSizeShift = discoverShift(gridSize);
-		gridCapShift = discoverShift(gridCapacity);
+		blockSizeShift = GlTools.discoverShift(blockSize);
+		gridSizeShift = GlTools.discoverShift(gridSize);
+		gridCapShift = GlTools.discoverShift(gridCapacity);
 		
 		List<Texture> textures = new ArrayList<Texture>();
 		 
@@ -73,14 +73,7 @@ public class BlocksHolder {
 		}
 	}
 	
-	static private int discoverShift(int v) {
-		for (int x=0; x<32; x++) {
-			int a = 1<<x;
-			if (a==v) return x;
-		}
-		assert false : v;
-		return 0;
-	}
+
 
 	private void idraw(int block, int dx, int dy) {
 		assert block>=0;

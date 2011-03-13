@@ -10,22 +10,14 @@ public class Texture {
 	private int imageW;
 	private int imageH;
 
-	private int pow2(int x) {
-		int a = 2;
-		while (x > a) {
-			a <<= 1;
-		}
-		return a;
-	}
-
 	Texture(SimpleImage si) {
 		// TODO: maybe don't store image dimensions here
 		imageW = si.getWidth();
 		imageH = si.getHeight();
 		
 		// TODO: do we always need to do this?
-		textureW = pow2(imageW);
-		textureH = pow2(imageH);
+		textureW = GlTools.pow2(imageW);
+		textureH = GlTools.pow2(imageH);
 		
 		GlTools.configureFor2dBobs();
 		textureId = GL11.glGenTextures();

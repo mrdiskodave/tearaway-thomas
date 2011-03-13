@@ -63,4 +63,21 @@ public class GlTools {
 	public static ByteBuffer makeByteBuffer(SimpleImage si) {
 		return makeByteBuffer(si, si.getWidth(), si.getHeight());
 	}
+	
+	static public int discoverShift(int v) {
+		for (int x=0; x<32; x++) {
+			int a = 1<<x;
+			if (a==v) return x;
+		}
+		assert false : v;
+		return 0;
+	}
+	
+	public static int pow2(int x) {
+		int a = 2;
+		while (x > a) {
+			a <<= 1;
+		}
+		return a;
+	}
 }
