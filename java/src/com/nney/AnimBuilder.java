@@ -8,7 +8,7 @@ public class AnimBuilder {
 	private String name;
 	private int number;
 	
-	private List<Frame> frames = new ArrayList<Frame>();
+	private List<SpriteName> frames = new ArrayList<SpriteName>();
 	private int rate;
 	private boolean repeat;
 	private int fx;
@@ -21,7 +21,7 @@ public class AnimBuilder {
 
 	public Anim build() {
 		System.out.println("DONE");
-		Bob[] bobs = new Bob[frames.size()];
+		Sprite[] bobs = new Sprite[frames.size()];
 		for (int x=0; x<bobs.length; x++) {
 			System.out.println(frames.get(x));
 			bobs[x] = frameLoader.load(frames.get(x));
@@ -51,16 +51,16 @@ public class AnimBuilder {
 
 	public AnimBuilder next(int howMany) {
 		do {
-			frames.add(new Frame(name, number, fx));
+			frames.add(new SpriteName(name, number, fx));
 			number++;
 		} while (--howMany>0);
 		return this;
 	}
 
 	public AnimBuilder copy(Anim other) {
-		for (Bob bob : other.bobs) {
-			Frame frame = bob.frame;
-			frames.add(new Frame(frame.name, frame.number, fx));
+		for (Sprite bob : other.bobs) {
+			SpriteName frame = bob.getName();
+			frames.add(new SpriteName(frame.name, frame.number, fx));
 		}
 		rate = other.defaultRate;
 		repeat = other.repeat;
@@ -68,8 +68,8 @@ public class AnimBuilder {
 	}
 
 	public AnimBuilder reverse() {
-		List<Frame> f = frames;
-		frames = new ArrayList<Frame>();
+		List<SpriteName> f = frames;
+		frames = new ArrayList<SpriteName>();
 		for (int x=f.size(); --x>=0;) {
 			frames.add(f.get(x));
 		}
@@ -105,6 +105,6 @@ public class AnimBuilder {
 	}
 
 	public AnimBuilder otherWayTo(Anim anim) {
-		return fx(BobFX.MIRROR).copy(anim).reverse();
+		return fx(SpriteFX.MIRROR).copy(anim).reverse();
 	}
 }

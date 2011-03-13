@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.lwjgl.demos;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;

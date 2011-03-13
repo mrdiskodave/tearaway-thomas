@@ -8,7 +8,7 @@ public class Anim {
 	/**
 	 * The frames themselves.
 	 */
-	final public Bob[] bobs;
+	final public Sprite[] bobs;
 
 	/**
 	 * Does it repeat?
@@ -25,7 +25,7 @@ public class Anim {
 	 * @param repeat
 	 *            Repeat or stop at the end?
 	 */
-	Anim(int defaultRate, Bob[] frames, boolean repeat) {
+	Anim(int defaultRate, Sprite[] frames, boolean repeat) {
 		this.defaultRate = defaultRate;
 		this.bobs = frames;
 		this.repeat = repeat;

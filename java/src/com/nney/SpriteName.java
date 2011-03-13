@@ -1,13 +1,11 @@
 package com.nney;
 
-// TODO: really this is a BobName
-// TODO: really a Bob (amiga: blitter object) might be better named a Sprite
-public class Frame {
+public class SpriteName {
 	public final String name;
 	public final int number;
 	public int fx;
 
-	public Frame(String name, int number, int fx) {
+	public SpriteName(String name, int number, int fx) {
 		this.fx = fx;
 		assert name != null;
 		this.name = name;
@@ -16,9 +14,9 @@ public class Frame {
 	
 	@Override
 	public boolean equals(Object other) {
-		 if (!(other instanceof Frame))
+		 if (!(other instanceof SpriteName))
 		      return false;
-		 Frame us = (Frame) other;
+		 SpriteName us = (SpriteName) other;
 		 return us.name.equals(name) && us.number==number && us.fx==fx;
 	}
 	

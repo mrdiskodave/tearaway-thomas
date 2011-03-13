@@ -9,7 +9,7 @@ class TemporaryBlockSource {
 	private final int blockCount;
 	private final SimpleImage blocks;
 
-	TemporaryBlockSource(Openable blocksOpenable, int blockEdgeLength) {
+	public TemporaryBlockSource(Openable blocksOpenable, int blockEdgeLength) {
 		this.blockEdgeLength = blockEdgeLength;
 		blocks = new SimpleImage(OpenableTools.load(blocksOpenable));
 		int allBlocksWidth = blocks.getWidth();

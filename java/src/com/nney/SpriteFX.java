@@ -1,5 +1,5 @@
 package com.nney;
 
-public interface BobFX {
+public interface SpriteFX {
 	int MIRROR = 1;
 }

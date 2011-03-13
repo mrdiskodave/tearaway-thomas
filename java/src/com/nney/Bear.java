@@ -21,9 +21,8 @@ public class Bear extends Alien {
 		animPlayer.changeAnimation(animTurning);
 		
 	}
-
-	public void draw(World world) {
-		animPlayer.next().draw(c.x-world.screen.x, c.y-world.screen.y);
+	
+	public void move(World world) {
 		world.fallOrRaise(c, 5);
 		if (world.testKey(Keyboard.KEY_Q)) {
 			c.x--;
@@ -36,5 +35,9 @@ public class Bear extends Alien {
 		else {
 			animPlayer.pause();
 		}
+	}
+
+	public void draw(World world) {
+		animPlayer.next().draw(c.x-world.screen.x, c.y-world.screen.y);
 	}
 }

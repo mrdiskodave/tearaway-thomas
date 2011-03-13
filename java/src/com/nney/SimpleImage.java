@@ -18,6 +18,10 @@ public class SimpleImage {
 	final private int[] pixels; // ARGB 32bit words
 	final private boolean isView;
 
+	public interface MoveTo {
+		void move(Coord c);
+	}
+	
 	private SimpleImage(int width, int height, int start, int realWidth, int[] pixels) {
 		this.width = width;
 		this.height = height;
@@ -159,7 +163,7 @@ public class SimpleImage {
 		}
 	}
 
-	public SimpleImage map(WhereTo pixelMovement) {
+	public SimpleImage map(MoveTo pixelMovement) {
 		SimpleImage answer = SimpleImage.createEmpty(getWidth(), getHeight());
 		Coord c = new Coord(); 
 		for (int y=0; y<height; y++) {

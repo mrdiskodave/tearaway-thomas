@@ -68,10 +68,10 @@ public class Main {
 	}
 
 
-	private void initTexture() {
+	private void initGfx() {
 		FrameLoader frameLoader = new LargeImageFrameLoader() {
 			@Override
-			FileOpenable findData(Frame f) {
+			FileOpenable findData(SpriteName f) {
 				// all that is missing is knowledge of how to find those large frames!
 				String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%03d.png", f.name, f.number);
 				return new FileOpenable(filename);
@@ -103,22 +103,6 @@ public class Main {
 		world.screen.y = 864;
 	}
 
-	/**
-	 * Draw a quad with the texture on it.
-	 */
-	private void render() {
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		GlTools.configureFor2dBobs();
-
-		drawTheMap();
-		
-		
-		world.scrollTowards(bear.c);
-
-		// animation demo
-		bear.draw(world);
-	}
-
 	private void drawTheMap() {
 		int blockSize = 16;
 		int blockMask = blockSize-1;
@@ -133,15 +117,29 @@ public class Main {
 			for (int loopX = 0; loopX < (SCREEN_WIDTH + blockMask) / blockSize + 1; loopX++) {
 				int blockNumber = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);
 				assert blockNumber >= 0;
-				// if (blockNumber!=0)
-				blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
+				if (blockNumber!=0) {
+					blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
+				}
 				pixelDestX += blockSize;
 			}
 			pixelDestY += blockSize;
 			blockSrcY++;
 		}
 	}
-	
+
+	private void drawEverything() {
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		GlTools.configureFor2dBobs();
+		
+		drawTheMap();
+		bear.draw(world);
+	}
+
+	private void moveEverything() {
+		bear.move(world);
+		world.scrollTowards(bear.c);
+	}
+
 	private void handleKeyboard() {
 		while (Keyboard.next()) {
 			int key = Keyboard.getEventKey();
@@ -163,13 +161,15 @@ public class Main {
 	private void startTheExample() {
 		initLwjgl();
 		initOpenGL();
-		initTexture();
+		initGfx();
 		
 		int requested_fps = 100;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			handleKeyboard();
-			render();
+			
+			moveEverything();
+			drawEverything();
 	
 			Display.update();
 			if (Display.isCloseRequested()) {

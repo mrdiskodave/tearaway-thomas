@@ -40,7 +40,7 @@ public class AnimPlayer {
 		this.completionCallback = completionCallback;
 	}
 	
-	public Bob next() {
+	public Sprite next() {
 		assert anim!=null;
 		if (!pause) {
 			acc += rate;

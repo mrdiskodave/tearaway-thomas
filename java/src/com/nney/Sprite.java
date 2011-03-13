@@ -1,22 +1,22 @@
 package com.nney;
 
-public class Bob {
+public class Sprite {
 	private final int handleX;
 	private final int handleY;
-	private Texture texture;
-	public final Frame frame;
+	private final Texture texture;
+	private final SpriteName name;
 
 	/**
-	 * Create a {@link Bob}.
+	 * Create a {@link Sprite}.
 	 * @param si An image to use.
 	 * @param handleX The x coordinate of the handle within the given image (0 the left). 
 	 * @param handleY The y coordinate of the handle within the given image (0 the top).
 	 */
-	public Bob(SimpleImage si, int handleX, int handleY, Frame frame) {
+	public Sprite(SimpleImage si, int handleX, int handleY, SpriteName name) {
 		this.handleX = handleX;
 		this.handleY = handleY;
 		this.texture = new Texture(si);
-		this.frame = frame;
+		this.name = name;
 	}
 
 	/**
@@ -29,5 +29,9 @@ public class Bob {
 		dx -= handleX;
 		dy -= handleY;
 		texture.draw(dx, dy);
+	}
+	
+	public SpriteName getName() {
+		return name;
 	}
 }

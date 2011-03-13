@@ -9,29 +9,29 @@ import com.nney.utils.OpenableTools;
  * We load a large image which must have odd (i.e. not even) dimensions so that
  * it has an obvious centre pixel. The centre pixel will be the bobs "handle".
  * Next, the image has all the transparency shaved off the top, bottom, left and
- * right before being returned as the {@link Bob}.
+ * right before being returned as the {@link Sprite}.
  * 
  * The large image will need to be in some format that supports transparency.
  * PNG definitely works.
  */
 public abstract class LargeImageFrameLoader implements FrameLoader {
 	@Override
-	public Bob load(Frame f) {
+	public Sprite load(SpriteName f) {
 		Openable data = findData(f);
 		byte[] someRawGraphicsFile = OpenableTools.load(data);
-		return bobFromLargeImage(someRawGraphicsFile, f);
+		return spriteFromLargeImage(someRawGraphicsFile, f);
 	}
 
-	abstract Openable findData(Frame f);
+	abstract Openable findData(SpriteName f);
 
-	private static Bob bobFromLargeImage(byte[] someRawGraphicsFile, Frame f) {
+	private static Sprite spriteFromLargeImage(byte[] someRawGraphicsFile, SpriteName s) {
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
 
 		// other FrameLoaders (if there ever are any!) will have to think about how to implement this
 		// or maybe we generalise it (so it can move the handle) and we move it inside Bob ctor)
-		if (f.fx==BobFX.MIRROR) {
+		if (s.fx==SpriteFX.MIRROR) {
 			final int w = si.getWidth();
-			WhereTo pixelMovement = new WhereTo() {
+			SimpleImage.MoveTo pixelMovement = new SimpleImage.MoveTo() {
 				@Override
 				public void move(Coord c) {
 					c.x = w-1-c.x;
@@ -55,6 +55,6 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 		handleY -= bounds.top;
 
 		// and that is us!
-		return new Bob(si, handleX, handleY, f);
+		return new Sprite(si, handleX, handleY, s);
 	}
 }

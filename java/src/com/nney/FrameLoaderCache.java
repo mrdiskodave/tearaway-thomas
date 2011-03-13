@@ -3,7 +3,7 @@ package com.nney;
 import java.util.HashMap;
 
 public class FrameLoaderCache implements FrameLoader {
-	private HashMap<Frame, Bob> cache = new HashMap<Frame, Bob>();
+	private HashMap<SpriteName, Sprite> cache = new HashMap<SpriteName, Sprite>();
 	private final FrameLoader target; 
 
 	public FrameLoaderCache(FrameLoader target) {
@@ -11,8 +11,8 @@ public class FrameLoaderCache implements FrameLoader {
 	}
 	
 	@Override
-	public Bob load(Frame frame) {
-		Bob answer = cache.get(frame);
+	public Sprite load(SpriteName frame) {
+		Sprite answer = cache.get(frame);
 		if (answer == null) {
 			answer = target.load(frame);
 			cache.put(frame, answer);
