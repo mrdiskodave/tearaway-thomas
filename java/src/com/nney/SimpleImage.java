@@ -85,7 +85,7 @@ public class SimpleImage {
 	
 	private boolean testLine(int x, int y, int dx, int dy, int counter) {
 		int offset = computeOffset(x, y);
-		int distance = computeOffset(dx, dy);
+		int distance = computeOffset(dx, dy)-start;
 		do {
 			// <0 is a a trick for testing for alpha>=128 in an int
 			// which works as we only use alpha 0 (transparent) or alpha 255
