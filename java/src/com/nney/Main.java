@@ -162,11 +162,11 @@ public class Main {
 
 
 	private void startTheExample() {
-//		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
-//		SimpleImage si = new SimpleImage(OpenableTools.load(o));
-//		MyFont f = new MyFont(si, 16, 11, 47);
-//		f.discoverWidths();
-		
+		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
+		SimpleImage si = new SimpleImage(OpenableTools.load(o));
+		MyFont f = new MyFont(si, 16, 11, 47);
+		f.discoverWidths();
+		f.setCharacters("abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
 		
 		initLwjgl();
 		initOpenGL();

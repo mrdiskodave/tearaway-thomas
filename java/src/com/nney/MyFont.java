@@ -7,6 +7,7 @@ public class MyFont {
 	private final int miniW;
 	private final int miniH;
 	private final int count;
+	private String characters;
 
 	public MyFont(SimpleImage content, int miniW, int miniH, int count) {
 		this.content = content;
@@ -22,9 +23,11 @@ public class MyFont {
 		TemporaryBlockSource tbs = new TemporaryBlockSource(content, miniW, miniH);
 		for (int x=0; x<count; x++) {
 			SimpleImage glyph = tbs.getBlock(x);
-			glyph.sysout();
 			widths[x] = glyph.getBounds().width;
-			System.out.println(x+" is "+widths[x]);
 		}
+	}
+	
+	public void setCharacters(String characters) {
+		this.characters = characters;
 	}
 }
