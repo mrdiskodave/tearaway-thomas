@@ -25,6 +25,7 @@ public class GlTools {
 		GL11.glDisable(GL11.GL_TEXTURE_1D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glShadeModel(GL11.GL_FLAT);
+		GL11.glListBase(0);
 	}
 
 	private static final boolean SHOW_BOUNDING_BOX = false;
