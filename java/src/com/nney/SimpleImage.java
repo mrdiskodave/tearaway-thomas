@@ -176,4 +176,15 @@ public class SimpleImage {
 		}
 		return answer;
 	}
+
+	public void sysout() {
+		for (int y=0; y<height; y++) {
+			StringBuilder b = new StringBuilder();
+			for (int x=0; x<width; x++) {
+				b.append(getPixel(x, y)<0 ? "0" : ":");
+			}
+			System.out.println(b);
+		}
+		
+	}
 }

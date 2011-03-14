@@ -11,6 +11,8 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.utils.FileOpenable;
+import com.nney.utils.Openable;
+import com.nney.utils.OpenableTools;
 
 public class Main {
 	private static final int ZOOM = 2;
@@ -160,6 +162,12 @@ public class Main {
 
 
 	private void startTheExample() {
+//		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
+//		SimpleImage si = new SimpleImage(OpenableTools.load(o));
+//		MyFont f = new MyFont(si, 16, 11, 47);
+//		f.discoverWidths();
+		
+		
 		initLwjgl();
 		initOpenGL();
 		initGfx();
