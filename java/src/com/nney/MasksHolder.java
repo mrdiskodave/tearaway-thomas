@@ -8,7 +8,7 @@ public class MasksHolder {
 	final private BitArray maskSettings;
 
 	public MasksHolder(int blockEdgeLength, Openable openable) {
-		TemporaryBlockSource t = new TemporaryBlockSource(openable, blockEdgeLength);
+		TemporaryBlockSource t = new TemporaryBlockSource(openable, blockEdgeLength, blockEdgeLength);
 		this.blockEdgeLength = blockEdgeLength;
 		this.blockArea = blockEdgeLength*blockEdgeLength;
 		maskSettings = new BitArray(blockArea*t.getBlockCount());

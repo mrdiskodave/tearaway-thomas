@@ -108,21 +108,21 @@ public class Main {
 		int blockSize = 16;
 		int blockMask = blockSize-1;
 		
+		int sh = (SCREEN_HEIGHT + blockMask) / blockSize + 1;
+		int sw = (SCREEN_WIDTH + blockMask) / blockSize + 1;
+		int[] blockrow = new int[sw];
+		
 		int screenX = world.screen.x;
 		int screenY = world.screen.y;
 		int pixelDestY = -blockSize + ((~screenY) & blockMask);
 		int blockSrcY = screenY / blockSize;
-		for (int loopY = 0; loopY < (SCREEN_HEIGHT + blockMask) / blockSize + 1; loopY++) {
+		for (int loopY = 0; loopY < sh; loopY++) {
 			int pixelDestX = -blockSize + ((~screenX) & blockMask);
 			int blockSrcX = screenX / blockSize;
-			for (int loopX = 0; loopX < (SCREEN_WIDTH + blockMask) / blockSize + 1; loopX++) {
-				int blockNumber = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);
-				assert blockNumber >= 0;
-				if (blockNumber!=0) {
-					blocksHolder.draw(blockNumber, pixelDestX, pixelDestY);
-				}
-				pixelDestX += blockSize;
+			for (int loopX = 0; loopX < sw; loopX++) {
+				blockrow[loopX] = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);
 			}
+			blocksHolder.draw(blockrow, pixelDestX, pixelDestY);
 			pixelDestY += blockSize;
 			blockSrcY++;
 		}

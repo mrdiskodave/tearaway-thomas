@@ -1,8 +1,10 @@
 package com.nney;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.utils.Openable;
@@ -14,11 +16,6 @@ public class BlocksHolder {
 
 	final private int gridCapacity;
 
-	final private int blockSizeShift;
-	final private int gridSizeShift;
-
-	final private int gridCapShift;
-
 	final private int blockCount;
 	final private Texture[] textures;
 
@@ -28,13 +25,10 @@ public class BlocksHolder {
 		this.blockSize = blockSize;
 		this.gridSize = gridSize;
 		this.gridCapacity = gridSize*gridSize;
-		blockSizeShift = GlTools.discoverShift(blockSize);
-		gridSizeShift = GlTools.discoverShift(gridSize);
-		gridCapShift = GlTools.discoverShift(gridCapacity);
 		
 		List<Texture> textures = new ArrayList<Texture>();
 		 
-		TemporaryBlockSource sbi = new TemporaryBlockSource(blocksOpenable, blockSize);
+		TemporaryBlockSource sbi = new TemporaryBlockSource(blocksOpenable, blockSize, blockSize);
 		blockCount = sbi.getBlockCount();
 		
 		int gridEdge = gridSize*blockSize;
@@ -66,31 +60,30 @@ public class BlocksHolder {
 		listBase = GL11.glGenLists(blockCount);
 		assert listBase!=0;
 		
-		for (int x=0; x<blockCount; x++) {
-			GL11.glNewList(listBase+x, GL11.GL_COMPILE);
-			idraw(x, 0, 0);
+		for (int block=0; block<blockCount; block++) {
+			GL11.glNewList(listBase+block, GL11.GL_COMPILE);
+			idraw(block);
 			GL11.glEndList();
 		}
 	}
-	
 
-
-	private void idraw(int block, int dx, int dy) {
-		assert block>=0;
-		assert block<blockCount;
-		Texture t = textures[block >> gridCapShift];
-		block &= gridCapacity-1;
-		int bx = block & gridSize-1;
-		int by = block >> gridSizeShift;
-		t.draw(dx, dy, bx << blockSizeShift, by << blockSizeShift, blockSize, blockSize);
+	private void idraw(int x) {
+		Texture t = textures[x / gridCapacity];
+		x &= gridCapacity-1;
+		int bx = x & gridSize-1;
+		int by = x / gridSize;
+		t.draw(0, 0, bx * blockSize, by * blockSize, blockSize, blockSize);
+		GL11.glTranslatef(blockSize, 0, 0);
 	}
 	
-	public void draw(int block, int dx, int dy) {
-		assert block>=0;
-		assert block<blockCount;
+	public void draw(int[] blocks, int dx, int dy) {
 		GL11.glPushMatrix();
 		GL11.glTranslatef(dx, dy, 0);
-		GL11.glCallList(listBase+block);
+		IntBuffer i = BufferUtils.createIntBuffer(blocks.length);
+		i.put(blocks);
+		i.rewind();
+		GL11.glListBase(listBase);
+		GL11.glCallLists(i);
 		GL11.glPopMatrix();
 	}
 	

@@ -4,20 +4,20 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 class TemporaryBlockSource {
-	private final int blockEdgeLength;
+	private final int miniW;
 	private final int blocksHorizontally;
 	private final int blockCount;
 	private final SimpleImage blocks;
 
-	public TemporaryBlockSource(Openable blocksOpenable, int blockEdgeLength) {
-		this.blockEdgeLength = blockEdgeLength;
+	public TemporaryBlockSource(Openable blocksOpenable, int miniW, int miniH) {
+		this.miniW = miniW;
 		blocks = new SimpleImage(OpenableTools.load(blocksOpenable));
 		int allBlocksWidth = blocks.getWidth();
 		int allBlocksHeight = blocks.getHeight();
-		assert allBlocksWidth % blockEdgeLength == 0;
-		assert allBlocksHeight % blockEdgeLength == 0;
-		blocksHorizontally = allBlocksWidth / blockEdgeLength;
-		int blocksVertically = allBlocksHeight / blockEdgeLength;
+		assert allBlocksWidth % miniW == 0;
+		assert allBlocksHeight % miniH == 0;
+		blocksHorizontally = allBlocksWidth / miniW;
+		int blocksVertically = allBlocksHeight / miniH;
 		blockCount = blocksHorizontally*blocksVertically;
 	}
 	
@@ -25,9 +25,9 @@ class TemporaryBlockSource {
 		assert b < blockCount;
 		int x = b % blocksHorizontally;
 		int y = b / blocksHorizontally;
-		x *= blockEdgeLength;
-		y *= blockEdgeLength;
-		return blocks.view(x, y, blockEdgeLength, blockEdgeLength); 
+		x *= miniW;
+		y *= miniW;
+		return blocks.view(x, y, miniW, miniW); 
 	}
 
 	public int getBlockCount() {
