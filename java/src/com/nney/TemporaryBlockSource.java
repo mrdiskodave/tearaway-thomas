@@ -27,13 +27,17 @@ class TemporaryBlockSource {
 		this(new SimpleImage(OpenableTools.load(blocksOpenable)), miniW, miniH);
 	}
 
-	SimpleImage getBlock(int b) {
+	Bounds getBlockBounds(int b) {
 		assert b < blockCount;
 		int x = b % blocksHorizontally;
 		int y = b / blocksHorizontally;
 		x *= miniW;
 		y *= miniH;
-		return blocks.view(x, y, miniW, miniH);
+		return new Bounds(x, y, miniW, miniH);
+	}
+
+	SimpleImage getBlock(int b) {
+		return blocks.view(getBlockBounds(b));
 	}
 
 	public int getBlockCount() {
