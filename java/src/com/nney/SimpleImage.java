@@ -11,37 +11,63 @@ import com.nney.utils.MemoryIoException;
 public class SimpleImage {
 	final private int width;
 	final private int height;
-	
-	final private int start;
-	final private int realWidth;
-	
+
+	final private int offset;
+	final private int stride;
 	final private int[] pixels; // ARGB 32bit words
+	
 	final private boolean isView;
 
 	public interface MoveTo {
 		void move(Coord c);
 	}
+
+	public interface ChangePixel {
+		int change(int c);
+	}
 	
-	private SimpleImage(int width, int height, int start, int realWidth, int[] pixels) {
+	public interface TestPixel {
+		boolean test(int c);
+	}
+
+	// make sure alpha is 0x00 (transparent) or 0xff (solid)
+	// and that if it is transparent there is nothing in the RGB slots
+	static ChangePixel IMPORTER = new ChangePixel() {
+		@Override
+		public int change(int c) {
+			int alpha = c >>> 3 * 8;
+			if (alpha != 0xff)
+				c = 0;
+			return c;
+		}
+	};
+
+	private SimpleImage(int width, int height, int start, int stride, int[] pixels) {
 		this.width = width;
 		this.height = height;
-		this.start = start;
-		this.realWidth = realWidth;
+		this.offset = start;
+		this.stride = stride;
 		this.pixels = pixels;
 		this.isView = true;
 	}
-	
+
 	private SimpleImage(int width, int height, int[] pixels) {
 		this.width = width;
 		this.height = height;
 		this.pixels = new int[width * height];
-		start = 0;
-		realWidth = width;
+		offset = 0;
+		stride = width;
 		isView = false;
 	}
-	
+
 	static public SimpleImage createEmpty(int w, int h) {
-		return new SimpleImage(w, h, new int[w*h]);
+		return new SimpleImage(w, h, new int[w * h]);
+	}
+	
+	public SimpleImage copy() {
+		SimpleImage dest = createEmpty(width, height);
+		dest.overwriteWith(this);
+		return dest;
 	}
 	
 	SimpleImage(byte[] someFileFormatToDecode) {
@@ -56,9 +82,11 @@ public class SimpleImage {
 		this.width = bufferedImage.getWidth();
 		this.height = bufferedImage.getHeight();
 		this.pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
-		start = 0;
-		realWidth = width;
+		offset = 0;
+		stride = width;
 		isView = false;
+
+		transform(IMPORTER);
 	}
 
 	public int getHeight() {
@@ -72,7 +100,7 @@ public class SimpleImage {
 	private int computeOffset(int x, int y) {
 		assert x < width;
 		assert y < height;
-		return start + y * realWidth + x;
+		return offset + y * stride + x;
 	}
 
 	public int getPixel(int x, int y) {
@@ -82,52 +110,40 @@ public class SimpleImage {
 	public void putPixel(int x, int y, int c) {
 		this.pixels[computeOffset(x, y)] = c;
 	}
-	
-	private boolean testLine(int x, int y, int dx, int dy, int counter) {
-		int offset = computeOffset(x, y);
-		int distance = computeOffset(dx, dy)-start;
-		do {
-			// <0 is a a trick for testing for alpha>=128 in an int
-			// which works as we only use alpha 0 (transparent) or alpha 255
-			// (opaque)
-			if (this.pixels[offset] < 0)
-				return true;
-			offset += distance;
+
+	public boolean isEntirely(int c) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int p = getPixel(x, y);
+				if (p!=c)
+					return false;
+			}
 		}
-		while (--counter != 0);
-		return false;
+		return true;
 	}
-
-	private boolean testCol(int x) {
-		return testLine(x, 0, 0, 1, height);
-	}
-
-	private boolean testRow(int y) {
-		return testLine(0, y, 1, 0, width);
-	}
-
+	
 	public Bounds getBounds() {
 		int left;
 		for (left = 0; left < width; left++) {
-			if (testCol(left))
+			if (!view(left, 0, 1, height).isEntirely(0))
 				break;
 		}
 
 		int right;
 		for (right = width - 1; right >= 0; right--) {
-			if (testCol(right))
+			if (!view(right, 0, 1, height).isEntirely(0))
 				break;
 		}
 
 		int top;
 		for (top = 0; top < height; top++) {
-			if (testRow(top))
+			if (!view(0, top, width, 1).isEntirely(0))
 				break;
 		}
 
 		int bottom;
 		for (bottom = height - 1; bottom >= 0; bottom--) {
-			if (testRow(bottom))
+			if (!view(0, bottom, width, 1).isEntirely(0))
 				break;
 		}
 
@@ -142,22 +158,27 @@ public class SimpleImage {
 		return new Bounds(left, top, width, height);
 	}
 
-
 	SimpleImage view(int x, int y, int width, int height) {
-		int start = computeOffset(x, y);
-		return new SimpleImage(width, height, start, this.width, pixels);
-	}
+		assert x >= 0;
+		assert y >= 0;
+		assert width >= 0;
+		assert height >= 0;
+		assert x + width <= this.width;
+		assert y + height <= this.height;
 
+		int start = computeOffset(x, y);
+		return new SimpleImage(width, height, start, stride, pixels);
+	}
 
 	public SimpleImage view(Bounds bounds) {
 		return view(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
 	public void overwriteWith(SimpleImage src) {
-		assert width==src.width;
-		assert height==src.height;
-		for (int y=0; y<height; y++) {
-			for (int x=0; x<width; x++) {
+		assert width == src.width;
+		assert height == src.height;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
 				putPixel(x, y, src.getPixel(x, y));
 			}
 		}
@@ -165,9 +186,9 @@ public class SimpleImage {
 
 	public SimpleImage map(MoveTo pixelMovement) {
 		SimpleImage answer = SimpleImage.createEmpty(getWidth(), getHeight());
-		Coord c = new Coord(); 
-		for (int y=0; y<height; y++) {
-			for (int x=0; x<width; x++) {
+		Coord c = new Coord();
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
 				c.x = x;
 				c.y = y;
 				pixelMovement.move(c);
@@ -177,14 +198,27 @@ public class SimpleImage {
 		return answer;
 	}
 
+	public void transform(ChangePixel p) {
+		for (int y = 0; y < height; y++) {
+			System.out.println("Line"+y);
+			for (int x = 0; x < width; x++) {
+				int o = getPixel(x, y);
+				int n = p.change(o);
+				if (o!=n && o!=0xff01ff) {
+					System.out.println(String.format("Changed from %08x to %08x", o, n));
+				}
+				putPixel(x, y, n);
+			}
+		}
+	}
+
 	public void sysout() {
-		for (int y=0; y<height; y++) {
+		for (int y = 0; y < height; y++) {
 			StringBuilder b = new StringBuilder();
-			for (int x=0; x<width; x++) {
-				b.append(getPixel(x, y)<0 ? "0" : ":");
+			for (int x = 0; x < width; x++) {
+				b.append(getPixel(x, y) < 0 ? "0" : ":");
 			}
 			System.out.println(b);
 		}
-		
 	}
 }

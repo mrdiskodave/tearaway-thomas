@@ -33,6 +33,10 @@ public class Main {
 
 	public HashSet<Integer> keys = new HashSet<Integer>();
 
+	private MyFont myFont;
+
+	private int frameCounter;
+
 	private void initLwjgl() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM));
@@ -136,11 +140,14 @@ public class Main {
 		
 		drawTheMap();
 		bear.draw(world);
+		
+		myFont.draw(50, 50, String.format("hellothere!...%08d......testing", frameCounter));
 	}
 
 	private void moveEverything() {
 		bear.move(world);
 		world.scrollTowards(bear.c);
+		frameCounter++;
 	}
 
 	private void handleKeyboard() {
@@ -162,15 +169,16 @@ public class Main {
 
 
 	private void startTheExample() {
-		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
-		SimpleImage si = new SimpleImage(OpenableTools.load(o));
-		MyFont f = new MyFont(si, 16, 11, 47);
-		f.discoverWidths();
-		f.setCharacters("abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
-		
 		initLwjgl();
 		initOpenGL();
 		initGfx();
+		
+		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
+		SimpleImage si = new SimpleImage(OpenableTools.load(o));
+		myFont = new MyFont(si, 16, 11);
+		myFont.discoverWidths();
+		myFont.setCharacters("abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
+
 		
 		int requested_fps = 100;
 		fpsRep = new FpsReporter(200);

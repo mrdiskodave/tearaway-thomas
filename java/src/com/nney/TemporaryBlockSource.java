@@ -20,7 +20,12 @@ class TemporaryBlockSource {
 		assert allBlocksHeight % miniH == 0;
 		blocksHorizontally = allBlocksWidth / miniW;
 		int blocksVertically = allBlocksHeight / miniH;
-		blockCount = blocksHorizontally * blocksVertically;
+		
+		int bc = blocksHorizontally * blocksVertically;
+		while (getBlock(bc-1).isEntirely(0xffff0101)) {
+			bc--;
+		}
+		blockCount = bc;
 	}
 
 	public TemporaryBlockSource(Openable blocksOpenable, int miniW, int miniH) {
@@ -28,7 +33,6 @@ class TemporaryBlockSource {
 	}
 
 	Bounds getBlockBounds(int b) {
-		assert b < blockCount;
 		int x = b % blocksHorizontally;
 		int y = b / blocksHorizontally;
 		x *= miniW;
