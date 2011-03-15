@@ -19,7 +19,7 @@ public class MyFont {
 		this.count = bs.getBlockCount();
 		widths = new int[count];
 		
-//		content = generate(0xff0000ff, 0xffff00ff);
+//		content = generate(0xff00ff00, 0xffff0000);
 		
 		this.tex = new Texture(content);
 	}
@@ -28,10 +28,11 @@ public class MyFont {
 		for (int x=0; x<text.length(); x++) {
 			char c = text.charAt(x);
 			int p = characters.indexOf(c);
-			if (p>0) {
+			if (p>=0) {
 				Bounds z = bs.getBlockBounds(p);
-				tex.draw(dx, dy, z.left, z.top, z.width, z.height);
-				dx += widths[p];
+				int w = widths[p];
+				tex.draw(dx, dy, z.left, z.top, w, z.height);
+				dx += w;
 				dx ++;
 			}
 		}
