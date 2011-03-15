@@ -278,6 +278,10 @@ class BookReader:
 		y *= self.h
 		return x, y
 
+	def box(self, counter):
+		x, y = self.start(counter)
+		return x, y, self.w, self.h
+
 def load_ilbm(name):
 	def lower_colour(c):
 		r, g, b = c
@@ -292,30 +296,36 @@ def load_ilbm(name):
 	return answer
 	
 def convert_font():
-	chars = "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'"
 	i = load_ilbm("orig/gfx/other/bits/font.lbm")	
 	i.findReplace((0x00,0x00,0x66), TRANS)
-	r = BookReader(i, 16, 11)
-	exporter = Exporter("0font")
-	for x, c in enumerate(chars):
-		print x
-		n = img.Img.create(r.w, r.h)
-		n.overwrite(i.view(*r.start(x)))
+	i.view(7*16, 2*11).fill(NONE)
 
-		w = 16
-		while True:
-			assert w!=0
-			sub = n.view(w-1, 0, 1, None)
-			if not sub.test(TRANS): break
-			w -= 1
+	cas = Cascade(os.path.join(NEWDATA, "font", "font.ppm"))
+	cas.saveP6(i.view(0, 0, None, 11*3))
+	cas.toPNG()
 
-		exporter.save(n.view(0, 0, w, None), 0, 1-r.h)
+def convert_topaz():
+	src_data = load_array_file("orig/topaz.bin")
+	pos = 0
 
-		#cas = Cascade(os.path.join(NEWDATA, "font", "{0:03}.ppm".format(ord(c))))
-		#cas.saveP6(n.view(0, 0, w, None))
-		#cas.toPNG()#font character
-	exporter.done()
+	w = 16
+	c = img.Img.create(8*w, 8*(128/w))
+	r = BookReader(c, 8, 8)
+	c.fill(TRANS)
+	for idx in range(128):
+		c1 = c.view(*r.box(idx))
+		for y in range(8):
+			data = src_data[pos]
+			pos += 1
+			for x in range(8):
+				on = (data & (1<<(7-x)))!=0
+				if on:
+					c1.put(x, y, BLACK)
 
+	cas = Cascade(os.path.join(NEWDATA, "font", "topaz.ppm"))
+	cas.saveP6(c)
+	cas.toPNG()
+				
 
 PLAYER_HANDLES = []
 PLAYER_HANDLES.extend([ (0,0)  ] * 16) #walking
@@ -341,7 +351,7 @@ assert TT_FRAME_COUNT == len(PLAYER_HANDLES)
 def convert_tt():
 	bg = TRANS
 
-	all_tt_frames = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
+	all_tt_frames = load_file("orig/gfx/other/bits/tearaway.lbm")	
 	all_tt_frames.findReplace((0x00,0x99,0xff),bg)
 	r = BookReader(all_tt_frames, 32, 32, 8)
 	exporter = Exporter("0tt")
@@ -614,6 +624,7 @@ def convert_bobs():
 #convert_tt()
 #convert_bobs()	
 convert_font()
+convert_topaz()
 #convert_worlds()
 
 _END_ = """
