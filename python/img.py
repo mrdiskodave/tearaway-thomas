@@ -160,6 +160,11 @@ class Img:
 		i.overwrite(self)
 		return i
 
+	def fill(self, c):
+		for y in xrange(self.h):
+			for x in xrange(self.w):
+				self.put(x, y, c)
+
 	def _unsub(self):
 		if self.isSubImage():
 			return self.copy()
