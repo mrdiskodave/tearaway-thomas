@@ -92,5 +92,6 @@ public class BlocksHolder {
 		for (Texture texture : textures) {
 			texture.dispose();
 		}
+		GL11.glDeleteLists(listBase, blockCount);
 	}
 }
