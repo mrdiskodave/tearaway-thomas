@@ -24,5 +24,9 @@ public class RealizedFont {
 			}
 		}
 	}
+	
+	public void dispose() {
+		texture.dispose();
+	}
 
 }

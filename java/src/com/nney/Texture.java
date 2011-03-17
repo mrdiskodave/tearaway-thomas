@@ -20,8 +20,12 @@ public class Texture {
 		textureH = GlTools.pow2(imageH);
 		
 		textureId = GL11.glGenTextures();
-		GlTools.configureFor2dBobs();
+		assert textureId!=0;
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, textureW, textureH, 0,
 				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, GlTools.makeByteBuffer(si, textureW, textureH));
 	}
@@ -48,5 +52,8 @@ public class Texture {
 		GL11.glVertex2i(screenX, screenY + h);
 		GL11.glEnd();
 	}
-
+	
+	public void dispose() {
+		GL11.glDeleteTextures(textureId);
+	}
 }

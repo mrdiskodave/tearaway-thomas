@@ -16,14 +16,13 @@ import com.nney.utils.OpenableTools;
 
 public class Main {
 	private static final int ZOOM = 2;
-	
+
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
 
 	private BlocksHolder blocksHolder;
 
 	private World world = new World();
-	
 
 	private Bear bear;
 
@@ -41,7 +40,7 @@ public class Main {
 
 	private void initLwjgl() {
 		try {
-			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM));
+			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM));
 			Display.create();
 			Display.setVSyncEnabled(true);
 			Keyboard.create();
@@ -54,11 +53,11 @@ public class Main {
 	private void initOpenGL() {
 		discoverDisplayDepth();
 		GlTools.reset();
-		
+
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glClearColor(1.0f, 0.5f, 1.0f, 0.0f);
 
-		GL11.glViewport(0, 0, SCREEN_WIDTH*ZOOM, SCREEN_HEIGHT*ZOOM);
+		GL11.glViewport(0, 0, SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM);
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
@@ -76,35 +75,37 @@ public class Main {
 		System.out.println(b);
 	}
 
-
 	private void initGfx() {
 		FrameLoader frameLoader = new LargeImageFrameLoader() {
 			@Override
 			FileOpenable findData(SpriteName f) {
-				// all that is missing is knowledge of how to find those large frames!
-				String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%03d.png", f.name, f.number);
+				// all that is missing is knowledge of how to find those large
+				// frames!
+				String filename = String.format(
+						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%03d.png", f.name, f.number);
 				return new FileOpenable(filename);
 			}
 		};
-		
+
 		frameLoader = new FrameLoaderCache(frameLoader);
 
 		AnimBuilder fs = new AnimBuilder(frameLoader);
-		
+
 		bear = new Bear();
 		bear.loadGraphics(fs);
 		bear.c.x = 2500;
 		bear.c.y = 950;
-		
+
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
 
-		String filename2 = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
+		String filename2 = String
+				.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
 		world.maskHolder = new MasksHolder(16, new FileOpenable(filename2));
-//		boolean a = maskHolder.test(0, 15, 15);
-//		boolean b = maskHolder.test(1, 15, 15);
-//		assert a!=b;
-		
+		// boolean a = maskHolder.test(0, 15, 15);
+		// boolean b = maskHolder.test(1, 15, 15);
+		// assert a!=b;
+
 		String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
 		world.gameMap = new GameMap(new FileOpenable(filename3));
 		world.keys = keys;
@@ -114,12 +115,12 @@ public class Main {
 
 	private void drawTheMap() {
 		int blockSize = 16;
-		int blockMask = blockSize-1;
-		
+		int blockMask = blockSize - 1;
+
 		int sh = (SCREEN_HEIGHT + blockMask) / blockSize + 1;
 		int sw = (SCREEN_WIDTH + blockMask) / blockSize + 1;
 		int[] blockrow = new int[sw];
-		
+
 		int screenX = world.screen.x;
 		int screenY = world.screen.y;
 		int pixelDestY = -blockSize + ((~screenY) & blockMask);
@@ -139,11 +140,20 @@ public class Main {
 	private void drawEverything() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GlTools.configureFor2dBobs();
-		
+
+		if (frameCounter == 10) {
+			myRealizedFont = myFont.realize(0xff0000ff, 0x00000000, 1);
+		}
+		if (frameCounter == 20) {
+			myRealizedFont = myFont.realize(0xff00ff00, 0x00000000, 1);
+		}
+
 		drawTheMap();
 		bear.draw(world);
-		
-		myRealizedFont.draw(50, 50, String.format("kisses4charlotte:%08d!", frameCounter));
+
+		if (myRealizedFont != null) {
+			myRealizedFont.draw(50, 50, String.format("kisses4charlotte:%08d!", frameCounter));
+		}
 	}
 
 	private void moveEverything() {
@@ -169,35 +179,36 @@ public class Main {
 		}
 	}
 
-
 	private void startTheExample() {
 		initLwjgl();
 		initOpenGL();
 		initGfx();
-		
-//		ZZZ: comes out black not blue because topaz.png is black so doesn't * (& actually) up very well! 
-//		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
-//		myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,128));
+
+		// ZZZ: comes out black not blue because topaz.png is black so doesn't *
+		// (& actually) up very well!
+		// Openable o = new
+		// FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
+		// myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false,
+		// MyFont.characterRangeHelper(0,128));
 
 		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
-		myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true, "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
-		
-		myRealizedFont = myFont.realize(0xff0000ff, 0x00000000, 1);
-		
-		int requested_fps = 100;
+		myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
+				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
+
+		int requested_fps = 1;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			handleKeyboard();
-			
+
 			moveEverything();
 			drawEverything();
-	
+
 			Display.update();
 			if (Display.isCloseRequested()) {
 				closing = true;
 			}
 			Display.sync(requested_fps);
-	
+
 			fpsRep.reportFps();
 			Thread.yield();
 		}

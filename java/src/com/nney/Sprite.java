@@ -34,4 +34,8 @@ public class Sprite {
 	public SpriteName getName() {
 		return name;
 	}
+	
+	public void dispose() {
+		texture.dispose();
+	}
 }

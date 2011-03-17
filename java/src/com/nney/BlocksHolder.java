@@ -17,7 +17,7 @@ public class BlocksHolder {
 	final private int gridCapacity;
 
 	final private int blockCount;
-	final private Texture[] textures;
+	final private List<Texture> textures = new ArrayList<Texture>();
 
 	private int listBase;
 	
@@ -26,8 +26,6 @@ public class BlocksHolder {
 		this.gridSize = gridSize;
 		this.gridCapacity = gridSize*gridSize;
 		
-		List<Texture> textures = new ArrayList<Texture>();
-		 
 		TemporaryBlockSource sbi = new TemporaryBlockSource(blocksOpenable, blockSize, blockSize);
 		blockCount = sbi.getBlockCount();
 		
@@ -51,7 +49,6 @@ public class BlocksHolder {
 			System.out.println(String.format("last grid had %d/%d", gridPos, gridCapacity));
 			textures.add(new Texture(grid));
 		}
-		this.textures = (Texture[]) textures.toArray(new Texture[textures.size()]);
 		
 		preCompile();
 	}
@@ -68,7 +65,7 @@ public class BlocksHolder {
 	}
 
 	private void idraw(int x) {
-		Texture t = textures[x / gridCapacity];
+		Texture t = textures.get(x / gridCapacity);
 		x &= gridCapacity-1;
 		int bx = x & gridSize-1;
 		int by = x / gridSize;
@@ -89,5 +86,11 @@ public class BlocksHolder {
 	
 	public int getBlockCount() {
 		return blockCount;
+	}
+	
+	public void dispose() {
+		for (Texture texture : textures) {
+			texture.dispose();
+		}
 	}
 }
