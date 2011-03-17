@@ -200,13 +200,13 @@ public class SimpleImage {
 
 	public void transform(ChangePixel p) {
 		for (int y = 0; y < height; y++) {
-			System.out.println("Line"+y);
+//			System.out.println("Line"+y);
 			for (int x = 0; x < width; x++) {
 				int o = getPixel(x, y);
 				int n = p.change(o);
-				if (o!=n && o!=0xff01ff) {
-					System.out.println(String.format("Changed from %08x to %08x", o, n));
-				}
+//				if (o!=n && o!=0xff01ff) {
+//					System.out.println(String.format("Changed from %08x to %08x", o, n));
+//				}
 				putPixel(x, y, n);
 			}
 		}

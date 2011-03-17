@@ -19,8 +19,8 @@ public class Texture {
 		textureW = GlTools.pow2(imageW);
 		textureH = GlTools.pow2(imageH);
 		
-		GlTools.configureFor2dBobs();
 		textureId = GL11.glGenTextures();
+		GlTools.configureFor2dBobs();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, textureW, textureH, 0,
 				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, GlTools.makeByteBuffer(si, textureW, textureH));

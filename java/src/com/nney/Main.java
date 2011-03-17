@@ -35,6 +35,8 @@ public class Main {
 
 	private MyFont myFont;
 
+	private RealizedFont myRealizedFont;
+
 	private int frameCounter;
 
 	private void initLwjgl() {
@@ -141,7 +143,7 @@ public class Main {
 		drawTheMap();
 		bear.draw(world);
 		
-		myFont.draw(50, 50, String.format("hellothere!...%08d......testing", frameCounter));
+		myRealizedFont.draw(50, 50, String.format("kisses4charlotte:%08d!", frameCounter));
 	}
 
 	private void moveEverything() {
@@ -173,12 +175,14 @@ public class Main {
 		initOpenGL();
 		initGfx();
 		
-		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
-		SimpleImage si = new SimpleImage(OpenableTools.load(o));
-		myFont = new MyFont(si, 16, 11);
-		myFont.discoverWidths();
-		myFont.setCharacters("abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
+//		ZZZ: comes out black not blue because topaz.png is black so doesn't * (& actually) up very well! 
+//		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
+//		myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,128));
 
+		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
+		myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true, "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
+		
+		myRealizedFont = myFont.realize(0xff0000ff, 0x00000000, 1);
 		
 		int requested_fps = 100;
 		fpsRep = new FpsReporter(200);

@@ -17,7 +17,7 @@ public class GameMap {
 	}
 
 	public GameMap(Openable src) {
-		byte[] level = OpenableTools.load(src);
+		byte[] level = OpenableTools.mustLoad(src);
 
 		// copy it in
 		int se = get_word(level, 0);

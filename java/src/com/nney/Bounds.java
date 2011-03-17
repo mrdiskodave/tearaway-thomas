@@ -12,4 +12,9 @@ public class Bounds {
 		this.width = width;
 		this.height = height;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Box(%d, %d, %d, %d)", left, top, width, height);
+	}
 }

@@ -1,66 +1,52 @@
 package com.nney;
 
-
 public class MyFont {
-	private int[] widths;
-	private SimpleImage content;
-	private final int miniW;
-	private final int miniH;
-	private String characters;
-	private TemporaryBlockSource bs;
-	private int count;
-	private Texture tex;
+	final private SimpleImage content;
+	final private String characters;
+	final private Bounds[] boxes;
 
-	public MyFont(SimpleImage content0, int miniW, int miniH) {
-		this.content = content0;
-		this.miniW = miniW;
-		this.miniH = miniH;
-		this.bs = new TemporaryBlockSource(content, miniW, miniH);
-		this.count = bs.getBlockCount();
-		widths = new int[count];
-		
-//		content = generate(0xff00ff00, 0xffff0000);
-		
-		this.tex = new Texture(content);
+	public static String characterRangeHelper(int begin, int end) {
+		StringBuilder sb = new StringBuilder();
+		for (int x = begin; x < end; x++) {
+			sb.append((char) x);
+		}
+		return sb.toString();
 	}
-	
-	public void draw(int dx, int dy, String text) {
-		for (int x=0; x<text.length(); x++) {
-			char c = text.charAt(x);
-			int p = characters.indexOf(c);
-			if (p>=0) {
-				Bounds z = bs.getBlockBounds(p);
-				int w = widths[p];
-				tex.draw(dx, dy, z.left, z.top, w, z.height);
-				dx += w;
-				dx ++;
+
+	public MyFont(byte[] data, int miniW, int miniH, boolean proportional,
+			String characters) {
+		this.content = new SimpleImage(data);
+		TemporaryBlockSource bs = new TemporaryBlockSource(content, miniW, miniH);
+		int count = bs.getBlockCount();
+		boxes = new Bounds[count];
+		for (int x = 0; x < count; x++) {
+			Bounds box = bs.getBlockBounds(x);
+			if (proportional) {
+				Bounds fittedBox = bs.getBlock(x).getBounds();
+				int realWidth = fittedBox.left + fittedBox.width;
+				box = new Bounds(box.left, box.top, realWidth, box.height);
+				// System.out.println("Char "+x+" "+box);
+				// content0.view(box).sysout();
 			}
+			boxes[x] = box;
 		}
-	}
 
-	public void discoverWidths() {
-		for (int x=0; x<count; x++) {
-			widths[x] = discoverGlyphWidth(x);
-		}
-	}
-
-	private int discoverGlyphWidth(int x) {
-		SimpleImage glyph = bs.getBlock(x);
-		Bounds box = glyph.getBounds();
-		return box.left+box.width;
-	}
-	
-	public void setCharacters(String characters) {
 		this.characters = characters;
-		assert characters.length()==widths.length;
+		assert characters.length() == boxes.length : "difference "+characters.length()+" "+boxes.length;
 	}
-	
+
+	RealizedFont realize(int fg, int bg, int kern) {
+		SimpleImage img = generate(fg, bg);
+		// SimpleImage img = content;
+		return new RealizedFont(img, kern, boxes, characters);
+	}
+
 	public SimpleImage generate(final int fg, final int bg) {
 		SimpleImage.ChangePixel c = new SimpleImage.ChangePixel() {
 			@Override
 			public int change(int c) {
-				if (c<0) {
-					return c&fg;
+				if (c < 0) {
+					return c & fg;
 				}
 				return bg;
 			}

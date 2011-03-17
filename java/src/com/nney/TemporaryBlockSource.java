@@ -29,7 +29,7 @@ class TemporaryBlockSource {
 	}
 
 	public TemporaryBlockSource(Openable blocksOpenable, int miniW, int miniH) {
-		this(new SimpleImage(OpenableTools.load(blocksOpenable)), miniW, miniH);
+		this(new SimpleImage(OpenableTools.mustLoad(blocksOpenable)), miniW, miniH);
 	}
 
 	Bounds getBlockBounds(int b) {

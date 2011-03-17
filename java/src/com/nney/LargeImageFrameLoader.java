@@ -18,7 +18,7 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 	@Override
 	public Sprite load(SpriteName f) {
 		Openable data = findData(f);
-		byte[] someRawGraphicsFile = OpenableTools.load(data);
+		byte[] someRawGraphicsFile = OpenableTools.mustLoad(data);
 		return spriteFromLargeImage(someRawGraphicsFile, f);
 	}
 
