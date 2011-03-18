@@ -1,0 +1,138 @@
+package com.nney.lwjgl.demos;
+
+import java.nio.ByteBuffer;
+
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
+
+public class OddFlashOfWhiteDemo {
+	private static final int SCREEN_HEIGHT = 200;
+	private static final int SCREEN_WIDTH = 300;
+
+	private static final int TEXTURE_WIDTH = 32;
+	private static final int TEXTURE_HEIGHT = 32;
+
+	private int textureId0;
+	private int textureId1;
+	private int frameNumber;
+
+	private void initLwjglDisplay() {
+		try {
+			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH, SCREEN_HEIGHT));
+			Display.create();
+			Display.setVSyncEnabled(true);
+		}
+		catch (LWJGLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void resetOpenGl() {
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glDisable(GL11.GL_DITHER);
+		GL11.glDisable(GL11.GL_FOG);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDisable(GL11.GL_TEXTURE_1D);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glShadeModel(GL11.GL_FLAT);
+	}
+
+	private void initOpenGL() {
+		resetOpenGl();
+
+		GL11.glClearColor(1.0f, 0.5f, 1.0f, 0.0f);
+
+		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+	}
+
+	private int initTexture(int j) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4);
+		for (int y = 0; y < TEXTURE_HEIGHT; y++) {
+			for (int x = 0; x < TEXTURE_WIDTH; x++) {
+				int a = x > y ? 0x00 : 0xff;
+				a ^= j;
+				int z = 0xff;
+				buffer.put((byte) z); // R
+				buffer.put((byte) z); // G
+				buffer.put((byte) z); // B << white
+				buffer.put((byte) a); // A
+			}
+		}
+		buffer.rewind();
+
+		// store it under a textureId
+		int tid = GL11.glGenTextures();
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, tid);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0,
+				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+		return tid;
+	}
+
+	/**
+	 * Draw a quad with the texture on it.
+	 */
+	private void render() {
+		// clear the screen
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+		// configure the texture system
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glColor3f(0.0f, 1.0f, 0.0f);
+		// GL_MODULATE simply takes the color and alpha data from the texture
+		// and multiplies it with the color data from glColor and/or the
+		// lighting system.
+		// says http://www.nullterminator.net/gltexture.html
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+
+		// bind the texture
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, (frameNumber & 1) == 0 ? textureId0 : textureId1);
+
+		// draw a quad with our texture on it
+		int destination = 100;
+		GL11.glBegin(GL11.GL_QUADS);
+		GL11.glTexCoord2f(0, 0);
+		GL11.glVertex2i(destination, destination);
+		GL11.glTexCoord2f(1, 0);
+		GL11.glVertex2i(destination + TEXTURE_WIDTH, destination);
+		GL11.glTexCoord2f(1, 1);
+		GL11.glVertex2i(destination + TEXTURE_WIDTH, destination + TEXTURE_HEIGHT);
+		GL11.glTexCoord2f(0, 1);
+		GL11.glVertex2i(destination, destination + TEXTURE_HEIGHT);
+		GL11.glEnd();
+	}
+
+	private void startTheExample() {
+		initLwjglDisplay();
+		initOpenGL();
+		textureId0 = initTexture(0x00);
+		textureId1 = initTexture(0xff);
+
+		while (true) {
+			render();
+			Display.update();
+			Display.sync(1);
+			if (Display.isCloseRequested()) {
+				Display.destroy();
+				break;
+			}
+			frameNumber++;
+		}
+	}
+
+	public static void main(String[] argv) {
+		new OddFlashOfWhiteDemo().startTheExample();
+	}
+}
