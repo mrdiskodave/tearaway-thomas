@@ -1,6 +1,5 @@
 package com.nney;
 
-import java.nio.ByteBuffer;
 import java.util.HashSet;
 
 import org.lwjgl.LWJGLException;
@@ -34,9 +33,7 @@ public class Main {
 
 	private MyFont myFont;
 
-	private RealizedFont myRealizedFont;
-
-	private int frameCounter;
+	private int frameNumber;
 
 	private void initLwjgl() {
 		try {
@@ -55,7 +52,7 @@ public class Main {
 		GlTools.reset();
 
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glClearColor(1.0f, 0.5f, 1.0f, 0.0f);
+		GL11.glClearColor(0.0f, 0.5f, 1.0f, 0.0f);
 
 		GL11.glViewport(0, 0, SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM);
 
@@ -139,27 +136,18 @@ public class Main {
 
 	private void drawEverything() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
 		GlTools.configureFor2dBobs();
-
-		if (frameCounter == 10) {
-			myRealizedFont = myFont.realize(0xff0000ff, 0x00000000, 1);
-		}
-		if (frameCounter == 20) {
-			myRealizedFont = myFont.realize(0xff00ff00, 0x00000000, 1);
-		}
-
 		drawTheMap();
 		bear.draw(world);
 
-		if (myRealizedFont != null) {
-			myRealizedFont.draw(50, 50, String.format("kisses4charlotte:%08d!", frameCounter));
-		}
+		myFont.draw(50, 50, 0x00ff00, 0, String.format("kisses 4 charlotte %08d!", frameNumber));
 	}
 
 	private void moveEverything() {
 		bear.move(world);
 		world.scrollTowards(bear.c);
-		frameCounter++;
+		frameNumber++;
 	}
 
 	private void handleKeyboard() {
@@ -184,20 +172,21 @@ public class Main {
 		initOpenGL();
 		initGfx();
 
-		// ZZZ: comes out black not blue because topaz.png is black so doesn't *
-		// (& actually) up very well!
-		// Openable o = new
-		// FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
-		// myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false,
-		// MyFont.characterRangeHelper(0,128));
+		Openable o = new
+		FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
+		myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
+				128));
 
-		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font.png");
-		myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
-				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()'");
+//		 Openable o = new
+//		 FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font2.png");
+//		 myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
+//		 "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
-		int requested_fps = 1;
+		int requested_fps = 100;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
+			Display.sync(requested_fps);
+
 			handleKeyboard();
 
 			moveEverything();
@@ -207,7 +196,6 @@ public class Main {
 			if (Display.isCloseRequested()) {
 				closing = true;
 			}
-			Display.sync(requested_fps);
 
 			fpsRep.reportFps();
 			Thread.yield();

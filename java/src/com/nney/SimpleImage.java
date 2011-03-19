@@ -3,6 +3,7 @@ package com.nney;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 
@@ -15,19 +16,23 @@ public class SimpleImage {
 	final private int offset;
 	final private int stride;
 	final private int[] pixels; // ARGB 32bit words
-	
+
 	final private boolean isView;
 
-	public interface MoveTo {
+	public interface MovePixel {
 		void move(Coord c);
 	}
 
 	public interface ChangePixel {
 		int change(int c);
 	}
-	
+
 	public interface TestPixel {
 		boolean test(int c);
+	}
+
+	public interface VisitPixel {
+		void visit(int c);
 	}
 
 	// make sure alpha is 0x00 (transparent) or 0xff (solid)
@@ -63,13 +68,13 @@ public class SimpleImage {
 	static public SimpleImage createEmpty(int w, int h) {
 		return new SimpleImage(w, h, new int[w * h]);
 	}
-	
+
 	public SimpleImage copy() {
 		SimpleImage dest = createEmpty(width, height);
 		dest.overwriteWith(this);
 		return dest;
 	}
-	
+
 	SimpleImage(byte[] someFileFormatToDecode) {
 		BufferedImage bufferedImage;
 		try {
@@ -86,7 +91,7 @@ public class SimpleImage {
 		stride = width;
 		isView = false;
 
-		transform(IMPORTER);
+		changePixels(IMPORTER);
 	}
 
 	public int getHeight() {
@@ -98,6 +103,8 @@ public class SimpleImage {
 	}
 
 	private int computeOffset(int x, int y) {
+		assert x >= 0;
+		assert y >= 0;
 		assert x < width;
 		assert y < height;
 		return offset + y * stride + x;
@@ -115,13 +122,13 @@ public class SimpleImage {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				int p = getPixel(x, y);
-				if (p!=c)
+				if (p != c)
 					return false;
 			}
 		}
 		return true;
 	}
-	
+
 	public Bounds getBounds() {
 		int left;
 		for (left = 0; left < width; left++) {
@@ -184,7 +191,7 @@ public class SimpleImage {
 		}
 	}
 
-	public SimpleImage map(MoveTo pixelMovement) {
+	public SimpleImage movePixels(MovePixel pixelMovement) {
 		SimpleImage answer = SimpleImage.createEmpty(getWidth(), getHeight());
 		Coord c = new Coord();
 		for (int y = 0; y < height; y++) {
@@ -198,18 +205,44 @@ public class SimpleImage {
 		return answer;
 	}
 
-	public void transform(ChangePixel p) {
+	public void changePixels(ChangePixel p) {
 		for (int y = 0; y < height; y++) {
-//			System.out.println("Line"+y);
+			// System.out.println("Line"+y);
 			for (int x = 0; x < width; x++) {
 				int o = getPixel(x, y);
 				int n = p.change(o);
-//				if (o!=n && o!=0xff01ff) {
-//					System.out.println(String.format("Changed from %08x to %08x", o, n));
-//				}
+				// if (o!=n && o!=0xff01ff) {
+				// System.out.println(String.format("Changed from %08x to %08x",
+				// o, n));
+				// }
 				putPixel(x, y, n);
 			}
 		}
+	}
+
+	public void visitPixels(VisitPixel p) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int o = getPixel(x, y);
+				p.visit(o);
+			}
+		}
+	}
+	
+	public int[] collectPalette() {
+		final TreeSet<Integer> pal = new TreeSet<Integer>();
+		visitPixels(new VisitPixel() {
+			@Override
+			public void visit(int c) {
+				pal.add(c);
+			}
+		});
+		Integer[] boxed = (Integer[]) pal.toArray(new Integer[pal.size()]);
+		int[] unboxed = new int[boxed.length];
+		for (int x=0; x<boxed.length; x++) {
+			unboxed[x] = boxed[x];
+		}
+		return unboxed;
 	}
 
 	public void sysout() {
@@ -219,6 +252,14 @@ public class SimpleImage {
 				b.append(getPixel(x, y) < 0 ? "0" : ":");
 			}
 			System.out.println(b);
+		}
+	}
+
+	public void fill(int c) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				putPixel(x, y, c);
+			}
 		}
 	}
 }

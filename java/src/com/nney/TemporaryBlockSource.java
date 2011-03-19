@@ -22,7 +22,10 @@ class TemporaryBlockSource {
 		int blocksVertically = allBlocksHeight / miniH;
 		
 		int bc = blocksHorizontally * blocksVertically;
-		while (getBlock(bc-1).isEntirely(0xffff0101)) {
+		for (;;) {
+			SimpleImage blockView = getBlock(bc-1); 
+			if (!blockView.isEntirely(0xffff0101)) break;
+			blockView.fill(0);
 			bc--;
 		}
 		blockCount = bc;

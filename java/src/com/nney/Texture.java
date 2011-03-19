@@ -11,6 +11,10 @@ public class Texture {
 	private int imageH;
 
 	Texture(SimpleImage si) {
+		this(si, GL11.GL_RGBA8);
+	}
+	
+	Texture(SimpleImage si, int theirFormat) {
 		// TODO: maybe don't store image dimensions here
 		imageW = si.getWidth();
 		imageH = si.getHeight();
@@ -26,7 +30,7 @@ public class Texture {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, textureW, textureH, 0,
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, theirFormat, textureW, textureH, 0,
 				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, GlTools.makeByteBuffer(si, textureW, textureH));
 	}
 

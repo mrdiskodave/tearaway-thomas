@@ -13,6 +13,10 @@ public class Bounds {
 		this.height = height;
 	}
 	
+	public Bounds(Bounds that) {
+		this(that.left, that.top, that.width, that.height);
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("Box(%d, %d, %d, %d)", left, top, width, height);

@@ -31,12 +31,12 @@ public abstract class LargeImageFrameLoader implements FrameLoader {
 		// or maybe we generalise it (so it can move the handle) and we move it inside Bob ctor)
 		if (s.fx==SpriteFX.MIRROR) {
 			final int w = si.getWidth();
-			SimpleImage.MoveTo pixelMovement = new SimpleImage.MoveTo() {
+			SimpleImage.MovePixel pixelMovement = new SimpleImage.MovePixel() {
 				@Override
 				public void move(Coord c) {
 					c.x = w-1-c.x;
 				}};
-			si = si.map(pixelMovement);
+			si = si.movePixels(pixelMovement);
 		}
 
 		// Establish where the handle is
