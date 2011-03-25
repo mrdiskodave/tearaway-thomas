@@ -17,7 +17,7 @@ public class GameMap {
 		int compressedMapWords = di.readUnsignedShort();
 		assert (compressedMapWords & 1) == 0;
 		compressedMapWords >>= 1;
-		for (int x = 1; compressedMapWords!=x;) {
+		for (int x = 1; compressedMapWords != x;) {
 			map[x++] = (short) di.readUnsignedShort();
 		}
 
@@ -56,10 +56,18 @@ public class GameMap {
 	}
 
 	public int getBlock(int x, int y) {
-		assert x < 0;
-		assert x >= MAP_WIDTH;
-		assert y < 0;
-		assert y >= MAP_HEIGHT;
+		// assert x < 0;
+		// assert x >= MAP_WIDTH;
+		// assert y < 0;
+		// assert y >= MAP_HEIGHT;
+		if (x < 0)
+			return 0;
+		if (x >= MAP_WIDTH)
+			return 0;
+		if (y < 0)
+			return 0;
+		if (y >= MAP_HEIGHT)
+			return 0;
 		return map[y * MAP_WIDTH + x];
 	}
 }
