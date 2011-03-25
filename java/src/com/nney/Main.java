@@ -111,23 +111,39 @@ public class Main {
 			FileOpenable src = new FileOpenable(filename3);
 			InputStream i = src.open();
 			DataInputStream di = new DataInputStream(i);
+
+			// get the game map off the front of the stream
 			world.gameMap = new GameMap(di);
 			
+			// read the other things
 			for (;;) {
-				StringBuilder sb = new StringBuilder();
-				for (int x=4; x-->0;) {
-					sb.append((char)di.readByte());
-				}
-				String id = sb.toString();
-				System.out.println("Got chunk: >"+id+"<");
+				String id = readChunkId(di);
 				if (id.equals("set2")) {
-					for (int x=0x30; x-->0;) {
+					bear.c.x = di.readShort();
+					bear.c.y = di.readShort();
+					int playerFace = di.readByte();
+					for (int r=0x30-5; r-->0;) {
 						di.readByte();
 					}
 				}
 				else if (id.equals("obj2")) {
-					int z = 7;
-					z++;
+					int objectCnt = 0;
+					for (;;) {
+						int x = di.readShort(); 
+						int y = di.readShort();
+						if (x<0) break;
+						int type = di.readByte();
+						int flags = di.readByte();
+						int left = di.readShort();
+						int top = di.readShort();
+						int right = di.readShort();
+						int bottom = di.readShort();
+						for (int r=12; r-->0;) {
+							di.readByte();
+						}
+						objectCnt++;
+					}
+					System.out.println(objectCnt);
 				}
 				else if (id.equals("pal2")) {
 					while (di.readShort()!=-1) {}
@@ -147,6 +163,16 @@ public class Main {
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private String readChunkId(DataInputStream di) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		for (int r=4; r-->0;) {
+			sb.append((char)di.readByte());
+		}
+		String id = sb.toString();
+		System.out.println("Got chunk: >"+id+"<");
+		return id;
 	}
 
 	private void drawTheMap() {
