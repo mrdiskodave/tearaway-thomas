@@ -98,8 +98,6 @@ public class Main {
 		Gem.loadGraphics(ab);
 
 		bear = new Bear();
-		bear.c.x = 2500;
-		bear.c.y = 950;
 
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
@@ -112,7 +110,7 @@ public class Main {
 		// assert a!=b;
 
 		try {
-			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
+			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w6.map";
 			FileOpenable src = new FileOpenable(filename3);
 			InputStream i = src.open();
 			DataInputStream di = new DataInputStream(i);
@@ -168,6 +166,10 @@ public class Main {
 			world.keys = keys;
 			world.screen.x = 970;
 			world.screen.y = 864;
+			
+			bear.c.x = 455;
+			bear.c.y = 818+50;
+
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -185,25 +187,26 @@ public class Main {
 	}
 
 	private void drawTheMap() {
-		int blockSize = 16;
-		int blockMask = blockSize - 1;
-
-		int sh = (SCREEN_HEIGHT + blockMask) / blockSize + 1;
-		int sw = (SCREEN_WIDTH + blockMask) / blockSize + 1;
-		int[] blockrow = new int[sw];
+		final int BLOCK_SIZE = 16;
+		final int BLOCK_MASK = BLOCK_SIZE - 1;
+		final int SCREEN_HEIGHT_IN_BLOCKS = (SCREEN_HEIGHT + BLOCK_MASK) / BLOCK_SIZE + 1;
+		final int SCREEN_WIDTH_IN_BLOCKS = (SCREEN_WIDTH + BLOCK_MASK) / BLOCK_SIZE + 1;
+		
+		int[] blockrow = new int[SCREEN_WIDTH_IN_BLOCKS];
 
 		int screenX = world.screen.x;
 		int screenY = world.screen.y;
-		int pixelDestY = -blockSize + ((~screenY) & blockMask);
-		int blockSrcY = screenY / blockSize;
-		for (int loopY = 0; loopY < sh; loopY++) {
-			int pixelDestX = -blockSize + ((~screenX) & blockMask);
-			int blockSrcX = screenX / blockSize;
-			for (int loopX = 0; loopX < sw; loopX++) {
+		int pixelDestY = -BLOCK_SIZE + ((~screenY) & BLOCK_MASK);
+		int blockSrcY = screenY / BLOCK_SIZE;
+		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
+			int pixelDestX = -BLOCK_SIZE + ((~screenX) & BLOCK_MASK);
+			
+			int blockSrcX = screenX / BLOCK_SIZE;
+			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
 				blockrow[loopX] = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);
 			}
 			blocksHolder.draw(blockrow, pixelDestX, pixelDestY);
-			pixelDestY += blockSize;
+			pixelDestY += BLOCK_SIZE;
 			blockSrcY++;
 		}
 	}
