@@ -1,5 +1,8 @@
 package com.nney;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 
 import org.lwjgl.LWJGLException;
@@ -103,11 +106,47 @@ public class Main {
 		// boolean b = maskHolder.test(1, 15, 15);
 		// assert a!=b;
 
-		String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
-		world.gameMap = new GameMap(new FileOpenable(filename3));
-		world.keys = keys;
-		world.screen.x = 970;
-		world.screen.y = 864;
+		try {
+			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
+			FileOpenable src = new FileOpenable(filename3);
+			InputStream i = src.open();
+			DataInputStream di = new DataInputStream(i);
+			world.gameMap = new GameMap(di);
+			
+			for (;;) {
+				StringBuilder sb = new StringBuilder();
+				for (int x=4; x-->0;) {
+					sb.append((char)di.readByte());
+				}
+				String id = sb.toString();
+				System.out.println("Got chunk: >"+id+"<");
+				if (id.equals("set2")) {
+					for (int x=0x30; x-->0;) {
+						di.readByte();
+					}
+				}
+				else if (id.equals("obj2")) {
+					int z = 7;
+					z++;
+				}
+				else if (id.equals("pal2")) {
+					while (di.readShort()!=-1) {}
+				}
+				else if (id.equals("end!")) {
+					break;
+				}
+				else {
+					throw new RuntimeException("Unknown chunk: "+id);
+				}
+			}
+			
+			world.keys = keys;
+			world.screen.x = 970;
+			world.screen.y = 864;
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void drawTheMap() {
@@ -172,15 +211,14 @@ public class Main {
 		initOpenGL();
 		initGfx();
 
-		Openable o = new
-		FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
+		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
 		myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
 				128));
 
-//		 Openable o = new
-//		 FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font2.png");
-//		 myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
-//		 "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
+		// Openable o = new
+		// FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font2.png");
+		// myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
+		// "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
 		int requested_fps = 100;
 		fpsRep = new FpsReporter(200);
