@@ -21,17 +21,22 @@ public class AnimPlayer {
 
 	public AnimPlayer() {
 	}
-	
-	public void changeAnimation(Anim anim2) {
-		if (anim2!=anim) {
-			anim = anim2;
-			rate = anim.defaultRate;
+
+	public void changeAnimation(Anim freshAnim) {
+		assert freshAnim != null;
+		if (anim!=freshAnim) {
+			anim = freshAnim;
+			rate = freshAnim.defaultRate;
 			pos = 0;
 			acc = 0;
 		}
 		pause = false;
 	}
 	
+	public boolean isNew() {
+		return anim==null;
+	}
+
 	public void pause() {
 		pause = true;
 	}
@@ -39,9 +44,9 @@ public class AnimPlayer {
 	public void setCompletionCallback(Runnable completionCallback) {
 		this.completionCallback = completionCallback;
 	}
-	
+
 	public Sprite next() {
-		assert anim!=null;
+		assert anim != null;
 		if (!pause) {
 			acc += rate;
 			if (acc > Anim.MAX_RATE) {
@@ -52,9 +57,9 @@ public class AnimPlayer {
 						pos = 0;
 					}
 					else {
-						pos = anim.bobs.length-1;
+						pos = anim.bobs.length - 1;
 					}
-					if (completionCallback!=null) {
+					if (completionCallback != null) {
 						completionCallback.run();
 						completionCallback = null;
 					}

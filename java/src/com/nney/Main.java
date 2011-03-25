@@ -3,7 +3,9 @@ package com.nney;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -37,6 +39,8 @@ public class Main {
 	private MyFont myFont;
 
 	private int frameNumber;
+	
+	private List<Alien> alienList = new ArrayList<Alien>();
 
 	private void initLwjgl() {
 		try {
@@ -89,10 +93,11 @@ public class Main {
 
 		frameLoader = new FrameLoaderCache(frameLoader);
 
-		AnimBuilder fs = new AnimBuilder(frameLoader);
+		AnimBuilder ab = new AnimBuilder(frameLoader);
+		Bear.loadGraphics(ab);
+		Gem.loadGraphics(ab);
 
 		bear = new Bear();
-		bear.loadGraphics(fs);
 		bear.c.x = 2500;
 		bear.c.y = 950;
 
@@ -142,6 +147,10 @@ public class Main {
 							di.readByte();
 						}
 						objectCnt++;
+						if (type==2 || type==3) {
+							boolean wobble = (flags & 1<<3)==0;
+							alienList.add(new Gem(x, y, wobble));
+						}
 					}
 					System.out.println(objectCnt);
 				}
@@ -205,12 +214,17 @@ public class Main {
 		GlTools.configureFor2dBobs();
 		drawTheMap();
 		bear.draw(world);
-
+		for (Alien alien : alienList) {
+			alien.draw(world);
+		}
 		myFont.draw(50, 50, 0x00ff00, 0, String.format("kisses 4 charlotte %08d!", frameNumber));
 	}
 
 	private void moveEverything() {
 		bear.move(world);
+		for (Alien alien : alienList) {
+			alien.move(world);
+		}
 		world.scrollTowards(bear.c);
 		frameNumber++;
 	}

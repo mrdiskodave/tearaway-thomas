@@ -3,14 +3,11 @@ package com.nney;
 import org.lwjgl.input.Keyboard;
 
 public class Bear extends Alien {
-	private Anim animWalkingLeft;
-	private Anim facingForwards;
-	private Anim animWalkingRight;
-	private Anim animClimbing;
-	private Anim animSuprise;
-	private Anim animTurning;
+	static private Anim animWalkingLeft;
+	static private Anim animWalkingRight;
+	private static Anim animTurning;
 
-	void loadGraphics(AnimBuilder ab) {
+	static public void loadGraphics(AnimBuilder ab) {
 		ab.select("wbear");
 		animWalkingLeft = ab.next(8).rate(100).repeat().build();
 		animTurning = ab.next().build();
@@ -18,7 +15,6 @@ public class Bear extends Alien {
 //		animWalkingLeft = ab.otherWayTo(animWalkingRight).build();
 //		animClimbing = ab.next(6).cycle().rate(80).repeat().build();
 //		animSuprise = ab.next().build();
-		animPlayer.changeAnimation(animTurning);
 		
 	}
 	
@@ -33,11 +29,10 @@ public class Bear extends Alien {
 			animPlayer.changeAnimation(animWalkingRight);
 		}
 		else {
+			if (animPlayer.isNew()) {
+				animPlayer.changeAnimation(animTurning);
+			}
 			animPlayer.pause();
 		}
-	}
-
-	public void draw(World world) {
-		animPlayer.next().draw(c.x-world.screen.x, c.y-world.screen.y);
 	}
 }
