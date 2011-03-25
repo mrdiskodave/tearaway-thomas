@@ -25,7 +25,7 @@ public class Texture {
 		
 		textureId = GL11.glGenTextures();
 		assert textureId!=0;
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+		bindTexture();
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
@@ -39,13 +39,21 @@ public class Texture {
 	}
 
 	public void draw(int screenX, int screenY, int textureX, int textureY, int w, int h) {
+		bindTexture();
+		GL11.glBegin(GL11.GL_QUADS);
+		drawQuad(screenX, screenY, textureX, textureY, w, h);
+		GL11.glEnd();
+	}
+
+	public void bindTexture() {
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+	}
+
+	public void drawQuad(int screenX, int screenY, int textureX, int textureY, int w, int h) {
 		float fleft = (float) textureX / textureW;
 		float ftop = (float) textureY / textureH;
 		float fright = (float) (textureX+w) / textureW;
 		float fbottom = (float) (textureY+h) / textureH;
-		
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-		GL11.glBegin(GL11.GL_QUADS);
 		GL11.glTexCoord2f(fleft, ftop);
 		GL11.glVertex2i(screenX, screenY);
 		GL11.glTexCoord2f(fright, ftop);
@@ -54,7 +62,6 @@ public class Texture {
 		GL11.glVertex2i(screenX + w, screenY + h);
 		GL11.glTexCoord2f(fleft, fbottom);
 		GL11.glVertex2i(screenX, screenY + h);
-		GL11.glEnd();
 	}
 	
 	public void dispose() {

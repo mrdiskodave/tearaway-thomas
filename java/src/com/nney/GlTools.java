@@ -22,6 +22,14 @@ public class GlTools {
 		GL11.glShadeModel(GL11.GL_FLAT);
 		GL11.glListBase(0);
 	}
+	
+	public static void selectColor(int fg) {
+		int r = ( fg >> 2*8 ) & 0xff;
+		int g = ( fg >> 8 ) & 0xff;
+		int b = ( fg ) & 0xff;
+		GL11.glColor3ub((byte)r, (byte)g, (byte)b);
+	}
+
 
 	private static final boolean SHOW_BOUNDING_BOX = false;
 

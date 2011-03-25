@@ -68,27 +68,28 @@ public class MyFont {
 	}
 
 	public void draw(int dx, int dy, int fg, int kern, String text) {
-		int r = ( fg >> 2*8 ) & 0xff;
-		int g = ( fg >> 8 ) & 0xff;
-		int b = ( fg ) & 0xff;
 		
 		// configure the texture system
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glColor3ub((byte)r, (byte)g, (byte)b);
+		GlTools.selectColor(fg);
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, texMode);
 		
+		texture.bindTexture();
+		GL11.glBegin(GL11.GL_QUADS);
 		for (int x = 0; x < text.length(); x++) {
 			char c = text.charAt(x);
 			int p = characters.indexOf(c);
 			if (p >= 0) {
 				Bounds z = boxes[p];
-				texture.draw(dx, dy, z.left, z.top, z.width, z.height);
+				texture.drawQuad(dx, dy, z.left, z.top, z.width, z.height);
 				dx += z.width + kern;
 			}
 		}
+		GL11.glEnd();
 	}
+
 	
 	public void dispose() {
 		texture.dispose();
