@@ -1,26 +1,34 @@
 package com.nney;
 
 public class Gem extends Alien {
-	static private Anim standingGem;
-	static private int[] WOBBLE = { 0,-1,-2,-3,-2,-1,0,1,2,3,2,1 };
+	static final private int[] WOBBLE = { 0,-1,-2,-3,-2,-1,0,1,2,3,2,1 };
+	private static Anim standingPurpleGem;
+	private static Anim standingYellowGem;
 	private int wobblePhase;
 	private final boolean wobble;
 
-	public Gem(int x, int y, boolean wobble) {
+	static {
+		AnimBuilder ab = new AnimBuilder();
+		ab.select("0pgem");
+		standingPurpleGem = ab.next().build();
+		ab.select("0ygem");
+		standingYellowGem = ab.next().build();
+	}
+	
+	public Gem(int x, int y, boolean wobble, boolean yellow) {
 		c.x = x;
 		c.y = y;
 		this.wobble = wobble;
 		assert WOBBLE.length==12;
+		animPlayer.changeAnimation(yellow ? standingYellowGem : standingPurpleGem);
 	}
 
 	@Override
 	public void move(World world) {
-		animPlayer.changeAnimation(standingGem);
 	}
 
-	static public void loadGraphics(AnimBuilder ab) {
-		ab.select("0pgem");
-		standingGem = ab.next().build();
+	public static void loadGraphics(FrameLoader fl) {
+		fl.loadAll(standingPurpleGem, standingYellowGem);
 	}
 	
 	@Override

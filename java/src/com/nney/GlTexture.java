@@ -2,7 +2,7 @@ package com.nney;
 
 import org.lwjgl.opengl.GL11;
 
-public class Texture {
+public class GlTexture {
 	private int textureId;
 	private int textureW;
 	private int textureH;
@@ -10,11 +10,11 @@ public class Texture {
 	private int imageW;
 	private int imageH;
 
-	Texture(SimpleImage si) {
+	GlTexture(SimpleImage si) {
 		this(si, GL11.GL_RGBA8);
 	}
 	
-	Texture(SimpleImage si, int theirFormat) {
+	GlTexture(SimpleImage si, int theirFormat) {
 		// TODO: maybe don't store image dimensions here
 		imageW = si.getWidth();
 		imageH = si.getHeight();

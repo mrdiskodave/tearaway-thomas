@@ -9,8 +9,9 @@ public abstract class Alien {
 	}
 
 	protected void draw(World world, Coord c2) {
-		animPlayer.next().draw(c2.x-world.screen.x, c2.y-world.screen.y);
+		world.drawAlien(c, animPlayer.next());
 	}
 
 	abstract public void move(World world);
+
 }

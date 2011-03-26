@@ -17,7 +17,7 @@ public class BlocksHolder {
 	final private int gridCapacity;
 
 	final private int blockCount;
-	final private List<Texture> textures = new ArrayList<Texture>();
+	final private List<GlTexture> textures = new ArrayList<GlTexture>();
 
 	private int listBase;
 	
@@ -41,13 +41,13 @@ public class BlocksHolder {
 			grid.view(x, y, blockSize, blockSize).overwriteWith(sbi.getBlock(b));
 			gridPos++;
 			if (gridPos==gridCapacity) {
-				textures.add(new Texture(grid));
+				textures.add(new GlTexture(grid));
 				gridPos = 0;
 			}
 		}
 		if (gridPos!=0) {
 			System.out.println(String.format("last grid had %d/%d", gridPos, gridCapacity));
-			textures.add(new Texture(grid));
+			textures.add(new GlTexture(grid));
 		}
 		
 		preCompile();
@@ -65,7 +65,7 @@ public class BlocksHolder {
 	}
 
 	private void idraw(int x) {
-		Texture t = textures.get(x / gridCapacity);
+		GlTexture t = textures.get(x / gridCapacity);
 		x &= gridCapacity-1;
 		int bx = x & gridSize-1;
 		int by = x / gridSize;
@@ -89,7 +89,7 @@ public class BlocksHolder {
 	}
 	
 	public void dispose() {
-		for (Texture texture : textures) {
+		for (GlTexture texture : textures) {
 			texture.dispose();
 		}
 		GL11.glDeleteLists(listBase, blockCount);

@@ -45,7 +45,7 @@ public class AnimPlayer {
 		this.completionCallback = completionCallback;
 	}
 
-	public Sprite next() {
+	public SpriteName next() {
 		assert anim != null;
 		if (!pause) {
 			acc += rate;

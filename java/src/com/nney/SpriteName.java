@@ -3,10 +3,8 @@ package com.nney;
 public class SpriteName {
 	public final String name;
 	public final int number;
-	public int fx;
 
-	public SpriteName(String name, int number, int fx) {
-		this.fx = fx;
+	public SpriteName(String name, int number) {
 		assert name != null;
 		this.name = name;
 		this.number = number;
@@ -17,16 +15,16 @@ public class SpriteName {
 		 if (!(other instanceof SpriteName))
 		      return false;
 		 SpriteName us = (SpriteName) other;
-		 return us.name.equals(name) && us.number==number && us.fx==fx;
+		 return us.name.equals(name) && us.number==number;
 	}
 	
 	@Override
 	public int hashCode() {
-		return name.hashCode()+number+fx*13;
+		return name.hashCode();
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("Frame('%s', %d, %02x)", name, number, fx);
+		return String.format("Frame('%s', %d, %02x)", name, number);
 	}
 }

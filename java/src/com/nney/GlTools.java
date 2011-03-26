@@ -68,6 +68,8 @@ public class GlTools {
 		return makeByteBuffer(si, si.getWidth(), si.getHeight());
 	}
 	
+	
+	
 	static public int discoverShift(int v) {
 		for (int x=0; x<32; x++) {
 			int a = 1<<x;

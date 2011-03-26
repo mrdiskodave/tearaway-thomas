@@ -3,8 +3,7 @@ package com.nney;
 public class Sprite {
 	private final int handleX;
 	private final int handleY;
-	private final Texture texture;
-	private final SpriteName name;
+	private final GlTexture texture;
 
 	/**
 	 * Create a {@link Sprite}.
@@ -12,11 +11,10 @@ public class Sprite {
 	 * @param handleX The x coordinate of the handle within the given image (0 the left). 
 	 * @param handleY The y coordinate of the handle within the given image (0 the top).
 	 */
-	public Sprite(SimpleImage si, int handleX, int handleY, SpriteName name) {
+	public Sprite(SimpleImage si, int handleX, int handleY) {
 		this.handleX = handleX;
 		this.handleY = handleY;
-		this.texture = new Texture(si);
-		this.name = name;
+		this.texture = new GlTexture(si);
 	}
 
 	/**
@@ -29,10 +27,6 @@ public class Sprite {
 		dx -= handleX;
 		dy -= handleY;
 		texture.draw(dx, dy);
-	}
-	
-	public SpriteName getName() {
-		return name;
 	}
 	
 	public void dispose() {

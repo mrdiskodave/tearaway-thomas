@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class Main {
 	private MyFont myFont;
 
 	private int frameNumber;
-	
+
 	private List<Alien> alienList = new ArrayList<Alien>();
 
 	private void initLwjgl() {
@@ -91,12 +92,12 @@ public class Main {
 			}
 		};
 
-		frameLoader = new FrameLoaderCache(frameLoader);
+		FrameLoaderCache frameCache = new FrameLoaderCache(frameLoader);
 
-		AnimBuilder ab = new AnimBuilder(frameLoader);
-		Bear.loadGraphics(ab);
-		Gem.loadGraphics(ab);
-
+		Bear.loadGraphics(frameCache);
+		Gem.loadGraphics(frameCache);
+		world.spriteDict = frameCache.getSpriteDict();
+		
 		bear = new Bear();
 
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
@@ -117,7 +118,7 @@ public class Main {
 
 			// get the game map off the front of the stream
 			world.gameMap = new GameMap(di);
-			
+
 			// read the other things
 			for (;;) {
 				String id = readChunkId(di);
@@ -125,50 +126,52 @@ public class Main {
 					bear.c.x = di.readShort();
 					bear.c.y = di.readShort();
 					int playerFace = di.readByte();
-					for (int r=0x30-5; r-->0;) {
+					for (int r = 0x30 - 5; r-- > 0;) {
 						di.readByte();
 					}
 				}
 				else if (id.equals("obj2")) {
 					int objectCnt = 0;
 					for (;;) {
-						int x = di.readShort(); 
+						int x = di.readShort();
 						int y = di.readShort();
-						if (x<0) break;
+						if (x < 0)
+							break;
 						int type = di.readByte();
 						int flags = di.readByte();
 						int left = di.readShort();
 						int top = di.readShort();
 						int right = di.readShort();
 						int bottom = di.readShort();
-						for (int r=12; r-->0;) {
+						for (int r = 12; r-- > 0;) {
 							di.readByte();
 						}
 						objectCnt++;
-						if (type==2 || type==3) {
-							boolean wobble = (flags & 1<<3)==0;
-							alienList.add(new Gem(x, y, wobble));
+						if (type == 2 || type == 3) {
+							boolean wobble = (flags & 1 << 3) == 0;
+							alienList.add(new Gem(x, y, wobble, type==2));
 						}
 					}
 					System.out.println(objectCnt);
 				}
 				else if (id.equals("pal2")) {
-					while (di.readShort()!=-1) {}
+					while (di.readShort() != -1) {
+					}
 				}
 				else if (id.equals("end!")) {
 					break;
 				}
 				else {
-					throw new RuntimeException("Unknown chunk: "+id);
+					throw new RuntimeException("Unknown chunk: " + id);
 				}
 			}
-			
+
 			world.keys = keys;
 			world.screen.x = 970;
 			world.screen.y = 864;
-			
+
 			bear.c.x = 455;
-			bear.c.y = 818+50;
+			bear.c.y = 818 + 50;
 
 		}
 		catch (IOException e) {
@@ -178,29 +181,28 @@ public class Main {
 
 	private String readChunkId(DataInputStream di) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		for (int r=4; r-->0;) {
-			sb.append((char)di.readByte());
+		for (int r = 4; r-- > 0;) {
+			sb.append((char) di.readByte());
 		}
 		String id = sb.toString();
-		System.out.println("Got chunk: >"+id+"<");
+		System.out.println("Got chunk: >" + id + "<");
 		return id;
 	}
-	
+
 	private void drawTheMap() {
 		final int BLOCK_SIZE = 16;
 		final int BLOCK_MASK = BLOCK_SIZE - 1;
 		final int SCREEN_HEIGHT_IN_BLOCKS = (SCREEN_HEIGHT + BLOCK_MASK) / BLOCK_SIZE + 1;
 		final int SCREEN_WIDTH_IN_BLOCKS = (SCREEN_WIDTH + BLOCK_MASK) / BLOCK_SIZE + 1;
-		
+
 		int[] blockrow = new int[SCREEN_WIDTH_IN_BLOCKS];
 
 		int screenX = world.screen.x;
 		int screenY = world.screen.y;
-		int pixelDestY = - (screenY & BLOCK_MASK);
+		int pixelDestY = -(screenY & BLOCK_MASK);
 		int blockSrcY = screenY / BLOCK_SIZE;
 		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
-			int pixelDestX = - (screenX & BLOCK_MASK);
-			
+			int pixelDestX = -(screenX & BLOCK_MASK);
 			int blockSrcX = screenX / BLOCK_SIZE;
 			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
 				blockrow[loopX] = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);

@@ -6,7 +6,7 @@ public class MyFont {
 	final private SimpleImage content;
 	final private String characters;
 	final private Bounds[] boxes;
-	final private Texture texture;
+	final private GlTexture texture;
 	private int texMode;
 
 	public static String characterRangeHelper(int begin, int end) {
@@ -52,7 +52,7 @@ public class MyFont {
 			// GL_MODULATE simply takes the color and alpha data from the texture and multiplies it with the color data from glColor and/or the lighting system.
 			// says http://www.nullterminator.net/gltexture.html
 		}
-		this.texture = new Texture(content, glFormat);
+		this.texture = new GlTexture(content, glFormat);
 
 	}
 

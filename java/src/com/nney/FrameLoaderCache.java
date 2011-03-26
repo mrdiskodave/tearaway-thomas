@@ -2,7 +2,7 @@ package com.nney;
 
 import java.util.HashMap;
 
-public class FrameLoaderCache implements FrameLoader {
+public class FrameLoaderCache extends FrameLoader {
 	private HashMap<SpriteName, Sprite> cache = new HashMap<SpriteName, Sprite>();
 	private final FrameLoader target; 
 
@@ -21,5 +21,9 @@ public class FrameLoaderCache implements FrameLoader {
 			System.out.println("CACHE HIT FOR:"+frame);
 		}
 		return answer;
+	}
+	
+	HashMap<SpriteName, Sprite> getSpriteDict() {
+		return cache;
 	}
 }

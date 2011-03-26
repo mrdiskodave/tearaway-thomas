@@ -1,5 +1,6 @@
 package com.nney;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.lwjgl.util.vector.Vector;
@@ -20,6 +21,8 @@ public class World {
 	public MasksHolder maskHolder;
 
 	public HashSet<Integer> keys;
+
+	public HashMap<SpriteName, Sprite> spriteDict;
 
 	public boolean inTheGround(Coord c) {
 		int block = gameMap.getBlock(c.x / 16, c.y / 16);
@@ -97,5 +100,10 @@ public class World {
 	public boolean testKey(int key) {
 		boolean answer = keys.contains(key);
 		return answer;
+	}
+
+	public void drawAlien(Coord c, SpriteName next) {
+		Sprite s = spriteDict.get(next);
+		s.draw(c.x-screen.x, c.y-screen.y);		
 	}
 }
