@@ -320,7 +320,7 @@ def convert_topaz():
 			for x in range(8):
 				on = (data & (1<<(7-x)))!=0
 				if on:
-					c1.put(x, y, BLACK)
+					c1.put(x, y, WHITE)
 
 	cas = Cascade(os.path.join(NEWDATA, "font", "topaz.ppm"))
 	cas.saveP6(c)
