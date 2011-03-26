@@ -27,12 +27,10 @@ public class Gem extends Alien {
 	public void draw(World world) {
 		Coord c2 = new Coord(c);
 		
+		// this is what gem_render -> bob_gem does
 		c2.y -= 9;
 		c2.x += 8;
 		c2.y += 9;
-		
-		c2.x -= 1;
-		c2.y -= 1;
 		
 		if (wobble) {
 			c2.y += WOBBLE[wobblePhase];

@@ -185,7 +185,7 @@ public class Main {
 		System.out.println("Got chunk: >"+id+"<");
 		return id;
 	}
-
+	
 	private void drawTheMap() {
 		final int BLOCK_SIZE = 16;
 		final int BLOCK_MASK = BLOCK_SIZE - 1;
@@ -196,10 +196,10 @@ public class Main {
 
 		int screenX = world.screen.x;
 		int screenY = world.screen.y;
-		int pixelDestY = -BLOCK_SIZE + ((~screenY) & BLOCK_MASK);
+		int pixelDestY = - (screenY & BLOCK_MASK);
 		int blockSrcY = screenY / BLOCK_SIZE;
 		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
-			int pixelDestX = -BLOCK_SIZE + ((~screenX) & BLOCK_MASK);
+			int pixelDestX = - (screenX & BLOCK_MASK);
 			
 			int blockSrcX = screenX / BLOCK_SIZE;
 			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
