@@ -3,157 +3,157 @@
 >>>base_GFX
 
 GFXscor
-"scor"
+"0scor"
 0,0,-1
 
 GFXmagc
-"magc"
+"0magc"
 100,0,1,2,3,4,5,6,7,-8
 
 GFXtele
-"tele"
+"0tele"
 185,0,1,2,3,4,5,6,7,-8
 
 GFXwings
-"wing"
+"0wing"
 0,0,-1
 
 GFXstop
-"stop"
+"0stop"
 0,0,-1
 
 GFXup
-"arru"
+"0arru"
 0,0,-1
 
 GFXdown
-"arrd"
+"0arrd"
 0,0,-1
 
 GFXleft
-"arrl"
+"0arrl"
 0,0,-1
 
 GFXright
-"arrr"
+"0arrr"
 0,0,-1
 
 GFXclock
-"clok"
+"0clok"
 0,0,-1
 
 GFXygem
-"ygem"
+"0ygem"
 0,0,-1
 
 GFXpgem
-"pgem"
+"0pgem"
 0,0,-1
 
 GFXbgem
-"bgem"
+"0bgem"
 0,0,-1
 0,1,-1
 
 GFXshield
-"shld"
+"0shld"
 0,0,-1
 
 GFXspl1
-"spl1"
+"0spl1"
 0,0,-1
 
 GFXspl2
-"spl2"
+"0spl2"
 0,0,-1
 
 GFXspl3
-"spl3"
+"0spl3"
 0,0,-1
 
 GFXexit
-"exit"
+"0exit"
 0,0,-1
 255,1,2,3,4,5,6,5,4,3,2,-10
 
 GFXcld0
-"cld0"
+"0cld0"
 0,0,-1
 
 GFXcld1
-"cld1"
+"0cld1"
 0,0,-1
 
 GFXcld2
-"cld2"
+"0cld2"
 0,0,-1
 
 GFXzero
-"zero"
+"0zero"
 0,0,-1
 
 GFXsupr
-"burg"
+"0burg"
 0,0,-1
 
 GFXlife
-"life"
+"0life"
 0,0,-1
 0,1,-1
 
 GFXfrt0
-"frt0"
+"0frt0"
 0,0,-1
 
 GFXfrt1
-"frt1"
+"0frt1"
 0,0,-1
 
 GFXfrt2
-"frt2"
+"0frt2"
 0,0,-1
 
 GFXfrt3
-"frt3"
+"0frt3"
 0,0,-1
 
 GFXfrt4
-"frt4"
+"0frt4"
 0,0,-1
 
 GFXfrt5
-"frt5"
+"0frt5"
 0,0,-1
 
 GFXhgem
-"hgem"
+"0hgem"
 0,0,-1
 
 GFXscrv
-"scrv"
+"0scrv"
 0,0,-1
 
 GFXscrh
-"scrh"
+"0scrh"
 0,0,-1
 
 GFXstar
-"star"
+"0star"
 0,0,-1
 
 
 >>>woodland_GFX
 
 GFXhone
-"hone"
+"whone"
 0,0,-1
 
 GFXfnsh
-"fnsh"
+"wfnsh"
 0,0,-1
 
 GFXwbear
-"bear"
+"wbear"
 100,00,01,02,03,04,05,06,07,-8 0
 100,09,10,11,12,13,14,15,16,-8 1
 100,17,18,19,20,21,22,21,20,19,18,-10 2
@@ -161,75 +161,75 @@ GFXwbear
 0,23,-1	4 fright
 
 GFXwbird
-"bird"
+"wbird"
 100,00,01,02,03,04,03,02,01,-8
 100,06,07,08,09,10,09,08,07,-8
 
 GFXwybrd
-"ybrd"
+"wybrd"
 128,0,1,2,3,4,3,2,1,-8
 
 GFXwtram
-"trmp"
+"wtrmp"
 255,4,3,2,1,0,1,2,3,4,5,6,7,6,5,-14
 
 GFXfce0
-"fce0"
+"wfce0"
 0,0,-1
 
 GFXfce1
-"fce1"
+"wfce1"
 0,0,-1
 
 GFXfce2
-"fce2"
+"wfce2"
 0,0,-1
 
 GFXflr0
-"flr0"
+"wflr0"
 0,0,-1
 
 GFXflr1
-"flr1"
+"wflr1"
 0,0,-1
 
 GFXtrk0
-"trk0"
+"wtrk0"
 0,0,-1
 
 GFXtrk1
-"trk1"
+"wtrk1"
 0,0,-1
 
 GFXlift
-"log0"
+"wlog0"
 0,0,-1
 
 GFXworm
-"worm"
+"wworm"
 64,5,6,7,10,09,08,07,08,09,-6
 64,7,6,5,00,01,02,03,02,01,-6
 0,11,-1
 
 GFXabee
-"abee"
+"wabee"
 255,5,6,7,07,08,09,10,-4
 255,7,6,5,00,01,02,03,-4
 
 GFXspdr
-"boss"
+"wboss"
 40,00,01,-2
 
 GFXwebb
-"bstr"
+"wbstr"
 000,00,-1
 
 GFXxitl
-"xitl"
+"wxitl"
 0,0,-1
 
 GFXxitr
-"xitr"
+"wxitr"
 0,0,-1
 
 
@@ -237,12 +237,12 @@ GFXxitr
 
 
 GFXibird
-"bird"
+"ibird"
 100,00,01,02,03,04,03,02,01,-8
 100,06,07,08,09,10,09,08,07,-8
 
 GFXibear
-"bear"
+"ibear"
 100,00,01,02,03,04,05,06,07,-8
 100,09,10,11,12,13,14,15,16,-8
 100,17,18,19,20,21,22,21,20,19,18,-10	2 climb
@@ -250,18 +250,18 @@ GFXibear
 0,8,-1	4 fright
 
 GFXiblln
-"blln"
+"iblln"
 000,00,-1	waiting...
 040,01,02,03,04,-1	get ready
 000,05,-1	drop
 128,06,07,-2	frazzle!
 
 GFXitram
-"trmp"
+"itrmp"
 255,4,3,2,1,0,1,2,3,4,5,6,7,6,5,-14
 
 GFXpeng
-"peng"
+"ipeng"
 100,06,07,08,09,10,09,08,07,-8
 100,00,01,02,03,04,03,02,01,-8
 0,11,-1	2 climb
@@ -269,113 +269,113 @@ GFXpeng
 0,11,-1	4 fright
 
 GFXigem
-"igem"
+"iigem"
 000,00,-1
 64,01,02,03,04,05,06,07,-7
 
 GFXibomb
-"bomb"
+"ibomb"
 000,00,-1
 70,01,02,03,04,05,06,07,08,09,-1
 
 GFXilift
-"lift"
+"ilift"
 000,00,-1
 
 
 >>>futureland_GFX
 
 GFXfbend
-"bend"
+"fbend"
 000,00,-1
 
 GFXflend
-"lend"
+"flend"
 000,00,-1
 
 GFXfrend
-"rend"
+"frend"
 000,00,-1
 
 GFXflift
-"lift"
+"flift"
 000,00,-1
 
 GFXelec
-"elec"
+"felec"
 128,0,1,2,3,-4
 
 GFXdgun
-"dgun"
+"fdgun"
 0,0,-1
 
 GFXlgun
-"lgun"
+"flgun"
 0,0,-1
 
 GFXrgun
-"rgun"
+"frgun"
 0,0,-1
 
 GFXlsr2
-"lsr2"
+"flsr2"
 0,0,-1
 0,1,-1
 
 GFXspin
-"spin"
+"fspin"
 100,0,1,2,3,4,5,6,7,-8
 
 GFXr2d2
-"r2d2"
+"fr2d2"
 100,0,1,2,3,4,5,6,7,8,9,10,11,12,-13
 0,13,-1
 
 GFXflft1
-"lft1"
+"flft1"
 0,0,-1
 
 GFXflft2
-"lft2"
+"flft2"
 0,0,-1
 
 GFXftrmp
-"trmp"
+"ftrmp"
 0,0,-1
 0,1,-1
 
 GFXeT
-"tear"
+"ftear"
 0,0,-1
 0,1,-1
 
 GFXeE
-"tear"
+"ftear"
 0,2,-1
 0,3,-1
 
 GFXeA
-"tear"
+"ftear"
 0,4,-1
 0,5,-1
 
 GFXeR
-"tear"
+"ftear"
 0,6,-1
 0,7,-1
 
 GFXeW
-"tear"
+"ftear"
 0,8,-1
 0,9,-1
 
 GFXeY
-"tear"
+"ftear"
 0,10,-1
 0,11,-1
 
 GFXfuzz
-"fuzz"
+"ffuzz"
 128,0,1,2,3,-4	fuzz
 128,4,5,6,4,5,6,-1	ready4 arrow...
 0,9,-1	up
@@ -387,7 +387,7 @@ GFXfuzz
 >>>ghostland_GFX
 
 GFXfran
-"fran"
+"ffran"
 50,00,01,02,03,02,01,-6
 50,05,06,07,08,07,06,-6
 50,10,11,12,13,12,11,-6	2 climb
@@ -395,125 +395,125 @@ GFXfran
 0,9,-1	4 fright
 
 GFXgghst
-"ghst"
+"fghst"
 064,07,06,05,04,00,01,02,03,02,01,-5
 064,04,05,06,07,08,09,10,11,10,09,-5
 
 GFXglflm
-"lflm"
+"flflm"
 80,00,01,02,03,04,05,06,07,08,09,-10
 
 GFXgrflm
-"rflm"
+"frflm"
 80,00,01,02,03,04,05,06,07,08,09,-10
 
 GFXgtrch
-"trch"
+"ftrch"
 80,00,01,02,03,04,05,-6
 
 GFXpic0
-"pic0"
+"fpic0"
 0,0,-1
 0,1,-1
 0,2,-1
 
 GFXpic1
-"pic1"
+"fpic1"
 0,0,-1
 0,1,-1
 0,2,-1
 
 GFXpic2
-"pic2"
+"fpic2"
 0,0,-1
 
 GFXpic3
-"pic3"
+"fpic3"
 0,0,-1
 0,1,-1
 0,2,-1
 
 GFXpic4
-"pic4"
+"fpic4"
 0,0,-1
 0,1,-1
 0,2,-1
 
 GFXspik
-"spik"
+"fspik"
 80,7,0,1,2,3,4,5,6,7,8,9,10,11,12,13,-15
 
 GFXpara
-"para"
+"fpara"
 80,00,01,02,03,04,05,06,07,-8
 80,08,09,10,11,12,13,14,15,-8
 0,16,-1
 
 GFXbatt
-"batt"
+"fbatt"
 80,01,02,03,04,03,02,-6
 0,0,-1
 
 GFXglift
-"lift"
+"flift"
 0,0,-1
 
 GFXgkey0
-"key0"
+"fkey0"
 0,0,-1
 
 GFXgwall
-"wall"
+"fwall"
 0,0,-1
 
 *>
 toyland_GFX
 
 GFXtlift
-"lift"
+"tlift"
 0,0,-1
 
 GFXcar0
-"car0"
+"tcar0"
 128,0,1,2,3,-4
 128,7,8,9,10,-4
 128,3,4,5,6,7,11,12,13,-8
 
 GFXjmbo
-"jmbo"
+"tjmbo"
 40,5,6,7,8,9,8,7,6,-8
 40,0,1,2,3,4,3,2,1,-8
 
 GFXlrry
-"lrry"
+"tlrry"
 128,0,1,2,3,-4
 128,5,6,7,8,-4
 0,4,-1	fright
 
 GFXjitb
-"jitb"
+"tjitb"
 0,0,-1
 0,1,-1
 0,2,-1
 
 GFXtank
-"tank"
+"ttank"
 255,0,1,2,-3
 255,2,1,0,-3
 0,0,-1
 
 GFXshel
-"shel"
+"tshel"
 0,0,-1
 0,1,-1
 60,2,3,4,5,-1
 
 GFXtrrt
-"trrt"
+"ttrrt"
 0,0,-1
 
 GFXpatn
-"patn"
+"tpatn"
 0,0,-1
 
 
