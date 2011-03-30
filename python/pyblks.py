@@ -1,3 +1,4 @@
+import json
 import array
 import struct
 import sys
@@ -44,6 +45,10 @@ MAP_MAGIC = struct.unpack(">L", "PGBK")[0]
 def load_file(name):
 	with open(name, 'r') as f:
 		return f.read()
+
+def save_file(name, data):
+	with open(name, 'w') as f:
+		f.write(data)
 
 def load_array_file(name):
 	return array.array('B', load_file(name))
@@ -351,7 +356,7 @@ assert TT_FRAME_COUNT == len(PLAYER_HANDLES)
 def convert_tt():
 	bg = TRANS
 
-	all_tt_frames = load_file("orig/gfx/other/bits/tearaway.lbm")	
+	all_tt_frames = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
 	all_tt_frames.findReplace((0x00,0x99,0xff),bg)
 	r = BookReader(all_tt_frames, 32, 32, 8)
 	exporter = Exporter("0tt")
@@ -389,9 +394,9 @@ print repr(FRAMESKIP)
 #sys.exit(1)
 
 
-def convert_bob(world, name):
-	i = load_array_file("odata/"+world+name)
-	exporter = Exporter(world+name)
+def convert_bob(name):
+	i = load_array_file("odata/"+name)
+	exporter = Exporter(name)
 
 	#BOBaddx=0
 	#BOBaddy=2
@@ -402,7 +407,7 @@ def convert_bob(world, name):
 	#BOBmaskadd=12
 	#BOBdata=14
 
-	MAGIC = struct.unpack(">L", name)[0]
+	MAGIC = struct.unpack(">L", name[1:])[0]
 	magic, framecount,  = struct.unpack(">LH", i[0:6])
 	assert magic==MAGIC
 	print framecount, "frame(s)"
@@ -533,98 +538,90 @@ class Exporter:
 	def __init__(self, name):
 		self.name = name
 		self.sprites = []
+		self.ourFolder = os.path.join(NEWDATA, "bobs", name)
+		shelltools.Cmd.shellf("mkdir -p {0}", self.ourFolder).do().check()
 
 	def save(self, i, addx, addy):
 		self.sprites.append(Sprite(i,addx,addy))
 
-	def _framename(self, frame, sep='_'):
-		return "{0}{1}{2:03}".format(self.name, sep, frame);
+	@staticmethod
+	def _framename(frame):
+		return "{0:03}".format(frame);
 
-	def correct_mirrors(self):
-		killframe = set()
-		candidates = range(len(self.sprites))
-		while len(candidates)>=2:
-			first = candidates.pop(0)
-			best = NOT_MIRROR
-			choice = None
-			for other in candidates:
-				#print "Comparing frames {0} and {1}".format(self._framename(first), self._framename(other))
-				sfirst = self.sprites[first]
-				sother = self.sprites[other]
-				score = is_mirror(sfirst, sother)
-				if score>best:
-					#print "Scored improved"
-					best = score
-					choice = other
-					if score==BEST_MIRROR: break;
-			if best>=BEST_MIRROR*3/4:
-				af = -self.sprites[first].addx
-				ac = -self.sprites[choice].addx 
-				ac = self.sprites[choice].i.w-1-ac
-				assert af>=0
-				assert ac>=0
-				hd = ac-af
-
-
-				mdesc = self._framename(first, '-')+'+'+self._framename(choice, '-')
-
-
-				action, pixchange = MIRROR_ACTIONS.get(mdesc, ('?', hd))
-				if action=='?' and best==BEST_MIRROR:
-					action = '!'
-				print "\t'{0}': ('{1}', {2:3}), # MIRROR score {3:5}".format(mdesc, action, pixchange, best)
-				if action in ['<', '>']:
-					#print "remove the frame"
-					if action=='<':
-						yes = first
-						no  = choice
-					else:
-						yes = choice
-						no  = first
-					killframe.add(no)
-					
-				if action in ['<', '>', '!']:
-					#print "remove the candidate"
-					candidates.remove(choice)
-					pass
-
+#	def correct_mirrors(self):
+#		killframe = set()
+#		candidates = range(len(self.sprites))
+#		while len(candidates)>=2:
+#			first = candidates.pop(0)
+#			best = NOT_MIRROR
+#			choice = None
+#			for other in candidates:
+#				#print "Comparing frames {0} and {1}".format(self._framename(first), self._framename(other))
+#				sfirst = self.sprites[first]
+#				sother = self.sprites[other]
+#				score = is_mirror(sfirst, sother)
+#				if score>best:
+#					#print "Scored improved"
+#					best = score
+#					choice = other
+#					if score==BEST_MIRROR: break;
+#			if best>=BEST_MIRROR*3/4:
+#				af = -self.sprites[first].addx
+#				ac = -self.sprites[choice].addx 
+#				ac = self.sprites[choice].i.w-1-ac
+#				assert af>=0
+#				assert ac>=0
+#				hd = ac-af
+#
+#
+#				mdesc = self._framename(first, '-')+'+'+self._framename(choice, '-')
+#
+#
+#				action, pixchange = MIRROR_ACTIONS.get(mdesc, ('?', hd))
+#				if action=='?' and best==BEST_MIRROR:
+#					action = '!'
+#				print "\t'{0}': ('{1}', {2:3}), # MIRROR score {3:5}".format(mdesc, action, pixchange, best)
+#				if action in ['<', '>']:
+#					#print "remove the frame"
+#					if action=='<':
+#						yes = first
+#						no  = choice
+#					else:
+#						yes = choice
+#						no  = first
+#					killframe.add(no)
+#					
+#				if action in ['<', '>', '!']:
+#					#print "remove the candidate"
+#					candidates.remove(choice)
+#					pass
+#
 	def done(self):
 		print "**** DONE!!!!!!!!!!!!!!!!!!"
 		#self.correct_mirrors()
 			
+		defs = json.dumps(graphics_definitions[self.name], sort_keys=True, indent=4)
+		save_file(os.path.join(self.ourFolder, "def.txt"), defs)
 		for frame, sprite in enumerate(self.sprites):
 			canvas = sprite.centre_on_canvas()
 
-			cas = Cascade(os.path.join(NEWDATA, "bobs", self._framename(frame)+".ppm"))
+			cas = Cascade(os.path.join(self.ourFolder, self._framename(frame)+".ppm"))
 			cas.saveP6(canvas)
 			cas.toPNG()#bob frame
 
 def convert_bobs():
-	world = '0'
-	done = set()
-	s = load_file("ttgfx_defs.s")
-	for line in s.split('\n'):
-		m = re.match(r"([wigtf]).*_GFX", line)
-		if m:
-			world = m.group(1)
-		m = re.match(r'.*"(....)"', line)
-		if m:
-			name = m.group(1)
-			print world, name
-			total = world+name
-			if not total in done:
-				convert_bob(world, name)
-				done.add(total)
+	for name in graphics_definitions:
+		if name!="0tt":
+			convert_bob(name)
 
 
+import gfxparse
+graphics_definitions = gfxparse.load_defs(load_file("gfx.s"))
 
-
-
-
-#convert_tt()
+convert_tt()
 #convert_bobs()	
-convert_font()
-convert_topaz()
+#convert_font()
+#convert_topaz()
 #convert_worlds()
 
 _END_ = """
