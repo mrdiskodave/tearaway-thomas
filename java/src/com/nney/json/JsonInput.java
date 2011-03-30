@@ -1,5 +1,8 @@
 package com.nney.json;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /*
 Based on code from JSON.org ...
 
@@ -31,12 +34,34 @@ SOFTWARE.
  * it.
  */
 class JsonInput {
+	private final static Pattern WHITESPACE = Pattern.compile("\\s+");
+	private final static Pattern NUMBER = Pattern.compile(
+			"-?(0|[1-9][0-9]*)(\\.[0-9]+)?(e[-+][0-9]+)?", Pattern.CASE_INSENSITIVE);
+	private final static Pattern CONSTS = Pattern.compile("true|false|null");
+
 	private int pos;
 
 	private String text;
 
 	private boolean more() {
 		return pos < text.length();
+	}
+
+	Matcher lookingAt(Pattern pattern) {
+		Matcher matcher = pattern.matcher(remains());
+		if (!matcher.lookingAt()) return null;
+		pos = matcher.end();
+		return matcher;
+	}
+	
+	boolean lookingAt(String m) {
+		boolean answer = remains().startsWith(m);
+		if (answer) pos += m.length();
+		return answer;
+	}
+	
+	String remains() {
+		return text.substring(pos);
 	}
 
 	void back() {
@@ -92,39 +117,14 @@ class JsonInput {
 
     /**
      * Get the next char in the string, skipping whitespace
-     * and comments (slashslash, slashstar, and hash).
+     * and comments starting with hash.
      * @throws JsonException
      * @return  A character, or 0 if there are no more characters.
      */
     char nextClean() throws JsonException {
         for (;;) {
             char c = next();
-            if (c == '/') {
-                switch (next()) {
-                case '/':
-                    do {
-                        c = next();
-                    } while (c != '\n' && c != '\r' && c != 0);
-                    break;
-                case '*':
-                    for (;;) {
-                        c = next();
-                        if (c == 0) {
-                            throw syntaxError("Unclosed comment.");
-                        }
-                        if (c == '*') {
-                            if (next() == '/') {
-                                break;
-                            }
-                            back();
-                        }
-                    }
-                    break;
-                default:
-                	back();
-                    return '/';
-                }
-            } else if (c == '#') {
+            if (c == '#') {
                 do {
                     c = next();
                 } while (c != '\n' && c != '\r' && c != 0);

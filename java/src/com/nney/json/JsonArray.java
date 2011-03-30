@@ -39,29 +39,20 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 		if (input.nextClean() != '[') {
 			throw input.syntaxError("A JSONArray text must start with '['");
 		}
-		if (input.nextClean() == ']') {
-			return;
-		}
-		input.back();
 		for (;;) {
-			if (input.nextClean() == ',') {
-				input.back();
-				content.add(new JsonNull());
+			if (input.nextClean() == ']') {
+				return;
 			}
-			else {
-				input.back();
-				content.add(input.nextValue());
-			}
+			input.back();
+
+			content.add(input.nextValue());
+			
 			switch (input.nextClean()) {
-			case ';':
 			case ',':
-				if (input.nextClean() == ']') {
-					return;
-				}
-				input.back();
 				break;
 			case ']':
-				return;
+				input.back();
+				break;
 			default:
 				throw input.syntaxError("Expected a ',' or ']'");
 			}
