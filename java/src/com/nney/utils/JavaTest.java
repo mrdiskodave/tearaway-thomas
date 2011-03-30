@@ -333,7 +333,7 @@ public class JavaTest extends TestCase {
 	public void testRepeatingYourself2() {
 		int counter = 0;
 		
-		for (int x = 42; x--!=0;) {
+		for (int x = 42; x-->0;) {
 			counter++;
 		}
 		
