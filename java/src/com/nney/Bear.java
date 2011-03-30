@@ -3,35 +3,37 @@ package com.nney;
 import org.lwjgl.input.Keyboard;
 
 public class Bear extends Alien {
-	private static final Anim animWalkingLeft;
-	private static final Anim animWalkingRight;
-	private static final Anim animTurning;
+	private static final Anim ANIM_WALKING_LEFT;
+	private static final Anim ANIM_WALKING_RIGHT;
+	private static final Anim ANIM_TURNING;
 
 	static {
 		AnimBuilder ab = new AnimBuilder();
 		ab.select("wbear");
-		animWalkingLeft = ab.next(8).rate(100).repeat().build();
-		animTurning = ab.next().build();
-		animWalkingRight = ab.next(8).rate(100).repeat().build();
+		ANIM_WALKING_LEFT = ab.next(8).rate(100).repeat().build();
+		ANIM_TURNING = ab.next().build();
+		ANIM_WALKING_RIGHT = ab.next(8).rate(100).repeat().build();
 	}
 
 	static void loadGraphics(FrameLoader frameLoader) {
-		frameLoader.loadAll(animWalkingLeft, animWalkingRight, animTurning);
+		frameLoader.loadAll(ANIM_WALKING_LEFT, ANIM_WALKING_RIGHT, ANIM_TURNING);
 	}
+	
+	
 
 	public void move(World world) {
 		world.fallOrRaise(c, 5);
 		if (world.testKey(Keyboard.KEY_Q)) {
 			c.x--;
-			animPlayer.changeAnimation(animWalkingLeft);
+			animPlayer.changeAnimation(ANIM_WALKING_LEFT);
 		}
 			else if (world.testKey(Keyboard.KEY_W)) {
 				c.x++;
-			animPlayer.changeAnimation(animWalkingRight);
+			animPlayer.changeAnimation(ANIM_WALKING_RIGHT);
 		}
 		else {
 			if (animPlayer.isNew()) {
-				animPlayer.changeAnimation(animTurning);
+				animPlayer.changeAnimation(ANIM_TURNING);
 			}
 			animPlayer.pause();
 		}

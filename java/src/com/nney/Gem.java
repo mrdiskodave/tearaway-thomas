@@ -1,35 +1,40 @@
 package com.nney;
 
 public class Gem extends Alien {
-	static final private int[] WOBBLE = { 0,-1,-2,-3,-2,-1,0,1,2,3,2,1 };
-	private static Anim standingPurpleGem;
-	private static Anim standingYellowGem;
-	private int wobblePhase;
-	private final boolean wobble;
-
+	private static final int[] WOBBLE = { 0,-1,-2,-3,-2,-1,0,1,2,3,2,1 };
+	private static final Anim ANIM_STANDING_PURPLE;
+	private static final Anim ANIM_STANDING_YELLOW;
+	
 	static {
 		AnimBuilder ab = new AnimBuilder();
 		ab.select("0pgem");
-		standingPurpleGem = ab.next().build();
+		ANIM_STANDING_PURPLE = ab.next().build();
 		ab.select("0ygem");
-		standingYellowGem = ab.next().build();
+		ANIM_STANDING_YELLOW = ab.next().build();
 	}
+
+	public static void loadGraphics(FrameLoader fl) {
+		fl.loadAll(ANIM_STANDING_PURPLE, ANIM_STANDING_YELLOW);
+	}
+	
+	
+	
+	private final boolean wobble;
+	private int wobblePhase;
+
 	
 	public Gem(int x, int y, boolean wobble, boolean yellow) {
 		c.x = x;
 		c.y = y;
 		this.wobble = wobble;
 		assert WOBBLE.length==12;
-		animPlayer.changeAnimation(yellow ? standingYellowGem : standingPurpleGem);
+		animPlayer.changeAnimation(yellow ? ANIM_STANDING_YELLOW : ANIM_STANDING_PURPLE);
 	}
 
 	@Override
 	public void move(World world) {
 	}
 
-	public static void loadGraphics(FrameLoader fl) {
-		fl.loadAll(standingPurpleGem, standingYellowGem);
-	}
 	
 	@Override
 	public void draw(World world) {
