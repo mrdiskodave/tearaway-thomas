@@ -31,8 +31,32 @@ SOFTWARE.
  * it.
  */
 class JsonInput {
-	private TextInput ti;
+	private int pos;
 
+	private String text;
+
+	private boolean more() {
+		return pos < text.length();
+	}
+
+	void back() {
+		if (pos > 0) {
+			pos--;
+		}
+	}
+
+	char next() {
+		if (more()) {
+			char c = text.charAt(pos);
+			pos++;
+			return c;
+		}
+		return 0;
+	}
+
+	public String reportPosition() {
+		return " at character " + pos + " of " + text;
+	}
 
     /**
      * Construct a JSONTokener from a string.
@@ -40,7 +64,7 @@ class JsonInput {
      * @param s     A source string.
      */
 	JsonInput(String s) {
-		ti = new TextInput(s);
+		text = s;
     }
 
 
@@ -56,7 +80,7 @@ class JsonInput {
     private String next(int n) throws JsonException {
     	StringBuilder sb = new StringBuilder();
     	while (n--!=0) {
-    		char c = ti.next();
+    		char c = next();
             if (c==0) {
             	throw syntaxError("Substring bounds error");
             }
@@ -74,35 +98,35 @@ class JsonInput {
      */
     char nextClean() throws JsonException {
         for (;;) {
-            char c = ti.next();
+            char c = next();
             if (c == '/') {
-                switch (ti.next()) {
+                switch (next()) {
                 case '/':
                     do {
-                        c = ti.next();
+                        c = next();
                     } while (c != '\n' && c != '\r' && c != 0);
                     break;
                 case '*':
                     for (;;) {
-                        c = ti.next();
+                        c = next();
                         if (c == 0) {
                             throw syntaxError("Unclosed comment.");
                         }
                         if (c == '*') {
-                            if (ti.next() == '/') {
+                            if (next() == '/') {
                                 break;
                             }
-                            ti.back();
+                            back();
                         }
                     }
                     break;
                 default:
-                	ti.back();
+                	back();
                     return '/';
                 }
             } else if (c == '#') {
                 do {
-                    c = ti.next();
+                    c = next();
                 } while (c != '\n' && c != '\r' && c != 0);
             } else if (c == 0 || c > ' ') {
                 return c;
@@ -126,14 +150,14 @@ class JsonInput {
         char c;
         StringBuffer sb = new StringBuffer();
         for (;;) {
-            c = ti.next();
+            c = next();
             switch (c) {
             case 0:
             case '\n':
             case '\r':
                 throw syntaxError("Unterminated string");
             case '\\':
-                c = ti.next();
+                c = next();
                 switch (c) {
                 case 'b':
                     sb.append('\b');
@@ -184,10 +208,10 @@ class JsonInput {
             case '\'':
                 return new JsonString(nextString(c));
             case '{':
-            	ti.back();
+            	back();
                 return new JsonObject(this);
             case '[':
-            	ti.back();
+            	back();
                 return new JsonArray(this);
         }
 
@@ -200,7 +224,7 @@ class JsonInput {
          * formatting character.
          */
 
-        ti.back();
+        back();
         String s = internalNextString();
 
         /*
@@ -238,9 +262,9 @@ class JsonInput {
 	private String internalNextString() {
 		StringBuffer sb = new StringBuffer();
 		for (;;) {
-			char firstChar = ti.next();
+			char firstChar = next();
 			if (firstChar < ' ' || ",:]}/\\\"[{;=#".indexOf(firstChar) >= 0) {
-				ti.back();
+				back();
 				return sb.toString().trim();
 			}
 			sb.append(firstChar);
@@ -262,16 +286,7 @@ class JsonInput {
      * @return  A JSONException object, suitable for throwing
      */
     JsonException syntaxError(String message) {
-        return new JsonException(message + ti.reportPosition());
+        return new JsonException(message + reportPosition());
     }
 
-
-	public void back() {
-		ti.back();
-	}
-
-
-	public char next() {
-		return ti.next();
-	}
 }
