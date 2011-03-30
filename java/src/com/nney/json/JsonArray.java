@@ -1,0 +1,198 @@
+package com.nney.json;
+
+/*
+ Based on code from JSON.org ...
+
+ Copyright (c) 2002 JSON.org
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ The Software shall be used for Good, not Evil.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ */
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Vector;
+
+public class JsonArray extends JsonValue implements List<JsonValue> {
+	Vector<JsonValue> content = new Vector<JsonValue>();
+
+	public JsonArray(JsonInput input) throws JsonException {
+		if (input.nextClean() != '[') {
+			throw input.syntaxError("A JSONArray text must start with '['");
+		}
+		if (input.nextClean() == ']') {
+			return;
+		}
+		input.back();
+		for (;;) {
+			if (input.nextClean() == ',') {
+				input.back();
+				content.add(new JsonNull());
+			}
+			else {
+				input.back();
+				content.add(input.nextValue());
+			}
+			switch (input.nextClean()) {
+			case ';':
+			case ',':
+				if (input.nextClean() == ']') {
+					return;
+				}
+				input.back();
+				break;
+			case ']':
+				return;
+			default:
+				throw input.syntaxError("Expected a ',' or ']'");
+			}
+		}
+	}
+	
+	public JsonArray(JsonValue... values) {
+		for (JsonValue value : values) {
+			content.add(value);
+		}
+	}
+
+	@Override
+	public void writeJson(DataWriter w) throws JsonException {
+		w.beginList();
+		for (JsonValue v : content) {
+			v.writeJson(w);
+		}
+		w.end();
+	}
+
+	//
+	// the proxying required to support interface List ...
+	//
+
+	public void add(int index, JsonValue element) {
+		content.add(index, element);
+	}
+
+	public boolean add(JsonValue o) {
+		return content.add(o);
+	}
+
+	public boolean addAll(Collection<? extends JsonValue> c) {
+		return content.addAll(c);
+	}
+
+	public boolean addAll(int index, Collection<? extends JsonValue> c) {
+		return content.addAll(index, c);
+	}
+
+	public void clear() {
+		content.clear();
+	}
+
+	public boolean contains(Object elem) {
+		return content.contains(elem);
+	}
+
+	public boolean containsAll(Collection<?> c) {
+		return content.containsAll(c);
+	}
+
+	public JsonValue get(int index) {
+		return content.get(index);
+	}
+
+	public int indexOf(Object elem) {
+		return content.indexOf(elem);
+	}
+
+	public boolean isEmpty() {
+		return content.isEmpty();
+	}
+
+	public Iterator<JsonValue> iterator() {
+		return content.iterator();
+	}
+
+	public int lastIndexOf(Object elem) {
+		return content.lastIndexOf(elem);
+	}
+
+	public ListIterator<JsonValue> listIterator() {
+		return content.listIterator();
+	}
+
+	public ListIterator<JsonValue> listIterator(int index) {
+		return content.listIterator(index);
+	}
+
+	public JsonValue remove(int index) {
+		return content.remove(index);
+	}
+
+	public boolean remove(Object o) {
+		return content.remove(o);
+	}
+
+	public boolean removeAll(Collection<?> c) {
+		return content.removeAll(c);
+	}
+
+	public boolean retainAll(Collection<?> c) {
+		return content.retainAll(c);
+	}
+
+	public JsonValue set(int index, JsonValue element) {
+		return content.set(index, element);
+	}
+
+	public int size() {
+		return content.size();
+	}
+
+	public List<JsonValue> subList(int fromIndex, int toIndex) {
+		return content.subList(fromIndex, toIndex);
+	}
+
+	public Object[] toArray() {
+		return content.toArray();
+	}
+
+	public <T> T[] toArray(T[] a) {
+		return content.toArray(a);
+	}
+
+	@Override
+	public String toString() {
+		return content.toString();
+	}
+	
+	public @Override DataItem requireElement(int position) throws DataException {
+		if (position>=content.size()) {
+			throw new DataException("position "+position+" not found in array of length "+content.size());
+		}
+		return content.get(position);
+	}
+	
+	@Override
+	public DataItem[] requireList() throws DataException {
+		return content.toArray(new DataItem[content.size()]);
+	}
+}
