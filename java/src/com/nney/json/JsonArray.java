@@ -36,26 +36,22 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	Vector<JsonValue> content = new Vector<JsonValue>();
 
 	public JsonArray(JsonInput input) throws JsonException {
-		if (input.nextClean() != '[') {
+		input.skipWhiteAndComments();
+		if (!input.consume('[')) {
 			throw input.syntaxError("A JSONArray text must start with '['");
 		}
+		boolean commaExpected = false;
 		for (;;) {
-			if (input.nextClean() == ']') {
-				return;
+			input.skipWhiteAndComments();
+			if (input.consume(']')) return;
+			if (commaExpected) {
+				if (!input.consume(',')) {
+					throw input.syntaxError("Expected a ',' or ']'");
+				}
+				input.skipWhiteAndComments();
 			}
-			input.back();
-
 			content.add(input.nextValue());
-			
-			switch (input.nextClean()) {
-			case ',':
-				break;
-			case ']':
-				input.back();
-				break;
-			default:
-				throw input.syntaxError("Expected a ',' or ']'");
-			}
+			commaExpected = true;
 		}
 	}
 	

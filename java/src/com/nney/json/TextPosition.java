@@ -21,4 +21,9 @@ class TextPosition {
 		}
 		return new TextPosition(x+1, y+1);
 	}
+	
+	@Override
+	public String toString() {
+		return ""+y+":"+x;
+	}
 }

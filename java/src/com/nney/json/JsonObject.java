@@ -35,15 +35,12 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 	TreeMap<String, JsonValue> content = new TreeMap<String, JsonValue>();
 
 	public JsonObject(JsonInput input) throws JsonException {
-		char c;
-		String key;
-
 		input.skipWhiteAndComments();
 		if (!input.consume('{')) {
 			throw input.syntaxError("A JSONObject text must begin with '{'");
 		}
 		
-		boolean commaRequired = false;
+		boolean commaExpected = false;
 		for (;;) {
 			input.skipWhiteAndComments();
 			if (input.eof()) {
@@ -51,8 +48,7 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 			}
 
 			if (input.consume('}')) return;
-			
-			if (commaRequired) {
+			if (commaExpected) {
 				if (!input.consume(',')) {
 					throw input.syntaxError("Expected a ',' or '}'");
 				}
@@ -62,13 +58,13 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 			if (!input.consume('"')) {
 				throw input.syntaxError("Expected key string");
 			}
-			key = input.nextString('"');
+			String key = input.nextString('"');
 			input.skipWhiteAndComments();
 			if (!input.consume(':')) {
 				throw input.syntaxError("Expected ':' after key '" + key + "'");
 			}
 			content.put(key, input.nextValue());
-			commaRequired = true;
+			commaExpected = true;
 		}
 	}
 

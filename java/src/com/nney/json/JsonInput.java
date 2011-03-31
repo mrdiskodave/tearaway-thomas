@@ -61,8 +61,9 @@ class JsonInput {
 	}
 
 	boolean consume(char c) {
+		if (eof()) return false;
 		boolean answer = peek()==c;
-		if (answer) adv();
+		if (answer) advance();
 		return answer;
 	}
 
@@ -71,34 +72,24 @@ class JsonInput {
 		return answer;
 	}
 	
-	void back() {
-		if (pos > 0) {
-			pos--;
-		}
-	}
-
-	char next() {
-		if (eof()) return 0;
-		char answer = text.charAt(pos++);
+	int next() {
+		int answer = peek();
+		advance();
 		return answer;
 	}
 	
-	int peek() {
-		if (eof()) return -1;
+	private int peek() {
+		assert !eof();
 		return text.charAt(pos);
 	}
 	
-	void adv() {
+	void advance() {
+		assert pos<text.length();
 		pos++;
 	}
 
 	
-	public String reportPosition() {
-		TextPosition t = TextPosition.fromText(text.substring(0, pos)); 
-		return " at col " + t.x + " row " + t.y;
-	}
-
-    /**
+	/**
      * Construct a JSONTokener from a string.
      *
      * @param s     A source string.
@@ -107,46 +98,15 @@ class JsonInput {
 		text = s;
     }
 
-
-    /**
-     * Get the next char in the string, skipping whitespace
-     * and comments starting with hash.
-     * @throws JsonException
-     * @return  A character, or 0 if there are no more characters.
-     */
-    char nextClean2() throws JsonException {
-        for (;;) {
-            char c = next();
-            if (c == '#') {
-                do {
-                    c = next();
-                } while (c != '\n' && c != '\r' && c != 0);
-            } else if (c == 0 || c > ' ') {
-            	System.out.println(c);
-                return c;
-            }
-        }
-    }
-    
-    char nextClean() {
-    	skipWhiteAndComments();
-    	if (eof()) return 0;
-    	int answer = peek();
-    	adv();
-    	char c = (char) answer; 
-    	System.out.println(c);
-    	return c;
-    }
-
 	public void skipWhiteAndComments() {
 		while (!eof()) {
     		if (consume('#')) {
     			while (!(eof() || consume('\r') || consume('\n'))) {
-    				adv();
+    				advance();
     			}
     		}
     		else if (peek()<=' ') {
-    			adv();
+    			advance();
     		}
     		else {
     			break;
@@ -167,18 +127,21 @@ class JsonInput {
      * @throws JsonException Unterminated string.
      */
     public String nextString(char quote) throws JsonException {
-        char c;
         StringBuffer sb = new StringBuffer();
         for (;;) {
-            c = next();
-            switch (c) {
-            case 0:
+        	if (eof()) {
+        		throw syntaxError("Unterminated string");
+        	}
+            int c1 = next();
+            switch (c1) {
             case '\n':
             case '\r':
-                throw syntaxError("Unterminated string");
             case '\\':
-                c = next();
-                switch (c) {
+            	if (eof()) {
+            		throw syntaxError("Expected escaped char not EOF");
+            	}
+                int c2 = next();
+                switch (c2) {
                 case 'b':
                     sb.append('\b');
                     break;
@@ -198,14 +161,14 @@ class JsonInput {
                     sb.append((char)Integer.parseInt(consumeG(HEX4), 16));
                     break;
                 default:
-                    sb.append(c);
+                    sb.append(c2);
                 }
                 break;
             default:
-                if (c == quote) {
+                if (c1 == quote) {
                     return sb.toString();
                 }
-                sb.append(c);
+                sb.append((char)c1);
             }
         }
     }
@@ -221,17 +184,17 @@ class JsonInput {
     public JsonValue nextValue() throws JsonException {
     	skipWhiteAndComments();
     	
-    	if (peek()=='"') {
-    		adv();
+    	if (consume('"')) {
     		return new JsonString(nextString('"'));
     	}
-    	if (peek()=='{') {
+    	if (consume('{')) {
+    		back();
     		return new JsonObject(this);
     	}
-    	if (peek()=='[') {
+    	if (consume('[')) {
+    		back();
     		return new JsonArray(this);
     	}
-
     	if (consume("true")) {
             return new JsonBoolean(true);
         }
@@ -252,52 +215,22 @@ class JsonInput {
         	}
         }
         
-
-        
-        String s = internalNextString();
-        if (s.length()==0) {
-        	throw syntaxError("Missing value");
-        }
-
-        
-        // bare string form
-        //
-        // This is beyond what is required in the standard but
-        // required by the JsonObject constructor from JsonInput
-        // which uses it to parse field names.
-        //
-        return new JsonString(s);
+       	throw syntaxError("Not a JSON item");
     }
 
 
-	private String internalNextString() {
-		StringBuffer sb = new StringBuffer();
-		for (;;) {
-			char firstChar = next();
-			if (firstChar < ' ' || ",:]}/\\\"[{;=#".indexOf(firstChar) >= 0) {
-				back();
-				return sb.toString().trim();
-			}
-			sb.append(firstChar);
-		}
-	}
-	
-	String nextTag() {
-		String tag = internalNextString();
-		if (tag.length()==0) {
-			syntaxError("tag expected");
-		}
-		return tag;
+    private void back() {
+    	pos--;
 	}
 
-    /**
+	/**
      * Make a JSONException to signal a syntax error.
      *
      * @param message The error message.
      * @return  A JSONException object, suitable for throwing
      */
     JsonException syntaxError(String message) {
-        return new JsonException(message + reportPosition());
+        return new JsonException(message + " at " + TextPosition.fromText(text.substring(0, pos)));
     }
 
 }
