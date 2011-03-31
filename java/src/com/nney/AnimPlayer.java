@@ -15,8 +15,6 @@ public class AnimPlayer {
 
 	private int rate;
 
-	private Runnable completionCallback;
-
 	private boolean pause;
 
 	public AnimPlayer() {
@@ -41,31 +39,23 @@ public class AnimPlayer {
 		pause = true;
 	}
 
-	public void setCompletionCallback(Runnable completionCallback) {
-		this.completionCallback = completionCallback;
-	}
-
-	public SpriteName next() {
+	public Sprite next() {
 		assert anim != null;
 		if (!pause) {
 			acc += rate;
 			if (acc > Anim.MAX_RATE) {
 				acc -= Anim.MAX_RATE;
 				pos += 1;
-				if (pos >= anim.bobs.length) {
-					if (anim.repeat) {
-						pos = 0;
+				if (pos >= anim.frames.length) {
+					if (anim.repeatPos<0) {
+						pos = anim.frames.length - 1;
 					}
 					else {
-						pos = anim.bobs.length - 1;
-					}
-					if (completionCallback != null) {
-						completionCallback.run();
-						completionCallback = null;
+						pos = anim.repeatPos;
 					}
 				}
 			}
 		}
-		return anim.bobs[pos];
+		return anim.frames[pos];
 	}
 }

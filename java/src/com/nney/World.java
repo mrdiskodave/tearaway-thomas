@@ -22,8 +22,6 @@ public class World {
 
 	public HashSet<Integer> keys;
 
-	public HashMap<SpriteName, Sprite> spriteDict;
-
 	public boolean inTheGround(Coord c) {
 		int block = gameMap.getBlock(c.x / 16, c.y / 16);
 		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
@@ -102,8 +100,7 @@ public class World {
 		return answer;
 	}
 
-	public void drawAlien(Coord c, SpriteName next) {
-		Sprite s = spriteDict.get(next);
+	public void drawAlien(Coord c, Sprite s) {
 		s.draw(c.x-screen.x, c.y-screen.y);		
 	}
 }

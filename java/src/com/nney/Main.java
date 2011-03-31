@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -15,9 +17,16 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
+import com.nney.json.DataException;
+import com.nney.json.DataItem;
+import com.nney.json.JsonException;
+import com.nney.json.JsonParserTest;
+import com.nney.json.JsonValue;
+import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
+import com.nney.utils.StringIO;
 
 public class Main {
 	private static final int ZOOM = 2;
@@ -29,8 +38,6 @@ public class Main {
 
 	private World world = new World();
 
-	private Bear bear;
-
 	private boolean closing;
 
 	private FpsReporter fpsRep;
@@ -41,7 +48,9 @@ public class Main {
 
 	private int frameNumber;
 
-	private List<Alien> alienList = new ArrayList<Alien>();
+//	private List<Alien> alienList = new ArrayList<Alien>();
+
+	private Bear bear;
 
 	private void initLwjgl() {
 		try {
@@ -81,24 +90,17 @@ public class Main {
 	}
 
 	private void initGfx() {
-		FrameLoader frameLoader = new LargeImageFrameLoader() {
-			@Override
-			FileOpenable findData(SpriteName f) {
-				// all that is missing is knowledge of how to find those large
-				// frames!
-				String filename = String.format(
-						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s_%03d.png", f.name, f.number);
-				return new FileOpenable(filename);
-			}
-		};
+		
+		
+//		FrameLoaderCache frameCache = new FrameLoaderCache(frameLoader);
 
-		FrameLoaderCache frameCache = new FrameLoaderCache(frameLoader);
-
-		Bear.loadGraphics(frameCache);
-		Gem.loadGraphics(frameCache);
-		world.spriteDict = frameCache.getSpriteDict();
+//		Bear.loadGraphics(frameCache)
+		;
+//		Gem.loadGraphics(frameCache);
+//		world.spriteDict = frameCache.getSpriteDict();
 		
 		bear = new Bear();
+		bear.connectSpriteSet(loadSpriteSet("wbear"));
 
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
@@ -147,10 +149,10 @@ public class Main {
 							di.readByte();
 						}
 						objectCnt++;
-						if (type == 2 || type == 3) {
-							boolean wobble = (flags & 1 << 3) == 0;
-							alienList.add(new Gem(x, y, wobble, type==2));
-						}
+//						if (type == 2 || type == 3) {
+//							boolean wobble = (flags & 1 << 3) == 0;
+//							alienList.add(new Gem(x, y, wobble, type==2));
+//						}
 					}
 					System.out.println(objectCnt);
 				}
@@ -175,6 +177,64 @@ public class Main {
 
 		}
 		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private SpriteSet loadSpriteSet(final String item) {
+		NamedOpenables no = new NamedOpenables() {
+			@Override
+			public Openable get(String name) {
+				String filename = String.format(
+						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s\\%s", item, name);
+				return new FileOpenable(filename);
+			}
+		};
+
+		ArrayList<Anim> an = new ArrayList<Anim>(); 
+		HashMap<Integer, Sprite> cache = new HashMap<Integer, Sprite>();
+		try {
+			String text = StringIO.loadText(no.get("def.txt"), null);
+			JsonValue diRoot = JsonValue.parse(text);
+			
+			for (DataItem diAnim : diRoot.requireField("anims").requireList()) {
+				DataItem[] diFrames = diAnim.requireField("frames").requireList();
+				Sprite[] frames = new Sprite[diFrames.length];
+				for (int x=0; x<frames.length; x++) {
+					int fno = diFrames[x].requireInt();
+					Sprite frame = cache.get(fno);
+					if (frame==null) {
+						frame = LargeImageFrameLoader.load(no.get(String.format("%03d.png", fno)));
+						cache.put(fno, frame);
+					}
+					else {
+						System.out.println("**CACHE HIT**");
+					}
+					frames[x] = frame;
+				}
+				String name = null;
+				if (diAnim.fieldExists("name")) {
+					name = diAnim.requireField("name").requireString();
+				}
+				int rate = 0;
+				if (diAnim.fieldExists("rate")) {
+					rate = diAnim.requireField("rate").requireInt();
+				}
+				int repeatPos = -1;
+				if (diAnim.fieldExists("repeatPos")) {
+					repeatPos = diAnim.requireField("repeatPos").requireInt();
+				}
+				an.add(new Anim(rate, frames, repeatPos, name)); 
+			}
+			return new SpriteSet(an);
+		}
+		catch (JsonException e) {
+			throw new RuntimeException(e);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		catch (DataException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -219,17 +279,17 @@ public class Main {
 		GlTools.configureFor2dBobs();
 		drawTheMap();
 		bear.draw(world);
-		for (Alien alien : alienList) {
-			alien.draw(world);
-		}
+//		for (Alien alien : alienList) {
+//			alien.draw(world);
+//		}
 		myFont.draw(50, 50, 0x00ff00, 0, String.format("kisses 4 charlotte %08d!", frameNumber));
 	}
 
 	private void moveEverything() {
 		bear.move(world);
-		for (Alien alien : alienList) {
-			alien.move(world);
-		}
+//		for (Alien alien : alienList) {
+//			alien.move(world);
+//		}
 		world.scrollTowards(bear.c);
 		frameNumber++;
 	}
