@@ -43,23 +43,29 @@ class JsonInput {
 
 	private String text;
 
-	private boolean more() {
-		return pos < text.length();
+	private boolean eof() {
+		return pos >= text.length();
 	}
 
-	String lookingAtG(Pattern pattern) {
+	String consumeG(Pattern pattern) {
 		Matcher matcher = pattern.matcher(remains());
 		if (!matcher.lookingAt()) return null;
 		pos += matcher.end();
 		return matcher.group();
 	}
 	
-	boolean lookingAt(String m) {
+	boolean consume(String m) {
 		boolean answer = remains().startsWith(m);
 		if (answer) pos += m.length();
 		return answer;
 	}
-	
+
+	boolean consume(char c) {
+		boolean answer = peek()==c;
+		if (answer) adv();
+		return answer;
+	}
+
 	String remains() {
 		String answer = text.substring(pos);
 		return answer;
@@ -72,12 +78,18 @@ class JsonInput {
 	}
 
 	char next() {
-		if (more()) {
-			char c = text.charAt(pos);
-			pos++;
-			return c;
-		}
-		return 0;
+		if (eof()) return 0;
+		char answer = text.charAt(pos++);
+		return answer;
+	}
+	
+	int peek() {
+		if (eof()) return -1;
+		return text.charAt(pos);
+	}
+	
+	void adv() {
+		pos++;
 	}
 
 	public String reportPosition() {
@@ -100,7 +112,7 @@ class JsonInput {
      * @throws JsonException
      * @return  A character, or 0 if there are no more characters.
      */
-    char nextClean() throws JsonException {
+    char nextClean2() throws JsonException {
         for (;;) {
             char c = next();
             if (c == '#') {
@@ -108,10 +120,37 @@ class JsonInput {
                     c = next();
                 } while (c != '\n' && c != '\r' && c != 0);
             } else if (c == 0 || c > ' ') {
+            	System.out.println(c);
                 return c;
             }
         }
     }
+    
+    char nextClean() {
+    	skipWhiteAndComments();
+    	if (eof()) return 0;
+    	int answer = peek();
+    	adv();
+    	char c = (char) answer; 
+    	System.out.println(c);
+    	return c;
+    }
+
+	private void skipWhiteAndComments() {
+		while (!eof()) {
+    		if (consume('#')) {
+    			while (!(eof() || consume('\r') || consume('\n'))) {
+    				adv();
+    			}
+    		}
+    		else if (peek()<=' ') {
+    			adv();
+    		}
+    		else {
+    			break;
+    		}
+    	}
+	}
 
 
     /**
@@ -154,7 +193,7 @@ class JsonInput {
                     sb.append('\r');
                     break;
                 case 'u':
-                    sb.append((char)Integer.parseInt(lookingAtG(HEX4), 16));
+                    sb.append((char)Integer.parseInt(consumeG(HEX4), 16));
                     break;
                 default:
                     sb.append(c);
@@ -178,45 +217,30 @@ class JsonInput {
      * @return An object.
      */
     public JsonValue nextValue() throws JsonException {
-        char c = nextClean();
+    	skipWhiteAndComments();
+    	
+    	if (peek()=='"') {
+    		adv();
+    		return new JsonString(nextString('"'));
+    	}
+    	if (peek()=='{') {
+    		return new JsonObject(this);
+    	}
+    	if (peek()=='[') {
+    		return new JsonArray(this);
+    	}
 
-        switch (c) {
-            case '"':
-                return new JsonString(nextString(c));
-            case '{':
-            	back();
-                return new JsonObject(this);
-            case '[':
-            	back();
-                return new JsonArray(this);
-        }
-
-        /*
-         * Handle unquoted text. This could be the values true, false, or
-         * null, or it can be a number. An implementation (such as this one)
-         * is allowed to also accept non-standard forms.
-         *
-         * Accumulate characters until we reach the end of the text or a
-         * formatting character.
-         */
-
-        back();
-
-        /*
-         * If it is true, false, or null, return the proper value.
-         */
-
-        if (lookingAt("true")) {
+    	if (consume("true")) {
             return new JsonBoolean(true);
         }
-        if (lookingAt("false")) {
+        if (consume("false")) {
             return new JsonBoolean(false);
         }
-        if (lookingAt("null")) {
+        if (consume("null")) {
             return new JsonNull();
         }
 
-        String n = lookingAtG(NUMBER);
+        String n = consumeG(NUMBER);
         if (n!=null) {
         	try {
         		return new JsonNumber(Double.parseDouble(n));
