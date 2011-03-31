@@ -1,8 +1,5 @@
 package com.nney.json;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import junit.framework.TestCase;
 
 import com.nney.utils.ClassResourceOpenable;
@@ -14,15 +11,27 @@ public class JsonParserTest extends TestCase {
 				null);
 		JsonValue v = JsonValue.parse(s);
 		System.out.println(s);
-		System.out.println(v.requireField("anims").requireElement(0).requireField("name").requireString());
+		assertEquals("runright", v.requireField("anims").requireElement(0).requireField("name").requireString());
 		
+		v = JsonValue.parse("\"\\u004a\"");
+		assertEquals("J", v.requireString());
+
+		v = JsonValue.parse("\"\\u004A\"");
+		assertEquals("J", v.requireString());
+
+		v = JsonValue.parse("\"\\uffff\"");
+		assertEquals("\uffff", v.requireString());
+
+		v = JsonValue.parse("42");
+		assertEquals(42, v.requireInt());
+
 		v = JsonValue.parse("true\n");
-		System.out.println(v.requireBoolean());
+		assertTrue(v.requireBoolean());
 
 		v = JsonValue.parse("true");
-		System.out.println(v.requireBoolean());
+		assertTrue(v.requireBoolean());
 
 		v = JsonValue.parse("pooh");
-		System.out.println(v.requireString());
+		assertEquals("pooh", v.requireString());
 	}
 }

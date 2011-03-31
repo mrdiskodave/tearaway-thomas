@@ -49,7 +49,6 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 			case '}':
 				return;
 			case '"':
-			case '\'':
 				key = input.nextString(c);
 				break;
 			default:

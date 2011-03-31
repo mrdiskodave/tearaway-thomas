@@ -34,10 +34,10 @@ SOFTWARE.
  * it.
  */
 class JsonInput {
-	private final static Pattern WHITESPACE = Pattern.compile("\\s+");
 	private final static Pattern NUMBER = Pattern.compile(
 			"-?(0|[1-9][0-9]*)(\\.[0-9]+)?(e[-+][0-9]+)?", Pattern.CASE_INSENSITIVE);
-	private final static Pattern CONSTS = Pattern.compile("true|false|null");
+	private final static Pattern HEX4 = Pattern.compile(
+			"[0-9a-f]{4}", Pattern.CASE_INSENSITIVE);
 
 	private int pos;
 
@@ -47,11 +47,11 @@ class JsonInput {
 		return pos < text.length();
 	}
 
-	Matcher lookingAt(Pattern pattern) {
+	String lookingAtG(Pattern pattern) {
 		Matcher matcher = pattern.matcher(remains());
 		if (!matcher.lookingAt()) return null;
-		pos = matcher.end();
-		return matcher;
+		pos += matcher.end();
+		return matcher.group();
 	}
 	
 	boolean lookingAt(String m) {
@@ -61,9 +61,10 @@ class JsonInput {
 	}
 	
 	String remains() {
-		return text.substring(pos);
+		String answer = text.substring(pos);
+		return answer;
 	}
-
+	
 	void back() {
 		if (pos > 0) {
 			pos--;
@@ -91,28 +92,6 @@ class JsonInput {
 	JsonInput(String s) {
 		text = s;
     }
-
-
-    /**
-     * Get the next n characters.
-     *
-     * @param n     The number of characters to take.
-     * @return      A string of n characters.
-     * @throws JsonException
-     *   Substring bounds error if there are not
-     *   n characters remaining in the source string.
-     */
-    private String next(int n) throws JsonException {
-    	StringBuilder sb = new StringBuilder();
-    	while (n--!=0) {
-    		char c = next();
-            if (c==0) {
-            	throw syntaxError("Substring bounds error");
-            }
-			sb.append(c);
-    	}
-    	return sb.toString();
-     }
 
 
     /**
@@ -175,10 +154,7 @@ class JsonInput {
                     sb.append('\r');
                     break;
                 case 'u':
-                    sb.append((char)Integer.parseInt(next(4), 16));
-                    break;
-                case 'x' :
-                    sb.append((char) Integer.parseInt(next(2), 16));
+                    sb.append((char)Integer.parseInt(lookingAtG(HEX4), 16));
                     break;
                 default:
                     sb.append(c);
@@ -193,6 +169,7 @@ class JsonInput {
         }
     }
 
+    
     /**
      * Get the next value. The value can be a Boolean, Double, Integer,
      * JSONArray, JSONObject, Long, or String, or the JSONObject.NULL object.
@@ -205,7 +182,6 @@ class JsonInput {
 
         switch (c) {
             case '"':
-            case '\'':
                 return new JsonString(nextString(c));
             case '{':
             	back();
@@ -225,29 +201,38 @@ class JsonInput {
          */
 
         back();
-        String s = internalNextString();
 
         /*
          * If it is true, false, or null, return the proper value.
          */
 
-        if (s.length()==0) {
-            throw syntaxError("Missing value.");
-        }
-        if (s.equalsIgnoreCase("true")) {
+        if (lookingAt("true")) {
             return new JsonBoolean(true);
         }
-        if (s.equalsIgnoreCase("false")) {
+        if (lookingAt("false")) {
             return new JsonBoolean(false);
         }
-        if (s.equalsIgnoreCase("null")) {
+        if (lookingAt("null")) {
             return new JsonNull();
         }
 
-        // number form
-        if (Character.isDigit(s.charAt(0))) {
-        	return new JsonNumber(new Double(s));
+        String n = lookingAtG(NUMBER);
+        if (n!=null) {
+        	try {
+        		return new JsonNumber(Double.parseDouble(n));
+        	}
+        	catch (NumberFormatException e) {
+            	throw syntaxError("Bad number");
+        	}
         }
+        
+
+        
+        String s = internalNextString();
+        if (s.length()==0) {
+        	throw syntaxError("Missing value");
+        }
+
         
         // bare string form
         //
