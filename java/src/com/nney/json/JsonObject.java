@@ -38,56 +38,37 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 		char c;
 		String key;
 
-		if (input.nextClean() != '{') {
+		input.skipWhiteAndComments();
+		if (!input.consume('{')) {
 			throw input.syntaxError("A JSONObject text must begin with '{'");
 		}
+		
+		boolean commaRequired = false;
 		for (;;) {
-			c = input.nextClean();
-			switch (c) {
-			case 0:
+			input.skipWhiteAndComments();
+			if (input.eof()) {
 				throw input.syntaxError("A JSONObject text must end with '}'");
-			case '}':
-				return;
-			case '"':
-				key = input.nextString('"');
-				break;
-			default:
-				input.back();
-				key = input.nextTag();
 			}
 
-			/*
-			 * The key is followed by ':'. We will also tolerate '=' or '=>'.
-			 */
-
-			c = input.nextClean();
-			if (c == '=') {
-				if (input.next() != '>') {
-					input.back();
+			if (input.consume('}')) return;
+			
+			if (commaRequired) {
+				if (!input.consume(',')) {
+					throw input.syntaxError("Expected a ',' or '}'");
 				}
+				input.skipWhiteAndComments();
 			}
-			else if (c != ':') {
+			
+			if (!input.consume('"')) {
+				throw input.syntaxError("Expected key string");
+			}
+			key = input.nextString('"');
+			input.skipWhiteAndComments();
+			if (!input.consume(':')) {
 				throw input.syntaxError("Expected ':' after key '" + key + "'");
 			}
 			content.put(key, input.nextValue());
-
-			/*
-			 * Pairs are separated by ','. We will also tolerate ';'.
-			 */
-
-			switch (input.nextClean()) {
-			case ';':
-			case ',':
-				if (input.nextClean() == '}') {
-					return;
-				}
-				input.back();
-				break;
-			case '}':
-				return;
-			default:
-				throw input.syntaxError("Expected a ',' or '}'");
-			}
+			commaRequired = true;
 		}
 	}
 

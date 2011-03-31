@@ -43,7 +43,7 @@ class JsonInput {
 
 	private String text;
 
-	private boolean eof() {
+	boolean eof() {
 		return pos >= text.length();
 	}
 
@@ -92,8 +92,10 @@ class JsonInput {
 		pos++;
 	}
 
+	
 	public String reportPosition() {
-		return " at character " + pos + " of " + text;
+		TextPosition t = TextPosition.fromText(text.substring(0, pos)); 
+		return " at col " + t.x + " row " + t.y;
 	}
 
     /**
@@ -136,7 +138,7 @@ class JsonInput {
     	return c;
     }
 
-	private void skipWhiteAndComments() {
+	public void skipWhiteAndComments() {
 		while (!eof()) {
     		if (consume('#')) {
     			while (!(eof() || consume('\r') || consume('\n'))) {
