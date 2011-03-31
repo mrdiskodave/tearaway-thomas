@@ -48,7 +48,7 @@ public class Main {
 
 	private int frameNumber;
 
-//	private List<Alien> alienList = new ArrayList<Alien>();
+	private List<Alien> alienList = new ArrayList<Alien>();
 
 	private Bear bear;
 
@@ -90,27 +90,21 @@ public class Main {
 	}
 
 	private void initGfx() {
-		
-		
-//		FrameLoaderCache frameCache = new FrameLoaderCache(frameLoader);
+		SpriteSet bearSpriteSet = loadSpriteSet("wbear");
 
-//		Bear.loadGraphics(frameCache)
-		;
-//		Gem.loadGraphics(frameCache);
-//		world.spriteDict = frameCache.getSpriteDict();
-		
 		bear = new Bear();
-		bear.connectSpriteSet(loadSpriteSet("wbear"));
-
+		bear.connectSpriteSet(bearSpriteSet);
+		bear.init();
+		
+		SpriteSet purpleGemSpriteSet = loadSpriteSet("0pgem");
+		SpriteSet yellowGemSpriteSet = loadSpriteSet("0ygem");
+		
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
 
 		String filename2 = String
 				.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
 		world.maskHolder = new MasksHolder(16, new FileOpenable(filename2));
-		// boolean a = maskHolder.test(0, 15, 15);
-		// boolean b = maskHolder.test(1, 15, 15);
-		// assert a!=b;
 
 		try {
 			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w6.map";
@@ -149,10 +143,13 @@ public class Main {
 							di.readByte();
 						}
 						objectCnt++;
-//						if (type == 2 || type == 3) {
-//							boolean wobble = (flags & 1 << 3) == 0;
-//							alienList.add(new Gem(x, y, wobble, type==2));
-//						}
+						if (type == 2 || type == 3) {
+							boolean wobble = (flags & 1 << 3) == 0;
+							Gem a = new Gem(x, y, wobble);
+							a.connectSpriteSet(type==2 ? yellowGemSpriteSet : purpleGemSpriteSet);
+							a.init();
+							alienList.add(a);
+						}
 					}
 					System.out.println(objectCnt);
 				}
@@ -172,8 +169,8 @@ public class Main {
 			world.screen.x = 970;
 			world.screen.y = 864;
 
-			bear.c.x = 455;
-			bear.c.y = 818 + 50;
+//			bear.c.x = 455;
+//			bear.c.y = 818 + 50;
 
 		}
 		catch (IOException e) {
@@ -279,17 +276,17 @@ public class Main {
 		GlTools.configureFor2dBobs();
 		drawTheMap();
 		bear.draw(world);
-//		for (Alien alien : alienList) {
-//			alien.draw(world);
-//		}
+		for (Alien alien : alienList) {
+			alien.draw(world);
+		}
 		myFont.draw(50, 50, 0x00ff00, 0, String.format("kisses 4 charlotte %08d!", frameNumber));
 	}
 
 	private void moveEverything() {
 		bear.move(world);
-//		for (Alien alien : alienList) {
-//			alien.move(world);
-//		}
+		for (Alien alien : alienList) {
+			alien.move(world);
+		}
 		world.scrollTowards(bear.c);
 		frameNumber++;
 	}
@@ -325,7 +322,7 @@ public class Main {
 		// myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
 		// "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
-		int requested_fps = 100;
+		int requested_fps = 50;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			Display.sync(requested_fps);

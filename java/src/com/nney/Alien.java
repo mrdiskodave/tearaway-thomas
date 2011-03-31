@@ -4,14 +4,15 @@ public abstract class Alien {
 	public Coord c = new Coord();
 	public AnimPlayer animPlayer = new AnimPlayer();
 	private SpriteSet ss;
-	
+
 	public void connectSpriteSet(SpriteSet s) {
 		ss = s;
+		animPlayer.changeAnimation(ss.find(0));
 	}
-	
+
 	public void changeAnimation(String name) {
-		assert ss!=null;
-		assert name!=null;
+		assert ss != null;
+		assert name != null;
 		animPlayer.changeAnimation(ss.find(name));
 	}
 
@@ -20,9 +21,12 @@ public abstract class Alien {
 	}
 
 	protected void draw(World world, Coord c2) {
-		world.drawAlien(c, animPlayer.next());
+		world.drawAlien(c2, animPlayer.next());
 	}
 
-	abstract public void move(World world);
+	public void move(World world) {
+	}
 
+	public void init() {
+	}
 }

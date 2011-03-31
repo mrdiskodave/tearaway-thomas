@@ -31,10 +31,6 @@ public class AnimPlayer {
 		pause = false;
 	}
 	
-	public boolean isNew() {
-		return anim==null;
-	}
-
 	public void pause() {
 		pause = true;
 	}

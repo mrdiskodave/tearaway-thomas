@@ -4,6 +4,10 @@ import org.lwjgl.input.Keyboard;
 
 public class Bear extends Alien {
 
+	public void init() {
+		changeAnimation("turn");
+	}
+	
 	public void move(World world) {
 		world.fallOrRaise(c, 5);
 		if (world.testKey(Keyboard.KEY_Q)) {
@@ -15,9 +19,6 @@ public class Bear extends Alien {
 			changeAnimation("right");
 		}
 		else {
-			if (animPlayer.isNew()) {
-				changeAnimation("turn");
-			}
 			animPlayer.pause();
 		}
 	}
