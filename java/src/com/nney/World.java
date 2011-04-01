@@ -73,29 +73,33 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	 * Scroll towards the given position.
 	 */
 	public void scrollTowards(Coord c) {
-		Coord target = new Coord(Main.SCREEN_WIDTH / 2, Main.SCREEN_HEIGHT * 11 / 16);
-
-		Coord d = new Coord(c);
-		d.sub(target);
-		// difference
-		d.sub(screen);
-
-		screen.x += moveBy(d.x);
-		screen.y += moveBy(d.y);
+		screen.x = scrollOrd(screen.x, c.x-Main.SCREEN_WIDTH / 2, 0, Integer.MAX_VALUE);
+		screen.y = scrollOrd(screen.y, c.y-Main.SCREEN_HEIGHT * 11 / 16, 0, Integer.MAX_VALUE);
+	}
+	
+	private int scrollOrd(int current, int dest, int min, int max) {
+		current += shrinkDelta(dest-current);
+		if (current<min) {
+			current = min;
+		}
+		if (current>max) {
+			current = max;
+		}
+		return current;
 	}
 
-	private int moveBy(int x) {
+	private int shrinkDelta(int delta) {
 		boolean neg = false;
-		if (x < 0) {
+		if (delta < 0) {
 			neg = true;
-			x = -x;
+			delta = -delta;
 		}
-		x = Math.min(x, SCROLLING_TABLE.length - 1);
-		int answer = SCROLLING_TABLE[x];
+		delta = Math.min(delta, SCROLLING_TABLE.length - 1);
+		int shrunkDelta = SCROLLING_TABLE[delta];
 		if (neg) {
-			answer = -answer;
+			shrunkDelta = -shrunkDelta;
 		}
-		return answer;
+		return shrunkDelta;
 	}
 
 	public boolean testKey(int key) {
