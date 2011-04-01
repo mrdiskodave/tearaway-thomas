@@ -1,11 +1,9 @@
 package com.nney;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
-import org.lwjgl.util.vector.Vector;
-
-public class World {
+public class World implements AlienDrawingServices, AlienMovementServices {
 
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}
@@ -19,8 +17,12 @@ public class World {
 	public Coord screen = new Coord();
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
-
+	public Random rnd = new Random(5);
 	public HashSet<Integer> keys;
+
+	public int randomness(int n) {
+		return rnd.nextInt(n);
+	}
 
 	public boolean inTheGround(Coord c) {
 		int block = gameMap.getBlock(c.x / 16, c.y / 16);
@@ -34,9 +36,10 @@ public class World {
 	 *            Where we're at.
 	 * @param fallMax
 	 *            The called-defined limit on falling (in pixels).
-	 * @return Are we falling? <code>true</code> meaning "yes" or
-	 *         <code>false</code> meaning "no" we aren't falling we are resting
-	 *         exactly one pixel above the ground.
+	 * @return Are we falling? <code>true</code> meaning "yes" (we fell for
+	 *         fallMax and didn't it anything) or <code>false</code> meaning
+	 *         "no" we aren't falling we are resting exactly one pixel above the
+	 *         ground.
 	 */
 	public boolean fallOrRaise(Coord where, int fallMax) {
 		// if we are in the ground ..
@@ -94,13 +97,13 @@ public class World {
 		}
 		return answer;
 	}
-	
+
 	public boolean testKey(int key) {
 		boolean answer = keys.contains(key);
 		return answer;
 	}
 
-	public void drawAlien(Coord c, Sprite s) {
-		s.draw(c.x-screen.x, c.y-screen.y);		
+	public void drawSprite(Coord c, Sprite s) {
+		s.draw(c.x - screen.x, c.y - screen.y);
 	}
 }

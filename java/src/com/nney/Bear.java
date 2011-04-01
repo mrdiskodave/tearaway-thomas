@@ -8,7 +8,7 @@ public class Bear extends Alien {
 		changeAnimation("turn");
 	}
 	
-	public void move(World world) {
+	public void move(AlienMovementServices world) {
 		world.fallOrRaise(c, 5);
 		if (world.testKey(Keyboard.KEY_Q)) {
 			c.x--;

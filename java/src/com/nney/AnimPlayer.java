@@ -21,8 +21,10 @@ public class AnimPlayer {
 	}
 
 	public void changeAnimation(Anim freshAnim) {
-		assert freshAnim != null;
-		if (anim!=freshAnim) {
+		if (freshAnim==null) {
+			anim = null;
+		}
+		else if (anim!=freshAnim) {
 			anim = freshAnim;
 			rate = freshAnim.defaultRate;
 			pos = 0;
@@ -36,7 +38,7 @@ public class AnimPlayer {
 	}
 
 	public Sprite next() {
-		assert anim != null;
+		if (anim==null) return null;
 		if (!pause) {
 			acc += rate;
 			if (acc > Anim.MAX_RATE) {

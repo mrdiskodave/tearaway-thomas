@@ -3,28 +3,34 @@ package com.nney;
 public abstract class Alien {
 	public Coord c = new Coord();
 	public AnimPlayer animPlayer = new AnimPlayer();
-	private SpriteSet ss;
+	private SpriteSet spriteSet;
 
 	public void connectSpriteSet(SpriteSet s) {
-		ss = s;
-		animPlayer.changeAnimation(ss.find(0));
+		spriteSet = s;
 	}
 
 	public void changeAnimation(String name) {
-		assert ss != null;
+		assert spriteSet != null;
 		assert name != null;
-		animPlayer.changeAnimation(ss.find(name));
+		animPlayer.changeAnimation(spriteSet.find(name));
 	}
 
-	public void draw(World world) {
+	public void changeAnimation(int name) {
+		assert spriteSet != null;
+		animPlayer.changeAnimation(spriteSet.find(name));
+	}
+
+	public void draw(AlienDrawingServices world) {
 		draw(world, c);
 	}
 
-	protected void draw(World world, Coord c2) {
-		world.drawAlien(c2, animPlayer.next());
+	protected void draw(AlienDrawingServices world, Coord c2) {
+		Sprite s = animPlayer.next();
+		if (s==null) return;
+		world.drawSprite(c2, s);
 	}
 
-	public void move(World world) {
+	public void move(AlienMovementServices world) {
 	}
 
 	public void init() {
