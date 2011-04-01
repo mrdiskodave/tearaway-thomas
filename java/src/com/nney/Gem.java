@@ -20,7 +20,6 @@ public class Gem extends Alien {
 			// could we do this earlier?
 			wobblePhase = ads.randomness(WOBBLE.length);
 		}
-		
 		Coord c2 = new Coord(c);
 		
 		// this is what gem_render -> bob_gem does

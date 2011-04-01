@@ -3,6 +3,7 @@ package com.nney;
 public abstract class Alien {
 	public Coord c = new Coord();
 	public AnimPlayer animPlayer = new AnimPlayer();
+	public Bounds b;
 	private SpriteSet spriteSet;
 
 	public void connectSpriteSet(SpriteSet s) {

@@ -19,5 +19,4 @@ public interface AlienMovementServices {
 	boolean fallOrRaise(Coord where, int fallMax);
 
 	boolean testKey(int key);
-
 }

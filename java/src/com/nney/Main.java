@@ -50,7 +50,7 @@ public class Main {
 
 	private List<Alien> alienList = new ArrayList<Alien>();
 
-	private Bear bear;
+	private Player bear;
 
 	private void initLwjgl() {
 		try {
@@ -90,9 +90,9 @@ public class Main {
 	}
 
 	private void initGfx() {
-		SpriteSet bearSpriteSet = loadSpriteSet("wbear");
+		SpriteSet bearSpriteSet = loadSpriteSet("0tt");
 
-		bear = new Bear();
+		bear = new Player();
 		bear.connectSpriteSet(bearSpriteSet);
 		bear.init();
 		
