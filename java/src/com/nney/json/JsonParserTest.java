@@ -7,11 +7,7 @@ import com.nney.utils.StringIO;
 
 public class JsonParserTest extends TestCase {
 	public void testMain() throws Exception {
-		String s = StringIO.loadText(new ClassResourceOpenable(JsonParserTest.class, "def.txt"),
-				null);
-		JsonValue v = JsonValue.parse(s);
-		System.out.println(s);
-		assertEquals("runright", v.requireField("anims").requireElement(0).requireField("name").requireString());
+		JsonValue v;
 		
 		v = JsonValue.parse("\"\\u004a\"");
 		assertEquals("J", v.requireString());
@@ -41,5 +37,13 @@ public class JsonParserTest extends TestCase {
 
 		v = JsonValue.parse("\"pooh\"");
 		assertEquals("pooh", v.requireString());
+
+		String s = StringIO.loadText(new ClassResourceOpenable(JsonParserTest.class, "def.txt"),
+				null);
+		v = JsonValue.parse(s);
+		System.out.println(s);
+		assertEquals("runright", v.requireField("anims").requireElement(0).requireField("name").requireString());
+		
+
 	}
 }
