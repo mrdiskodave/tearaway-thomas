@@ -5,6 +5,7 @@ public abstract class Alien {
 	public AnimPlayer animPlayer = new AnimPlayer();
 	public Bounds b;
 	private SpriteSet spriteSet;
+	public byte[] srcData;
 
 	public void connectSpriteSet(SpriteSet s) {
 		spriteSet = s;
@@ -35,5 +36,9 @@ public abstract class Alien {
 	}
 
 	public void init() {
+	}
+
+	public void load() {
+		
 	}
 }

@@ -31,19 +31,8 @@ public class GlTools {
 	}
 
 
-	private static final boolean SHOW_BOUNDING_BOX = false;
-
 	public static ByteBuffer makeByteBuffer(SimpleImage si, int w, int h) {
 		ByteBuffer buffer = ByteBuffer.allocateDirect(w * h * 4);
-		if (SHOW_BOUNDING_BOX) {
-			for (int x = 0; x < w * h; x++) {
-				buffer.put((byte) 0xff);
-				buffer.put((byte) 0);
-				buffer.put((byte) 0);
-				buffer.put((byte) 0xff);
-			}
-		}
-	
 		for (int y = 0; y < si.getHeight(); y++) {
 			for (int x = 0; x < si.getWidth(); x++) {
 				int p = si.getPixel(x, y);

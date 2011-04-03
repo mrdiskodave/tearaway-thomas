@@ -1,5 +1,7 @@
 package com.nney;
 
+import com.nney.SimpleImage.ChangePixel;
+
 public class Sprite {
 	private final int handleX;
 	private final int handleY;
@@ -14,6 +16,17 @@ public class Sprite {
 	public Sprite(SimpleImage si, int handleX, int handleY) {
 		this.handleX = handleX;
 		this.handleY = handleY;
+		
+//		si.changePixels(new ChangePixel() {
+//			@Override
+//			public int change(int c) {
+//				int alpha = c >>> 3 * 8;
+//				if (alpha != 0xff)
+//					c = 0xffff0000;
+//				return c;
+//			}
+//		});
+
 		this.texture = new GlTexture(si);
 	}
 

@@ -3,15 +3,19 @@ package com.nney;
 public class Gem extends Alien {
 	private static final int[] WOBBLE = { 0,-1,-2,-3,-2,-1,0,1,2,3,2,1 };
 	
-	private final boolean wobble;
+	private boolean wobble;
 	private int wobblePhase = -1;
 
 	
-	public Gem(int x, int y, boolean wobble) {
-		c.x = x;
-		c.y = y;
-		this.wobble = wobble;
-		assert WOBBLE.length==12;
+	public Gem() {
+//		this.wobble = wobble;
+//		assert WOBBLE.length==12;
+	}
+	
+	@Override
+	public void load() {
+		wobble =
+			(srcData[0] & 1 << 3) == 0;
 	}
 
 	@Override

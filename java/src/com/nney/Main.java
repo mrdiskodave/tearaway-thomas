@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.lwjgl.LWJGLException;
@@ -50,7 +51,7 @@ public class Main {
 
 	private List<Alien> alienList = new ArrayList<Alien>();
 
-	private Player bear;
+	private Player player;
 
 	private void initLwjgl() {
 		try {
@@ -90,15 +91,33 @@ public class Main {
 	}
 
 	private void initGfx() {
-		SpriteSet bearSpriteSet = loadSpriteSet("0tt");
+		List<AlienInfo> ail = new ArrayList<AlienInfo>();
+		ail.add(new AlienInfo(2, "0ygem", Gem.class));
+		ail.add(new AlienInfo(3, "0pgem", Gem.class));
+		ail.add(new AlienInfo(76, "wbear", Bear.class));
+		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
+		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
+		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
+		ail.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
+		ail.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		ail.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
+		ail.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
+		ail.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
+		ail.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
+		ail.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
+		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
 
-		bear = new Player();
-		bear.connectSpriteSet(bearSpriteSet);
-		bear.init();
-		
-		SpriteSet purpleGemSpriteSet = loadSpriteSet("0pgem");
-		SpriteSet yellowGemSpriteSet = loadSpriteSet("0ygem");
-		
+		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
+		for (AlienInfo alienInfo : ail) {
+			aim.put(alienInfo.id, alienInfo);
+		}
+
+		SpriteSetPool ssp = new SpriteSetPool();
+
+		player = new Player();
+		player.connectSpriteSet(ssp.load("0tt"));
+		player.init();
+
 		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
 
@@ -107,7 +126,7 @@ public class Main {
 		world.maskHolder = new MasksHolder(16, new FileOpenable(filename2));
 
 		try {
-			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w6.map";
+			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
 			FileOpenable src = new FileOpenable(filename3);
 			InputStream i = src.open();
 			DataInputStream di = new DataInputStream(i);
@@ -119,9 +138,9 @@ public class Main {
 			for (;;) {
 				String id = readChunkId(di);
 				if (id.equals("set2")) {
-					bear.c.x = di.readShort();
-					bear.c.y = di.readShort();
-					int playerFace = di.readByte();
+					player.c.x = di.readShort();
+					player.c.y = di.readShort();
+					player.goLeft = di.readByte() != 0;
 					for (int r = 0x30 - 5; r-- > 0;) {
 						di.readByte();
 					}
@@ -134,24 +153,36 @@ public class Main {
 						if (x < 0)
 							break;
 						int type = di.readByte();
-						int flags = di.readByte();
-						int left = di.readShort();
-						int top = di.readShort();
-						int right = di.readShort();
-						int bottom = di.readShort();
-						for (int r = 12; r-- > 0;) {
-							di.readByte();
+						byte[] rest = new byte[21];
+						for (int o = 0; o<21; o++) {
+							rest[o] = di.readByte();
 						}
 						objectCnt++;
-						if (type == 2 || type == 3) {
-							boolean wobble = (flags & 1 << 3) == 0;
-							Gem a = new Gem(x, y, wobble);
-							a.connectSpriteSet(type==2 ? yellowGemSpriteSet : purpleGemSpriteSet);
-							a.init();
-							alienList.add(a);
+
+						try {
+							AlienInfo ai = aim.get(type);
+							if (ai != null) {
+								Alien a = ai.ins();
+								SpriteSet ss = ssp.load(ai.spriteSetName);
+								a.connectSpriteSet(ss);
+								a.c.x = x;
+								a.c.y = y;
+								a.srcData = rest;
+								a.load();
+								a.init();
+								alienList.add(a);
+							}
+							else {
+								System.out.println("type:" + type);
+							}
+						}
+						catch (InstantiationException e) {
+							throw new RuntimeException(e);
+						}
+						catch (IllegalAccessException e) {
+							throw new RuntimeException(e);
 						}
 					}
-					System.out.println(objectCnt);
 				}
 				else if (id.equals("pal2")) {
 					while (di.readShort() != -1) {
@@ -169,69 +200,11 @@ public class Main {
 			world.screen.x = 970;
 			world.screen.y = 864;
 
-//			bear.c.x = 455;
-//			bear.c.y = 818 + 50;
+			// bear.c.x = 455;
+			// bear.c.y = 818 + 50;
 
 		}
 		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private SpriteSet loadSpriteSet(final String item) {
-		NamedOpenables no = new NamedOpenables() {
-			@Override
-			public Openable get(String name) {
-				String filename = String.format(
-						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s\\%s", item, name);
-				return new FileOpenable(filename);
-			}
-		};
-
-		ArrayList<Anim> an = new ArrayList<Anim>(); 
-		HashMap<Integer, Sprite> cache = new HashMap<Integer, Sprite>();
-		try {
-			String text = StringIO.loadText(no.get("def.txt"), null);
-			JsonValue diRoot = JsonValue.parse(text);
-			
-			for (DataItem diAnim : diRoot.requireField("anims").requireList()) {
-				DataItem[] diFrames = diAnim.requireField("frames").requireList();
-				Sprite[] frames = new Sprite[diFrames.length];
-				for (int x=0; x<frames.length; x++) {
-					int fno = diFrames[x].requireInt();
-					Sprite frame = cache.get(fno);
-					if (frame==null) {
-						frame = LargeImageFrameLoader.load(no.get(String.format("%03d.png", fno)));
-						cache.put(fno, frame);
-					}
-					else {
-						System.out.println("**CACHE HIT**");
-					}
-					frames[x] = frame;
-				}
-				String name = null;
-				if (diAnim.fieldExists("name")) {
-					name = diAnim.requireField("name").requireString();
-				}
-				int rate = 0;
-				if (diAnim.fieldExists("rate")) {
-					rate = diAnim.requireField("rate").requireInt();
-				}
-				int repeatPos = -1;
-				if (diAnim.fieldExists("repeatPos")) {
-					repeatPos = diAnim.requireField("repeatPos").requireInt();
-				}
-				an.add(new Anim(rate, frames, repeatPos, name)); 
-			}
-			return new SpriteSet(an);
-		}
-		catch (JsonException e) {
-			throw new RuntimeException(e);
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		catch (DataException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -275,7 +248,7 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 		drawTheMap();
-		bear.draw(world);
+		player.draw(world);
 		for (Alien alien : alienList) {
 			alien.draw(world);
 		}
@@ -283,11 +256,11 @@ public class Main {
 	}
 
 	private void moveEverything() {
-		bear.move(world);
+		player.move(world);
 		for (Alien alien : alienList) {
 			alien.move(world);
 		}
-		world.scrollTowards(bear.c);
+		world.scrollTowards(player.c);
 		frameNumber++;
 	}
 
