@@ -330,6 +330,19 @@ public class JavaTest extends TestCase {
 		assertEquals(42, counter);
 	}
 	
+	public void testShortComposition() {
+		int xz = 0;
+		for (int h=0; h<256; h++) {
+			for (int l=0; l<256; l++) {
+				byte hb = (byte) h;
+				byte hl = (byte) l;
+				int z = ((hb & 255)<<8)+(hl & 255);
+				assertEquals(xz, z);
+				xz++;
+			}
+		}
+	}
+	
 	public void testRepeatingYourself2() {
 		int counter = 0;
 		
