@@ -230,7 +230,27 @@ class JsonInput {
      * @return  A JSONException object, suitable for throwing
      */
     JsonException syntaxError(String message) {
-        return new JsonException(message + " at " + TextPosition.fromText(text.substring(0, pos)));
+        String fullMessage = message + " at " + TextPosition.fromText(text.substring(0, pos));
+		return new JsonException(fullMessage);
     }
 
+	public void parseList(char open, char close, String name, JsonBlock contentParser) throws JsonException {
+		skipWhiteAndComments();
+		if (!consume(open)) {
+			throw syntaxError(name+" text must start with '"+open+"'");
+		}
+		boolean commaExpected = false;
+		for (;;) {
+			skipWhiteAndComments();
+			if (consume(close)) return;
+			if (commaExpected) {
+				if (!consume(',')) {
+					throw syntaxError("Expected a ',' or '"+close+"'");
+				}
+				skipWhiteAndComments();
+			}
+			contentParser.run();
+			commaExpected = true;
+		}
+	}
 }

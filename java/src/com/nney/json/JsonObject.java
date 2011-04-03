@@ -34,33 +34,22 @@ import java.util.TreeMap;
 public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 	TreeMap<String, JsonValue> content = new TreeMap<String, JsonValue>();
 
-	public JsonObject(JsonInput input) throws JsonException {
-		
-		input.skipWhiteAndComments();
-		if (!input.consume('{')) {
-			throw input.syntaxError("A JSONObject text must begin with '{'");
-		}
-		boolean commaExpected = false;
-		for (;;) {
-			input.skipWhiteAndComments();
-			if (input.consume('}')) return;
-			if (commaExpected) {
-				if (!input.consume(',')) {
-					throw input.syntaxError("Expected a ',' or '}'");
+	public JsonObject(final JsonInput input) throws JsonException {
+		JsonBlock block = new JsonBlock() {
+			@Override
+			public void run() throws JsonException {
+				if (!input.consume('"')) {
+					throw input.syntaxError("Expected key string");
 				}
+				String key = input.nextString('"');
 				input.skipWhiteAndComments();
+				if (!input.consume(':')) {
+					throw input.syntaxError("Expected ':' after key '" + key + "'");
+				}
+				content.put(key, input.nextValue());
 			}
-			if (!input.consume('"')) {
-				throw input.syntaxError("Expected key string");
-			}
-			String key = input.nextString('"');
-			input.skipWhiteAndComments();
-			if (!input.consume(':')) {
-				throw input.syntaxError("Expected ':' after key '" + key + "'");
-			}
-			content.put(key, input.nextValue());
-			commaExpected = true;
-		}
+		};
+		input.parseList('{', '}', "Object", block);
 	}
 
 	public JsonObject(JsonField... fields) {

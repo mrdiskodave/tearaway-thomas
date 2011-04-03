@@ -35,34 +35,14 @@ import java.util.Vector;
 public class JsonArray extends JsonValue implements List<JsonValue> {
 	Vector<JsonValue> content = new Vector<JsonValue>();
 
-	public JsonArray(JsonInput input) throws JsonException {
-
-		input.skipWhiteAndComments();
-		if (!input.consume('[')) {
-			throw input.syntaxError("A JSONArray text must start with '['");
-		}
-		boolean commaExpected = false;
-		for (;;) {
-			input.skipWhiteAndComments();
-			if (input.consume(']')) return;
-			if (commaExpected) {
-				if (!input.consume(',')) {
-					throw input.syntaxError("Expected a ',' or ']'");
-				}
-				input.skipWhiteAndComments();
+	public JsonArray(final JsonInput input) throws JsonException {
+		JsonBlock block = new JsonBlock() {
+			@Override
+			public void run() throws JsonException {
+				content.add(input.nextValue());
 			}
-			content.add(input.nextValue());
-
-			
-			
-			
-			
-			
-			
-			
-			commaExpected = true;
-		}
-		
+		};
+		input.parseList('[', ']', "Array", block);
 	}
 	
 	public JsonArray(JsonValue... values) {
