@@ -59,6 +59,12 @@ public abstract class JsonValue implements DataItem {
 	}
 
 	public static JsonValue parse(String jsonString) throws JsonException {
-		return new JsonInput(jsonString).nextValue();
+		JsonInput jsonInput = new JsonInput(jsonString);
+		JsonValue answer = jsonInput.nextValue();
+		jsonInput.skipWhiteAndComments();
+		if (!jsonInput.eof()) {
+			throw jsonInput.syntaxError("Expected end of file");
+		}
+		return answer;
 	}
 }

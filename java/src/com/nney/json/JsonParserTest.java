@@ -25,6 +25,14 @@ public class JsonParserTest extends TestCase {
 		v = JsonValue.parse("42");
 		assertEquals(42, v.requireInt());
 
+		v = JsonValue.parse("[ 42, 43 ]");
+		assertEquals(42, v.requireElement(0).requireInt());
+		assertEquals(43, v.requireElement(1).requireInt());
+
+		v = JsonValue.parse("{ \"d\":42, \"c\":43 }");
+		assertEquals(42, v.requireField("d").requireInt());
+		assertEquals(43, v.requireField("c").requireInt());
+		
 		v = JsonValue.parse("true\n");
 		assertTrue(v.requireBoolean());
 

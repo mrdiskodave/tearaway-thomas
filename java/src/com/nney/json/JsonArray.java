@@ -36,6 +36,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	Vector<JsonValue> content = new Vector<JsonValue>();
 
 	public JsonArray(JsonInput input) throws JsonException {
+
 		input.skipWhiteAndComments();
 		if (!input.consume('[')) {
 			throw input.syntaxError("A JSONArray text must start with '['");
@@ -51,8 +52,17 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 				input.skipWhiteAndComments();
 			}
 			content.add(input.nextValue());
+
+			
+			
+			
+			
+			
+			
+			
 			commaExpected = true;
 		}
+		
 	}
 	
 	public JsonArray(JsonValue... values) {
