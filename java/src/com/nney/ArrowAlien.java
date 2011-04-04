@@ -5,7 +5,9 @@ public class ArrowAlien extends Alien {
 	private int rightLimit;
 	private int topLimit;
 	private int bottomLimit;
-	private boolean colide;
+	
+	private int repeat;
+	private int timer;
 
 	@Override
 	public void load() {
@@ -14,15 +16,39 @@ public class ArrowAlien extends Alien {
 		topLimit = loadShort(OBtop);
 		bottomLimit = loadShort(OBbottom);
 	}
-	
+
 	@Override
 	public void move(AlienMovementServices world) {
+		boolean on = false;
+
 		Coord c = world.getPlayerPosition();
-		colide = c.x>=leftLimit && c.x<=rightLimit && c.y>=topLimit && c.y<=bottomLimit;
+		boolean colide = c.x >= leftLimit && c.x <= rightLimit && c.y >= topLimit
+				&& c.y <= bottomLimit;
+		if (colide) {
+			repeat = 8;
+		}
+
+		if (repeat != 0) {
+			if (timer < 22) {
+				on = true;
+			}
+			if (++timer >= 32) {
+				timer = 0;
+				repeat--;
+			}
+		}
+
+		if (on) {
+			changeAnimation(0);
+		}
+		else {
+			hide();
+		}
 	}
-	
+
 	@Override
 	public void draw(AlienDrawingServices world) {
-		world.debugText(c, colide ? "**YES**" : "no");
+		super.draw(world);
+		// world.debugText(c, String.format("%d/%d", repeat, timer));
 	}
 }

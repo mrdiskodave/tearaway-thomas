@@ -49,6 +49,10 @@ public abstract class Alien {
 		assert spriteSet != null;
 		animPlayer.changeAnimation(spriteSet.find(name));
 	}
+	
+	public void hide() {
+		animPlayer.changeAnimation(null);
+	}
 
 	public void draw(AlienDrawingServices world) {
 		draw(world, c);
