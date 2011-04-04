@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class World implements AlienDrawingServices, AlienMovementServices {
-
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
@@ -20,6 +19,8 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public BlockSpecifications bs;
 	public HashSet<Integer> keys;
 	public Random rnd = new Random(5);
+	public MyFont font;
+	public Player player;
 
 	@Override
 	public int randomness(int n) {
@@ -123,6 +124,20 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 
 	@Override
 	public void drawSprite(Coord c, Sprite s) {
-		s.draw(c.x - screen.x, c.y - screen.y);
+		int x = c.x - screen.x;
+		int y = c.y - screen.y;
+		s.draw(x, y);
+	}
+
+	@Override
+	public void debugText(Coord c, String text) {
+		int x = c.x - screen.x;
+		int y = c.y - screen.y;
+		font.draw(x, y, 0xff0000, 0, text);
+	}
+
+	@Override
+	public Coord getPlayerPosition() {
+		return player.c;
 	}
 }

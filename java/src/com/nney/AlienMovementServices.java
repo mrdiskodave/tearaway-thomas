@@ -46,4 +46,6 @@ public interface AlienMovementServices {
 	 *         {@link BlockSpecifications} object.
 	 */
 	String getBlockSpecification(Coord where);
+
+	Coord getPlayerPosition();
 }

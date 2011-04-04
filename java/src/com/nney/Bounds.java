@@ -19,6 +19,6 @@ public class Bounds {
 	
 	@Override
 	public String toString() {
-		return String.format("Box(%d, %d, %d, %d)", left, top, width, height);
+		return String.format("Bounds(%d, %d, %d, %d)", left, top, width, height);
 	}
 }

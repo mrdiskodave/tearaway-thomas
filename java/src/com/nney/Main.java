@@ -101,6 +101,13 @@ public class Main {
 		ail.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
 		ail.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
 		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
+		ail.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
+		ail.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
+		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
+		ail.add(new AlienInfo(8, "0arru", ArrowAlien.class));
+		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
+		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
+		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 
 		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
 		for (AlienInfo alienInfo : ail) {
@@ -189,7 +196,11 @@ public class Main {
 								alienList.add(a);
 							}
 							else {
-								System.out.println("type:" + type);
+								TextAlien a = new TextAlien();
+								a.setText(String.format("%d", type));
+								a.c.x = x;
+								a.c.y = y;
+								alienList.add(a);
 							}
 						}
 						catch (InstantiationException e) {
@@ -212,6 +223,18 @@ public class Main {
 				}
 			}
 
+			
+			Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
+			myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
+					128));
+			
+
+			// Openable o = new
+			// FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font2.png");
+			// myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
+			// "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
+
+			
 			// TODO: ctor??
 			world.screen.x = 970;
 			world.screen.y = 864;
@@ -219,6 +242,8 @@ public class Main {
 			world.maskHolder = maskHolder;
 			world.bs = bs;
 			world.keys = keys;
+			world.font = myFont;
+			world.player = player;
 
 			// bear.c.x = 455;
 			// bear.c.y = 818 + 50;
@@ -306,14 +331,6 @@ public class Main {
 		initOpenGL();
 		initGfx();
 
-		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
-		myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
-				128));
-
-		// Openable o = new
-		// FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font2.png");
-		// myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
-		// "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
 		int requested_fps = 50;
 		fpsRep = new FpsReporter(200);

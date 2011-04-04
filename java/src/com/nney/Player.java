@@ -26,13 +26,13 @@ public class Player extends Alien {
 	public void move(AlienMovementServices ms) {
 		ms.fallOrRaise(c, 5);
 		if (ms.testKey(Keyboard.KEY_Q)) {
-			changeAnimation("runleft");
+			changeAnimation("left");
 			c.x -= getNextVel();
 			validatePlX();
 			goLeft = true;
 		}
 		else if (ms.testKey(Keyboard.KEY_W)) {
-			changeAnimation("runright");
+			changeAnimation("right");
 			c.x += getNextVel();
 			validatePlX();
 			goLeft = false;
