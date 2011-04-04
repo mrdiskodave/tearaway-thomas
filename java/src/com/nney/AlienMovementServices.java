@@ -1,7 +1,15 @@
 package com.nney;
 
+import java.util.Random;
+
 public interface AlienMovementServices {
 
+	/**
+	 * Get some randomness.
+	 * 
+	 * @param n Exactly like the parameter given to {@link Random#nextInt(int)}.
+	 * @return
+	 */
 	int randomness(int n);
 
 	/**
@@ -18,13 +26,24 @@ public interface AlienMovementServices {
 	 */
 	boolean fallOrRaise(Coord where, int fallMax);
 
+	/**
+	 * Is a key pressed.
+	 * 
+	 * @param key
+	 *            The key the caller is asking about.
+	 * @return <code>true</code> meaning "it is" or <code>false</code> meaning
+	 *         "it is not".
+	 */
 	boolean testKey(int key);
-	
+
 	/**
 	 * What is there?
-	 * @param where The pixel location being queried.
+	 * 
+	 * @param where
+	 *            The pixel location being queried.
 	 * @return The kind of block that is there. e.g. "magic" or "ladder" or any
-	 * text string used in the configuration of a {@link BlockSpecifications} object.
+	 *         text string used in the configuration of a
+	 *         {@link BlockSpecifications} object.
 	 */
 	String getBlockSpecification(Coord where);
 }
