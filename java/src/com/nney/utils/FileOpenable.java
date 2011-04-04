@@ -18,6 +18,7 @@ public class FileOpenable implements Openable {
 		this.f = new File(f);
 	}
 
+	@Override
 	public InputStream open() throws IOException {
 		return MustBeClosedInputStream.open(f);
 	}

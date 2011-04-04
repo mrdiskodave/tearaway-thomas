@@ -84,14 +84,17 @@ class UnicodeInputStream extends InputStream {
 			internalIn.unread(bom, (n - unread), unread);
 	}
 
+	@Override
 	public void close() throws IOException {
 		internalIn.close();
 	}
 
+	@Override
 	public int read() throws IOException {
 		return internalIn.read();
 	}
 
+	@Override
 	public int read(byte[] arg0, int arg1, int arg2) throws IOException {
 		return internalIn.read(arg0, arg1, arg2);
 	}

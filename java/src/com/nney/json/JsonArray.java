@@ -60,106 +60,6 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 		w.end();
 	}
 
-	//
-	// the proxying required to support interface List ...
-	//
-
-	public void add(int index, JsonValue element) {
-		content.add(index, element);
-	}
-
-	public boolean add(JsonValue o) {
-		return content.add(o);
-	}
-
-	public boolean addAll(Collection<? extends JsonValue> c) {
-		return content.addAll(c);
-	}
-
-	public boolean addAll(int index, Collection<? extends JsonValue> c) {
-		return content.addAll(index, c);
-	}
-
-	public void clear() {
-		content.clear();
-	}
-
-	public boolean contains(Object elem) {
-		return content.contains(elem);
-	}
-
-	public boolean containsAll(Collection<?> c) {
-		return content.containsAll(c);
-	}
-
-	public JsonValue get(int index) {
-		return content.get(index);
-	}
-
-	public int indexOf(Object elem) {
-		return content.indexOf(elem);
-	}
-
-	public boolean isEmpty() {
-		return content.isEmpty();
-	}
-
-	public Iterator<JsonValue> iterator() {
-		return content.iterator();
-	}
-
-	public int lastIndexOf(Object elem) {
-		return content.lastIndexOf(elem);
-	}
-
-	public ListIterator<JsonValue> listIterator() {
-		return content.listIterator();
-	}
-
-	public ListIterator<JsonValue> listIterator(int index) {
-		return content.listIterator(index);
-	}
-
-	public JsonValue remove(int index) {
-		return content.remove(index);
-	}
-
-	public boolean remove(Object o) {
-		return content.remove(o);
-	}
-
-	public boolean removeAll(Collection<?> c) {
-		return content.removeAll(c);
-	}
-
-	public boolean retainAll(Collection<?> c) {
-		return content.retainAll(c);
-	}
-
-	public JsonValue set(int index, JsonValue element) {
-		return content.set(index, element);
-	}
-
-	public int size() {
-		return content.size();
-	}
-
-	public List<JsonValue> subList(int fromIndex, int toIndex) {
-		return content.subList(fromIndex, toIndex);
-	}
-
-	public Object[] toArray() {
-		return content.toArray();
-	}
-
-	public <T> T[] toArray(T[] a) {
-		return content.toArray(a);
-	}
-
-	@Override
-	public String toString() {
-		return content.toString();
-	}
 	
 	public @Override DataItem requireElement(int position) throws DataException {
 		if (position>=content.size()) {
@@ -172,4 +72,131 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	public DataItem[] requireList() throws DataException {
 		return content.toArray(new DataItem[content.size()]);
 	}
+	
+	
+	
+	//
+	// the proxying required to support interface List ...
+	//
+
+	@Override
+	public void add(int index, JsonValue element) {
+		content.add(index, element);
+	}
+
+	@Override
+	public boolean add(JsonValue o) {
+		return content.add(o);
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends JsonValue> c) {
+		return content.addAll(c);
+	}
+
+	@Override
+	public boolean addAll(int index, Collection<? extends JsonValue> c) {
+		return content.addAll(index, c);
+	}
+
+	@Override
+	public void clear() {
+		content.clear();
+	}
+
+	@Override
+	public boolean contains(Object elem) {
+		return content.contains(elem);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return content.containsAll(c);
+	}
+
+	@Override
+	public JsonValue get(int index) {
+		return content.get(index);
+	}
+
+	@Override
+	public int indexOf(Object elem) {
+		return content.indexOf(elem);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return content.isEmpty();
+	}
+
+	@Override
+	public Iterator<JsonValue> iterator() {
+		return content.iterator();
+	}
+
+	@Override
+	public int lastIndexOf(Object elem) {
+		return content.lastIndexOf(elem);
+	}
+
+	@Override
+	public ListIterator<JsonValue> listIterator() {
+		return content.listIterator();
+	}
+
+	@Override
+	public ListIterator<JsonValue> listIterator(int index) {
+		return content.listIterator(index);
+	}
+
+	@Override
+	public JsonValue remove(int index) {
+		return content.remove(index);
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return content.remove(o);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return content.removeAll(c);
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return content.retainAll(c);
+	}
+
+	@Override
+	public JsonValue set(int index, JsonValue element) {
+		return content.set(index, element);
+	}
+
+	@Override
+	public int size() {
+		return content.size();
+	}
+
+	@Override
+	public List<JsonValue> subList(int fromIndex, int toIndex) {
+		return content.subList(fromIndex, toIndex);
+	}
+
+	@Override
+	public Object[] toArray() {
+		return content.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return content.toArray(a);
+	}
+
+	@Override
+	public String toString() {
+		return content.toString();
+	}
+
 }

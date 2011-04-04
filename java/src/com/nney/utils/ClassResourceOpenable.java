@@ -13,6 +13,7 @@ public class ClassResourceOpenable implements Openable {
 		this.name = name;
 	}
 
+	@Override
 	public InputStream open() throws IOException {
 		InputStream answer = base.getResourceAsStream(name);
 		if (answer==null) {

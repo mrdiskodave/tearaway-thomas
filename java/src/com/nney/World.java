@@ -21,6 +21,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public HashSet<Integer> keys;
 	public Random rnd = new Random(5);
 
+	@Override
 	public int randomness(int n) {
 		return rnd.nextInt(n);
 	}
@@ -34,6 +35,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
 	}
 	
+	@Override
 	public String getBlockSpecification(Coord c) {
 		int block = getBlock(c);
 		return bs.get(block);
@@ -51,6 +53,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	 *         "no" we aren't falling we are resting exactly one pixel above the
 	 *         ground.
 	 */
+	@Override
 	public boolean fallOrRaise(Coord where, int fallMax) {
 		// if we are in the ground ..
 		if (inTheGround(where)) {
@@ -112,11 +115,13 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		return shrunkDelta;
 	}
 
+	@Override
 	public boolean testKey(int key) {
 		boolean answer = keys.contains(key);
 		return answer;
 	}
 
+	@Override
 	public void drawSprite(Coord c, Sprite s) {
 		s.draw(c.x - screen.x, c.y - screen.y);
 	}

@@ -10,6 +10,7 @@ public class Player extends Alien {
 	boolean goLeft;
 	boolean plSprint;
 
+	@Override
 	public void init() {
 		stationaryAnim();
 	}
@@ -21,6 +22,7 @@ public class Player extends Alien {
 		return answer;
 	}
 
+	@Override
 	public void move(AlienMovementServices ms) {
 		ms.fallOrRaise(c, 5);
 		if (ms.testKey(Keyboard.KEY_Q)) {

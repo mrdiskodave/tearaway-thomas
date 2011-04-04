@@ -87,9 +87,9 @@ public class Main {
 
 	private void initGfx() {
 		List<AlienInfo> ail = new ArrayList<AlienInfo>();
-		ail.add(new AlienInfo(2, "0ygem", Gem.class));
-		ail.add(new AlienInfo(3, "0pgem", Gem.class));
-		ail.add(new AlienInfo(76, "wbear", Bear.class));
+		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
+		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));

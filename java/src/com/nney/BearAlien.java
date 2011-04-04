@@ -1,19 +1,20 @@
 package com.nney;
 
-public class Bear extends Alien {
+public class BearAlien extends Alien {
 	private int leftLimit;
 	private int rightLimit;
 	private boolean headedRight;
-
-	public void init() {
-		changeAnimation("turn");
-	}
 
 	@Override
 	public void load() {
 		leftLimit = loadShort(OBleft);
 		rightLimit = loadShort(OBright);
 		headedRight = BitOp.test(loadByte(OBflags), 0);
+	}
+
+	@Override
+	public void init() {
+		changeAnimation("turn");
 	}
 
 	@Override

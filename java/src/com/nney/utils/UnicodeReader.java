@@ -16,26 +16,32 @@ public class UnicodeReader extends Reader {
 
 	// proxy ...
 	
+	@Override
 	public void reset() throws IOException {
 		in.reset();
 	}
 
+	@Override
 	public long skip(long n) throws IOException {
 		return in.skip(n);
 	}
 
+	@Override
 	public String toString() {
 		return in.toString();
 	}
 
+	@Override
 	public void close() throws IOException {
 		in.close();
 	}
 
+	@Override
 	public int read() throws IOException {
 		return in.read();
 	}
 
+	@Override
 	public int read(char[] arg0, int arg1, int arg2) throws IOException {
 		return in.read(arg0, arg1, arg2);
 	}

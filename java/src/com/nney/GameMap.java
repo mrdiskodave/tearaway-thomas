@@ -3,9 +3,6 @@ package com.nney;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.nney.utils.Openable;
-import com.nney.utils.OpenableTools;
-
 public class GameMap {
 	final public static int MAP_WIDTH = 256;
 	final public static int MAP_HEIGHT = 128;
