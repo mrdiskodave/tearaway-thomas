@@ -6,10 +6,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -19,11 +17,8 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.json.DataException;
-import com.nney.json.DataItem;
 import com.nney.json.JsonException;
-import com.nney.json.JsonParserTest;
 import com.nney.json.JsonValue;
-import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
@@ -124,14 +119,16 @@ public class Main {
 
 		String filename2 = String
 				.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", wid);
-		world.maskHolder = new MasksHolder(16, new FileOpenable(filename2));
+		MasksHolder maskHolder = new MasksHolder(16, new FileOpenable(filename2));
 
-		BlockRandomisationTable rt = new BlockRandomisationTable();
+		BlockRandomisationTable rt;
+		BlockSpecifications bs;
 		String filename2b = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sdef.txt", wid);
 		try {
 			String t = StringIO.loadText(new FileOpenable(filename2b), null);
 			JsonValue v = JsonValue.parse(t);
-			rt.load(v.requireField("rt"));
+			rt = new BlockRandomisationTable(v.requireField("rt"));
+			bs = new BlockSpecifications(v.requireField("spec"));
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -150,9 +147,8 @@ public class Main {
 			DataInputStream di = new DataInputStream(i);
 
 			// get the game map off the front of the stream
-			world.gameMap = new GameMap(di);
-			world.gameMap.applyRt(rt);
-			
+			GameMap gameMap = new GameMap(di);
+			gameMap.applyRt(rt);
 
 			// read the other things
 			for (;;) {
@@ -216,9 +212,13 @@ public class Main {
 				}
 			}
 
-			world.keys = keys;
+			// TODO: ctor??
 			world.screen.x = 970;
 			world.screen.y = 864;
+			world.gameMap = gameMap; 
+			world.maskHolder = maskHolder;
+			world.bs = bs;
+			world.keys = keys;
 
 			// bear.c.x = 455;
 			// bear.c.y = 818 + 50;
@@ -272,7 +272,7 @@ public class Main {
 		for (Alien alien : alienList) {
 			alien.draw(world);
 		}
-		myFont.draw(50, 50, 0x00ff00, 0, String.format("kisses 4 charlotte %08d!", frameNumber));
+		myFont.draw(50, 50, 0x00ff00, 0, String.format("frame# %08d", frameNumber));
 	}
 
 	private void moveEverything() {

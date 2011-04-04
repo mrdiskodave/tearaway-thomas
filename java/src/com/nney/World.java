@@ -17,16 +17,26 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public Coord screen = new Coord();
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
-	public Random rnd = new Random(5);
+	public BlockSpecifications bs;
 	public HashSet<Integer> keys;
+	public Random rnd = new Random(5);
 
 	public int randomness(int n) {
 		return rnd.nextInt(n);
 	}
 
-	public boolean inTheGround(Coord c) {
-		int block = gameMap.getBlock(c.x / 16, c.y / 16);
+	private int getBlock(Coord c) {
+		return gameMap.getBlock(c.x / 16, c.y / 16);
+	}
+
+	private boolean inTheGround(Coord c) {
+		int block = getBlock(c);
 		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
+	}
+	
+	public String getBlockSpecification(Coord c) {
+		int block = getBlock(c);
+		return bs.get(block);
 	}
 
 	/**
