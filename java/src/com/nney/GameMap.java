@@ -73,14 +73,9 @@ public class GameMap {
 
 	public void applyRt(BlockRandomisationTable rt) {
 		StopWatch sw = new StopWatch();
-		for (int x=0; x<map.length; x++) {
-			int b = map[x];
-			if (b!=0) {
-				if (rt.needsShuffle(b)) {
-					map[x] = (short) rt.shuffle(b);
-				}
-			}
+		for (int x = 0; x < map.length; x++) {
+			map[x] = (short) rt.shuffle(map[x]);
 		}
-		System.out.println("Shuffle took "+sw.readMsf()+"ms");
+		System.out.println("Shuffle took " + sw.readMsf() + "ms");
 	}
 }
