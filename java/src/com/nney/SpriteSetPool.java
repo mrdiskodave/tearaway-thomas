@@ -14,23 +14,28 @@ import com.nney.utils.Openable;
 import com.nney.utils.StringIO;
 
 public class SpriteSetPool {
-	TreeMap<String, SpriteSet> cache = new TreeMap<String, SpriteSet>();
+	TreeMap<String, SpriteSet> pool = new TreeMap<String, SpriteSet>();
 	
-	SpriteSet load(String name) {
-		SpriteSet answer = cache.get(name);
+	SpriteSet load(String spriteName) {
+		SpriteSet answer = pool.get(spriteName);
 		if (answer==null) {
-			answer = loadSpriteSet(name);
-			cache.put(name, answer);
+			answer = populatePool(spriteName);
 		}
 		return answer;
 	}
+
+	private SpriteSet populatePool(String spriteName) {
+		SpriteSet answer = loadSpriteSet(spriteName);
+		pool.put(spriteName, answer);
+		return answer;
+	}
 	
-	private static SpriteSet loadSpriteSet(final String item) {
+	private static SpriteSet loadSpriteSet(final String spriteName) {
 		NamedOpenables no = new NamedOpenables() {
 			@Override
-			public Openable get(String name) {
+			public Openable get(String item) {
 				String filename = String.format(
-						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s\\%s", item, name);
+						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s\\%s", spriteName, item);
 				return new FileOpenable(filename);
 			}
 		};

@@ -118,12 +118,30 @@ public class Main {
 		player.connectSpriteSet(ssp.load("0tt"));
 		player.init();
 
-		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", "w");
+		String wid = "w";
+		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", wid);
 		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
 
 		String filename2 = String
-				.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", "w");
+				.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", wid);
 		world.maskHolder = new MasksHolder(16, new FileOpenable(filename2));
+
+		BlockRandomisationTable rt = new BlockRandomisationTable();
+		String filename2b = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sdef.txt", wid);
+		try {
+			String t = StringIO.loadText(new FileOpenable(filename2b), null);
+			JsonValue v = JsonValue.parse(t);
+			rt.load(v.requireField("rt"));
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		catch (JsonException e) {
+			throw new RuntimeException(e);
+		}
+		catch (DataException e) {
+			throw new RuntimeException(e);
+		}
 
 		try {
 			String filename3 = "C:\\Users\\david\\Desktop\\newdata\\maps\\w0.map";
@@ -133,6 +151,8 @@ public class Main {
 
 			// get the game map off the front of the stream
 			world.gameMap = new GameMap(di);
+			world.gameMap.applyRt(rt);
+			
 
 			// read the other things
 			for (;;) {

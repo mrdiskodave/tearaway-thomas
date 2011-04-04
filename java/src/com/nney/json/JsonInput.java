@@ -235,6 +235,7 @@ class JsonInput {
     }
 
 	public void parseList(char open, char close, String name, JsonBlock contentParser) throws JsonException {
+		boolean strict = true;
 		skipWhiteAndComments();
 		if (!consume(open)) {
 			throw syntaxError(name+" text must start with '"+open+"'");
@@ -242,12 +243,27 @@ class JsonInput {
 		boolean commaExpected = false;
 		for (;;) {
 			skipWhiteAndComments();
-			if (consume(close)) return;
-			if (commaExpected) {
-				if (!consume(',')) {
+			if (strict) {
+				if (consume(close)) return;
+				if (commaExpected) {
+					boolean gotComma = consume(',');
+					if (!gotComma) {
+						throw syntaxError("Expected a ',' or '"+close+"'");
+					}
+					skipWhiteAndComments();
+				}
+			}
+			else {
+				boolean gotComma = false;
+				if (commaExpected && consume(',')) {
+					skipWhiteAndComments();
+					gotComma = true;
+				}
+				if (consume(close)) return;
+				if (commaExpected && !gotComma) {
 					throw syntaxError("Expected a ',' or '"+close+"'");
 				}
-				skipWhiteAndComments();
+				
 			}
 			contentParser.run();
 			commaExpected = true;

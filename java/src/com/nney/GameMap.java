@@ -70,4 +70,17 @@ public class GameMap {
 			return 0;
 		return map[y * MAP_WIDTH + x];
 	}
+
+	public void applyRt(BlockRandomisationTable rt) {
+		StopWatch sw = new StopWatch();
+		for (int x=0; x<map.length; x++) {
+			int b = map[x];
+			if (b!=0) {
+				if (rt.needsShuffle(b)) {
+					map[x] = (short) rt.shuffle(b);
+				}
+			}
+		}
+		System.out.println("Shuffle took "+sw.readMsf()+"ms");
+	}
 }
