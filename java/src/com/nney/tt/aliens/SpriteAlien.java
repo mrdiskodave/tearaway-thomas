@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.aliens;
 
 public class SpriteAlien extends Alien {
 	@Override

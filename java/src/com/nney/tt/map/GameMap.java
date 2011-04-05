@@ -1,7 +1,9 @@
-package com.nney;
+package com.nney.tt.map;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import com.nney.StopWatch;
 
 public class GameMap {
 	final public static int MAP_WIDTH = 256;

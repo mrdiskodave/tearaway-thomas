@@ -3,6 +3,11 @@ package com.nney;
 import java.util.HashSet;
 import java.util.Random;
 
+import com.nney.tt.geom.Coord;
+import com.nney.tt.map.BlockSpecifications;
+import com.nney.tt.map.GameMap;
+import com.nney.tt.map.MasksHolder;
+
 public class World implements AlienDrawingServices, AlienMovementServices {
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}

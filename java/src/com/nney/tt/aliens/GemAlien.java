@@ -1,4 +1,8 @@
-package com.nney;
+package com.nney.tt.aliens;
+
+import com.nney.AlienDrawingServices;
+import com.nney.BitOp;
+import com.nney.tt.geom.Coord;
 
 public class GemAlien extends Alien {
 	private static final int FLAG_NO_WOBBLE = 3;

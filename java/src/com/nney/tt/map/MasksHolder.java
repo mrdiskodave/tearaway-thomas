@@ -1,5 +1,7 @@
-package com.nney;
+package com.nney.tt.map;
 
+import com.nney.SimpleImage;
+import com.nney.TemporaryBlockSource;
 import com.nney.utils.Openable;
 
 public class MasksHolder {
@@ -25,7 +27,7 @@ public class MasksHolder {
 		}
 	}
 	
-	boolean inTheGround(int block, int x, int y) {
+	public boolean inTheGround(int block, int x, int y) {
 		assert x<blockEdgeLength;
 		assert y<blockEdgeLength;
 		return maskSettings.test(blockArea*block + y * blockEdgeLength + x);

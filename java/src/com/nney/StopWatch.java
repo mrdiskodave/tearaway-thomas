@@ -3,15 +3,15 @@ package com.nney;
 public class StopWatch {
 	private long startTime;
 
-	StopWatch() {
+	public StopWatch() {
 		startTime = System.nanoTime();
 	}
 	
-	long readNano() {
+	public long readNano() {
 		return System.nanoTime()-startTime; 
 	}
 	
-	float readMsf() {
+	public float readMsf() {
 		return ((float) readNano()) / 1000000;
 	}
 }

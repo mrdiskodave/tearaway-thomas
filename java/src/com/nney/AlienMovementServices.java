@@ -2,6 +2,9 @@ package com.nney;
 
 import java.util.Random;
 
+import com.nney.tt.geom.Coord;
+import com.nney.tt.map.BlockSpecifications;
+
 public interface AlienMovementServices {
 
 	/**

@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.map;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -7,6 +7,9 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
+import com.nney.GlTexture;
+import com.nney.SimpleImage;
+import com.nney.TemporaryBlockSource;
 import com.nney.utils.Openable;
 
 public class BlocksHolder {

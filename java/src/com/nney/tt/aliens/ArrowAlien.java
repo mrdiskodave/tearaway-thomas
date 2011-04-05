@@ -1,33 +1,28 @@
-package com.nney;
+package com.nney.tt.aliens;
+
+import com.nney.AlienDrawingServices;
+import com.nney.AlienMovementServices;
+import com.nney.tt.geom.Box;
 
 public class ArrowAlien extends Alien {
-	private int leftLimit;
-	private int rightLimit;
-	private int topLimit;
-	private int bottomLimit;
 	
 	private int repeat;
 	private int timer;
+	private Box box;
 
 	@Override
 	public void load() {
-		leftLimit = loadShort(OBleft);
-		rightLimit = loadShort(OBright);
-		topLimit = loadShort(OBtop);
-		bottomLimit = loadShort(OBbottom);
+		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
 
 	@Override
 	public void move(AlienMovementServices world) {
-		boolean on = false;
-
-		Coord c = world.getPlayerPosition();
-		boolean colide = c.x >= leftLimit && c.x <= rightLimit && c.y >= topLimit
-				&& c.y <= bottomLimit;
+		boolean colide = box.inside(world.getPlayerPosition());
 		if (colide) {
 			repeat = 8;
 		}
 
+		boolean on = false;
 		if (repeat != 0) {
 			if (timer < 22) {
 				on = true;

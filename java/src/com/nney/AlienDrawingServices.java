@@ -1,5 +1,7 @@
 package com.nney;
 
+import com.nney.tt.geom.Coord;
+
 public interface AlienDrawingServices {
 	int randomness(int n);
 	void drawSprite(Coord c, Sprite s);

@@ -1,4 +1,12 @@
-package com.nney;
+package com.nney.tt.aliens;
+
+import com.nney.AlienDrawingServices;
+import com.nney.AlienMovementServices;
+import com.nney.AnimPlayer;
+import com.nney.Bounds;
+import com.nney.Sprite;
+import com.nney.SpriteSet;
+import com.nney.tt.geom.Coord;
 
 public abstract class Alien {
 	public Coord c = new Coord();

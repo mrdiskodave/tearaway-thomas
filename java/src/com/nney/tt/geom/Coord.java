@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.geom;
 
 public class Coord {
 	public int x;

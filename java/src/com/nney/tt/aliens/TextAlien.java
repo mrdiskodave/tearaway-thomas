@@ -1,4 +1,6 @@
-package com.nney;
+package com.nney.tt.aliens;
+
+import com.nney.AlienDrawingServices;
 
 public class TextAlien extends Alien {
 

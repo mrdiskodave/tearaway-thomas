@@ -3,7 +3,7 @@ package com.nney;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-class TemporaryBlockSource {
+public class TemporaryBlockSource {
 	private final int miniW;
 	private final int blocksHorizontally;
 	private final int blockCount;
@@ -43,7 +43,7 @@ class TemporaryBlockSource {
 		return new Bounds(x, y, miniW, miniH);
 	}
 
-	SimpleImage getBlock(int b) {
+	public SimpleImage getBlock(int b) {
 		return blocks.view(getBlockBounds(b));
 	}
 

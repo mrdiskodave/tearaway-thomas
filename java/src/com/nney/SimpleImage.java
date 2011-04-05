@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 
+import com.nney.tt.geom.Coord;
 import com.nney.utils.MemoryIoException;
 
 public class SimpleImage {
@@ -165,7 +166,7 @@ public class SimpleImage {
 		return new Bounds(left, top, width, height);
 	}
 
-	SimpleImage view(int x, int y, int width, int height) {
+	public SimpleImage view(int x, int y, int width, int height) {
 		assert x >= 0;
 		assert y >= 0;
 		assert width >= 0;

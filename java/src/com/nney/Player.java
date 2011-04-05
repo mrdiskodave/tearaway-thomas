@@ -2,6 +2,8 @@ package com.nney;
 
 import org.lwjgl.input.Keyboard;
 
+import com.nney.tt.aliens.Alien;
+
 public class Player extends Alien {
 
 	private static final int[] vel_norm = {  1,3,4,5,5,5,5,5 };

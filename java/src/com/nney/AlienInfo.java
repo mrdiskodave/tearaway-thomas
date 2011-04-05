@@ -1,5 +1,7 @@
 package com.nney;
 
+import com.nney.tt.aliens.Alien;
+
 public class AlienInfo {
 	public final int id;
 	public final String spriteSetName;
