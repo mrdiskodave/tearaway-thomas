@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt;
 
 import org.lwjgl.opengl.Display;
 

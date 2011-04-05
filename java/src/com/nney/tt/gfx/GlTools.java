@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.gfx;
 
 import java.nio.ByteBuffer;
 

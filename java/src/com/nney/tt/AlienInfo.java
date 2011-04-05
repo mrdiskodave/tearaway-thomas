@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt;
 
 import com.nney.tt.aliens.Alien;
 

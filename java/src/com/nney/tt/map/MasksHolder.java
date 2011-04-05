@@ -1,7 +1,7 @@
 package com.nney.tt.map;
 
-import com.nney.SimpleImage;
-import com.nney.TemporaryBlockSource;
+import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.gfx.TemporaryBlockSource;
 import com.nney.utils.Openable;
 
 public class MasksHolder {

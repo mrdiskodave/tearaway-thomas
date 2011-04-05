@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt;
 
 public class BitOp {
 	public static boolean test(int x, int b) {

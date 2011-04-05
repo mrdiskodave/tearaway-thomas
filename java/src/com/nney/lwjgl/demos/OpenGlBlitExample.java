@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.lwjgl.demos;
 
 
 import java.nio.ByteBuffer;

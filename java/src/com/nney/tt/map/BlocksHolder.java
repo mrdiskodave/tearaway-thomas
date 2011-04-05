@@ -7,9 +7,9 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.GlTexture;
-import com.nney.SimpleImage;
-import com.nney.TemporaryBlockSource;
+import com.nney.tt.gfx.GlTexture;
+import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.gfx.TemporaryBlockSource;
 import com.nney.utils.Openable;
 
 public class BlocksHolder {

@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.sprites;
 
 public class Anim {
 	public static final int MAX_RATE = 256;

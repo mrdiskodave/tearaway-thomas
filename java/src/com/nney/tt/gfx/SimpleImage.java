@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.gfx;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -76,7 +76,7 @@ public class SimpleImage {
 		return dest;
 	}
 
-	SimpleImage(byte[] someFileFormatToDecode) {
+	public SimpleImage(byte[] someFileFormatToDecode) {
 		BufferedImage bufferedImage;
 		try {
 			bufferedImage = ImageIO.read(new ByteArrayInputStream(someFileFormatToDecode));

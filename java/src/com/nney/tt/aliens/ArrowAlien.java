@@ -1,7 +1,7 @@
 package com.nney.tt.aliens;
 
-import com.nney.AlienDrawingServices;
-import com.nney.AlienMovementServices;
+import com.nney.tt.AlienDrawingServices;
+import com.nney.tt.AlienMovementServices;
 import com.nney.tt.geom.Box;
 
 public class ArrowAlien extends Alien {

@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.gfx;
 
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
@@ -35,7 +35,7 @@ public class TemporaryBlockSource {
 		this(new SimpleImage(OpenableTools.mustLoad(blocksOpenable)), miniW, miniH);
 	}
 
-	Bounds getBlockBounds(int b) {
+	public Bounds getBlockBounds(int b) {
 		int x = b % blocksHorizontally;
 		int y = b / blocksHorizontally;
 		x *= miniW;

@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.sprites;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import com.nney.json.DataException;
 import com.nney.json.DataItem;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
+import com.nney.tt.NamedOpenables;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.StringIO;
@@ -16,7 +17,7 @@ import com.nney.utils.StringIO;
 public class SpriteSetPool {
 	TreeMap<String, SpriteSet> pool = new TreeMap<String, SpriteSet>();
 	
-	SpriteSet load(String spriteName) {
+	public SpriteSet load(String spriteName) {
 		SpriteSet answer = pool.get(spriteName);
 		if (answer==null) {
 			answer = populatePool(spriteName);

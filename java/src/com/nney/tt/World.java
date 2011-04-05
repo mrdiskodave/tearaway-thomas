@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -7,6 +7,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
+import com.nney.tt.sprites.Sprite;
 
 public class World implements AlienDrawingServices, AlienMovementServices {
 	/**

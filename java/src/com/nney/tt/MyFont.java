@@ -1,6 +1,12 @@
-package com.nney;
+package com.nney.tt;
 
 import org.lwjgl.opengl.GL11;
+
+import com.nney.tt.gfx.Bounds;
+import com.nney.tt.gfx.GlTexture;
+import com.nney.tt.gfx.GlTools;
+import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.gfx.TemporaryBlockSource;
 
 public class MyFont {
 	final private SimpleImage content;

@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -26,11 +26,14 @@ import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.gfx.GlTools;
 import com.nney.tt.map.BlockRandomisationTable;
 import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.BlocksHolder;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
+import com.nney.tt.sprites.SpriteSet;
+import com.nney.tt.sprites.SpriteSetPool;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;

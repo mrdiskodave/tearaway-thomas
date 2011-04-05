@@ -1,7 +1,7 @@
 package com.nney.tt.aliens;
 
-import com.nney.AlienDrawingServices;
-import com.nney.BitOp;
+import com.nney.tt.AlienDrawingServices;
+import com.nney.tt.BitOp;
 import com.nney.tt.geom.Coord;
 
 public class GemAlien extends Alien {

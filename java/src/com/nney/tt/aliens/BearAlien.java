@@ -1,6 +1,6 @@
 package com.nney.tt.aliens;
 
-import com.nney.AlienMovementServices;
+import com.nney.tt.AlienMovementServices;
 
 public class BearAlien extends LeftRightAlien {
 	@Override

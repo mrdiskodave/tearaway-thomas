@@ -1,4 +1,4 @@
-package com.nney;
+package com.nney.tt.gfx;
 
 public class Bounds {
 	public final int left;

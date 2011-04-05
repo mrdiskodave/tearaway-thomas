@@ -1,6 +1,8 @@
-package com.nney;
+package com.nney.tt.sprites;
 
-import com.nney.SimpleImage.ChangePixel;
+import com.nney.tt.gfx.GlTexture;
+import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.gfx.SimpleImage.ChangePixel;
 
 public class Sprite {
 	private final int handleX;

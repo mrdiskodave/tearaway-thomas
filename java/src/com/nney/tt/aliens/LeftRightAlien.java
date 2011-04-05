@@ -1,6 +1,6 @@
 package com.nney.tt.aliens;
 
-import com.nney.BitOp;
+import com.nney.tt.BitOp;
 import com.nney.tt.geom.XRange;
 
 public class LeftRightAlien extends Alien {
