@@ -63,17 +63,20 @@ def raise_colour(c):
 	b *= 0x11
 	return r, g, b
 
-def get_a_palette(data, palbase):
-	pa = []
+def get_palette_from_data(data, palbase):
+	words = []
 	for idx in xrange(PALCOLS):
-		col = get_word(data, palbase+idx*2)
+		words.append(get_word(data, palbase+idx*2))
+	return get_palette_from_list(words)
+
+def get_palette_from_list(words):
+	pa = []
+	for col in words:
 		c = col>>8&15, col>>4&15, col&15
 		c = raise_colour(c)
 		print "pal={0:04x} gives {1:02x} {2:02x} {3:02x}".format(col, *c)
 		pa.append(c)
 	return pa
-
-
 
 
 def get_block_list(data, get_masks):
@@ -96,7 +99,7 @@ def get_block_list(data, get_masks):
 		number_of_pals = (blkpals-spals)/PALSIZE
 		pals = []
 		for pal in xrange(number_of_pals):
-			pa = get_a_palette(data, spals + pal*PALSIZE)
+			pa = get_palette_from_data(data, spals + pal*PALSIZE)
 			pa[0] = ( 0x00, 0x00, 0x00 )
 			pa[7] = TRANS
 			pals.append(pa)
@@ -254,8 +257,9 @@ def convert_map(block_data, name, rt):
 
 def convert_world(name, rt=None):
 	data = load_array_file("odata/blk"+name)
-	#save_all_blocks(name, data)
+	save_all_blocks(name, data)
 
+	return
 	for x in xrange(10):
 		convert_map(data, name+str(x), rt)
 
@@ -299,6 +303,44 @@ def load_ilbm(name):
 	answer.map(lower_colour)
 	answer.map(raise_colour)
 	return answer
+
+def convert_star():
+	pal1 = get_palette_from_list([ 0x000,0xf00,0x800,0x750,0x779,0x557,0xff0,0x000 ])
+	pal2 = get_palette_from_list([ 0x000,0xccd,0xaac,0x88a,0x779,0x557,0xff0,0x000 ])
+	pal1[0] = TRANS
+	pal2[0] = TRANS
+
+	i = load_array_file("odata/star.dat.pal");
+	size = len(i)
+	planeSize = size/3
+
+	for w in range(30, 50, 2):
+		if (planeSize//w)*w==planeSize:
+			h = planeSize/w
+			print "Candidate width", w, h
+
+	w = 38
+	h = 256
+	print size
+	print planeSize
+	print w, h
+	d = img.Img.create(w*8, h)
+	for y in range(0, h):
+		if y==81:
+			pal1 = pal2
+		idx = w*3*y
+		for x in range(0, w):
+			p2 = i[idx]
+			p1 = i[idx+w]
+			p0 = i[idx+w*2]
+			line = chunkify.chunkify((p0,p1,p2), 8)
+			for z, c in enumerate(line):
+				d.put(x*8+z, y, pal1[c])
+			idx += 1
+
+	cas = Cascade(os.path.join(NEWDATA, "misc", "star.ppm"))
+	cas.saveP6(d)
+	cas.toPNG()
 	
 def convert_font():
 	i = load_ilbm("orig/gfx/other/bits/font.lbm")	
@@ -412,7 +454,7 @@ def convert_bob(name):
 	assert magic==MAGIC
 	print framecount, "frame(s)"
 
-	bobpal = get_a_palette(i, 6)
+	bobpal = get_palette_from_data(i, 6)
 
 	offset = 6+PALSIZE
 
@@ -618,11 +660,12 @@ def convert_bobs():
 import gfxparse
 graphics_definitions = gfxparse.load_defs(load_file("gfx.s"))
 
+convert_star()
 convert_tt()
-#convert_bobs()	
-#convert_font()
-#convert_topaz()
-#convert_worlds()
+convert_bobs()	
+convert_font()
+convert_topaz()
+convert_worlds()
 
 _END_ = """
 
