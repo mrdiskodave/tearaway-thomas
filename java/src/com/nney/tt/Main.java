@@ -32,8 +32,10 @@ import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.BlocksHolder;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
+import com.nney.tt.resources.fonts.Place;
 import com.nney.tt.sprites.SpriteSet;
 import com.nney.tt.sprites.SpriteSetPool;
+import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
@@ -136,18 +138,18 @@ public class Main {
 		player.init();
 
 		String wid = "w";
-		String filename = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%s.png", wid);
-		blocksHolder = new BlocksHolder(16, 8, new FileOpenable(filename));
+		String filename = String.format("%s.png", wid);
+		blocksHolder = new BlocksHolder(16, 8, new ClassResourceOpenable(com.nney.tt.resources.blocks.Place.class, filename));
 
 		String filename2 = String
-				.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sm.png", wid);
-		MasksHolder maskHolder = new MasksHolder(16, new FileOpenable(filename2));
+				.format("%sm.png", wid);
+		MasksHolder maskHolder = new MasksHolder(16, new ClassResourceOpenable(com.nney.tt.resources.blocks.Place.class, filename2));
 
 		BlockRandomisationTable rt;
 		BlockSpecifications bs;
-		String filename2b = String.format("C:\\Users\\david\\Desktop\\newdata\\blocks\\%sdef.txt", wid);
+		String filename2b = String.format("%sdef.txt", wid);
 		try {
-			String t = StringIO.loadText(new FileOpenable(filename2b), null);
+			String t = StringIO.loadText(new ClassResourceOpenable(com.nney.tt.resources.blocks.Place.class, filename2b), null);
 			JsonValue v = JsonValue.parse(t);
 			rt = new BlockRandomisationTable(v.requireField("rt"));
 			bs = new BlockSpecifications(v.requireField("spec"));
@@ -239,7 +241,7 @@ public class Main {
 			}
 
 			
-			Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\topaz.png");
+			Openable o = new ClassResourceOpenable(Place.class, "topaz.png");
 			myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
 					128));
 			
