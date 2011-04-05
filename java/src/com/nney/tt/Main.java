@@ -32,7 +32,7 @@ import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.BlocksHolder;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
-import com.nney.tt.resources.fonts.Place;
+import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.SpriteSet;
 import com.nney.tt.sprites.SpriteSetPool;
 import com.nney.utils.ClassResourceOpenable;
@@ -137,19 +137,15 @@ public class Main {
 		player.connectSpriteSet(ssp.load("0tt"));
 		player.init();
 
-		String wid = "w";
-		String filename = String.format("%s.png", wid);
-		blocksHolder = new BlocksHolder(16, 8, new ClassResourceOpenable(com.nney.tt.resources.blocks.Place.class, filename));
+		String worldName = "w";
+		blocksHolder = new BlocksHolder(16, 8, TTResource.formatted("blocks/%s.png", worldName));
 
-		String filename2 = String
-				.format("%sm.png", wid);
-		MasksHolder maskHolder = new MasksHolder(16, new ClassResourceOpenable(com.nney.tt.resources.blocks.Place.class, filename2));
+		MasksHolder maskHolder = new MasksHolder(16, TTResource.formatted("blocks/%sm.png", worldName));
 
 		BlockRandomisationTable rt;
 		BlockSpecifications bs;
-		String filename2b = String.format("%sdef.txt", wid);
 		try {
-			String t = StringIO.loadText(new ClassResourceOpenable(com.nney.tt.resources.blocks.Place.class, filename2b), null);
+			String t = StringIO.loadText(TTResource.formatted("blocks/%sdef.txt", worldName), null);
 			JsonValue v = JsonValue.parse(t);
 			rt = new BlockRandomisationTable(v.requireField("rt"));
 			bs = new BlockSpecifications(v.requireField("spec"));
@@ -241,7 +237,7 @@ public class Main {
 			}
 
 			
-			Openable o = new ClassResourceOpenable(Place.class, "topaz.png");
+			Openable o = new ClassResourceOpenable(TTResource.class, "fonts/topaz.png");
 			myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
 					128));
 			
