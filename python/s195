@@ -9473,7 +9473,7 @@ GEMeshut
 	movem.l	(a7)+,d1-a5
 	rts
 
-gemscores	dc.l	50,100,100,200
+gemscores	dc.l	50,100,100,200				BUGSPOT: more like 50,250,100,500 for the bobgem at least
 *>
 
 	PROC
@@ -11190,7 +11190,7 @@ done_planim
 	rts
 
 PA_handles
-	ds.w	16	0-15
+	ds.w	16	0-15			BUGSPOT: it's 32 wide so there is no obvious handle pixel -- so running one way is ahead by one pixel of running the other (heavens!)
 	rept	16
 	dc.b	0,1
 	endr
@@ -11367,7 +11367,8 @@ got1plmove
 **** VALIDATE PLAYER X ****
 
 	PROC
-valid_PLx	sub.w	scrposx,d2
+	
+valid_PLx	sub.w	scrposx,d2						BUGSPOT: hmm very problematic if the screen is scrolling to find the player (probably never happens)
 	cmp.w	#6,d2
 	bge.s	\1
 	moveq	#6,d2
