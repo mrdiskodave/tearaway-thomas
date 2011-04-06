@@ -51,4 +51,6 @@ public interface AlienMovementServices {
 	String getBlockSpecification(Coord where);
 
 	Coord getPlayerPosition();
+
+	boolean collideWithPlayerDP(Coord a, int l, int t, int r, int b);
 }

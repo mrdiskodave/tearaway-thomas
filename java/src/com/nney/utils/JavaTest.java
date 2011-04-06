@@ -261,8 +261,7 @@ public class JavaTest extends TestCase {
 		assertEquals("unicorn", b.get(1));
 	}
 
-	public void testAssertsAreBroken() {
-		// TODO: though I'd like it if they were not!
+	public void testAssertsWorkBroken() {
 		try {
 			assert false;
 			fail("still here");

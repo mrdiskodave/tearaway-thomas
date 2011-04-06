@@ -24,6 +24,7 @@ import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.ScoreAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.gfx.GlTools;
@@ -57,13 +58,15 @@ public class Main {
 
 	public HashSet<Integer> keys = new HashSet<Integer>();
 
-	private MyFont myFont;
+	private MyFont debugFont;
 
 	private int frameNumber;
 
 	private List<Alien> alienList = new ArrayList<Alien>();
 
 	private Player player;
+
+	private MyFont font;
 
 	private void initLwjgl() {
 		try {
@@ -125,6 +128,7 @@ public class Main {
 		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
 		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
+		ail.add(new AlienInfo(34, null, ScoreAlien.class));
 
 		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
 		for (AlienInfo alienInfo : ail) {
@@ -140,7 +144,8 @@ public class Main {
 		String worldName = "w";
 		blocksHolder = new BlocksHolder(16, 8, TTResource.formatted("blocks/%s.png", worldName));
 
-		MasksHolder maskHolder = new MasksHolder(16, TTResource.formatted("blocks/%sm.png", worldName));
+		MasksHolder maskHolder = new MasksHolder(16, TTResource.formatted("blocks/%sm.png",
+				worldName));
 
 		BlockRandomisationTable rt;
 		BlockSpecifications bs;
@@ -186,11 +191,10 @@ public class Main {
 					for (;;) {
 						int x = di.readShort();
 						int y = di.readShort();
-						if (x < 0)
-							break;
+						if (x < 0) break;
 						int type = di.readByte();
 						byte[] rest = new byte[21];
-						for (int o = 0; o<21; o++) {
+						for (int o = 0; o < 21; o++) {
 							rest[o] = di.readByte();
 						}
 						objectCnt++;
@@ -198,9 +202,12 @@ public class Main {
 						try {
 							AlienInfo ai = aim.get(type);
 							if (ai != null) {
+//								aim.remove(type);			// ONCE!
 								Alien a = ai.ins();
-								SpriteSet ss = ssp.load(ai.spriteSetName);
-								a.connectSpriteSet(ss);
+								if (ai.spriteSetName != null) {
+									SpriteSet ss = ssp.load(ai.spriteSetName);
+									a.connectSpriteSet(ss);
+								}
 								a.c.x = x;
 								a.c.y = y;
 								a.srcData = rest;
@@ -236,26 +243,21 @@ public class Main {
 				}
 			}
 
-			
-			Openable o = new ClassResourceOpenable(TTResource.class, "fonts/topaz.png");
-			myFont = new MyFont(OpenableTools.mustLoad(o), 8, 8, false, MyFont.characterRangeHelper(0,
-					128));
-			
+			debugFont = new MyFont(OpenableTools.mustLoad(TTResource.plain("fonts/topaz.png")), 8, 8,
+					false, MyFont.characterRangeHelper(0, 128));
 
-			// Openable o = new
-			// FileOpenable("C:\\Users\\david\\Desktop\\newdata\\font\\font2.png");
-			// myFont = new MyFont(OpenableTools.mustLoad(o), 16, 11, true,
-			// "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
+			font = new MyFont(OpenableTools.mustLoad(TTResource.plain("fonts/font2.png")), 16,
+					11, true, "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
-			
 			// TODO: ctor??
 			world.screen.x = 970;
 			world.screen.y = 864;
-			world.gameMap = gameMap; 
+			world.gameMap = gameMap;
 			world.maskHolder = maskHolder;
 			world.bs = bs;
 			world.keys = keys;
-			world.font = myFont;
+			world.debugFont = debugFont;
+			world.font = font;
 			world.player = player;
 
 			// bear.c.x = 455;
@@ -306,11 +308,11 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 		drawTheMap();
-		player.draw(world);
 		for (Alien alien : alienList) {
 			alien.draw(world);
 		}
-		myFont.draw(50, 50, 0x00ff00, 0, String.format("frame# %08d", frameNumber));
+		player.draw(world);
+		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 	}
 
 	private void moveEverything() {
@@ -343,7 +345,6 @@ public class Main {
 		initLwjgl();
 		initOpenGL();
 		initGfx();
-
 
 		int requested_fps = 50;
 		fpsRep = new FpsReporter(200);

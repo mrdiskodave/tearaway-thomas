@@ -25,8 +25,9 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public BlockSpecifications bs;
 	public HashSet<Integer> keys;
 	public Random rnd = new Random(5);
-	public MyFont font;
+	public MyFont debugFont;
 	public Player player;
+	public MyFont font;
 
 	@Override
 	public int randomness(int n) {
@@ -41,7 +42,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		int block = getBlock(c);
 		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
 	}
-	
+
 	@Override
 	public String getBlockSpecification(Coord c) {
 		int block = getBlock(c);
@@ -93,16 +94,16 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	 * Scroll towards the given position.
 	 */
 	public void scrollTowards(Coord c) {
-		screen.x = scrollOrd(screen.x, c.x-Main.SCREEN_WIDTH / 2, 0, Integer.MAX_VALUE);
-		screen.y = scrollOrd(screen.y, c.y-Main.SCREEN_HEIGHT * 11 / 16, 0, Integer.MAX_VALUE);
+		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, 0, Integer.MAX_VALUE);
+		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, 0, Integer.MAX_VALUE);
 	}
-	
+
 	private int scrollOrd(int current, int dest, int min, int max) {
-		current += shrinkDelta(dest-current);
-		if (current<min) {
+		current += shrinkDelta(dest - current);
+		if (current < min) {
 			current = min;
 		}
-		if (current>max) {
+		if (current > max) {
 			current = max;
 		}
 		return current;
@@ -139,11 +140,30 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public void debugText(Coord c, String text) {
 		int x = c.x - screen.x;
 		int y = c.y - screen.y;
-		font.draw(x, y, 0xff0000, 0, text);
+		debugFont.draw(x, y, 0xff0000, 0, text);
 	}
 
 	@Override
 	public Coord getPlayerPosition() {
 		return player.c;
+	}
+
+	@Override
+	public boolean collideWithPlayerDP(Coord alien, int l, int t, int r, int b) {
+		int diffX = player.c.x - alien.x;
+		int diffY = player.c.y - alien.y;
+
+		int deluxePaintX = 160 + diffX;
+		int deluxePaintY = 128 - diffY;
+		if (deluxePaintX + 8 >= l) {
+			if (deluxePaintX - 8 <= r) {
+				if (deluxePaintY <= t) {
+					if (deluxePaintY + 30 >= b) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }

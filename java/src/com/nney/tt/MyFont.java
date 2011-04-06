@@ -96,6 +96,19 @@ public class MyFont {
 		GL11.glEnd();
 	}
 
+	public int computeWidth(int kern, String text) {
+		int dx = 0;
+		for (int x = 0; x < text.length(); x++) {
+			char c = text.charAt(x);
+			int p = characters.indexOf(c);
+			if (p >= 0) {
+				Bounds z = boxes[p];
+				dx += z.width + kern;
+			}
+		}
+		return dx;
+	}
+
 	
 	public void dispose() {
 		texture.dispose();

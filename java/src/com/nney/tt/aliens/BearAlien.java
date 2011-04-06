@@ -10,5 +10,8 @@ public class BearAlien extends LeftRightAlien {
 		if (!turned && ms.getBlockSpecification(c) == "stop") {
 			headedRight = !headedRight;
 		}
+		if (ms.collideWithPlayerDP(c, 153,163,165,129)) {
+			System.out.println("GOTYA!");
+		}
 	}
 }
