@@ -6,11 +6,19 @@ import com.nney.tt.aliens.Alien;
 
 public class Player extends Alien {
 
-	private static final int[] vel_norm = {  1,3,4,5,5,5,5,5 };
-	private static final int[] vel_turbo = {  1,2,3,4,6,7,9,10 };
-	int velStep;
-	boolean goLeft;
+	/**
+	 * <code>true</code> to read {@link #VEL_NORM} <code>false</code> to read {@link #VEL_TURBO}.
+	 */
 	boolean plSprint;
+	private static final int[] VEL_NORM = {  1,3,4,5,5,5,5,5 };
+	private static final int[] VEL_TURBO = {  1,2,3,4,6,7,9,10 };
+
+	/**
+	 * Index into {@link #VEL_NORM} or {@link #VEL_TURBO}.
+	 */
+	int velStep;
+
+	boolean goLeft;
 
 	@Override
 	public void init() {
@@ -18,7 +26,7 @@ public class Player extends Alien {
 	}
 
 	private int getNextVel() {
-		int[] t = plSprint ? vel_turbo : vel_norm;
+		int[] t = plSprint ? VEL_TURBO : VEL_NORM;
 		int answer = t[velStep];
 		if (velStep!=t.length-1) velStep++;
 		return answer;
