@@ -1,8 +1,11 @@
 package com.nney.tt;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.GameMap;
@@ -28,6 +31,20 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public MyFont debugFont;
 	public Player player;
 	public MyFont font;
+
+	public List<Runnable> renderQueue = new ArrayList<Runnable>();
+
+	private boolean playerInFront;
+	
+	void startFrame() {
+		playerInFront = true;
+		renderQueue.clear();
+	}
+	
+	@Override
+	public void playerBehind() {
+		playerInFront = false;
+	}
 
 	@Override
 	public int randomness(int n) {
@@ -130,10 +147,21 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	}
 
 	@Override
-	public void drawSprite(Coord c, Sprite s) {
-		int x = c.x - screen.x;
-		int y = c.y - screen.y;
-		s.draw(x, y);
+	public void drawSprite(Coord c, final Sprite s) {
+		final int x = c.x - screen.x;
+		final int y = c.y - screen.y;
+		renderQueue.add(new Runnable() {
+			@Override
+			public void run() {
+				s.draw(x, y);
+			}
+		});
+	}
+	
+	public void runTheRenderQueue() {
+		for (Runnable r: renderQueue) {
+			r.run();
+		}
 	}
 
 	@Override
@@ -149,16 +177,16 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	}
 
 	@Override
-	public boolean collideWithPlayerDP(Coord alien, int l, int t, int r, int b) {
+	public boolean collideWithPlayerDP(Coord alien, Box box) {
 		int diffX = player.c.x - alien.x;
 		int diffY = player.c.y - alien.y;
 
 		int deluxePaintX = 160 + diffX;
 		int deluxePaintY = 128 - diffY;
-		if (deluxePaintX + 8 >= l) {
-			if (deluxePaintX - 8 <= r) {
-				if (deluxePaintY <= t) {
-					if (deluxePaintY + 30 >= b) {
+		if (deluxePaintX + 8 >= box.left) {
+			if (deluxePaintX - 8 <= box.right) {
+				if (deluxePaintY <= box.top) {
+					if (deluxePaintY + 30 >= box.bottom) {
 						return true;
 					}
 				}

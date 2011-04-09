@@ -9,9 +9,7 @@ import com.nney.json.DataException;
 import com.nney.json.DataItem;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
-import com.nney.tt.NamedOpenables;
-import com.nney.utils.FileOpenable;
-import com.nney.utils.Openable;
+import com.nney.tt.resources.TTResource;
 import com.nney.utils.StringIO;
 
 public class SpriteSetPool {
@@ -31,20 +29,12 @@ public class SpriteSetPool {
 		return answer;
 	}
 	
-	private static SpriteSet loadSpriteSet(final String spriteName) {
-		NamedOpenables no = new NamedOpenables() {
-			@Override
-			public Openable get(String item) {
-				String filename = String.format(
-						"C:\\Users\\david\\Desktop\\newdata\\bobs\\%s\\%s", spriteName, item);
-				return new FileOpenable(filename);
-			}
-		};
-
+	private static SpriteSet loadSpriteSet(String spriteName) {
+		
 		ArrayList<Anim> an = new ArrayList<Anim>(); 
 		HashMap<Integer, Sprite> cache = new HashMap<Integer, Sprite>();
 		try {
-			String text = StringIO.loadText(no.get("def.txt"), null);
+			String text = StringIO.loadText(TTResource.spriteDef(spriteName), null);
 			JsonValue diRoot = JsonValue.parse(text);
 			
 			for (DataItem diAnim : diRoot.requireField("anims").requireList()) {
@@ -54,7 +44,7 @@ public class SpriteSetPool {
 					int fno = diFrames[x].requireInt();
 					Sprite frame = cache.get(fno);
 					if (frame==null) {
-						frame = LargeImageFrameLoader.load(no.get(String.format("%03d.png", fno)));
+						frame = LargeImageFrameLoader.load(TTResource.spriteFrame(spriteName, fno));
 						cache.put(fno, frame);
 					}
 					else {

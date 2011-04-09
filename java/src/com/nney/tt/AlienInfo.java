@@ -13,7 +13,7 @@ public class AlienInfo {
 		this.alienClass = alienClass;
 	}
 	
-	Alien ins() throws InstantiationException, IllegalAccessException {
+	Alien instantiate() throws InstantiationException, IllegalAccessException {
 		return alienClass.newInstance();
 	}
 }

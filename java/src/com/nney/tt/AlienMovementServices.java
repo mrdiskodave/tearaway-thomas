@@ -2,6 +2,7 @@ package com.nney.tt;
 
 import java.util.Random;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
 
@@ -51,6 +52,8 @@ public interface AlienMovementServices {
 	String getBlockSpecification(Coord where);
 
 	Coord getPlayerPosition();
-
-	boolean collideWithPlayerDP(Coord a, int l, int t, int r, int b);
+	
+	void playerBehind();
+	
+	boolean collideWithPlayerDP(Coord alien, Box box);
 }
