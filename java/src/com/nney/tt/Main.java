@@ -16,7 +16,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.json.DataException;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
 import com.nney.tt.aliens.Alien;
@@ -34,11 +33,9 @@ import com.nney.tt.map.BlocksHolder;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.resources.TTResource;
+import com.nney.tt.sprites.SpriteDefPool;
 import com.nney.tt.sprites.SpriteSet;
 import com.nney.tt.sprites.SpriteSetPool;
-import com.nney.utils.ClassResourceOpenable;
-import com.nney.utils.FileOpenable;
-import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
@@ -134,7 +131,8 @@ public class Main {
 				aim.put(alienInfo.id, alienInfo);
 			}
 	
-			SpriteSetPool spriteSetPool = new SpriteSetPool();
+			SpriteDefPool sdp = new SpriteDefPool();
+			SpriteSetPool spriteSetPool = new SpriteSetPool(sdp);
 	
 			player = new Player();
 			player.connectSpriteSet(spriteSetPool.load("0tt"));
@@ -157,9 +155,6 @@ public class Main {
 				throw new RuntimeException(e);
 			}
 			catch (JsonException e) {
-				throw new RuntimeException(e);
-			}
-			catch (DataException e) {
 				throw new RuntimeException(e);
 			}
 	
