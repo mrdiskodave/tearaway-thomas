@@ -2,13 +2,12 @@ package com.nney.tt.map;
 
 import java.util.HashMap;
 
-import com.nney.json.DataException;
 import com.nney.json.DataItem;
 
 public class BlockSpecifications {
 	private final HashMap<Integer, String> specs = new HashMap<Integer, String>(1, 0.1f); 
 
-	public BlockSpecifications(DataItem di) throws DataException {
+	public BlockSpecifications(DataItem di) {
 		DataItem[] z = di.requireList();
 		int l = z.length;
 		assert l%1 == 0;

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import com.nney.json.DataException;
 import com.nney.json.DataItem;
 
 public class BlockRandomisationTable {
@@ -12,7 +11,7 @@ public class BlockRandomisationTable {
 	
 	private final Random r = new Random();
 	
-	public BlockRandomisationTable(DataItem di) throws DataException {
+	public BlockRandomisationTable(DataItem di) {
 		for (DataItem line: di.requireList()) {
 			ArrayList<Integer> al = new ArrayList<Integer>();
 			for (DataItem x: line.requireList()) {
