@@ -203,6 +203,11 @@ public class Main {
 									alien.c.y = y;
 									alien.srcData = rest;
 									alien.load();
+									
+									if (alien instanceof LoadsFromSpriteDef) {
+										((LoadsFromSpriteDef)alien).load(sdp.load(alienInfo.spriteSetName));
+									}
+									
 									alien.init();
 									alienList.add(alien);
 								}
@@ -288,13 +293,20 @@ public class Main {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
 		GlTools.configureFor2dBobs();
+
 		drawTheMap();
-		world.startFrame();
 		for (Alien alien : alienList) {
 			alien.draw(world);
 		}
 		player.draw(world);
-		world.runTheRenderQueue();
+
+		if (world.playerInFront) {
+			world.runTheRenderQueue();
+		}
+		else {
+			world.runTheRenderQueueWithLastItemFirst();
+		}
+		
 		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 	}
 
@@ -336,6 +348,7 @@ public class Main {
 
 			handleKeyboard();
 
+			world.startFrame();
 			moveEverything();
 			drawEverything();
 

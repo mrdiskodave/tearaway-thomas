@@ -34,7 +34,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 
 	public List<Runnable> renderQueue = new ArrayList<Runnable>();
 
-	private boolean playerInFront;
+	public boolean playerInFront;
 	
 	void startFrame() {
 		playerInFront = true;
@@ -163,6 +163,14 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 			r.run();
 		}
 	}
+	
+	public void runTheRenderQueueWithLastItemFirst() {
+		assert renderQueue.size()!=0;
+		Runnable player = renderQueue.remove(renderQueue.size()-1);
+		player.run();
+		runTheRenderQueue();
+	}
+
 
 	@Override
 	public void debugText(Coord c, String text) {
@@ -194,4 +202,5 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		}
 		return false;
 	}
+
 }
