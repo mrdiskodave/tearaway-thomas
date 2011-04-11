@@ -26,7 +26,9 @@ import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.ScoreAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
+import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.map.BlockRandomisationTable;
 import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.BlocksHolder;
@@ -65,6 +67,8 @@ public class Main {
 
 	private Player player;
 
+	private GlTexture horizon;
+
 	private void initLwjgl() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM));
@@ -102,6 +106,10 @@ public class Main {
 	}
 
 	private void init() {
+		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		
 		List<AlienInfo> ail = new ArrayList<AlienInfo>();
 		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
 		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
@@ -294,6 +302,9 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 
+		
+		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
+		
 		drawTheMap();
 		for (Alien alien : alienList) {
 			alien.draw(world);

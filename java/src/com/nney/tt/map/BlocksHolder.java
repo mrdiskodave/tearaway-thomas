@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
 
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.SimpleImage;
@@ -68,11 +70,13 @@ public class BlocksHolder {
 	}
 
 	private void idraw(int x) {
-		GlTexture t = textures.get(x / gridCapacity);
-		x &= gridCapacity-1;
-		int bx = x & gridSize-1;
-		int by = x / gridSize;
-		t.draw(0, 0, bx * blockSize, by * blockSize, blockSize, blockSize);
+		if (x!=0) {
+			GlTexture t = textures.get(x / gridCapacity);
+			x &= gridCapacity-1;
+			int bx = x & gridSize-1;
+			int by = x / gridSize;
+			t.draw(0, 0, bx * blockSize, by * blockSize, blockSize, blockSize);
+		}
 		GL11.glTranslatef(blockSize, 0, 0);
 	}
 	

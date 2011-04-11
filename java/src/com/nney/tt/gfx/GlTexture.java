@@ -1,6 +1,7 @@
 package com.nney.tt.gfx;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 public class GlTexture {
 	private int textureId;
@@ -26,8 +27,8 @@ public class GlTexture {
 		textureId = GL11.glGenTextures();
 		assert textureId!=0;
 		bindTexture();
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE); // gosh GL12!
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, theirFormat, textureW, textureH, 0,
@@ -79,5 +80,13 @@ public class GlTexture {
 	
 	public void dispose() {
 		GL11.glDeleteTextures(textureId);
+	}
+	
+	public int getWidth() {
+		return imageW;
+	}
+	
+	public int getHieght() {
+		return imageH;
 	}
 }
