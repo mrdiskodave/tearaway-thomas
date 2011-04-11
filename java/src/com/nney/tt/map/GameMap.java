@@ -17,23 +17,25 @@ public class GameMap {
 		unpack();
 	}
 
+	/**
+	 * Load the map.
+	 * 
+	 * @param di
+	 * @throws IOException
+	 */
 	private void load(DataInputStream di) throws IOException {
 		int firstWord = di.readUnsignedShort();
 		assert (firstWord & 1) == 0;
-		length = firstWord >>= 1;
-		for (int x = 1; length != x;) {
+		length = firstWord / 2 -1;
+		for (int x = 1; x < length;) {
 			map[x++] = (short) di.readUnsignedShort();
 		}
+		map[0] = (short) di.readUnsignedShort();
 	}
 
 	public void unpack() {
+		System.out.println("Decompressing from "+length);
 		int compressedMapWords = length;
-		
-		// fix it up
-		// (the first word can be found on the end ...
-		// we stuck it there so we could put the length in the first word
-		// without shuffling stuff about in memory too much)
-		map[0] = map[--compressedMapWords];
 		
 		// unpack it in situe
 		int unpackPtr = MAP_SIZE;
@@ -83,12 +85,7 @@ public class GameMap {
 				map[d++] = (short) (x ^ 0xffff);
 			}
 		}
-		
-		// put the length on the start
-		// (making room by moving the first word to the end)
-		short temp = map[0];
-		map[d++] = temp;
-		map[0] = (short) d;
+		length = d;
 	}
 
 	public int getBlock(int x, int y) {
