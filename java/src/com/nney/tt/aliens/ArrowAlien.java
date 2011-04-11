@@ -52,7 +52,6 @@ public class ArrowAlien extends Alien implements LoadsFromSpriteDef {
 	@Override
 	public void draw(AlienDrawingServices world) {
 		super.draw(world);
-		// world.debugText(c, String.format("%d/%d", repeat, timer));
 	}
 
 	@Override

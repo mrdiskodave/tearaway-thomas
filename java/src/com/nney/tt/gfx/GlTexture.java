@@ -34,14 +34,24 @@ public class GlTexture {
 				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, GlTools.makeByteBuffer(si, textureW, textureH));
 	}
 
+	/**
+	 * Draw texture 1:1 at the given screen position.
+	 * 
+	 * @param screenX
+	 * @param screenY
+	 */
 	public void draw(int screenX, int screenY) {
 		draw(screenX, screenY, 0, 0, imageW, imageH);
 	}
 
-	public void draw(int screenX, int screenY, int textureX, int textureY, int w, int h) {
+	public void draw(int screenX, int screenY, int textureX, int textureY, int tw, int th) {
+		stretchDraw(screenX, screenY, tw, th, textureX, textureY, tw, th);
+	}
+	
+	public void stretchDraw(int screenX, int screenY, int sw, int sh, int textureX, int textureY, int tw, int th) {
 		bindTexture();
 		GL11.glBegin(GL11.GL_QUADS);
-		drawQuad(screenX, screenY, textureX, textureY, w, h);
+		drawQuad(screenX, screenY, sw, sh, textureX, textureY, tw, th);
 		GL11.glEnd();
 	}
 
@@ -49,19 +59,22 @@ public class GlTexture {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
 	}
 
-	public void drawQuad(int screenX, int screenY, int textureX, int textureY, int w, int h) {
-		float fleft = (float) textureX / textureW;
-		float ftop = (float) textureY / textureH;
-		float fright = (float) (textureX+w) / textureW;
-		float fbottom = (float) (textureY+h) / textureH;
-		GL11.glTexCoord2f(fleft, ftop);
+	public void drawQuad(int screenX, int screenY, int screenW, int screenH, int textureX, int textureY, int tw, int th) {
+		float textureLeftf = (float) textureX / textureW;
+		float textureTopf = (float) textureY / textureH;
+		float textureRightf = (float) (textureX+tw) / textureW;
+		float textureBottomf = (float) (textureY+th) / textureH;
+		int screenRight = screenX + screenW;
+		int screenBottom = screenY + screenH;
+
+		GL11.glTexCoord2f(textureLeftf, textureTopf);
 		GL11.glVertex2i(screenX, screenY);
-		GL11.glTexCoord2f(fright, ftop);
-		GL11.glVertex2i(screenX + w, screenY);
-		GL11.glTexCoord2f(fright, fbottom);
-		GL11.glVertex2i(screenX + w, screenY + h);
-		GL11.glTexCoord2f(fleft, fbottom);
-		GL11.glVertex2i(screenX, screenY + h);
+		GL11.glTexCoord2f(textureRightf, textureTopf);
+		GL11.glVertex2i(screenRight, screenY);
+		GL11.glTexCoord2f(textureRightf, textureBottomf);
+		GL11.glVertex2i(screenRight, screenBottom);
+		GL11.glTexCoord2f(textureLeftf, textureBottomf);
+		GL11.glVertex2i(screenX, screenBottom);
 	}
 	
 	public void dispose() {

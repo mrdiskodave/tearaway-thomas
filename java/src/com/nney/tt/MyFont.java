@@ -89,7 +89,7 @@ public class MyFont {
 			int p = characters.indexOf(c);
 			if (p >= 0) {
 				Bounds z = boxes[p];
-				texture.drawQuad(dx, dy, z.left, z.top, z.width, z.height);
+				texture.drawQuad(dx, dy, z.width, z.height, z.left, z.top, z.width, z.height);
 				dx += z.width + kern;
 			}
 		}

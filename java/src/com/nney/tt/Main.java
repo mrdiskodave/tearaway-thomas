@@ -102,168 +102,168 @@ public class Main {
 	}
 
 	private void init() {
-			List<AlienInfo> ail = new ArrayList<AlienInfo>();
-			ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
-			ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
-			ail.add(new AlienInfo(76, "wbear", BearAlien.class));
-			ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
-			ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
-			ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
-			ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
-			ail.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
-			ail.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
-			ail.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
-			ail.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
-			ail.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
-			ail.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
-			ail.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
-			ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
-			ail.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
-			ail.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
-			ail.add(new AlienInfo(8, "0arru", ArrowAlien.class));
-			ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
-			ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
-			ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
-			ail.add(new AlienInfo(34, null, ScoreAlien.class));
-	
-			Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
-			for (AlienInfo alienInfo : ail) {
-				aim.put(alienInfo.id, alienInfo);
-			}
-	
-			SpriteDefPool sdp = new SpriteDefPool();
-			SpriteSetPool spriteSetPool = new SpriteSetPool(sdp);
-	
-			player = new Player();
-			player.connectSpriteSet(spriteSetPool.load("0tt"));
-			player.init();
-	
-			String worldName = "w";
-			blocksHolder = new BlocksHolder(16, 8, TTResource.blocks(worldName));
-	
-			MasksHolder maskHolder = new MasksHolder(16, TTResource.blockMask(worldName));
-	
-			BlockRandomisationTable rt;
-			BlockSpecifications bs;
-			try {
-				String t = StringIO.loadText(TTResource.blockDef(worldName), null);
-				JsonValue v = JsonValue.parse(t);
-				rt = new BlockRandomisationTable(v.requireField("rt"));
-				bs = new BlockSpecifications(v.requireField("spec"));
-			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-			catch (JsonException e) {
-				throw new RuntimeException(e);
-			}
-	
-			try {
-				InputStream i = TTResource.map("w", 0).open();
-				DataInputStream di = new DataInputStream(i);
-	
-				// get the game map off the front of the stream
-				GameMap gameMap = new GameMap(di);
-				gameMap.applyRt(rt);
-	
-				// read the other things
-				for (;;) {
-					String id = readChunkId(di);
-					if (id.equals("set2")) {
-						player.c.x = di.readShort();
-						player.c.y = di.readShort();
-						player.goLeft = di.readByte() != 0;
-						for (int r = 0x30 - 5; r-- > 0;) {
-							di.readByte();
-						}
-					}
-					else if (id.equals("obj2")) {
-						int objectCnt = 0;
-						for (;;) {
-							int x = di.readShort();
-							int y = di.readShort();
-							if (x < 0) break;
-							int type = di.readByte();
-							byte[] rest = new byte[21];
-							for (int o = 0; o < 21; o++) {
-								rest[o] = di.readByte();
-							}
-							objectCnt++;
-	
-							try {
-								AlienInfo alienInfo = aim.get(type);
-								if (alienInfo != null) {
-	//								aim.remove(type);			// ONCE!
-									Alien alien = alienInfo.instantiate();
-									if (alienInfo.spriteSetName != null) {
-										SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
-										alien.connectSpriteSet(ss);
-									}
-									alien.c.x = x;
-									alien.c.y = y;
-									alien.srcData = rest;
-									alien.load();
-									
-									if (alien instanceof LoadsFromSpriteDef) {
-										((LoadsFromSpriteDef)alien).load(sdp.load(alienInfo.spriteSetName));
-									}
-									
-									alien.init();
-									alienList.add(alien);
-								}
-								else {
-									TextAlien alien = new TextAlien();
-									alien.setText(String.format("%d", type));
-									alien.c.x = x;
-									alien.c.y = y;
-									alienList.add(alien);
-								}
-							}
-							catch (InstantiationException e) {
-								throw new RuntimeException(e);
-							}
-							catch (IllegalAccessException e) {
-								throw new RuntimeException(e);
-							}
-						}
-					}
-					else if (id.equals("pal2")) {
-						while (di.readShort() != -1) {
-						}
-					}
-					else if (id.equals("end!")) {
-						break;
-					}
-					else {
-						throw new RuntimeException("Unknown chunk: " + id);
+		List<AlienInfo> ail = new ArrayList<AlienInfo>();
+		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
+		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
+		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
+		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
+		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
+		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
+		ail.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
+		ail.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		ail.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
+		ail.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
+		ail.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
+		ail.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
+		ail.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
+		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
+		ail.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
+		ail.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
+		ail.add(new AlienInfo(8, "0arru", ArrowAlien.class));
+		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
+		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
+		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
+		ail.add(new AlienInfo(34, null, ScoreAlien.class));
+
+		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
+		for (AlienInfo alienInfo : ail) {
+			aim.put(alienInfo.id, alienInfo);
+		}
+
+		SpriteDefPool sdp = new SpriteDefPool();
+		SpriteSetPool spriteSetPool = new SpriteSetPool(sdp);
+
+		player = new Player();
+		player.connectSpriteSet(spriteSetPool.load("0tt"));
+		player.init();
+
+		String worldName = "w";
+		blocksHolder = new BlocksHolder(16, 8, TTResource.blocks(worldName));
+
+		MasksHolder maskHolder = new MasksHolder(16, TTResource.blockMask(worldName));
+
+		BlockRandomisationTable rt;
+		BlockSpecifications bs;
+		try {
+			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
+			JsonValue v = JsonValue.parse(t);
+			rt = new BlockRandomisationTable(v.requireField("rt"));
+			bs = new BlockSpecifications(v.requireField("spec"));
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		catch (JsonException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			InputStream i = TTResource.map("w", 0).open();
+			DataInputStream di = new DataInputStream(i);
+
+			// get the game map off the front of the stream
+			GameMap gameMap = new GameMap(di);
+			gameMap.applyRt(rt);
+
+			// read the other things
+			for (;;) {
+				String id = readChunkId(di);
+				if (id.equals("set2")) {
+					player.c.x = di.readShort();
+					player.c.y = di.readShort();
+					player.goLeft = di.readByte() != 0;
+					for (int r = 0x30 - 5; r-- > 0;) {
+						di.readByte();
 					}
 				}
-	
-				debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8,
-						false, MyFont.characterRangeHelper(0, 128));
-	
-				font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16,
-						11, true, "abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
-	
-				// TODO: ctor??
-				world.screen.x = 970;
-				world.screen.y = 864;
-				world.gameMap = gameMap;
-				world.maskHolder = maskHolder;
-				world.bs = bs;
-				world.keys = keys;
-				world.debugFont = debugFont;
-				world.font = font;
-				world.player = player;
-	
-				// bear.c.x = 455;
-				// bear.c.y = 818 + 50;
-	
+				else if (id.equals("obj2")) {
+					int objectCnt = 0;
+					for (;;) {
+						int x = di.readShort();
+						int y = di.readShort();
+						if (x < 0) break;
+						int type = di.readByte();
+						byte[] rest = new byte[21];
+						for (int o = 0; o < 21; o++) {
+							rest[o] = di.readByte();
+						}
+						objectCnt++;
+
+						try {
+							AlienInfo alienInfo = aim.get(type);
+							if (alienInfo != null) {
+								// aim.remove(type); // ONCE!
+								Alien alien = alienInfo.instantiate();
+								if (alienInfo.spriteSetName != null) {
+									SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
+									alien.connectSpriteSet(ss);
+								}
+								alien.c.x = x;
+								alien.c.y = y;
+								alien.srcData = rest;
+								alien.load();
+
+								if (alien instanceof LoadsFromSpriteDef) {
+									((LoadsFromSpriteDef) alien).load(sdp.load(alienInfo.spriteSetName));
+								}
+
+								alien.init();
+								alienList.add(alien);
+							}
+							else {
+								TextAlien alien = new TextAlien();
+								alien.setText(String.format("%d", type));
+								alien.c.x = x;
+								alien.c.y = y;
+								alienList.add(alien);
+							}
+						}
+						catch (InstantiationException e) {
+							throw new RuntimeException(e);
+						}
+						catch (IllegalAccessException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+				else if (id.equals("pal2")) {
+					while (di.readShort() != -1) {
+					}
+				}
+				else if (id.equals("end!")) {
+					break;
+				}
+				else {
+					throw new RuntimeException("Unknown chunk: " + id);
+				}
 			}
-			catch (IOException e) {
-				throw new RuntimeException(e);
-			}
+
+			debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
+					MyFont.characterRangeHelper(0, 128));
+
+			font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
+					"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
+
+			// TODO: ctor??
+			world.screen.x = 970;
+			world.screen.y = 864;
+			world.gameMap = gameMap;
+			world.maskHolder = maskHolder;
+			world.bs = bs;
+			world.keys = keys;
+			world.debugFont = debugFont;
+			world.font = font;
+			world.player = player;
+
+			// bear.c.x = 455;
+			// bear.c.y = 818 + 50;
+
 		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private void drawTheMap() {
 		final int BLOCK_SIZE = 16;
@@ -306,7 +306,7 @@ public class Main {
 		else {
 			world.runTheRenderQueueWithLastItemFirst();
 		}
-		
+
 		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 	}
 
