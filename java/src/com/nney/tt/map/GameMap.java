@@ -10,21 +10,31 @@ public class GameMap {
 	final public static int MAP_HEIGHT = 128;
 	final public static int MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
 	final private short[] map = new short[MAP_SIZE];
+	private int length;
 
 	public GameMap(DataInputStream di) throws IOException {
-		// copy it in
-		int compressedMapWords = di.readUnsignedShort();
-		assert (compressedMapWords & 1) == 0;
-		compressedMapWords >>= 1;
-		for (int x = 1; compressedMapWords != x;) {
+		load(di);
+		unpack();
+	}
+
+	private void load(DataInputStream di) throws IOException {
+		int firstWord = di.readUnsignedShort();
+		assert (firstWord & 1) == 0;
+		length = firstWord >>= 1;
+		for (int x = 1; length != x;) {
 			map[x++] = (short) di.readUnsignedShort();
 		}
+	}
 
+	public void unpack() {
+		int compressedMapWords = length;
+		
 		// fix it up
 		// (the first word can be found on the end ...
 		// we stuck it there so we could put the length in the first word
 		// without shuffling stuff about in memory too much)
 		map[0] = map[--compressedMapWords];
+		
 		// unpack it in situe
 		int unpackPtr = MAP_SIZE;
 		while (compressedMapWords != 0) {
@@ -52,6 +62,33 @@ public class GameMap {
 			} while (--r > 0);
 		}
 		assert unpackPtr == 0 : unpackPtr;
+	}
+	
+	public void pack() {
+		int s = 0;
+		int d = 0;
+		while (s<MAP_SIZE) {
+			short x = map[s];
+			int r = 1;
+			for (;;) {
+				int n = s+r;
+				if (n>=MAP_SIZE || map[n]!=x) break;
+				r++;
+			}
+			if (r<3) {
+				map[d++] = x; 
+			}
+			else {
+				map[d++] = (short) (r-1);
+				map[d++] = (short) (x ^ 0xffff);
+			}
+		}
+		
+		// put the length on the start
+		// (making room by moving the first word to the end)
+		short temp = map[0];
+		map[d++] = temp;
+		map[0] = (short) d;
 	}
 
 	public int getBlock(int x, int y) {
