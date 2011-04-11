@@ -13,20 +13,24 @@ public class GameMap {
 	private int length;
 
 	public GameMap(DataInputStream di) throws IOException {
-		load(di);
+		loadFromLegacyMap(di);
 		unpack();
 	}
 
 	/**
-	 * Load the map.
+	 * Load from a legacy map file.
 	 * 
-	 * @param di
+	 * Undo the trick whereby the first word is the length in bytes and the
+	 * final word is the first word (moved there to make room for the length in
+	 * bytes ... before the entire block of memory was saved to disk).
+	 * 
+	 * @param di Stream to load from.
 	 * @throws IOException
 	 */
-	private void load(DataInputStream di) throws IOException {
+	private void loadFromLegacyMap(DataInputStream di) throws IOException {
 		int firstWord = di.readUnsignedShort();
 		assert (firstWord & 1) == 0;
-		length = firstWord / 2 -1;
+		length = firstWord / 2 - 1;
 		for (int x = 1; x < length;) {
 			map[x++] = (short) di.readUnsignedShort();
 		}
@@ -34,58 +38,13 @@ public class GameMap {
 	}
 
 	public void unpack() {
-		System.out.println("Decompressing from "+length);
-		int compressedMapWords = length;
-		
-		// unpack it in situe
-		int unpackPtr = MAP_SIZE;
-		while (compressedMapWords != 0) {
-			// read the next value
-			int x = map[--compressedMapWords];
-			// what is it?
-			int r;
-			if ((x & 0x8000) != 0) {
-				// it is either got the top bit set in which case
-				// NOT it for the block number
-				x ^= 0xffff;
-				// and the next word is a repeat count
-				r = map[--compressedMapWords] + 1;
-			}
-			else {
-				// or it hasn't in which case it is a regular block number
-				// (repeated once)
-				r = 1;
-			}
-			// output the block
-			// System.out.println(String.format("src=%04x dest=%04x repeat=%04x value=%04x",
-			// compressedMapWords, unpackPtr, r, x&0xffff));
-			do {
-				map[--unpackPtr] = (short) x;
-			} while (--r > 0);
-		}
-		assert unpackPtr == 0 : unpackPtr;
+		System.out.println("Unpacking "+length);
+		MapRle.unpack(map, length);
 	}
-	
+
 	public void pack() {
-		int s = 0;
-		int d = 0;
-		while (s<MAP_SIZE) {
-			short x = map[s];
-			int r = 1;
-			for (;;) {
-				int n = s+r;
-				if (n>=MAP_SIZE || map[n]!=x) break;
-				r++;
-			}
-			if (r<3) {
-				map[d++] = x; 
-			}
-			else {
-				map[d++] = (short) (r-1);
-				map[d++] = (short) (x ^ 0xffff);
-			}
-		}
-		length = d;
+		length = MapRle.pack(map);
+		System.out.println("Packed to "+length);
 	}
 
 	public int getBlock(int x, int y) {
@@ -93,14 +52,10 @@ public class GameMap {
 		// assert x >= MAP_WIDTH;
 		// assert y < 0;
 		// assert y >= MAP_HEIGHT;
-		if (x < 0)
-			return 0;
-		if (x >= MAP_WIDTH)
-			return 0;
-		if (y < 0)
-			return 0;
-		if (y >= MAP_HEIGHT)
-			return 0;
+		if (x < 0) return 0;
+		if (x >= MAP_WIDTH) return 0;
+		if (y < 0) return 0;
+		if (y >= MAP_HEIGHT) return 0;
 		return map[y * MAP_WIDTH + x];
 	}
 
