@@ -26,6 +26,7 @@ import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.ScoreAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
@@ -153,6 +154,7 @@ public class Main {
 
 		BlockRandomisationTable rt;
 		BlockSpecifications bs;
+		
 		try {
 			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
 			JsonValue v = JsonValue.parse(t);
@@ -167,6 +169,7 @@ public class Main {
 		}
 
 		try {
+			Box mapBounds = null;
 			InputStream i = TTResource.map("w", 0).open();
 			DataInputStream di = new DataInputStream(i);
 
@@ -181,7 +184,25 @@ public class Main {
 					player.c.x = di.readShort();
 					player.c.y = di.readShort();
 					player.goLeft = di.readByte() != 0;
-					for (int r = 0x30 - 5; r-- > 0;) {
+
+					di.readByte(); // blkset
+					di.readByte(); // specjsr1
+					di.readByte(); // specjsr2
+					di.readByte(); // specjsr3
+					int minx = di.readByte() & 0xff;
+					int maxx = di.readByte() & 0xff;
+					int miny = di.readByte() & 0xff;
+					int maxy = di.readByte() & 0xff;
+					minx *= 16;
+					maxx *= 16;
+					maxx += 16;
+					miny *= 16;
+					maxy *= 16;
+					maxy += 16;
+					mapBounds = new Box(minx, miny, maxx, maxy);
+//					mapBounds = new Box(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+					for (int r = 0x30 - 5- 4 -4; r-- > 0;) {
 						di.readByte();
 					}
 				}
@@ -263,6 +284,7 @@ public class Main {
 			world.debugFont = debugFont;
 			world.font = font;
 			world.player = player;
+			world.mapBounds = mapBounds;
 
 			// bear.c.x = 455;
 			// bear.c.y = 818 + 50;

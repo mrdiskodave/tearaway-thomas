@@ -35,6 +35,8 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public List<Runnable> renderQueue = new ArrayList<Runnable>();
 
 	public boolean playerInFront;
+
+	public Box mapBounds;
 	
 	void startFrame() {
 		playerInFront = true;
@@ -111,8 +113,8 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	 * Scroll towards the given position.
 	 */
 	public void scrollTowards(Coord c) {
-		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, 0, Integer.MAX_VALUE);
-		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, 0, Integer.MAX_VALUE);
+		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, mapBounds.left, mapBounds.right-Main.SCREEN_WIDTH);
+		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, mapBounds.top, mapBounds.bottom-Main.SCREEN_HEIGHT);
 	}
 
 	private int scrollOrd(int current, int dest, int min, int max) {
