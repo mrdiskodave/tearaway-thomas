@@ -67,7 +67,7 @@ public interface AlienMovementServices {
 	void queueSprite(Coord c, Sprite s);
 	void queueDebugText(Coord c, String text);
 	
-	void col2(Sprite s, Coord c2);
+	boolean col2(Sprite s, Coord c2);
 	
 	void registerSprite(Coord c, Sprite s);
 
