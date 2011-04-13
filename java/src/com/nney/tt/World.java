@@ -18,9 +18,9 @@ public class World implements AlienMovementServices {
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
 	 * the centre).
 	 */
-	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-			1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9,
-			9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15, 16 };
+	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
+			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
+			16 };
 
 	public Coord screen = new Coord();
 	public GameMap gameMap;
@@ -48,7 +48,7 @@ public class World implements AlienMovementServices {
 		playerInFront = true;
 		renderQueue.clear();
 	}
-	
+
 	@Override
 	public void playerBehind() {
 		playerInFront = false;
@@ -120,8 +120,9 @@ public class World implements AlienMovementServices {
 	 */
 	@Override
 	public void scrollTowards(Coord c) {
-		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, mapBounds.left, mapBounds.right-Main.SCREEN_WIDTH);
-		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, mapBounds.top, mapBounds.bottom-Main.SCREEN_HEIGHT);
+		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
+		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, mapBounds.top, mapBounds.bottom
+				- Main.SCREEN_HEIGHT);
 	}
 
 	private int scrollOrd(int current, int dest, int min, int max) {
@@ -174,7 +175,7 @@ public class World implements AlienMovementServices {
 			}
 		});
 	}
-	
+
 	@Override
 	public void queueDebugText(Coord c, final String text) {
 		final Coord p = new Coord(c);
@@ -191,21 +192,18 @@ public class World implements AlienMovementServices {
 		});
 	}
 
-	
 	public void runTheRenderQueue() {
-		for (Runnable r: renderQueue) {
+		for (Runnable r : renderQueue) {
 			r.run();
 		}
 	}
-	
+
 	public void runTheRenderQueueFirstItemLast() {
-		assert renderQueue.size()!=0;
+		assert renderQueue.size() != 0;
 		Runnable player = renderQueue.remove(0);
 		runTheRenderQueue();
 		player.run();
 	}
-
-
 
 	@Override
 	public Coord getPlayerPosition() {
@@ -244,46 +242,41 @@ public class World implements AlienMovementServices {
 	}
 
 	@Override
-	public void col2(Sprite alienSprite, Coord alienPos) {
+	public boolean col2(Sprite alienSprite, Coord alienPos) {
 		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
-		boolean cx = dx<ttSprite.w && dx>(-alienSprite.w);
-		int dy = alienPos.y - alienSprite.handleY - ttPos.y;
-		boolean cy = dy<ttSprite.h && dy>(-alienSprite.h);
-
-		queueAbsoluteDebugText(new Coord(0,0), String.format("%d,%d, %s,%s", dx, dy, cx, cy));
-		if (cx && cy) {
-			int ai, ti, h;
-			if (dy<0) {
-				ti=0;
-				h=Math.min(alienSprite.h + dy, ttSprite.h);
-				ai=-dy;
+		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
+			int dy = alienPos.y - alienSprite.handleY - ttPos.y;
+			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
+				int ai, ti, h;
+				if (dy < 0) {
+					ti = 0;
+					h = Math.min(alienSprite.h + dy, ttSprite.h);
+					ai = -dy;
+				}
+				else {
+					ti = dy;
+					h = Math.min(ttSprite.h - dy, alienSprite.h);
+					ai = 0;
+				}
+//				queueAbsoluteDebugText(new Coord(0, 8), String.format("ti%d ai%d h%d d%d", ti, ai, h, dx));
+				boolean answer = collide(ttSprite.rm, alienSprite.rm, ti * 2, ai * 2, h, dx);
+//				queueAbsoluteDebugText(new Coord(0, 16), String.format("%s", answer));
+				return answer;
 			}
-			else {
-				ti=dy;
-				h = Math.min(ttSprite.h - dy, alienSprite.h);
-				ai=0;
-			}
-			queueAbsoluteDebugText(new Coord(0,8), String.format("ti%d ai%d h%d d%d", ti, ai, h, dx));
-			ti *= 2;
-			ai *= 2;
-			boolean answer = collide(ttSprite.rm, alienSprite.rm, ti, ai, h, dx);
-			queueAbsoluteDebugText(new Coord(0,16), String.format("%s", answer));
 		}
-	}
-	
-	boolean collide(byte[] t, byte[] a, int ti, int ai, int h, int d) {
-		assert h!=0;
-		h--;
-		do {
-			int dx = d + a[ai] - t[ti];
-			boolean cx = dx<t[ti+1] && dx>(-a[ai+1]);
-			if (cx) return true;
-			ti += 2;
-			ai += 2;
-		} while (h-->0);
 		return false;
 	}
 
-	
-	
+	final static private boolean collide(byte[] t, byte[] a, int ti, int ai, int h, int d) {
+		assert h != 0;
+		do {
+			int dx = d + a[ai] - t[ti];
+			boolean cx = dx < t[ti + 1] && dx > (-a[ai + 1]);
+			if (cx) return true;
+			ti += 2;
+			ai += 2;
+		} while (--h > 0);
+		return false;
+	}
+
 }
