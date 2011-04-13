@@ -39,18 +39,18 @@ public class Sprite {
 			while (si.getPixel(r, h) == 0)
 				r--;
 			z[2 * h] = (byte) l;
-			z[2 * h + 1] = (byte) r;
+			z[2 * h + 1] = (byte) (r-l+1);
 		}
 		rm = z;
 
-		si.changePixels(new ChangePixel() {
-			@Override
-			public int change(int c) {
-				int alpha = c >>> 3 * 8;
-				if (alpha != 0xff) c = 0xff0000ff;
-				return c;
-			}
-		});
+//		si.changePixels(new ChangePixel() {
+//			@Override
+//			public int change(int c) {
+//				int alpha = c >>> 3 * 8;
+//				if (alpha != 0xff) c = 0xff00ffff;
+//				return c;
+//			}
+//		});
 
 		this.texture = new GlTexture(si);
 	}
