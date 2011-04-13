@@ -43,8 +43,7 @@ public class JavaTest extends TestCase {
 		int v = 0;
 		for (int x = 0; x < 100; x++) {
 			v += 0x10000000;
-			if (v < 0)
-				return;
+			if (v < 0) return;
 		}
 		fail("taking too long");
 	}
@@ -302,8 +301,8 @@ public class JavaTest extends TestCase {
 	 */
 
 	/**
-	 * Show that you cannot put <code>null</code> keys into a map.
-	 * (for a while I thought you could)
+	 * Show that you cannot put <code>null</code> keys into a map. (for a while
+	 * I thought you could)
 	 */
 	public void testNullKeys() throws Exception {
 		try {
@@ -317,48 +316,52 @@ public class JavaTest extends TestCase {
 			// expected
 		}
 	}
-	
+
 	public void testRepeatingYourself() {
 		int counter = 0;
-		
+
 		int x = 42;
 		do {
 			counter++;
-		} while (--x>0);
-		
+		} while (--x > 0);
+
 		assertEquals(42, counter);
 	}
-	
+
 	public void testShortComposition() {
 		int xz = 0;
-		for (int h=0; h<256; h++) {
-			for (int l=0; l<256; l++) {
+		for (int h = 0; h < 256; h++) {
+			for (int l = 0; l < 256; l++) {
 				byte hb = (byte) h;
 				byte hl = (byte) l;
-				int z = ((hb & 255)<<8)+(hl & 255);
+				int z = ((hb & 255) << 8) + (hl & 255);
 				assertEquals(xz, z);
 				xz++;
 			}
 		}
 	}
-	
+
 	public void testRepeatingYourself2() {
 		int counter = 0;
-		
-		for (int x = 42; x-->0;) {
+
+		for (int x = 42; x-- > 0;) {
 			counter++;
 		}
-		
+
 		assertEquals(42, counter);
 	}
-	
+
+	public void testExtend() {
+		assertEquals(512, ((byte) 1) * 512);
+	}
+
 	public void testRerverse() {
 		ArrayList<Integer> s = new ArrayList<Integer>();
-		for (int x=0; x<4; x++) {
+		for (int x = 0; x < 4; x++) {
 			s.add(x);
 		}
 		ArrayList<Integer> n = new ArrayList<Integer>();
-		for (int x=s.size(); --x>=0;) {
+		for (int x = s.size(); --x >= 0;) {
 			n.add(s.get(x));
 		}
 		assertEquals(3, (int) n.get(0));
@@ -366,4 +369,5 @@ public class JavaTest extends TestCase {
 		assertEquals(1, (int) n.get(2));
 		assertEquals(0, (int) n.get(3));
 	}
+
 }
