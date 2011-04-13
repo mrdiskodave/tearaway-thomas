@@ -3,6 +3,7 @@ package com.nney.tt;
 import org.lwjgl.input.Keyboard;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
 
@@ -19,6 +20,7 @@ public class Player extends Alien {
 	int velStep;
 
 	boolean goLeft;
+	private boolean gravity = true;
 
 	@Override
 	public void init() {
@@ -32,32 +34,51 @@ public class Player extends Alien {
 		return answer;
 	}
 
+	
+	@Override
+	public void update(AlienMovementServices world) {
+		move(world);
+		Sprite s = animPlayer.next();
+		world.queueSprite(c, s);
+		world.registerSprite(c, s);
+	}
+
 	@Override
 	public void move(AlienMovementServices ms) {
-		ms.fallOrRaise(c, 5);
+		if (gravity) {
+			ms.fallOrRaise(c, 5);
+		}
 		if (ms.testKey(Keyboard.KEY_Q)) {
 			changeAnimation("left");
 			c.x -= getNextVel();
 			ms.validatePlayerPosition(c);
 			goLeft = true;
+			gravity = true;
 		}
 		else if (ms.testKey(Keyboard.KEY_W)) {
 			changeAnimation("right");
 			c.x += getNextVel();
 			ms.validatePlayerPosition(c);
 			goLeft = false;
+			gravity = true;
 		}
-		else if (ms.testKey(Keyboard.KEY_A)) {
-//			changeAnimation("left");
-			if (ms.getFrameNumber()%25==0) c.x -= 1;
-//			ms.validatePlayerPosition(c);
-			goLeft = true;
+		else if (ms.testKey(Keyboard.KEY_LEFT)) {
+			if (ms.getFrameNumber()%15==0) c.x -= 1;
+			stationaryAnim();
+			gravity = false;
 		}
-		else if (ms.testKey(Keyboard.KEY_S)) {
-//			changeAnimation("right");
-			if (ms.getFrameNumber()%25==0) c.x += 1;
-//			ms.validatePlayerPosition(c);
-			goLeft = false;
+		else if (ms.testKey(Keyboard.KEY_RIGHT)) {
+			if (ms.getFrameNumber()%15==0) c.x += 1;
+			stationaryAnim();
+			gravity = false;
+		}
+		else if (ms.testKey(Keyboard.KEY_UP)) {
+			if (ms.getFrameNumber()%15==0) c.y -= 1;
+			gravity = false;
+		}
+		else if (ms.testKey(Keyboard.KEY_DOWN)) {
+			if (ms.getFrameNumber()%15==0) c.y += 1;
+			gravity = false;
 		}
 		else {
 			stationaryAnim();

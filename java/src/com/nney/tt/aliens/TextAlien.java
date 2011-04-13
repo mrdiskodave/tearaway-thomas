@@ -1,6 +1,6 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.AlienDrawingServices;
+import com.nney.tt.AlienMovementServices;
 
 public class TextAlien extends Alien {
 
@@ -11,7 +11,7 @@ public class TextAlien extends Alien {
 	}
 	
 	@Override
-	public void draw(AlienDrawingServices ads) {
+	public void draw(AlienMovementServices ads) {
 		ads.queueDebugText(c, text);
 	}
 

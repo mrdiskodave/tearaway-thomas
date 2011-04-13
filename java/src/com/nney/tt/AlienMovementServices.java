@@ -5,6 +5,7 @@ import java.util.Random;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
+import com.nney.tt.sprites.Sprite;
 
 public interface AlienMovementServices {
 
@@ -62,4 +63,13 @@ public interface AlienMovementServices {
 	int getFrameNumber();
 
 	void scrollTowards(Coord c);
+	
+	void queueSprite(Coord c, Sprite s);
+	void queueDebugText(Coord c, String text);
+	
+	void col2(Sprite s, Coord c2);
+	
+	void registerSprite(Coord c, Sprite s);
+
+
 }

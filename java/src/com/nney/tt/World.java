@@ -12,7 +12,7 @@ import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.sprites.Sprite;
 
-public class World implements AlienDrawingServices, AlienMovementServices {
+public class World implements AlienMovementServices {
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
@@ -39,7 +39,11 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public Box mapBounds;
 
 	public int frameNumber;
-	
+
+	private Sprite ttSprite;
+
+	private Coord ttPos;
+
 	void startFrame() {
 		playerInFront = true;
 		renderQueue.clear();
@@ -152,6 +156,14 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	}
 
 	@Override
+	public void registerSprite(Coord c, Sprite s) {
+		ttPos = new Coord(c);
+		ttPos.x -= s.handleX;
+		ttPos.y -= s.handleY;
+		ttSprite = s;
+	}
+
+	@Override
 	public void queueSprite(Coord c, final Sprite s) {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
@@ -165,12 +177,16 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	
 	@Override
 	public void queueDebugText(Coord c, final String text) {
-		final int x = c.x - screen.x;
-		final int y = c.y - screen.y;
+		final Coord p = new Coord(c);
+		p.sub(screen);
+		queueAbsoluteDebugText(p, text);
+	}
+
+	private void queueAbsoluteDebugText(final Coord p, final String text) {
 		renderQueue.add(new Runnable() {
 			@Override
 			public void run() {
-				debugFont.draw(x, y, 0xff0000, 0, text);
+				debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
 			}
 		});
 	}
@@ -182,11 +198,11 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		}
 	}
 	
-	public void runTheRenderQueueWithLastItemFirst() {
+	public void runTheRenderQueueFirstItemLast() {
 		assert renderQueue.size()!=0;
-		Runnable player = renderQueue.remove(renderQueue.size()-1);
-		player.run();
+		Runnable player = renderQueue.remove(0);
 		runTheRenderQueue();
+		player.run();
 	}
 
 
@@ -226,4 +242,48 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public int getFrameNumber() {
 		return frameNumber;
 	}
+
+	@Override
+	public void col2(Sprite alienSprite, Coord alienPos) {
+		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
+		boolean cx = dx<ttSprite.w && dx>(-alienSprite.w);
+		int dy = alienPos.y - alienSprite.handleY - ttPos.y;
+		boolean cy = dy<ttSprite.h && dy>(-alienSprite.h);
+
+		queueAbsoluteDebugText(new Coord(0,0), String.format("%d,%d, %s,%s", dx, dy, cx, cy));
+		if (cx && cy) {
+			int ai, ti, h;
+			if (dy<0) {
+				ti=0;
+				h=Math.min(alienSprite.h + dy, ttSprite.h);
+				ai=-dy;
+			}
+			else {
+				ti=dy;
+				h = Math.min(ttSprite.h - dy, alienSprite.h);
+				ai=0;
+			}
+			queueAbsoluteDebugText(new Coord(0,8), String.format("ti%d ai%d h%d d%d", ti, ai, h, dx));
+			ti *= 2;
+			ai *= 2;
+			boolean answer = collide(ttSprite.rm, alienSprite.rm, ti, ai, h, dx);
+			queueAbsoluteDebugText(new Coord(0,16), String.format("%s", answer));
+		}
+	}
+	
+	boolean collide(byte[] t, byte[] a, int ti, int ai, int h, int d) {
+		assert h!=0;
+		h--;
+		do {
+			int dx = d + a[ai] - t[ti];
+			boolean cx = dx<t[ti+1] && dx>(-a[ai+1]);
+			if (cx) return true;
+			ti += 2;
+			ai += 2;
+		} while (h-->0);
+		return false;
+	}
+
+	
+	
 }

@@ -1,7 +1,6 @@
 package com.nney.tt.aliens;
 
 import com.nney.json.DataItem;
-import com.nney.tt.AlienDrawingServices;
 import com.nney.tt.AlienMovementServices;
 import com.nney.tt.LoadsFromSpriteDef;
 import com.nney.tt.geom.Box;
@@ -50,7 +49,7 @@ public class ArrowAlien extends Alien implements LoadsFromSpriteDef {
 	}
 
 	@Override
-	public void draw(AlienDrawingServices world) {
+	public void draw(AlienMovementServices world) {
 		super.draw(world);
 	}
 

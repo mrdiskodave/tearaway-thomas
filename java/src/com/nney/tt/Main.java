@@ -110,10 +110,10 @@ public class Main {
 		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		
+
 		List<AlienInfo> ail = new ArrayList<AlienInfo>();
 		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
-		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		// ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
 		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
@@ -154,7 +154,7 @@ public class Main {
 
 		BlockRandomisationTable rt;
 		BlockSpecifications bs;
-		
+
 		try {
 			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
 			JsonValue v = JsonValue.parse(t);
@@ -200,9 +200,10 @@ public class Main {
 					maxy *= 16;
 					maxy += 15;
 					mapBounds = new Box(minx, miny, maxx, maxy);
-//					mapBounds = new Box(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
+					// mapBounds = new Box(0, 0, Integer.MAX_VALUE,
+					// Integer.MAX_VALUE);
 
-					for (int r = 0x30 - 5- 4 -4; r-- > 0;) {
+					for (int r = 0x30 - 5 - 4 - 4; r-- > 0;) {
 						di.readByte();
 					}
 				}
@@ -222,12 +223,13 @@ public class Main {
 						try {
 							AlienInfo alienInfo = aim.get(type);
 							if (alienInfo != null) {
-								// aim.remove(type); // ONCE!
+								aim.remove(type); // ONCE!
 								Alien alien = alienInfo.instantiate();
 								if (alienInfo.spriteSetName != null) {
 									SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
 									alien.connectSpriteSet(ss);
 								}
+								if (type == 2) y -= 15;
 								alien.c.x = x;
 								alien.c.y = y;
 								alien.srcData = rest;
@@ -324,30 +326,21 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 
-		
+		player.update(world);
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
-		
 		drawTheMap();
 		for (Alien alien : alienList) {
-			alien.draw(world);
+			alien.update(world);
 		}
-		player.draw(world);
 
 		if (world.playerInFront) {
-			world.runTheRenderQueue();
+			world.runTheRenderQueueFirstItemLast();
 		}
 		else {
-			world.runTheRenderQueueWithLastItemFirst();
+			world.runTheRenderQueue();
 		}
 
 		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
-	}
-
-	private void moveEverything() {
-		player.move(world);
-		for (Alien alien : alienList) {
-			alien.move(world);
-		}
 	}
 
 	private void handleKeyboard() {
@@ -376,14 +369,13 @@ public class Main {
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			Display.sync(requested_fps);
-			
+
 			frameNumber++;
-			world.frameNumber = frameNumber; 
+			world.frameNumber = frameNumber;
 
 			handleKeyboard();
 
 			world.startFrame();
-			moveEverything();
 			drawEverything();
 
 			Display.update();
