@@ -47,6 +47,18 @@ public class Player extends Alien {
 			ms.validatePlayerPosition(c);
 			goLeft = false;
 		}
+		else if (ms.testKey(Keyboard.KEY_A)) {
+//			changeAnimation("left");
+			if (ms.getFrameNumber()%25==0) c.x -= 1;
+//			ms.validatePlayerPosition(c);
+			goLeft = true;
+		}
+		else if (ms.testKey(Keyboard.KEY_S)) {
+//			changeAnimation("right");
+			if (ms.getFrameNumber()%25==0) c.x += 1;
+//			ms.validatePlayerPosition(c);
+			goLeft = false;
+		}
 		else {
 			stationaryAnim();
 			velStep = 0;

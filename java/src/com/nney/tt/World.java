@@ -37,6 +37,8 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	public boolean playerInFront;
 
 	public Box mapBounds;
+
+	public int frameNumber;
 	
 	void startFrame() {
 		playerInFront = true;
@@ -210,5 +212,10 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		Box m = new Box(mapBounds);
 		m.shrink(6);
 		m.constrain(c);
+	}
+
+	@Override
+	public int getFrameNumber() {
+		return frameNumber;
 	}
 }

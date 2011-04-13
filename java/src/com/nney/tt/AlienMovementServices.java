@@ -58,4 +58,6 @@ public interface AlienMovementServices {
 	boolean collideWithPlayerDP(Coord alien, Box box);
 
 	void validatePlayerPosition(Coord c);
+	
+	int getFrameNumber();
 }

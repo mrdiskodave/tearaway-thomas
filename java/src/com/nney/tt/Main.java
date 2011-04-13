@@ -349,7 +349,6 @@ public class Main {
 			alien.move(world);
 		}
 		world.scrollTowards(player.c);
-		frameNumber++;
 	}
 
 	private void handleKeyboard() {
@@ -378,6 +377,9 @@ public class Main {
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			Display.sync(requested_fps);
+			
+			frameNumber++;
+			world.frameNumber = frameNumber; 
 
 			handleKeyboard();
 
