@@ -25,6 +25,8 @@ public class Sprite {
 	 *            top).
 	 */
 	public Sprite(SimpleImage si, int handleX, int handleY) {
+		assert si.getWidth()!=0 && si.getHeight()!=0;
+		
 		this.handleX = handleX;
 		this.handleY = handleY;
 		this.w = si.getWidth();
@@ -32,12 +34,17 @@ public class Sprite {
 
 		byte[] z = new byte[si.getHeight() * 2];
 		for (int h = 0; h < si.getHeight(); h++) {
-			int l = 0;
 			int r = si.getWidth() - 1;
-			while (si.getPixel(l, h) == 0)
-				l++;
-			while (si.getPixel(r, h) == 0)
+			while (r!=0 && si.getPixel(r, h) == 0) {
 				r--;
+			}
+			int l = 0;
+			// Sprites will never be entirely blank but they may contain blank lines and we need to allow for that
+			if (r!=0) {
+				while (si.getPixel(l, h) == 0) {
+					l++;
+				}
+			}
 			z[2 * h] = (byte) l;
 			z[2 * h + 1] = (byte) (r-l+1);
 		}
