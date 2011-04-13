@@ -656,43 +656,73 @@ def convert_bobs():
 		if name!="0tt":
 			convert_bob(name)
 
+def convert_horizons():
+	def convert_color(s):
+		def ccc(s):
+			return eval("0x"+s+s)
+		return (ccc(s[0]), ccc(s[1]), ccc(s[2]))
+
+	nh = [
+		"ff7,fe6,fe5,fd4,fc3,fa2,f91,f80,f60,f30,f10,f01,f03,f05,f08,f0a",
+		"f7f,f6e,f5e,f4d,f3c,f2a,f19,f08,f06,f03,f01,f10,f30,f50,f80,fa0",
+		"7ff,6fe,5fe,4fd,3fc,2fa,1f9,0f8,0f6,0f3,0f1,1f0,3f0,5f0,8f0,af0",
+		"ff7,ef6,ef5,df4,cf3,af2,9f1,8f0,6f0,3f0,1f0,0f1,0f3,0f5,0f8,0fa",
+		"00f,01f,02f,03f,04f,05f,06f,07f,08f,09f,0af,0bf,0cf,0df,0ef,0ff",
+		"0f0,1f0,2f0,3f0,4f0,5f0,6f0,7f0,8f0,9f0,af0,bf0,cf0,df0,ef0,ff0",
+		"f0f,f0e,f0d,f0c,f0b,f0a,f09,f08,f07,f06,f05,f04,f03,f02,f01,f00",
+		"00f,10f,20f,30f,40f,50f,60f,70f,80f,90f,a0f,b0f,c0f,d0f,e0f,f0f",
+		]
+		
+	for hnum, h in enumerate(nh):
+		cl = [ convert_color(x) for x in h.split(',') ]
+		i = img.Img.create(32, len(cl))
+		for y, c in enumerate(cl):
+			i.view(0, y).fill(c)
+
+		cas = Cascade(os.path.join(NEWDATA, "horizons", str(hnum)+".ppm"))
+		cas.saveP6(i)
+		cas.toPNG()
+
+
+
 
 import gfxparse
 graphics_definitions = gfxparse.load_defs(load_file("gfx.s"))
 
-convert_star()
-convert_tt()
-convert_bobs()	
-convert_font()
-convert_topaz()
-convert_worlds()
+convert_horizons()
+#convert_star()
+#convert_tt()
+#convert_bobs()	
+#convert_font()
+#convert_topaz()
+#convert_worlds()
 
 _END_ = """
 
 
 PA_handles
-	ds.w	16	0-15
-	rept	16
-	dc.b	0,1
-	endr
-	ds.w	26
-	dc.b	-8,0	58 left rope
-	dc.b	-8,0
-	dc.b	-8,0
-	dc.b	-8,0
-	dc.b	-8,0
-	dc.b	-8,0
-	dc.b	4,0	64 right rope
-	dc.b	4,0
-	dc.b	4,0
-	dc.b	4,0
-	dc.b	4,0
-	dc.b	4,0
-	dc.b	-6,0	70
-	dc.b	-4,0
-	dc.b	-1,0
-	dc.b	2,0
-	dc.b	3,0
+ds.w	16	0-15
+rept	16
+dc.b	0,1
+endr
+ds.w	26
+dc.b	-8,0	58 left rope
+dc.b	-8,0
+dc.b	-8,0
+dc.b	-8,0
+dc.b	-8,0
+dc.b	-8,0
+dc.b	4,0	64 right rope
+dc.b	4,0
+dc.b	4,0
+dc.b	4,0
+dc.b	4,0
+dc.b	4,0
+dc.b	-6,0	70
+dc.b	-4,0
+dc.b	-1,0
+dc.b	2,0
+dc.b	3,0
 
 PA_runright	dc.b	105,00,01,02,03,04,05,06,07,-8
 PA_runleft	dc.b	105,15,14,13,12,11,10,09,08,-8
