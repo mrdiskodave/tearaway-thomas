@@ -38,27 +38,19 @@ public class Player extends Alien {
 		if (ms.testKey(Keyboard.KEY_Q)) {
 			changeAnimation("left");
 			c.x -= getNextVel();
-			validatePlX();
+			ms.validatePlayerPosition(c);
 			goLeft = true;
 		}
 		else if (ms.testKey(Keyboard.KEY_W)) {
 			changeAnimation("right");
 			c.x += getNextVel();
-			validatePlX();
+			ms.validatePlayerPosition(c);
 			goLeft = false;
 		}
 		else {
 			stationaryAnim();
 			velStep = 0;
 		}
-	}
-
-	private void validatePlX() {
-		// don't do this in relation to the screen like we used to!
-		// very problematic if the screen is scrolling to find the player!
-		// (e.g. teleports!)
-
-		c.x = Math.max(c.x, 6);
 	}
 
 	private void stationaryAnim() {

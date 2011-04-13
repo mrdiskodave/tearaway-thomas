@@ -56,4 +56,6 @@ public interface AlienMovementServices {
 	void playerBehind();
 	
 	boolean collideWithPlayerDP(Coord alien, Box box);
+
+	void validatePlayerPosition(Coord c);
 }

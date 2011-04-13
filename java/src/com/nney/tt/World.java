@@ -205,4 +205,10 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 		return false;
 	}
 
+	@Override
+	public void validatePlayerPosition(Coord c) {
+		Box m = new Box(mapBounds);
+		m.shrink(6);
+		m.constrain(c);
+	}
 }

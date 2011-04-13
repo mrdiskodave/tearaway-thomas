@@ -195,10 +195,10 @@ public class Main {
 					int maxy = di.readByte() & 0xff;
 					minx *= 16;
 					maxx *= 16;
-					maxx += 16;
+					maxx += 15;
 					miny *= 16;
 					maxy *= 16;
-					maxy += 16;
+					maxy += 15;
 					mapBounds = new Box(minx, miny, maxx, maxy);
 //					mapBounds = new Box(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
