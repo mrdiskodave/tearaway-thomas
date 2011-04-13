@@ -47,7 +47,7 @@ public class MyFont {
 		if (palette.length==2) {
 			System.out.println("Alpha font");
 			// we can save 75% of font storage space this way
-			// and maybe they also draw faster as there is 75% less data moving about
+			// and maybe they also draw faster as there is less data moving about
 			glFormat = GL11.GL_ALPHA;
 			texMode = GL11.GL_REPLACE; 
 		}
