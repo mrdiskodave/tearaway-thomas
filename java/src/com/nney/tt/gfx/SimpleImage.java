@@ -43,7 +43,7 @@ public class SimpleImage {
 		public int change(int c) {
 			int alpha = c >>> 3 * 8;
 			if (alpha != 0xff)
-				c = 0;
+				c = 0; // pure transparent (nothing in the RBG slots)
 			return c;
 		}
 	};
