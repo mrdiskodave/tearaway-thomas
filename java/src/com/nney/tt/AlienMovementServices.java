@@ -60,4 +60,6 @@ public interface AlienMovementServices {
 	void validatePlayerPosition(Coord c);
 	
 	int getFrameNumber();
+
+	void scrollTowards(Coord c);
 }

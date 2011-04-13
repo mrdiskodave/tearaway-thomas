@@ -63,6 +63,7 @@ public class Player extends Alien {
 			stationaryAnim();
 			velStep = 0;
 		}
+		ms.scrollTowards(c);
 	}
 
 	private void stationaryAnim() {

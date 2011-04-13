@@ -114,6 +114,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	/**
 	 * Scroll towards the given position.
 	 */
+	@Override
 	public void scrollTowards(Coord c) {
 		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, mapBounds.left, mapBounds.right-Main.SCREEN_WIDTH);
 		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, mapBounds.top, mapBounds.bottom-Main.SCREEN_HEIGHT);
@@ -151,7 +152,7 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	}
 
 	@Override
-	public void drawSprite(Coord c, final Sprite s) {
+	public void queueSprite(Coord c, final Sprite s) {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
 		renderQueue.add(new Runnable() {
@@ -161,6 +162,19 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 			}
 		});
 	}
+	
+	@Override
+	public void queueDebugText(Coord c, final String text) {
+		final int x = c.x - screen.x;
+		final int y = c.y - screen.y;
+		renderQueue.add(new Runnable() {
+			@Override
+			public void run() {
+				debugFont.draw(x, y, 0xff0000, 0, text);
+			}
+		});
+	}
+
 	
 	public void runTheRenderQueue() {
 		for (Runnable r: renderQueue) {
@@ -176,12 +190,6 @@ public class World implements AlienDrawingServices, AlienMovementServices {
 	}
 
 
-	@Override
-	public void debugText(Coord c, String text) {
-		int x = c.x - screen.x;
-		int y = c.y - screen.y;
-		debugFont.draw(x, y, 0xff0000, 0, text);
-	}
 
 	@Override
 	public Coord getPlayerPosition() {

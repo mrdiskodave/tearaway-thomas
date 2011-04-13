@@ -348,7 +348,6 @@ public class Main {
 		for (Alien alien : alienList) {
 			alien.move(world);
 		}
-		world.scrollTowards(player.c);
 	}
 
 	private void handleKeyboard() {

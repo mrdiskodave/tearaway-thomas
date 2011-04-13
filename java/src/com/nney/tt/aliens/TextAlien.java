@@ -12,7 +12,7 @@ public class TextAlien extends Alien {
 	
 	@Override
 	public void draw(AlienDrawingServices ads) {
-		ads.debugText(c, text);
+		ads.queueDebugText(c, text);
 	}
 
 }

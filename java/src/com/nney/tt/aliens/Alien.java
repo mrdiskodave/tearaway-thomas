@@ -42,24 +42,24 @@ public abstract class Alien {
 		return (srcData[x] & 255);
 	}
 	
-
-	public void connectSpriteSet(SpriteSet s) {
-		spriteSet = s;
-	}
-
-	public void changeAnimation(String name) {
+	protected void changeAnimation(String name) {
 		assert spriteSet != null;
 		assert name != null;
 		animPlayer.changeAnimation(spriteSet.find(name));
 	}
 
-	public void changeAnimation(int name) {
+	protected void changeAnimation(int name) {
 		assert spriteSet != null;
 		animPlayer.changeAnimation(spriteSet.find(name));
 	}
 	
-	public void hide() {
+	protected void hide() {
 		animPlayer.changeAnimation(null);
+	}
+
+	
+	public void connectSpriteSet(SpriteSet s) {
+		spriteSet = s;
 	}
 
 	public void draw(AlienDrawingServices world) {
@@ -69,7 +69,7 @@ public abstract class Alien {
 	protected void draw(AlienDrawingServices world, Coord c2) {
 		Sprite s = animPlayer.next();
 		if (s==null) return;
-		world.drawSprite(c2, s);
+		world.queueSprite(c2, s);
 	}
 
 	public void move(AlienMovementServices world) {
