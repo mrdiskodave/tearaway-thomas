@@ -104,10 +104,10 @@ public class SimpleImage {
 	}
 
 	private int computeOffset(int x, int y) {
-		assert x >= 0;
-		assert y >= 0;
-		assert x < width;
-		assert y < height;
+		assert x >= 0: x;
+		assert y >= 0: y;
+		assert x < width: x;
+		assert y < height: y;
 		return offset + y * stride + x;
 	}
 
