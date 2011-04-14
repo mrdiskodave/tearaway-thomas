@@ -10,6 +10,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
+import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 
 public class World implements AlienMovementServices {
@@ -250,33 +251,18 @@ public class World implements AlienMovementServices {
 				int ai, ti, h;
 				if (dy < 0) {
 					ti = 0;
-					h = Math.min(alienSprite.h + dy, ttSprite.h);
 					ai = -dy;
 				}
 				else {
 					ti = dy;
-					h = Math.min(ttSprite.h - dy, alienSprite.h);
 					ai = 0;
 				}
-//				queueAbsoluteDebugText(new Coord(0, 8), String.format("ti%d ai%d h%d d%d", ti, ai, h, dx));
-				boolean answer = collide(ttSprite.rm, alienSprite.rm, ti * 2, ai * 2, h, dx);
-//				queueAbsoluteDebugText(new Coord(0, 16), String.format("%s", answer));
+				queueAbsoluteDebugText(new Coord(0, 8), String.format("ti%d ai%d d%d", ti, ai, dx));
+				boolean answer = LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, ai, ti, dx);
+				queueAbsoluteDebugText(new Coord(0, 16), String.format("%s", answer));
 				return answer;
 			}
 		}
 		return false;
 	}
-
-	final static private boolean collide(byte[] t, byte[] a, int ti, int ai, int h, int d) {
-		assert h != 0;
-		do {
-			int dx = d + a[ai] - t[ti];
-			boolean cx = dx < t[ti + 1] && dx > (-a[ai + 1]);
-			if (cx) return true;
-			ti += 2;
-			ai += 2;
-		} while (--h > 0);
-		return false;
-	}
-
 }
