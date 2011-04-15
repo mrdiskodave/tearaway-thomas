@@ -39,17 +39,17 @@ public final class LineInfo {
 	/**
 	 * Collide two {@link SimpleImage}s by their line info.
 	 * 
+	 * Call this once you've established that the images bounding boxes overlap.
+	 * 
 	 * @param a
-	 *            Line info for image 'a'.
+	 *            Line info for image 'a' which must be the higher of the two
+	 *            images.
 	 * @param b
-	 *            Line info for image 'b'.
+	 *            Line info for image 'b' which must be the lower of the two
+	 *            images.
 	 * @param ay
-	 *            The row number (i.e. y position) within image 'a' where the
-	 *            overlap begins. The overlap begins on the first row of image
-	 *            'b'. The overlap cannot begin in the middle of both images (it
-	 *            must begin at the top of one or the other) but the caller may
-	 *            have to swap their idea of image 'a' and 'b' before starting
-	 *            to call this method.
+	 *            The row number (i.e. y position) within image 'a' where 'b'
+	 *            begins.
 	 * @param axmbx
 	 *            The x screen position of image 'a' minus the x screen position
 	 *            of image 'b'.
