@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -113,7 +114,7 @@ public class Main {
 
 		List<AlienInfo> ail = new ArrayList<AlienInfo>();
 		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
-		// ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
 		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
@@ -223,13 +224,13 @@ public class Main {
 						try {
 							AlienInfo alienInfo = aim.get(type);
 							if (alienInfo != null) {
-								aim.remove(type); // ONCE!
+//								aim.remove(type); // ONCE!
 								Alien alien = alienInfo.instantiate();
 								if (alienInfo.spriteSetName != null) {
 									SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
 									alien.connectSpriteSet(ss);
 								}
-								if (type == 2) y -= 15;
+//								if (type == 2) y -= 15;
 								alien.c.x = x;
 								alien.c.y = y;
 								alien.srcData = rest;
@@ -329,8 +330,13 @@ public class Main {
 		player.update(world);
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 		drawTheMap();
-		for (Alien alien : alienList) {
+
+		for (Iterator<Alien> ai = alienList.iterator(); ai.hasNext();) {
+			Alien alien = ai.next();
 			alien.update(world);
+			if (alien.remove){
+				ai.remove();
+			}
 		}
 
 		if (world.playerInFront) {

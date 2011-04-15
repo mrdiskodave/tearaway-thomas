@@ -42,8 +42,10 @@ public class SimpleImage {
 		@Override
 		public int change(int c) {
 			int alpha = c >>> 3 * 8;
+			// all
 			if (alpha != 0xff)
-				c = 0; // pure transparent (nothing in the RBG slots)
+				// or nothing
+				c = 0;
 			return c;
 		}
 	};

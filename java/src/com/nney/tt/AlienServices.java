@@ -7,7 +7,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
 import com.nney.tt.sprites.Sprite;
 
-public interface AlienMovementServices {
+public interface AlienServices {
 
 	/**
 	 * Get some randomness.
@@ -56,7 +56,6 @@ public interface AlienMovementServices {
 	
 	void playerBehind();
 	
-	boolean collideWithPlayerDP(Coord alien, Box box);
 
 	void validatePlayerPosition(Coord c);
 	
@@ -67,9 +66,10 @@ public interface AlienMovementServices {
 	void queueSprite(Coord c, Sprite s);
 	void queueDebugText(Coord c, String text);
 	
-	boolean col2(Sprite s, Coord c2);
 	
-	void registerSprite(Coord c, Sprite s);
+	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);
 
-
+	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
+	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
+	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);
 }

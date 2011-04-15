@@ -36,15 +36,14 @@ public class Player extends Alien {
 
 	
 	@Override
-	public void update(AlienMovementServices world) {
-		move(world);
-		Sprite s = animPlayer.next();
+	public void update(AlienServices world) {
+		movePlayer(world);
+		Sprite s = nextFrame();
 		world.queueSprite(c, s);
-		world.registerSprite(c, s);
+		world.registerPlayerSpriteForAlienColisions(c, s);
 	}
 
-	@Override
-	public void move(AlienMovementServices ms) {
+	public void movePlayer(AlienServices ms) {
 		if (gravity) {
 			ms.fallOrRaise(c, 5);
 		}

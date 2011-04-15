@@ -1,16 +1,13 @@
 package com.nney.tt.aliens;
 
-import com.nney.json.DataItem;
-import com.nney.tt.AlienMovementServices;
-import com.nney.tt.LoadsFromSpriteDef;
+import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
+import com.nney.tt.sprites.Sprite;
 
-public class ArrowAlien extends Alien implements LoadsFromSpriteDef {
-	
+public class ArrowAlien extends Alien {
 	private int repeat;
 	private int timer;
 	private Box box;
-	private Box behindBox;
 
 	@Override
 	public void load() {
@@ -18,7 +15,7 @@ public class ArrowAlien extends Alien implements LoadsFromSpriteDef {
 	}
 
 	@Override
-	public void move(AlienMovementServices world) {
+	public void update(AlienServices world) {
 		boolean colide = box.inside(world.getPlayerPosition());
 		if (colide) {
 			repeat = 8;
@@ -37,24 +34,11 @@ public class ArrowAlien extends Alien implements LoadsFromSpriteDef {
 
 		if (on) {
 			changeAnimation(0);
+			Sprite s = nextFrame();
+			if (world.collideAlienWithPlayerBounds(c, s)) {
+				world.playerBehind();
+			}
+			world.queueSprite(c, s);
 		}
-		else {
-			hide();
-		}
-		
-		if (world.collideWithPlayerDP(this.c, behindBox)) {
-			world.playerBehind();
-		}
-
-	}
-
-	@Override
-	public void draw(AlienMovementServices world) {
-		super.draw(world);
-	}
-
-	@Override
-	public void load(DataItem di) {
-		behindBox = DataItemHelpers.loadBox(di.requireField("box"));
 	}
 }

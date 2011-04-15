@@ -1,16 +1,18 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.AlienMovementServices;
+import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Sprite;
 import com.nney.tt.sprites.SpriteSet;
 
 public abstract class Alien {
 	public Coord c = new Coord();
-	public AnimPlayer animPlayer = new AnimPlayer();
+	private AnimPlayer animPlayer = new AnimPlayer();
 	private SpriteSet spriteSet;
 	public byte[] srcData;
+	public boolean remove;
 
 	protected static final int OBbase = 9;
 	protected static final int OBflags = 9 - OBbase; // B
@@ -41,7 +43,12 @@ public abstract class Alien {
 	protected void changeAnimation(String name) {
 		assert spriteSet != null;
 		assert name != null;
-		animPlayer.changeAnimation(spriteSet.find(name));
+		changeAnimation(spriteSet.find(name));
+	}
+
+	protected void changeAnimation(Anim anim) {
+		assert anim != null;
+		animPlayer.changeAnimation(anim);
 	}
 
 	protected void changeAnimation(int name) {
@@ -53,22 +60,22 @@ public abstract class Alien {
 		animPlayer.changeAnimation(null);
 	}
 
+	protected Sprite nextFrame() {
+		return animPlayer.next();
+	}
+
 	public void connectSpriteSet(SpriteSet s) {
 		spriteSet = s;
 	}
 
-	public void draw(AlienMovementServices world) {
-		draw(world, c);
+	public void update(AlienServices world) {
 	}
 
-	protected void draw(AlienMovementServices world, Coord c2) {
-		Sprite s= animPlayer.next();
+	protected void draw(AlienServices world, Coord c2) {
+		Sprite s = nextFrame();
 		if (s != null) {
 			world.queueSprite(c2, s);
 		}
-	}
-
-	public void move(AlienMovementServices world) {
 	}
 
 	public void init() {
@@ -76,10 +83,5 @@ public abstract class Alien {
 
 	public void load() {
 
-	}
-
-	public void update(AlienMovementServices world) {
-		move(world);
-		draw(world);
 	}
 }

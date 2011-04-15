@@ -13,7 +13,7 @@ import com.nney.tt.map.MasksHolder;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 
-public class World implements AlienMovementServices {
+public class World implements AlienServices {
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
@@ -158,7 +158,7 @@ public class World implements AlienMovementServices {
 	}
 
 	@Override
-	public void registerSprite(Coord c, Sprite s) {
+	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
 		ttPos = new Coord(c);
 		ttPos.x -= s.handleX;
 		ttPos.y -= s.handleY;
@@ -212,25 +212,6 @@ public class World implements AlienMovementServices {
 	}
 
 	@Override
-	public boolean collideWithPlayerDP(Coord alien, Box box) {
-		int diffX = player.c.x - alien.x;
-		int diffY = player.c.y - alien.y;
-
-		int deluxePaintX = 160 + diffX;
-		int deluxePaintY = 128 - diffY;
-		if (deluxePaintX + 8 >= box.left) {
-			if (deluxePaintX - 8 <= box.right) {
-				if (deluxePaintY <= box.top) {
-					if (deluxePaintY + 30 >= box.bottom) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	@Override
 	public void validatePlayerPosition(Coord c) {
 		Box m = new Box(mapBounds);
 		m.shrink(6);
@@ -243,26 +224,50 @@ public class World implements AlienMovementServices {
 	}
 
 	@Override
-	public boolean col2(Sprite alienSprite, Coord alienPos) {
-		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
-		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
-			int dy = alienPos.y - alienSprite.handleY - ttPos.y;
-			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
-				int ai, ti, h;
-				if (dy < 0) {
-					ti = 0;
-					ai = -dy;
+	public boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox) {
+		int diffX = player.c.x - alienPos.x;
+		int diffY = player.c.y - alienPos.y;
+	
+		int deluxePaintX = 160 + diffX;
+		int deluxePaintY = 128 - diffY;
+		if (deluxePaintX + 8 >= deluxePaintBox.left) {
+			if (deluxePaintX - 8 <= deluxePaintBox.right) {
+				if (deluxePaintY <= deluxePaintBox.top) {
+					if (deluxePaintY + 30 >= deluxePaintBox.bottom) {
+						return true;
+					}
 				}
-				else {
-					ti = dy;
-					ai = 0;
-				}
-				queueAbsoluteDebugText(new Coord(0, 8), String.format("ti%d ai%d d%d", ti, ai, dx));
-				boolean answer = LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, ai, ti, dx);
-				queueAbsoluteDebugText(new Coord(0, 16), String.format("%s", answer));
-				return answer;
 			}
 		}
 		return false;
 	}
+
+	@Override
+	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
+		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
+		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
+			int dy = alienPos.y - alienSprite.handleY - ttPos.y;
+			return dy < ttSprite.h && dy > (-alienSprite.h);
+		}
+		return false;
+	}
+	
+	
+	@Override
+	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
+		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
+		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
+			int dy = alienPos.y - alienSprite.handleY - ttPos.y;
+			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
+				if (dy < 0) {
+					return LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, -dy, dx);
+				}
+				else {
+					return LineInfo.collide(ttSprite.lineInfo, alienSprite.lineInfo, dy, -dx);
+				}
+			}
+		}
+		return false;
+	}
+
 }
