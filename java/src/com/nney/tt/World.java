@@ -93,6 +93,14 @@ public class World implements AlienServices {
 			}
 		}
 	}
+	
+	@Override
+	public boolean landingSite(Coord c) {
+		if (inTheGround(c)) return false; 
+		Coord c2 = c.copy();
+		c2.y += 1;
+		return inTheGround(c2); 
+	}
 
 	/**
 	 * Scroll towards the given position.
@@ -229,5 +237,6 @@ public class World implements AlienServices {
 	public void stunThePlayer() {
 		player.stun();
 	}
+
 
 }

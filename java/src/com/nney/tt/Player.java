@@ -24,7 +24,7 @@ public class Player extends Alien {
 	private Sprite playerSprite;
 
 	boolean goLeft;
-	boolean touchFloor;
+	boolean touchFloor = true;
 	boolean moveStick;
 
 	private int vely;
@@ -74,29 +74,66 @@ public class Player extends Alien {
 			moveStick = true;
 		}
 		
+		if (touchFloor && ms.testKey(Keyboard.KEY_SPACE)) {
+			vely = -12;
+		}
+
 		// keep it on screen
 		Coord tp = c.copy();
 		tp.x += xdelta;
 		ms.validatePlayerPosition(tp);
 		xdelta = tp.x - c.x;
-		
-		MovementSlicer slicer = new MovementSlicer(xdelta);
-		while (slicer.more()) {
-			c.x += slicer.next(1);
-			if (!ms.playerFall(c, 14)) {
-				vely = 0;
+
+		// X
+		MovementSlicer xslicer = new MovementSlicer(xdelta);
+		while (xslicer.more()) {
+			c.x += xslicer.next(1);
+			if (touchFloor) {
+				if (!ms.playerFall(c, 14)) {
+					vely = 0;
+					touchFloor = false;
+				}
+			}
+			else {
+				if (ms.landingSite(c)) {
+					touchFloor = true;
+				}
 			}
 		}
-		ms.scrollTowards(c);
 		
-		if (moveStick) {
-			changeAnimation(goLeft ? "left" : "right");
+		// Y
+		gravity();
+		
+		touchFloor = false;
+		MovementSlicer yslicer = new MovementSlicer(vely);
+		while (yslicer.more()) {
+			int n = yslicer.next(1);
+			if (n<0) c.y += n; 
+			if (ms.landingSite(c)) {
+				touchFloor = true;
+				break;
+			}
+			if (n>0) c.y += n;
+		}
+		
+		ms.scrollTowards(c);
+
+		if (touchFloor) {
+			if (moveStick) {
+				changeAnimation(goLeft ? "left" : "right");
+			}
+			else {
+				stationaryAnim();
+			}
 		}
 		else {
-			stationaryAnim();
+			changeAnimation(goLeft ? "jumpleft" : "jumpright");
 		}
-		
-		
+	}
+	
+	private void gravity() {
+		vely++;
+		vely = Math.min(vely, 16);
 	}
 
 	private void stationaryAnim() {

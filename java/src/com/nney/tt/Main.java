@@ -172,7 +172,7 @@ public class Main {
 
 		try {
 			Box mapBounds = null;
-			InputStream i = TTResource.map("w", 0).open();
+			InputStream i = TTResource.map("w", 9).open();
 			DataInputStream di = new DataInputStream(i);
 
 			// get the game map off the front of the stream

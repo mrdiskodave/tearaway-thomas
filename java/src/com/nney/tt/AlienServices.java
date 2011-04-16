@@ -77,4 +77,6 @@ public interface AlienServices {
 	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);
 
 	void stunThePlayer();
+
+	boolean landingSite(Coord c);
 }
