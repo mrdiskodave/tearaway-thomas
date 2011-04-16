@@ -26,4 +26,8 @@ public class Coord {
 		x += other.x;
 		y += other.y;
 	}
+	
+	public Coord copy() {
+		return new Coord(x, y);
+	}
 }

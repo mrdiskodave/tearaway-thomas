@@ -52,7 +52,7 @@ public class SpriteSetPool extends CachedLoader<String, SpriteSet> {
 			}
 			an.add(new Anim(rate, frames, repeatPos, name));
 		}
-		return new SpriteSet(an);
+		return new SpriteSet(spriteName, an);
 	}
 
 }

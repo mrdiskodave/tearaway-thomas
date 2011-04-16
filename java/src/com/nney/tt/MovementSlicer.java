@@ -3,12 +3,12 @@ package com.nney.tt;
 public class MovementSlicer {
 	private int kipper;
 
-	MovementSlicer(int m) {
-		this.kipper = m;
+	public MovementSlicer(int distance) {
+		this.kipper = distance;
 	}
 	
-	int next(int sliceSize) {
-		if (sliceSize<=0) {
+	public int next(int slice) {
+		if (slice<=0) {
 			throw new IllegalArgumentException();
 		}
 		int answer;
@@ -16,16 +16,16 @@ public class MovementSlicer {
 			answer = 0;
 		}
 		else if (kipper<0) {
-			answer = Math.max(-sliceSize, kipper);
+			answer = Math.max(-slice, kipper);
 		}
 		else {
-			answer = Math.min(sliceSize, kipper);
+			answer = Math.min(slice, kipper);
 		}
 		kipper -= answer;
 		return answer;
 	}
 	
-	boolean more() {
+	public boolean more() {
 		return kipper!=0;
 	}
 }

@@ -12,7 +12,9 @@ public interface AlienServices {
 	/**
 	 * Get some randomness.
 	 * 
-	 * @param n Exactly like the parameter given to {@link Random#nextInt(int)}.
+	 * @param n
+	 *            Exactly like the parameter given to
+	 *            {@link Random#nextInt(int)}.
 	 * @return
 	 */
 	int randomness(int n);
@@ -24,12 +26,14 @@ public interface AlienServices {
 	 *            Where we're at.
 	 * @param fallMax
 	 *            The called-defined limit on falling (in pixels).
-	 * @return Are we falling? <code>true</code> meaning "yes" (we fell for
-	 *         fallMax and didn't it anything) or <code>false</code> meaning
-	 *         "no" we aren't falling we are resting exactly one pixel above the
-	 *         ground.
+	 * @return Success? <code>true</code> meaning "yes" (we were in the ground
+	 *         and floated up a bit <b>or</b> we fell by 0-<code>fallMax</code>
+	 *         pixels but, either way, we are now resting exactly one pixel
+	 *         above the ground) or <code>false</code> meaning "no" (we fell more
+	 *         than fallMax and didn't touch ground so have not changed the
+	 *         given {@link Coord}).
 	 */
-	boolean fallOrRaise(Coord where, int fallMax);
+	boolean playerFall(Coord where, int fallMax);
 
 	/**
 	 * Is a key pressed.
@@ -53,20 +57,24 @@ public interface AlienServices {
 	String getBlockSpecification(Coord where);
 
 	Coord getPlayerPosition();
-	
+
 	void validatePlayerPosition(Coord c);
-	
+
 	int getFrameNumber();
 
 	void scrollTowards(Coord c);
-	
+
 	void queueSprite(Coord c, Sprite s);
+
 	void queueDebugText(Coord c, String text);
-	
-	
+
 	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);
 
 	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
+
 	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
+
 	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);
+
+	void stunThePlayer();
 }

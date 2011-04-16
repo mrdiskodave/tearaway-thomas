@@ -7,14 +7,14 @@ public class BearAlien extends LeftRightAlien {
 	@Override
 	public void update(AlienServices ms) {
 		boolean turned = moveLeftRight(1);
-		ms.fallOrRaise(c, 16);
+		ms.playerFall(c, 16);
 		if (!turned && ms.getBlockSpecification(c) == "stop") {
 			headedRight = !headedRight;
 		}
 		Sprite s = nextFrame();
 		ms.queueSprite(c, s);
 		if (ms.collideAlienWithPlayerHiRes(c, s)) {
-			System.out.println("Bear GOTYA!");
+			ms.stunThePlayer();
 		}
 	}
 }

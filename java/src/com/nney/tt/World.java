@@ -1,8 +1,6 @@
 package com.nney.tt;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 
 import com.nney.tt.geom.Box;
@@ -32,8 +30,6 @@ public class World implements AlienServices {
 	public MyFont debugFont;
 	public Player player;
 	public MyFont font;
-
-//	public List<Runnable> renderQueue = new ArrayList<Runnable>();
 
 	public Box mapBounds;
 
@@ -67,29 +63,18 @@ public class World implements AlienServices {
 		return bs.get(block);
 	}
 
-	/**
-	 * Interact with the ground.
-	 * 
-	 * @param where
-	 *            Where we're at.
-	 * @param fallMax
-	 *            The called-defined limit on falling (in pixels).
-	 * @return Are we falling? <code>true</code> meaning "yes" (we fell for
-	 *         fallMax and didn't it anything) or <code>false</code> meaning
-	 *         "no" we aren't falling we are resting exactly one pixel above the
-	 *         ground.
-	 */
 	@Override
-	public boolean fallOrRaise(Coord where, int fallMax) {
+	public boolean playerFall(Coord where, int fallMax) {
 		// if we are in the ground ..
 		if (inTheGround(where)) {
 			// raise until we are not
 			do {
 				where.y--;
 			} while (inTheGround(where));
-			return false;
+			return true;
 		}
 		else {
+			int givenY = where.y;
 			for (;;) {
 				// otherwise fall
 				where.y++;
@@ -98,11 +83,12 @@ public class World implements AlienServices {
 					// back out by one
 					where.y--;
 					// and we're done!
-					return false;
+					return true;
 				}
 				// UNLESS we blow our maximum fallDistance
 				if (--fallMax <= 0) {
-					return true;
+					where.y = givenY;
+					return false;
 				}
 			}
 		}
@@ -161,13 +147,7 @@ public class World implements AlienServices {
 	public void queueSprite(Coord c, final Sprite s) {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
-		Runnable action = new Runnable() {
-			@Override
-			public void run() {
-				s.draw(x, y);
-			}
-		};
-		q(action);
+		s.draw(x, y);
 	}
 
 	@Override
@@ -178,32 +158,8 @@ public class World implements AlienServices {
 	}
 
 	private void queueAbsoluteDebugText(final Coord p, final String text) {
-		Runnable action = new Runnable() {
-			@Override
-			public void run() {
-				debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
-			}
-		};
-		q(action);
+		debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
 	}
-
-	private void q(Runnable action) {
-		action.run();
-//		renderQueue.add(action);
-	}
-
-//	public void runTheRenderQueue() {
-//		for (Runnable r : renderQueue) {
-//			r.run();
-//		}
-//	}
-
-//	public void runTheRenderQueueFirstItemLast() {
-//		assert renderQueue.size() != 0;
-//		Runnable player = renderQueue.remove(0);
-//		runTheRenderQueue();
-//		player.run();
-//	}
 
 	@Override
 	public Coord getPlayerPosition() {
@@ -267,6 +223,11 @@ public class World implements AlienServices {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void stunThePlayer() {
+		player.stun();
 	}
 
 }
