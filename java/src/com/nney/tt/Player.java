@@ -21,6 +21,7 @@ public class Player extends Alien {
 
 	boolean goLeft;
 	private boolean gravity = true;
+	private Sprite playerSprite;
 
 	@Override
 	public void init() {
@@ -35,12 +36,15 @@ public class Player extends Alien {
 	}
 
 	
-	@Override
-	public void update(AlienServices world) {
+	public void move(AlienServices world) {
 		movePlayer(world);
 		Sprite s = nextFrame();
-		world.queueSprite(c, s);
 		world.registerPlayerSpriteForAlienColisions(c, s);
+		playerSprite = s;
+	}
+	
+	public void draw(AlienServices world) {
+		world.queueSprite(c, playerSprite);
 	}
 
 	public void movePlayer(AlienServices ms) {
@@ -88,6 +92,11 @@ public class Player extends Alien {
 
 	private void stationaryAnim() {
 		changeAnimation(goLeft ? "stoodleft" : "stoodright");
+	}
+	
+	@Override
+	public void update(AlienServices world) {
+		assert false;
 	}
 
 }

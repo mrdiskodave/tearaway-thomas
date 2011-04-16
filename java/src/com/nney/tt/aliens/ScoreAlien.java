@@ -1,5 +1,10 @@
 package com.nney.tt.aliens;
 
+import com.nney.tt.AlienServices;
+
 public class ScoreAlien extends Alien {
-	// TODO: SCORE and player collision
+	@Override
+	public void update(AlienServices world) {
+		// nothing to do
+	}
 }

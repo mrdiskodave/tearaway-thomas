@@ -13,6 +13,8 @@ public abstract class Alien {
 	private SpriteSet spriteSet;
 	public byte[] srcData;
 	public boolean remove;
+	public boolean infront;
+
 
 	protected static final int OBbase = 9;
 	protected static final int OBflags = 9 - OBbase; // B
@@ -68,9 +70,6 @@ public abstract class Alien {
 		spriteSet = s;
 	}
 
-	public void update(AlienServices world) {
-	}
-
 	protected void draw(AlienServices world, Coord c2) {
 		Sprite s = nextFrame();
 		if (s != null) {
@@ -84,4 +83,6 @@ public abstract class Alien {
 	public void load() {
 
 	}
+
+	abstract public void update(AlienServices world);
 }

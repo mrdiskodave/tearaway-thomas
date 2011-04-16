@@ -54,9 +54,6 @@ public interface AlienServices {
 
 	Coord getPlayerPosition();
 	
-	void playerBehind();
-	
-
 	void validatePlayerPosition(Coord c);
 	
 	int getFrameNumber();

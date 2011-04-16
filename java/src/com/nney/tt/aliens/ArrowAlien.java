@@ -10,6 +10,11 @@ public class ArrowAlien extends Alien {
 	private Box box;
 
 	@Override
+	public void init() {
+		infront = true;
+	}
+	
+	@Override
 	public void load() {
 		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
@@ -35,9 +40,6 @@ public class ArrowAlien extends Alien {
 		if (on) {
 			changeAnimation(0);
 			Sprite s = nextFrame();
-			if (world.collideAlienWithPlayerBounds(c, s)) {
-				world.playerBehind();
-			}
 			world.queueSprite(c, s);
 		}
 	}

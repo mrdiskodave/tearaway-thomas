@@ -33,9 +33,7 @@ public class World implements AlienServices {
 	public Player player;
 	public MyFont font;
 
-	public List<Runnable> renderQueue = new ArrayList<Runnable>();
-
-	public boolean playerInFront;
+//	public List<Runnable> renderQueue = new ArrayList<Runnable>();
 
 	public Box mapBounds;
 
@@ -46,13 +44,7 @@ public class World implements AlienServices {
 	private Coord ttPos;
 
 	void startFrame() {
-		playerInFront = true;
-		renderQueue.clear();
-	}
-
-	@Override
-	public void playerBehind() {
-		playerInFront = false;
+//		renderQueue.clear();
 	}
 
 	@Override
@@ -169,12 +161,13 @@ public class World implements AlienServices {
 	public void queueSprite(Coord c, final Sprite s) {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
-		renderQueue.add(new Runnable() {
+		Runnable action = new Runnable() {
 			@Override
 			public void run() {
 				s.draw(x, y);
 			}
-		});
+		};
+		q(action);
 	}
 
 	@Override
@@ -185,26 +178,32 @@ public class World implements AlienServices {
 	}
 
 	private void queueAbsoluteDebugText(final Coord p, final String text) {
-		renderQueue.add(new Runnable() {
+		Runnable action = new Runnable() {
 			@Override
 			public void run() {
 				debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
 			}
-		});
+		};
+		q(action);
 	}
 
-	public void runTheRenderQueue() {
-		for (Runnable r : renderQueue) {
-			r.run();
-		}
+	private void q(Runnable action) {
+		action.run();
+//		renderQueue.add(action);
 	}
 
-	public void runTheRenderQueueFirstItemLast() {
-		assert renderQueue.size() != 0;
-		Runnable player = renderQueue.remove(0);
-		runTheRenderQueue();
-		player.run();
-	}
+//	public void runTheRenderQueue() {
+//		for (Runnable r : renderQueue) {
+//			r.run();
+//		}
+//	}
+
+//	public void runTheRenderQueueFirstItemLast() {
+//		assert renderQueue.size() != 0;
+//		Runnable player = renderQueue.remove(0);
+//		runTheRenderQueue();
+//		player.run();
+//	}
 
 	@Override
 	public Coord getPlayerPosition() {

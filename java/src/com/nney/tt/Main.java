@@ -65,7 +65,8 @@ public class Main {
 
 	private int frameNumber;
 
-	private List<Alien> alienList = new ArrayList<Alien>();
+	private List<Alien> backgroundAlienList = new ArrayList<Alien>();
+	private List<Alien> foregroundAlienList = new ArrayList<Alien>();
 
 	private Player player;
 
@@ -241,14 +242,15 @@ public class Main {
 								}
 
 								alien.init();
-								alienList.add(alien);
+								saveAlien(alien);
 							}
 							else {
 								TextAlien alien = new TextAlien();
 								alien.setText(String.format("%d", type));
 								alien.c.x = x;
 								alien.c.y = y;
-								alienList.add(alien);
+								alien.init();
+								saveAlien(alien);
 							}
 						}
 						catch (InstantiationException e) {
@@ -298,6 +300,11 @@ public class Main {
 		}
 	}
 
+	private void saveAlien(Alien alien) {
+		List<Alien> alienList = alien.infront ? foregroundAlienList : backgroundAlienList;
+		alienList.add(alien);
+	}
+
 	private void drawTheMap() {
 		final int BLOCK_SIZE = 16;
 		final int BLOCK_MASK = BLOCK_SIZE - 1;
@@ -327,26 +334,25 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 
-		player.update(world);
+		player.move(world);
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 		drawTheMap();
 
-		for (Iterator<Alien> ai = alienList.iterator(); ai.hasNext();) {
+		updateAliens(backgroundAlienList);
+		player.draw(world);
+		updateAliens(foregroundAlienList);
+
+		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
+	}
+
+	private void updateAliens(List<Alien> al) {
+		for (Iterator<Alien> ai = al.iterator(); ai.hasNext();) {
 			Alien alien = ai.next();
 			alien.update(world);
 			if (alien.remove){
 				ai.remove();
 			}
 		}
-
-		if (world.playerInFront) {
-			world.runTheRenderQueueFirstItemLast();
-		}
-		else {
-			world.runTheRenderQueue();
-		}
-
-		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 	}
 
 	private void handleKeyboard() {

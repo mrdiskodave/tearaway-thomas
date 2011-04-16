@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.BitOp;
 import com.nney.tt.geom.XRange;
 
-public class LeftRightAlien extends Alien {
+public abstract class LeftRightAlien extends Alien {
 	protected XRange range;
 	protected boolean headedRight;
 

@@ -7,7 +7,7 @@ public final class LineInfo {
 	/**
 	 * Generate line info for the given {@link SimpleImage}.
 	 * 
-	 * @param si
+	 * @param si The image.
 	 * @return The line info.
 	 */
 	static byte[] generate(SimpleImage si) {
