@@ -47,8 +47,6 @@ public interface AlienServices {
 
 	int getFrameNumber();
 
-	void scrollTowards(Coord c);
-
 	void queueSprite(Coord c, Sprite s);
 
 	void queueDebugText(Coord c, String text);
@@ -63,10 +61,6 @@ public interface AlienServices {
 
 	void stunThePlayer();
 
-
-	
-	boolean landingSite(Coord c);
-	
 	boolean inTheGround(Coord c);
 	
 	/**
@@ -85,5 +79,6 @@ public interface AlienServices {
 	 */
 	boolean playerFall(Coord where, int fallMax);
 
+	void scrollTowards(Coord c);
 
 }

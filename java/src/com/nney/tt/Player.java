@@ -7,45 +7,27 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
-
-	/**
-	 * <code>true</code> to read {@link #VEL_NORM} <code>false</code> to read
-	 * {@link #VEL_TURBO}.
-	 */
-	boolean plSprint;
-	private static final int[] VEL_NORM = { 1, 3, 4, 5, 5, 5, 5, 5 };
-	private static final int[] VEL_TURBO = { 1, 2, 3, 4, 6, 7, 9, 10 };
-
-	/**
-	 * Index into {@link #VEL_NORM} or {@link #VEL_TURBO}.
-	 */
-	int velStep;
-
+	private static final int STUN_VELOCITY = -10;
+	private static final int JUMP_VELOCITY = -12;
+	
+	private PlayerVelocityTable pvt = new PlayerVelocityTable();
+	
 	private Sprite playerSprite;
 
 	boolean goLeft;
-	boolean touchFloor = true;
-	boolean moveStick;
-
-	private int vely;
-	private int stunTimer;
+	private boolean touchFloor = true;
+	private boolean moveStick;
 	private boolean inGround;
 	private boolean jumping;
 
-	enum MODE {
-		STANDING, JUMPING
-	};
+	private int stunTimer;
+	private int proofTimer;
+
+	private int vely;
 
 	@Override
 	public void init() {
 		stationaryAnim();
-	}
-
-	private int getNextVelStep() {
-		int[] t = plSprint ? VEL_TURBO : VEL_NORM;
-		int answer = t[velStep];
-		if (velStep != t.length - 1) velStep++;
-		return answer;
 	}
 
 	public void move(AlienServices world) {
@@ -57,24 +39,63 @@ public class Player extends Alien {
 	}
 
 	public void movePlayer(AlienServices ms) {
-		moveStick = false;
+		if (proofTimer!=0) proofTimer--;
 		
+		moveX(ms);
+		moveY(ms);
+		ms.scrollTowards(c);
+		setPlayerAnimation(ms);
+	}
+
+	private void setPlayerAnimation(AlienServices ms) {
+		boolean animate = true;
+		if (touchFloor) {
+			if (stunTimer != 0) {
+				changeAnimation("wobble");
+				stunTimer--;
+				proofTimer = 25;
+			}
+			else {
+				if (moveStick) {
+					changeAnimation(goLeft ? "left" : "right");
+				}
+				else {
+					stationaryAnim();
+				}
+			}
+		}
+		else {
+			if (jumping) {
+				changeAnimation(goLeft ? "jumpleft" : "jumpright");
+			}
+			else {
+				animate = false;
+			}
+		}
+		Sprite s = animate ? nextFrame() : currentFrame();
+		ms.registerPlayerSpriteForAlienColisions(c, s);
+		playerSprite = s;
+	}
+
+	private void moveX(AlienServices ms) {
+		moveStick = false;
+
 		// ----------------------------------------
 		// Figure out the xdelta
-		
+
 		int xdelta = 0;
-		if (ms.testKey(Keyboard.KEY_Q)) {
-			xdelta = -getNextVelStep();
+		if (ms.testKey(Keyboard.KEY_Q) && stunTimer == 0) {
+			xdelta = -pvt.next();
 			goLeft = true;
 			moveStick = true;
 		}
-		else if (ms.testKey(Keyboard.KEY_W)) {
-			xdelta = getNextVelStep();
+		else if (ms.testKey(Keyboard.KEY_W) && stunTimer == 0) {
+			xdelta = pvt.next();
 			goLeft = false;
 			moveStick = true;
 		}
 		else {
-			velStep = 0;
+			pvt.reset();
 		}
 
 		// keep it on screen
@@ -90,7 +111,7 @@ public class Player extends Alien {
 		while (xslicer.more()) {
 			int n = xslicer.next(1);
 			if (inGround) {
-				// if you're in the ground it is always possible
+				// if you're in the ground it is always possible to move
 				c.x += n;
 				inGround = ms.inTheGround(c);
 			}
@@ -102,36 +123,40 @@ public class Player extends Alien {
 					// we look at the pixel above
 					c.y--;
 					if (ms.inTheGround(c)) {
-						// it might not save us (in which case we are definately
-						// entering ground)
+						// it might not get us back into air (in which case we
+						// are definitely
+						// entering ground from the side)
 						c.y++;
 						inGround = true;
 					}
 					else {
-						// or it might!
-						jumpingOff();
+						// or it might in which case we are touching down
+						touchDown();
 					}
 				}
 			}
 		}
+	}
 
+	private void moveY(AlienServices ms) {
 		// ----------------------------------------
 		// Y movement
 		//
 
-		// when we're on the floor
+		// when we are on the floor
 		if (touchFloor) {
 			assert !inGround;
+			assert !jumping;
 			if (!ms.playerFall(c, 14)) {
 				touchFloor = false;
 			}
-			else if (ms.testKey(Keyboard.KEY_SPACE)) {
-				vely = -12;
-				touchFloor = false;
-				jumping = true;
+			else if (ms.testKey(Keyboard.KEY_SPACE) && stunTimer == 0) {
+				// TODO: anti-autofire
+				jump(JUMP_VELOCITY);
 			}
 		}
 
+		// when we are in the air
 		if (!touchFloor) {
 			gravity();
 			MovementSlicer yslicer = new MovementSlicer(vely);
@@ -154,40 +179,23 @@ public class Player extends Alien {
 						// pixel below isn't ground
 						c.y++;
 						if (ms.inTheGround(c)) {
-							jumpingOff();
+							touchDown();
 							c.y--;
 						}
 					}
 				}
 			}
 		}
-
-		ms.scrollTowards(c);
-
-		boolean animate = true;
-		if (touchFloor) {
-			if (moveStick) {
-				changeAnimation(goLeft ? "left" : "right");
-			}
-			else {
-				stationaryAnim();
-			}
-		}
-		else {
-			if (jumping) {
-				changeAnimation(goLeft ? "jumpleft" : "jumpright");
-			}
-			else {
-				animate = false;
-			}
-		}
-
-		Sprite s = animate ? nextFrame() : currentFrame();
-		ms.registerPlayerSpriteForAlienColisions(c, s);
-		playerSprite = s;
 	}
 
-	private void jumpingOff() {
+	private void jump(int v) {
+		vely = v;
+		touchFloor = false;
+		jumping = true;
+	}
+
+	private void touchDown() {
+		assert !inGround;
 		touchFloor = true;
 		jumping = false;
 		vely = 0;
@@ -208,11 +216,11 @@ public class Player extends Alien {
 	}
 
 	public void stun() {
-		if (stunTimer != 0) {
-			return;
+		// if we not proof and not already stunned:
+		if (proofTimer==0 && stunTimer == 0) {
+			jump(STUN_VELOCITY);
+			stunTimer = 33;
 		}
-		stunTimer = 33;
-		vely = -10;
 	}
 
 }
