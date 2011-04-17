@@ -1,3 +1,7 @@
+import array
+
+def get_word(data, idx):
+	return data[idx]*256+data[idx+1]
 
 def get_map_from_level(level):
 	# commision 64K of words
@@ -31,7 +35,7 @@ def get_map_from_level(level):
 			# it is just a single unpacked value
 			r = 1
 		for _ in xrange(r):
-			print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
+			#print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
 			de -= 1
 			map[de] = x
 	assert de==0
