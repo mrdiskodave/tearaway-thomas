@@ -19,21 +19,6 @@ public interface AlienServices {
 	 */
 	int randomness(int n);
 
-	/**
-	 * Interact with the ground.
-	 * 
-	 * @param where
-	 *            Where we're at.
-	 * @param fallMax
-	 *            The called-defined limit on falling (in pixels).
-	 * @return Success? <code>true</code> meaning "yes" (we were in the ground
-	 *         and floated up a bit <b>or</b> we fell by 0-<code>fallMax</code>
-	 *         pixels but, either way, we are now resting exactly one pixel
-	 *         above the ground) or <code>false</code> meaning "no" (we fell more
-	 *         than fallMax and didn't touch ground so have not changed the
-	 *         given {@link Coord}).
-	 */
-	boolean playerFall(Coord where, int fallMax);
 
 	/**
 	 * Is a key pressed.
@@ -78,5 +63,27 @@ public interface AlienServices {
 
 	void stunThePlayer();
 
+
+	
 	boolean landingSite(Coord c);
+	
+	boolean inTheGround(Coord c);
+	
+	/**
+	 * Interact with the ground.
+	 * 
+	 * @param where
+	 *            Where we're at.
+	 * @param fallMax
+	 *            The called-defined limit on falling (in pixels).
+	 * @return Success? <code>true</code> meaning "yes" (we were in the ground
+	 *         and floated up a bit <b>or</b> we fell by 0-<code>fallMax</code>
+	 *         pixels but, either way, we are now resting exactly one pixel
+	 *         above the ground) or <code>false</code> meaning "no" (we fell more
+	 *         than fallMax and didn't touch ground so have not changed the
+	 *         given {@link Coord}).
+	 */
+	boolean playerFall(Coord where, int fallMax);
+
+
 }

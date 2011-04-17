@@ -52,7 +52,8 @@ public class World implements AlienServices {
 		return gameMap.getBlock(c.x / 16, c.y / 16);
 	}
 
-	private boolean inTheGround(Coord c) {
+	@Override
+	public boolean inTheGround(Coord c) {
 		int block = getBlock(c);
 		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
 	}
@@ -102,18 +103,35 @@ public class World implements AlienServices {
 		return inTheGround(c2); 
 	}
 
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * Scroll towards the given position.
 	 */
 	@Override
 	public void scrollTowards(Coord c) {
-		screen.x = scrollOrd(screen.x, c.x - Main.SCREEN_WIDTH / 2, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
-		screen.y = scrollOrd(screen.y, c.y - Main.SCREEN_HEIGHT * 11 / 16, mapBounds.top, mapBounds.bottom
-				- Main.SCREEN_HEIGHT);
+		Coord sd = screenDest(c);
+		screen.x = scrollOrd(screen.x, sd.x);
+		screen.y = scrollOrd(screen.y, sd.y);
+		limitScreenPosition();
 	}
 
-	private int scrollOrd(int current, int dest, int min, int max) {
-		current += shrinkDelta(dest - current);
+	private void limitScreenPosition() {
+		screen.x = limit(screen.x, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
+		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
+	}
+
+	public void scrollTo(Coord c) {
+		screen = screenDest(c);
+		limitScreenPosition();
+	}
+	
+	private static int limit(int current, int min, int max) {
 		if (current < min) {
 			current = min;
 		}
@@ -122,8 +140,19 @@ public class World implements AlienServices {
 		}
 		return current;
 	}
+	
+	private static Coord screenDest(Coord c) {
+		int sdx = c.x - Main.SCREEN_WIDTH / 2;
+		int sdy = c.y - Main.SCREEN_HEIGHT * 11 / 16;
+		return new Coord(sdx, sdy);
+	}
 
-	private int shrinkDelta(int delta) {
+	private static int scrollOrd(int current, int dest) {
+		current += shrinkDelta(dest - current);
+		return current;
+	}
+
+	private static int shrinkDelta(int delta) {
 		boolean neg = false;
 		if (delta < 0) {
 			neg = true;
@@ -136,6 +165,17 @@ public class World implements AlienServices {
 		}
 		return shrunkDelta;
 	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	@Override
 	public boolean testKey(int key) {

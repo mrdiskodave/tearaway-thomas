@@ -280,8 +280,6 @@ public class Main {
 					"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
 			// TODO: ctor??
-			world.screen.x = 970;
-			world.screen.y = 864;
 			world.gameMap = gameMap;
 			world.maskHolder = maskHolder;
 			world.bs = bs;
@@ -290,6 +288,7 @@ public class Main {
 			world.font = font;
 			world.player = player;
 			world.mapBounds = mapBounds;
+			world.scrollTo(player.c);
 
 			// bear.c.x = 455;
 			// bear.c.y = 818 + 50;

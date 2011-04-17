@@ -65,6 +65,10 @@ public abstract class Alien {
 	protected Sprite nextFrame() {
 		return animPlayer.next();
 	}
+	
+	protected Sprite currentFrame() {
+		return animPlayer.current();
+	}
 
 	public void connectSpriteSet(SpriteSet s) {
 		spriteSet = s;

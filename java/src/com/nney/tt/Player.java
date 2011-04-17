@@ -29,6 +29,8 @@ public class Player extends Alien {
 
 	private int vely;
 	private int stunTimer;
+	private boolean inGround;
+	private boolean jumping;
 
 	enum MODE {
 		STANDING, JUMPING
@@ -39,11 +41,8 @@ public class Player extends Alien {
 		stationaryAnim();
 	}
 
-	private int getNextVel() {
+	private int getNextVelStep() {
 		int[] t = plSprint ? VEL_TURBO : VEL_NORM;
-		if (!touchFloor) {
-			velStep = t.length - 1;
-		}
 		int answer = t[velStep];
 		if (velStep != t.length - 1) velStep++;
 		return answer;
@@ -51,9 +50,6 @@ public class Player extends Alien {
 
 	public void move(AlienServices world) {
 		movePlayer(world);
-		Sprite s = nextFrame();
-		world.registerPlayerSpriteForAlienColisions(c, s);
-		playerSprite = s;
 	}
 
 	public void draw(AlienServices world) {
@@ -62,20 +58,23 @@ public class Player extends Alien {
 
 	public void movePlayer(AlienServices ms) {
 		moveStick = false;
+		
+		// ----------------------------------------
+		// Figure out the xdelta
+		
 		int xdelta = 0;
 		if (ms.testKey(Keyboard.KEY_Q)) {
-			xdelta = -getNextVel();
+			xdelta = -getNextVelStep();
 			goLeft = true;
 			moveStick = true;
 		}
 		else if (ms.testKey(Keyboard.KEY_W)) {
-			xdelta = getNextVel();
+			xdelta = getNextVelStep();
 			goLeft = false;
 			moveStick = true;
 		}
-		
-		if (touchFloor && ms.testKey(Keyboard.KEY_SPACE)) {
-			vely = -12;
+		else {
+			velStep = 0;
 		}
 
 		// keep it on screen
@@ -84,40 +83,88 @@ public class Player extends Alien {
 		ms.validatePlayerPosition(tp);
 		xdelta = tp.x - c.x;
 
-		// X
+		// ----------------------------------------
+		// X movement
+
 		MovementSlicer xslicer = new MovementSlicer(xdelta);
 		while (xslicer.more()) {
-			c.x += xslicer.next(1);
-			if (touchFloor) {
-				if (!ms.playerFall(c, 14)) {
-					vely = 0;
-					touchFloor = false;
-				}
+			int n = xslicer.next(1);
+			if (inGround) {
+				// if you're in the ground it is always possible
+				c.x += n;
+				inGround = ms.inTheGround(c);
 			}
 			else {
-				if (ms.landingSite(c)) {
-					touchFloor = true;
+				// if you're in the air we do it
+				c.x += n;
+				// but if that results in entering the ground ..
+				if (ms.inTheGround(c)) {
+					// we look at the pixel above
+					c.y--;
+					if (ms.inTheGround(c)) {
+						// it might not save us (in which case we are definately
+						// entering ground)
+						c.y++;
+						inGround = true;
+					}
+					else {
+						// or it might!
+						jumpingOff();
+					}
 				}
 			}
 		}
-		
-		// Y
-		gravity();
-		
-		touchFloor = false;
-		MovementSlicer yslicer = new MovementSlicer(vely);
-		while (yslicer.more()) {
-			int n = yslicer.next(1);
-			if (n<0) c.y += n; 
-			if (ms.landingSite(c)) {
-				touchFloor = true;
-				break;
+
+		// ----------------------------------------
+		// Y movement
+		//
+
+		// when we're on the floor
+		if (touchFloor) {
+			assert !inGround;
+			if (!ms.playerFall(c, 14)) {
+				touchFloor = false;
 			}
-			if (n>0) c.y += n;
+			else if (ms.testKey(Keyboard.KEY_SPACE)) {
+				vely = -12;
+				touchFloor = false;
+				jumping = true;
+			}
 		}
-		
+
+		if (!touchFloor) {
+			gravity();
+			MovementSlicer yslicer = new MovementSlicer(vely);
+			while (yslicer.more() && !touchFloor) {
+				int n = yslicer.next(1);
+				if (n < 0) {
+					// going up (always possible)
+					c.y--;
+					inGround = ms.inTheGround(c);
+				}
+				else {
+					// going down
+					if (inGround) {
+						// if you're in the ground it is always possible
+						c.y++;
+						inGround = ms.inTheGround(c);
+					}
+					else {
+						// if you're in the air it is possible as long as the
+						// pixel below isn't ground
+						c.y++;
+						if (ms.inTheGround(c)) {
+							jumpingOff();
+							c.y--;
+						}
+					}
+				}
+			}
+		}
+
 		ms.scrollTowards(c);
 
+		boolean animate = true;
 		if (touchFloor) {
 			if (moveStick) {
 				changeAnimation(goLeft ? "left" : "right");
@@ -127,10 +174,25 @@ public class Player extends Alien {
 			}
 		}
 		else {
-			changeAnimation(goLeft ? "jumpleft" : "jumpright");
+			if (jumping) {
+				changeAnimation(goLeft ? "jumpleft" : "jumpright");
+			}
+			else {
+				animate = false;
+			}
 		}
+
+		Sprite s = animate ? nextFrame() : currentFrame();
+		ms.registerPlayerSpriteForAlienColisions(c, s);
+		playerSprite = s;
 	}
-	
+
+	private void jumpingOff() {
+		touchFloor = true;
+		jumping = false;
+		vely = 0;
+	}
+
 	private void gravity() {
 		vely++;
 		vely = Math.min(vely, 16);

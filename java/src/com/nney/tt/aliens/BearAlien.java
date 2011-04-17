@@ -7,7 +7,9 @@ public class BearAlien extends LeftRightAlien {
 	@Override
 	public void update(AlienServices ms) {
 		boolean turned = moveLeftRight(1);
-		ms.playerFall(c, 16);
+		if (!ms.playerFall(c, 16)) {
+			remove = true;
+		}
 		if (!turned && ms.getBlockSpecification(c) == "stop") {
 			headedRight = !headedRight;
 		}

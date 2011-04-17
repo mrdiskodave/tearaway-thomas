@@ -15,8 +15,6 @@ public class AnimPlayer {
 
 	private int rate;
 
-	private boolean pause;
-
 	public AnimPlayer() {
 	}
 
@@ -30,30 +28,32 @@ public class AnimPlayer {
 			pos = 0;
 			acc = 0;
 		}
-		pause = false;
 	}
 	
-	public void pause() {
-		pause = true;
+	public Sprite next() {
+		//if (anim==null) return null;
+		advance();
+		return current();
 	}
 
-	public Sprite next() {
-		if (anim==null) return null;
-		if (!pause) {
-			acc += rate;
-			if (acc > Anim.MAX_RATE) {
-				acc -= Anim.MAX_RATE;
-				pos += 1;
-				if (pos >= anim.frames.length) {
-					if (anim.repeatPos<0) {
-						pos = anim.frames.length - 1;
-					}
-					else {
-						pos = anim.repeatPos;
-					}
+	public Sprite current() {
+		return anim.frames[pos];
+	}
+
+	private void advance() {
+		assert anim!=null;
+		acc += rate;
+		if (acc > Anim.MAX_RATE) {
+			acc -= Anim.MAX_RATE;
+			pos += 1;
+			if (pos >= anim.frames.length) {
+				if (anim.repeatPos<0) {
+					pos = anim.frames.length - 1;
+				}
+				else {
+					pos = anim.repeatPos;
 				}
 			}
 		}
-		return anim.frames[pos];
 	}
 }
