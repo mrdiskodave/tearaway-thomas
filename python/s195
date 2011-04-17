@@ -9885,12 +9885,16 @@ donestun	rts
 	PROC
 landing_lights	bsr	pixel_test
 	beq	llsky
+	* we're in the ground
 	tst.b	iglatch
 	bne	anRTS
 	st	iglatch
+	* we move up
 	subq.w	#1,d3
 	bsr	pixel_test
 	bne	llnotzero
+	* and find sky
+	* so it's here that we stop
 
 	sf	iglatch
 jumping_off
@@ -9900,7 +9904,7 @@ jumping_off
 	st	touch_floor
 	rts
 
-llnotzero	subq.w	#1,d3
+llnotzero	subq.w	#1,d3		BUGSPOT: was this supposed to be an add to reverse the sub above?
 	sf	touch_floor
 	rts
 
@@ -11072,7 +11076,7 @@ flyx_loop	moveq	#1,d1
 	bne.s	flyx_loop
 
 
-done_flyX	bsr	player_Y
+done_flyX	bsr	player_y
 
 	; future normal comes back here
 moved_player	movem.w	d2/d3,PLx
@@ -11234,7 +11238,7 @@ PA_roper2l	dc.b	200,74,73,72,71,70,58,-1
 plyframes=75	(physical)
 	even
 
-player_Y	bsr	gravity
+player_y	bsr	gravity
 	tst.w	PLvely
 	beq	doneymove
 	bpl	going_down
