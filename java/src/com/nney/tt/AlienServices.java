@@ -19,17 +19,6 @@ public interface AlienServices {
 	 */
 	int randomness(int n);
 
-
-	/**
-	 * Is a key pressed.
-	 * 
-	 * @param key
-	 *            The key the caller is asking about.
-	 * @return <code>true</code> meaning "it is" or <code>false</code> meaning
-	 *         "it is not".
-	 */
-	boolean testKey(int key);
-
 	/**
 	 * What is there?
 	 * 
@@ -41,25 +30,17 @@ public interface AlienServices {
 	 */
 	String getBlockSpecification(Coord where);
 
-	Coord getPlayerPosition();
-
-	void validatePlayerPosition(Coord c);
-
 	int getFrameNumber();
 
 	void queueSprite(Coord c, Sprite s);
 
 	void queueDebugText(Coord c, String text);
 
-	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);
-
 	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
 
 	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
 
 	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);
-
-	void stunThePlayer();
 
 	boolean inTheGround(Coord c);
 	
@@ -79,7 +60,21 @@ public interface AlienServices {
 	 */
 	boolean playerFall(Coord where, int fallMax);
 
+	
+	// called by the player
+	
 	void scrollTowards(Coord c);
 	
 	Joystick getStick();
+	
+	void validatePlayerPosition(Coord c);
+
+	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);
+
+	// called by Aliens to operate on the player
+	
+	Coord getPlayerPosition();
+
+	Player getThePlayer();
+
 }

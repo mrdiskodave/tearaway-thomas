@@ -32,6 +32,7 @@ public class Player extends Alien {
 	private int airJumpTimer;
 
 	private int vely;
+	private int flashTimer;
 
 	@Override
 	public void init() {
@@ -245,6 +246,12 @@ public class Player extends Alien {
 			stunTimer = STUN_TIME;
 			moveStick = false;
 		}
+	}
+
+	public void proof() {
+		proofTimer = 50*13;
+		flashTimer = 50*12;
+		// TODO: AAA flash! but how?? Anim references Sprite
 	}
 
 }

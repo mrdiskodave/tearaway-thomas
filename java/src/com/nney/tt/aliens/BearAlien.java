@@ -15,7 +15,7 @@ public class BearAlien extends LeftRightAlien {
 		Sprite s = nextFrame();
 		srv.queueSprite(c, s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.stunThePlayer();
+			srv.getThePlayer().stun();
 		}
 	}
 }

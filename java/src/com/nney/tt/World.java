@@ -25,7 +25,6 @@ public class World implements AlienServices, Joystick {
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
 	public BlockSpecifications bs;
-	public HashSet<Integer> keys;
 	public Random rnd = new Random(5);
 	public MyFont debugFont;
 	public Player player;
@@ -158,19 +157,7 @@ public class World implements AlienServices, Joystick {
 
 	
 	
-	
-	
-	
-	
-	
-	
-	
 
-	@Override
-	public boolean testKey(int key) {
-		boolean answer = keys.contains(key);
-		return answer;
-	}
 
 	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
@@ -263,8 +250,8 @@ public class World implements AlienServices, Joystick {
 	}
 
 	@Override
-	public void stunThePlayer() {
-		player.stun();
+	public Player getThePlayer() {
+		return player;
 	}
 
 	@Override
