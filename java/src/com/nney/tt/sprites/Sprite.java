@@ -63,10 +63,10 @@ public class Sprite {
 	 *            location).
 	 * @param dy
 	 */
-	public void draw(int dx, int dy, int version) {
+	public void draw(int dx, int dy, boolean drawWhite) {
 		dx -= handleX;
 		dy -= handleY;
-		if (version==0) {
+		if (!drawWhite) {
 			texture.draw(dx, dy);
 		}
 		else {

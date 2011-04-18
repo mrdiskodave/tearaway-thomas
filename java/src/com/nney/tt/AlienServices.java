@@ -34,7 +34,7 @@ public interface AlienServices {
 
 	void queueSprite(Coord c, Sprite s);
 
-	void queueSprite(Coord c, Sprite s, int version);
+	void queueSprite(Coord c, Sprite s, boolean drawWhite);
 
 	void queueDebugText(Coord c, String text);
 

@@ -41,7 +41,7 @@ public class Player extends Alien {
 
 	public void draw(AlienServices world) {
 		// TODO: AAA flash! but how?? Here it is starting .....
-		world.queueSprite(c, playerSprite, 0);
+		world.queueSprite(c, playerSprite, true);
 	}
 
 	private void movePlayer(AlienServices ms) {
