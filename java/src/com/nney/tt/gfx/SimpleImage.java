@@ -20,6 +20,12 @@ public class SimpleImage {
 
 	final private boolean isView;
 
+	
+	public interface SimpleImageProcessor {
+		boolean inPlace();
+		SimpleImage process(SimpleImage input);
+	}
+	
 	public interface MovePixel {
 		void move(Coord c);
 	}

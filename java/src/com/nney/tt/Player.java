@@ -40,7 +40,8 @@ public class Player extends Alien {
 	}
 
 	public void draw(AlienServices world) {
-		world.queueSprite(c, playerSprite);
+		// TODO: AAA flash! but how?? Here it is starting .....
+		world.queueSprite(c, playerSprite, 0);
 	}
 
 	private void movePlayer(AlienServices ms) {
@@ -251,7 +252,6 @@ public class Player extends Alien {
 	public void proof() {
 		proofTimer = 50*13;
 		flashTimer = 50*12;
-		// TODO: AAA flash! but how?? Anim references Sprite
 	}
 
 }

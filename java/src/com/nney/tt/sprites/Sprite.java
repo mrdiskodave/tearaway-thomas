@@ -9,7 +9,10 @@ public class Sprite {
 	public final int w;
 	public final int h;
 	private final GlTexture texture;
+	private final GlTexture texture2;
 	public byte[] lineInfo;
+	
+	static final boolean CTC_SEE_SPRITE_BOX = false;
 
 	/**
 	 * Create a {@link Sprite}.
@@ -22,27 +25,32 @@ public class Sprite {
 	 * @param handleY
 	 *            The y coordinate of the handle within the given image (0 the
 	 *            top).
+	 * @param makeWhiteVersion 
 	 */
-	public Sprite(SimpleImage si, int handleX, int handleY) {
+	public Sprite(SimpleImage si, int handleX, int handleY, boolean makeWhiteVersion) {
 		assert si.getWidth()!=0 && si.getHeight()!=0;
 		
 		this.handleX = handleX;
 		this.handleY = handleY;
 		this.w = si.getWidth();
 		this.h = si.getHeight();
-
-
-//		si.changePixels(new ChangePixel() {
-//			@Override
-//			public int change(int c) {
-//				int alpha = c >>> 3 * 8;
-//				if (alpha != 0xff) c = 0xff00ffff;
-//				return c;
-//			}
-//		});
-
-		this.texture = new GlTexture(si);
 		this.lineInfo = LineInfo.generate(si);
+
+		SimpleImage z = si;
+
+		if (CTC_SEE_SPRITE_BOX) {
+			z = si.copy();
+			new ShowBoundsSip().process(z);
+		}
+		this.texture = new GlTexture(z);
+
+		if (makeWhiteVersion) {
+			new WhiteOutSip().process(si);
+			this.texture2 = new GlTexture(si);
+		}
+		else {
+			this.texture2 = null;
+		}
 	}
 	
 	/**
@@ -53,13 +61,22 @@ public class Sprite {
 	 *            location).
 	 * @param dy
 	 */
-	public void draw(int dx, int dy) {
+	public void draw(int dx, int dy, int version) {
 		dx -= handleX;
 		dy -= handleY;
-		texture.draw(dx, dy);
+		if (version==0) {
+			texture.draw(dx, dy);
+		}
+		else {
+			assert texture2!=null;
+			texture2.draw(dx, dy);
+		}
 	}
 
 	public void dispose() {
 		texture.dispose();
+		if (texture2!=null) {
+			texture2.dispose();
+		}
 	}
 }

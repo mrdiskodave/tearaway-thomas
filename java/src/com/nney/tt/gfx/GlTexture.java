@@ -15,6 +15,7 @@ public class GlTexture {
 		this(si, GL11.GL_RGBA8);
 	}
 	
+	// TODO: ! just take a boolean hint about it being grayscale?
 	public GlTexture(SimpleImage si, int theirFormat) {
 		// TODO: maybe don't store image dimensions here
 		imageW = si.getWidth();

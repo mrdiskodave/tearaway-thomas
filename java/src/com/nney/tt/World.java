@@ -171,7 +171,14 @@ public class World implements AlienServices, Joystick {
 	public void queueSprite(Coord c, final Sprite s) {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
-		s.draw(x, y);
+		s.draw(x, y, 0);
+	}
+
+	@Override
+	public void queueSprite(Coord c, final Sprite s, int version) {
+		final int x = c.x - screen.x;
+		final int y = c.y - screen.y;
+		s.draw(x, y, version);
 	}
 
 	@Override

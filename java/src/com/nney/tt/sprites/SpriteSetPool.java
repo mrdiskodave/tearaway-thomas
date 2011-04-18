@@ -22,21 +22,23 @@ public class SpriteSetPool extends CachedLoader<String, SpriteSet> {
 	private SpriteSet loadSpriteSet(final String spriteName) {
 		ArrayList<Anim> an = new ArrayList<Anim>();
 		
+		DataItem diRoot = sdp.load(spriteName);
+		final boolean makeWhiteVersion = spriteName == "0tt"; // TODO: FIx this hack! (pull it outta the 'diRoot')
+		
 		// we'll be loading the same frame twice if the animation goes
 		// back on itself (e.g. ladder climbing) so we'll need a cache
 		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
 			@Override
 			protected Sprite populatePool(Integer k) {
-				return LargeImageFrameLoader.load(TTResource.spriteFrame(spriteName, k));
+				return LargeImageFrameLoader.load(TTResource.spriteFrame(spriteName, k), makeWhiteVersion);
 			}};
 
-		DataItem diRoot = sdp.load(spriteName);
 		for (DataItem diAnim : diRoot.requireField("anims").requireList()) {
 			DataItem[] diFrames = diAnim.requireField("frames").requireList();
 			Sprite[] frames = new Sprite[diFrames.length];
 			for (int x = 0; x < frames.length; x++) {
 				int fno = diFrames[x].requireInt();
-				frames[x] = frameLoader.load(fno);;
+				frames[x] = frameLoader.load(fno);
 			}
 			String name = null;
 			if (diAnim.fieldExists("name")) {

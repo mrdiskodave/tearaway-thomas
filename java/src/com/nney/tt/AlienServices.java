@@ -34,6 +34,8 @@ public interface AlienServices {
 
 	void queueSprite(Coord c, Sprite s);
 
+	void queueSprite(Coord c, Sprite s, int version);
+
 	void queueDebugText(Coord c, String text);
 
 	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
