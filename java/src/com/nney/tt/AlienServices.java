@@ -80,5 +80,6 @@ public interface AlienServices {
 	boolean playerFall(Coord where, int fallMax);
 
 	void scrollTowards(Coord c);
-
+	
+	Joystick getStick();
 }

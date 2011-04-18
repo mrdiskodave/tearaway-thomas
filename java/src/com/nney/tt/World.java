@@ -11,7 +11,7 @@ import com.nney.tt.map.MasksHolder;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 
-public class World implements AlienServices {
+public class World implements AlienServices, Joystick {
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
@@ -38,6 +38,10 @@ public class World implements AlienServices {
 	private Sprite ttSprite;
 
 	private Coord ttPos;
+
+	private int joystick;
+
+	private int joystickAA;
 
 	void startFrame() {
 //		renderQueue.clear();
@@ -261,6 +265,27 @@ public class World implements AlienServices {
 	@Override
 	public void stunThePlayer() {
 		player.stun();
+	}
+
+	@Override
+	public Joystick getStick() {
+		return this;
+	}
+
+	@Override
+	public boolean test(int mask) {
+		return (mask&joystick)!=0;
+	}
+
+	@Override
+	public boolean testAntiAutofire(int mask) {
+		return (mask&joystickAA)!=0;
+	}
+	
+	void setJ(int next) {
+		int last = joystick;
+		joystick = next;
+		joystickAA = next & ~last;
 	}
 
 

@@ -1,12 +1,13 @@
 package com.nney.tt;
 
-import org.lwjgl.input.Keyboard;
-
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
+	private static final int AIRJUMP_TIME = 4;
+	private static final int STUN_TIME = 33;
+	private static final int PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
 	private static final int JUMP_VELOCITY = -12;
 	
@@ -15,13 +16,20 @@ public class Player extends Alien {
 	private Sprite playerSprite;
 
 	boolean goLeft;
+	
 	private boolean touchFloor = true;
+	
 	private boolean moveStick;
+	
 	private boolean inGround;
+	
 	private boolean jumping;
 
 	private int stunTimer;
+	
 	private int proofTimer;
+	
+	private int airJumpTimer;
 
 	private int vely;
 
@@ -30,15 +38,11 @@ public class Player extends Alien {
 		stationaryAnim();
 	}
 
-	public void move(AlienServices world) {
-		movePlayer(world);
-	}
-
 	public void draw(AlienServices world) {
 		world.queueSprite(c, playerSprite);
 	}
 
-	public void movePlayer(AlienServices ms) {
+	private void movePlayer(AlienServices ms) {
 		if (proofTimer!=0) proofTimer--;
 		
 		moveX(ms);
@@ -47,13 +51,27 @@ public class Player extends Alien {
 		setPlayerAnimation(ms);
 	}
 
+	public void move(AlienServices world) {
+		invariants();
+		movePlayer(world);
+		invariants();
+	}
+
+	private void invariants() {
+		assert !(touchFloor && jumping);
+		assert !(touchFloor && inGround);
+		assert !(stunTimer!=0 && moveStick);
+	}
+
 	private void setPlayerAnimation(AlienServices ms) {
 		boolean animate = true;
 		if (touchFloor) {
+			assert !inGround;
+			assert !jumping;
 			if (stunTimer != 0) {
 				changeAnimation("wobble");
 				stunTimer--;
-				proofTimer = 25;
+				proofTimer = PROOF_TIME;
 			}
 			else {
 				if (moveStick) {
@@ -84,12 +102,12 @@ public class Player extends Alien {
 		// Figure out the xdelta
 
 		int xdelta = 0;
-		if (ms.testKey(Keyboard.KEY_Q) && stunTimer == 0) {
+		if (ms.getStick().test(Joystick.LEFT) && stunTimer == 0) {
 			xdelta = -pvt.next();
 			goLeft = true;
 			moveStick = true;
 		}
-		else if (ms.testKey(Keyboard.KEY_W) && stunTimer == 0) {
+		else if (ms.getStick().test(Joystick.RIGHT) && stunTimer == 0) {
 			xdelta = pvt.next();
 			goLeft = false;
 			moveStick = true;
@@ -124,8 +142,7 @@ public class Player extends Alien {
 					c.y--;
 					if (ms.inTheGround(c)) {
 						// it might not get us back into air (in which case we
-						// are definitely
-						// entering ground from the side)
+						// are definitely entering ground from the side)
 						c.y++;
 						inGround = true;
 					}
@@ -149,15 +166,21 @@ public class Player extends Alien {
 			assert !jumping;
 			if (!ms.playerFall(c, 14)) {
 				touchFloor = false;
+				airJumpTimer = AIRJUMP_TIME;
 			}
-			else if (ms.testKey(Keyboard.KEY_SPACE) && stunTimer == 0) {
-				// TODO: anti-autofire
+			else if (ms.getStick().test(Joystick.FIRE) && stunTimer == 0) {
 				jump(JUMP_VELOCITY);
 			}
 		}
 
 		// when we are in the air
 		if (!touchFloor) {
+			if (airJumpTimer!=0) {
+				airJumpTimer--;
+				if (ms.getStick().test(Joystick.FIRE) && stunTimer == 0) {
+					jump(JUMP_VELOCITY);
+				}
+			}
 			gravity();
 			MovementSlicer yslicer = new MovementSlicer(vely);
 			while (yslicer.more() && !touchFloor) {
@@ -219,23 +242,10 @@ public class Player extends Alien {
 		// if we not proof and not already stunned:
 		if (proofTimer==0 && stunTimer == 0) {
 			jump(STUN_VELOCITY);
-			stunTimer = 33;
+			stunTimer = STUN_TIME;
+			moveStick = false;
 		}
 	}
 
 }
 
-// if (ms.testKey(Keyboard.KEY_LEFT)) {
-// if (ms.getFrameNumber()%15==0) c.x -= 1;
-// stationaryAnim();
-// }
-// else if (ms.testKey(Keyboard.KEY_RIGHT)) {
-// if (ms.getFrameNumber()%15==0) c.x += 1;
-// stationaryAnim();
-// }
-// else if (ms.testKey(Keyboard.KEY_UP)) {
-// if (ms.getFrameNumber()%15==0) c.y -= 1;
-// }
-// else if (ms.testKey(Keyboard.KEY_DOWN)) {
-// if (ms.getFrameNumber()%15==0) c.y += 1;
-// }

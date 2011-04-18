@@ -83,6 +83,31 @@ public class Main {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	private void developJoystick() {
+		int x = 0;
+		if (testKey(Keyboard.KEY_Q)) {
+			x |= Joystick.UP;
+		}
+		if (testKey(Keyboard.KEY_A)) {
+			x |= Joystick.DOWN;
+		}
+		if (testKey(Keyboard.KEY_O)) {
+			x |= Joystick.LEFT;
+		}
+		if (testKey(Keyboard.KEY_P)) {
+			x |= Joystick.RIGHT;
+		}
+		if (testKey(Keyboard.KEY_SPACE)) {
+			x |= Joystick.FIRE;
+		}
+		world.setJ(x);
+	}
+				
+
+	private boolean testKey(int key) {
+		return keys.contains(key);
+	}
 
 	private void initOpenGL() {
 		GlTools.reset();
@@ -172,7 +197,7 @@ public class Main {
 
 		try {
 			Box mapBounds = null;
-			InputStream i = TTResource.map("w", 0).open();
+			InputStream i = TTResource.map("w", 9).open();
 			DataInputStream di = new DataInputStream(i);
 
 			// get the game map off the front of the stream
@@ -333,6 +358,8 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 
+		developJoystick();
+		
 		player.move(world);
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 		drawTheMap();
@@ -364,8 +391,7 @@ public class Main {
 			else {
 				keys.remove(key);
 			}
-
-			if (key == Keyboard.KEY_SPACE && down) {
+			if (key == Keyboard.KEY_F12 && down) {
 				Mouse.setGrabbed(!Mouse.isGrabbed());
 			}
 		}
