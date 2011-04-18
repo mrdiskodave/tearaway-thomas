@@ -1,6 +1,5 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.sprites.Sprite;
 
@@ -20,9 +19,9 @@ public class ArrowAlien extends Alien {
 	}
 
 	@Override
-	public void update(AlienServices world) {
-		boolean colide = box.inside(world.getPlayerPosition());
-		if (colide) {
+	public void update() {
+		boolean collide = box.inside(srv.getPlayerPosition());
+		if (collide) {
 			repeat = 8;
 		}
 
@@ -40,7 +39,7 @@ public class ArrowAlien extends Alien {
 		if (on) {
 			changeAnimation(0);
 			Sprite s = nextFrame();
-			world.queueSprite(c, s);
+			srv.queueSprite(c, s);
 		}
 	}
 }

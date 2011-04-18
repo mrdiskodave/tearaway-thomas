@@ -1,22 +1,21 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.AlienServices;
 import com.nney.tt.sprites.Sprite;
 
 public class BearAlien extends LeftRightAlien {
 	@Override
-	public void update(AlienServices ms) {
+	public void update() {
 		boolean turned = moveLeftRight(1);
-		if (!ms.playerFall(c, 16)) {
+		if (!srv.playerFall(c, 16)) {
 			remove = true;
 		}
-		if (!turned && ms.getBlockSpecification(c) == "stop") {
+		if (!turned && srv.getBlockSpecification(c) == "stop") {
 			headedRight = !headedRight;
 		}
 		Sprite s = nextFrame();
-		ms.queueSprite(c, s);
-		if (ms.collideAlienWithPlayerHiRes(c, s)) {
-			ms.stunThePlayer();
+		srv.queueSprite(c, s);
+		if (srv.collideAlienWithPlayerHiRes(c, s)) {
+			srv.stunThePlayer();
 		}
 	}
 }

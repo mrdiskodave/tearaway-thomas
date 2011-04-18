@@ -234,7 +234,7 @@ public class Player extends Alien {
 	}
 
 	@Override
-	public void update(AlienServices world) {
+	public void update() {
 		assert false;
 	}
 

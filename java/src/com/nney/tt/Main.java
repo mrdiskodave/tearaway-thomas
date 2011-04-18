@@ -26,6 +26,7 @@ import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.ScoreAlien;
 import com.nney.tt.aliens.SpriteAlien;
+import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.BlocksHolder;
@@ -141,6 +142,7 @@ public class Main {
 		List<AlienInfo> ail = new ArrayList<AlienInfo>();
 		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
 		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		ail.add(new AlienInfo(13, "0stop", StopAlien.class));
 		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
@@ -171,6 +173,7 @@ public class Main {
 		SpriteSetPool spriteSetPool = new SpriteSetPool(sdp);
 
 		player = new Player();
+		player.srv = world;
 		player.connectSpriteSet(spriteSetPool.load("0tt"));
 		player.init();
 
@@ -252,11 +255,15 @@ public class Main {
 							if (alienInfo != null) {
 //								aim.remove(type); // ONCE!
 								Alien alien = alienInfo.instantiate();
+								alien.srv = world;
 								if (alienInfo.spriteSetName != null) {
 									SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
 									alien.connectSpriteSet(ss);
 								}
-//								if (type == 2) y -= 15;
+								if (type == 2 || type==3) {
+									// this is what gem_render -> bob_gem does
+									x += 8;
+								}
 								alien.c.x = x;
 								alien.c.y = y;
 								alien.srcData = rest;
@@ -271,6 +278,7 @@ public class Main {
 							}
 							else {
 								TextAlien alien = new TextAlien();
+								alien.srv = world;
 								alien.setText(String.format("%d", type));
 								alien.c.x = x;
 								alien.c.y = y;
@@ -374,7 +382,7 @@ public class Main {
 	private void updateAliens(List<Alien> al) {
 		for (Iterator<Alien> ai = al.iterator(); ai.hasNext();) {
 			Alien alien = ai.next();
-			alien.update(world);
+			alien.update();
 			if (alien.remove){
 				ai.remove();
 			}

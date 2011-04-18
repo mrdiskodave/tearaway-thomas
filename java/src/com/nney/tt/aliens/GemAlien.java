@@ -1,6 +1,5 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.AlienServices;
 import com.nney.tt.BitOp;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
@@ -28,14 +27,12 @@ public class GemAlien extends Alien {
 	}
 
 	@Override
-	public void update(AlienServices ads) {
+	public void update() {
 		Coord c2 = new Coord(c);
-		// this is what gem_render -> bob_gem does
-		c2.x += 8;
 		
 		if (scoreTimer != 0) {
 			changeAnimation(scoreFrame);
-			ads.queueSprite(c2, nextFrame());
+			srv.queueSprite(c2, nextFrame());
 			if (--scoreTimer==0) {
 				remove = true;
 			}
@@ -43,7 +40,7 @@ public class GemAlien extends Alien {
 		else {
 			if (wobblePhase < 0) {
 				// could we do this earlier? (pass that arg to init??)
-				wobblePhase = ads.randomness(WOBBLE.length);
+				wobblePhase = srv.randomness(WOBBLE.length);
 			}
 
 			if (wobble) {
@@ -51,8 +48,8 @@ public class GemAlien extends Alien {
 				wobblePhase %= WOBBLE.length;
 			}
 			Sprite s = nextFrame();
-			ads.queueSprite(c2, s);
-			if (ads.collideAlienWithPlayerHiRes(c2, s)) {
+			srv.queueSprite(c2, s);
+			if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 				scoreTimer = 25;
 				scoreFrame = 1;
 			}

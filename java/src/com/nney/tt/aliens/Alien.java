@@ -14,6 +14,7 @@ public abstract class Alien {
 	public byte[] srcData;
 	public boolean remove;
 	public boolean infront;
+	public AlienServices srv;
 
 
 	protected static final int OBbase = 9;
@@ -74,10 +75,10 @@ public abstract class Alien {
 		spriteSet = s;
 	}
 
-	protected void draw(AlienServices world, Coord c2) {
+	protected void draw(Coord c2) {
 		Sprite s = nextFrame();
 		if (s != null) {
-			world.queueSprite(c2, s);
+			srv.queueSprite(c2, s);
 		}
 	}
 
@@ -88,5 +89,5 @@ public abstract class Alien {
 
 	}
 
-	abstract public void update(AlienServices world);
+	abstract public void update();
 }
