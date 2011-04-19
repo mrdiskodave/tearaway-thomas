@@ -7,6 +7,8 @@ import com.nney.tt.sprites.Sprite;
 
 public class LiftAlien extends Alien {
 	private Box box;
+	private Coord lc;
+	private int lastMove;
 	
 	@Override
 	public void load() {
@@ -23,15 +25,43 @@ public class LiftAlien extends Alien {
 	
 	@Override
 	public void update() {
-		setPosition();
+		moveIt();
 		
 		changeAnimation(0);
 		Sprite s = nextFrame();
 		srv.queueSprite(c, s);
 		
 		Player p = srv.getThePlayer();
-		if (p.lift==null) {
+		if (!p.isStunned()) {
+			if (p.lift==null) {
+				int landOn = c.y-1;
+				boolean horizOverlap = p.c.x>=c.x && p.c.x<=c.x+44;
+				boolean verticalCrossing = p.lc.y<landOn && p.c.y>=landOn; 
+				if (horizOverlap && verticalCrossing) {
+					p.lift = this;
+					p.c.y = landOn;
+					p.reset();
+				}
+			}
 		}
+	}
+
+	private void moveIt() {
+		int f = srv.getFrameNumber();
+		if (f!=lastMove) {
+			lastMove = f;
+			lc = c.copy();
+			setPosition();
+		}
+	}
+	
+	public void movePlayer() {
+		moveIt();
+		
+		Player p = srv.getThePlayer();
+		Coord z = c.copy();
+		z.sub(lc);
+		p.c.add(z);
 	}
 
 	private void setPosition() {

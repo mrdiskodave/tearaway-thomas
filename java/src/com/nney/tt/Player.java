@@ -1,6 +1,7 @@
 package com.nney.tt;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
@@ -35,9 +36,15 @@ public class Player extends Alien {
 	private int flashTimer = 50*5;
 	private boolean drawInWhite;
 	
-	public Alien lift;
+	public LiftAlien lift;
 	
 	public Coord lc;
+	
+	public void reset() {
+		jumping = touchFloor = false;
+		vely = 0;
+		airJumpTimer = 0;
+	}
 
 	@Override
 	public void init() {
@@ -59,8 +66,13 @@ public class Player extends Alien {
 
 		drawInWhite = (flashTimer&15)>9;
 		
-		moveX();
-		moveY();
+		if (lift==null) {
+			moveX();
+			moveY();
+		}
+		else {
+			lift.movePlayer();
+		}
 		setPlayerAnimation();
 	}
 
@@ -263,6 +275,10 @@ public class Player extends Alien {
 	public void proof() {
 		proofTimer = 50*13;
 		flashTimer = 50*12;
+	}
+	
+	public boolean isStunned() {
+		return stunTimer!=0;
 	}
 }
 
