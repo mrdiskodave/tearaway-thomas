@@ -114,6 +114,7 @@ public class World implements AlienServices, Joystick {
 		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
 	}
 
+	@Override
 	public void scrollTo(Coord c) {
 		screen = screenDest(c);
 		limitScreenPosition();

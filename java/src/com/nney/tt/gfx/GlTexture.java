@@ -12,11 +12,12 @@ public class GlTexture {
 	private int imageH;
 
 	public GlTexture(SimpleImage si) {
-		this(si, GL11.GL_RGBA8);
+		this(si, false);
 	}
 	
-	// TODO: ! just take a boolean hint about it being grayscale?
-	public GlTexture(SimpleImage si, int theirFormat) {
+	public GlTexture(SimpleImage si, boolean mono) {
+		int theirFormat = mono ? GL11.GL_ALPHA : GL11.GL_RGBA8;
+		
 		// TODO: maybe don't store image dimensions here
 		imageW = si.getWidth();
 		imageH = si.getHeight();

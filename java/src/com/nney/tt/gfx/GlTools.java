@@ -5,14 +5,8 @@ import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL11;
 
 public class GlTools {
-	public static void configureFor2dBobs() {
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-//		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-	}
-	
 	public static void reset() {
+		// reset
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_DITHER);
 		GL11.glDisable(GL11.GL_FOG);
@@ -23,8 +17,22 @@ public class GlTools {
 		GL11.glListBase(0);
 		GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
 		GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
+		
+		// program in our constant config
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 	}
 	
+	public static void configureFor2dBobs() {
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+	}
+
+	public static void configureForFont(boolean mono, int fg) {
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, mono ? GL11.GL_REPLACE : GL11.GL_MODULATE);
+		selectColor(fg);
+	}
+
 	public static void selectColor(int fg) {
 		int r = ( fg >> 2*8 ) & 0xff;
 		int g = ( fg >> 8 ) & 0xff;

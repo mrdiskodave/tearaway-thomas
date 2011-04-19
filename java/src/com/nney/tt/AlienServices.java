@@ -66,6 +66,7 @@ public interface AlienServices {
 	// called by the player
 	
 	void scrollTowards(Coord c);
+	void scrollTo(Coord c);
 	
 	Joystick getStick();
 	

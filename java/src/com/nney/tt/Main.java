@@ -74,6 +74,14 @@ public class Main {
 
 	private GlTexture horizon;
 
+	private SpriteSet pss;
+
+	private PrerenderedText scoreText;
+
+	private PrerenderedText gemsText;
+
+	private PrerenderedText timeText;
+
 	private void initLwjgl() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM));
@@ -86,7 +94,7 @@ public class Main {
 		}
 	}
 	
-	private void developJoystick() {
+	private void readJoystick() {
 		int x = 0;
 		if (testKey(Keyboard.KEY_Q)) {
 			x |= Joystick.UP;
@@ -176,7 +184,9 @@ public class Main {
 
 		player = new Player();
 		player.srv = world;
-		player.connectSpriteSet(spriteSetPool.load("0tt"));
+		SpriteSet playerSpriteSet = spriteSetPool.load("0tt");
+		pss = playerSpriteSet;
+		player.connectSpriteSet(playerSpriteSet);
 		player.init();
 
 		String worldName = "w";
@@ -314,6 +324,10 @@ public class Main {
 			font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
 					"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
+			scoreText = font.preDraw(0xffffff00, 0, "score");
+			gemsText = font.preDraw(0xffffff00, 0, "gems");
+			timeText = font.preDraw(0xffffff00, 0, "time");
+			
 			// TODO: ctor??
 			world.gameMap = gameMap;
 			world.maskHolder = maskHolder;
@@ -367,17 +381,25 @@ public class Main {
 
 		GlTools.configureFor2dBobs();
 
-		developJoystick();
+		readJoystick();
+		player.move();
 		
-		player.move(world);
+		
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
+
+//		for (int x=0; x<15; x++) {
+//			pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
+//		}
+		
 		drawTheMap();
 
 		updateAliens(backgroundAlienList);
-		player.draw(world);
+		player.draw();
 		updateAliens(foregroundAlienList);
 
-		debugFont.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
+		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
+		
+		scoreText.draw((SCREEN_WIDTH-scoreText.getWidth())/2, 5);
 	}
 
 	private void updateAliens(List<Alien> al) {

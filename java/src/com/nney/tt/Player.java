@@ -5,11 +5,12 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
-	private static final int AIRJUMP_TIME = 4;
+	private static final int AIRJUMP_TIME = 3;
 	private static final int STUN_TIME = 33;
 	private static final int PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
 	private static final int JUMP_VELOCITY = -12;
+	private static final boolean CTC_HARD_SCROLLING = true;
 	
 	private PlayerVelocityTable pvt = new PlayerVelocityTable();
 	
@@ -32,30 +33,39 @@ public class Player extends Alien {
 	private int airJumpTimer;
 
 	private int vely;
-	private int flashTimer;
+	private int flashTimer = 50*5;
+	private boolean drawInWhite;
 
 	@Override
 	public void init() {
 		stationaryAnim();
 	}
 
-	public void draw(AlienServices world) {
-		// TODO: AAA flash! but how?? Here it is starting .....
-		world.queueSprite(c, playerSprite, true);
+	public void draw() {
+		srv.queueSprite(c, playerSprite, drawInWhite);
 	}
 
-	private void movePlayer(AlienServices ms) {
+	private void movePlayer() {
 		if (proofTimer!=0) proofTimer--;
+		if (flashTimer!=0) flashTimer--;
+		if (airJumpTimer!=0) airJumpTimer--;
+
+		drawInWhite = (flashTimer&15)>9;
 		
-		moveX(ms);
-		moveY(ms);
-		ms.scrollTowards(c);
-		setPlayerAnimation(ms);
+		moveX();
+		moveY();
+		if (CTC_HARD_SCROLLING) {
+			srv.scrollTo(c);
+		}
+		else {
+			srv.scrollTowards(c);
+		}
+		setPlayerAnimation();
 	}
 
-	public void move(AlienServices world) {
+	public void move() {
 		invariants();
-		movePlayer(world);
+		movePlayer();
 		invariants();
 	}
 
@@ -65,7 +75,7 @@ public class Player extends Alien {
 		assert !(stunTimer!=0 && moveStick);
 	}
 
-	private void setPlayerAnimation(AlienServices ms) {
+	private void setPlayerAnimation() {
 		boolean animate = true;
 		if (touchFloor) {
 			assert !inGround;
@@ -92,24 +102,28 @@ public class Player extends Alien {
 				animate = false;
 			}
 		}
+		
+
+		
 		Sprite s = animate ? nextFrame() : currentFrame();
-		ms.registerPlayerSpriteForAlienColisions(c, s);
+		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
+		
 	}
 
-	private void moveX(AlienServices ms) {
+	private void moveX() {
 		moveStick = false;
 
 		// ----------------------------------------
 		// Figure out the xdelta
 
 		int xdelta = 0;
-		if (ms.getStick().test(Joystick.LEFT) && stunTimer == 0) {
+		if (srv.getStick().test(Joystick.LEFT) && stunTimer == 0) {
 			xdelta = -pvt.next();
 			goLeft = true;
 			moveStick = true;
 		}
-		else if (ms.getStick().test(Joystick.RIGHT) && stunTimer == 0) {
+		else if (srv.getStick().test(Joystick.RIGHT) && stunTimer == 0) {
 			xdelta = pvt.next();
 			goLeft = false;
 			moveStick = true;
@@ -121,7 +135,7 @@ public class Player extends Alien {
 		// keep it on screen
 		Coord tp = c.copy();
 		tp.x += xdelta;
-		ms.validatePlayerPosition(tp);
+		srv.validatePlayerPosition(tp);
 		xdelta = tp.x - c.x;
 
 		// ----------------------------------------
@@ -133,16 +147,16 @@ public class Player extends Alien {
 			if (inGround) {
 				// if you're in the ground it is always possible to move
 				c.x += n;
-				inGround = ms.inTheGround(c);
+				inGround = srv.inTheGround(c);
 			}
 			else {
 				// if you're in the air we do it
 				c.x += n;
 				// but if that results in entering the ground ..
-				if (ms.inTheGround(c)) {
+				if (srv.inTheGround(c)) {
 					// we look at the pixel above
 					c.y--;
-					if (ms.inTheGround(c)) {
+					if (srv.inTheGround(c)) {
 						// it might not get us back into air (in which case we
 						// are definitely entering ground from the side)
 						c.y++;
@@ -157,7 +171,7 @@ public class Player extends Alien {
 		}
 	}
 
-	private void moveY(AlienServices ms) {
+	private void moveY() {
 		// ----------------------------------------
 		// Y movement
 		//
@@ -166,11 +180,11 @@ public class Player extends Alien {
 		if (touchFloor) {
 			assert !inGround;
 			assert !jumping;
-			if (!ms.playerFall(c, 14)) {
+			if (!srv.playerFall(c, 14)) {
 				touchFloor = false;
 				airJumpTimer = AIRJUMP_TIME;
 			}
-			else if (ms.getStick().test(Joystick.FIRE) && stunTimer == 0) {
+			else if (srv.getStick().test(Joystick.FIRE) && stunTimer == 0) {
 				jump(JUMP_VELOCITY);
 			}
 		}
@@ -178,8 +192,7 @@ public class Player extends Alien {
 		// when we are in the air
 		if (!touchFloor) {
 			if (airJumpTimer!=0) {
-				airJumpTimer--;
-				if (ms.getStick().test(Joystick.FIRE) && stunTimer == 0) {
+				if (srv.getStick().test(Joystick.FIRE) && stunTimer == 0) {
 					jump(JUMP_VELOCITY);
 				}
 			}
@@ -190,20 +203,20 @@ public class Player extends Alien {
 				if (n < 0) {
 					// going up (always possible)
 					c.y--;
-					inGround = ms.inTheGround(c);
+					inGround = srv.inTheGround(c);
 				}
 				else {
 					// going down
 					if (inGround) {
 						// if you're in the ground it is always possible
 						c.y++;
-						inGround = ms.inTheGround(c);
+						inGround = srv.inTheGround(c);
 					}
 					else {
 						// if you're in the air it is possible as long as the
 						// pixel below isn't ground
 						c.y++;
-						if (ms.inTheGround(c)) {
+						if (srv.inTheGround(c)) {
 							touchDown();
 							c.y--;
 						}
@@ -253,6 +266,5 @@ public class Player extends Alien {
 		proofTimer = 50*13;
 		flashTimer = 50*12;
 	}
-
 }
 
