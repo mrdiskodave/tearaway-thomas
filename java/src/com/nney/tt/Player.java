@@ -34,6 +34,10 @@ public class Player extends Alien {
 	private int vely;
 	private int flashTimer = 50*5;
 	private boolean drawInWhite;
+	
+	public Alien lift;
+	
+	public Coord lc;
 
 	@Override
 	public void init() {
@@ -45,6 +49,9 @@ public class Player extends Alien {
 	}
 
 	private void movePlayer() {
+		// remember our last position
+		lc = c.copy();
+		
 		if (proofTimer!=0) proofTimer--;
 		if (flashTimer!=0) flashTimer--;
 		if (airJumpTimer!=0) airJumpTimer--;
@@ -97,7 +104,7 @@ public class Player extends Alien {
 			}
 		}
 		
-		Sprite s = animate ? nextFrame() : currentFrame();
+		Sprite s = animate ? nextFrame() : sameFrame();
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}

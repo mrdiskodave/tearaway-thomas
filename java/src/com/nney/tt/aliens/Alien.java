@@ -67,7 +67,7 @@ public abstract class Alien {
 		return animPlayer.next();
 	}
 	
-	protected Sprite currentFrame() {
+	protected Sprite sameFrame() {
 		return animPlayer.current();
 	}
 

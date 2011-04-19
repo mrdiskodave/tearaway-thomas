@@ -161,7 +161,7 @@ public class World implements AlienServices, Joystick {
 
 	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
-		ttPos = new Coord(c);
+		ttPos = c.copy();
 		ttPos.x -= s.handleX;
 		ttPos.y -= s.handleY;
 		ttSprite = s;
@@ -181,7 +181,7 @@ public class World implements AlienServices, Joystick {
 
 	@Override
 	public void queueDebugText(Coord c, final String text) {
-		final Coord p = new Coord(c);
+		final Coord p = c.copy();
 		p.sub(screen);
 		queueAbsoluteDebugText(p, text);
 	}

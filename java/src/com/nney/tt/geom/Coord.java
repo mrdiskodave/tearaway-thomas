@@ -9,7 +9,7 @@ public class Coord {
 		this.y = y;
 	}
 
-	public Coord(Coord c) {
+	private Coord(Coord c) {
 		this(c.x, c.y);
 	}
 

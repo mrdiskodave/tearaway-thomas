@@ -28,7 +28,7 @@ public class GemAlien extends Alien {
 
 	@Override
 	public void update() {
-		Coord c2 = new Coord(c);
+		Coord c2 = c.copy();
 		
 		if (scoreTimer != 0) {
 			changeAnimation(scoreFrame);

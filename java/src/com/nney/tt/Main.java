@@ -24,6 +24,7 @@ import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.ScoreAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SpriteAlien;
@@ -95,7 +96,7 @@ public class Main {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private void readJoystick() {
 		int x = 0;
 		if (testKey(Keyboard.KEY_Q)) {
@@ -115,7 +116,6 @@ public class Main {
 		}
 		world.setJ(x);
 	}
-				
 
 	private boolean testKey(int key) {
 		return keys.contains(key);
@@ -172,6 +172,7 @@ public class Main {
 		ail.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
 		ail.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
 		ail.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
+		ail.add(new AlienInfo(72, "wlog0", LiftAlien.class));
 		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
@@ -267,14 +268,14 @@ public class Main {
 						try {
 							AlienInfo alienInfo = aim.get(type);
 							if (alienInfo != null) {
-//								aim.remove(type); // ONCE!
+								// aim.remove(type); // ONCE!
 								Alien alien = alienInfo.instantiate();
 								alien.srv = world;
 								if (alienInfo.spriteSetName != null) {
 									SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
 									alien.connectSpriteSet(ss);
 								}
-								if (type == 2 || type==3) {
+								if (type == 2 || type == 3) {
 									// this is what gem_render -> bob_gem does
 									x += 8;
 								}
@@ -329,7 +330,7 @@ public class Main {
 			scoreText = font.preDraw(0xffffff00, 0, "score");
 			gemsText = font.preDraw(0xffffff00, 0, "gems");
 			timeText = font.preDraw(0xffffff00, 0, "time");
-			
+
 			// TODO: ctor??
 			world.gameMap = gameMap;
 			world.maskHolder = maskHolder;
@@ -385,7 +386,7 @@ public class Main {
 
 		readJoystick();
 		player.move();
-		
+
 		if (CTC_HARD_SCROLLING) {
 			world.scrollTo(player.c);
 		}
@@ -395,42 +396,47 @@ public class Main {
 
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 
-//		for (int x=0; x<15; x++) {
-//			pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
-//		}
-		
+		// for (int x=0; x<15; x++) {
+		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
+		// }
+
 		drawTheMap();
 
 		updateAliens(backgroundAlienList);
 		player.draw();
 		updateAliens(foregroundAlienList);
 
+		//
 		// Caveat1: only the background Alien get to move the player around.
-		// Caveat2: if any Alien does move him the scrolling for this frame won't know about it
-		// (because it has already happened) but you don't notice that because it is
-		// not hard scrolling but scrolling based on a SCROLLING_TABLE. 
+		// Caveat2: if any Alien does move him the scrolling for this frame
+		// won't know about it (because it has already happened) but you don't
+		// notice that because it is not hard scrolling but scrolling based on a
+		// SCROLLING_TABLE.
 		//
 		// The Amiga version had Caveat2 (even if we didn't think about it).
-		// The Amiga version did not have Caveat1 because the player was beamed in last
-		// of all with some Amiga hardware wizardry.
-
+		// The Amiga version did not have Caveat1 because the player was beamed
+		// in last of all with some Amiga hardware wizardry.
 		//
-		// ... well, it's either that or we separate out moving and drawing (or queue the drawing)
-		// and also accept that we won't know the exact placement of the screen until quite
-		// late (which makes pixels perfect Alien resurrection difficult).
-		// That's something new though which I'll stay away from, for now.
+		// ... well, it's either that or we separate out moving and drawing (or
+		// queue the drawing) and also accept that we won't know the exact
+		// placement of the screen until quite late (which makes pixels perfect
+		// Alien resurrection difficult). That's something new though which I'll
+		// stay away from, for now.
+		//
+		// For now, it'll work how it used to. For the first time I can say I am
+		// clear about the limits this imposes.
 		//
 
 		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
-		
-		scoreText.draw((SCREEN_WIDTH-scoreText.getWidth())/2, 5);
+
+		scoreText.draw((SCREEN_WIDTH - scoreText.getWidth()) / 2, 5);
 	}
 
 	private void updateAliens(List<Alien> al) {
 		for (Iterator<Alien> ai = al.iterator(); ai.hasNext();) {
 			Alien alien = ai.next();
 			alien.update();
-			if (alien.remove){
+			if (alien.remove) {
 				ai.remove();
 			}
 		}

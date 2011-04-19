@@ -45,5 +45,13 @@ public class Box {
 		top += i;
 		bottom -= i;
 	}
+	
+	public int width() {
+		return 1 + right - left;
+	}
+	
+	public int height() {
+		return 1 + bottom - top;
+	}
 
 }
