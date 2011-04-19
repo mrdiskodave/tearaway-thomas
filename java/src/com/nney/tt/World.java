@@ -1,8 +1,11 @@
 package com.nney.tt;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
+import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockSpecifications;
@@ -41,11 +44,7 @@ public class World implements AlienServices, Joystick {
 	private int joystick;
 
 	private int joystickAA;
-
-	void startFrame() {
-//		renderQueue.clear();
-	}
-
+	
 	@Override
 	public int randomness(int n) {
 		return rnd.nextInt(n);
@@ -169,10 +168,8 @@ public class World implements AlienServices, Joystick {
 	}
 
 	@Override
-	public void queueSprite(Coord c, final Sprite s) {
-		final int x = c.x - screen.x;
-		final int y = c.y - screen.y;
-		s.draw(x, y, false);
+	public void queueSprite(final Coord c, final Sprite s) {
+		queueSprite(c, s, false);
 	}
 
 	@Override

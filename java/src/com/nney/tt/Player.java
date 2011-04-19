@@ -10,7 +10,6 @@ public class Player extends Alien {
 	private static final int PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
 	private static final int JUMP_VELOCITY = -12;
-	private static final boolean CTC_HARD_SCROLLING = true;
 	
 	private PlayerVelocityTable pvt = new PlayerVelocityTable();
 	
@@ -49,17 +48,12 @@ public class Player extends Alien {
 		if (proofTimer!=0) proofTimer--;
 		if (flashTimer!=0) flashTimer--;
 		if (airJumpTimer!=0) airJumpTimer--;
+		// stunTimer only decrements when touchFloor so isn't done here
 
 		drawInWhite = (flashTimer&15)>9;
 		
 		moveX();
 		moveY();
-		if (CTC_HARD_SCROLLING) {
-			srv.scrollTo(c);
-		}
-		else {
-			srv.scrollTowards(c);
-		}
 		setPlayerAnimation();
 	}
 
@@ -103,12 +97,9 @@ public class Player extends Alien {
 			}
 		}
 		
-
-		
 		Sprite s = animate ? nextFrame() : currentFrame();
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
-		
 	}
 
 	private void moveX() {

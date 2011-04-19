@@ -46,6 +46,8 @@ import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
 public class Main {
+	private static final boolean CTC_HARD_SCROLLING = false;
+
 	private static final int ZOOM = 2;
 
 	public static final int SCREEN_WIDTH = 400;
@@ -384,7 +386,13 @@ public class Main {
 		readJoystick();
 		player.move();
 		
-		
+		if (CTC_HARD_SCROLLING) {
+			world.scrollTo(player.c);
+		}
+		else {
+			world.scrollTowards(player.c);
+		}
+
 		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 
 //		for (int x=0; x<15; x++) {
@@ -396,6 +404,22 @@ public class Main {
 		updateAliens(backgroundAlienList);
 		player.draw();
 		updateAliens(foregroundAlienList);
+
+		// Caveat1: only the background Alien get to move the player around.
+		// Caveat2: if any Alien does move him the scrolling for this frame won't know about it
+		// (because it has already happened) but you don't notice that because it is
+		// not hard scrolling but scrolling based on a SCROLLING_TABLE. 
+		//
+		// The Amiga version had Caveat2 (even if we didn't think about it).
+		// The Amiga version did not have Caveat1 because the player was beamed in last
+		// of all with some Amiga hardware wizardry.
+
+		//
+		// ... well, it's either that or we separate out moving and drawing (or queue the drawing)
+		// and also accept that we won't know the exact placement of the screen until quite
+		// late (which makes pixels perfect Alien resurrection difficult).
+		// That's something new though which I'll stay away from, for now.
+		//
 
 		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 		
@@ -443,7 +467,6 @@ public class Main {
 
 			handleKeyboard();
 
-			world.startFrame();
 			drawEverything();
 
 			Display.update();
