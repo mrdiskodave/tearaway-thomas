@@ -43,6 +43,7 @@ import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.SpriteDefPool;
 import com.nney.tt.sprites.SpriteSet;
 import com.nney.tt.sprites.SpriteSetPool;
+import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
@@ -55,6 +56,8 @@ public class Main {
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
+
+	private static final boolean CTC_SEE_MASKS = false;
 
 	private BlocksHolder blocksHolder;
 
@@ -199,9 +202,10 @@ public class Main {
 		player.init();
 
 		String worldName = "w";
-		blocksHolder = new BlocksHolder(16, 8, TTResource.blocks(worldName));
-
-		MasksHolder maskHolder = new MasksHolder(16, TTResource.blockMask(worldName));
+		Openable blocksGfx = TTResource.blocks(worldName);
+		Openable masksGfx = TTResource.blockMask(worldName);
+		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
+		MasksHolder maskHolder = new MasksHolder(16, masksGfx);
 
 		BlockRandomisationTable rt;
 		BlockSpecifications bs;
