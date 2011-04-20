@@ -3,6 +3,7 @@ package com.nney.tt;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
@@ -192,27 +193,51 @@ public class Player extends Alien {
 	}
 
 	private void normalHorizonalSlice(int n) {
-		if (inGround) {
-			// if you're in the ground it is always possible to move
-			c.x += n;
-			inGround = srv.inTheGround(c);
+		c.x += n;
+		if (touchFloor) {
+			vacuumFloor();
 		}
 		else {
-			// if you're in the air we do it
-			c.x += n;
-			// but if that results in entering the ground ..
-			if (srv.inTheGround(c)) {
-				// we look at the pixel above
-				c.y--;
+			if (inGround) {
+				// if you're in the ground it is always possible to move
+				inGround = srv.inTheGround(c);
+			}
+			else {
+				// if you're in the air we do it
+				// but if that results in entering the ground ..
 				if (srv.inTheGround(c)) {
-					// it might not get us back into air (in which case we
-					// are definitely entering ground from the side)
-					c.y++;
-					inGround = true;
-				}
-				else {
-					// or it might ... in which case we are touching down
-					if (!touchFloor) touchDown();
+					// we look at the pixel above
+					c.y--;
+					if (srv.inTheGround(c)) {
+						// it might not get us back into air (in which case we
+						// are definitely entering ground from the side)
+						c.y++;
+						inGround = true;
+						// TODO: this only partially works!
+						//
+						// If there are any two pixel steps in the floor of a level
+						// and you jump exactly wrong you could, in theory, fall through.
+						//
+						// If the floor is all on about the same height this is rather unlikely
+						// as you're jump return-velocity will be too big to allow such sneaky
+						// manoeuvres.
+						//
+						// TTResource.map("w", 5) contains an example of such a spot.
+						// There is a 3 pixel step because of single misplaced block.
+						// It is theoretically possible to fall through at that point.
+						// In practice I can't do it ... but really the map needs fixing.
+						//
+						// I guess we could extend the above tolerance to more than one
+						// pixel but where to stop? Too large and the player will start
+						// conspicuously "mounting" branches and sign-posts. Too low
+						// and perhaps we haven't done enough to check the risk of falling through.
+						//
+						// TODO: zz *IF* you fall through just go back to the start without penalty!
+					}
+					else {
+						// or it might ... in which case we are touching down
+						if (!touchFloor) touchDown();
+					}
 				}
 			}
 		}
@@ -232,14 +257,8 @@ public class Player extends Alien {
 	private void moveY() {
 		// when we are on the floor
 		if (touchFloor) {
-			assert !inGround;
-			assert !jumping;
-			if (!srv.playerFall(c, 14)) {
-				fallOff();
-			}
-			else {
-				jumpOnFire();
-			}
+			vacuumFloor();
+			jumpOnFire();
 		}
 
 		// when we are in the air
@@ -285,6 +304,18 @@ public class Player extends Alien {
 		}
 	}
 
+	/**
+	 * A player who touches the floor is held down onto it by this method. 
+	 */
+	private void vacuumFloor() {
+		assert touchFloor;
+		assert !inGround;
+		assert !jumping;
+		if (!srv.playerFall(c, 14)) {
+			fallOff();
+		}
+	}
+
 	private void move2() {
 		// remember our last position
 		lc = c.copy();
@@ -316,7 +347,7 @@ public class Player extends Alien {
 			
 			if (mode == Mode.NORMAL) {
 				// start vrope
-				if (!touchFloor && testRope(0) && testStick(Joystick.DOWN | Joystick.UP)) {
+				if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testRope(0)) {
 					if (!ropeLatch) {
 						goLeft = !goLeft;
 						c.x &= -16;
@@ -396,7 +427,9 @@ public class Player extends Alien {
 	}
 
 	private boolean testRope(int dy) {
-		Coord sniffAt = c.copyAndMove(0, dy);
+		Coord sniffAt = c.copyAndMove(0, dy-17);
+		if (!srv.blockSpecificationIs(sniffAt, "vrope")) return false;
+		sniffAt.y += 11;
 		return srv.blockSpecificationIs(sniffAt, "vrope");
 	}
 
