@@ -45,9 +45,10 @@ public class Player extends Alien {
 
 	private Mode mode = Mode.NORMAL;
 	private boolean monkeyLatch;
+	private boolean ropeLatch;
 
 	enum Mode {
-		NORMAL, MONKEY,
+		NORMAL, MONKEY, ROPE,
 	}
 
 	private void invariants() {
@@ -297,7 +298,7 @@ public class Player extends Alien {
 
 		if (stunTimer == 0) {
 			if (mode == Mode.NORMAL) {
-				// start monkey
+				// start monkey?
 				// SCC5
 				if (!touchFloor && srv.blockSpecificationIs(c.copyAndMove(0, MONKEY_SNIFF_Y), "hrope")) {
 					if (vely >= 0 && !testStick(Joystick.DOWN) && !monkeyLatch) {
@@ -310,6 +311,22 @@ public class Player extends Alien {
 				}
 				else {
 					monkeyLatch = false;
+				}
+			}
+			
+			if (mode == Mode.NORMAL) {
+				// start vrope
+				if (!touchFloor && testRope(0) && testStick(Joystick.DOWN | Joystick.UP)) {
+					if (!ropeLatch) {
+						goLeft = !goLeft;
+						c.x &= -16;
+						c.x += 8;
+						reset();
+						mode = Mode.ROPE;
+					}
+				}
+				else {
+					ropeLatch = false;
 				}
 			}
 		}
@@ -337,6 +354,21 @@ public class Player extends Alien {
 				monkeyLatch = true;
 			}
 		}
+		
+		if (mode == Mode.ROPE){
+			// SCC7
+			String anim = directionalAnimName("rope");
+			boolean moving = false;
+			if (testStick(Joystick.UP) && testRope(-2)) {
+				c.y += -2;
+				moving = true;
+			}
+			if (testStick(Joystick.DOWN) && testRope(2)) {
+				c.y += 2;
+				moving = true;
+			}
+			setAnim(anim, moving);
+		}
 
 		if (mode == Mode.NORMAL) {
 			if (standingOn != null) {
@@ -363,8 +395,14 @@ public class Player extends Alien {
 		}
 	}
 
+	private boolean testRope(int dy) {
+		Coord sniffAt = c.copyAndMove(0, dy);
+		return srv.blockSpecificationIs(sniffAt, "vrope");
+	}
+
 	private boolean monkeyAttempt(boolean left) {
-		if (!srv.blockSpecificationIs(c.copyAndMove(directionalMovement(left, 8), MONKEY_SNIFF_Y), "hrope")) {
+		Coord sniffAt = c.copyAndMove(directionalMovement(left, 8), MONKEY_SNIFF_Y);
+		if (!srv.blockSpecificationIs(sniffAt, "hrope")) {
 			return false;
 		}
 		goLeft = left;
