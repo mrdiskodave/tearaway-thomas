@@ -14,7 +14,7 @@ public class ShieldAlien extends Alien {
 		Sprite s = nextFrame();
 		srv.queueSprite(c, s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.getThePlayer().proof();
+			srv.getThePlayer().giveShield();
 			remove = true;
 		}
 		// TODO: AAA invisi control?

@@ -32,7 +32,7 @@ public class LiftAlien extends Alien {
 		srv.queueSprite(c, s);
 
 		Player p = srv.getThePlayer();
-		if (p.isHappyToBoardALift()) {
+		if (p.isReadyToBoardALift()) {
 			int landOn = c.y - 1;
 			boolean verticalCrossing = p.lc.y < landOn && p.c.y >= landOn;
 			if (horizontalOverlap(p) && verticalCrossing) {
@@ -67,10 +67,17 @@ public class LiftAlien extends Alien {
 	}
 
 	public void moveMe(Player player) {
-		moveIfWeNeedTo();
+		player.c.add(lastFrameDelta());
+	}
+	
+	public int jumpBoost() {
+		return lastFrameDelta().y;
+	}
 
-		Coord z = c.copy();
-		z.sub(lc);
-		player.c.add(z);
+	private Coord lastFrameDelta() {
+		moveIfWeNeedTo();
+		Coord delta = c.copy();
+		delta.sub(lc);
+		return delta;
 	}
 }

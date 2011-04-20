@@ -32,147 +32,120 @@ public class Player extends Alien {
 
 	private int airJumpTimer;
 
-	private int vely;
 	private int flashTimer = 50 * 5;
+	
 	private boolean drawInWhite;
+	
+	public LiftAlien standingOn;
 
-	public LiftAlien lift;
+	private int vely;
 
 	public Coord lc;
+
+	private void invariants() {
+		assert !(touchFloor && jumping);
+		assert !(touchFloor && inGround);
+		assert !(stunTimer != 0 && moveStick);
+		assert !(stunTimer != 0 && standingOn != null);
+
+	}
 
 	private void reset() {
 		jumping = false;
 		touchFloor = false;
 		vely = 0;
 		airJumpTimer = 0;
+		standingOn = null;
 	}
 
-	public void landOn(LiftAlien lift0, int y) {
+	private void fallOff() {
+		assert touchFloor;
+		standingOn = null;
+		touchFloor = false;
+		airJumpTimer = AIRJUMP_TIME;
+	}
+
+	private void touchDown() {
+		assert !touchFloor;
+		assert !inGround;
+		touchFloor = true;
+		jumping = false;
+		vely = 0;
+	}
+
+	private void jump(int velocity) {
+		if (standingOn != null) {
+			velocity += standingOn.jumpBoost();
+		}
+		vely = velocity;
+		standingOn = null;
+		touchFloor = false;
+		jumping = true;
+	}
+
+	private void jumpOnFire() {
+		if (srv.getStick().test(Joystick.FIRE) && stunTimer == 0) {
+			jump(JUMP_VELOCITY);
+		}
+	}
+
+	public void stun() {
+		// if we not proof and not already stunned ..
+		if (proofTimer == 0 && stunTimer == 0) {
+			jump(STUN_VELOCITY);
+			stunTimer = STUN_TIME;
+			moveStick = false;
+		}
+	}
+
+	public void landOn(LiftAlien lift, int height) {
 		reset();
-		lift = lift0;
-		c.y = y;
+		standingOn = lift;
+		c.y = height;
 		touchFloor = true;
 	}
 
-	@Override
-	public void init() {
-		stationaryAnim();
-	}
-
-	public void draw() {
-		srv.queueSprite(c, playerSprite, drawInWhite);
-	}
-
-	private void movePlayer() {
-		// remember our last position
-		lc = c.copy();
-		
-		if (proofTimer!=0) proofTimer--;
-		if (flashTimer!=0) flashTimer--;
-		if (airJumpTimer!=0) airJumpTimer--;
-		// stunTimer only decrements when touchFloor so isn't done here
-
-		drawInWhite = (flashTimer&15)>9;
-		
-		if (lift!=null) {
-			lift.moveMe(this);
-		}
-		MovementSlicer xslicer = new MovementSlicer(getXDelta());
-		while (xslicer.more()) {
-			int n = xslicer.next(1);
-			if (lift!=null) {
-				c.x += n;
-				if (!lift.horizontalOverlap(this)) {
-					offTheEdge();
-				}
-			}
-			else {
-				doXSlice(n);
-			}
-		}
-		if (lift==null) {
-			moveY();
-		}
-		setPlayerAnimation();
-	}
-
-	public void move() {
-		invariants();
-		movePlayer();
-		invariants();
-	}
-
-	private void invariants() {
-		assert !(touchFloor && jumping);
-		assert !(touchFloor && inGround);
-		assert !(stunTimer != 0 && moveStick);
+	private String directionalAnimName(String base) {
+		return base + (goLeft ? "left" : "right");
 	}
 
 	private void setPlayerAnimation() {
 		boolean animate = true;
+		String name;
 		if (touchFloor) {
 			assert !inGround;
 			assert !jumping;
 			if (stunTimer != 0) {
-				changeAnimation("wobble");
+				name = "wobble";
 				stunTimer--;
 				proofTimer = PROOF_TIME;
 			}
 			else {
 				if (moveStick) {
-					changeAnimation(goLeft ? "left" : "right");
+					name = directionalAnimName("");
 				}
 				else {
-					stationaryAnim();
+					name = directionalAnimName("stood");
 				}
 			}
 		}
 		else {
 			if (jumping) {
-				changeAnimation(goLeft ? "jumpleft" : "jumpright");
+				name = directionalAnimName("jump");
 			}
 			else {
+				name = directionalAnimName("");
 				animate = false;
 			}
 		}
-
+		changeAnimation(name);
 		Sprite s = animate ? nextFrame() : sameFrame();
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}
 
-	private void doXSlice(int n) {
-		if (inGround) {
-			// if you're in the ground it is always possible to move
-			c.x += n;
-			inGround = srv.inTheGround(c);
-		}
-		else {
-			// if you're in the air we do it
-			c.x += n;
-			// but if that results in entering the ground ..
-			if (srv.inTheGround(c)) {
-				// we look at the pixel above
-				c.y--;
-				if (srv.inTheGround(c)) {
-					// it might not get us back into air (in which case we
-					// are definitely entering ground from the side)
-					c.y++;
-					inGround = true;
-				}
-				else {
-					// or it might in which case we are touching down
-					touchDown();
-				}
-			}
-		}
-	}
-
 	private int getXDelta() {
 		moveStick = false;
-
-		// ----------------------------------------
-		// Figure out the xdelta
 
 		int xdelta = 0;
 		if (srv.getStick().test(Joystick.LEFT) && stunTimer == 0) {
@@ -197,31 +170,68 @@ public class Player extends Alien {
 		return xdelta;
 	}
 
-	private void moveY() {
-		// ----------------------------------------
-		// Y movement
-		//
+	private void normalHorizonalSlice(int n) {
+		if (inGround) {
+			// if you're in the ground it is always possible to move
+			c.x += n;
+			inGround = srv.inTheGround(c);
+		}
+		else {
+			// if you're in the air we do it
+			c.x += n;
+			// but if that results in entering the ground ..
+			if (srv.inTheGround(c)) {
+				// we look at the pixel above
+				c.y--;
+				if (srv.inTheGround(c)) {
+					// it might not get us back into air (in which case we
+					// are definitely entering ground from the side)
+					c.y++;
+					inGround = true;
+				}
+				else {
+					// or it might ... in which case we are touching down
+					if (!touchFloor) touchDown();
+				}
+			}
+		}
+	}
 
+	private void liftHorizontalSlice(int n) {
+		c.x += n;
+		if (!standingOn.horizontalOverlap(this)) {
+			fallOff();
+		}
+	}
+
+	private void applyGravity() {
+		vely = Math.min(vely + 1, 16);
+	}
+
+	private void moveY() {
 		// when we are on the floor
 		if (touchFloor) {
 			assert !inGround;
 			assert !jumping;
 			if (!srv.playerFall(c, 14)) {
-				offTheEdge();
+				fallOff();
 			}
-			else if (srv.getStick().test(Joystick.FIRE) && stunTimer == 0) {
-				jump(JUMP_VELOCITY);
+			else {
+				jumpOnFire();
 			}
 		}
 
 		// when we are in the air
+		// (which we might be fresh if we just went offTheEdge() above)
 		if (!touchFloor) {
+			// jump off the air?
+			// we are tolerant and give the player a few frames to jump even after they've run off an edge.
+			// This resolves any graphical ambiguity (edges that LOOK rounded) or timing ambiguity (I PRESSED IT)
+			// in the player's favour making the whole thing play smoother.
 			if (airJumpTimer != 0) {
-				if (srv.getStick().test(Joystick.FIRE) && stunTimer == 0) {
-					jump(JUMP_VELOCITY);
-				}
+				jumpOnFire();
 			}
-			gravity();
+			applyGravity();
 			MovementSlicer yslicer = new MovementSlicer(vely);
 			while (yslicer.more() && !touchFloor) {
 				int n = yslicer.next(1);
@@ -242,6 +252,7 @@ public class Player extends Alien {
 						// pixel below isn't ground
 						c.y++;
 						if (srv.inTheGround(c)) {
+							// and if it is then we touch down
 							touchDown();
 							c.y--;
 						}
@@ -251,49 +262,55 @@ public class Player extends Alien {
 		}
 	}
 
-	private void offTheEdge() {
-		lift = null;
-		touchFloor = false;
-		airJumpTimer = AIRJUMP_TIME;
+	private void move2() {
+		// remember our last position
+		lc = c.copy();
+
+		if (proofTimer != 0) proofTimer--;
+		if (flashTimer != 0) flashTimer--;
+		if (airJumpTimer != 0) airJumpTimer--;
+		// stunTimer only decrements when touchFloor so isn't done here
+
+		drawInWhite = (flashTimer & 15) > 9;
+
+		if (standingOn != null) {
+			standingOn.moveMe(this);
+		}
+		MovementSlicer xslicer = new MovementSlicer(getXDelta());
+		while (xslicer.more()) {
+			int n = xslicer.next(1);
+			if (standingOn != null) {
+				liftHorizontalSlice(n);
+			}
+			else {
+				normalHorizonalSlice(n);
+			}
+		}
+		if (standingOn == null) {
+			moveY();
+		}
+		else {
+			jumpOnFire();
+		}
+		setPlayerAnimation();
 	}
 
-	private void jump(int v) {
-		vely = v;
-		touchFloor = false;
-		jumping = true;
-	}
-
-	private void touchDown() {
-		assert !inGround;
-		touchFloor = true;
-		jumping = false;
-		vely = 0;
-	}
-
-	private void gravity() {
-		vely++;
-		vely = Math.min(vely, 16);
-	}
-
-	private void stationaryAnim() {
-		changeAnimation(goLeft ? "stoodleft" : "stoodright");
+	public void move() {
+		invariants();
+		move2();
+		invariants();
 	}
 
 	@Override
-	public void update() {
-		assert false;
+	public void init() {
+		setPlayerAnimation();
 	}
 
-	public void stun() {
-		// if we not proof and not already stunned:
-		if (proofTimer == 0 && stunTimer == 0) {
-			jump(STUN_VELOCITY);
-			stunTimer = STUN_TIME;
-			moveStick = false;
-		}
+	public void draw() {
+		srv.queueSprite(c, playerSprite, drawInWhite);
 	}
 
-	public void proof() {
+	public void giveShield() {
 		proofTimer = 50 * 13;
 		flashTimer = 50 * 12;
 	}
@@ -302,8 +319,16 @@ public class Player extends Alien {
 		return stunTimer != 0;
 	}
 
-	public boolean isHappyToBoardALift() {
+	public boolean isReadyToBoardALift() {
 		invariants();
-		return !isStunned() && lift == null && jumping && !inGround;
+		return !isStunned() && standingOn == null && jumping && !inGround;
+	}
+
+	@Override
+	public void update() {
+		// We need this method because the player is a pseudo Alien.
+		// Actually, it's move() and draw() that are our entry points.
+		// We're the only entity in the game with separate move and draw logic.
+		assert false;
 	}
 }
