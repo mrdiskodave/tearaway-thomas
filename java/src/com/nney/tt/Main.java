@@ -47,6 +47,8 @@ import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
 public class Main {
+	private static final boolean CTC_TUMBLE_WEEDS = false;
+
 	private static final boolean CTC_HARD_SCROLLING = false;
 
 	private static final int ZOOM = 2;
@@ -177,6 +179,10 @@ public class Main {
 		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
 
+		if (CTC_TUMBLE_WEEDS) {
+			ail.clear();
+		}
+
 		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
 		for (AlienInfo alienInfo : ail) {
 			aim.put(alienInfo.id, alienInfo);
@@ -215,7 +221,7 @@ public class Main {
 
 		try {
 			Box mapBounds = null;
-			InputStream i = TTResource.map("w", 9).open();
+			InputStream i = TTResource.map("w", 5).open();
 			DataInputStream di = new DataInputStream(i);
 
 			// get the game map off the front of the stream

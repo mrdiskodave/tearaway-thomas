@@ -30,4 +30,12 @@ public class Coord {
 	public Coord copy() {
 		return new Coord(x, y);
 	}
+	
+	// short hand, as we do it so much
+	public Coord copyAndMove(int x, int y) {
+		Coord answer = copy();
+		answer.x += x;
+		answer.y += y;
+		return answer;
+	}
 }

@@ -19,17 +19,7 @@ public interface AlienServices {
 	 */
 	int randomness(int n);
 
-	/**
-	 * What is there?
-	 * 
-	 * @param where
-	 *            The pixel location being queried.
-	 * @return The kind of block that is there. e.g. "magic" or "ladder" or any
-	 *         text string used in the configuration of a
-	 *         {@link BlockSpecifications} object.
-	 */
-	String getBlockSpecification(Coord where);
-
+	
 	int getFrameNumber();
 
 	void queueSprite(Coord c, Sprite s);
@@ -79,5 +69,7 @@ public interface AlienServices {
 	Coord getPlayerPosition();
 
 	Player getThePlayer();
+
+	boolean blockSpecificationIs(Coord c, String name);
 
 }

@@ -23,6 +23,7 @@ public class AnimPlayer {
 			anim = null;
 		}
 		else if (anim!=freshAnim) {
+//			System.out.println("Fresh len "+freshAnim.frames.length);
 			anim = freshAnim;
 			rate = freshAnim.defaultRate;
 			pos = 0;
@@ -46,6 +47,7 @@ public class AnimPlayer {
 		if (acc > Anim.MAX_RATE) {
 			acc -= Anim.MAX_RATE;
 			pos += 1;
+//			System.out.println("+"+pos);
 			if (pos >= anim.frames.length) {
 				if (anim.repeatPos<0) {
 					pos = anim.frames.length - 1;

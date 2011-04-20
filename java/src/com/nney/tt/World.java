@@ -60,11 +60,27 @@ public class World implements AlienServices, Joystick {
 		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
 	}
 
-	@Override
-	public String getBlockSpecification(Coord c) {
+	/**
+	 * What is there?
+	 * 
+	 * @param where
+	 *            The pixel location being queried.
+	 * @return The kind of block that is there. e.g. "magic" or "ladder" or any
+	 *         text string used in the configuration of a
+	 *         {@link BlockSpecifications} object.
+	 */
+	private String getBlockSpecification(Coord c) {
 		int block = getBlock(c);
 		return bs.get(block);
 	}
+	
+	@Override
+	public boolean blockSpecificationIs(Coord c, String name) {
+		String s = getBlockSpecification(c);
+//		System.out.println(String.format("Is %s really %s", s, name));
+		return s!=null && s.equals(name);
+	}
+	
 
 	@Override
 	public boolean playerFall(Coord where, int fallMax) {

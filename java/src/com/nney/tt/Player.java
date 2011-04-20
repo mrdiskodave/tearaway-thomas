@@ -6,6 +6,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
+	private static final int MONKEY_SNIFF_Y = -34;
 	private static final int AIRJUMP_TIME = 3;
 	private static final int STUN_TIME = 33;
 	private static final int PROOF_TIME = 25;
@@ -33,14 +34,21 @@ public class Player extends Alien {
 	private int airJumpTimer;
 
 	private int flashTimer = 50 * 5;
-	
+
 	private boolean drawInWhite;
-	
-	public LiftAlien standingOn;
+
+	private LiftAlien standingOn;
 
 	private int vely;
 
 	public Coord lc;
+
+	private Mode mode = Mode.NORMAL;
+	private boolean monkeyLatch;
+
+	enum Mode {
+		NORMAL, MONKEY,
+	}
 
 	private void invariants() {
 		assert !(touchFloor && jumping);
@@ -52,17 +60,21 @@ public class Player extends Alien {
 
 	private void reset() {
 		jumping = false;
-		touchFloor = false;
 		vely = 0;
 		airJumpTimer = 0;
+		mode = Mode.NORMAL;
+
 		standingOn = null;
+		touchFloor = false;
 	}
 
 	private void fallOff() {
 		assert touchFloor;
+		airJumpTimer = AIRJUMP_TIME;
+
 		standingOn = null;
 		touchFloor = false;
-		airJumpTimer = AIRJUMP_TIME;
+
 	}
 
 	private void touchDown() {
@@ -77,14 +89,13 @@ public class Player extends Alien {
 		if (standingOn != null) {
 			velocity += standingOn.jumpBoost();
 		}
+		reset(); // moved here
 		vely = velocity;
-		standingOn = null;
-		touchFloor = false;
 		jumping = true;
 	}
 
 	private void jumpOnFire() {
-		if (srv.getStick().test(Joystick.FIRE) && stunTimer == 0) {
+		if (testStick(Joystick.FIRE)) {
 			jump(JUMP_VELOCITY);
 		}
 	}
@@ -92,6 +103,7 @@ public class Player extends Alien {
 	public void stun() {
 		// if we not proof and not already stunned ..
 		if (proofTimer == 0 && stunTimer == 0) {
+			// reset(); from here
 			jump(STUN_VELOCITY);
 			stunTimer = STUN_TIME;
 			moveStick = false;
@@ -109,7 +121,11 @@ public class Player extends Alien {
 		return base + (goLeft ? "left" : "right");
 	}
 
-	private void setPlayerAnimation() {
+	private int directionalMovement(boolean left, int x) {
+		return left ? -x : x;
+	}
+
+	private void normalAnimation() {
 		boolean animate = true;
 		String name;
 		if (touchFloor) {
@@ -138,6 +154,10 @@ public class Player extends Alien {
 				animate = false;
 			}
 		}
+		setAnim(name, animate);
+	}
+
+	private void setAnim(String name, boolean animate) {
 		changeAnimation(name);
 		Sprite s = animate ? nextFrame() : sameFrame();
 		srv.registerPlayerSpriteForAlienColisions(c, s);
@@ -148,12 +168,12 @@ public class Player extends Alien {
 		moveStick = false;
 
 		int xdelta = 0;
-		if (srv.getStick().test(Joystick.LEFT) && stunTimer == 0) {
+		if (testStick(Joystick.LEFT)) {
 			xdelta = -pvt.next();
 			goLeft = true;
 			moveStick = true;
 		}
-		else if (srv.getStick().test(Joystick.RIGHT) && stunTimer == 0) {
+		else if (testStick(Joystick.RIGHT)) {
 			xdelta = pvt.next();
 			goLeft = false;
 			moveStick = true;
@@ -225,8 +245,10 @@ public class Player extends Alien {
 		// (which we might be fresh if we just went offTheEdge() above)
 		if (!touchFloor) {
 			// jump off the air?
-			// we are tolerant and give the player a few frames to jump even after they've run off an edge.
-			// This resolves any graphical ambiguity (edges that LOOK rounded) or timing ambiguity (I PRESSED IT)
+			// we are tolerant and give the player a few frames to jump even
+			// after they've run off an edge.
+			// This resolves any graphical ambiguity (edges that LOOK rounded)
+			// or timing ambiguity (I PRESSED IT)
 			// in the player's favour making the whole thing play smoother.
 			if (airJumpTimer != 0) {
 				jumpOnFire();
@@ -273,26 +295,90 @@ public class Player extends Alien {
 
 		drawInWhite = (flashTimer & 15) > 9;
 
-		if (standingOn != null) {
-			standingOn.moveMe(this);
+		if (stunTimer == 0) {
+			if (mode == Mode.NORMAL) {
+				// start monkey
+				// SCC5
+				if (!touchFloor && srv.blockSpecificationIs(c.copyAndMove(0, MONKEY_SNIFF_Y), "hrope")) {
+					if (vely >= 0 && !testStick(Joystick.DOWN) && !monkeyLatch) {
+						c.y -= 2;
+						c.y &= -16;
+						c.y += 2;
+						mode = Mode.MONKEY;
+						System.out.println("Monkey: Start");
+					}
+				}
+				else {
+					monkeyLatch = false;
+				}
+			}
 		}
-		MovementSlicer xslicer = new MovementSlicer(getXDelta());
-		while (xslicer.more()) {
-			int n = xslicer.next(1);
+
+		if (mode == Mode.MONKEY) {
+			boolean success = false; // SCC6
+			if (testStick(Joystick.LEFT)) {
+				success |= monkeyAttempt(true);
+			}
+			else if (testStick(Joystick.RIGHT)) {
+				success |= monkeyAttempt(false);
+			}
+			if (!success) {
+				setAnim("monkeymid", true);
+			}
+			if (testStickAA(Joystick.DOWN)) {
+				reset();
+				monkeyLatch = true;
+				c.y -= 6;
+				vely = 4;
+			}
+			if (testStickAA(Joystick.FIRE)) {
+				System.out.println("Monkey: Jump off");
+				jump(JUMP_VELOCITY);
+				monkeyLatch = true;
+			}
+		}
+
+		if (mode == Mode.NORMAL) {
 			if (standingOn != null) {
-				liftHorizontalSlice(n);
+				standingOn.moveMe(this);
+			}
+			MovementSlicer xslicer = new MovementSlicer(getXDelta());
+			while (xslicer.more()) {
+				int n = xslicer.next(1);
+				if (standingOn != null) {
+					liftHorizontalSlice(n);
+				}
+				else {
+					normalHorizonalSlice(n);
+				}
+			}
+			if (standingOn == null) {
+				moveY();
 			}
 			else {
-				normalHorizonalSlice(n);
+				jumpOnFire();
 			}
+			normalAnimation();
+
 		}
-		if (standingOn == null) {
-			moveY();
+	}
+
+	private boolean monkeyAttempt(boolean left) {
+		if (!srv.blockSpecificationIs(c.copyAndMove(directionalMovement(left, 8), MONKEY_SNIFF_Y), "hrope")) {
+			return false;
 		}
-		else {
-			jumpOnFire();
-		}
-		setPlayerAnimation();
+		goLeft = left;
+		c.x += directionalMovement(left, 3);
+		setAnim(directionalAnimName("monkey"), true);
+		return true;
+	}
+
+	private boolean testStick(int j) {
+		return srv.getStick().test(j) && stunTimer == 0;
+	}
+
+	private boolean testStickAA(int j) {
+		return srv.getStick().testAntiAutofire(j) && stunTimer == 0;
 	}
 
 	public void move() {
@@ -303,7 +389,7 @@ public class Player extends Alien {
 
 	@Override
 	public void init() {
-		setPlayerAnimation();
+		normalAnimation();
 	}
 
 	public void draw() {
