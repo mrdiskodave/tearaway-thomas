@@ -10,7 +10,7 @@ public class Player extends Alien {
 	private static final int VROPE_SNIFF_YPLUS = 11;
 	private static final int HROPE_SNIFF_Y = -34;
 
-	private static final int AIRJUMP_TIME = 3;
+	private static final int AIRJUMP_TIME = 4;
 	private static final int STUN_TIME = 33;
 	private static final int PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
@@ -18,13 +18,13 @@ public class Player extends Alien {
 
 	/**
 	 * How big a pixel step is counted as part of the continuous surface of the
-	 * floor? Bigger steps are ground that you can jump into from the side
-	 * rather than mounting. The bigger this value the more the player will
-	 * visibly "mount" sign posts and tree branches and other platforms during
-	 * his jumps (which looks bad). The smaller this value the greater the
-	 * chance of falling through if the map designer hasn't taken care to
-	 * observe a {@link #FLOOR_DEFINITION_DISTANCE} of 1.
-	 * 
+	 * floor? Bigger steps are ground that the player jumps into from the side
+	 * (rather walking on top of i.e. mounting). The bigger this value the more
+	 * the player will visibly "mount" sign posts and tree branches and other
+	 * platforms during his jumps (which looks bad). The smaller this value the
+	 * greater the chance of falling through the floor if the map designer
+	 * hasn't taken care to observe the original
+	 * {@link #FLOOR_DEFINITION_DISTANCE} = 1 rule.
 	 */
 	private static final int FLOOR_DEFINITION_DISTANCE = 3;
 	// 3 for now.
@@ -37,12 +37,16 @@ public class Player extends Alien {
 	 * the continuous surface of the floor once {@link #touchFloor} is
 	 * <code>true</code>.
 	 * 
-	 * With this compile time configuration set to <code>true</code>, if you
-	 * "want" to get through a >{@link #FLOOR_DEFINITION_DISTANCE} pixel size
-	 * step at floor level you'll need to jump through it. Jumping through
-	 * something so small at floor level will be hard because you have to jump
-	 * <i>from</i> the floor and your jump return-velocity will be too big to
-	 * allow such sneaky manoeuvres. Probably.
+	 * With this to <code>true</code>, if you "want" to get through a >
+	 * {@link #FLOOR_DEFINITION_DISTANCE} pixel size step at floor level you'll
+	 * need to jump through it. Jumping through something so small at floor
+	 * level will be hard because you have to jump <i>from</i> the floor and
+	 * your jump return-velocity will be too big to allow such sneaky
+	 * manoeuvres. Probably. With this compile time configuration set to
+	 * <code>false</code> you can just walk through the gap easily and probably
+	 * fall forever after that. i.e. this configuration hides map problems which
+	 * is probably only a good thing in the final version where they cannot be
+	 * fixed.
 	 */
 	private static final boolean CTC_MITIGATE_AGAINST_FALLTHROUGH = true;
 
@@ -58,6 +62,9 @@ public class Player extends Alien {
 	// TODO: reset the level if the player does manage to fall through
 	// (not something we ever did in the original)
 
+	/**
+	 * Player accelerates from standing and this object manages that.
+	 */
 	private PlayerVelocityTable pvt = new PlayerVelocityTable();
 
 	/**
@@ -66,8 +73,8 @@ public class Player extends Alien {
 	private Sprite playerSprite;
 
 	/**
-	 * Is the {@link #playerSprite} to be drawn as a white silhouette? We do this to show they
-	 * are invulnerable.
+	 * Is the {@link #playerSprite} to be drawn as a white silhouette? We do
+	 * this to show they are invulnerable.
 	 */
 	private boolean drawInWhite;
 
