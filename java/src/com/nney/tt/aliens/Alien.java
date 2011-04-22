@@ -9,7 +9,7 @@ import com.nney.tt.sprites.SpriteSet;
 
 public abstract class Alien {
 	public Coord c = new Coord();
-	private AnimPlayer animPlayer = new AnimPlayer();
+	protected AnimPlayer animPlayer = new AnimPlayer();
 	private SpriteSet spriteSet;
 	public byte[] srcData;
 	public boolean remove;

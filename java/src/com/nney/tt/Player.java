@@ -3,53 +3,158 @@ package com.nney.tt;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
-	private static final int MONKEY_SNIFF_Y = -34;
+	private static final int VROPE_SNIFF_Y = -17;
+	private static final int VROPE_SNIFF_YPLUS = 11;
+	private static final int HROPE_SNIFF_Y = -34;
+
 	private static final int AIRJUMP_TIME = 3;
 	private static final int STUN_TIME = 33;
 	private static final int PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
 	private static final int JUMP_VELOCITY = -12;
 
+	/**
+	 * How big a pixel step is counted as part of the continuous surface of the
+	 * floor? Bigger steps are ground that you can jump into from the side
+	 * rather than mounting. The bigger this value the more the player will
+	 * visibly "mount" sign posts and tree branches and other platforms during
+	 * his jumps (which looks bad). The smaller this value the greater the
+	 * chance of falling through if the map designer hasn't taken care to
+	 * observe a {@link #FLOOR_DEFINITION_DISTANCE} of 1.
+	 * 
+	 */
+	private static final int FLOOR_DEFINITION_DISTANCE = 3;
+	// 3 for now.
+	// e.g. TTResource.map("w", 5) contains an example of such a spot.
+	// There is a 3 pixel step because of single misplaced block.
+	//
+
+	/**
+	 * With this switched on <b>any</b> size pixel step is counted as part of
+	 * the continuous surface of the floor once {@link #touchFloor} is
+	 * <code>true</code>.
+	 * 
+	 * With this compile time configuration set to <code>true</code>, if you
+	 * "want" to get through a >{@link #FLOOR_DEFINITION_DISTANCE} pixel size
+	 * step at floor level you'll need to jump through it. Jumping through
+	 * something so small at floor level will be hard because you have to jump
+	 * <i>from</i> the floor and your jump return-velocity will be too big to
+	 * allow such sneaky manoeuvres. Probably.
+	 */
+	private static final boolean CTC_MITIGATE_AGAINST_FALLTHROUGH = true;
+
+	// I think the original had FLOOR_DEFINITION_DISTANCE = 1
+	// and CTC_MITIGATE_AGAINST_FALLTHROUGH = true
+
+	// TODO: hollow out the masks for sign posts and trees.
+	// We just want a single pixel running along the top of
+	// each place where the player can stand.
+	// Then the only issue is other platforms which doesn't happen much
+	// so we can crank FLOOR_DEFINITION_DISTANCE up a bit?
+
+	// TODO: reset the level if the player does manage to fall through
+	// (not something we ever did in the original)
+
 	private PlayerVelocityTable pvt = new PlayerVelocityTable();
 
+	/**
+	 * What does the player look like?
+	 */
 	private Sprite playerSprite;
 
-	boolean goLeft;
-
-	private boolean touchFloor = true;
-
-	private boolean moveStick;
-
-	private boolean inGround;
-
-	private boolean jumping;
-
-	private int stunTimer;
-
-	private int proofTimer;
-
-	private int airJumpTimer;
-
-	private int flashTimer = 50 * 5;
-
+	/**
+	 * Is the {@link #playerSprite} to be drawn as a white silhouette? We do this to show they
+	 * are invulnerable.
+	 */
 	private boolean drawInWhite;
 
+	/**
+	 * Is the player facing left? <code>true</code> means "they are facing left"
+	 * and <code>false</code> means "they are facing right".
+	 */
+	boolean goLeft;
+
+	/**
+	 * Is the player on the floor?
+	 */
+	private boolean touchFloor = true;
+
+	/**
+	 * Is the player moving the stick to the left or the right in
+	 * {@link Mode#NORMAL}?
+	 */
+	private boolean moveStick;
+
+	/**
+	 * Is the player in the ground?
+	 */
+	private boolean inGround;
+
+	/**
+	 * Is the player jumping?
+	 */
+	private boolean jumping;
+
+	/**
+	 * The player is stunned until this timer counts down to zero.
+	 */
+	private int stunTimer;
+
+	/**
+	 * The player is invulnerable until this timer counts down to zero.
+	 */
+	private int proofTimer;
+
+	/**
+	 * The player is able to jump off the air until this timer counts down to
+	 * zero.
+	 * 
+	 * You see, we are tolerant and give the player a few frames to jump even
+	 * after they've run off an edge. This resolves any graphical ambiguity
+	 * (edges that <b>look</b> rounded) or timing ambiguity (<b>I pressed
+	 * it!</b>) in the player's favour - making the whole thing play smoother.
+	 */
+	private int airJumpTimer;
+
+	private int flashTimer;
+
+	/**
+	 * A lift, if we are standing on one, otherwise <code>null</code>.
+	 */
 	private LiftAlien standingOn;
 
+	/**
+	 * Our Y velocity.
+	 */
 	private int vely;
 
+	/**
+	 * Our last coordinate.
+	 */
 	public Coord lc;
 
+	/**
+	 * What {@link Mode} are we in?
+	 */
 	private Mode mode = Mode.NORMAL;
+
+	/**
+	 * A flag that tells us not to go right back into {@link Mode#MONKEY}
+	 * directly after leaving it.
+	 */
 	private boolean monkeyLatch;
+
+	/**
+	 * A flag that tells us not to go right back into {@link Mode#ROPE} directly
+	 * after leaving it.
+	 */
 	private boolean ropeLatch;
 
 	enum Mode {
-		NORMAL, MONKEY, ROPE,
+		NORMAL, MONKEY, ROPE, ROPE_TWIST
 	}
 
 	private void invariants() {
@@ -87,7 +192,7 @@ public class Player extends Alien {
 		vely = 0;
 	}
 
-	private void jump(int velocity) {
+	private void jumpV(int velocity) {
 		if (standingOn != null) {
 			velocity += standingOn.jumpBoost();
 		}
@@ -96,9 +201,13 @@ public class Player extends Alien {
 		jumping = true;
 	}
 
+	public void jump() {
+		jumpV(JUMP_VELOCITY);
+	}
+
 	private void jumpOnFire() {
 		if (testStick(Joystick.FIRE)) {
-			jump(JUMP_VELOCITY);
+			jump();
 		}
 	}
 
@@ -106,7 +215,7 @@ public class Player extends Alien {
 		// if we not proof and not already stunned ..
 		if (proofTimer == 0 && stunTimer == 0) {
 			// reset(); from here
-			jump(STUN_VELOCITY);
+			jumpV(STUN_VELOCITY);
 			stunTimer = STUN_TIME;
 			moveStick = false;
 		}
@@ -192,9 +301,22 @@ public class Player extends Alien {
 		return xdelta;
 	}
 
+	@SuppressWarnings("unused")
 	private void normalHorizonalSlice(int n) {
+		// The floor is two pixels: one air (with air above), and below it, one
+		// ground (with ground below).
+		// When the player's position is that of that one air pixel they
+		// touchFloor.
+		// Next to it there can be more floor: either on the same level
+		// or 1 pixel up or 1 pixel down.
+		//
+		// If there are any >1 pixel steps in the floor
+		// that you could fall through!
+		// TTResource.map("w", 5) contains an example of such a spot.
+		// There is a 3 pixel step because of single misplaced block.
+		//
 		c.x += n;
-		if (touchFloor) {
+		if (CTC_MITIGATE_AGAINST_FALLTHROUGH && touchFloor) {
 			vacuumFloor();
 		}
 		else {
@@ -206,37 +328,27 @@ public class Player extends Alien {
 				// if you're in the air we do it
 				// but if that results in entering the ground ..
 				if (srv.inTheGround(c)) {
-					// we look at the pixel above
-					c.y--;
-					if (srv.inTheGround(c)) {
-						// it might not get us back into air (in which case we
-						// are definitely entering ground from the side)
-						c.y++;
-						inGround = true;
-						// TODO: this only partially works!
-						//
-						// If there are any two pixel steps in the floor of a level
-						// and you jump exactly wrong you could, in theory, fall through.
-						//
-						// If the floor is all on about the same height this is rather unlikely
-						// as you're jump return-velocity will be too big to allow such sneaky
-						// manoeuvres.
-						//
-						// TTResource.map("w", 5) contains an example of such a spot.
-						// There is a 3 pixel step because of single misplaced block.
-						// It is theoretically possible to fall through at that point.
-						// In practice I can't do it ... but really the map needs fixing.
-						//
-						// I guess we could extend the above tolerance to more than one
-						// pixel but where to stop? Too large and the player will start
-						// conspicuously "mounting" branches and sign-posts. Too low
-						// and perhaps we haven't done enough to check the risk of falling through.
-						//
-						// TODO: zz *IF* you fall through just go back to the start without penalty!
-					}
-					else {
-						// or it might ... in which case we are touching down
-						if (!touchFloor) touchDown();
+					int distance = 1;
+					for (;;) {
+						if (distance > FLOOR_DEFINITION_DISTANCE) {
+							// it might not get us back into air (in which case
+							// we are definitely entering ground from the side)
+							c.y++;
+							inGround = true;
+							touchFloor = false;
+							break;
+						}
+						if (!srv.inTheGround(c.copyAndMove(0, -distance))) {
+							// or it might ... in which case we are touching
+							// down
+							if (distance > 1) {
+								System.out.println("Recovered by jumping up " + distance);
+							}
+							c.y -= distance;
+							if (!touchFloor) touchDown();
+							break;
+						}
+						distance++;
 					}
 				}
 			}
@@ -264,12 +376,7 @@ public class Player extends Alien {
 		// when we are in the air
 		// (which we might be fresh if we just went offTheEdge() above)
 		if (!touchFloor) {
-			// jump off the air?
-			// we are tolerant and give the player a few frames to jump even
-			// after they've run off an edge.
-			// This resolves any graphical ambiguity (edges that LOOK rounded)
-			// or timing ambiguity (I PRESSED IT)
-			// in the player's favour making the whole thing play smoother.
+			// Jump off the air?
 			if (airJumpTimer != 0) {
 				jumpOnFire();
 			}
@@ -305,7 +412,7 @@ public class Player extends Alien {
 	}
 
 	/**
-	 * A player who touches the floor is held down onto it by this method. 
+	 * A player who touches the floor is held down onto it by this method.
 	 */
 	private void vacuumFloor() {
 		assert touchFloor;
@@ -331,25 +438,29 @@ public class Player extends Alien {
 			if (mode == Mode.NORMAL) {
 				// start monkey?
 				// SCC5
-				if (!touchFloor && srv.blockSpecificationIs(c.copyAndMove(0, MONKEY_SNIFF_Y), "hrope")) {
+				if (!touchFloor && testForHorizontalRope(0)) {
 					if (vely >= 0 && !testStick(Joystick.DOWN) && !monkeyLatch) {
+						// block align:
 						c.y -= 2;
 						c.y &= -16;
 						c.y += 2;
+						reset();
 						mode = Mode.MONKEY;
 						System.out.println("Monkey: Start");
 					}
 				}
 				else {
+					if (monkeyLatch) System.out.println("Monkey: clear");
 					monkeyLatch = false;
 				}
 			}
-			
+
 			if (mode == Mode.NORMAL) {
 				// start vrope
-				if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testRope(0)) {
+				if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
 					if (!ropeLatch) {
 						goLeft = !goLeft;
+						// block align:
 						c.x &= -16;
 						c.x += 8;
 						reset();
@@ -363,7 +474,8 @@ public class Player extends Alien {
 		}
 
 		if (mode == Mode.MONKEY) {
-			boolean success = false; // SCC6
+			// SCC6
+			boolean success = false;
 			if (testStick(Joystick.LEFT)) {
 				success |= monkeyAttempt(true);
 			}
@@ -373,32 +485,69 @@ public class Player extends Alien {
 			if (!success) {
 				setAnim("monkeymid", true);
 			}
+			// exit the mode by pressing down ..
 			if (testStickAA(Joystick.DOWN)) {
 				reset();
+				System.out.println("Monkey: end .. drop");
 				monkeyLatch = true;
-				c.y -= 6;
+				c.y -= 4;
 				vely = 4;
 			}
+			// or fire ..
 			if (testStickAA(Joystick.FIRE)) {
-				System.out.println("Monkey: Jump off");
-				jump(JUMP_VELOCITY);
+				System.out.println("Monkey: end .. jump");
+				jump();
 				monkeyLatch = true;
 			}
 		}
-		
-		if (mode == Mode.ROPE){
+
+		if (mode == Mode.ROPE_TWIST || mode == Mode.ROPE) {
 			// SCC7
-			String anim = directionalAnimName("rope");
-			boolean moving = false;
-			if (testStick(Joystick.UP) && testRope(-2)) {
+			if (mode == Mode.ROPE) {
+				boolean wannaTwistLeft = testStick(Joystick.LEFT) && !goLeft;
+				boolean wannaTwistRight = testStick(Joystick.RIGHT) && goLeft;
+				if (wannaTwistLeft || wannaTwistRight) {
+					goLeft = !goLeft;
+					mode = Mode.ROPE_TWIST;
+				}
+			}
+			else {
+				if (animPlayer.hasAnimEnded()) {
+					mode = Mode.ROPE;
+				}
+			}
+
+			boolean nonTwistMoving = false;
+			if (testStick(Joystick.UP) && testForVerticalRope(-2)) {
 				c.y += -2;
-				moving = true;
+				nonTwistMoving = true;
 			}
-			if (testStick(Joystick.DOWN) && testRope(2)) {
+			if (testStick(Joystick.DOWN) && testForVerticalRope(2)) {
 				c.y += 2;
-				moving = true;
+				nonTwistMoving = true;
 			}
-			setAnim(anim, moving);
+			// exit the mode by pressing fire ..
+			if (testStickAA(Joystick.FIRE)) {
+				// and if you holding down ..
+				if (testStick(Joystick.DOWN)) {
+					// .. then you just drop
+					reset();
+					vely = -4;
+				}
+				else {
+					jump();
+				}
+				ropeLatch = true;
+			}
+
+			if (mode == Mode.ROPE) {
+				setAnim(directionalAnimName("rope"), nonTwistMoving);
+			}
+			else {
+				// always moving ...
+				setAnim(goLeft ? "roper2l" : "ropel2r", true);
+			}
+
 		}
 
 		if (mode == Mode.NORMAL) {
@@ -426,16 +575,25 @@ public class Player extends Alien {
 		}
 	}
 
-	private boolean testRope(int dy) {
-		Coord sniffAt = c.copyAndMove(0, dy-17);
-		if (!srv.blockSpecificationIs(sniffAt, "vrope")) return false;
-		sniffAt.y += 11;
-		return srv.blockSpecificationIs(sniffAt, "vrope");
+	private boolean testForVerticalRope(int dy) {
+		Coord where = c.copyAndMove(0, dy + VROPE_SNIFF_Y);
+		if (!srv.blockSpecificationIs(where, "vrope")) return false;
+		where.y += VROPE_SNIFF_YPLUS;
+		return srv.blockSpecificationIs(where, "vrope");
+	}
+
+	private boolean testForHorizontalRope(int dx) {
+		Coord where = c.copyAndMove(dx, HROPE_SNIFF_Y);
+		return srv.blockSpecificationIs(where, "hrope");
 	}
 
 	private boolean monkeyAttempt(boolean left) {
-		Coord sniffAt = c.copyAndMove(directionalMovement(left, 8), MONKEY_SNIFF_Y);
-		if (!srv.blockSpecificationIs(sniffAt, "hrope")) {
+		if (!testForHorizontalRope(directionalMovement(left, 8))) {
+			// we used to fall off here -- but was that nice?
+			// it sure kept the game flowing along but it wasn't obvious exactly
+			// when it would happen and the consequences (if you were up high)
+			// could be dire.
+			// for now we just don't make the movement.
 			return false;
 		}
 		goLeft = left;

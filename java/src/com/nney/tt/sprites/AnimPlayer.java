@@ -15,6 +15,8 @@ public class AnimPlayer {
 
 	private int rate;
 
+	private boolean animEnded;
+
 	public AnimPlayer() {
 	}
 
@@ -28,6 +30,7 @@ public class AnimPlayer {
 			rate = freshAnim.defaultRate;
 			pos = 0;
 			acc = 0;
+			animEnded = false;
 		}
 	}
 	
@@ -55,7 +58,12 @@ public class AnimPlayer {
 				else {
 					pos = anim.repeatPos;
 				}
+				animEnded = true;
 			}
 		}
+	}
+	
+	public boolean hasAnimEnded() {
+		return animEnded;
 	}
 }
