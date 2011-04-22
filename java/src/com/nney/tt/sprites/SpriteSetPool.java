@@ -23,7 +23,8 @@ public class SpriteSetPool extends CachedLoader<String, SpriteSet> {
 		ArrayList<Anim> an = new ArrayList<Anim>();
 		
 		DataItem diRoot = sdp.load(spriteName);
-		final boolean makeWhiteVersion = spriteName == "0tt"; // TODO: FIx this hack! (pull it outta the 'diRoot')
+		final boolean makeWhiteVersion = spriteName == "0tt";
+		// TODO: fix ^this^ hack
 		
 		// we'll be loading the same frame twice if the animation goes
 		// back on itself (e.g. ladder climbing) so we'll need a cache

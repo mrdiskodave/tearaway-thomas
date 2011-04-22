@@ -28,7 +28,7 @@ public class Coord {
 	}
 	
 	public Coord copy() {
-		return new Coord(x, y);
+		return new Coord(this);
 	}
 	
 	// short hand, as we do it so much
@@ -37,5 +37,10 @@ public class Coord {
 		answer.x += x;
 		answer.y += y;
 		return answer;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%sx%s", x, y);
 	}
 }
