@@ -9,6 +9,13 @@ public class Player extends Alien {
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
+	/**
+	 * How much do we tolerate the player being misplaced for getting on a
+	 * ladder when they are standing still? They get the ideal position plus
+	 * {@link #LADDER_XSNAP_STATIONARY} pixels on either side.
+	 */
+	private static final int LADDER_XSNAP_STATIONARY = 5;
+
 	private static final int VROPE_SNIFF_Y = -17;
 	private static final int VROPE_SNIFF_YPLUS = 11;
 	private static final int HROPE_SNIFF_Y = -34;
@@ -27,7 +34,7 @@ public class Player extends Alien {
 	 * platforms during his jumps (which looks bad). The smaller this value the
 	 * greater the chance of falling through the floor if the map designer
 	 * hasn't taken care to observe the original
-	 * {@link #FLOOR_DEFINITION_DISTANCE} = 1 rule.
+	 * "{@link #FLOOR_DEFINITION_DISTANCE} = 1" rule.
 	 */
 	private static final int FLOOR_DEFINITION_DISTANCE = 3;
 	// 3 for now.
@@ -244,7 +251,6 @@ public class Player extends Alien {
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}
-
 
 	private int getStickUpDownDelta() {
 		int delta = 0;
@@ -464,10 +470,7 @@ public class Player extends Alien {
 					liftHorizontalSlice(n);
 				}
 				else {
-					perhapsStartLadderMode();
-					if (mode == Mode.NORMAL) {
-						normalHorizonalSlice(n);
-					}
+					normalHorizonalSlice(n);
 				}
 			}
 			if (standingOn == null) {
@@ -480,34 +483,47 @@ public class Player extends Alien {
 
 		}
 	}
-	
+
 	// ---------------------------------------------------------------------------
 	// LADDER MODE
 
-	private LR testLadder(Coord where) {
-		if (srv.blockInfoIs(where, "ladderleft")) return LR.LEFT;
-		if (srv.blockInfoIs(where, "ladderright")) return LR.RIGHT;
-		return LR.NO;
+	private boolean testLadder(Coord where) {
+		return srv.blockInfoIs(where, "ladderleft");
 	}
 
-	private LR testLadder(int dy) {
+	private boolean testLadder(int dx, int dy) {
 		LadderInfo li = srv.getLadderInfo();
-		if (li == null) {
-			return LR.NO;
-		}
-		LR a = testLadder(c.copyAndMove(0, dy + li.top));
-		if (a == LR.NO) return a;
-		return testLadder(c.copyAndMove(0, dy + li.bottom));
+		return li != null && testLadder(c.copyAndMove(dx, dy + li.top))
+				&& testLadder(c.copyAndMove(dx, dy + li.bottom));
 	}
 
 	private void perhapsStartLadderMode() {
-		int alignment = c.x & 15;
-		if (alignment == 15 && testLadder(0) == LR.LEFT && testStick(Joystick.DOWN | Joystick.UP)) {
-			int z = getStickUpDownDelta();
+		// alignment: [ ... 12 13 14] *15* [0 1 2 ... ]
+		// snap: [ maxSnap ... 3 2 1] *0* [-1 -2 -3 ... -maxSnap ]
+
+		int maxSnap;
+		if (moveStick) {
+			// work out maxSnap from our maximum speed
+			// to ensure the player get's at least one
+			// shot at getting on the ladder as he runs by
+			maxSnap = (pvt.max() - 1) / 2;
+		}
+		else {
+			maxSnap = LADDER_XSNAP_STATIONARY;
+		}
+
+		int snap = c.x;
+		snap += maxSnap + 1;
+		snap &= 15;
+		snap = maxSnap - snap;
+
+		System.out.println("SNAP" + snap + "max" + maxSnap);
+		if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)) {
 			if (!ladderLatch) {
-				if (testLadder(z) != LR.NO) {
+				if (testLadder(snap, getStickUpDownDelta())) {
 					reset();
 					mode = Mode.LADDER;
+					c.x += snap;
 				}
 				else {
 					System.out.println("Ladder: run straight past");
@@ -528,7 +544,7 @@ public class Player extends Alien {
 				MovementSlicer yslicer = new MovementSlicer(delta);
 				while (yslicer.more()) {
 					int n = yslicer.next(1);
-					if (testLadder(n) == LR.NO) {
+					if (!testLadder(0, n)) {
 						leaveLadder();
 						break;
 					}
@@ -547,8 +563,8 @@ public class Player extends Alien {
 	private boolean leaveLadder() {
 		boolean answer;
 		if (!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1))) {
-			System.out.println("Ladder: Disembarkation point");
 			answer = testStick(Joystick.LEFT | Joystick.RIGHT);
+			System.out.println("Ladder: Disembarkation: " + answer);
 			if (answer) {
 				reset();
 				touchFloor = true;
@@ -572,7 +588,7 @@ public class Player extends Alien {
 	// ROPE MODE
 
 	private void perhapsStartRopeMode() {
-		if (mode == Mode.NORMAL) {
+		if (mode == Mode.NORMAL && !touchFloor) {
 			// start rope?
 			if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
 				if (!ropeLatch) {
@@ -652,7 +668,7 @@ public class Player extends Alien {
 	// MONKEY MODE
 
 	private void perhapsStartMonkeyMode() {
-		if (mode == Mode.NORMAL) {
+		if (mode == Mode.NORMAL && !touchFloor) {
 			// start monkey?
 			// SCC5
 			if (!touchFloor && testForHorizontalRope(0)) {
@@ -725,22 +741,24 @@ public class Player extends Alien {
 	private void move2() {
 		// remember our last position
 		lc = c.copy();
-	
+
 		if (proofTimer != 0) proofTimer--;
 		if (flashTimer != 0) flashTimer--;
 		if (airJumpTimer != 0) airJumpTimer--;
 		// stunTimer only decrements when touchFloor so isn't done here
-	
+
 		drawInWhite = (flashTimer & 15) > 9;
-	
-		if (stunTimer == 0 && !touchFloor) {
+
+		if (stunTimer == 0) {
 			perhapsStartMonkeyMode();
 			perhapsStartRopeMode();
+			perhapsStartLadderMode();
 		}
-	
+
 		doMonkeyMode();
 		doRopeMode();
 		doLadderMode();
+
 		doNormalMode();
 	}
 

@@ -15,10 +15,19 @@ public class PlayerVelocityTable {
 	private int velStep;
 
 	public int next() {
-		int[] t = plSprint ? VEL_TURBO : VEL_NORM;
+		int[] t = getTable();
 		int answer = t[velStep];
 		if (velStep != t.length - 1) velStep++;
 		return answer;
+	}
+
+	private int[] getTable() {
+		return plSprint ? VEL_TURBO : VEL_NORM;
+	}
+	
+	public int max() {
+		int[] t = getTable();
+		return t[t.length-1];
 	}
 	
 	public void reset() {
