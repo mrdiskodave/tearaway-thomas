@@ -33,8 +33,8 @@ public class Player extends Alien {
 	 * the player will visibly "mount" sign posts and tree branches and other
 	 * platforms during his jumps (which looks bad). The smaller this value the
 	 * greater the chance of falling through the floor if the map designer
-	 * hasn't taken care to observe the original
-	 * "{@link #FLOOR_DEFINITION_DISTANCE} = 1" rule.
+	 * hasn't taken care to observe the original "
+	 * {@link #FLOOR_DEFINITION_DISTANCE} = 1" rule.
 	 */
 	private static final int FLOOR_DEFINITION_DISTANCE = 3;
 	// 3 for now.
@@ -498,40 +498,43 @@ public class Player extends Alien {
 	}
 
 	private void perhapsStartLadderMode() {
-		// alignment: [ ... 12 13 14] *15* [0 1 2 ... ]
-		// snap: [ maxSnap ... 3 2 1] *0* [-1 -2 -3 ... -maxSnap ]
+		if (mode == Mode.NORMAL) {
+			// alignment: [ ... 12 13 14] *15* [0 1 2 ... ]
+			// snap: [ maxSnap ... 3 2 1] *0* [-1 -2 -3 ... -maxSnap ]
 
-		int maxSnap;
-		if (moveStick) {
-			// work out maxSnap from our maximum speed
-			// to ensure the player get's at least one
-			// shot at getting on the ladder as he runs by
-			maxSnap = (pvt.max() - 1) / 2;
-		}
-		else {
-			maxSnap = LADDER_XSNAP_STATIONARY;
-		}
+			int maxSnap;
+			if (moveStick) {
+				// work out maxSnap from our maximum speed
+				// to ensure the player get's at least one
+				// shot at getting on the ladder as he runs by
+				maxSnap = (pvt.max() - 1) / 2;
+			}
+			else {
+				maxSnap = LADDER_XSNAP_STATIONARY;
+			}
 
-		int snap = c.x;
-		snap += maxSnap + 1;
-		snap &= 15;
-		snap = maxSnap - snap;
+			int snap = c.x;
+			snap += maxSnap + 1;
+			snap &= 15;
+			snap = maxSnap - snap;
 
-		System.out.println("SNAP" + snap + "max" + maxSnap);
-		if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)) {
-			if (!ladderLatch) {
-				if (testLadder(snap, getStickUpDownDelta())) {
-					reset();
-					mode = Mode.LADDER;
-					c.x += snap;
-				}
-				else {
-					System.out.println("Ladder: run straight past");
+			// System.out.println("SNAP" + snap + "max" + maxSnap);
+			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)) {
+				if (!ladderLatch) {
+					if (testLadder(snap, getStickUpDownDelta())) {
+						reset();
+						mode = Mode.LADDER;
+						c.x += snap;
+						System.out.println("Ladder: on board!");
+					}
+					else {
+						System.out.println("Ladder: run straight past");
+					}
 				}
 			}
-		}
-		else {
-			ladderLatch = false;
+			else {
+				ladderLatch = false;
+			}
 		}
 	}
 
@@ -540,41 +543,34 @@ public class Player extends Alien {
 			// do ladder!
 			boolean moving = false;
 			int delta = getStickUpDownDelta() * 2;
-			if (delta != 0) {
-				MovementSlicer yslicer = new MovementSlicer(delta);
-				while (yslicer.more()) {
-					int n = yslicer.next(1);
-					if (!testLadder(0, n)) {
-						leaveLadder();
-						break;
-					}
+			MovementSlicer yslicer = new MovementSlicer(delta);
+			while (yslicer.more()) {
+				int n = yslicer.next(1);
+				if (testLadder(0, n)) {
 					c.y += n;
 					moving = true;
-					if (leaveLadder()) break;
 				}
 			}
-			else {
-				leaveLadder();
-			}
+			leaveLadder();
 			setAnim("climb", moving);
 		}
 	}
 
-	private boolean leaveLadder() {
-		boolean answer;
-		if (!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1))) {
-			answer = testStick(Joystick.LEFT | Joystick.RIGHT);
-			System.out.println("Ladder: Disembarkation: " + answer);
-			if (answer) {
+	private void leaveLadder() {
+		if ((!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1)))) {
+			boolean leave = testStick(Joystick.LEFT | Joystick.RIGHT);
+			System.out.println("Ladder: Disembarkation: " + leave);
+			if (leave) {
 				reset();
 				touchFloor = true;
 				ladderLatch = true;
 			}
 		}
-		else {
-			answer = false;
+
+		if (testStickAA(Joystick.FIRE)) {
+			jump();
+			ladderLatch = true;
 		}
-		return answer;
 	}
 
 	private boolean testForVerticalRope(int dy) {
