@@ -6,6 +6,9 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
+	// ---------------------------------------------------------------------------
+	// CONSTANTS
+
 	private static final int VROPE_SNIFF_Y = -17;
 	private static final int VROPE_SNIFF_YPLUS = 11;
 	private static final int HROPE_SNIFF_Y = -34;
@@ -60,6 +63,9 @@ public class Player extends Alien {
 
 	// TODO: reset the level if the player does manage to fall through
 	// (not something we ever did in the original)
+
+	// ---------------------------------------------------------------------------
+	// FIELDS
 
 	/**
 	 * Player accelerates from standing and this object manages that.
@@ -160,6 +166,9 @@ public class Player extends Alien {
 	private boolean ropeLatch;
 	private boolean ladderLatch;
 
+	// ---------------------------------------------------------------------------
+	// ENUMERATIONS
+
 	enum Mode {
 		NORMAL, MONKEY, ROPE, ROPE_TWIST, LADDER
 	}
@@ -167,6 +176,9 @@ public class Player extends Alien {
 	enum LR {
 		NO, LEFT, RIGHT
 	}
+
+	// ---------------------------------------------------------------------------
+	// PRIVATE SUBROUTINES
 
 	private void invariants() {
 		assert !(touchFloor && jumping);
@@ -212,31 +224,10 @@ public class Player extends Alien {
 		jumping = true;
 	}
 
-	public void jump() {
-		jumpV(JUMP_VELOCITY);
-	}
-
 	private void jumpOnFire() {
 		if (testStick(Joystick.FIRE)) {
 			jump();
 		}
-	}
-
-	public void stun() {
-		// if we not proof and not already stunned ..
-		if (proofTimer == 0 && stunTimer == 0) {
-			// reset(); from here
-			jumpV(STUN_VELOCITY);
-			stunTimer = STUN_TIME;
-			moveStick = false;
-		}
-	}
-
-	public void landOn(LiftAlien lift, int height) {
-		reset();
-		standingOn = lift;
-		c.y = height;
-		touchFloor = true;
 	}
 
 	private String directionalAnimName(String base) {
@@ -246,6 +237,36 @@ public class Player extends Alien {
 	private int directionalMovement(boolean left, int x) {
 		return left ? -x : x;
 	}
+
+	private void setAnim(String name, boolean animate) {
+		changeAnimation(name);
+		Sprite s = animate ? nextFrame() : sameFrame();
+		srv.registerPlayerSpriteForAlienColisions(c, s);
+		playerSprite = s;
+	}
+
+
+	private int getStickUpDownDelta() {
+		int delta = 0;
+		if (testStick(Joystick.UP)) {
+			delta--;
+		}
+		if (testStick(Joystick.DOWN)) {
+			delta++;
+		}
+		return delta;
+	}
+
+	private boolean testStick(int j) {
+		return srv.getStick().test(j) && stunTimer == 0;
+	}
+
+	private boolean testStickAA(int j) {
+		return srv.getStick().testAntiAutofire(j) && stunTimer == 0;
+	}
+
+	// ---------------------------------------------------------------------------
+	// NORMAL MODE
 
 	private void normalAnimation() {
 		boolean animate = true;
@@ -277,13 +298,6 @@ public class Player extends Alien {
 			}
 		}
 		setAnim(name, animate);
-	}
-
-	private void setAnim(String name, boolean animate) {
-		changeAnimation(name);
-		Sprite s = animate ? nextFrame() : sameFrame();
-		srv.registerPlayerSpriteForAlienColisions(c, s);
-		playerSprite = s;
 	}
 
 	private int getXDelta() {
@@ -437,51 +451,151 @@ public class Player extends Alien {
 		}
 	}
 
-	private void move2() {
-		// remember our last position
-		lc = c.copy();
+	private void doNormalMode() {
+		if (mode == Mode.NORMAL) {
+			// do normal mode!
+			if (standingOn != null) {
+				standingOn.moveMe(this);
+			}
+			MovementSlicer xslicer = new MovementSlicer(getXDelta());
+			while (xslicer.more()) {
+				int n = xslicer.next(1);
+				if (standingOn != null) {
+					liftHorizontalSlice(n);
+				}
+				else {
+					perhapsStartLadderMode();
+					if (mode == Mode.NORMAL) {
+						normalHorizonalSlice(n);
+					}
+				}
+			}
+			if (standingOn == null) {
+				moveY();
+			}
+			else {
+				jumpOnFire();
+			}
+			normalAnimation();
 
-		if (proofTimer != 0) proofTimer--;
-		if (flashTimer != 0) flashTimer--;
-		if (airJumpTimer != 0) airJumpTimer--;
-		// stunTimer only decrements when touchFloor so isn't done here
-
-		drawInWhite = (flashTimer & 15) > 9;
-
-		if (stunTimer == 0 && !touchFloor) {
-			perhapsStartMonkeyMode();
-			perhapsStartRopeMode();
 		}
+	}
+	
+	// ---------------------------------------------------------------------------
+	// LADDER MODE
 
-		if (mode == Mode.MONKEY) {
-			// do monkey!
-			// SCC6
-			boolean success = false;
-			if (testStick(Joystick.LEFT)) {
-				success |= monkeyAttempt(true);
+	private LR testLadder(Coord where) {
+		if (srv.blockInfoIs(where, "ladderleft")) return LR.LEFT;
+		if (srv.blockInfoIs(where, "ladderright")) return LR.RIGHT;
+		return LR.NO;
+	}
+
+	private LR testLadder(int dy) {
+		LadderInfo li = srv.getLadderInfo();
+		if (li == null) {
+			return LR.NO;
+		}
+		LR a = testLadder(c.copyAndMove(0, dy + li.top));
+		if (a == LR.NO) return a;
+		return testLadder(c.copyAndMove(0, dy + li.bottom));
+	}
+
+	private void perhapsStartLadderMode() {
+		int alignment = c.x & 15;
+		if (alignment == 15 && testLadder(0) == LR.LEFT && testStick(Joystick.DOWN | Joystick.UP)) {
+			int z = getStickUpDownDelta();
+			if (!ladderLatch) {
+				if (testLadder(z) != LR.NO) {
+					reset();
+					mode = Mode.LADDER;
+				}
+				else {
+					System.out.println("Ladder: run straight past");
+				}
 			}
-			else if (testStick(Joystick.RIGHT)) {
-				success |= monkeyAttempt(false);
+		}
+		else {
+			ladderLatch = false;
+		}
+	}
+
+	private void doLadderMode() {
+		if (mode == Mode.LADDER) {
+			// do ladder!
+			boolean moving = false;
+			int delta = getStickUpDownDelta() * 2;
+			if (delta != 0) {
+				MovementSlicer yslicer = new MovementSlicer(delta);
+				while (yslicer.more()) {
+					int n = yslicer.next(1);
+					if (testLadder(n) == LR.NO) {
+						leaveLadder();
+						break;
+					}
+					c.y += n;
+					moving = true;
+					if (leaveLadder()) break;
+				}
 			}
-			if (!success) {
-				setAnim("monkeymid", true);
+			else {
+				leaveLadder();
 			}
-			// exit the mode by pressing down ..
-			if (testStickAA(Joystick.DOWN)) {
+			setAnim("climb", moving);
+		}
+	}
+
+	private boolean leaveLadder() {
+		boolean answer;
+		if (!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1))) {
+			System.out.println("Ladder: Disembarkation point");
+			answer = testStick(Joystick.LEFT | Joystick.RIGHT);
+			if (answer) {
 				reset();
-				System.out.println("Monkey: end .. drop");
-				monkeyLatch = true;
-				c.y -= 4;
-				vely = 4;
-			}
-			// or fire ..
-			if (testStickAA(Joystick.FIRE)) {
-				System.out.println("Monkey: end .. jump");
-				jump();
-				monkeyLatch = true;
+				touchFloor = true;
+				ladderLatch = true;
 			}
 		}
+		else {
+			answer = false;
+		}
+		return answer;
+	}
 
+	private boolean testForVerticalRope(int dy) {
+		Coord where = c.copyAndMove(0, dy + VROPE_SNIFF_Y);
+		if (!srv.blockInfoIs(where, "vrope")) return false;
+		where.y += VROPE_SNIFF_YPLUS;
+		return srv.blockInfoIs(where, "vrope");
+	}
+
+	// ---------------------------------------------------------------------------
+	// ROPE MODE
+
+	private void perhapsStartRopeMode() {
+		if (mode == Mode.NORMAL) {
+			// start rope?
+			if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
+				if (!ropeLatch) {
+					goLeft = !goLeft;
+					// block align:
+					c.x &= -16;
+					c.x += 8;
+					reset();
+					mode = Mode.ROPE;
+				}
+			}
+			else {
+				ropeLatch = false;
+			}
+		}
+	}
+
+	private boolean testForHorizontalRope(int dx) {
+		Coord where = c.copyAndMove(dx, HROPE_SNIFF_Y);
+		return srv.blockInfoIs(where, "hrope");
+	}
+
+	private void doRopeMode() {
 		if (mode == Mode.ROPE_TWIST || mode == Mode.ROPE) {
 			// do rope!
 			// SCC7
@@ -532,77 +646,10 @@ public class Player extends Alien {
 			}
 
 		}
-
-		if (mode == Mode.LADDER) {
-			// do ladder!
-			boolean moving = false;
-			int delta = getStickUpDownDelta() * 2;
-			if (delta != 0) {
-				MovementSlicer yslicer = new MovementSlicer(delta);
-				while (yslicer.more()) {
-					int n = yslicer.next(1);
-					if (testLadder(n) == LR.NO) {
-						leaveLadder();
-						break;
-					}
-					c.y += n;
-					moving = true;
-					if (leaveLadder()) break;
-				}
-			}
-			else {
-				leaveLadder();
-			}
-			setAnim("climb", moving);
-		}
-
-		if (mode == Mode.NORMAL) {
-			// do normal mode!
-			if (standingOn != null) {
-				standingOn.moveMe(this);
-			}
-			MovementSlicer xslicer = new MovementSlicer(getXDelta());
-			while (xslicer.more()) {
-				int n = xslicer.next(1);
-				if (standingOn != null) {
-					liftHorizontalSlice(n);
-				}
-				else {
-					perhapsStartLadderMode();
-					if (mode == Mode.NORMAL) {
-						normalHorizonalSlice(n);
-					}
-				}
-			}
-			if (standingOn == null) {
-				moveY();
-			}
-			else {
-				jumpOnFire();
-			}
-			normalAnimation();
-
-		}
 	}
 
-	private void perhapsStartRopeMode() {
-		if (mode == Mode.NORMAL) {
-			// start rope?
-			if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
-				if (!ropeLatch) {
-					goLeft = !goLeft;
-					// block align:
-					c.x &= -16;
-					c.x += 8;
-					reset();
-					mode = Mode.ROPE;
-				}
-			}
-			else {
-				ropeLatch = false;
-			}
-		}
-	}
+	// ---------------------------------------------------------------------------
+	// MONKEY MODE
 
 	private void perhapsStartMonkeyMode() {
 		if (mode == Mode.NORMAL) {
@@ -626,81 +673,6 @@ public class Player extends Alien {
 		}
 	}
 
-	private void perhapsStartLadderMode() {
-		int alignment = c.x & 15;
-		if (alignment == 15 && testLadder(0) == LR.LEFT && testStick(Joystick.DOWN | Joystick.UP)) {
-			int z = getStickUpDownDelta();
-			if (!ladderLatch) {
-				if (testLadder(z) != LR.NO) {
-					reset();
-					mode = Mode.LADDER;
-				}
-				else {
-					System.out.println("Ladder: run straight past");
-				}
-			}
-		}
-		else {
-			ladderLatch = false;
-		}
-	}
-
-	private boolean leaveLadder() {
-		boolean answer;
-		if (!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1))) {
-			System.out.println("Ladder: Disembarkation point");
-			answer = testStick(Joystick.LEFT | Joystick.RIGHT);
-			if (answer) {
-				reset();
-				touchFloor = true;
-				ladderLatch = true;
-			}
-		}
-		else {
-			answer = false;
-		}
-		return answer;
-	}
-
-	private int getStickUpDownDelta() {
-		int delta = 0;
-		if (testStick(Joystick.UP)) {
-			delta--;
-		}
-		if (testStick(Joystick.DOWN)) {
-			delta++;
-		}
-		return delta;
-	}
-
-	private LR testLadder(int dy) {
-		LadderInfo li = srv.getLadderInfo();
-		if (li == null) {
-			return LR.NO;
-		}
-		LR a = testLadder(c.copyAndMove(0, dy + li.top));
-		if (a == LR.NO) return a;
-		return testLadder(c.copyAndMove(0, dy + li.bottom));
-	}
-
-	private LR testLadder(Coord where) {
-		if (srv.blockInfoIs(where, "ladderleft")) return LR.LEFT;
-		if (srv.blockInfoIs(where, "ladderright")) return LR.RIGHT;
-		return LR.NO;
-	}
-
-	private boolean testForVerticalRope(int dy) {
-		Coord where = c.copyAndMove(0, dy + VROPE_SNIFF_Y);
-		if (!srv.blockInfoIs(where, "vrope")) return false;
-		where.y += VROPE_SNIFF_YPLUS;
-		return srv.blockInfoIs(where, "vrope");
-	}
-
-	private boolean testForHorizontalRope(int dx) {
-		Coord where = c.copyAndMove(dx, HROPE_SNIFF_Y);
-		return srv.blockInfoIs(where, "hrope");
-	}
-
 	private boolean monkeyAttempt(boolean left) {
 		if (!testForHorizontalRope(directionalMovement(left, 8))) {
 			// we used to fall off here -- but was that nice?
@@ -716,13 +688,64 @@ public class Player extends Alien {
 		return true;
 	}
 
-	private boolean testStick(int j) {
-		return srv.getStick().test(j) && stunTimer == 0;
+	private void doMonkeyMode() {
+		if (mode == Mode.MONKEY) {
+			// do monkey!
+			// SCC6
+			boolean success = false;
+			if (testStick(Joystick.LEFT)) {
+				success |= monkeyAttempt(true);
+			}
+			else if (testStick(Joystick.RIGHT)) {
+				success |= monkeyAttempt(false);
+			}
+			if (!success) {
+				setAnim("monkeymid", true);
+			}
+			// exit the mode by pressing down ..
+			if (testStickAA(Joystick.DOWN)) {
+				reset();
+				System.out.println("Monkey: end .. drop");
+				monkeyLatch = true;
+				c.y -= 4;
+				vely = 4;
+			}
+			// or fire ..
+			if (testStickAA(Joystick.FIRE)) {
+				System.out.println("Monkey: end .. jump");
+				jump();
+				monkeyLatch = true;
+			}
+		}
 	}
 
-	private boolean testStickAA(int j) {
-		return srv.getStick().testAntiAutofire(j) && stunTimer == 0;
+	// ---------------------------------------------------------------------------
+	// MAIN MOVEMENT ROUTINE
+
+	private void move2() {
+		// remember our last position
+		lc = c.copy();
+	
+		if (proofTimer != 0) proofTimer--;
+		if (flashTimer != 0) flashTimer--;
+		if (airJumpTimer != 0) airJumpTimer--;
+		// stunTimer only decrements when touchFloor so isn't done here
+	
+		drawInWhite = (flashTimer & 15) > 9;
+	
+		if (stunTimer == 0 && !touchFloor) {
+			perhapsStartMonkeyMode();
+			perhapsStartRopeMode();
+		}
+	
+		doMonkeyMode();
+		doRopeMode();
+		doLadderMode();
+		doNormalMode();
 	}
+
+	// ---------------------------------------------------------------------------
+	// OUR PUBLIC METHODS
 
 	public void move() {
 		invariants();
@@ -751,6 +774,27 @@ public class Player extends Alien {
 	public boolean isReadyToBoardALift() {
 		invariants();
 		return !isStunned() && standingOn == null && jumping && !inGround;
+	}
+
+	public void stun() {
+		// if we not proof and not already stunned ..
+		if (proofTimer == 0 && stunTimer == 0) {
+			// reset(); from here
+			jumpV(STUN_VELOCITY);
+			stunTimer = STUN_TIME;
+			moveStick = false;
+		}
+	}
+
+	public void jump() {
+		jumpV(JUMP_VELOCITY);
+	}
+
+	public void landOn(LiftAlien lift, int height) {
+		reset();
+		standingOn = lift;
+		c.y = height;
+		touchFloor = true;
 	}
 
 	@Override
