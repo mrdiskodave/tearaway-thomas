@@ -55,8 +55,8 @@ public interface AlienServices {
 	
 	// called by the player
 	
-	void scrollTowards(Coord c);
-	void scrollTo(Coord c);
+	void scrollScreenTo(Coord c);
+	void snapScreenTo(Coord c);
 	
 	Joystick getStick();
 	

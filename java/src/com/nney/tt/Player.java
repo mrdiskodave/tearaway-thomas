@@ -37,16 +37,15 @@ public class Player extends Alien {
 	 * the continuous surface of the floor once {@link #touchFloor} is
 	 * <code>true</code>.
 	 * 
-	 * With this to <code>true</code>, if you "want" to get through a >
-	 * {@link #FLOOR_DEFINITION_DISTANCE} pixel size step at floor level you'll
-	 * need to jump through it. Jumping through something so small at floor
-	 * level will be hard because you have to jump <i>from</i> the floor and
-	 * your jump return-velocity will be too big to allow such sneaky
-	 * manoeuvres. Probably. With this compile time configuration set to
-	 * <code>false</code> you can just walk through the gap easily and probably
-	 * fall forever after that. i.e. this configuration hides map problems which
-	 * is probably only a good thing in the final version where they cannot be
-	 * fixed.
+	 * Then if you "want" to get through a >{@link #FLOOR_DEFINITION_DISTANCE}
+	 * pixel size step at floor level you'll need to jump through it. Jumping
+	 * through something so small at floor level will be hard because you have
+	 * to jump <i>from</i> the floor and your jump return-velocity will be too
+	 * big to allow such sneaky manoeuvres. Probably. With this compile time
+	 * configuration set off (i.e. to <code>false</code>) you can just walk
+	 * through the gap easily and probably fall forever after that. i.e. this
+	 * configuration hides map problems which is probably only a good thing in
+	 * the final version where they cannot be fixed.
 	 */
 	private static final boolean CTC_MITIGATE_AGAINST_FALLTHROUGH = true;
 
@@ -463,7 +462,7 @@ public class Player extends Alien {
 			}
 
 			if (mode == Mode.NORMAL) {
-				// start vrope
+				// start rope?
 				if (!touchFloor && testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
 					if (!ropeLatch) {
 						goLeft = !goLeft;
@@ -481,6 +480,7 @@ public class Player extends Alien {
 		}
 
 		if (mode == Mode.MONKEY) {
+			// do monkey!
 			// SCC6
 			boolean success = false;
 			if (testStick(Joystick.LEFT)) {
@@ -509,6 +509,7 @@ public class Player extends Alien {
 		}
 
 		if (mode == Mode.ROPE_TWIST || mode == Mode.ROPE) {
+			// do rope!
 			// SCC7
 			if (mode == Mode.ROPE) {
 				boolean wannaTwistLeft = testStick(Joystick.LEFT) && !goLeft;
@@ -545,6 +546,7 @@ public class Player extends Alien {
 					jump();
 				}
 				ropeLatch = true;
+				goLeft = !goLeft;
 			}
 
 			if (mode == Mode.ROPE) {
@@ -552,7 +554,7 @@ public class Player extends Alien {
 			}
 			else {
 				// always moving ...
-				setAnim(goLeft ? "roper2l" : "ropel2r", true);
+				setAnim(directionalAnimName("ropetwist"), true);
 			}
 
 		}

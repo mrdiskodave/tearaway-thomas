@@ -48,8 +48,14 @@ import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
 public class Main {
-	private static final boolean CTC_TUMBLE_WEEDS = false;
+	/**
+	 * Compile time configuration: play in level containing only the map.
+	 */
+	private static final boolean CTC_TUMBLE_WEEDS = true;
 
+	/**
+	 * Compile time configuration: 
+	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
 	private static final int ZOOM = 2;
@@ -163,7 +169,6 @@ public class Main {
 		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
 		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
-		ail.add(new AlienInfo(13, "0stop", StopAlien.class));
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
@@ -185,6 +190,7 @@ public class Main {
 		if (CTC_TUMBLE_WEEDS) {
 			ail.clear();
 		}
+		ail.add(new AlienInfo(13, "0stop", StopAlien.class));
 
 		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
 		for (AlienInfo alienInfo : ail) {
@@ -349,7 +355,10 @@ public class Main {
 			world.font = font;
 			world.player = player;
 			world.mapBounds = mapBounds;
-			world.scrollTo(player.c);
+			
+			player.c.x = 1980;
+			player.c.y = 1020;
+			world.snapScreenTo(player.c);
 
 			// bear.c.x = 455;
 			// bear.c.y = 818 + 50;
@@ -398,18 +407,22 @@ public class Main {
 		player.move();
 
 		if (CTC_HARD_SCROLLING) {
-			world.scrollTo(player.c);
+			world.snapScreenTo(player.c);
 		}
 		else {
-			world.scrollTowards(player.c);
+			world.scrollScreenTo(player.c);
 		}
 
-		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 
 		// for (int x=0; x<15; x++) {
 		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
 		// }
 
+		//
+		// draw everything
+		//
+		
+		drawTheHorizon();
 		drawTheMap();
 
 		updateAliens(backgroundAlienList);
@@ -417,7 +430,7 @@ public class Main {
 		updateAliens(foregroundAlienList);
 
 		//
-		// Caveat1: only the background Alien get to move the player around.
+		// Caveat1: only the background Alien gets to move the player around.
 		// Caveat2: if any Alien does move him the scrolling for this frame
 		// won't know about it (because it has already happened) but you don't
 		// notice that because it is not hard scrolling but scrolling based on a
@@ -425,21 +438,25 @@ public class Main {
 		//
 		// The Amiga version had Caveat2 (even if we didn't think about it).
 		// The Amiga version did not have Caveat1 because the player was beamed
-		// in last of all with some Amiga hardware wizardry.
+		// in last of all with some Amiga hardware-sprite wizardry.
 		//
 		// ... well, it's either that or we separate out moving and drawing (or
 		// queue the drawing) and also accept that we won't know the exact
 		// placement of the screen until quite late (which makes pixels perfect
-		// Alien resurrection difficult). That's something new though which I'll
-		// stay away from, for now.
+		// Alien freezing and defrosting impossible). That's a big voyage into
+		// new territory for little gain.
 		//
-		// For now, it'll work how it used to. For the first time I can say I am
-		// clear about the limits this imposes.
+		// For now, it'll work how it used to. For the first time I can say "I am
+		// clear about the limits this imposes".
 		//
 
 		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 
 		scoreText.draw((SCREEN_WIDTH - scoreText.getWidth()) / 2, 5);
+	}
+
+	private void drawTheHorizon() {
+		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 	}
 
 	private void updateAliens(List<Alien> al) {
@@ -473,10 +490,10 @@ public class Main {
 		initOpenGL();
 		init();
 
-		int requested_fps = 50;
+		int requestedFps = 50;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
-			Display.sync(requested_fps);
+			Display.sync(requestedFps);
 
 			frameNumber++;
 			world.frameNumber = frameNumber;

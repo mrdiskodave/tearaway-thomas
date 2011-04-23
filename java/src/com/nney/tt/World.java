@@ -12,7 +12,7 @@ import com.nney.tt.sprites.Sprite;
 
 public class World implements AlienServices, Joystick {
 	/**
-	 * A curve of sorts that dictates how much to {@link #scrollTowards(Coord)}
+	 * A curve of sorts that dictates how much to {@link #scrollScreenTo(Coord)}
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
 	 * the centre).
 	 */
@@ -109,27 +109,9 @@ public class World implements AlienServices, Joystick {
 		}
 	}
 	
-	/**
-	 * Scroll towards the given position.
-	 */
-	@Override
-	public void scrollTowards(Coord c) {
-		Coord sd = screenDest(c);
-		screen.x = scrollOrd(screen.x, sd.x);
-		screen.y = scrollOrd(screen.y, sd.y);
-		limitScreenPosition();
-	}
-
-	private void limitScreenPosition() {
-		screen.x = limit(screen.x, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
-		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
-	}
-
-	@Override
-	public void scrollTo(Coord c) {
-		screen = screenDest(c);
-		limitScreenPosition();
-	}
+	// ===========================================================================
+	// Scrolling
+	// ===========================================================================
 	
 	private static int limit(int current, int min, int max) {
 		if (current < min) {
@@ -140,16 +122,10 @@ public class World implements AlienServices, Joystick {
 		}
 		return current;
 	}
-	
-	private static Coord screenDest(Coord c) {
-		int sdx = c.x - Main.SCREEN_WIDTH / 2;
-		int sdy = c.y - Main.SCREEN_HEIGHT * 11 / 16;
-		return new Coord(sdx, sdy);
-	}
 
-	private static int scrollOrd(int current, int dest) {
-		current += shrinkDelta(dest - current);
-		return current;
+	private void limitScreenPosition() {
+		screen.x = limit(screen.x, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
+		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
 	}
 
 	private static int shrinkDelta(int delta) {
@@ -165,19 +141,37 @@ public class World implements AlienServices, Joystick {
 		}
 		return shrunkDelta;
 	}
-	
 
-	
-	
-
-
-	@Override
-	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
-		ttPos = c.copy();
-		ttPos.x -= s.handleX;
-		ttPos.y -= s.handleY;
-		ttSprite = s;
+	private static Coord screenDest(Coord c) {
+		return c.copyAndMove(-Main.SCREEN_WIDTH / 2, -Main.SCREEN_HEIGHT * 11 / 16); 
 	}
+
+	private static int scrollOrd(int current, int dest) {
+		current += shrinkDelta(dest - current);
+		return current;
+	}
+
+	/**
+	 * Scroll the screen gently towards the given position.
+	 */
+	@Override
+	public void scrollScreenTo(Coord c) {
+		Coord sd = screenDest(c);
+		screen.x = scrollOrd(screen.x, sd.x);
+		screen.y = scrollOrd(screen.y, sd.y);
+		limitScreenPosition();
+	}
+
+	/**
+	 * Snap the screen instantly to the given position. 
+	 */
+	@Override
+	public void snapScreenTo(Coord c) {
+		screen = screenDest(c);
+		limitScreenPosition();
+	}
+	
+	// ===========================================================================
 
 	@Override
 	public void queueSprite(final Coord c, final Sprite s) {
@@ -201,6 +195,18 @@ public class World implements AlienServices, Joystick {
 	private void queueAbsoluteDebugText(final Coord p, final String text) {
 		debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
 	}
+
+	// ===========================================================================
+
+	
+	@Override
+	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
+		ttPos = c.copy();
+		ttPos.x -= s.handleX;
+		ttPos.y -= s.handleY;
+		ttSprite = s;
+	}
+
 
 	@Override
 	public Coord getPlayerPosition() {
