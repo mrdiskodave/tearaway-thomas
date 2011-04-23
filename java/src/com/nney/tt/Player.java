@@ -167,6 +167,10 @@ public class Player extends Alien {
 		NORMAL, MONKEY, ROPE, ROPE_TWIST, LADDER
 	}
 
+	enum LR {
+		NO, LEFT, RIGHT
+	}
+
 	private void invariants() {
 		assert !(touchFloor && jumping);
 		assert !(touchFloor && inGround);
@@ -481,23 +485,24 @@ public class Player extends Alien {
 					ropeLatch = false;
 				}
 			}
-			
+
 			if (mode == Mode.NORMAL) {
 				// start ladder?
 				// SCC9
-				if (testStick(Joystick.DOWN | Joystick.UP) && testLadder()) {
+				LR lr = testLadder(0);
+				if (testStick(Joystick.DOWN | Joystick.UP) && lr!=LR.NO) {
 					if (!ladderLatch) {
-						mode = Mode.LADDER;
 						reset();
+						mode = Mode.LADDER;
 						ladderLeft = testStick(Joystick.LEFT);
 						ladderRight = testStick(Joystick.RIGHT);
 						ladderX = c.x;
-						
+
 						c.x &= -16;
-						if (!srv.blockInfoIs(c, "ladderleft")) {
+						if (lr==LR.LEFT) {
 							c.x += 16;
 						}
-						c.x --;
+						c.x--;
 					}
 				}
 				else {
@@ -552,15 +557,13 @@ public class Player extends Alien {
 				}
 			}
 
+			int delta = getStickUpDownDelta()*2;
 			boolean nonTwistMoving = false;
-			if (testStick(Joystick.UP) && testForVerticalRope(-2)) {
-				c.y += -2;
+			if (delta!=0 && testForVerticalRope(delta)) {
+				c.y += delta;
 				nonTwistMoving = true;
 			}
-			if (testStick(Joystick.DOWN) && testForVerticalRope(2)) {
-				c.y += 2;
-				nonTwistMoving = true;
-			}
+			
 			// exit the mode by pressing fire ..
 			if (testStickAA(Joystick.FIRE)) {
 				// and if you holding down ..
@@ -588,6 +591,30 @@ public class Player extends Alien {
 
 		}
 
+		if (mode == Mode.LADDER) {
+			// do ladder!
+			boolean moving = false;
+			int delta = getStickUpDownDelta()*2;
+			if (delta!=0) {
+				MovementSlicer yslicer = new MovementSlicer(delta);
+				while (yslicer.more()) {
+					int n = yslicer.next(1);
+					if (testLadder(n)==LR.NO) {
+						leaveLadder();
+						break;
+					}
+					c.y += n;
+					moving = true;
+					if (leaveLadder()) break;
+				}
+			}
+			else {
+				leaveLadder();
+			}
+			
+			setAnim("climb", moving);
+		}
+		
 		if (mode == Mode.NORMAL) {
 			// do normal mode!
 			if (standingOn != null) {
@@ -614,8 +641,49 @@ public class Player extends Alien {
 		}
 	}
 
-	private boolean testLadder() {
-		return srv.blockInfoIs(c, "ladderleft") || srv.blockInfoIs(c, "ladderright");
+	private boolean leaveLadder() {
+		boolean answer;
+		if (!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1))) {
+			System.out.println("Disembarkation point!"); 
+			answer = testStick(Joystick.LEFT | Joystick.RIGHT);
+			if (answer) {
+				reset();
+				touchFloor = true;
+				ladderLatch = true;
+			}
+		}
+		else {
+			System.out.println("No");
+			answer = false;
+		}
+		return answer;
+	}
+
+	private int getStickUpDownDelta() {
+		int delta = 0;
+		if (testStick(Joystick.UP)) {
+			delta --;
+		}
+		if (testStick(Joystick.DOWN)) {
+			delta ++;
+		}
+		return delta;
+	}
+
+	private LR testLadder(int dy) {
+		LadderInfo li = srv.getLadderInfo();
+		if (li == null) {
+			return LR.NO;
+		}
+		LR a = testLadder(c.copyAndMove(0, dy+li.top));
+		if (a == LR.NO) return a;
+		return testLadder(c.copyAndMove(0, dy+li.bottom));
+	}
+
+	private LR testLadder(Coord where) {
+		if (srv.blockInfoIs(where, "ladderleft")) return LR.LEFT;
+		if (srv.blockInfoIs(where, "ladderright")) return LR.RIGHT;
+		return LR.NO;
 	}
 
 	private boolean testForVerticalRope(int dy) {

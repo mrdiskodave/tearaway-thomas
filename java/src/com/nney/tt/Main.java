@@ -208,7 +208,7 @@ public class Main {
 		player.connectSpriteSet(playerSpriteSet);
 		player.init();
 
-		String worldName = "w";
+		String worldName = "i";
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
 		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
@@ -241,7 +241,7 @@ public class Main {
 
 		try {
 			Box mapBounds = null;
-			InputStream i = TTResource.map("w", 5).open();
+			InputStream i = TTResource.map(worldName, 0).open();
 			DataInputStream di = new DataInputStream(i);
 
 			// get the game map off the front of the stream
