@@ -17,6 +17,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
+import com.nney.json.DataItem;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
 import com.nney.tt.aliens.Alien;
@@ -36,7 +37,7 @@ import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.map.BlockRandomisationTable;
-import com.nney.tt.map.BlockSpecifications;
+import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.resources.TTResource;
@@ -125,7 +126,7 @@ public class Main {
 		if (testKey(Keyboard.KEY_SPACE)) {
 			x |= Joystick.FIRE;
 		}
-		world.setJ(x);
+		world.setJoystickPosition(x);
 	}
 
 	private boolean testKey(int key) {
@@ -214,13 +215,22 @@ public class Main {
 		MasksHolder maskHolder = new MasksHolder(16, masksGfx);
 
 		BlockRandomisationTable rt;
-		BlockSpecifications bs;
+		BlockInformation bi;
+		LadderInfo ladderInfo = null;
 
 		try {
 			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
 			JsonValue v = JsonValue.parse(t);
 			rt = new BlockRandomisationTable(v.requireField("rt"));
-			bs = new BlockSpecifications(v.requireField("spec"));
+			bi = new BlockInformation(v.requireField("spec"));
+			if (v.fieldExists("ladder")) {
+				DataItem ladderDi = v.requireField("ladder");
+				int top = ladderDi.requireField("top").requireInt();
+				int bottom = ladderDi.requireField("bottom").requireInt();
+				ladderInfo = new LadderInfo(top, bottom);
+			}
+			
+			
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -350,11 +360,12 @@ public class Main {
 			// TODO: ctor??
 			world.gameMap = gameMap;
 			world.maskHolder = maskHolder;
-			world.bs = bs;
+			world.bi = bi;
 			world.debugFont = debugFont;
 			world.font = font;
 			world.player = player;
 			world.mapBounds = mapBounds;
+			world.ladderInfo = ladderInfo;
 			
 			player.c.x = 1980;
 			player.c.y = 1020;

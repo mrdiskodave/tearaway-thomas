@@ -4,10 +4,10 @@ import java.util.HashMap;
 
 import com.nney.json.DataItem;
 
-public class BlockSpecifications {
+public class BlockInformation {
 	private final HashMap<Integer, String> specs = new HashMap<Integer, String>(1, 0.1f); 
 
-	public BlockSpecifications(DataItem di) {
+	public BlockInformation(DataItem di) {
 		DataItem[] z = di.requireList();
 		int l = z.length;
 		assert l%1 == 0;

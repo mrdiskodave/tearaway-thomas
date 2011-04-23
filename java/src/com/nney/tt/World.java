@@ -4,7 +4,7 @@ import java.util.Random;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.map.BlockSpecifications;
+import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.sprites.LineInfo;
@@ -23,7 +23,7 @@ public class World implements AlienServices, Joystick {
 	public Coord screen = new Coord();
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
-	public BlockSpecifications bs;
+	public BlockInformation bi;
 	public Random rnd = new Random(5);
 	public MyFont debugFont;
 	public Player player;
@@ -40,7 +40,9 @@ public class World implements AlienServices, Joystick {
 	private int joystick;
 
 	private int joystickAA;
-	
+
+	public LadderInfo ladderInfo;
+
 	@Override
 	public int randomness(int n) {
 		return rnd.nextInt(n);
@@ -63,20 +65,19 @@ public class World implements AlienServices, Joystick {
 	 *            The pixel location being queried.
 	 * @return The kind of block that is there. e.g. "magic" or "ladder" or any
 	 *         text string used in the configuration of a
-	 *         {@link BlockSpecifications} object.
+	 *         {@link BlockInformation} object.
 	 */
-	private String getBlockSpecification(Coord c) {
+	private String getBlockInfo(Coord c) {
 		int block = getBlock(c);
-		return bs.get(block);
+		return bi.get(block);
 	}
-	
+
 	@Override
-	public boolean blockSpecificationIs(Coord c, String name) {
-		String s = getBlockSpecification(c);
-//		System.out.println(String.format("Is %s really %s", s, name));
-		return s!=null && s.equals(name);
+	public boolean blockInfoIs(Coord c, String name) {
+		String s = getBlockInfo(c);
+		// System.out.println(String.format("Is %s really %s", s, name));
+		return s != null && s.equals(name);
 	}
-	
 
 	@Override
 	public boolean playerFall(Coord where, int fallMax) {
@@ -108,11 +109,11 @@ public class World implements AlienServices, Joystick {
 			}
 		}
 	}
-	
+
 	// ===========================================================================
 	// Scrolling
 	// ===========================================================================
-	
+
 	private static int limit(int current, int min, int max) {
 		if (current < min) {
 			current = min;
@@ -143,7 +144,7 @@ public class World implements AlienServices, Joystick {
 	}
 
 	private static Coord screenDest(Coord c) {
-		return c.copyAndMove(-Main.SCREEN_WIDTH / 2, -Main.SCREEN_HEIGHT * 11 / 16); 
+		return c.copyAndMove(-Main.SCREEN_WIDTH / 2, -Main.SCREEN_HEIGHT * 11 / 16);
 	}
 
 	private static int scrollOrd(int current, int dest) {
@@ -163,14 +164,14 @@ public class World implements AlienServices, Joystick {
 	}
 
 	/**
-	 * Snap the screen instantly to the given position. 
+	 * Snap the screen instantly to the given position.
 	 */
 	@Override
 	public void snapScreenTo(Coord c) {
 		screen = screenDest(c);
 		limitScreenPosition();
 	}
-	
+
 	// ===========================================================================
 
 	@Override
@@ -198,7 +199,6 @@ public class World implements AlienServices, Joystick {
 
 	// ===========================================================================
 
-	
 	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
 		ttPos = c.copy();
@@ -206,7 +206,6 @@ public class World implements AlienServices, Joystick {
 		ttPos.y -= s.handleY;
 		ttSprite = s;
 	}
-
 
 	@Override
 	public Coord getPlayerPosition() {
@@ -229,7 +228,7 @@ public class World implements AlienServices, Joystick {
 	public boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox) {
 		int diffX = player.c.x - alienPos.x;
 		int diffY = player.c.y - alienPos.y;
-	
+
 		int deluxePaintX = 160 + diffX;
 		int deluxePaintY = 128 - diffY;
 		if (deluxePaintX + 8 >= deluxePaintBox.left) {
@@ -253,8 +252,7 @@ public class World implements AlienServices, Joystick {
 		}
 		return false;
 	}
-	
-	
+
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
 		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
@@ -284,19 +282,22 @@ public class World implements AlienServices, Joystick {
 
 	@Override
 	public boolean test(int mask) {
-		return (mask&joystick)!=0;
+		return (mask & joystick) != 0;
 	}
 
 	@Override
 	public boolean testAntiAutofire(int mask) {
-		return (mask&joystickAA)!=0;
+		return (mask & joystickAA) != 0;
 	}
-	
-	void setJ(int next) {
+
+	void setJoystickPosition(int next) {
 		int last = joystick;
 		joystick = next;
 		joystickAA = next & ~last;
 	}
 
-
+	@Override
+	public LadderInfo getLadderInfo() {
+		return ladderInfo;
+	}
 }

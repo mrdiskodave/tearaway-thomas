@@ -16,7 +16,8 @@
         "hrope",    [ 354 ],
         "vrope",    [ 399 ],
         "stop",     [ 93, 113 ],
-        "ladder",   [ 12, 160 ],
+        "ladderleft", [160, 162, 164, 166, 168, 170],
+        "ladderright", [161, 163, 165, 167, 169, 171],
         "magic",    [ 106, 270 ]
     ],
 "invisibleBlockHiding":
@@ -26,6 +27,9 @@
         9,93,
         49,113
     ],
-"ladderTop":    -17,
-"ladderBottom":     -4
+"ladder":
+	{
+		"top": -17,
+		"bottom": -4
+	}
 }

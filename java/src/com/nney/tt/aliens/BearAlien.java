@@ -9,7 +9,7 @@ public class BearAlien extends LeftRightAlien {
 		if (!srv.playerFall(c, 16)) {
 			remove = true;
 		}
-		if (!turned && srv.blockSpecificationIs(c, "stop")) {
+		if (!turned && srv.blockInfoIs(c, "stop")) {
 			headedRight = !headedRight;
 		}
 		Sprite s = nextFrame();

@@ -158,9 +158,13 @@ public class Player extends Alien {
 	 * after leaving it.
 	 */
 	private boolean ropeLatch;
+	private boolean ladderLatch;
+	private boolean ladderLeft;
+	private boolean ladderRight;
+	private int ladderX;
 
 	enum Mode {
-		NORMAL, MONKEY, ROPE, ROPE_TWIST
+		NORMAL, MONKEY, ROPE, ROPE_TWIST, LADDER
 	}
 
 	private void invariants() {
@@ -477,6 +481,29 @@ public class Player extends Alien {
 					ropeLatch = false;
 				}
 			}
+			
+			if (mode == Mode.NORMAL) {
+				// start ladder?
+				// SCC9
+				if (testStick(Joystick.DOWN | Joystick.UP) && testLadder()) {
+					if (!ladderLatch) {
+						mode = Mode.LADDER;
+						reset();
+						ladderLeft = testStick(Joystick.LEFT);
+						ladderRight = testStick(Joystick.RIGHT);
+						ladderX = c.x;
+						
+						c.x &= -16;
+						if (!srv.blockInfoIs(c, "ladderleft")) {
+							c.x += 16;
+						}
+						c.x --;
+					}
+				}
+				else {
+					ladderLatch = false;
+				}
+			}
 		}
 
 		if (mode == Mode.MONKEY) {
@@ -546,6 +573,8 @@ public class Player extends Alien {
 					jump();
 				}
 				ropeLatch = true;
+				// the original didn't do this so must have
+				// come out of rope mode facing the wrong way
 				goLeft = !goLeft;
 			}
 
@@ -560,6 +589,7 @@ public class Player extends Alien {
 		}
 
 		if (mode == Mode.NORMAL) {
+			// do normal mode!
 			if (standingOn != null) {
 				standingOn.moveMe(this);
 			}
@@ -584,16 +614,20 @@ public class Player extends Alien {
 		}
 	}
 
+	private boolean testLadder() {
+		return srv.blockInfoIs(c, "ladderleft") || srv.blockInfoIs(c, "ladderright");
+	}
+
 	private boolean testForVerticalRope(int dy) {
 		Coord where = c.copyAndMove(0, dy + VROPE_SNIFF_Y);
-		if (!srv.blockSpecificationIs(where, "vrope")) return false;
+		if (!srv.blockInfoIs(where, "vrope")) return false;
 		where.y += VROPE_SNIFF_YPLUS;
-		return srv.blockSpecificationIs(where, "vrope");
+		return srv.blockInfoIs(where, "vrope");
 	}
 
 	private boolean testForHorizontalRope(int dx) {
 		Coord where = c.copyAndMove(dx, HROPE_SNIFF_Y);
-		return srv.blockSpecificationIs(where, "hrope");
+		return srv.blockInfoIs(where, "hrope");
 	}
 
 	private boolean monkeyAttempt(boolean left) {
