@@ -55,7 +55,7 @@ public class LiftAlien extends Alien {
 	}
 
 	private void setPosition() {
-		int angle = srv.getFrameNumber() * 4;
+		int angle = srv.getFrameNumber() * 8;
 		Coord origin = new Coord((box.left + box.right) / 2, box.top);
 		int spin = sine(angle) / 4 + 256;
 		int xo = sine(spin + 256) * box.width();
