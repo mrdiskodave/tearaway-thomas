@@ -59,6 +59,8 @@ public class Player extends Alien {
 	 */
 	private static final boolean CTC_MITIGATE_AGAINST_FALLTHROUGH = true;
 
+	private static final int NO_SLIDE = 5;
+
 	// I think the original had FLOOR_DEFINITION_DISTANCE = 1
 	// and CTC_MITIGATE_AGAINST_FALLTHROUGH = true
 
@@ -173,15 +175,13 @@ public class Player extends Alien {
 	private boolean ropeLatch;
 	private boolean ladderLatch;
 
+	private int slideVel;
+
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
 
 	enum Mode {
-		NORMAL, MONKEY, ROPE, ROPE_TWIST, LADDER
-	}
-
-	enum LR {
-		NO, LEFT, RIGHT
+		NORMAL, MONKEY, ROPE, ROPE_TWIST, LADDER, SLIDE
 	}
 
 	// ---------------------------------------------------------------------------
@@ -252,15 +252,19 @@ public class Player extends Alien {
 		playerSprite = s;
 	}
 
-	private int getStickUpDownDelta() {
+	private int getStickDelta(int less, int more) {
 		int delta = 0;
-		if (testStick(Joystick.UP)) {
+		if (testStick(less)) {
 			delta--;
 		}
-		if (testStick(Joystick.DOWN)) {
+		if (testStick(more)) {
 			delta++;
 		}
 		return delta;
+	}
+
+	private int getStickUpDownDelta() {
+		return getStickDelta(Joystick.UP, Joystick.DOWN);
 	}
 
 	private boolean testStick(int j) {
@@ -485,6 +489,83 @@ public class Player extends Alien {
 	}
 
 	// ---------------------------------------------------------------------------
+	// SLIDE MODE
+
+	private void perhapsStartSlideMode() {
+		if (mode == Mode.NORMAL && touchFloor) {
+			int slide = testSlide();
+			if (slide != NO_SLIDE) {
+				slideVel = c.x - lc.x;
+				System.out.println("Starting slide "+slideVel);
+				mode = Mode.SLIDE;
+			}
+		}
+	}
+
+	private void doSlideMode() {
+		if (mode == Mode.SLIDE) {
+			int toMove = keepXDeltaOnScreen(slideVel);
+			MovementSlicer xslicer = new MovementSlicer(toMove);
+			while (xslicer.more()) {
+				c.x += xslicer.next(3);
+				if (!srv.playerFall(c, 14)) {
+					// we slid off an edge
+					mode = Mode.NORMAL;
+					return;
+				}
+			}
+
+			int frm = srv.getFrameNumber();
+			if ((frm & 1) == 0) {
+				int slide = testSlide();
+				if (slide == NO_SLIDE) {
+					// not on something slippery
+					// so slowly slow down
+					if ((frm & 3) == 0) {
+						slideVel -= signOf(slideVel);
+						if (Math.abs(slideVel) <= pvt.max()) {
+							// right! we've slowed to running speed on a
+							// non-slippery surface
+							mode = Mode.NORMAL;
+							return;
+						}
+					}
+				}
+				else {
+					// we are on something slippery
+					// slip!
+					slideVel += slide;
+					// and we get to influence it a bit with the joystick
+					if ((frm & 7) == 0) {
+						slideVel += getStickDelta(Joystick.LEFT, Joystick.RIGHT);
+					}
+				}
+				// make sure we're not going to fast
+				if (Math.abs(slideVel) > 16) {
+					slideVel = signOf(slideVel) * 16;
+				}
+
+				// set our direction and animation and we're done
+				goLeft = slideVel < 0;
+				setAnim(directionalAnimName("jump"), true);
+			}
+		}
+	}
+
+	private int signOf(int x) {
+		if (x < 0) return -1;
+		if (x > 0) return 1;
+		return 0;
+
+	}
+
+	private int testSlide() {
+		String s = srv.blockInfoHas(c, "slide:");
+		if (s == null) return NO_SLIDE;
+		return Integer.parseInt(s);
+	}
+
+	// ---------------------------------------------------------------------------
 	// LADDER MODE
 
 	private boolean testLadder(Coord where) {
@@ -508,6 +589,7 @@ public class Player extends Alien {
 				// to ensure the player get's at least one
 				// shot at getting on the ladder as he runs by
 				maxSnap = (pvt.max() - 1) / 2;
+				// TODO: thats wrong as it comes out at 0 given input of 1
 			}
 			else {
 				maxSnap = LADDER_XSNAP_STATIONARY;
@@ -704,14 +786,14 @@ public class Player extends Alien {
 		if (mode == Mode.MONKEY) {
 			// do monkey!
 			// SCC6
-			boolean success = false;
+			boolean moving = false;
 			if (testStick(Joystick.LEFT)) {
-				success |= monkeyAttempt(true);
+				moving |= monkeyAttempt(true);
 			}
 			else if (testStick(Joystick.RIGHT)) {
-				success |= monkeyAttempt(false);
+				moving |= monkeyAttempt(false);
 			}
-			if (!success) {
+			if (!moving) {
 				setAnim("monkeymid", true);
 			}
 			// exit the mode by pressing down ..
@@ -735,8 +817,8 @@ public class Player extends Alien {
 	// MAIN MOVEMENT ROUTINE
 
 	private void move2() {
-		// remember our last position
-		lc = c.copy();
+		// remember position
+		Coord storedPos = c.copy();
 
 		if (proofTimer != 0) proofTimer--;
 		if (flashTimer != 0) flashTimer--;
@@ -749,13 +831,19 @@ public class Player extends Alien {
 			perhapsStartMonkeyMode();
 			perhapsStartRopeMode();
 			perhapsStartLadderMode();
+			perhapsStartSlideMode();
 		}
 
 		doMonkeyMode();
 		doRopeMode();
 		doLadderMode();
+		doSlideMode();
 
 		doNormalMode();
+		
+		// NOW set 'last coord' from that
+		// (so all the code in between has access to a meaningful lc value)
+		lc = storedPos;
 	}
 
 	// ---------------------------------------------------------------------------

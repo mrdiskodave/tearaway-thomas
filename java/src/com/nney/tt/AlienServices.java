@@ -4,7 +4,6 @@ import java.util.Random;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.map.BlockInformation;
 import com.nney.tt.sprites.Sprite;
 
 public interface AlienServices {
@@ -71,6 +70,8 @@ public interface AlienServices {
 	Player getThePlayer();
 
 	boolean blockInfoIs(Coord c, String name);
+
+	String blockInfoHas(Coord c, String prefix);
 
 	LadderInfo getLadderInfo();
 }

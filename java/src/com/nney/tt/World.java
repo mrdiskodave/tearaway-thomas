@@ -80,6 +80,13 @@ public class World implements AlienServices, Joystick {
 	}
 
 	@Override
+	public String blockInfoHas(Coord c, String prefix) {
+		String s = getBlockInfo(c);
+		if (s==null || !s.startsWith(prefix)) return null;
+		return s.substring(prefix.length());
+	}
+
+	@Override
 	public boolean playerFall(Coord where, int fallMax) {
 		// if we are in the ground ..
 		if (inTheGround(where)) {
