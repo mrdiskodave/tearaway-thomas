@@ -49,10 +49,20 @@ import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
 public class Main {
+//	// lift
+//	private static final String CTC_WORLD = "w";
+//	private static final int CTC_MAP = 9;
+
+	// ladders & ice
+	private static final String CTC_WORLD = "i";
+	private static final int CTC_MAP = 0;
+	
+	
+	
 	/**
 	 * Compile time configuration: play in level containing only the map.
 	 */
-	private static final boolean CTC_TUMBLE_WEEDS = true;
+	private static final boolean CTC_TUMBLE_WEEDS = false;
 
 	/**
 	 * Compile time configuration: 
@@ -208,7 +218,7 @@ public class Main {
 		player.connectSpriteSet(playerSpriteSet);
 		player.init();
 
-		String worldName = "i";
+		String worldName = CTC_WORLD;
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
 		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
@@ -241,7 +251,7 @@ public class Main {
 
 		try {
 			Box mapBounds = null;
-			InputStream i = TTResource.map(worldName, 0).open();
+			InputStream i = TTResource.map(worldName, CTC_MAP).open();
 			DataInputStream di = new DataInputStream(i);
 
 			// get the game map off the front of the stream
@@ -367,8 +377,8 @@ public class Main {
 			world.mapBounds = mapBounds;
 			world.ladderInfo = ladderInfo;
 			
-			player.c.x = 1980;
-			player.c.y = 1020;
+//			player.c.x = 1980;
+//			player.c.y = 1020;
 			world.snapScreenTo(player.c);
 
 			// bear.c.x = 455;
