@@ -232,7 +232,18 @@ public class Player extends Alien {
 	}
 
 	private void jumpOnFire() {
-		if (testStick(Joystick.FIRE)) {
+		// it is possible for the player to touchFloor in Mode.NORMAL
+		// and then come here before we've noticed they are standing on a slide
+		// (and gone into Mode.SLIDE)
+		//
+		// That is a consequence of the new design of trying to use up the
+		// entire movement rather just throwing away the rest of the movement
+		// (i.e. the MovementSlicer managing it)
+		// when something happens.
+		//
+		// The work around is just to test that here ...
+		// 
+		if (testStick(Joystick.FIRE) && testSlide()==NO_SLIDE) {
 			jump();
 		}
 	}
@@ -412,7 +423,7 @@ public class Player extends Alien {
 		}
 
 		// when we are in the air
-		// (which we might be fresh if we just went offTheEdge() above)
+		// (which we might be fresh if we just went offTheEdge() in vacuumFloor() above)
 		if (!touchFloor) {
 			// Jump off the air?
 			if (airJumpTimer != 0) {
@@ -481,7 +492,10 @@ public class Player extends Alien {
 				moveY();
 			}
 			else {
-				jumpOnFire();
+				// finish standing on the lift by jumping off it?
+				if (testStick(Joystick.FIRE)) {
+					jump();
+				}
 			}
 			normalAnimation();
 
