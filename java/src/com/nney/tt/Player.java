@@ -169,6 +169,8 @@ public class Player extends Alien {
 
 	private Coord ic;
 
+	private boolean airSpin;
+
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
 
@@ -192,15 +194,20 @@ public class Player extends Alien {
 		airJumpTimer = 0;
 		stunTimer = 0;
 		standingOn = null;
+		airSpin = false;
 	}
 
 	private void fallOff() {
+		reset();
+		
 		mode = Mode.AIR;
 		airJumpTimer = AIRJUMP_TIME;
 		standingOn = null;
 	}
 
 	private void startModeWalk() {
+		reset();
+
 		mode = Mode.WALK;
 		standingOn = null;
 	}
@@ -209,9 +216,10 @@ public class Player extends Alien {
 		if (standingOn != null) {
 			velocity += standingOn.jumpBoost();
 		}
-		reset(); // moved here
+		reset();
 		vely = velocity;
 		mode = Mode.AIR;
+		airSpin = true;
 	}
 
 	private void jumpOnFire() {
@@ -380,24 +388,16 @@ public class Player extends Alien {
 	// SLIDE MODE
 
 	private void perhapsStartSlideMode() {
-		int slide = testSlide();
-		if (slide != NO_SLIDE) {
-			slideVel = ic.x - lc.x;
-			System.out.println("Starting slide " + slideVel);
-			mode = Mode.SLIDE;
-		}
-	}
-
-	private void doSlideMode(MovementSlicer xslicer) {
-		while (xslicer.more()) {
-			c.x += xslicer.next(3);
-			if (!srv.playerFall(c, 14)) {
-				// we slid off an edge
-				fallOff();
+		if (mode==Mode.WALK) {
+			int slide = testSlide();
+			if (slide != NO_SLIDE) {
+				slideVel = ic.x - lc.x;
+				System.out.println("Starting slide " + slideVel);
+				mode = Mode.SLIDE;
 			}
 		}
-
 	}
+
 	void postSlide() {
 		int frm = srv.getFrameNumber();
 		if ((frm & 1) == 0) {
@@ -435,7 +435,7 @@ public class Player extends Alien {
 
 		}
 		// set our direction and we're done
-		if (slideVel!=0) goLeft = slideVel < 0;
+		if (slideVel != 0) goLeft = slideVel < 0;
 		setAnim(directionalAnimName("jump"), true);
 	}
 
@@ -450,6 +450,20 @@ public class Player extends Alien {
 		String s = srv.blockInfoHas(c, "slide:");
 		if (s == null) return NO_SLIDE;
 		return Integer.parseInt(s);
+	}
+
+	private void doSlideMode() {
+		if (mode == Mode.SLIDE) {
+			MovementSlicer xslicer = new MovementSlicer(slideVel);
+			while (xslicer.more()) {
+				c.x += xslicer.next(3);
+				if (!srv.playerFall(c, 14)) {
+					// we slid off an edge
+					fallOff();
+				}
+			}
+			postSlide();
+		}
 	}
 
 	// ---------------------------------------------------------------------------
@@ -755,8 +769,9 @@ public class Player extends Alien {
 		perhapsStartMonkeyMode();
 		perhapsStartRopeMode();
 		perhapsStartLadderMode();
+		perhapsStartSlideMode();
 
-		System.out.println("Mode:"+mode);
+		System.out.println("Mode:" + mode);
 		if (mode == Mode.WALK || mode == Mode.LIFT || mode == Mode.AIR) {
 
 			if (mode == Mode.LIFT) {
@@ -797,25 +812,26 @@ public class Player extends Alien {
 			}
 			if (mode == Mode.AIR) {
 				doAirModeY();
-				setAnim(directionalAnimName("jump"), true);
+				if (airSpin) {
+					setAnim(directionalAnimName("jump"), true);
+				}
+				// otherwise we just leave the old animation in place
 			}
 		}
 
-		if (mode == Mode.SLIDE) {
-			int xmovement = slideVel;
-			System.out.println("slidevel"+slideVel);
-			MovementSlicer xslicer = new MovementSlicer(xmovement);
-				doSlideMode(xslicer);
-				postSlide();
-		}
+		doSlideMode();
 		doMonkeyMode();
 		doRopeMode();
 		doLadderMode();
 
 		// NOW set 'last coord' from that
 		// (so all the code in between has access to a meaningful lc value)
+		Coord delta = ic.copy();
+		delta.sub(c);
+		System.out.println("delta "+delta);
 		lc = ic;
 	}
+
 
 	// ---------------------------------------------------------------------------
 	// OUR PUBLIC METHODS
@@ -828,6 +844,7 @@ public class Player extends Alien {
 
 	@Override
 	public void init() {
+		setStandingAnim();
 	}
 
 	public void draw() {
@@ -877,3 +894,5 @@ public class Player extends Alien {
 		assert false;
 	}
 }
+
+// TODO: getting stunned!
