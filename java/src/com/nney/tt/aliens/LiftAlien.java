@@ -36,13 +36,14 @@ public class LiftAlien extends Alien {
 			int landOn = c.y - 1;
 			boolean verticalCrossing = p.lc.y < landOn && p.c.y >= landOn;
 			if (horizontalOverlap(p) && verticalCrossing) {
-				p.landOn(this, landOn);
+				p.startLiftMode(this, landOn);
 			}
 		}
 	}
 
 	public boolean horizontalOverlap(Player p) {
 		return p.c.x >= c.x && p.c.x <= (c.x + 44);
+		// TODO: hardwired constant!
 	}
 
 	private void moveIfWeNeedTo() {
