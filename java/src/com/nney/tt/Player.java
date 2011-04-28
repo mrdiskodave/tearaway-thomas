@@ -49,10 +49,7 @@ public class Player extends Alien {
 	// There is a 3 pixel step because of single misplaced block.
 	//
 
-	private static final int NO_SLIDE = 9;
-
 	// I think the original had FLOOR_DEFINITION_DISTANCE = 1
-	// and CTC_MITIGATE_AGAINST_FALLTHROUGH = true
 
 	// TODO: hollow out the masks for sign posts and trees.
 	// We just want a single pixel running along the top of
@@ -62,6 +59,12 @@ public class Player extends Alien {
 
 	// TODO: reset the level if the player does manage to fall through
 	// (not something we ever did in the original)
+
+	/**
+	 * A constant {@link #testSlide()} can return to say
+	 * "the player isn't standing on a slide".
+	 */
+	private static final int NO_SLIDE = 9;
 
 	// ---------------------------------------------------------------------------
 	// FIELDS
@@ -470,6 +473,12 @@ public class Player extends Alien {
 
 	}
 
+	/**
+	 * Is the player standing on a slide?
+	 * 
+	 * @return {@link #NO_SLIDE} if they are not on a slide. The x velocity
+	 *         delta that the slide imparts per frame if they are on a slide.
+	 */
 	private int testSlide() {
 		String s = srv.blockInfoHas(c, "slide:");
 		if (s == null) return NO_SLIDE;
@@ -517,7 +526,7 @@ public class Player extends Alien {
 			}
 			else {
 				// we are on something slippery
-				// slip!
+				// so slip!
 				slideVel += slide;
 				// and we get to influence it a bit with the joystick
 				if ((frm & 7) == 0) {
