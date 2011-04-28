@@ -28,10 +28,14 @@ public class AnimPlayer {
 //			System.out.println("Fresh len "+freshAnim.frames.length);
 			anim = freshAnim;
 			rate = freshAnim.defaultRate;
-			pos = 0;
-			acc = 0;
-			animEnded = false;
+			rewind();
 		}
+	}
+
+	public void rewind() {
+		pos = 0;
+		acc = 0;
+		animEnded = false;
 	}
 	
 	public Sprite next() {
