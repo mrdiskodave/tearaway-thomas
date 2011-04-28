@@ -35,6 +35,13 @@ public class Player extends Alien {
 	 * greater the chance of falling through the floor if the map designer
 	 * hasn't taken care to observe the original "
 	 * {@link #FLOOR_DEFINITION_DISTANCE} = 1" rule.
+	 * 
+	 * This is not as important as it sounds because if you "want" to get
+	 * through a >{@link #FLOOR_DEFINITION_DISTANCE} pixel size step at floor
+	 * level you'll need to jump through it sideways. Jumping through something
+	 * so small at floor level will be hard because you have to jump <i>from</i>
+	 * the floor and your jump return-velocity will be too big to allow such
+	 * sneaky manoeuvres. Probably.
 	 */
 	private static final int FLOOR_DEFINITION_DISTANCE = 1;
 	// 3 for now.
