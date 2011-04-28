@@ -22,7 +22,7 @@ public class Player extends Alien {
 
 	private static final int AIRJUMP_TIME = 4;
 	private static final int STUN_TIME = 33;
-	private static final int PROOF_TIME = 25;
+	private static final int RESTUN_PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
 	private static final int JUMP_VELOCITY = -12;
 
@@ -42,24 +42,7 @@ public class Player extends Alien {
 	// There is a 3 pixel step because of single misplaced block.
 	//
 
-	/**
-	 * With this switched on <b>any</b> size pixel step is counted as part of
-	 * the continuous surface of the floor once {@link #touchFloor} is
-	 * <code>true</code>.
-	 * 
-	 * Then if you "want" to get through a >{@link #FLOOR_DEFINITION_DISTANCE}
-	 * pixel size step at floor level you'll need to jump through it. Jumping
-	 * through something so small at floor level will be hard because you have
-	 * to jump <i>from</i> the floor and your jump return-velocity will be too
-	 * big to allow such sneaky manoeuvres. Probably. With this compile time
-	 * configuration set off (i.e. to <code>false</code>) you can just walk
-	 * through the gap easily and probably fall forever after that. i.e. this
-	 * configuration hides map problems which is probably only a good thing in
-	 * the final version where they cannot be fixed.
-	 */
-	private static final boolean CTC_MITIGATE_AGAINST_FALLTHROUGH = true;
-
-	private static final int NO_SLIDE = 5;
+	private static final int NO_SLIDE = 9;
 
 	// I think the original had FLOOR_DEFINITION_DISTANCE = 1
 	// and CTC_MITIGATE_AGAINST_FALLTHROUGH = true
@@ -176,18 +159,11 @@ public class Player extends Alien {
 
 	enum Mode {
 		WALK, LIFT, AIR, // <<-- these modes all run off the same xslicer
-		SLIDE, STUN, MONKEY, ROPE, ROPE_TWIST, LADDER
+		SLIDE, STUN, MONKEY, ROPE, ROPE_TWIST, LADDER,
 	}
 
 	// ---------------------------------------------------------------------------
 	// PRIVATE SUBROUTINES
-
-	private void invariants() {
-		// assert !(touchFloor && jumping);
-		// assert !(touchFloor && inGround);
-		// assert !(stunTimer != 0 && moveStick);
-		// assert !(stunTimer != 0 && standingOn != null);
-	}
 
 	private void reset() {
 		vely = 0;
@@ -199,7 +175,7 @@ public class Player extends Alien {
 
 	private void fallOff() {
 		reset();
-		
+
 		mode = Mode.AIR;
 		airJumpTimer = AIRJUMP_TIME;
 		standingOn = null;
@@ -207,9 +183,12 @@ public class Player extends Alien {
 
 	private void startModeWalk() {
 		reset();
-
 		mode = Mode.WALK;
-		standingOn = null;
+
+		// it is important that we immediately check for slides
+		// or the player could get off a rogue jump-off-a-slide
+		// before we detect it later!
+		perhapsStartSlideMode();
 	}
 
 	private void jumpV(int velocity) {
@@ -223,17 +202,6 @@ public class Player extends Alien {
 	}
 
 	private void jumpOnFire() {
-		// it is possible for the player to touchFloor in Mode.NORMAL
-		// and then come here before we've noticed they are standing on a slide
-		// (and gone into Mode.SLIDE)
-		//
-		// That is a consequence of the new design of trying to use up the
-		// entire movement rather just throwing away the rest of the movement
-		// (i.e. the MovementSlicer managing it)
-		// when something happens.
-		//
-		// The work around is just to test that here ...
-		//
 		if (testStick(Joystick.FIRE)) {
 			jump();
 			System.out.println("Jump!");
@@ -278,23 +246,52 @@ public class Player extends Alien {
 		return srv.getStick().testAntiAutofire(j) && stunTimer == 0;
 	}
 
-	// ---------------------------------------------------------------------------
-	// NORMAL MODE
-
 	private void applyGravity() {
 		vely = Math.min(vely + 1, 16);
 	}
 
-	private void doWalkModeY() {
-		vacuumFloor();
-		jumpOnFire();
+	private int getXDelta() {
+		moveStick = false;
+
+		int xdelta = 0;
+		if (testStick(Joystick.LEFT)) {
+			xdelta = -pvt.next();
+			goLeft = true;
+			moveStick = true;
+		}
+		else if (testStick(Joystick.RIGHT)) {
+			xdelta = pvt.next();
+			goLeft = false;
+			moveStick = true;
+		}
+		else {
+			pvt.reset();
+		}
+
+		// keep it on screen
+		return keepXDeltaOnScreen(xdelta);
 	}
 
-	private void doAirModeY() {
-		if (airJumpTimer != 0) {
-			jumpOnFire();
+	private int keepXDeltaOnScreen(int xdelta) {
+		Coord tp = c.copy();
+		tp.x += xdelta;
+		srv.validatePlayerPosition(tp);
+		xdelta = tp.x - c.x;
+		return xdelta;
+	}
+
+	private void setStandingAnim() {
+		if (moveStick) {
+			setAnim(directionalAnimName(""), true);
 		}
+		else {
+			setAnim(directionalAnimName("stood"), true);
+		}
+	}
+
+	private boolean normalVerticalMovement() {
 		applyGravity();
+
 		MovementSlicer yslicer = new MovementSlicer(vely);
 		while (yslicer.more()) {
 			int n = yslicer.next(1);
@@ -316,12 +313,13 @@ public class Player extends Alien {
 					c.y++;
 					if (srv.inTheGround(c)) {
 						// and if it is then we touch down
-						startModeWalk();
 						c.y--;
+						return true;
 					}
 				}
 			}
 		}
+		return false;
 	}
 
 	/**
@@ -333,19 +331,22 @@ public class Player extends Alien {
 		}
 	}
 
+	// ---------------------------------------------------------------------------
+	// WALK MODE
+
 	private void doWalkModeX(MovementSlicer xslicer) {
 		int n = xslicer.next(1);
 		c.x += n;
 		vacuumFloor();
 	}
 
-	private void doLiftModeX(MovementSlicer xslicer) {
-		int n = xslicer.next(1);
-		c.x += n;
-		if (!standingOn.horizontalOverlap(this)) {
-			fallOff();
-		}
+	private void doWalkModeY() {
+		vacuumFloor();
+		doLiftModeY();
 	}
+
+	// ---------------------------------------------------------------------------
+	// AIR MODE
 
 	private void doAirModeX(MovementSlicer xslicer) {
 		int n = xslicer.next(1);
@@ -368,8 +369,8 @@ public class Player extends Alien {
 						break;
 					}
 					if (!srv.inTheGround(c.copyAndMove(0, -distance))) {
-						// or it might ... in which case we are touching
-						// down
+						// or it might ...
+						// in which case we are touching down
 						if (distance > 1) {
 							System.out.println("Recovered by jumping up " + distance);
 						}
@@ -384,21 +385,109 @@ public class Player extends Alien {
 
 	}
 
+	private void doAirModeY() {
+		if (airJumpTimer != 0) {
+			jumpOnFire();
+		}
+		if (normalVerticalMovement()) {
+			startModeWalk();
+		}
+		if (airSpin) {
+			setAnim(directionalAnimName("jump"), true);
+		}
+		else {
+			setAnim(directionalAnimName(""), false);
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// LIFT MODE
+
+	private void doLiftModeX(MovementSlicer xslicer) {
+		int n = xslicer.next(1);
+		c.x += n;
+		if (!standingOn.horizontalOverlap(this)) {
+			fallOff();
+		}
+	}
+
+	private void doLiftModeY() {
+		jumpOnFire();
+		setStandingAnim();
+	}
+
+	// ---------------------------------------------------------------------------
+	// STUN MODE
+
+	private void startStunMode() {
+		jumpV(STUN_VELOCITY);
+		stunTimer = STUN_TIME;
+		mode = Mode.STUN;
+	}
+
+	private void doStunMode() {
+		if (mode == Mode.STUN) {
+			if (normalVerticalMovement()) {
+				setAnim("wobble", true);
+				if (--stunTimer <= 0) {
+					startModeWalk();
+					proofTimer = RESTUN_PROOF_TIME;
+				}
+			}
+			else {
+				setAnim(directionalAnimName("jump"), true);
+			}
+		}
+	}
+
 	// ---------------------------------------------------------------------------
 	// SLIDE MODE
 
-	private void perhapsStartSlideMode() {
-		if (mode==Mode.WALK) {
+	private boolean perhapsStartSlideMode() {
+		if (mode == Mode.WALK) {
 			int slide = testSlide();
 			if (slide != NO_SLIDE) {
 				slideVel = ic.x - lc.x;
 				System.out.println("Starting slide " + slideVel);
 				mode = Mode.SLIDE;
+				return true;
 			}
+		}
+		return false;
+	}
+
+	private int signOf(int x) {
+		if (x < 0) return -1;
+		if (x > 0) return 1;
+		return 0;
+
+	}
+
+	private int testSlide() {
+		String s = srv.blockInfoHas(c, "slide:");
+		if (s == null) return NO_SLIDE;
+		return Integer.parseInt(s);
+	}
+
+	private void doSlideMode() {
+		if (mode == Mode.SLIDE) {
+			MovementSlicer xslicer = new MovementSlicer(slideVel);
+			while (xslicer.more()) {
+				c.x += xslicer.next(3);
+				if (!srv.playerFall(c, 14)) {
+					// we slid off an edge
+					fallOff();
+				}
+			}
+			updateSlideVel();
+
+			// set our direction and we're done
+			if (slideVel != 0) goLeft = slideVel < 0;
+			setAnim(directionalAnimName("jump"), true);
 		}
 	}
 
-	void postSlide() {
+	private void updateSlideVel() {
 		int frm = srv.getFrameNumber();
 		if ((frm & 1) == 0) {
 			int slide = testSlide();
@@ -433,36 +522,6 @@ public class Player extends Alien {
 				slideVel = signOf(slideVel) * 16;
 			}
 
-		}
-		// set our direction and we're done
-		if (slideVel != 0) goLeft = slideVel < 0;
-		setAnim(directionalAnimName("jump"), true);
-	}
-
-	private int signOf(int x) {
-		if (x < 0) return -1;
-		if (x > 0) return 1;
-		return 0;
-
-	}
-
-	private int testSlide() {
-		String s = srv.blockInfoHas(c, "slide:");
-		if (s == null) return NO_SLIDE;
-		return Integer.parseInt(s);
-	}
-
-	private void doSlideMode() {
-		if (mode == Mode.SLIDE) {
-			MovementSlicer xslicer = new MovementSlicer(slideVel);
-			while (xslicer.more()) {
-				c.x += xslicer.next(3);
-				if (!srv.playerFall(c, 14)) {
-					// we slid off an edge
-					fallOff();
-				}
-			}
-			postSlide();
 		}
 	}
 
@@ -717,47 +776,8 @@ public class Player extends Alien {
 	// ---------------------------------------------------------------------------
 	// MAIN MOVEMENT ROUTINE
 
-	private int getXDelta() {
-		moveStick = false;
-
-		int xdelta = 0;
-		if (testStick(Joystick.LEFT)) {
-			xdelta = -pvt.next();
-			goLeft = true;
-			moveStick = true;
-		}
-		else if (testStick(Joystick.RIGHT)) {
-			xdelta = pvt.next();
-			goLeft = false;
-			moveStick = true;
-		}
-		else {
-			pvt.reset();
-		}
-
-		// keep it on screen
-		return keepXDeltaOnScreen(xdelta);
-	}
-
-	private int keepXDeltaOnScreen(int xdelta) {
-		Coord tp = c.copy();
-		tp.x += xdelta;
-		srv.validatePlayerPosition(tp);
-		xdelta = tp.x - c.x;
-		return xdelta;
-	}
-
-	private void setStandingAnim() {
-		if (moveStick) {
-			setAnim(directionalAnimName(""), true);
-		}
-		else {
-			setAnim(directionalAnimName("stood"), true);
-		}
-	}
-
 	private void move2() {
-		// remember position
+		// remember our initial coordinate
 		ic = c.copy();
 
 		if (proofTimer != 0) proofTimer--;
@@ -773,21 +793,18 @@ public class Player extends Alien {
 
 		System.out.println("Mode:" + mode);
 		if (mode == Mode.WALK || mode == Mode.LIFT || mode == Mode.AIR) {
+			// these all run off the same xslicer
 
 			if (mode == Mode.LIFT) {
 				assert standingOn != null;
 				standingOn.moveMe(this);
 			}
 
-			// these all run off the same xslicer
 			int xmovement = getXDelta();
 			MovementSlicer xslicer = new MovementSlicer(xmovement);
 			while (xslicer.more()) {
 				if (mode == Mode.WALK) {
-					perhapsStartSlideMode();
-					if (mode == Mode.WALK) {
-						doWalkModeX(xslicer);
-					}
+					doWalkModeX(xslicer);
 				}
 				else if (mode == Mode.LIFT) {
 					doLiftModeX(xslicer);
@@ -802,44 +819,36 @@ public class Player extends Alien {
 
 			if (mode == Mode.WALK) {
 				doWalkModeY();
-				setStandingAnim();
 			}
-			if (mode == Mode.LIFT) {
-				if (testStick(Joystick.FIRE)) {
-					jump();
-				}
-				setStandingAnim();
+			else if (mode == Mode.LIFT) {
+				doLiftModeY();
 			}
-			if (mode == Mode.AIR) {
+			else if (mode == Mode.AIR) {
 				doAirModeY();
-				if (airSpin) {
-					setAnim(directionalAnimName("jump"), true);
-				}
-				// otherwise we just leave the old animation in place
 			}
 		}
+		else {
+			doStunMode();
+			doSlideMode();
+			doMonkeyMode();
+			doRopeMode();
+			doLadderMode();
+		}
 
-		doSlideMode();
-		doMonkeyMode();
-		doRopeMode();
-		doLadderMode();
+		// Coord delta = c.copy();
+		// delta.sub(ic);
+		// System.out.println("delta " + delta);
 
-		// NOW set 'last coord' from that
-		// (so all the code in between has access to a meaningful lc value)
-		Coord delta = ic.copy();
-		delta.sub(c);
-		System.out.println("delta "+delta);
+		// only now do we set our last coordinate from our initial coordinate
+		// this way all the code in between has access to a meaningful lc value
 		lc = ic;
 	}
-
 
 	// ---------------------------------------------------------------------------
 	// OUR PUBLIC METHODS
 
 	public void move() {
-		invariants();
 		move2();
-		invariants();
 	}
 
 	@Override
@@ -861,18 +870,13 @@ public class Player extends Alien {
 	}
 
 	public boolean isReadyToBoardALift() {
-		invariants();
 		return mode == Mode.AIR && !inGround;
 	}
 
 	public void stun() {
-		// // if we not proof and not already stunned ..
-		// if (proofTimer == 0 && stunTimer == 0) {
-		// // reset(); from here
-		// jumpV(STUN_VELOCITY);
-		// stunTimer = STUN_TIME;
-		// mode = Mode.STUN;
-		// }
+		if (proofTimer == 0 && stunTimer == 0) {
+			startStunMode();
+		}
 	}
 
 	public void jump() {
