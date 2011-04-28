@@ -164,6 +164,10 @@ public class Player extends Alien {
 
 	private boolean airSpin;
 
+	private boolean flying;
+	
+	private boolean canFly;
+
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
 
@@ -181,6 +185,7 @@ public class Player extends Alien {
 		stunTimer = 0;
 		standingOn = null;
 		airSpin = false;
+		flying = false;
 	}
 
 	private void fallOff() {
@@ -257,7 +262,9 @@ public class Player extends Alien {
 	}
 
 	private void applyGravity() {
-		vely = Math.min(vely + 1, 16);
+		if (!flying || (srv.getFrameNumber()&1)==0) {
+			vely = Math.min(vely + 1, 16);
+		}
 	}
 
 	private int getXDelta() {
@@ -396,17 +403,32 @@ public class Player extends Alien {
 	}
 
 	private void doAirModeY() {
+		boolean flap = false;
 		if (airJumpTimer != 0) {
 			jumpOnFire();
+		}
+		else if (canFly && testStickAA(Joystick.FIRE)) {
+			flying = true;
+			vely = 0;
+			flap = true;
 		}
 		if (normalVerticalMovement()) {
 			startModeWalk();
 		}
-		if (airSpin) {
-			setAnim(directionalAnimName("jump"), true);
+		
+		if (flying) {
+			setAnim(directionalAnimName("fly"), true);
+			if (flap) {
+				animPlayer.rewind();
+			}
 		}
 		else {
-			setAnim(directionalAnimName(""), false);
+			if (airSpin) {
+				setAnim(directionalAnimName("jump"), true);
+			}
+			else {
+				setAnim(directionalAnimName(""), false);
+			}
 		}
 	}
 
@@ -879,6 +901,10 @@ public class Player extends Alien {
 	public void giveShield() {
 		proofTimer = 50 * 13;
 		flashTimer = 50 * 12;
+	}
+	
+	public void giveWings() {
+		canFly = true;
 	}
 
 	public boolean isStunned() {
