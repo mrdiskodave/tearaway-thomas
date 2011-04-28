@@ -5,7 +5,6 @@ import com.nney.tt.sprites.Sprite;
 
 public class ArrowAlien extends Alien {
 	private int repeat;
-	private int timer;
 	private Box box;
 
 	@Override
@@ -27,11 +26,11 @@ public class ArrowAlien extends Alien {
 
 		boolean on = false;
 		if (repeat != 0) {
-			if (timer < 22) {
+			int frm = srv.getFrameNumber()&31;
+			if (frm < 22) {
 				on = true;
 			}
-			if (++timer >= 32) {
-				timer = 0;
+			else if (frm==31) {
 				repeat--;
 			}
 		}
