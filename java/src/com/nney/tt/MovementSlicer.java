@@ -1,6 +1,9 @@
 package com.nney.tt;
 
 public class MovementSlicer {
+	/**
+	 * How much distance is left to cover?
+	 */
 	private int kipper;
 
 	public MovementSlicer(int distance) {
