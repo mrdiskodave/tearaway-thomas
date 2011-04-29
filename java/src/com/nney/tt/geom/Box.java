@@ -19,6 +19,10 @@ public class Box {
 		this(that.left, that.top, that.right, that.bottom);
 	}
 	
+	public static Box from(Coord c, int width, int height) {
+		return new Box(c.x, c.y, c.x+width-1, c.y+height-1);
+	}
+	
 	public void constrain(Coord c) {
 		if (c.x<left) {
 			c.x = left;

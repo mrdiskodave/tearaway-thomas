@@ -1,6 +1,7 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.AlienServices;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
@@ -14,7 +15,9 @@ public abstract class Alien {
 	public byte[] srcData;
 	public boolean remove;
 	public boolean infront;
+	public Box freezeBounds;
 	public AlienServices srv;
+	public int restore;
 
 
 	protected static final int OBbase = 9;

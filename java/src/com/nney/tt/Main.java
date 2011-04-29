@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.lwjgl.LWJGLException;
@@ -49,23 +51,21 @@ import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
 
 public class Main {
-//	// lift
-//	private static final String CTC_WORLD = "w";
-//	private static final int CTC_MAP = 9;
+	// // lift
+	private static final String CTC_WORLD = "w";
+	private static final int CTC_MAP = 9;
 
 	// ladders & ice
-	private static final String CTC_WORLD = "i";
-	private static final int CTC_MAP = 0;
-	
-	
-	
+	// private static final String CTC_WORLD = "i";
+	// private static final int CTC_MAP = 0;
+
 	/**
 	 * Compile time configuration: play in level containing only the map.
 	 */
 	private static final boolean CTC_TUMBLE_WEEDS = false;
 
 	/**
-	 * Compile time configuration: 
+	 * Compile time configuration:
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
@@ -92,8 +92,13 @@ public class Main {
 
 	private int frameNumber;
 
-	private List<Alien> backgroundAlienList = new ArrayList<Alien>();
-	private List<Alien> foregroundAlienList = new ArrayList<Alien>();
+	private LinkedList<Alien> backgroundAlienList = new LinkedList<Alien>();
+	private LinkedList<Alien> foregroundAlienList = new LinkedList<Alien>();
+	
+	private Fridge freezeTop = new Fridge("top");
+	private Fridge freezeBottom = new Fridge("bottom");
+	private Fridge freezeLeft = new Fridge("left");
+	private Fridge freezeRight = new Fridge("right");
 
 	private Player player;
 
@@ -239,8 +244,7 @@ public class Main {
 				int bottom = ladderDi.requireField("bottom").requireInt();
 				ladderInfo = new LadderInfo(top, bottom);
 			}
-			
-			
+
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -304,7 +308,8 @@ public class Main {
 						try {
 							AlienInfo alienInfo = aim.get(type);
 							if (alienInfo != null) {
-								// aim.remove(type); // ONCE!
+//								aim.remove(type); // ONCE!
+								
 								Alien alien = alienInfo.instantiate();
 								alien.srv = world;
 								if (alienInfo.spriteSetName != null) {
@@ -376,9 +381,9 @@ public class Main {
 			world.player = player;
 			world.mapBounds = mapBounds;
 			world.ladderInfo = ladderInfo;
-			
-//			player.c.x = 1980;
-//			player.c.y = 1020;
+
+			// player.c.x = 1980;
+			// player.c.y = 1020;
 			world.snapScreenTo(player.c);
 
 			// bear.c.x = 455;
@@ -434,7 +439,6 @@ public class Main {
 			world.scrollScreenTo(player.c);
 		}
 
-
 		// for (int x=0; x<15; x++) {
 		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
 		// }
@@ -442,7 +446,7 @@ public class Main {
 		//
 		// draw everything
 		//
-		
+
 		drawTheHorizon();
 		drawTheMap();
 
@@ -467,7 +471,8 @@ public class Main {
 		// Alien freezing and defrosting impossible). That's a big voyage into
 		// new territory for little gain.
 		//
-		// For now, it'll work how it used to. For the first time I can say "I am
+		// For now, it'll work how it used to. For the first time I can say "I
+		// am
 		// clear about the limits this imposes".
 		//
 
@@ -481,15 +486,62 @@ public class Main {
 	}
 
 	private void updateAliens(List<Alien> al) {
-		for (Iterator<Alien> ai = al.iterator(); ai.hasNext();) {
-			Alien alien = ai.next();
-			alien.update();
-			if (alien.remove) {
-				ai.remove();
+		Box screenBox = Box.from(world.screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		defrost(screenBox);
+		for (Iterator<Alien> alienIterator = al.iterator(); alienIterator.hasNext();) {
+			Alien alien = alienIterator.next();
+			if (!perhapsFreezeAlien(screenBox, alien, alienIterator)) {
+				alien.update();
+				if (alien.remove) {
+					alienIterator.remove();
+				}
 			}
 		}
 	}
 
+	// ---------------------------------------------------------------------------
+	// REFRIGERATION
+	
+	private boolean perhapsFreezeAlien(Box screenBox, Alien alien, Iterator<Alien> alienIterator) {
+		Box fb = alien.freezeBounds;
+		if (fb == null) {
+			return false;
+		}
+		if (fb.right < screenBox.left) {
+			freezeLeft.freezeInto(alien, alienIterator, -fb.right);
+		}
+		else if (fb.bottom < screenBox.top) {
+			freezeTop.freezeInto(alien, alienIterator, -fb.bottom);
+		}
+		else if (fb.left > screenBox.right) {
+			freezeRight.freezeInto(alien, alienIterator, fb.left);
+		}
+		else if (fb.top > screenBox.bottom) {
+			freezeBottom.freezeInto(alien, alienIterator, fb.top);
+		}
+		else {
+			return false;
+		}
+		return true;
+	}
+
+	private void defrost(Box screenBox) {
+		defrostManyFrom(freezeLeft, -screenBox.left);
+		defrostManyFrom(freezeTop, -screenBox.top);
+		defrostManyFrom(freezeRight, screenBox.right);
+		defrostManyFrom(freezeBottom, screenBox.bottom);
+	}
+
+	private void defrostManyFrom(Fridge fridge, int restore) {
+		for (;;) {
+			Alien a = fridge.defrostFrom(restore);
+			if (a==null) break;
+			saveAlien(a);
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	
 	private void handleKeyboard() {
 		while (Keyboard.next()) {
 			int key = Keyboard.getEventKey();

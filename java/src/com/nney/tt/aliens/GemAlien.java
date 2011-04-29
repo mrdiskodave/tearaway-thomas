@@ -1,6 +1,7 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
@@ -24,6 +25,7 @@ public class GemAlien extends Alien {
 	@Override
 	public void init() {
 		changeAnimation(0);
+		wobblePhase = srv.randomness(WOBBLE.length);
 	}
 
 	@Override
@@ -38,11 +40,6 @@ public class GemAlien extends Alien {
 			}
 		}
 		else {
-			if (wobblePhase < 0) {
-				// could we do this earlier? (pass that arg to init??)
-				wobblePhase = srv.randomness(WOBBLE.length);
-			}
-
 			if (wobble) {
 				c2.y += WOBBLE[wobblePhase++];
 				wobblePhase %= WOBBLE.length;
@@ -53,6 +50,8 @@ public class GemAlien extends Alien {
 				scoreTimer = 25;
 				scoreFrame = 1;
 			}
+
+			freezeBounds = new Box(c.x-20, c.y-20, c.x+20, c.y+20);
 		}
 	}
 }

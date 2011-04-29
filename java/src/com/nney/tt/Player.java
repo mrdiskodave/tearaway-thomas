@@ -165,7 +165,7 @@ public class Player extends Alien {
 	private boolean airSpin;
 
 	private boolean flying;
-	
+
 	private boolean canFly;
 
 	// ---------------------------------------------------------------------------
@@ -240,12 +240,8 @@ public class Player extends Alien {
 
 	private int getStickDelta(int less, int more) {
 		int delta = 0;
-		if (testStick(less)) {
-			delta--;
-		}
-		if (testStick(more)) {
-			delta++;
-		}
+		if (testStick(less)) delta--;
+		if (testStick(more)) delta++;
 		return delta;
 	}
 
@@ -262,7 +258,7 @@ public class Player extends Alien {
 	}
 
 	private void applyGravity() {
-		if (!flying || (srv.getFrameNumber()&1)==0) {
+		if (!flying || (srv.getFrameNumber() & 1) == 0) {
 			vely = Math.min(vely + 1, 16);
 		}
 	}
@@ -415,7 +411,7 @@ public class Player extends Alien {
 		if (normalVerticalMovement()) {
 			startModeWalk();
 		}
-		
+
 		if (flying) {
 			setAnim(directionalAnimName("fly"), true);
 			if (flap) {
@@ -829,10 +825,16 @@ public class Player extends Alien {
 		perhapsStartLadderMode();
 		perhapsStartSlideMode();
 
-		System.out.println("Mode:" + mode);
+//		System.out.println("Mode:" + mode);
 		if (mode == Mode.WALK || mode == Mode.LIFT || mode == Mode.AIR) {
-			// these all run off the same xslicer
+			//
+			// X
+			//
 
+			// These all run off the same MovementSlicer.
+			// e.g. if we're running along the ground at 5 pix per frame
+			// and after 1 pixel we run off the edge we still
+			// have 4 pixels to go in the air.
 			if (mode == Mode.LIFT) {
 				assert standingOn != null;
 				standingOn.moveMe(this);
@@ -854,6 +856,10 @@ public class Player extends Alien {
 					break;
 				}
 			}
+
+			//
+			// Y
+			//
 
 			if (mode == Mode.WALK) {
 				doWalkModeY();
@@ -902,7 +908,7 @@ public class Player extends Alien {
 		proofTimer = 50 * 13;
 		flashTimer = 50 * 12;
 	}
-	
+
 	public void giveWings() {
 		canFly = true;
 	}
@@ -940,5 +946,3 @@ public class Player extends Alien {
 		assert false;
 	}
 }
-
-// TODO: getting stunned!
