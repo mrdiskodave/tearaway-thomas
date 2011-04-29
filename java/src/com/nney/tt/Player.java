@@ -355,7 +355,7 @@ public class Player extends Alien {
 
 	private void doWalkModeY() {
 		vacuumFloor();
-		doLiftModeY();
+		setStandingAnim();
 	}
 
 	// ---------------------------------------------------------------------------
@@ -825,7 +825,7 @@ public class Player extends Alien {
 		perhapsStartLadderMode();
 		perhapsStartSlideMode();
 
-//		System.out.println("Mode:" + mode);
+		// System.out.println("Mode:" + mode);
 		if (mode == Mode.WALK || mode == Mode.LIFT || mode == Mode.AIR) {
 			//
 			// X
@@ -855,6 +855,13 @@ public class Player extends Alien {
 				else {
 					break;
 				}
+			}
+
+			if (mode == Mode.WALK) {
+				// The floor to air transition is done between X and Y movement.
+				// Floor X, Air Y. This gives us a clean take off!
+				// SCC9
+				jumpOnFire();
 			}
 
 			//
