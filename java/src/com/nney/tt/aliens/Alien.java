@@ -1,5 +1,6 @@
 package com.nney.tt.aliens;
 
+import com.nney.tt.Fridge;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -8,7 +9,7 @@ import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Sprite;
 import com.nney.tt.sprites.SpriteSet;
 
-public abstract class Alien {
+public abstract class Alien implements Fridge.Content {
 	public Coord c = new Coord();
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	private SpriteSet spriteSet;
@@ -93,4 +94,13 @@ public abstract class Alien {
 	}
 
 	abstract public void update();
+	
+	@Override
+	public int getRestoreDistance() {
+		return restore;
+	}
+
+	public void setRestoreDistance(int x) {
+		restore = x;
+	}
 }

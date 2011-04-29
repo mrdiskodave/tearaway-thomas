@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.lwjgl.LWJGLException;
@@ -38,8 +37,8 @@ import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.tt.map.BlockRandomisationTable;
 import com.nney.tt.map.BlockInformation;
+import com.nney.tt.map.BlockRandomisationTable;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.resources.TTResource;
@@ -92,13 +91,13 @@ public class Main {
 
 	private int frameNumber;
 
-	private LinkedList<Alien> backgroundAlienList = new LinkedList<Alien>();
-	private LinkedList<Alien> foregroundAlienList = new LinkedList<Alien>();
+	private List<Alien> backgroundAlienList = new LinkedList<Alien>();
+	private List<Alien> foregroundAlienList = new LinkedList<Alien>();
 	
-	private Fridge freezeTop = new Fridge("top");
-	private Fridge freezeBottom = new Fridge("bottom");
-	private Fridge freezeLeft = new Fridge("left");
-	private Fridge freezeRight = new Fridge("right");
+	private Fridge<Alien> freezeTop = new Fridge<Alien>("top");
+	private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
+	private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
+	private Fridge<Alien> freezeRight = new Fridge<Alien>("right");
 
 	private Player player;
 
@@ -487,10 +486,10 @@ public class Main {
 
 	private void updateAliens(List<Alien> al) {
 		Box screenBox = Box.from(world.screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
-		defrost(screenBox);
+		defrostAny(screenBox);
 		for (Iterator<Alien> alienIterator = al.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
-			if (!perhapsFreezeAlien(screenBox, alien, alienIterator)) {
+			if (!perhapsFreezeOne(alien, alienIterator, screenBox)) {
 				alien.update();
 				if (alien.remove) {
 					alienIterator.remove();
@@ -502,22 +501,22 @@ public class Main {
 	// ---------------------------------------------------------------------------
 	// REFRIGERATION
 	
-	private boolean perhapsFreezeAlien(Box screenBox, Alien alien, Iterator<Alien> alienIterator) {
+	private boolean perhapsFreezeOne(Alien alien, Iterator<Alien> alienIterator, Box screenBox) {
 		Box fb = alien.freezeBounds;
 		if (fb == null) {
 			return false;
 		}
 		if (fb.right < screenBox.left) {
-			freezeLeft.freezeInto(alien, alienIterator, -fb.right);
+			freezeOne(alien, alienIterator, freezeLeft, -fb.right);
 		}
 		else if (fb.bottom < screenBox.top) {
-			freezeTop.freezeInto(alien, alienIterator, -fb.bottom);
+			freezeOne(alien, alienIterator, freezeTop, -fb.bottom);
 		}
 		else if (fb.left > screenBox.right) {
-			freezeRight.freezeInto(alien, alienIterator, fb.left);
+			freezeOne(alien, alienIterator, freezeRight, fb.left);
 		}
 		else if (fb.top > screenBox.bottom) {
-			freezeBottom.freezeInto(alien, alienIterator, fb.top);
+			freezeOne(alien, alienIterator, freezeBottom, fb.top);
 		}
 		else {
 			return false;
@@ -525,14 +524,20 @@ public class Main {
 		return true;
 	}
 
-	private void defrost(Box screenBox) {
-		defrostManyFrom(freezeLeft, -screenBox.left);
-		defrostManyFrom(freezeTop, -screenBox.top);
-		defrostManyFrom(freezeRight, screenBox.right);
-		defrostManyFrom(freezeBottom, screenBox.bottom);
+	private void freezeOne(Alien alien, Iterator<Alien> alienIterator, Fridge<Alien> fridge, int restore) {
+		alienIterator.remove();
+		alien.setRestoreDistance(restore);
+		fridge.freezeInto(alien, restore);
+	}
+		
+	private void defrostAny(Box screenBox) {
+		defrostAnyFrom(freezeLeft, -screenBox.left);
+		defrostAnyFrom(freezeTop, -screenBox.top);
+		defrostAnyFrom(freezeRight, screenBox.right);
+		defrostAnyFrom(freezeBottom, screenBox.bottom);
 	}
 
-	private void defrostManyFrom(Fridge fridge, int restore) {
+	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
 		for (;;) {
 			Alien a = fridge.defrostFrom(restore);
 			if (a==null) break;

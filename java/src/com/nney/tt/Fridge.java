@@ -1,27 +1,25 @@
 package com.nney.tt;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.nney.tt.aliens.Alien;
-
-public class Fridge {
-	private LinkedList<Alien> content = new LinkedList<Alien>();
+public class Fridge<T extends Fridge.Content> {
+	private LinkedList<T> content = new LinkedList<T>();
 	private String name;
+	
+	public interface Content {
+		int getRestoreDistance();
+	}
 	
 	public Fridge(String name) {
 		this.name = name;
 	}
 
-	public void freezeInto(Alien alien, Iterator<Alien> alienIterator, int restore) {
+	public void freezeInto(T alien, int restore) {
 		System.out.println(String.format("Freezing %x into %s with %d", alien.hashCode(), name, restore));
-		alienIterator.remove();
-		alien.restore = restore;
-
-		ListIterator<Alien> fi = content.listIterator();
+		ListIterator<T> fi = content.listIterator();
 		while (fi.hasNext()) {
-			if (fi.next().restore >= restore) {
+			if (fi.next().getRestoreDistance() >= restore) {
 				fi.previous();
 				break;
 			}
@@ -29,10 +27,10 @@ public class Fridge {
 		fi.add(alien);
 	}
 	
-	public Alien defrostFrom(int restore) {
-		Alien a = content.peekFirst();
-		if (a==null || a.restore > restore) return null;
-		System.out.println(String.format("Defrosting %x into %s with %d using %d", a.hashCode(), name, a.restore, restore));
+	public T defrostFrom(int restore) {
+		T a = content.peekFirst();
+		if (a==null || a.getRestoreDistance() > restore) return null;
+		System.out.println(String.format("Defrosting %x into %s with %d using %d", a.hashCode(), name, a.getRestoreDistance(), restore));
 		assert a==content.removeFirst();
 		return a;
 	}
