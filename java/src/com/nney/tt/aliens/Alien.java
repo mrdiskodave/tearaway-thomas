@@ -96,11 +96,11 @@ public abstract class Alien implements Fridge.Content {
 	abstract public void update();
 	
 	@Override
-	public int getRestoreDistance() {
+	public int getFridgePos() {
 		return restore;
 	}
 
-	public void setRestoreDistance(int x) {
+	public void setFridgePos(int x) {
 		restore = x;
 	}
 }

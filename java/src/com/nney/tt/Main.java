@@ -485,7 +485,7 @@ public class Main {
 	}
 
 	private void updateAliens(List<Alien> al) {
-		Box screenBox = Box.from(world.screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		Box screenBox = Box.fromTopLeftAndSize(world.screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 		defrostAny(screenBox);
 		for (Iterator<Alien> alienIterator = al.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
@@ -526,8 +526,8 @@ public class Main {
 
 	private void freezeOne(Alien alien, Iterator<Alien> alienIterator, Fridge<Alien> fridge, int restore) {
 		alienIterator.remove();
-		alien.setRestoreDistance(restore);
-		fridge.freezeInto(alien, restore);
+		alien.setFridgePos(restore);
+		fridge.add(alien, restore);
 	}
 		
 	private void defrostAny(Box screenBox) {
@@ -539,7 +539,7 @@ public class Main {
 
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
 		for (;;) {
-			Alien a = fridge.defrostFrom(restore);
+			Alien a = fridge.remove(restore);
 			if (a==null) break;
 			saveAlien(a);
 		}
