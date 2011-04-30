@@ -17,6 +17,6 @@ public class ShieldAlien extends Alien {
 			srv.getThePlayer().giveShield();
 			remove = true;
 		}
-		// TODO: AAA invisi control?
+		// TODO: AAA invisi control? SCC1
 	}
 }

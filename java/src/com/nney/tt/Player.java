@@ -66,6 +66,8 @@ public class Player extends Alien {
 	 */
 	private static final int NO_SLIDE = 9;
 
+	private static final boolean CTC_VULNERABLE = false;
+
 	// ---------------------------------------------------------------------------
 	// FIELDS
 
@@ -247,6 +249,10 @@ public class Player extends Alien {
 
 	private int getStickUpDownDelta() {
 		return getStickDelta(Joystick.UP, Joystick.DOWN);
+	}
+
+	private int getStickLeftRightDelta() {
+		return getStickDelta(Joystick.LEFT, Joystick.RIGHT);
 	}
 
 	private boolean testStick(int j) {
@@ -548,7 +554,7 @@ public class Player extends Alien {
 				slideVel += slide;
 				// and we get to influence it a bit with the joystick
 				if ((frm & 7) == 0) {
-					slideVel += getStickDelta(Joystick.LEFT, Joystick.RIGHT);
+					slideVel += getStickLeftRightDelta();
 				}
 			}
 			// make sure we're not going to fast
@@ -929,8 +935,10 @@ public class Player extends Alien {
 	}
 
 	public void stun() {
-		if (proofTimer == 0 && stunTimer == 0) {
-			startStunMode();
+		if (CTC_VULNERABLE) {
+			if (proofTimer == 0 && stunTimer == 0) {
+				startStunMode();
+			}
 		}
 	}
 
@@ -951,5 +959,23 @@ public class Player extends Alien {
 		// Actually, it's move() and draw() that are our entry points.
 		// We're the only entity in the game with separate move and draw logic.
 		assert false;
+	}
+
+	public boolean checkInvisFall(Coord gem) {
+		Coord diff = c.copy();
+		diff.sub(gem);
+		// diff = player - gem (i.e. positive if gem is above or left of the
+		// player)
+
+		// must be above but not too far above
+		if (diff.y > 0 && diff.y < 100) {
+			if (getStickLeftRightDelta() != signOf(diff.x)) {
+				int dx = Math.abs(diff.x);
+				if (dx > 75 && dx < 100) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

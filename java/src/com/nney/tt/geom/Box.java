@@ -6,7 +6,7 @@ public class Box {
 	public int top;
 	public int right;
 	public int bottom;
-	// TODO: inclusive -- really??
+	// inclusive!
 
 	public Box(int left, int top, int right, int bottom) {
 		this.left = left;
@@ -22,7 +22,11 @@ public class Box {
 	public static Box fromTopLeftAndSize(Coord c, int width, int height) {
 		return new Box(c.x, c.y, c.x+width-1, c.y+height-1);
 	}
-	
+
+	public static Box around(Coord c, int width, int height) {
+		return new Box(c.x-width, c.y-height, c.x+width, c.y+height);
+	}
+
 	public void constrain(Coord c) {
 		if (c.x<left) {
 			c.x = left;
