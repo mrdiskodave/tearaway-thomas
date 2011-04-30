@@ -15,13 +15,15 @@ import java.util.ListIterator;
  * </ul>
  * 
  * <p>
- * The caller needs to maintain a fridge per screen edge. The fridge has a
- * coordinate system where objects with numerically larger positions are deeper
- * in the fridge (i.e. further off-screen). Objects with smaller positions are
- * closer to returning to the screen. This means that, when a screen edge is
- * encountered as the ordinate increases, fridge position is the same as screen
- * ordinate. However, the fridge for the opposite screen edge will need its
- * given fridge positions negated by the caller.
+ * The caller needs to maintain a fridge per screen edge.
+ * 
+ * <p>
+ * The fridge has a position system where objects with numerically larger
+ * positions are deeper in the fridge (i.e. further off-screen). Objects with
+ * smaller positions are closer to returning to the screen. This means that,
+ * when a screen edge is encountered as the ordinate increases, fridge position
+ * is the same as screen ordinate. However, the fridge for the opposite screen
+ * edge will need its given fridge positions negated by the caller.
  * 
  * @param <T>
  *            The type of the object - it need only support the interface
@@ -31,7 +33,17 @@ public class Fridge<T extends Fridge.Content> {
 	private LinkedList<T> content = new LinkedList<T>();
 	private String name;
 
+	/**
+	 * The interface that all fridge content must support.
+	 * 
+	 */
 	public interface Content {
+		/**
+		 * What is our fridge position?
+		 * 
+		 * @return The answer. See {@link Fridge} for a discussion of fridge
+		 *         position.
+		 */
 		int getFridgePos();
 	}
 
