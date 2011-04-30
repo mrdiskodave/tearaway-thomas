@@ -60,7 +60,7 @@ public class Fridge<T extends Fridge.Content> {
 	 *            The place to put it.
 	 */
 	public void add(T item, int pos) {
-		System.out.println(String.format("Freezing %x into %s with %d", item.hashCode(), name, pos));
+		System.out.println(String.format("Fridge: %08x(%7d) frozen    into %s", item.hashCode(), pos, name));
 		// Skip (to the right) over existing items that should be to
 		// the left of the one we've been given.
 		ListIterator<T> ci = content.listIterator();
@@ -84,8 +84,8 @@ public class Fridge<T extends Fridge.Content> {
 	public T remove(int left) {
 		T item = content.peekFirst();
 		if (item == null || item.getFridgePos() > left) return null;
-		System.out.println(String.format("Defrosting %x into %s with %d using %d", item.hashCode(), name,
-				item.getFridgePos(), left));
+		System.out.println(String.format("Fridge: %08x(%7d) defrosted from %s using %d", item.hashCode(), item.getFridgePos(), name,
+				left));
 		assert item == content.removeFirst();
 		return item;
 	}
