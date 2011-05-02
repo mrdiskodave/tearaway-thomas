@@ -20,6 +20,8 @@ public interface AlienServices {
 
 	
 	int getFrameNumber();
+	
+	boolean frameTest(int mask, int lessThan);
 
 	void queueSprite(Coord c, Sprite s);
 
@@ -74,4 +76,6 @@ public interface AlienServices {
 	String blockInfoHas(Coord c, String prefix);
 
 	LadderInfo getLadderInfo();
+
+	boolean fall(Coord c, int fallSpeed);
 }

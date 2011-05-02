@@ -5,67 +5,30 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class GemAlien extends Alien {
+public class GemAlien extends BonusAlien {
 	private static final int FLAG_NO_WOBBLE = 3;
-	private static final int FLAG_INVIS = 5;
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
 
 	private boolean wobble;
-	private boolean invis;
-
-	
 	private int wobblePhase;
-
 	private int scoreTimer;
-
 	private int scoreFrame;
-	private boolean falling;
 
 	@Override
 	public void load() {
+		super.load();
 		wobble = !BitOp.test(loadByte(OBflags), FLAG_NO_WOBBLE);
-		invis = BitOp.test(loadByte(OBflags), FLAG_INVIS);
 	}
 
 	@Override
 	public void init() {
-		changeAnimation(0);
+		super.init();
 		wobblePhase = srv.randomness(WOBBLE.length);
 	}
 
 	@Override
-	public void update() {
-	
-		if (!invis) {
-			normalUpdate();
-		}
-		else {
-			if (falling) {
-				if (srv.inTheGround(c.copyAndMove(0, 1))) {
-					falling = false;
-					invis = false;
-					normalUpdate();
-				}
-				else {
-					justDraw();
-					c.y++;
-				}
-			}
-			else {
-				if (srv.getThePlayer().checkInvisFall(c)) {
-					falling = true;
-				}
-				else {
-					if ((srv.getFrameNumber()&31)<16) {
-						justDraw();
-					}
-				}
-			}
-		}
-	}
-
-	private void normalUpdate() {
+	protected void normalUpdate() {
 		if (scoreTimer != 0) {
 			changeAnimation(scoreFrame);
 			srv.queueSprite(c, nextFrame());
@@ -90,7 +53,8 @@ public class GemAlien extends Alien {
 		}
 	}
 	
-	private void justDraw() {
+	@Override
+	protected void justDraw() {
 		Sprite s = nextFrame();
 		srv.queueSprite(c, s);
 	}

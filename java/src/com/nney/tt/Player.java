@@ -359,10 +359,7 @@ public class Player extends Alien {
 		vacuumFloor();
 	}
 
-	private void doWalkModeY() {
-		vacuumFloor();
-		setStandingAnim();
-	}
+	// Y handled inline in move2()
 
 	// ---------------------------------------------------------------------------
 	// AIR MODE
@@ -445,10 +442,7 @@ public class Player extends Alien {
 		}
 	}
 
-	private void doLiftModeY() {
-		jumpOnFire();
-		setStandingAnim();
-	}
+	// Y handled inline in move2()
 
 	// ---------------------------------------------------------------------------
 	// STUN MODE
@@ -863,7 +857,7 @@ public class Player extends Alien {
 				}
 			}
 
-			if (mode == Mode.WALK) {
+			if (mode == Mode.WALK || mode == Mode.LIFT) {
 				// The floor to air transition is done between X and Y movement.
 				// Floor X, Air Y. This gives us a clean take off!
 				// SCC9
@@ -875,12 +869,13 @@ public class Player extends Alien {
 			//
 
 			if (mode == Mode.WALK) {
-				doWalkModeY();
+				vacuumFloor();
+				setStandingAnim();
 			}
-			else if (mode == Mode.LIFT) {
-				doLiftModeY();
+			if (mode == Mode.LIFT) {
+				setStandingAnim();
 			}
-			else if (mode == Mode.AIR) {
+			if (mode == Mode.AIR) {
 				doAirModeY();
 			}
 		}
@@ -961,17 +956,32 @@ public class Player extends Alien {
 		assert false;
 	}
 
-	public boolean checkInvisFall(Coord gem) {
+	/**
+	 * Does the players movement prompt the given hidden object to appear?
+	 * 
+	 * Lots of power-ups and other cool things are hidden away in this fashion.
+	 * 
+	 * @param hidden
+	 *            The coordinates of the hidden object.
+	 * @return Either <code>true</code> (meaning "yes, it appears") or
+	 *         <code>false</code> (meaning "no, it remains hidden").
+	 */
+	public boolean checkUnhide(Coord hidden) {
+		// SCC1
 		Coord diff = c.copy();
-		diff.sub(gem);
-		// diff = player - gem (i.e. positive if gem is above or left of the
-		// player)
+		diff.sub(hidden);
+		// diff = player - hidden
+		// (i.e. positive if gem is above or left of the player)
 
 		// must be above but not too far above
 		if (diff.y > 0 && diff.y < 100) {
-			if (getStickLeftRightDelta() != signOf(diff.x)) {
+			// moving towards
+			int d = getStickLeftRightDelta();
+			if (d != 0 && d != signOf(diff.x)) {
+				// and must be the correct distance in front
 				int dx = Math.abs(diff.x);
 				if (dx > 75 && dx < 100) {
+					// then it falls!
 					return true;
 				}
 			}

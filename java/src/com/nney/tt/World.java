@@ -307,4 +307,21 @@ public class World implements AlienServices, Joystick {
 	public LadderInfo getLadderInfo() {
 		return ladderInfo;
 	}
+
+	@Override
+	public boolean frameTest(int mask, int lessThan) {
+		return (getFrameNumber()&mask)<lessThan;
+	}
+	
+	@Override
+	public boolean fall(Coord c, int fallSpeed) {
+		for (int x=0; x<fallSpeed; x++) {
+			c.y++;
+			if (inTheGround(c)) {
+				c.y--;
+				return true;
+			}
+		}
+		return false;
+	}
 }
