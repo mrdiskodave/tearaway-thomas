@@ -6,11 +6,36 @@ import com.nney.tt.sprites.Sprite;
 
 public abstract class AbstractLiftAlien extends Alien {
 	private Coord lc;
-	private int lastMove;
-	
+	private int lastMoveFrmNum;
+
 	@Override
 	public void init() {
 		changeAnimation(0);
+	}
+
+	abstract protected void setPosition();
+
+	/**
+	 * This lift moves itself but when the player is on it then the player (who
+	 * moves first, in the order of things) needs to move it in order to
+	 * establish how to move himself. To simplify this: any method that needs a
+	 * lift that has been moved once this frame just calls this method. The risk
+	 * of moving this lift twice is then zero.
+	 */
+	private void moveIfWeNeedTo() {
+		int frmNum = srv.getFrameNumber();
+		if (frmNum != lastMoveFrmNum) {
+			lastMoveFrmNum = frmNum;
+			lc = c.copy();
+			setPosition();
+		}
+	}
+
+	private Coord lastFrameDelta() {
+		moveIfWeNeedTo();
+		Coord delta = c.copy();
+		delta.sub(lc);
+		return delta;
 	}
 
 	@Override
@@ -35,30 +60,11 @@ public abstract class AbstractLiftAlien extends Alien {
 		// TODO: hardwired constant!
 	}
 
-	private void moveIfWeNeedTo() {
-		int f = srv.getFrameNumber();
-		if (f != lastMove) {
-			lastMove = f;
-			lc = c.copy();
-			setPosition();
-		}
-	}
-	
-
-	public void moveMe(Player player) {
+	public void movePlayer(Player player) {
 		player.c.add(lastFrameDelta());
 	}
-	
-	public int jumpBoost() {
+
+	public int getPlayerJumpBoost() {
 		return lastFrameDelta().y;
 	}
-
-	private Coord lastFrameDelta() {
-		moveIfWeNeedTo();
-		Coord delta = c.copy();
-		delta.sub(lc);
-		return delta;
-	}
-
-	abstract protected void setPosition();
 }

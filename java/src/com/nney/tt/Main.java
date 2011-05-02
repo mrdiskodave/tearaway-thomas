@@ -184,6 +184,7 @@ public class Main {
 		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
 		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
+		ail.add(new AlienInfo(14, "0wing", WingAlien.class));
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
@@ -489,8 +490,9 @@ public class Main {
 		defrostAny(screenBox);
 		for (Iterator<Alien> alienIterator = al.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
+			alien.freezeBounds = null;
+			alien.update();
 			if (!perhapsFreezeOne(alien, alienIterator, screenBox)) {
-				alien.update();
 				if (alien.remove) {
 					alienIterator.remove();
 				}

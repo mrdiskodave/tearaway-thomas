@@ -211,7 +211,7 @@ public class Player extends Alien {
 
 	private void jumpV(int velocity) {
 		if (mode == Mode.LIFT) {
-			velocity += standingOn.jumpBoost();
+			velocity += standingOn.getPlayerJumpBoost();
 		}
 		reset();
 		vely = velocity;
@@ -838,7 +838,7 @@ public class Player extends Alien {
 			// have 4 pixels to go in the air.
 			if (mode == Mode.LIFT) {
 				assert standingOn != null;
-				standingOn.moveMe(this);
+				standingOn.movePlayer(this);
 			}
 
 			int xmovement = getXDelta();
@@ -967,7 +967,7 @@ public class Player extends Alien {
 	 * @return Either <code>true</code> (meaning "yes, it appears") or
 	 *         <code>false</code> (meaning "no, it remains hidden").
 	 */
-	public boolean checkUnhide(Coord hidden) {
+	public boolean checkReveal(Coord hidden) {
 		// SCC1
 		Coord diff = c.copy();
 		diff.sub(hidden);

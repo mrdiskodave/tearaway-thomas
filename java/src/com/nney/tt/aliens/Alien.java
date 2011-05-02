@@ -103,4 +103,8 @@ public abstract class Alien implements Fridge.Content {
 	public void setFridgePos(int x) {
 		restore = x;
 	}
+	
+	public void done() {
+		remove = true;
+	}
 }

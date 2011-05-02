@@ -33,29 +33,27 @@ public class GemAlien extends AbstractBonusAlien {
 			changeAnimation(scoreFrame);
 			srv.queueSprite(c, nextFrame());
 			if (--scoreTimer==0) {
-				remove = true;
+				done();
 			}
 		}
 		else {
 			Coord c2 = c.copy();
-			if (wobble) {
+			if (wobble && !isFalling()) {
 				c2.y += WOBBLE[wobblePhase++];
 				wobblePhase %= WOBBLE.length;
 			}
 			Sprite s = nextFrame();
 			srv.queueSprite(c2, s);
+
 			if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 				scoreTimer = 25;
 				scoreFrame = 1;
 			}
 
-			freezeBounds = Box.around(c, 20, 20);
+			if (!isFalling()) {
+				freezeBounds = Box.around(c, 20, 20);
+			}
 		}
 	}
-	
-	@Override
-	protected void stationaryUpdate() {
-		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
-	}
+
 }

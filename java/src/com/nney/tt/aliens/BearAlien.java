@@ -7,7 +7,7 @@ public class BearAlien extends LeftRightAlien {
 	public void update() {
 		boolean turned = moveLeftRight(1);
 		if (!srv.playerFall(c, 16)) {
-			remove = true;
+			done();
 		}
 		if (!turned && srv.blockInfoIs(c, "stop")) {
 			headedRight = !headedRight;

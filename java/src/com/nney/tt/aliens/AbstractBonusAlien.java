@@ -4,8 +4,9 @@ import com.nney.tt.BitOp;
 
 public abstract class AbstractBonusAlien extends Alien {
 	private static final boolean CTC_FLASH_HIDDEN = false;
-	
+
 	private static final int FLAG_INVIS = 5;
+	
 	private boolean invis;
 	private boolean falling;
 	private int fallSpeed;
@@ -14,12 +15,12 @@ public abstract class AbstractBonusAlien extends Alien {
 	public void load() {
 		invis = BitOp.test(loadByte(OBflags), FLAG_INVIS);
 	}
-	
+
 	@Override
 	public void init() {
 		changeAnimation(0);
 	}
-	
+
 	@Override
 	public void update() {
 		if (invis) {
@@ -32,21 +33,22 @@ public abstract class AbstractBonusAlien extends Alien {
 				}
 				else {
 					// apply gravity and continue falling
-					if (fallSpeed<6 && srv.frameTest(2, 1)) {
+					if (fallSpeed < 6 && srv.frameTest(2, 1)) {
 						fallSpeed++;
 					}
-					stationaryUpdate();
+					normalUpdate();
 				}
 			}
 			else {
 				// we're hidden
 				if (CTC_FLASH_HIDDEN) {
 					if (srv.frameTest(32, 16)) {
-						stationaryUpdate();
+						normalUpdate();
 					}
 				}
-				// unhide?
-				if (srv.getThePlayer().checkUnhide(c)) {
+				// reveal?
+				if (srv.getThePlayer().checkReveal(c)) {
+					// yes - reveal!
 					falling = true;
 				}
 			}
@@ -56,9 +58,9 @@ public abstract class AbstractBonusAlien extends Alien {
 		}
 	}
 
-	abstract protected void stationaryUpdate();
-		
-	protected void normalUpdate() {
-		stationaryUpdate();
+	abstract protected void normalUpdate();
+	
+	protected boolean isFalling() {
+		return falling;
 	}
 }
