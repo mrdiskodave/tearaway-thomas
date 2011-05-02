@@ -2,7 +2,9 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
 
-public abstract class BonusAlien extends Alien {
+public abstract class AbstractBonusAlien extends Alien {
+	private static final boolean CTC_FLASH_HIDDEN = false;
+	
 	private static final int FLAG_INVIS = 5;
 	private boolean invis;
 	private boolean falling;
@@ -20,37 +22,43 @@ public abstract class BonusAlien extends Alien {
 	
 	@Override
 	public void update() {
-		if (!invis) {
-			normalUpdate();
-		}
-		else {
+		if (invis) {
 			if (falling) {
 				if (srv.fall(c, fallSpeed)) {
+					// we hit the ground
 					falling = false;
 					invis = false;
 					normalUpdate();
 				}
 				else {
-					if (fallSpeed<6 && srv.frameTest(1, 1)) {
+					// apply gravity and continue falling
+					if (fallSpeed<6 && srv.frameTest(2, 1)) {
 						fallSpeed++;
 					}
-					justDraw();
+					stationaryUpdate();
 				}
 			}
 			else {
+				// we're hidden
+				if (CTC_FLASH_HIDDEN) {
+					if (srv.frameTest(32, 16)) {
+						stationaryUpdate();
+					}
+				}
+				// unhide?
 				if (srv.getThePlayer().checkUnhide(c)) {
 					falling = true;
 				}
-				else {
-					if (srv.frameTest(31, 16)) {
-						justDraw();
-					}
-				}
 			}
+		}
+		else {
+			normalUpdate();
 		}
 	}
 
-	abstract protected void justDraw();
-	
-	abstract protected void normalUpdate();
+	abstract protected void stationaryUpdate();
+		
+	protected void normalUpdate() {
+		stationaryUpdate();
+	}
 }

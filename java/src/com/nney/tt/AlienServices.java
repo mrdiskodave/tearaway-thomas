@@ -18,7 +18,6 @@ public interface AlienServices {
 	 */
 	int randomness(int n);
 
-	
 	int getFrameNumber();
 	
 	boolean frameTest(int mask, int lessThan);

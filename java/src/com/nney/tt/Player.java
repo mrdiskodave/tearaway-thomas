@@ -1,5 +1,6 @@
 package com.nney.tt;
 
+import com.nney.tt.aliens.AbstractLiftAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
@@ -130,7 +131,7 @@ public class Player extends Alien {
 	/**
 	 * A lift, if we are standing on one, otherwise <code>null</code>.
 	 */
-	private LiftAlien standingOn;
+	private AbstractLiftAlien standingOn;
 
 	/**
 	 * Our Y velocity.
@@ -209,7 +210,7 @@ public class Player extends Alien {
 	}
 
 	private void jumpV(int velocity) {
-		if (standingOn != null) {
+		if (mode == Mode.LIFT) {
 			velocity += standingOn.jumpBoost();
 		}
 		reset();
@@ -941,7 +942,7 @@ public class Player extends Alien {
 		jumpV(JUMP_VELOCITY);
 	}
 
-	public void startLiftMode(LiftAlien lift, int height) {
+	public void startLiftMode(AbstractLiftAlien lift, int height) {
 		reset();
 		mode = Mode.LIFT;
 		standingOn = lift;

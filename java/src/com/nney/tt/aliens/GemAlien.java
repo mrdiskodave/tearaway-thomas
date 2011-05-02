@@ -5,7 +5,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class GemAlien extends BonusAlien {
+public class GemAlien extends AbstractBonusAlien {
 	private static final int FLAG_NO_WOBBLE = 3;
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
@@ -54,7 +54,7 @@ public class GemAlien extends BonusAlien {
 	}
 	
 	@Override
-	protected void justDraw() {
+	protected void stationaryUpdate() {
 		Sprite s = nextFrame();
 		srv.queueSprite(c, s);
 	}

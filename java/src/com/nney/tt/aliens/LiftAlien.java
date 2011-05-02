@@ -5,10 +5,8 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class LiftAlien extends Alien {
+public class LiftAlien extends AbstractLiftAlien {
 	private Box box;
-	private Coord lc;
-	private int lastMove;
 
 	@Override
 	public void load() {
@@ -23,39 +21,9 @@ public class LiftAlien extends Alien {
 		return (int) (Math.sin(angle) * maxOutput);
 	}
 
+
 	@Override
-	public void update() {
-		moveIfWeNeedTo();
-
-		changeAnimation(0);
-		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
-
-		Player p = srv.getThePlayer();
-		if (p.isReadyToBoardALift()) {
-			int landOn = c.y - 1;
-			boolean verticalCrossing = p.lc.y < landOn && p.c.y >= landOn;
-			if (horizontalOverlap(p) && verticalCrossing) {
-				p.startLiftMode(this, landOn);
-			}
-		}
-	}
-
-	public boolean horizontalOverlap(Player p) {
-		return p.c.x >= c.x && p.c.x <= (c.x + 44);
-		// TODO: hardwired constant!
-	}
-
-	private void moveIfWeNeedTo() {
-		int f = srv.getFrameNumber();
-		if (f != lastMove) {
-			lastMove = f;
-			lc = c.copy();
-			setPosition();
-		}
-	}
-
-	private void setPosition() {
+	protected void setPosition() {
 		int angle = srv.getFrameNumber() * 8;
 		Coord origin = new Coord((box.left + box.right) / 2, box.top);
 		int spin = sine(angle) / 4 + 256;
@@ -65,20 +33,5 @@ public class LiftAlien extends Alien {
 		yo /= 1024;
 		c.x = origin.x + xo;
 		c.y = origin.y + yo;
-	}
-
-	public void moveMe(Player player) {
-		player.c.add(lastFrameDelta());
-	}
-	
-	public int jumpBoost() {
-		return lastFrameDelta().y;
-	}
-
-	private Coord lastFrameDelta() {
-		moveIfWeNeedTo();
-		Coord delta = c.copy();
-		delta.sub(lc);
-		return delta;
 	}
 }

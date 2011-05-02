@@ -18,7 +18,7 @@ public abstract class Alien implements Fridge.Content {
 	public boolean infront;
 	public Box freezeBounds;
 	public AlienServices srv;
-	public int restore;
+	private int restore;
 
 
 	protected static final int OBbase = 9;

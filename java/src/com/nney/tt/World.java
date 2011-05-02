@@ -310,7 +310,7 @@ public class World implements AlienServices, Joystick {
 
 	@Override
 	public boolean frameTest(int mask, int lessThan) {
-		return (getFrameNumber()&mask)<lessThan;
+		return (getFrameNumber()&(mask-1))<lessThan;
 	}
 	
 	@Override
