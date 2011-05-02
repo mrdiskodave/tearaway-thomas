@@ -20,7 +20,11 @@ public class Box {
 	}
 	
 	public static Box fromTopLeftAndSize(Coord c, int width, int height) {
-		return new Box(c.x, c.y, c.x+width-1, c.y+height-1);
+		return Box.fromTopLeftAndSize(c.x, c.y, width, height);
+	}
+
+	public static Box fromTopLeftAndSize(int x, int y, int width, int height) {
+		return new Box(x, y, x+width-1, y+height-1);
 	}
 
 	public static Box around(Coord c, int width, int height) {
