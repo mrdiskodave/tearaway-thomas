@@ -28,8 +28,8 @@ GREY  = (0x80,0x80,0x80)
 CYAN  = (0x00,0xff,0xff)
 YELLOW= (0xff,0xff,0x00)
 
-CENTRE_MARKER = CYAN
-#CENTRE_MARKER = None
+#CENTRE_MARKER = CYAN
+CENTRE_MARKER = None
 
 # the colour we'll use to mean "transparent"
 # all Amiga colours are scaled up by 0x11 so 0x01 cannot happen
@@ -456,11 +456,19 @@ def convert_bob(name):
 
 	bobpal = get_palette_from_data(i, 6)
 
+	# make the scores greyscale
+	if name=="0scor": bobpal = [ ( c[0], c[0], c[0] ) for c in bobpal ]
+
 	offset = 6+PALSIZE
 
 
 	for frame in xrange(framecount):
 		addx, addy, sx, sy, pix15, rastlen, maskadd = struct.unpack(">hhHHHHH", i[offset:offset+14])
+
+		if name=="0scor":
+			# addy + 1handlepixel + addy (and it is minus)
+			addy = -((sy-1)/2)
+
 		offset += 14
 
 		print "FRAME", frame
@@ -653,7 +661,7 @@ class Exporter:
 
 def convert_bobs():
 	for name in graphics_definitions:
-		if name!="0tt":
+		if name=="0scor":
 			convert_bob(name)
 
 def convert_horizons():
@@ -689,10 +697,10 @@ def convert_horizons():
 import gfxparse
 graphics_definitions = gfxparse.load_defs(load_file("gfx.s"))
 
-convert_horizons()
+#convert_horizons()
 #convert_star()
 #convert_tt()
-#convert_bobs()	
+convert_bobs()	
 #convert_font()
 #convert_topaz()
 #convert_worlds()
