@@ -7,10 +7,12 @@ import com.nney.tt.sprites.Sprite;
 public abstract class AbstractLiftAlien extends Alien {
 	private Coord lc;
 	private int lastMoveFrmNum;
+	private Sprite ourSprite;
 
 	@Override
 	public void init() {
 		changeAnimation(0);
+		ourSprite = nextFrame();
 	}
 
 	abstract protected void setPosition();
@@ -42,8 +44,7 @@ public abstract class AbstractLiftAlien extends Alien {
 	public void update() {
 		moveIfWeNeedTo();
 
-		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
+		srv.queueSprite(c, ourSprite);
 
 		Player p = srv.getThePlayer();
 		if (p.isReadyToBoardALift()) {

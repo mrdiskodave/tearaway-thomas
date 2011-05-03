@@ -156,7 +156,7 @@ public class Main {
 		AnimsDefPool adp = new AnimsDefPool();
 		AnimsPool animsPool = new AnimsPool(adp);
 
-		AlienInfoMap aim = new AlienInfoMap(animsPool);
+		AlienInfoMap aim = new AlienInfoMap(animsPool.getOurMapOut());
 		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
 		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
@@ -189,13 +189,15 @@ public class Main {
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 
-		// TODO: ! head jumping
-		// TODO: ! score tracking & drawing :)
+		// preload some anims even if they aren't in use in the level
+		// as we'll be deploying them live during the game
+		animsPool.load("0scor");
 		
-//		if (CTC_TUMBLE_WEEDS) {
-//			ail.clear();
-//		}
-
+		// TODO: ! head jumping
+		
+		if (CTC_TUMBLE_WEEDS) {
+			aim.clear();
+		}
 
 		player = new Player();
 		player.srv = world;

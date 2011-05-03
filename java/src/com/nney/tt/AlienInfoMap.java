@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfoMap {
 	Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
 	Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
+	private final Map<String, Anims> knownAnims;
 
-	private final AnimsPool animsPool;
-
-	public AlienInfoMap(AnimsPool animsPool) {
-		this.animsPool = animsPool;
+	public AlienInfoMap(Map<String, Anims> knownAnims) {
+		this.knownAnims = knownAnims;
 	}
 
 	void add(AlienInfo a) {
@@ -44,8 +44,15 @@ public class AlienInfoMap {
 		AlienInfo ai = getByClass(c.getClass());
 		if (ai.animsName != null) {
 			System.out.println(c.getClass() + " gets " + ai.animsName);
-			c.connectAnims(animsPool.load(ai.animsName));
-			// TODO: 0hmmm   no loading at runtime!
+			Anims anims = knownAnims.get(ai.animsName);
+			assert anims!=null : "need to preload "+ai.animsName;
+			c.connectAnims(anims);
 		}
+	}
+
+	public void clear() {
+		typeToAlienInfo.clear();
+		classToAlienInfo.clear();
+		classUseCount.clear();
 	}
 }
