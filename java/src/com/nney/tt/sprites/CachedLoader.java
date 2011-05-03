@@ -16,6 +16,10 @@ public abstract class CachedLoader<K, V> {
 	public V directGet(K k) {
 		return pool.get(k);
 	}
+	
+	public void clear() {
+		pool.clear();
+	}
 
 	protected abstract V populatePool(K k);
 }

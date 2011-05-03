@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 /**
- * A fridge is a one dimensional structure for freezing off screen objects.
+ * A fridge is a one dimensional structure for freezing off-screen objects.
  * 
  * <ul>
  * <li>Objects in a fridge are known to be off-screen.

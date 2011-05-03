@@ -10,28 +10,30 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfoMap {
-	Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
-	Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
-	Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
-	private AnimsPool animsPool;
-
-	public AlienInfoMap(AnimsPool animsPool) {
-		this.animsPool = animsPool;
-	}
+	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
+	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
+	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
+	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
+	
 
 	void add(AlienInfo a) {
 		typeToAlienInfo.put(a.id, a);
 		classToAlienInfo.put(a.alienClass, a);
+		aim.add(a);
 
 		Integer useCount = classUseCount.get(a.alienClass);
 		if (useCount == null) useCount = 0;
 		classUseCount.put(a.alienClass, useCount + 1);
-		
-		// if it doesn't have an id that is because it
-		// doesn't occur in any map but is instead deployed live at runtime
-		if (a.id<0) {
-			// so preload its graphics now
-			animsPool.load(a.animsName);
+	}
+	
+	public void doPreLoad(AnimsPool animsPool) {
+		for (AlienInfo a: aim) {
+			// if it doesn't have an id that is because it
+			// doesn't occur in any map but is instead deployed live at runtime
+			if (a.id<0) {
+				// so preload its graphics now
+				animsPool.load(a.animsName);
+			}
 		}
 	}
 
@@ -43,7 +45,7 @@ public class AlienInfoMap {
 		return classToAlienInfo.get(c);
 	}
 
-	public void connectAnims(Alien c) {
+	public void connectAnims(Alien c, AnimsPool animsPool) {
 		assert classUseCount.get(c.getClass()) == 1;
 		// class is used with many animation names so how
 		// do we know which to give it???

@@ -5,8 +5,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
@@ -72,7 +70,6 @@ public class World implements AlienServices, Joystick {
 	public MyFont debugFont;
 	public MyFont font;
 
-	
 	public Coord screen = new Coord();
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
@@ -93,25 +90,61 @@ public class World implements AlienServices, Joystick {
 	private int score = 0;
 	private int oldScore = -1;
 
-
 	private PrerenderedText scoreHeadingText;
-
 
 	private PrerenderedText scoreText;
 
-	public AlienInfoMap aim;
-
-
 	private int gemCounter;
-
 
 	public WorldInformation wi;
 
 	private GlTexture horizon;
-	
+
 	private AlienTracker alienTracker = new AlienTracker();
+	private AlienInfoMap alienInfoMap;
+	private AnimsPool animsPool;
 
+	public World() {
+		AlienInfoMap aim = new AlienInfoMap();
+		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
+		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
+		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
+		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
+		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
+		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
+		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
+		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
+		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
+		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
+		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
+		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
+		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
+		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
+		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
+		// ail.add(new AlienInfo(34, null, ScoreGivingAlien.class));
+		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
+		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
+		aim.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
+		aim.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
+		aim.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
+		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
+		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
+		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
+		aim.add(new AlienInfo(72, "wlog0", LiftAlien.class));
+		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
+		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
+		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
+		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
+		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
+		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 
+		if (CTC_TUMBLE_WEEDS) {
+			aim.clear();
+		}
+
+		alienInfoMap = aim;
+	}
 
 	void init2() {
 		debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
@@ -120,11 +153,10 @@ public class World implements AlienServices, Joystick {
 		font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
 				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 	}
-	
+
 	// ---------------------------------------------------------------------------
 	// MOSTLY SERVICES FOR THE ALIEN IMPLEMENTATIONS TO CALL
-	
-	
+
 	@Override
 	public int randomness(int n) {
 		return rnd.nextInt(n);
@@ -164,7 +196,7 @@ public class World implements AlienServices, Joystick {
 	@Override
 	public String blockInfoHas(Coord c, String prefix) {
 		String s = getBlockInfo(c);
-		if (s==null || !s.startsWith(prefix)) return null;
+		if (s == null || !s.startsWith(prefix)) return null;
 		return s.substring(prefix.length());
 	}
 
@@ -199,7 +231,6 @@ public class World implements AlienServices, Joystick {
 		}
 	}
 
-
 	@Override
 	public void removeOneGem(int score, Coord noticeLocation) {
 		if (isExitOpen()) {
@@ -207,20 +238,19 @@ public class World implements AlienServices, Joystick {
 		}
 		else {
 			gemCounter--;
-			System.out.println(gemCounter+" gems left!");
+			System.out.println(gemCounter + " gems left!");
 		}
 		giveScore(score, noticeLocation);
 	}
-	
+
 	@Override
 	public boolean isExitOpen() {
-		return gemCounter==0;
+		return gemCounter == 0;
 	}
 
 	// ---------------------------------------------------------------------------
 	// SCROLLING
 
-	
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollScreenTo(Coord)}
 	 * pulls tracked {@link Coord} back into the centre (given its distance from
@@ -258,7 +288,6 @@ public class World implements AlienServices, Joystick {
 		return c.copyAndMove(-Main.SCREEN_WIDTH / 2, -Main.SCREEN_HEIGHT * 11 / 16);
 	}
 
-
 	private void limitScreenPosition() {
 		screen.x = limit(screen.x, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
 		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
@@ -291,7 +320,7 @@ public class World implements AlienServices, Joystick {
 
 	// ---------------------------------------------------------------------------
 	// DRAWING
-	
+
 	@Override
 	public void drawSprite(final Coord c, final Sprite s) {
 		drawSprite(c, s, false);
@@ -340,6 +369,7 @@ public class World implements AlienServices, Joystick {
 		return frameNumber;
 	}
 
+	// TODO: unused
 	@Override
 	public boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox) {
 		int diffX = player.c.x - alienPos.x;
@@ -359,6 +389,7 @@ public class World implements AlienServices, Joystick {
 		return false;
 	}
 
+	// TODO: unused
 	@Override
 	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
 		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
@@ -406,7 +437,6 @@ public class World implements AlienServices, Joystick {
 		return (mask & joystickAA) != 0;
 	}
 
-
 	@Override
 	public LadderInformation getLadderInfo() {
 		return wi.ladderInformation;
@@ -414,12 +444,12 @@ public class World implements AlienServices, Joystick {
 
 	@Override
 	public boolean frameTest(int mask, int lessThan) {
-		return (getFrameNumber()&(mask-1))<lessThan;
+		return (getFrameNumber() & (mask - 1)) < lessThan;
 	}
-	
+
 	@Override
 	public boolean fall(Coord c, int fallSpeed) {
-		for (int x=0; x<fallSpeed; x++) {
+		for (int x = 0; x < fallSpeed; x++) {
 			c.y++;
 			if (inTheGround(c)) {
 				c.y--;
@@ -428,19 +458,18 @@ public class World implements AlienServices, Joystick {
 		}
 		return false;
 	}
-	
+
 	private void addNewAlien(Alien alien) {
-		aim.connectAnims(alien);
+		alienInfoMap.connectAnims(alien, animsPool);
 		alien.srv = this;
 		alien.init();
 		alienTracker.delayedAdd(alien);
 	}
-	
 
 	@Override
 	public void giveScore(int amount, Coord location) {
 		score += amount;
-		if (location!=null) {
+		if (location != null) {
 			addNewAlien(new ScoreNoticeAlien(amount, location.copy()));
 		}
 	}
@@ -450,30 +479,29 @@ public class World implements AlienServices, Joystick {
 		addNewAlien(new MagicDustAlien(location.copy()));
 	}
 
-
 	// ---------------------------------------------------------------------------
 	// UPDATING OF THINGS
-	
+
 	private void updateList(Iterator<Alien> alienIterator, Box screenBox) {
 		for (; alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
 			alien.update();
-			if (alien.remove || alienTracker.perhapsFreezeOne(alien, screenBox)) {
+			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
 				alienIterator.remove();
 			}
 		}
 	}
-	
+
 	private void updateAliens() {
 		// add fresh aliens
 		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 
-		alienTracker.restoreDelayedAndDefrosted(screenBox);
+		alienTracker.begin(screenBox);
 
-		updateList(alienTracker.getBackgroundAlienIterator(), screenBox);
+		updateList(alienTracker.getBackgroundIterator(), screenBox);
 		player.draw();
-		updateList(alienTracker.getForegroundAlienListIterator(), screenBox);
+		updateList(alienTracker.getForegroundIterator(), screenBox);
 
 		//
 		// Caveat1: only the background Alien gets to move the player around.
@@ -497,15 +525,13 @@ public class World implements AlienServices, Joystick {
 		//
 	}
 
-
-
 	private void updateScore() {
-		if (score!=oldScore) {
+		if (score != oldScore) {
 			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
 			scoreText = font.preDraw(0xffffffff, 0, String.format("%08d", score));
 		}
 		scoreHeadingText.draw((Main.SCREEN_WIDTH - scoreHeadingText.getWidth()) / 2, 6);
-		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6+14);
+		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6 + 14);
 	}
 
 	private void drawTheMap() {
@@ -544,7 +570,7 @@ public class World implements AlienServices, Joystick {
 
 	void updateEverything(int j) {
 		frameNumber++;
-		
+
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 
 		GlTools.configureFor2dBobs();
@@ -573,14 +599,13 @@ public class World implements AlienServices, Joystick {
 		// font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d",
 		// frameNumber));
 		updateAliens();
-		
 
 		updateScore();
 	}
 
 	// ---------------------------------------------------------------------------
 	// MAP LOADING
-	
+
 	private void loadAlienIntoWorld(Alien alien) {
 		if (alien instanceof AbstractGemAlien) {
 			gemCounter++;
@@ -599,156 +624,123 @@ public class World implements AlienServices, Joystick {
 		return id;
 	}
 
+	private void loadRawSettings(byte[] rawSettings) throws IOException {
+		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
+		player.c.x = dis.readShort();
+		player.c.y = dis.readShort();
+		player.goLeft = dis.readByte() != 0;
 	
+		dis.readByte(); // blkset
+		dis.readByte(); // specjsr1
+		dis.readByte(); // specjsr2
+		dis.readByte(); // specjsr3
+		int minx = dis.readByte() & 0xff;
+		int maxx = dis.readByte() & 0xff;
+		int miny = dis.readByte() & 0xff;
+		int maxy = dis.readByte() & 0xff;
+		minx *= 16;
+		maxx *= 16;
+		maxx += 15;
+		miny *= 16;
+		maxy *= 16;
+		maxy += 15;
+		mapBounds = new Box(minx, miny, maxx, maxy);
+	}
+
+	private void loadLegacyAlienIntoWorld(int x, int y, int type, byte[] rest) {
+		try {
+			AlienInfo alienInfo = alienInfoMap.getByType(type);
+			if (alienInfo != null) {
+				// aim.remove(type); // ONCE!
+	
+				Alien alien = alienInfo.instantiate();
+				alien.srv = this;
+				if (alienInfo.animsName != null) {
+					Anims anims = animsPool.load(alienInfo.animsName);
+					alien.connectAnims(anims);
+				}
+				if (type == 2 || type == 3) {
+					// this is what gem_render -> bob_gem does
+					x += 8;
+				}
+				alien.c.x = x;
+				alien.c.y = y;
+				alien.srcData = rest;
+				alien.load();
+	
+				// if (alien instanceof LoadsFromSpriteDef) {
+				// ((LoadsFromSpriteDef)
+				// alien).load(adp.load(alienInfo.animsName));
+				// }
+	
+				loadAlienIntoWorld(alien);
+			}
+			else {
+				TextAlien alien = new TextAlien();
+				alien.srv = this;
+				alien.setText(String.format("%d", type));
+				alien.c.x = x;
+				alien.c.y = y;
+				loadAlienIntoWorld(alien);
+			}
+		}
+		catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		}
+		catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	void init() {
 		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-	
-		AnimsDefPool adp = new AnimsDefPool();
-		AnimsPool animsPool = new AnimsPool(adp);
-	
-		AlienInfoMap aim = new AlienInfoMap(animsPool);
-		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
-		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
-		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
-		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
-		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
-		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
-		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
-		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
-		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
-		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
-		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
-		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
-		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
-		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
-		// ail.add(new AlienInfo(34, null, ScoreGivingAlien.class));
-		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
-		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
-		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
-		aim.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
-		aim.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
-		aim.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
-		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
-		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
-		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
-		aim.add(new AlienInfo(72, "wlog0", LiftAlien.class));
-		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
-		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
-		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
-		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
-		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
-		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
-	
-		if (CTC_TUMBLE_WEEDS) {
-			aim.clear();
-		}
-	
+
+		animsPool = new AnimsPool(new AnimsDefPool());
+		alienInfoMap.doPreLoad(animsPool);
+
 		player = new Player();
 		player.srv = this;
 		Anims playerAnims = animsPool.load("0tt");
 		player.connectAnims(playerAnims);
 		player.init();
-	
+
 		String worldName = CTC_WORLD;
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
 		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
 		maskHolder = new MasksHolder(16, masksGfx);
-	
+
 		WorldInformation wi = WorldInformation.load(worldName);
-	
+
 		try {
-			Box mapBounds = null;
 			InputStream i = TTResource.map(worldName, CTC_MAP).open();
 			DataInputStream di = new DataInputStream(i);
 			GameMap gameMap = new GameMap(di);
-	
+
 			// get the game map off the front of the stream
 			gameMap.applyRt(wi.blockRandomisationTable);
-	
+
 			// read the other things
 			for (;;) {
 				String id = readChunkId(di);
 				if (id.equals("set2")) {
 					byte[] rawSettings = new byte[0x30];
 					di.readFully(rawSettings);
-	
-					DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
-					player.c.x = dis.readShort();
-					player.c.y = dis.readShort();
-					player.goLeft = dis.readByte() != 0;
-	
-					dis.readByte(); // blkset
-					dis.readByte(); // specjsr1
-					dis.readByte(); // specjsr2
-					dis.readByte(); // specjsr3
-					int minx = dis.readByte() & 0xff;
-					int maxx = dis.readByte() & 0xff;
-					int miny = dis.readByte() & 0xff;
-					int maxy = dis.readByte() & 0xff;
-					minx *= 16;
-					maxx *= 16;
-					maxx += 15;
-					miny *= 16;
-					maxy *= 16;
-					maxy += 15;
-					mapBounds = new Box(minx, miny, maxx, maxy);
+					loadRawSettings(rawSettings);
 				}
 				else if (id.equals("obj2")) {
-					int objectCnt = 0;
 					for (;;) {
+
 						int x = di.readShort();
 						int y = di.readShort();
 						if (x < 0) break;
 						int type = di.readByte();
 						byte[] rest = new byte[21];
 						di.readFully(rest);
-						objectCnt++;
-	
-						try {
-							AlienInfo alienInfo = aim.getByType(type);
-							if (alienInfo != null) {
-								// aim.remove(type); // ONCE!
-	
-								Alien alien = alienInfo.instantiate();
-								alien.srv = this;
-								if (alienInfo.animsName != null) {
-									Anims anims = animsPool.load(alienInfo.animsName);
-									alien.connectAnims(anims);
-								}
-								if (type == 2 || type == 3) {
-									// this is what gem_render -> bob_gem does
-									x += 8;
-								}
-								alien.c.x = x;
-								alien.c.y = y;
-								alien.srcData = rest;
-								alien.load();
-	
-								if (alien instanceof LoadsFromSpriteDef) {
-									((LoadsFromSpriteDef) alien).load(adp.load(alienInfo.animsName));
-								}
-	
-								loadAlienIntoWorld(alien);
-							}
-							else {
-								TextAlien alien = new TextAlien();
-								alien.srv = this;
-								alien.setText(String.format("%d", type));
-								alien.c.x = x;
-								alien.c.y = y;
-								loadAlienIntoWorld(alien);
-							}
-						}
-						catch (InstantiationException e) {
-							throw new RuntimeException(e);
-						}
-						catch (IllegalAccessException e) {
-							throw new RuntimeException(e);
-						}
+
+						loadLegacyAlienIntoWorld(x, y, type, rest);
 					}
 				}
 				else if (id.equals("pal2")) {
@@ -762,13 +754,11 @@ public class World implements AlienServices, Joystick {
 					throw new RuntimeException("Unknown chunk: " + id);
 				}
 			}
-	
+
 			// TODO: ctor??
 			this.gameMap = gameMap;
 			this.wi = wi;
-			this.mapBounds = mapBounds;
-			this.aim = aim;
-	
+
 			// player.c.x = 1980;
 			// player.c.y = 1020;
 			snapScreenTo(player.c);
