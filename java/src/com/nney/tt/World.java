@@ -68,17 +68,6 @@ public class World implements AlienServices, Joystick {
 
 	private BlocksHolder blocksHolder;
 
-	
-	/**
-	 * A curve of sorts that dictates how much to {@link #scrollScreenTo(Coord)}
-	 * pulls tracked {@link Coord} back into the centre (given its distance from
-	 * the centre).
-	 */
-	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
-			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
-			16 };
-
-
 	final public Random rnd = new Random(5);
 	public MyFont debugFont;
 	public MyFont font;
@@ -118,8 +107,8 @@ public class World implements AlienServices, Joystick {
 
 	public WorldInformation wi;
 
-
 	private GlTexture horizon;
+	
 	private AlienTracker alienTracker = new AlienTracker();
 
 
@@ -131,6 +120,10 @@ public class World implements AlienServices, Joystick {
 		font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
 				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 	}
+	
+	// ---------------------------------------------------------------------------
+	// MOSTLY SERVICES FOR THE ALIEN IMPLEMENTATIONS TO CALL
+	
 	
 	@Override
 	public int randomness(int n) {
@@ -206,8 +199,36 @@ public class World implements AlienServices, Joystick {
 		}
 	}
 
+
+	@Override
+	public void removeOneGem(int score, Coord noticeLocation) {
+		if (isExitOpen()) {
+			score *= 2;
+		}
+		else {
+			gemCounter--;
+			System.out.println(gemCounter+" gems left!");
+		}
+		giveScore(score, noticeLocation);
+	}
+	
+	@Override
+	public boolean isExitOpen() {
+		return gemCounter==0;
+	}
+
 	// ---------------------------------------------------------------------------
 	// SCROLLING
+
+	
+	/**
+	 * A curve of sorts that dictates how much to {@link #scrollScreenTo(Coord)}
+	 * pulls tracked {@link Coord} back into the centre (given its distance from
+	 * the centre).
+	 */
+	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
+			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
+			16 };
 
 	private static int limit(int current, int min, int max) {
 		if (current < min) {
@@ -217,11 +238,6 @@ public class World implements AlienServices, Joystick {
 			current = max;
 		}
 		return current;
-	}
-
-	private void limitScreenPosition() {
-		screen.x = limit(screen.x, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
-		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
 	}
 
 	private static int shrinkDelta(int delta) {
@@ -240,6 +256,12 @@ public class World implements AlienServices, Joystick {
 
 	private static Coord screenDest(Coord c) {
 		return c.copyAndMove(-Main.SCREEN_WIDTH / 2, -Main.SCREEN_HEIGHT * 11 / 16);
+	}
+
+
+	private void limitScreenPosition() {
+		screen.x = limit(screen.x, mapBounds.left, mapBounds.right - Main.SCREEN_WIDTH);
+		screen.y = limit(screen.y, mapBounds.top, mapBounds.bottom - Main.SCREEN_HEIGHT);
 	}
 
 	private static int scrollOrd(int current, int dest) {
@@ -292,8 +314,6 @@ public class World implements AlienServices, Joystick {
 	private void drawAbsoluteDebugText(final Coord p, final String text) {
 		debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
 	}
-
-	// ---------------------------------------------------------------------------
 
 	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
@@ -386,11 +406,6 @@ public class World implements AlienServices, Joystick {
 		return (mask & joystickAA) != 0;
 	}
 
-	void setJoystickPosition(int next) {
-		int last = joystick;
-		joystick = next;
-		joystickAA = next & ~last;
-	}
 
 	@Override
 	public LadderInformation getLadderInfo() {
@@ -418,18 +433,10 @@ public class World implements AlienServices, Joystick {
 		aim.connectAnims(alien);
 		alien.srv = this;
 		alien.init();
-		alienTracker.addFresh(alien);
+		alienTracker.delayedAdd(alien);
 	}
 	
-	public void loadAlienIntoWorld(Alien alien) {
-		if (alien instanceof AbstractGemAlien) {
-			gemCounter++;
-		}
-		alien.init();
-		alienTracker.addFresh(alien);
-	}
-	
-	
+
 	@Override
 	public void giveScore(int amount, Coord location) {
 		score += amount;
@@ -443,16 +450,30 @@ public class World implements AlienServices, Joystick {
 		addNewAlien(new MagicDustAlien(location.copy()));
 	}
 
+
+	// ---------------------------------------------------------------------------
+	// UPDATING OF THINGS
 	
-	public void updateAliens() {
+	private void updateList(Iterator<Alien> alienIterator, Box screenBox) {
+		for (; alienIterator.hasNext();) {
+			Alien alien = alienIterator.next();
+			alien.freezeBounds = null;
+			alien.update();
+			if (alien.remove || alienTracker.perhapsFreezeOne(alien, screenBox)) {
+				alienIterator.remove();
+			}
+		}
+	}
+	
+	private void updateAliens() {
 		// add fresh aliens
 		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 
-		alienTracker.addFreshAndDefrosted(screenBox);
+		alienTracker.restoreDelayedAndDefrosted(screenBox);
 
-		updateAliens(alienTracker.getBackgroundAlienIterator(), screenBox);
+		updateList(alienTracker.getBackgroundAlienIterator(), screenBox);
 		player.draw();
-		updateAliens(alienTracker.foregroundAlienListIterator(), screenBox);
+		updateList(alienTracker.getForegroundAlienListIterator(), screenBox);
 
 		//
 		// Caveat1: only the background Alien gets to move the player around.
@@ -474,9 +495,6 @@ public class World implements AlienServices, Joystick {
 		// For now, it'll work how it used to. For the first time I can say "I
 		// am clear about the limits this imposes".
 		//
-
-		updateScore();
-
 	}
 
 
@@ -490,42 +508,87 @@ public class World implements AlienServices, Joystick {
 		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6+14);
 	}
 
-	private void updateAliens(Iterator<Alien> alienIterator, Box screenBox) {
-		for (; alienIterator.hasNext();) {
-			Alien alien = alienIterator.next();
-			alien.freezeBounds = null;
-			alien.update();
-			if (alien.remove) {
-				alienIterator.remove();
+	private void drawTheMap() {
+		final int BLOCK_SIZE = 16;
+		final int BLOCK_MASK = BLOCK_SIZE - 1;
+		final int SCREEN_HEIGHT_IN_BLOCKS = (Main.SCREEN_HEIGHT + BLOCK_MASK) / BLOCK_SIZE + 1;
+		final int SCREEN_WIDTH_IN_BLOCKS = (Main.SCREEN_WIDTH + BLOCK_MASK) / BLOCK_SIZE + 1;
+
+		int[] blockrow = new int[SCREEN_WIDTH_IN_BLOCKS];
+
+		int screenX = screen.x;
+		int screenY = screen.y;
+		int pixelDestY = -(screenY & BLOCK_MASK);
+		int blockSrcY = screenY / BLOCK_SIZE;
+		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
+			int pixelDestX = -(screenX & BLOCK_MASK);
+			int blockSrcX = screenX / BLOCK_SIZE;
+			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
+				blockrow[loopX] = gameMap.getBlock(blockSrcX + loopX, blockSrcY);
 			}
-			else {
-				alienTracker.perhapsFreezeOne(alien, alienIterator, screenBox);
-			}
+			blocksHolder.draw(blockrow, pixelDestX, pixelDestY);
+			pixelDestY += BLOCK_SIZE;
+			blockSrcY++;
 		}
 	}
 
-	// ---------------------------------------------------------------------------
+	private void drawTheHorizon() {
+		horizon.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
+	}
 
-	@Override
-	public void removeOneGem(int score, Coord noticeLocation) {
-		if (isExitOpen()) {
-			score *= 2;
+	private void setJoystickPosition(int next) {
+		int last = joystick;
+		joystick = next;
+		joystickAA = next & ~last;
+	}
+
+	void updateEverything(int j) {
+		frameNumber++;
+		
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+		GlTools.configureFor2dBobs();
+
+		setJoystickPosition(j);
+		player.move();
+
+		if (CTC_HARD_SCROLLING) {
+			snapScreenTo(player.c);
 		}
 		else {
-			gemCounter--;
-			System.out.println(gemCounter+" gems left!");
+			scrollScreenTo(player.c);
 		}
-		giveScore(score, noticeLocation);
-	}
-	
-	@Override
-	public boolean isExitOpen() {
-		return gemCounter==0;
+
+		// for (int x=0; x<15; x++) {
+		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
+		// }
+
+		//
+		// draw everything
+		//
+
+		drawTheHorizon();
+		drawTheMap();
+
+		// font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d",
+		// frameNumber));
+		updateAliens();
+		
+
+		updateScore();
 	}
 
 	// ---------------------------------------------------------------------------
 	// MAP LOADING
 	
+	private void loadAlienIntoWorld(Alien alien) {
+		if (alien instanceof AbstractGemAlien) {
+			gemCounter++;
+		}
+		alien.init();
+		alienTracker.delayedAdd(alien);
+	}
+
 	private String readChunkId(DataInputStream di) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		for (int r = 4; r-- > 0;) {
@@ -536,14 +599,15 @@ public class World implements AlienServices, Joystick {
 		return id;
 	}
 
+	
 	void init() {
 		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
+	
 		AnimsDefPool adp = new AnimsDefPool();
 		AnimsPool animsPool = new AnimsPool(adp);
-
+	
 		AlienInfoMap aim = new AlienInfoMap(animsPool);
 		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
 		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
@@ -577,46 +641,46 @@ public class World implements AlienServices, Joystick {
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
-
+	
 		if (CTC_TUMBLE_WEEDS) {
 			aim.clear();
 		}
-
+	
 		player = new Player();
 		player.srv = this;
 		Anims playerAnims = animsPool.load("0tt");
 		player.connectAnims(playerAnims);
 		player.init();
-
+	
 		String worldName = CTC_WORLD;
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
 		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
 		maskHolder = new MasksHolder(16, masksGfx);
-
+	
 		WorldInformation wi = WorldInformation.load(worldName);
-
+	
 		try {
 			Box mapBounds = null;
 			InputStream i = TTResource.map(worldName, CTC_MAP).open();
 			DataInputStream di = new DataInputStream(i);
 			GameMap gameMap = new GameMap(di);
-
+	
 			// get the game map off the front of the stream
 			gameMap.applyRt(wi.blockRandomisationTable);
-
+	
 			// read the other things
 			for (;;) {
 				String id = readChunkId(di);
 				if (id.equals("set2")) {
 					byte[] rawSettings = new byte[0x30];
 					di.readFully(rawSettings);
-
+	
 					DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
 					player.c.x = dis.readShort();
 					player.c.y = dis.readShort();
 					player.goLeft = dis.readByte() != 0;
-
+	
 					dis.readByte(); // blkset
 					dis.readByte(); // specjsr1
 					dis.readByte(); // specjsr2
@@ -643,12 +707,12 @@ public class World implements AlienServices, Joystick {
 						byte[] rest = new byte[21];
 						di.readFully(rest);
 						objectCnt++;
-
+	
 						try {
 							AlienInfo alienInfo = aim.getByType(type);
 							if (alienInfo != null) {
 								// aim.remove(type); // ONCE!
-
+	
 								Alien alien = alienInfo.instantiate();
 								alien.srv = this;
 								if (alienInfo.animsName != null) {
@@ -663,11 +727,11 @@ public class World implements AlienServices, Joystick {
 								alien.c.y = y;
 								alien.srcData = rest;
 								alien.load();
-
+	
 								if (alien instanceof LoadsFromSpriteDef) {
 									((LoadsFromSpriteDef) alien).load(adp.load(alienInfo.animsName));
 								}
-
+	
 								loadAlienIntoWorld(alien);
 							}
 							else {
@@ -698,19 +762,13 @@ public class World implements AlienServices, Joystick {
 					throw new RuntimeException("Unknown chunk: " + id);
 				}
 			}
-
-			debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
-					MyFont.characterRangeHelper(0, 128));
-
-			font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
-					"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
-
+	
 			// TODO: ctor??
 			this.gameMap = gameMap;
 			this.wi = wi;
 			this.mapBounds = mapBounds;
 			this.aim = aim;
-
+	
 			// player.c.x = 1980;
 			// player.c.y = 1020;
 			snapScreenTo(player.c);
@@ -718,69 +776,5 @@ public class World implements AlienServices, Joystick {
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	// ---------------------------------------------------------------------------
-
-	private void drawTheMap() {
-		final int BLOCK_SIZE = 16;
-		final int BLOCK_MASK = BLOCK_SIZE - 1;
-		final int SCREEN_HEIGHT_IN_BLOCKS = (Main.SCREEN_HEIGHT + BLOCK_MASK) / BLOCK_SIZE + 1;
-		final int SCREEN_WIDTH_IN_BLOCKS = (Main.SCREEN_WIDTH + BLOCK_MASK) / BLOCK_SIZE + 1;
-
-		int[] blockrow = new int[SCREEN_WIDTH_IN_BLOCKS];
-
-		int screenX = screen.x;
-		int screenY = screen.y;
-		int pixelDestY = -(screenY & BLOCK_MASK);
-		int blockSrcY = screenY / BLOCK_SIZE;
-		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
-			int pixelDestX = -(screenX & BLOCK_MASK);
-			int blockSrcX = screenX / BLOCK_SIZE;
-			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
-				blockrow[loopX] = gameMap.getBlock(blockSrcX + loopX, blockSrcY);
-			}
-			blocksHolder.draw(blockrow, pixelDestX, pixelDestY);
-			pixelDestY += BLOCK_SIZE;
-			blockSrcY++;
-		}
-	}
-
-	private void drawTheHorizon() {
-		horizon.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
-	}
-
-	void drawEverything(int j) {
-		frameNumber++;
-		
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-
-		GlTools.configureFor2dBobs();
-
-		joystick = j;
-		player.move();
-
-		if (CTC_HARD_SCROLLING) {
-			snapScreenTo(player.c);
-		}
-		else {
-			scrollScreenTo(player.c);
-		}
-
-		// for (int x=0; x<15; x++) {
-		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
-		// }
-
-		//
-		// draw everything
-		//
-
-		drawTheHorizon();
-		drawTheMap();
-
-		// font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d",
-		// frameNumber));
-		updateAliens();
-
 	}
 }

@@ -109,7 +109,7 @@ public class Main {
 
 			handleKeyboard();
 
-			world.drawEverything(readJoystick());
+			world.updateEverything(readJoystick());
 
 			Display.update();
 			if (Display.isCloseRequested()) {

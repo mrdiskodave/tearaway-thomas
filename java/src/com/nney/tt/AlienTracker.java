@@ -8,45 +8,14 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 
 public class AlienTracker {
-	private List<Alien> backgroundAlienList = new LinkedList<Alien>();
-	private List<Alien> foregroundAlienList = new LinkedList<Alien>();
-	private List<Alien> freshAlienList = new LinkedList<Alien>();
+	final private List<Alien> backgroundAlienList = new LinkedList<Alien>();
+	final private List<Alien> foregroundAlienList = new LinkedList<Alien>();
+	final private List<Alien> delayedAdditions = new LinkedList<Alien>();
 
-	private Fridge<Alien> freezeTop = new Fridge<Alien>("top");
-	private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
-	private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
-	private Fridge<Alien> freezeRight = new Fridge<Alien>("right");
-
-	// ---------------------------------------------------------------------------
-	// REFRIGERATION
-	
-	public boolean perhapsFreezeOne(Alien alien, Iterator<Alien> alienIterator, Box screenBox) {
-		Box fb = alien.freezeBounds;
-		if (fb == null) {
-			return false;
-		}
-		if (fb.right < screenBox.left) {
-			freezeOne(alien, alienIterator, freezeLeft, -fb.right);
-		}
-		else if (fb.bottom < screenBox.top) {
-			freezeOne(alien, alienIterator, freezeTop, -fb.bottom);
-		}
-		else if (fb.left > screenBox.right) {
-			freezeOne(alien, alienIterator, freezeRight, fb.left);
-		}
-		else if (fb.top > screenBox.bottom) {
-			freezeOne(alien, alienIterator, freezeBottom, fb.top);
-		}
-		else {
-			return false;
-		}
-		return true;
-	}
-
-	private void freezeOne(Alien alien, Iterator<Alien> alienIterator, Fridge<Alien> fridge, int restore) {
-		alienIterator.remove();
-		fridge.add(alien, restore);
-	}
+	final private Fridge<Alien> freezeTop = new Fridge<Alien>("top");
+	final private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
+	final private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
+	final private Fridge<Alien> freezeRight = new Fridge<Alien>("right");
 
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
 		for (;;) {
@@ -56,39 +25,57 @@ public class AlienTracker {
 		}
 	}
 
-	private void defrostAny(Box screenBox) {
+	private void addAlien(Alien alien) {
+		List<Alien> target = alien.inFront ? foregroundAlienList : backgroundAlienList;
+		target.add(alien);
+	}
+
+	public boolean perhapsFreezeOne(Alien alien, Box screenBox) {
+		Box fb = alien.freezeBounds;
+		if (fb == null) {
+			return false;
+		}
+		if (fb.right < screenBox.left) {
+			freezeLeft.add(alien, (-fb.right));
+		}
+		else if (fb.bottom < screenBox.top) {
+			freezeTop.add(alien, (-fb.bottom));
+		}
+		else if (fb.left > screenBox.right) {
+			freezeRight.add(alien, fb.left);
+		}
+		else if (fb.top > screenBox.bottom) {
+			freezeBottom.add(alien, fb.top);
+		}
+		else {
+			return false;
+		}
+		return true;
+	}
+
+	public void delayedAdd(Alien alien) {
+		delayedAdditions.add(alien);
+	}
+	
+	public void restoreDelayedAndDefrosted(Box screenBox) {
+		// delayed
+		for (Alien alien: delayedAdditions) {
+			addAlien(alien);
+		}
+		delayedAdditions.clear();
+		
+		// defrosted
 		defrostAnyFrom(freezeLeft, -screenBox.left);
 		defrostAnyFrom(freezeTop, -screenBox.top);
 		defrostAnyFrom(freezeRight, screenBox.right);
 		defrostAnyFrom(freezeBottom, screenBox.bottom);
 	}
 
-	private void addAlien(Alien alien) {
-		List<Alien> target = alien.inFront ? foregroundAlienList : backgroundAlienList;
-		target.add(alien);
-	}
-
-	public void addFresh(Alien alien) {
-		freshAlienList.add(alien);
-	}
-	
-	public void addFreshAndDefrosted(Box screenBox) {
-		for (Alien alien: freshAlienList) {
-			addAlien(alien);
-		}
-		freshAlienList.clear();
-		
-		defrostAny(screenBox);
-	}
-
-	public Iterator<Alien> foregroundAlienListIterator() {
+	public Iterator<Alien> getForegroundAlienListIterator() {
 		return foregroundAlienList.iterator();
 	}
 
 	public Iterator<Alien> getBackgroundAlienIterator() {
 		return backgroundAlienList.iterator();
 	}
-
-
-
 }
