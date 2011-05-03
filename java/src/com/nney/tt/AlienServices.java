@@ -92,4 +92,6 @@ public interface AlienServices {
 	 *            all that we have notice-graphics for!
 	 */
 	void giveScore(int amount, Coord noticeLocation);
+
+	void magicDust(Coord where);
 }

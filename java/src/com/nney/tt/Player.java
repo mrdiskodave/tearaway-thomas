@@ -826,7 +826,12 @@ public class Player extends Alien {
 		perhapsStartLadderMode();
 		perhapsStartSlideMode();
 
-		// System.out.println("Mode:" + mode);
+		if (mode == Mode.WALK) {
+			if (srv.frameTest(2, 1) && srv.blockInfoIs(c, "magic")) {
+				srv.magicDust(c.copyAndMove(srv.randomness(17)-8, 0));
+			}
+		}
+
 		if (mode == Mode.WALK || mode == Mode.LIFT || mode == Mode.AIR) {
 			//
 			// X

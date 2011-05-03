@@ -22,6 +22,7 @@ import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.AbstractGemAlien;
 import com.nney.tt.aliens.LiftAlien;
+import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
@@ -156,7 +157,7 @@ public class Main {
 		AnimsDefPool adp = new AnimsDefPool();
 		AnimsPool animsPool = new AnimsPool(adp);
 
-		AlienInfoMap aim = new AlienInfoMap(animsPool.getOurMapOut());
+		AlienInfoMap aim = new AlienInfoMap(animsPool);
 		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
 		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
@@ -186,15 +187,10 @@ public class Main {
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
-		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
+		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
+		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 
-		// preload some anims even if they aren't in use in the level
-		// as we'll be deploying them live during the game
-		animsPool.load("0scor");
-		
-		// TODO: ! head jumping
-		
 		if (CTC_TUMBLE_WEEDS) {
 			aim.clear();
 		}

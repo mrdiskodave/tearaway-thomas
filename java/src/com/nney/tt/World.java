@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -73,7 +74,7 @@ public class World implements AlienServices, Joystick {
 	public AlienInfoMap aim;
 
 
-	
+
 	@Override
 	public int randomness(int n) {
 		return rnd.nextInt(n);
@@ -371,6 +372,12 @@ public class World implements AlienServices, Joystick {
 		}
 	}
 
+	@Override
+	public void magicDust(Coord location) {
+		addNewAlien(new MagicDustAlien(location.copy()));
+	}
+
+	
 	public void updateAliens() {
 		for (Alien alien: freshAlienList) {
 			addAlien(alien);
@@ -485,4 +492,5 @@ public class World implements AlienServices, Joystick {
 			addAlien(a);
 		}
 	}
+
 }

@@ -1,6 +1,5 @@
 package com.nney.tt.sprites;
 
-import java.util.Map;
 import java.util.TreeMap;
 
 public abstract class CachedLoader<K, V> {
@@ -14,8 +13,8 @@ public abstract class CachedLoader<K, V> {
 		return answer;
 	}
 	
-	public Map<K, V> getOurMapOut() {
-		return pool;
+	public V directGet(K k) {
+		return pool.get(k);
 	}
 
 	protected abstract V populatePool(K k);
