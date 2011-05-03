@@ -11,7 +11,7 @@ public class TextAlien extends Alien {
 	
 	@Override
 	public void update() {
-		srv.queueDebugText(c, text);
+		srv.drawDebugText(c, text);
 	}
 
 }

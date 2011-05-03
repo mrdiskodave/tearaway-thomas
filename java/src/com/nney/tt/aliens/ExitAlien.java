@@ -7,6 +7,6 @@ public class ExitAlien extends Alien {
 	public void update() {
 		changeAnimation(srv.isExitOpen() ? "open" : "shut");
 		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
+		srv.drawSprite(c, s);
 	}
 }

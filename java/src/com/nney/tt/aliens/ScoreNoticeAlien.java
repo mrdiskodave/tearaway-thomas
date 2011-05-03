@@ -17,12 +17,13 @@ public class ScoreNoticeAlien extends Alien {
 	@Override
 	public void init() {
 		changeAnimation(Integer.toString(what));
+		inFront = true;
 	}
 
 	@Override
 	public void update() {
 		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
+		srv.drawSprite(c, s);
 		if (--timer<0) {
 			done();
 		}

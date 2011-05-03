@@ -16,7 +16,7 @@ public class MagicDustAlien extends Alien {
 	@Override
 	public void update() {
 		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
+		srv.drawSprite(c, s);
 		if (animPlayer.hasAnimEnded()) {
 			done();
 		}

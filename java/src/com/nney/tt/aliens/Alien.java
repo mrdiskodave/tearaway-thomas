@@ -15,7 +15,7 @@ public abstract class Alien {
 	private Anims spriteSet;
 	public byte[] srcData;
 	public boolean remove;
-	public boolean infront;
+	public boolean inFront;
 	public Box freezeBounds;
 	public AlienServices srv;
 
@@ -80,7 +80,7 @@ public abstract class Alien {
 	protected void draw(Coord c2) {
 		Sprite s = nextFrame();
 		if (s != null) {
-			srv.queueSprite(c2, s);
+			srv.drawSprite(c2, s);
 		}
 	}
 

@@ -9,7 +9,7 @@ public class ArrowAlien extends Alien {
 
 	@Override
 	public void init() {
-		infront = true;
+		inFront = true;
 	}
 	
 	@Override
@@ -38,7 +38,7 @@ public class ArrowAlien extends Alien {
 		if (on) {
 			changeAnimation(0);
 			Sprite s = nextFrame();
-			srv.queueSprite(c, s);
+			srv.drawSprite(c, s);
 		}
 	}
 }

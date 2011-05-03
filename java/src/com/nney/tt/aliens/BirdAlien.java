@@ -7,7 +7,7 @@ public class BirdAlien extends LeftRightAlien {
 	public void update() {
 		moveLeftRight(2);
 		Sprite s = nextFrame();
-		srv.queueSprite(c, s);
+		srv.drawSprite(c, s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
 			srv.getThePlayer().stun();
 		}

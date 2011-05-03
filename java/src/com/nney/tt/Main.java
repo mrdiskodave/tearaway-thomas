@@ -1,8 +1,5 @@
 package com.nney.tt;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 
 import org.lwjgl.LWJGLException;
@@ -12,68 +9,14 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.json.DataItem;
-import com.nney.json.JsonException;
-import com.nney.json.JsonValue;
-import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.ArrowAlien;
-import com.nney.tt.aliens.BearAlien;
-import com.nney.tt.aliens.BirdAlien;
-import com.nney.tt.aliens.ExitAlien;
-import com.nney.tt.aliens.AbstractGemAlien;
-import com.nney.tt.aliens.LiftAlien;
-import com.nney.tt.aliens.MagicDustAlien;
-import com.nney.tt.aliens.PurpleGemAlien;
-import com.nney.tt.aliens.ScoreNoticeAlien;
-import com.nney.tt.aliens.ShieldAlien;
-import com.nney.tt.aliens.SpriteAlien;
-import com.nney.tt.aliens.StopAlien;
-import com.nney.tt.aliens.TextAlien;
-import com.nney.tt.aliens.YellowGemAlien;
-import com.nney.tt.geom.Box;
-import com.nney.tt.gfx.BlocksHolder;
-import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
-import com.nney.tt.gfx.SimpleImage;
-import com.nney.tt.map.BlockInformation;
-import com.nney.tt.map.BlockRandomisationTable;
-import com.nney.tt.map.GameMap;
-import com.nney.tt.map.MasksHolder;
-import com.nney.tt.resources.TTResource;
-import com.nney.tt.sprites.Anims;
-import com.nney.tt.sprites.AnimsDefPool;
-import com.nney.tt.sprites.AnimsPool;
-import com.nney.utils.Openable;
-import com.nney.utils.OpenableTools;
-import com.nney.utils.StringIO;
 
 public class Main {
-	// // lift
-	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 9;
-
-	// ladders & ice
-	// private static final String CTC_WORLD = "i";
-	// private static final int CTC_MAP = 0;
-
-	/**
-	 * Compile time configuration: play in level containing only the map.
-	 */
-	private static final boolean CTC_TUMBLE_WEEDS = false;
-
-	/**
-	 * Compile time configuration:
-	 */
-	private static final boolean CTC_HARD_SCROLLING = false;
 
 	private static final int ZOOM = 2;
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
-
-	private static final boolean CTC_SEE_MASKS = false;
-
-	private BlocksHolder blocksHolder;
 
 	private World world = new World();
 
@@ -82,12 +25,6 @@ public class Main {
 	private FpsReporter fpsRep;
 
 	public HashSet<Integer> keys = new HashSet<Integer>();
-
-	private int frameNumber;
-
-	private Player player;
-
-	private GlTexture horizon;
 
 	private void initLwjgl() {
 		try {
@@ -101,7 +38,7 @@ public class Main {
 		}
 	}
 
-	private void readJoystick() {
+	private int readJoystick() {
 		int x = 0;
 		if (testKey(Keyboard.KEY_Q)) {
 			x |= Joystick.UP;
@@ -118,7 +55,7 @@ public class Main {
 		if (testKey(Keyboard.KEY_SPACE)) {
 			x |= Joystick.FIRE;
 		}
-		world.setJoystickPosition(x);
+		return x;
 	}
 
 	private boolean testKey(int key) {
@@ -139,297 +76,8 @@ public class Main {
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 
-	private String readChunkId(DataInputStream di) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		for (int r = 4; r-- > 0;) {
-			sb.append((char) di.readByte());
-		}
-		String id = sb.toString();
-		System.out.println("Got chunk: >" + id + "<");
-		return id;
-	}
-
-	private void init() {
-		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
-		AnimsDefPool adp = new AnimsDefPool();
-		AnimsPool animsPool = new AnimsPool(adp);
-
-		AlienInfoMap aim = new AlienInfoMap(animsPool);
-		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
-		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
-		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
-		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
-		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
-		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
-		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
-		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
-		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
-		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
-		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
-		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
-		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
-		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
-//		ail.add(new AlienInfo(34, null, ScoreGivingAlien.class));
-		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
-		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
-		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
-		aim.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
-		aim.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
-		aim.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
-		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
-		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
-		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
-		aim.add(new AlienInfo(72, "wlog0", LiftAlien.class));
-		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
-		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
-		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
-		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
-		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
-		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
-
-		if (CTC_TUMBLE_WEEDS) {
-			aim.clear();
-		}
-
-		player = new Player();
-		player.srv = world;
-		Anims playerAnims = animsPool.load("0tt");
-		player.connectAnims(playerAnims);
-		player.init();
-
-		String worldName = CTC_WORLD;
-		Openable blocksGfx = TTResource.blocks(worldName);
-		Openable masksGfx = TTResource.blockMask(worldName);
-		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
-		MasksHolder maskHolder = new MasksHolder(16, masksGfx);
-
-		BlockRandomisationTable rt;
-		BlockInformation bi;
-		LadderInfo ladderInfo = null;
-
-		try {
-			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
-			JsonValue v = JsonValue.parse(t);
-			rt = new BlockRandomisationTable(v.requireField("rt"));
-			bi = new BlockInformation(v.requireField("spec"));
-			if (v.fieldExists("ladder")) {
-				DataItem ladderDi = v.requireField("ladder");
-				int top = ladderDi.requireField("top").requireInt();
-				int bottom = ladderDi.requireField("bottom").requireInt();
-				ladderInfo = new LadderInfo(top, bottom);
-			}
-
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		catch (JsonException e) {
-			throw new RuntimeException(e);
-		}
-
-		try {
-			Box mapBounds = null;
-			InputStream i = TTResource.map(worldName, CTC_MAP).open();
-			DataInputStream di = new DataInputStream(i);
-
-			// get the game map off the front of the stream
-			GameMap gameMap = new GameMap(di);
-			gameMap.applyRt(rt);
-
-			// read the other things
-			for (;;) {
-				String id = readChunkId(di);
-				if (id.equals("set2")) {
-					player.c.x = di.readShort();
-					player.c.y = di.readShort();
-					player.goLeft = di.readByte() != 0;
-
-					di.readByte(); // blkset
-					di.readByte(); // specjsr1
-					di.readByte(); // specjsr2
-					di.readByte(); // specjsr3
-					int minx = di.readByte() & 0xff;
-					int maxx = di.readByte() & 0xff;
-					int miny = di.readByte() & 0xff;
-					int maxy = di.readByte() & 0xff;
-					minx *= 16;
-					maxx *= 16;
-					maxx += 15;
-					miny *= 16;
-					maxy *= 16;
-					maxy += 15;
-					mapBounds = new Box(minx, miny, maxx, maxy);
-					// mapBounds = new Box(0, 0, Integer.MAX_VALUE,
-					// Integer.MAX_VALUE);
-
-					for (int r = 0x30 - 5 - 4 - 4; r-- > 0;) {
-						di.readByte();
-					}
-				}
-				else if (id.equals("obj2")) {
-					int objectCnt = 0;
-					for (;;) {
-						int x = di.readShort();
-						int y = di.readShort();
-						if (x < 0) break;
-						int type = di.readByte();
-						byte[] rest = new byte[21];
-						for (int o = 0; o < 21; o++) {
-							rest[o] = di.readByte();
-						}
-						objectCnt++;
-
-						try {
-							AlienInfo alienInfo = aim.getByType(type);
-							if (alienInfo != null) {
-//								aim.remove(type); // ONCE!
-								
-								Alien alien = alienInfo.instantiate();
-								alien.srv = world;
-								if (alienInfo.animsName != null) {
-									Anims anims = animsPool.load(alienInfo.animsName);
-									alien.connectAnims(anims);
-								}
-								if (type == 2 || type == 3) {
-									// this is what gem_render -> bob_gem does
-									x += 8;
-								}
-								alien.c.x = x;
-								alien.c.y = y;
-								alien.srcData = rest;
-								alien.load();
-
-								if (alien instanceof LoadsFromSpriteDef) {
-									((LoadsFromSpriteDef) alien).load(adp.load(alienInfo.animsName));
-								}
-
-								world.loadAlienIntoWorld(alien);
-							}
-							else {
-								TextAlien alien = new TextAlien();
-								alien.srv = world;
-								alien.setText(String.format("%d", type));
-								alien.c.x = x;
-								alien.c.y = y;
-								world.loadAlienIntoWorld(alien);
-							}
-						}
-						catch (InstantiationException e) {
-							throw new RuntimeException(e);
-						}
-						catch (IllegalAccessException e) {
-							throw new RuntimeException(e);
-						}
-					}
-				}
-				else if (id.equals("pal2")) {
-					while (di.readShort() != -1) {
-					}
-				}
-				else if (id.equals("end!")) {
-					break;
-				}
-				else {
-					throw new RuntimeException("Unknown chunk: " + id);
-				}
-			}
-
-			world.debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
-					MyFont.characterRangeHelper(0, 128));
-
-			world.font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
-					"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
-
-
-			// TODO: ctor??
-			world.gameMap = gameMap;
-			world.maskHolder = maskHolder;
-			world.bi = bi;
-			world.player = player;
-			world.mapBounds = mapBounds;
-			world.ladderInfo = ladderInfo;
-			world.aim = aim;
-
-			// player.c.x = 1980;
-			// player.c.y = 1020;
-			world.snapScreenTo(player.c);
-
-			// bear.c.x = 455;
-			// bear.c.y = 818 + 50;
-
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
-	private void drawTheMap() {
-		final int BLOCK_SIZE = 16;
-		final int BLOCK_MASK = BLOCK_SIZE - 1;
-		final int SCREEN_HEIGHT_IN_BLOCKS = (SCREEN_HEIGHT + BLOCK_MASK) / BLOCK_SIZE + 1;
-		final int SCREEN_WIDTH_IN_BLOCKS = (SCREEN_WIDTH + BLOCK_MASK) / BLOCK_SIZE + 1;
-
-		int[] blockrow = new int[SCREEN_WIDTH_IN_BLOCKS];
-
-		int screenX = world.screen.x;
-		int screenY = world.screen.y;
-		int pixelDestY = -(screenY & BLOCK_MASK);
-		int blockSrcY = screenY / BLOCK_SIZE;
-		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
-			int pixelDestX = -(screenX & BLOCK_MASK);
-			int blockSrcX = screenX / BLOCK_SIZE;
-			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
-				blockrow[loopX] = world.gameMap.getBlock(blockSrcX + loopX, blockSrcY);
-			}
-			blocksHolder.draw(blockrow, pixelDestX, pixelDestY);
-			pixelDestY += BLOCK_SIZE;
-			blockSrcY++;
-		}
-	}
-
-	private void drawEverything() {
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-
-		GlTools.configureFor2dBobs();
-
-		readJoystick();
-		player.move();
-
-		if (CTC_HARD_SCROLLING) {
-			world.snapScreenTo(player.c);
-		}
-		else {
-			world.scrollScreenTo(player.c);
-		}
-
-		// for (int x=0; x<15; x++) {
-		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
-		// }
-
-		//
-		// draw everything
-		//
-
-		drawTheHorizon();
-		drawTheMap();
-
-//		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
-		world.updateAliens();
-
-
-	}
-
-	private void drawTheHorizon() {
-		horizon.stretchDraw(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
-	}
-
 	// ---------------------------------------------------------------------------
-	
+
 	private void handleKeyboard() {
 		while (Keyboard.next()) {
 			int key = Keyboard.getEventKey();
@@ -449,19 +97,19 @@ public class Main {
 	private void run() {
 		initLwjgl();
 		initOpenGL();
-		init();
+		world.init2();
+		
+		
+		world.init();
 
 		int requestedFps = 50;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			Display.sync(requestedFps);
 
-			frameNumber++;
-			world.frameNumber = frameNumber;
-
 			handleKeyboard();
 
-			drawEverything();
+			world.drawEverything(readJoystick());
 
 			Display.update();
 			if (Display.isCloseRequested()) {

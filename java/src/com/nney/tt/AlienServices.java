@@ -23,11 +23,11 @@ public interface AlienServices {
 
 	boolean frameTest(int mask, int lessThan);
 
-	void queueSprite(Coord c, Sprite s);
+	void drawSprite(Coord c, Sprite s);
 
-	void queueSprite(Coord c, Sprite s, boolean drawWhite);
+	void drawSprite(Coord c, Sprite s, boolean drawWhite);
 
-	void queueDebugText(Coord c, String text);
+	void drawDebugText(Coord c, String text);
 
 	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
 
@@ -75,7 +75,7 @@ public interface AlienServices {
 
 	String blockInfoHas(Coord c, String prefix);
 
-	LadderInfo getLadderInfo();
+	LadderInformation getLadderInfo();
 
 	boolean fall(Coord c, int fallSpeed);
 

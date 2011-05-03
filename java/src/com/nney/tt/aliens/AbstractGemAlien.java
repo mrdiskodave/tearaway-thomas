@@ -33,7 +33,7 @@ public abstract class AbstractGemAlien extends AbstractBonusAlien {
 			wobblePhase %= WOBBLE.length;
 		}
 		Sprite s = nextFrame();
-		srv.queueSprite(c2, s);
+		srv.drawSprite(c2, s);
 
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 			srv.removeOneGem(ourValue(), c.copyAndMove(0, -8));

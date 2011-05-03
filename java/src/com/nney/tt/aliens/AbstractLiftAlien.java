@@ -44,7 +44,7 @@ public abstract class AbstractLiftAlien extends Alien {
 	public void update() {
 		moveIfWeNeedTo();
 
-		srv.queueSprite(c, ourSprite);
+		srv.drawSprite(c, ourSprite);
 
 		Player p = srv.getThePlayer();
 		if (p.isReadyToBoardALift()) {

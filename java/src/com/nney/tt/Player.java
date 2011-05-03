@@ -565,7 +565,7 @@ public class Player extends Alien {
 	}
 
 	private boolean testLadder(int dx, int dy) {
-		LadderInfo li = srv.getLadderInfo();
+		LadderInformation li = srv.getLadderInfo();
 		return li != null && testLadder(c.copyAndMove(dx, dy + li.top))
 				&& testLadder(c.copyAndMove(dx, dy + li.bottom));
 	}
@@ -912,7 +912,7 @@ public class Player extends Alien {
 	}
 
 	public void draw() {
-		srv.queueSprite(c, playerSprite, drawInWhite);
+		srv.drawSprite(c, playerSprite, drawInWhite);
 	}
 
 	public void giveShield() {
@@ -992,3 +992,6 @@ public class Player extends Alien {
 		return false;
 	}
 }
+
+// TODO: ! it does look like I can land on stuff (from the side)
+// while still planly going upwards .. investigate
