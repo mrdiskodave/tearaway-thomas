@@ -3,13 +3,7 @@ package com.nney.tt;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -28,7 +22,6 @@ import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.LiftAlien;
-import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SpriteAlien;
@@ -44,9 +37,9 @@ import com.nney.tt.map.BlockRandomisationTable;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.resources.TTResource;
-import com.nney.tt.sprites.SpriteDefPool;
-import com.nney.tt.sprites.SpriteSet;
-import com.nney.tt.sprites.SpriteSetPool;
+import com.nney.tt.sprites.Anims;
+import com.nney.tt.sprites.AnimsDefPool;
+import com.nney.tt.sprites.AnimsPool;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 import com.nney.utils.StringIO;
@@ -87,23 +80,11 @@ public class Main {
 
 	public HashSet<Integer> keys = new HashSet<Integer>();
 
-	private MyFont font;
-
-	private MyFont debugFont;
-
 	private int frameNumber;
 
 	private Player player;
 
 	private GlTexture horizon;
-
-	private SpriteSet pss;
-
-	private PrerenderedText scoreText;
-
-	private PrerenderedText gemsText;
-
-	private PrerenderedText timeText;
 
 	private void initLwjgl() {
 		try {
@@ -170,59 +151,54 @@ public class Main {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
-		// TODO: !scores 1, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2500, 5000
-		List<AlienInfo> ail = new ArrayList<AlienInfo>();
-		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
-		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
-		ail.add(new AlienInfo(4, "0exit", ExitAlien.class));
-		ail.add(new AlienInfo(5, "0shld", ShieldAlien.class));
-		ail.add(new AlienInfo(8, "0arru", ArrowAlien.class));
-		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
-		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
-		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
-		ail.add(new AlienInfo(14, "0wing", WingAlien.class));
-		ail.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
-		ail.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
-		ail.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
-		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
-		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
-		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
+		AnimsDefPool adp = new AnimsDefPool();
+		AnimsPool animsPool = new AnimsPool(adp);
+
+		AlienInfoMap aim = new AlienInfoMap(animsPool);
+		aim.add(new AlienInfo(2, "0ygem", GemAlien.class));
+		aim.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
+		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
+		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
+		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
+		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
+		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
+		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
+		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
+		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
+		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
+		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
+		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
+		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
 //		ail.add(new AlienInfo(34, null, ScoreGivingAlien.class));
-		ail.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
-		ail.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
-		ail.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
-		ail.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
-		ail.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
-		ail.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
-		ail.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
-		ail.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
-		ail.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
-		ail.add(new AlienInfo(72, "wlog0", LiftAlien.class));
-		ail.add(new AlienInfo(75, "wbird", BirdAlien.class));
-		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
-		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
+		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
+		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
+		aim.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
+		aim.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
+		aim.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
+		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
+		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
+		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
+		aim.add(new AlienInfo(72, "wlog0", LiftAlien.class));
+		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
+		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
+		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
+		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
+		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 
 		// TODO: ! head jumping
 		// TODO: ! score tracking & drawing :)
 		
-		if (CTC_TUMBLE_WEEDS) {
-			ail.clear();
-		}
-		ail.add(new AlienInfo(13, "0stop", StopAlien.class));
+//		if (CTC_TUMBLE_WEEDS) {
+//			ail.clear();
+//		}
 
-		Map<Integer, AlienInfo> aim = new HashMap<Integer, AlienInfo>();
-		for (AlienInfo alienInfo : ail) {
-			aim.put(alienInfo.id, alienInfo);
-		}
-
-		SpriteDefPool sdp = new SpriteDefPool();
-		SpriteSetPool spriteSetPool = new SpriteSetPool(sdp);
 
 		player = new Player();
 		player.srv = world;
-		SpriteSet playerSpriteSet = spriteSetPool.load("0tt");
-		pss = playerSpriteSet;
-		player.connectSpriteSet(playerSpriteSet);
+		Anims playerAnims = animsPool.load("0tt");
+		player.connectAnims(playerAnims);
 		player.init();
 
 		String worldName = CTC_WORLD;
@@ -308,15 +284,15 @@ public class Main {
 						objectCnt++;
 
 						try {
-							AlienInfo alienInfo = aim.get(type);
+							AlienInfo alienInfo = aim.getByType(type);
 							if (alienInfo != null) {
 //								aim.remove(type); // ONCE!
 								
 								Alien alien = alienInfo.instantiate();
 								alien.srv = world;
-								if (alienInfo.spriteSetName != null) {
-									SpriteSet ss = spriteSetPool.load(alienInfo.spriteSetName);
-									alien.connectSpriteSet(ss);
+								if (alienInfo.animsName != null) {
+									Anims anims = animsPool.load(alienInfo.animsName);
+									alien.connectAnims(anims);
 								}
 								if (type == 2 || type == 3) {
 									// this is what gem_render -> bob_gem does
@@ -328,11 +304,11 @@ public class Main {
 								alien.load();
 
 								if (alien instanceof LoadsFromSpriteDef) {
-									((LoadsFromSpriteDef) alien).load(sdp.load(alienInfo.spriteSetName));
+									((LoadsFromSpriteDef) alien).load(adp.load(alienInfo.animsName));
 								}
 
 								alien.init();
-								world.saveAlien(alien);
+								world.addAlien(alien);
 							}
 							else {
 								TextAlien alien = new TextAlien();
@@ -341,7 +317,7 @@ public class Main {
 								alien.c.x = x;
 								alien.c.y = y;
 								alien.init();
-								world.saveAlien(alien);
+								world.addAlien(alien);
 							}
 						}
 						catch (InstantiationException e) {
@@ -364,25 +340,21 @@ public class Main {
 				}
 			}
 
-			debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
+			world.debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
 					MyFont.characterRangeHelper(0, 128));
 
-			font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
+			world.font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
 					"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 
-			scoreText = font.preDraw(0xffffff00, 0, "score");
-			gemsText = font.preDraw(0xffffff00, 0, "gems");
-			timeText = font.preDraw(0xffffff00, 0, "time");
 
 			// TODO: ctor??
 			world.gameMap = gameMap;
 			world.maskHolder = maskHolder;
 			world.bi = bi;
-			world.debugFont = debugFont;
-			world.font = font;
 			world.player = player;
 			world.mapBounds = mapBounds;
 			world.ladderInfo = ladderInfo;
+			world.aim = aim;
 
 			// player.c.x = 1980;
 			// player.c.y = 1020;
@@ -448,11 +420,10 @@ public class Main {
 		drawTheHorizon();
 		drawTheMap();
 
+//		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 		world.updateAliens();
 
-		font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d", frameNumber));
 
-		scoreText.draw((SCREEN_WIDTH - scoreText.getWidth()) / 2, 5);
 	}
 
 	private void drawTheHorizon() {

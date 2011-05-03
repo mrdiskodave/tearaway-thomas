@@ -4,12 +4,12 @@ import com.nney.tt.aliens.Alien;
 
 public class AlienInfo {
 	public final int id;
-	public final String spriteSetName;
+	public final String animsName;
 	public final Class<? extends Alien> alienClass;
 
-	AlienInfo(int id, String spriteSetName, Class<? extends Alien> alienClass) {
+	AlienInfo(int id, String animsName, Class<? extends Alien> alienClass) {
 		this.id = id;
-		this.spriteSetName = spriteSetName;
+		this.animsName = animsName;
 		this.alienClass = alienClass;
 	}
 	

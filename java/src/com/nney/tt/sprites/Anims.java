@@ -2,11 +2,11 @@ package com.nney.tt.sprites;
 
 import java.util.ArrayList;
 
-public class SpriteSet {
+public class Anims {
 	private final ArrayList<Anim> animList;
 	public final String spriteName;
 
-	public SpriteSet(String spriteName, ArrayList<Anim> animList) {
+	public Anims(String spriteName, ArrayList<Anim> animList) {
 		this.spriteName = spriteName;
 		this.animList = animList;
 	}

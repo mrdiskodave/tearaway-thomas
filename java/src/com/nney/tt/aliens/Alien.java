@@ -7,12 +7,12 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Sprite;
-import com.nney.tt.sprites.SpriteSet;
+import com.nney.tt.sprites.Anims;
 
 public abstract class Alien implements Fridge.Content {
 	public Coord c = new Coord();
 	protected AnimPlayer animPlayer = new AnimPlayer();
-	private SpriteSet spriteSet;
+	private Anims spriteSet;
 	public byte[] srcData;
 	public boolean remove;
 	public boolean infront;
@@ -75,7 +75,7 @@ public abstract class Alien implements Fridge.Content {
 		return animPlayer.current();
 	}
 
-	public void connectSpriteSet(SpriteSet s) {
+	public void connectAnims(Anims s) {
 		spriteSet = s;
 	}
 

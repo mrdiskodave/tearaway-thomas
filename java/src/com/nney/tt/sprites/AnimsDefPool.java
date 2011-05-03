@@ -8,7 +8,7 @@ import com.nney.json.JsonValue;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.StringIO;
 
-public class SpriteDefPool extends CachedLoader<String, DataItem> {
+public class AnimsDefPool extends CachedLoader<String, DataItem> {
 	@Override
 	protected DataItem populatePool(String k) {
 		try {

@@ -6,11 +6,12 @@ import com.nney.tt.sprites.Sprite;
 public class ScoreNoticeAlien extends Alien {
 	private int what;
 	private int timer;
+	private int vely;
 
 	public ScoreNoticeAlien(int what, Coord where) {
 		this.what = what;
 		c = where;
-		timer = 25;
+		timer = 40;
 	}
 	
 	@Override
@@ -25,6 +26,10 @@ public class ScoreNoticeAlien extends Alien {
 		if (--timer<0) {
 			done();
 		}
+		c.y -= vely+1;
+//		if (srv.frameTest(4, 1)) {
+//			vely ++;
+//		}
 	}
 
 }

@@ -5,25 +5,25 @@ import java.util.ArrayList;
 import com.nney.json.DataItem;
 import com.nney.tt.resources.TTResource;
 
-public class SpriteSetPool extends CachedLoader<String, SpriteSet> {
-	private final SpriteDefPool sdp;
+public class AnimsPool extends CachedLoader<String, Anims> {
+	private final AnimsDefPool sdp;
 
-	public SpriteSetPool(SpriteDefPool sdp) {
+	public AnimsPool(AnimsDefPool sdp) {
 		this.sdp = sdp;
 	}
 
 	@Override
-	protected SpriteSet populatePool(String spriteName) {
-		SpriteSet answer = loadSpriteSet(spriteName);
-		pool.put(spriteName, answer);
+	protected Anims populatePool(String animsName) {
+		Anims answer = loadSpriteSet(animsName);
+		pool.put(animsName, answer);
 		return answer;
 	}
 
-	private SpriteSet loadSpriteSet(final String spriteName) {
+	private Anims loadSpriteSet(final String animsName) {
 		ArrayList<Anim> an = new ArrayList<Anim>();
 		
-		DataItem diRoot = sdp.load(spriteName);
-		final boolean makeWhiteVersion = spriteName == "0tt";
+		DataItem diRoot = sdp.load(animsName);
+		final boolean makeWhiteVersion = animsName == "0tt";
 		// TODO: fix ^this^ hack
 		
 		// we'll be loading the same frame twice if the animation goes
@@ -31,7 +31,7 @@ public class SpriteSetPool extends CachedLoader<String, SpriteSet> {
 		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
 			@Override
 			protected Sprite populatePool(Integer k) {
-				return LargeImageFrameLoader.load(TTResource.spriteFrame(spriteName, k), makeWhiteVersion);
+				return LargeImageFrameLoader.load(TTResource.spriteFrame(animsName, k), makeWhiteVersion);
 			}};
 
 		for (DataItem diAnim : diRoot.requireField("anims").requireList()) {
@@ -55,7 +55,7 @@ public class SpriteSetPool extends CachedLoader<String, SpriteSet> {
 			}
 			an.add(new Anim(rate, frames, repeatPos, name));
 		}
-		return new SpriteSet(spriteName, an);
+		return new Anims(animsName, an);
 	}
 
 }

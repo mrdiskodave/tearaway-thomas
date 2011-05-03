@@ -20,7 +20,7 @@ public interface AlienServices {
 	int randomness(int n);
 
 	int getFrameNumber();
-	
+
 	boolean frameTest(int mask, int lessThan);
 
 	void queueSprite(Coord c, Sprite s);
@@ -36,7 +36,7 @@ public interface AlienServices {
 	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);
 
 	boolean inTheGround(Coord c);
-	
+
 	/**
 	 * Interact with the ground.
 	 * 
@@ -47,26 +47,26 @@ public interface AlienServices {
 	 * @return Success? <code>true</code> meaning "yes" (we were in the ground
 	 *         and floated up a bit <b>or</b> we fell by 0-<code>fallMax</code>
 	 *         pixels but, either way, we are now resting exactly one pixel
-	 *         above the ground) or <code>false</code> meaning "no" (we fell more
-	 *         than fallMax and didn't touch ground so have not changed the
+	 *         above the ground) or <code>false</code> meaning "no" (we fell
+	 *         more than fallMax and didn't touch ground so have not changed the
 	 *         given {@link Coord}).
 	 */
 	boolean playerFall(Coord where, int fallMax);
 
-	
 	// called by the player
-	
+
 	void scrollScreenTo(Coord c);
+
 	void snapScreenTo(Coord c);
-	
+
 	Joystick getStick();
-	
+
 	void validatePlayerPosition(Coord c);
 
 	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);
 
 	// called by Aliens to operate on the player
-	
+
 	Coord getPlayerPosition();
 
 	Player getThePlayer();
@@ -79,5 +79,17 @@ public interface AlienServices {
 
 	boolean fall(Coord c, int fallSpeed);
 
-	void saveAlien(Alien alien);
+	/**
+	 * Give a score to the player (and a notice of that score on screen).
+	 * 
+	 * @param amount
+	 *            Score to give.
+	 * @param noticeLocation
+	 *            Coordinates for the notice (or <code>null</code> if you don't
+	 *            want to display notice). Note that if you are displaying
+	 *            notice then the score amount may only be 1, 50, 100, 200, 300,
+	 *            400, 500, 600, 700, 800, 900, 1000, 2500 and 5000 as that is
+	 *            all that we have notice-graphics for!
+	 */
+	void giveScore(int amount, Coord noticeLocation);
 }

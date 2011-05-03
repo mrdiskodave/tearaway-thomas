@@ -12,8 +12,6 @@ public class GemAlien extends AbstractBonusAlien {
 
 	private boolean wobble;
 	private int wobblePhase;
-	private int scoreTimer;
-	private int scoreFrame;
 
 	@Override
 	public void load() {
@@ -29,31 +27,25 @@ public class GemAlien extends AbstractBonusAlien {
 
 	@Override
 	protected void normalUpdate() {
-		if (scoreTimer != 0) {
-			changeAnimation(scoreFrame);
-			srv.queueSprite(c, nextFrame());
-			if (--scoreTimer==0) {
-				done();
-			}
+		Coord c2 = c.copy();
+		if (wobble && !isFalling()) {
+			c2.y += WOBBLE[wobblePhase++];
+			wobblePhase %= WOBBLE.length;
 		}
-		else {
-			Coord c2 = c.copy();
-			if (wobble && !isFalling()) {
-				c2.y += WOBBLE[wobblePhase++];
-				wobblePhase %= WOBBLE.length;
-			}
-			Sprite s = nextFrame();
-			srv.queueSprite(c2, s);
+		Sprite s = nextFrame();
+		srv.queueSprite(c2, s);
 
-			if (srv.collideAlienWithPlayerHiRes(c2, s)) {
-				scoreTimer = 25;
-				scoreFrame = 1;
-			}
+		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
+			srv.giveScore(ourValue(), c.copyAndMove(0, -8));
+			done();
+		}
 
-			if (!isFalling()) {
-				freezeBounds = Box.around(c, 20, 20);
-			}
+		if (!isFalling()) {
+			freezeBounds = Box.around(c, 20, 20);
 		}
 	}
 
+	protected int ourValue() {
+		return 50;
+	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockInformation;
@@ -27,7 +28,8 @@ public class World implements AlienServices, Joystick {
 
 	private List<Alien> backgroundAlienList = new LinkedList<Alien>();
 	private List<Alien> foregroundAlienList = new LinkedList<Alien>();
-	
+	private List<Alien> freshAlienList = new LinkedList<Alien>();
+
 	private Fridge<Alien> freezeTop = new Fridge<Alien>("top");
 	private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
 	private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
@@ -58,6 +60,20 @@ public class World implements AlienServices, Joystick {
 
 	public LadderInfo ladderInfo;
 
+
+	private int score = 0;
+	private int oldScore = -1;
+
+
+	private PrerenderedText scoreHeadingText;
+
+
+	private PrerenderedText scoreText;
+
+	public AlienInfoMap aim;
+
+
+	
 	@Override
 	public int randomness(int n) {
 		return rnd.nextInt(n);
@@ -340,16 +356,34 @@ public class World implements AlienServices, Joystick {
 		return false;
 	}
 	
+	private void addNewAlien(Alien alien) {
+		aim.connectAnims(alien);
+		alien.srv = this;
+		alien.init();
+		freshAlienList.add(alien);
+	}
+	
 	@Override
-	public void saveAlien(Alien alien) {
-		List<Alien> alienList = alien.infront ? foregroundAlienList : backgroundAlienList;
-		alienList.add(alien);
+	public void giveScore(int amount, Coord location) {
+		score += amount;
+		if (location!=null) {
+			addNewAlien(new ScoreNoticeAlien(amount, location.copy()));
+		}
 	}
 
 	public void updateAliens() {
-		updateAliens(backgroundAlienList);
+		for (Alien alien: freshAlienList) {
+			addAlien(alien);
+		}
+		freshAlienList.clear();
+		
+		
+		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		defrostAny(screenBox);
+
+		updateAliens(backgroundAlienList, screenBox);
 		player.draw();
-		updateAliens(foregroundAlienList);
+		updateAliens(foregroundAlienList, screenBox);
 
 		//
 		// Caveat1: only the background Alien gets to move the player around.
@@ -372,19 +406,35 @@ public class World implements AlienServices, Joystick {
 		// am
 		// clear about the limits this imposes".
 		//
+
+		updateScore();
+
 	}
 
-	private void updateAliens(List<Alien> al) {
-		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
-		defrostAny(screenBox);
+	public void addAlien(Alien alien) {
+		List<Alien> target = alien.infront ? foregroundAlienList : backgroundAlienList;
+		target.add(alien);
+	}
+
+	private void updateScore() {
+		if (score!=oldScore) {
+			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
+			scoreText = font.preDraw(0xffffffff, 0, String.format("%08d", score));
+		}
+		scoreHeadingText.draw((Main.SCREEN_WIDTH - scoreHeadingText.getWidth()) / 2, 5);
+		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 5+20);
+	}
+
+	private void updateAliens(List<Alien> al, Box screenBox) {
 		for (Iterator<Alien> alienIterator = al.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
 			alien.update();
-			if (!perhapsFreezeOne(alien, alienIterator, screenBox)) {
-				if (alien.remove) {
-					alienIterator.remove();
-				}
+			if (alien.remove) {
+				alienIterator.remove();
+			}
+			else {
+				perhapsFreezeOne(alien, alienIterator, screenBox);
 			}
 		}
 	}
@@ -432,9 +482,7 @@ public class World implements AlienServices, Joystick {
 		for (;;) {
 			Alien a = fridge.remove(restore);
 			if (a==null) break;
-			saveAlien(a);
+			addAlien(a);
 		}
 	}
-
-
 }
