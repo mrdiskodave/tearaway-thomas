@@ -421,8 +421,8 @@ public class World implements AlienServices, Joystick {
 			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
 			scoreText = font.preDraw(0xffffffff, 0, String.format("%08d", score));
 		}
-		scoreHeadingText.draw((Main.SCREEN_WIDTH - scoreHeadingText.getWidth()) / 2, 5);
-		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 5+20);
+		scoreHeadingText.draw((Main.SCREEN_WIDTH - scoreHeadingText.getWidth()) / 2, 6);
+		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6+14);
 	}
 
 	private void updateAliens(List<Alien> al, Box screenBox) {

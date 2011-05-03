@@ -20,13 +20,15 @@ import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
-import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.AbstractGemAlien;
 import com.nney.tt.aliens.LiftAlien;
+import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.GlTexture;
@@ -155,8 +157,8 @@ public class Main {
 		AnimsPool animsPool = new AnimsPool(adp);
 
 		AlienInfoMap aim = new AlienInfoMap(animsPool);
-		aim.add(new AlienInfo(2, "0ygem", GemAlien.class));
-		aim.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
+		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
 		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));

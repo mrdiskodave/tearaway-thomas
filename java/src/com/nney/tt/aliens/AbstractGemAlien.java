@@ -5,7 +5,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class GemAlien extends AbstractBonusAlien {
+public abstract class AbstractGemAlien extends AbstractBonusAlien {
 	private static final int FLAG_NO_WOBBLE = 3;
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
@@ -45,7 +45,5 @@ public class GemAlien extends AbstractBonusAlien {
 		}
 	}
 
-	protected int ourValue() {
-		return 50;
-	}
+	protected abstract int ourValue();
 }
