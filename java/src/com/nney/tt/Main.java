@@ -25,9 +25,10 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BirdAlien;
+import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.LiftAlien;
-import com.nney.tt.aliens.ScoreAlien;
+import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StopAlien;
@@ -176,19 +177,24 @@ public class Main {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
+		// TODO: !scores 1, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2500, 5000
 		List<AlienInfo> ail = new ArrayList<AlienInfo>();
 		ail.add(new AlienInfo(2, "0ygem", GemAlien.class));
 		ail.add(new AlienInfo(3, "0pgem", GemAlien.class));
+		ail.add(new AlienInfo(4, "0exit", ExitAlien.class));
 		ail.add(new AlienInfo(5, "0shld", ShieldAlien.class));
 		ail.add(new AlienInfo(8, "0arru", ArrowAlien.class));
 		ail.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		ail.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
 		ail.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 		ail.add(new AlienInfo(14, "0wing", WingAlien.class));
+		ail.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
+		ail.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
+		ail.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
 		ail.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		ail.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		ail.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
-		ail.add(new AlienInfo(34, null, ScoreAlien.class));
+//		ail.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		ail.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		ail.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		ail.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
@@ -203,6 +209,9 @@ public class Main {
 		ail.add(new AlienInfo(76, "wbear", BearAlien.class));
 		ail.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
 
+		// TODO: ! head jumping
+		// TODO: ! score tracking & drawing :)
+		
 		if (CTC_TUMBLE_WEEDS) {
 			ail.clear();
 		}

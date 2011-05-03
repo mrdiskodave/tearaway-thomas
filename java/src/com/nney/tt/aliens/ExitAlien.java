@@ -1,9 +1,11 @@
 package com.nney.tt.aliens;
 
+public class ExitAlien extends Alien {
 
-public class ScoreAlien extends Alien {
 	@Override
 	public void update() {
-		// nothing to do
+		// TODO ! exit alien?
+		
 	}
+
 }
