@@ -2,6 +2,7 @@ package com.nney.tt;
 
 import java.util.Random;
 
+import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
@@ -77,4 +78,6 @@ public interface AlienServices {
 	LadderInfo getLadderInfo();
 
 	boolean fall(Coord c, int fallSpeed);
+
+	void saveAlien(Alien alien);
 }

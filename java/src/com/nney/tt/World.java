@@ -1,7 +1,11 @@
 package com.nney.tt;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
+import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockInformation;
@@ -20,6 +24,17 @@ public class World implements AlienServices, Joystick {
 			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
 			16 };
 
+
+	private List<Alien> backgroundAlienList = new LinkedList<Alien>();
+	private List<Alien> foregroundAlienList = new LinkedList<Alien>();
+	
+	private Fridge<Alien> freezeTop = new Fridge<Alien>("top");
+	private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
+	private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
+	private Fridge<Alien> freezeRight = new Fridge<Alien>("right");
+
+
+	
 	public Coord screen = new Coord();
 	public GameMap gameMap;
 	public MasksHolder maskHolder;
@@ -324,4 +339,102 @@ public class World implements AlienServices, Joystick {
 		}
 		return false;
 	}
+	
+	@Override
+	public void saveAlien(Alien alien) {
+		List<Alien> alienList = alien.infront ? foregroundAlienList : backgroundAlienList;
+		alienList.add(alien);
+	}
+
+	public void updateAliens() {
+		updateAliens(backgroundAlienList);
+		player.draw();
+		updateAliens(foregroundAlienList);
+
+		//
+		// Caveat1: only the background Alien gets to move the player around.
+		// Caveat2: if any Alien does move him the scrolling for this frame
+		// won't know about it (because it has already happened) but you don't
+		// notice that because it is not hard scrolling but scrolling based on a
+		// SCROLLING_TABLE.
+		//
+		// The Amiga version had Caveat2 (even if we didn't think about it).
+		// The Amiga version did not have Caveat1 because the player was beamed
+		// in last of all with some Amiga hardware-sprite wizardry.
+		//
+		// ... well, it's either that or we separate out moving and drawing (or
+		// queue the drawing) and also accept that we won't know the exact
+		// placement of the screen until quite late (which makes pixels perfect
+		// Alien freezing and defrosting impossible). That's a big voyage into
+		// new territory for little gain.
+		//
+		// For now, it'll work how it used to. For the first time I can say "I
+		// am
+		// clear about the limits this imposes".
+		//
+	}
+
+	private void updateAliens(List<Alien> al) {
+		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		defrostAny(screenBox);
+		for (Iterator<Alien> alienIterator = al.iterator(); alienIterator.hasNext();) {
+			Alien alien = alienIterator.next();
+			alien.freezeBounds = null;
+			alien.update();
+			if (!perhapsFreezeOne(alien, alienIterator, screenBox)) {
+				if (alien.remove) {
+					alienIterator.remove();
+				}
+			}
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// REFRIGERATION
+	
+	private boolean perhapsFreezeOne(Alien alien, Iterator<Alien> alienIterator, Box screenBox) {
+		Box fb = alien.freezeBounds;
+		if (fb == null) {
+			return false;
+		}
+		if (fb.right < screenBox.left) {
+			freezeOne(alien, alienIterator, freezeLeft, -fb.right);
+		}
+		else if (fb.bottom < screenBox.top) {
+			freezeOne(alien, alienIterator, freezeTop, -fb.bottom);
+		}
+		else if (fb.left > screenBox.right) {
+			freezeOne(alien, alienIterator, freezeRight, fb.left);
+		}
+		else if (fb.top > screenBox.bottom) {
+			freezeOne(alien, alienIterator, freezeBottom, fb.top);
+		}
+		else {
+			return false;
+		}
+		return true;
+	}
+
+	private void freezeOne(Alien alien, Iterator<Alien> alienIterator, Fridge<Alien> fridge, int restore) {
+		alienIterator.remove();
+		alien.setFridgePos(restore);
+		fridge.add(alien, restore);
+	}
+		
+	private void defrostAny(Box screenBox) {
+		defrostAnyFrom(freezeLeft, -screenBox.left);
+		defrostAnyFrom(freezeTop, -screenBox.top);
+		defrostAnyFrom(freezeRight, screenBox.right);
+		defrostAnyFrom(freezeBottom, screenBox.bottom);
+	}
+
+	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
+		for (;;) {
+			Alien a = fridge.remove(restore);
+			if (a==null) break;
+			saveAlien(a);
+		}
+	}
+
+
 }
