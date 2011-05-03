@@ -1,11 +1,12 @@
 package com.nney.tt.aliens;
 
-public class ExitAlien extends Alien {
+import com.nney.tt.sprites.Sprite;
 
+public class ExitAlien extends Alien {
 	@Override
 	public void update() {
-		// TODO ! exit alien?
-		
+		changeAnimation(srv.isExitOpen() ? "open" : "shut");
+		Sprite s = nextFrame();
+		srv.queueSprite(c, s);
 	}
-
 }

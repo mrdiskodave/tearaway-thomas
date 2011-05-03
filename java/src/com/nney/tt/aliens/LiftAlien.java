@@ -1,9 +1,7 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.Player;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.sprites.Sprite;
 
 public class LiftAlien extends AbstractLiftAlien {
 	private Box box;
@@ -34,4 +32,5 @@ public class LiftAlien extends AbstractLiftAlien {
 		c.x = origin.x + xo;
 		c.y = origin.y + yo;
 	}
+
 }

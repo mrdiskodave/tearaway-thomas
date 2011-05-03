@@ -82,16 +82,20 @@ public interface AlienServices {
 	/**
 	 * Give a score to the player (and a notice of that score on screen).
 	 * 
-	 * @param amount
+	 * @param score
 	 *            Score to give.
 	 * @param noticeLocation
 	 *            Coordinates for the notice (or <code>null</code> if you don't
 	 *            want to display notice). Note that if you are displaying
-	 *            notice then the score amount may only be 1, 50, 100, 200, 300,
-	 *            400, 500, 600, 700, 800, 900, 1000, 2500 and 5000 as that is
-	 *            all that we have notice-graphics for!
+	 *            notice then the score may only be 1, 50, 100, 200, 300, 400,
+	 *            500, 600, 700, 800, 900, 1000, 2500 and 5000 as that is all
+	 *            that we have notice-graphics for!
 	 */
-	void giveScore(int amount, Coord noticeLocation);
+	void giveScore(int score, Coord noticeLocation);
 
 	void magicDust(Coord where);
+
+	void removeOneGem(int score, Coord noticeLocation);
+
+	boolean isExitOpen();
 }

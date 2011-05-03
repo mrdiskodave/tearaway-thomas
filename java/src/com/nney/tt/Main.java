@@ -307,8 +307,7 @@ public class Main {
 									((LoadsFromSpriteDef) alien).load(adp.load(alienInfo.animsName));
 								}
 
-								alien.init();
-								world.addAlien(alien);
+								world.loadAlienIntoWorld(alien);
 							}
 							else {
 								TextAlien alien = new TextAlien();
@@ -316,8 +315,7 @@ public class Main {
 								alien.setText(String.format("%d", type));
 								alien.c.x = x;
 								alien.c.y = y;
-								alien.init();
-								world.addAlien(alien);
+								world.loadAlienIntoWorld(alien);
 							}
 						}
 						catch (InstantiationException e) {

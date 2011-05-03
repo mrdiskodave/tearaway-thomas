@@ -5,9 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.nney.tt.aliens.AbstractGemAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
+import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.BlockInformation;
@@ -73,6 +75,8 @@ public class World implements AlienServices, Joystick {
 
 	public AlienInfoMap aim;
 
+
+	private int gemCounter;
 
 
 	@Override
@@ -364,6 +368,19 @@ public class World implements AlienServices, Joystick {
 		freshAlienList.add(alien);
 	}
 	
+	public void loadAlienIntoWorld(Alien alien) {
+		if (alien instanceof AbstractGemAlien) {
+			gemCounter++;
+		}
+		alien.init();
+		freshAlienList.add(alien);
+	}
+	
+	private void addAlien(Alien alien) {
+		List<Alien> target = alien.infront ? foregroundAlienList : backgroundAlienList;
+		target.add(alien);
+	}
+	
 	@Override
 	public void giveScore(int amount, Coord location) {
 		score += amount;
@@ -417,10 +434,6 @@ public class World implements AlienServices, Joystick {
 
 	}
 
-	public void addAlien(Alien alien) {
-		List<Alien> target = alien.infront ? foregroundAlienList : backgroundAlienList;
-		target.add(alien);
-	}
 
 	private void updateScore() {
 		if (score!=oldScore) {
@@ -490,5 +503,25 @@ public class World implements AlienServices, Joystick {
 			addAlien(a);
 		}
 	}
+
+	@Override
+	public void removeOneGem(int score, Coord noticeLocation) {
+		if (isExitOpen()) {
+			score *= 2;
+		}
+		else {
+			gemCounter--;
+			System.out.println(gemCounter+" gems left!");
+		}
+		giveScore(score, noticeLocation);
+	}
+	
+	@Override
+	public boolean isExitOpen() {
+		return gemCounter==0;
+	}
+
+	
+	
 
 }

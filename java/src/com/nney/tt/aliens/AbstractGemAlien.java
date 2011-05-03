@@ -36,7 +36,7 @@ public abstract class AbstractGemAlien extends AbstractBonusAlien {
 		srv.queueSprite(c2, s);
 
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
-			srv.giveScore(ourValue(), c.copyAndMove(0, -8));
+			srv.removeOneGem(ourValue(), c.copyAndMove(0, -8));
 			done();
 		}
 
