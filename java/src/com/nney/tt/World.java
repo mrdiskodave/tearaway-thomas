@@ -379,11 +379,11 @@ public class World implements AlienServices, Joystick {
 
 	
 	public void updateAliens() {
+		// add fresh aliens
 		for (Alien alien: freshAlienList) {
 			addAlien(alien);
 		}
 		freshAlienList.clear();
-		
 		
 		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
 		defrostAny(screenBox);
@@ -410,8 +410,7 @@ public class World implements AlienServices, Joystick {
 		// new territory for little gain.
 		//
 		// For now, it'll work how it used to. For the first time I can say "I
-		// am
-		// clear about the limits this imposes".
+		// am clear about the limits this imposes".
 		//
 
 		updateScore();
@@ -474,7 +473,6 @@ public class World implements AlienServices, Joystick {
 
 	private void freezeOne(Alien alien, Iterator<Alien> alienIterator, Fridge<Alien> fridge, int restore) {
 		alienIterator.remove();
-		alien.setFridgePos(restore);
 		fridge.add(alien, restore);
 	}
 		

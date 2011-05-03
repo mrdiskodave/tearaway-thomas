@@ -38,5 +38,5 @@ public class LineInfoTest extends TestCase {
 		assertEquals(k, li[i+1]);
 	}
 	
-	// TODO: test collide()
+	// TODO: unit test for collide()
 }

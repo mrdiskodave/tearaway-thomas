@@ -536,9 +536,6 @@ public class Player extends Alien {
 						// non-slippery surface
 						mode = Mode.WALK;
 						System.out.println("Slide: too slow quit");
-						if (goLeft) {
-							System.out.println("LEFT");
-						}
 						return;
 					}
 				}
@@ -977,17 +974,17 @@ public class Player extends Alien {
 		Coord diff = c.copy();
 		diff.sub(hidden);
 		// diff = player - hidden
-		// (i.e. positive if gem is above or left of the player)
+		// (i.e. positive if hidden thing is above or left of the player)
 
 		// must be above but not too far above
 		if (diff.y > 0 && diff.y < 100) {
-			// moving towards
+			// must be moving towards
 			int d = getStickLeftRightDelta();
 			if (d != 0 && d != signOf(diff.x)) {
 				// and must be the correct distance in front
 				int dx = Math.abs(diff.x);
 				if (dx > 75 && dx < 100) {
-					// then it falls!
+					// then it is revealed!
 					return true;
 				}
 			}

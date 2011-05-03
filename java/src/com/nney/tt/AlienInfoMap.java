@@ -50,7 +50,7 @@ public class AlienInfoMap {
 
 		AlienInfo ai = getByClass(c.getClass());
 		if (ai.animsName != null) {
-			System.out.println(c.getClass() + " gets " + ai.animsName);
+//			System.out.println(c.getClass() + " gets " + ai.animsName);
 			Anims anims = animsPool.directGet(ai.animsName);
 			assert anims!=null : "need to preload "+ai.animsName;
 			c.connectAnims(anims);

@@ -21,30 +21,25 @@ import java.util.ListIterator;
  * The fridge has a position system where objects with numerically larger
  * positions are deeper in the fridge (i.e. further off-screen). Objects with
  * smaller positions are closer to returning to the screen. This means that,
- * when a screen edge is encountered as the ordinate increases, fridge position
+ * when a screen edge is encountered as the ordinate increases, fridge-position
  * is the same as screen ordinate. However, the fridge for the opposite screen
- * edge will need its given fridge positions negated by the caller.
+ * edges will need its given fridge-positions negated by the caller.
  * 
  * @param <T>
- *            The type of the object - it need only support the interface
- *            {@link Fridge.Content}.
+ *            The type of the object we hold.
  */
-public class Fridge<T extends Fridge.Content> {
-	private LinkedList<T> content = new LinkedList<T>();
+public class Fridge<T> {
+	private LinkedList<FridgeEntry> content = new LinkedList<FridgeEntry>();
 	private String name;
 
-	/**
-	 * The interface that all fridge content must support.
-	 * 
-	 */
-	public interface Content {
-		/**
-		 * What is our fridge position?
-		 * 
-		 * @return The answer. See {@link Fridge} for a discussion of fridge
-		 *         position.
-		 */
-		int getFridgePos();
+	class FridgeEntry {
+		final T item;
+		final int pos;
+
+		FridgeEntry (T item, int pos) {
+			this.item = item;
+			this.pos = pos;
+		}
 	}
 
 	public Fridge(String name) {
@@ -63,15 +58,15 @@ public class Fridge<T extends Fridge.Content> {
 		System.out.println(String.format("Fridge: %08x(%7d) frozen    into %-6s", item.hashCode(), pos, name));
 		// Skip (to the right) over existing items that should be to
 		// the left of the one we've been given.
-		ListIterator<T> ci = content.listIterator();
+		ListIterator<FridgeEntry> ci = content.listIterator();
 		while (ci.hasNext()) {
-			if (ci.next().getFridgePos() >= pos) {
+			if (ci.next().pos >= pos) {
 				ci.previous();
 				break;
 			}
 		}
 		// Insert it!
-		ci.add(item);
+		ci.add(new FridgeEntry(item, pos));
 	}
 
 	/**
@@ -82,11 +77,11 @@ public class Fridge<T extends Fridge.Content> {
 	 * @return The object, if removed, or <code>null</code>.
 	 */
 	public T remove(int left) {
-		T item = content.peekFirst();
-		if (item == null || item.getFridgePos() > left) return null;
-		System.out.println(String.format("Fridge: %08x(%7d) defrosted from %-6s using %d", item.hashCode(), item.getFridgePos(), name,
+		FridgeEntry fe = content.peekFirst();
+		if (fe == null || fe.pos > left) return null;
+		System.out.println(String.format("Fridge: %08x(%7d) defrosted from %-6s using %d", fe.item.hashCode(), fe.pos, name,
 				left));
-		assert item == content.removeFirst();
-		return item;
+		assert fe == content.removeFirst();
+		return fe.item;
 	}
 }

@@ -9,7 +9,7 @@ import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Sprite;
 import com.nney.tt.sprites.Anims;
 
-public abstract class Alien implements Fridge.Content {
+public abstract class Alien {
 	public Coord c = new Coord();
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	private Anims spriteSet;
@@ -18,8 +18,6 @@ public abstract class Alien implements Fridge.Content {
 	public boolean infront;
 	public Box freezeBounds;
 	public AlienServices srv;
-	private int restore;
-
 
 	protected static final int OBbase = 9;
 	protected static final int OBflags = 9 - OBbase; // B
@@ -94,15 +92,6 @@ public abstract class Alien implements Fridge.Content {
 	}
 
 	abstract public void update();
-	
-	@Override
-	public int getFridgePos() {
-		return restore;
-	}
-
-	public void setFridgePos(int x) {
-		restore = x;
-	}
 	
 	public void done() {
 		remove = true;
