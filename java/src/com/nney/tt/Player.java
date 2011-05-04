@@ -2,7 +2,6 @@ package com.nney.tt;
 
 import com.nney.tt.aliens.AbstractLiftAlien;
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
@@ -101,11 +100,6 @@ public class Player extends Alien {
 	private boolean moveStick;
 
 	/**
-	 * Is the player in the ground?
-	 */
-	private boolean inGround;
-
-	/**
 	 * The player is stunned until this timer counts down to zero.
 	 */
 	private int stunTimer;
@@ -170,6 +164,8 @@ public class Player extends Alien {
 	private boolean flying;
 
 	private boolean canFly;
+
+	private boolean inGroundLatch;
 
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
@@ -264,10 +260,11 @@ public class Player extends Alien {
 		return srv.getStick().testAntiAutofire(j) && stunTimer == 0;
 	}
 
-	private void applyGravity() {
+	private int applyGravity(int v) {
 		if (!flying || (srv.getFrameNumber() & 1) == 0) {
-			vely = Math.min(vely + 1, 16);
+			return Math.min(v + 1, 16);
 		}
+		return v;
 	}
 
 	private int getXDelta() {
@@ -310,33 +307,14 @@ public class Player extends Alien {
 	}
 
 	private boolean normalVerticalMovement() {
-		applyGravity();
+		vely = applyGravity(vely);
 
 		MovementSlicer yslicer = new MovementSlicer(vely);
 		while (yslicer.more()) {
 			int n = yslicer.next(1);
-			if (n < 0) {
-				// going up (always possible)
-				c.y--;
-				inGround = srv.inTheGround(c);
-			}
-			else {
-				// going down
-				if (inGround) {
-					// if you're in the ground it is always possible
-					c.y++;
-					inGround = srv.inTheGround(c);
-				}
-				else {
-					// if you're in the air it is possible as long as the
-					// pixel below isn't ground
-					c.y++;
-					if (srv.inTheGround(c)) {
-						// and if it is then we touch down
-						c.y--;
-						return true;
-					}
-				}
+			c.y += n;
+			if (landingLights()) {
+				return true;
 			}
 		}
 		return false;
@@ -365,41 +343,52 @@ public class Player extends Alien {
 	// ---------------------------------------------------------------------------
 	// AIR MODE
 
+	/**
+	 * Have we touched down?
+	 * 
+	 * A touch down happens on a sky-to-ground edge and with a pixel of sky
+	 * above the aforementioned pixel of ground.
+	 * 
+	 * @return <code>true</code> (meaning "we've touched down") on
+	 *         <code>false</code> meaning ("we are still in the air").
+	 */
+	private boolean landingLights() {
+		if (srv.inTheGround(c)) {
+			// in the ground
+			if (!inGroundLatch) {
+				inGroundLatch = true;
+				// for the first time
+				// ... what is above?
+				c.y--;
+				if (srv.inTheGround(c)) {
+					// ground ... so we are entering the ground
+					c.y++;
+					System.out.println("LL: entering ground");
+					return false;
+				}
+				else {
+					// sky! ... so we are touching down
+					inGroundLatch = false;
+					System.out.println("LL: touching down");
+					return true;
+				}
+			}
+			// in the ground AGAIN
+			return false;
+		}
+		else {
+			// in the sky
+			inGroundLatch = false;
+			return false;
+		}
+	}
+
 	private void doAirModeX(MovementSlicer xslicer) {
 		int n = xslicer.next(1);
 		c.x += n;
-		if (inGround) {
-			// if you're in the ground it is always possible to move
-			inGround = srv.inTheGround(c);
+		if (landingLights()) {
+			startModeWalk();
 		}
-		else {
-			// if you're in the air we do it
-			// but if that results in entering the ground ..
-			if (srv.inTheGround(c)) {
-				int distance = 1;
-				for (;;) {
-					if (distance > FLOOR_DEFINITION_DISTANCE) {
-						// it might not get us back into air (in which case
-						// we are definitely entering ground from the side)
-						c.y++;
-						inGround = true;
-						break;
-					}
-					if (!srv.inTheGround(c.copyAndMove(0, -distance))) {
-						// or it might ...
-						// in which case we are touching down
-						if (distance > 1) {
-							System.out.println("Recovered by jumping up " + distance);
-						}
-						c.y -= distance;
-						startModeWalk();
-						break;
-					}
-					distance++;
-				}
-			}
-		}
-
 	}
 
 	private void doAirModeY() {
@@ -825,7 +814,7 @@ public class Player extends Alien {
 
 		if (mode == Mode.WALK) {
 			if (srv.frameTest(2, 1) && srv.blockInfoIs(c, "magic")) {
-				srv.magicDust(c.copyAndMove(srv.randomness(17)-8, 0));
+				srv.magicDust(c.copyAndMove(srv.randomness(17) - 8, 0));
 			}
 		}
 
@@ -929,7 +918,7 @@ public class Player extends Alien {
 	}
 
 	public boolean isReadyToBoardALift() {
-		return mode == Mode.AIR && !inGround;
+		return mode == Mode.AIR;
 	}
 
 	public void stun() {
