@@ -26,31 +26,6 @@ public class Player extends Alien {
 	private static final int STUN_VELOCITY = -10;
 	private static final int JUMP_VELOCITY = -12;
 
-	/**
-	 * How big a pixel step is counted as part of the continuous surface of the
-	 * floor? Bigger steps are ground that the player jumps into from the side
-	 * (rather walking on top of i.e. mounting). The bigger this value the more
-	 * the player will visibly "mount" sign posts and tree branches and other
-	 * platforms during his jumps (which looks bad). The smaller this value the
-	 * greater the chance of falling through the floor if the map designer
-	 * hasn't taken care to observe the original "
-	 * {@link #FLOOR_DEFINITION_DISTANCE} = 1" rule.
-	 * 
-	 * This is not as important as it sounds because if you "want" to get
-	 * through a >{@link #FLOOR_DEFINITION_DISTANCE} pixel size step at floor
-	 * level you'll need to jump through it sideways. Jumping through something
-	 * so small at floor level will be hard because you have to jump <i>from</i>
-	 * the floor and your jump return-velocity will be too big to allow such
-	 * sneaky manoeuvres. Probably.
-	 */
-	private static final int FLOOR_DEFINITION_DISTANCE = 1;
-	// 3 for now.
-	// e.g. TTResource.map("w", 5) contains an example of such a spot.
-	// There is a 3 pixel step because of single misplaced block.
-	//
-
-	// I think the original had FLOOR_DEFINITION_DISTANCE = 1
-
 	// TODO: hollow out the masks for sign posts and trees.
 	// We just want a single pixel running along the top of
 	// each place where the player can stand.
@@ -59,6 +34,8 @@ public class Player extends Alien {
 
 	// TODO: reset the level if the player does manage to fall through
 	// (not something we ever did in the original)
+	// and there is a place where you can jump out of the level
+	// pretty easily on "falling off a log"
 
 	/**
 	 * A constant {@link #testSlide()} can return to say
