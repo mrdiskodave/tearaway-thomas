@@ -1,6 +1,6 @@
+#!/usr/bin/python -3
 
-
-
+import json
 
 woodRT = (
 	( 40,24,29,53,83,84,64,85,88,89,69 ),
@@ -44,5 +44,14 @@ def validate_rt(name, mb, rt):
 		for b in line:
 			assert b<mb, str(b)
 
+
+def print_rt(rt):
+	print json.dumps(rt, sort_keys=True, indent=4)	
+
+if __name__ == "__main__":
+	for rt in (woodRT, iceRT, ghostRT):
+		print
+		print '-' * 75
+		print_rt(rt)
 
 
