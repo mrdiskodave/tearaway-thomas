@@ -1,3 +1,5 @@
+#!/usr/bin/python -3
+
 import json
 import array
 import struct
