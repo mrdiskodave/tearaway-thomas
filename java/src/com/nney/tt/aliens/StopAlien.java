@@ -22,6 +22,7 @@ public class StopAlien extends Alien {
 			else {
 				pp.x = box.left;
 			}
+			System.out.println("Pushed by a StopAlien of width "+box.width());
 		}
 	}
 }
