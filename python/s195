@@ -1,4 +1,4 @@
-* TEARAWAY THOMAS! *   (C)Copyright 1992   David Hanney + Nick Frampton
+
 
 drawingmap=-1
 demo_mode=0
@@ -7242,7 +7242,7 @@ shield_alien	bsr	invis_control
 	lea	add_bobS0TH,a4
 	bsr	easy_collideDP
 	dc.w	154,141,167,132
-	move.w	#fps*12,PLflash
+	move.w	#fps*12,PLflash					SCC1
 	move.w	#fps*13,PLproof
 	bra	collected
 
@@ -9506,7 +9506,7 @@ create_fallgem
 
 *>
 invis_control
-	btst	#OBFinvis,OBflags(a0)
+	btst	#OBFinvis,OBflags(a0)				SCC1
 	beq	anRTS
 
 	movem.w	OBx(a0),d2/d3
@@ -9883,18 +9883,21 @@ donestun	rts
 
 
 	PROC
-landing_lights	bsr	pixel_test
+landing_lights	bsr	pixel_test				SCC2
 	beq	llsky
 	* we're in the ground
+	* now if that isn't news
 	tst.b	iglatch
+	* then just return
 	bne	anRTS
 	st	iglatch
+	* otherwise we are in the ground for the first time!
 	* we move up
 	subq.w	#1,d3
 	bsr	pixel_test
-	bne	llnotzero
-	* and find sky
-	* so it's here that we stop
+	* if that gets us into the sky
+	bne	llground
+	* then it is here that we stop
 
 	sf	iglatch
 jumping_off
@@ -9904,7 +9907,7 @@ jumping_off
 	st	touch_floor
 	rts
 
-llnotzero	subq.w	#1,d3		BUGSPOT: was this supposed to be an add to reverse the sub above?
+llground	subq.w	#1,d3		BUGSPOT: was this supposed to be an add to reverse the sub above?
 	sf	touch_floor
 	rts
 
@@ -9989,6 +9992,7 @@ mudpushleft	subq.w	#1,d5
 	bra	done_muddy
 
 	; 0 left 1 flat 2 right
+	; blocks 220-248
 
 mudtypes	dc.b	0,0,0,0,1,2,2,1,2,2,0,0,0,0,1,2,2,1,2,2
 	dc.b	0,1,0,2,1,2,0,2
@@ -10042,7 +10046,7 @@ start_monkey_mode
 	bsr	reset_player
 
 monkey_mode
-	movem.w	PLx,d2/d3
+	movem.w	PLx,d2/d3					SCC6
 
 	sub.w	#monkY,d3
 
@@ -10108,7 +10112,7 @@ Lcant	moveq	#0,d0
 	rts
 
 start_ladder_mode
-	; a1=address of player wheel
+	; a1=map address of player wheel
 	; d2/d3 pl cords
 	move.w	#1,PLmode
 
@@ -10257,7 +10261,7 @@ start_rope_mode	not.b	go_left
 	bsr	reset_player
 
 rope_mode
-	move.w	#4,PLmode
+	move.w	#4,PLmode				SCC7
 
 	lea	PA_roperight,a0
 	tst.b	go_left
@@ -10740,7 +10744,7 @@ cant_pipe
 	clr.w	PLvely
 	clr.w	PLvelyfrac
 cant_fly
-	; START MONKEY?
+	; START MONKEY? SCC5
 
 	tst.b	touch_floor
 	bne.s	cant_monkey
@@ -10765,9 +10769,11 @@ cant_monkey
 	sf	PLmonkeylatch
 shallnt_monkey
 
+
+	
 	; START LADDER?
 	;  4f 3l 2u 1r 0d
-	move.b	#%0101,d0
+	move.b	#%0101,d0			SCC9
 	and.b	d1,d0
 	beq	cant_ladder
 
@@ -11042,7 +11048,7 @@ floor_loop	moveq	#1,d1
 	bne.s	floor_loop
 
 	; JUMP OFF GROUND?
-	btst	#4,joy_byte
+	btst	#4,joy_byte					SCC9
 	beq	moved_player
 	bsr	player_jump
 	bra	in_the_air
@@ -11270,6 +11276,7 @@ doneymove	rts
 **** GRAVITY ****
 
 gravity	; update PLvely for gravity
+	; SCC2
 
 	move.l	#$00010000,d0
 	move.l	PLvely,d1
@@ -11302,7 +11309,7 @@ find_kipper
 	; WHICH VELOCITY TABLE TO USE?
 	lea	vel_turbo,a2
 	tst.w	PLsprint
-	bne.s	gotveltab
+	bne.s	gotveltab			SCC3
 	lea	vel_norm,a2
 gotveltab
 	; MOVE PLAYER X CORD
