@@ -692,6 +692,52 @@ public class World implements AlienServices, Joystick {
 		}
 	}
 
+	private void loadLegacyMap(Openable mapOpenable) {
+		try {
+			InputStream i = mapOpenable.open();
+			DataInputStream di = new DataInputStream(i);
+			// get the game map off the front of the stream
+			gameMap = new GameMap(di);
+	
+	
+			// read the other things
+			for (;;) {
+				String id = readChunkId(di);
+				if (id.equals("set2")) {
+					byte[] rawSettings = new byte[0x30];
+					di.readFully(rawSettings);
+					loadRawSettings(rawSettings);
+				}
+				else if (id.equals("obj2")) {
+					for (;;) {
+						int x = di.readShort();
+						int y = di.readShort();
+						if (x < 0) break;
+						int type = di.readByte();
+						byte[] rest = new byte[21];
+						di.readFully(rest);
+	
+						loadLegacyAlienIntoWorld(x, y, type, rest);
+					}
+				}
+				else if (id.equals("pal2")) {
+					while (di.readShort() != -1) {
+					}
+				}
+				else if (id.equals("end!")) {
+					break;
+				}
+				else {
+					throw new RuntimeException("Unknown chunk: " + id);
+				}
+			}
+	
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	void init() {
 		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
@@ -712,59 +758,16 @@ public class World implements AlienServices, Joystick {
 		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
 		maskHolder = new MasksHolder(16, masksGfx);
 
-		WorldInformation wi = WorldInformation.load(worldName);
+		wi = WorldInformation.load(worldName);
 
-		try {
-			InputStream i = TTResource.map(worldName, CTC_MAP).open();
-			DataInputStream di = new DataInputStream(i);
-			GameMap gameMap = new GameMap(di);
+		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
+		loadLegacyMap(mapOpenable);
+		
+		// player.c.x = 1980;
+		// player.c.y = 1020;
+		snapScreenTo(player.c);
+		
+		gameMap.applyRt(wi.blockRandomisationTable);
 
-			// get the game map off the front of the stream
-			gameMap.applyRt(wi.blockRandomisationTable);
-
-			// read the other things
-			for (;;) {
-				String id = readChunkId(di);
-				if (id.equals("set2")) {
-					byte[] rawSettings = new byte[0x30];
-					di.readFully(rawSettings);
-					loadRawSettings(rawSettings);
-				}
-				else if (id.equals("obj2")) {
-					for (;;) {
-
-						int x = di.readShort();
-						int y = di.readShort();
-						if (x < 0) break;
-						int type = di.readByte();
-						byte[] rest = new byte[21];
-						di.readFully(rest);
-
-						loadLegacyAlienIntoWorld(x, y, type, rest);
-					}
-				}
-				else if (id.equals("pal2")) {
-					while (di.readShort() != -1) {
-					}
-				}
-				else if (id.equals("end!")) {
-					break;
-				}
-				else {
-					throw new RuntimeException("Unknown chunk: " + id);
-				}
-			}
-
-			// TODO: ctor??
-			this.gameMap = gameMap;
-			this.wi = wi;
-
-			// player.c.x = 1980;
-			// player.c.y = 1020;
-			snapScreenTo(player.c);
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 }
