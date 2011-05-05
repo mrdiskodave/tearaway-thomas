@@ -1,9 +1,12 @@
 #!/usr/bin/python -3
 
+#
+# fish the level information out of the original source
+# for now i'm ignoring fruit-em-ups and bonus-stages
+# and toyland and futureland
+#
+
 import json
-import sys
-import shelltools
-import os
 import re
 
 s = """
@@ -119,42 +122,13 @@ s = """
 """
 
 
-cycle = 0
-levels = []
-for l in s.split('\n'):
-	l = re.sub(r"^\*.*", "", l)
-	l = re.sub(r";.*", "", l)
-	l = re.sub(r"\s+dc\.b\s+", "", l)
-	l = l.strip()
-	if l:
-		if cycle==0:
-			level = {}
-			m = re.match(r'"(.*?)"', l)
-			assert m
-			level['map'] = m.group(1)
-		if cycle==1:
-			m = re.match(r'"(.*?)"', l)
-			assert m
-			level['title'] = m.group(1)
-		if cycle==2:
-			items = l.split(',')
-			items = [ eval(x) for x in items ]
-			level['gemsNeeded'] = items[0]
-			level['timeGiven'] = items[1]
-			level['horizon'] = items[2]
-			levels.append(level)
-		cycle += 1
-		cycle %= 3
-
-print json.dumps(levels, sort_keys=True, indent=4)
 
 
 
 
 
 
-
-END_OF_FILE = """
+IGNORED_FOR_NOW = """
 
 *>
 	; FUTURE MAPS
@@ -273,18 +247,6 @@ skiptab	; skiponlevel,tolevel
 	dc.b	"r u challenged?",0
 	dc.b	55,20,0,02
 
-
-
-
-
-
-
-
-
-
-
-
-
 	dc.b	"w4.map",0	10
 	dc.b	"r u challenged?",0
 	dc.b	00,20,6,01
@@ -298,3 +260,36 @@ skiptab	; skiponlevel,tolevel
 	dc.b	0,30,2,04
 
 """
+
+
+
+cycle = 0
+levels = []
+for l in s.split('\n'):
+	l = re.sub(r"^\*.*", "", l)
+	l = re.sub(r";.*", "", l)
+	l = re.sub(r"\s+dc\.b\s+", "", l)
+	l = l.strip()
+	if l:
+		if cycle==0:
+			level = {}
+			m = re.match(r'"(.*?)"', l)
+			assert m
+			level['map'] = m.group(1)
+		if cycle==1:
+			m = re.match(r'"(.*?)"', l)
+			assert m
+			level['title'] = m.group(1)
+		if cycle==2:
+			items = l.split(',')
+			items = [ eval(x) for x in items ]
+			level['gemsNeeded'] = items[0]
+			level['timeGiven'] = items[1]
+			level['horizon'] = items[2]
+			levels.append(level)
+		cycle += 1
+		cycle %= 3
+
+print json.dumps(levels, sort_keys=True, indent=4)
+
+
