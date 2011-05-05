@@ -1,0 +1,170 @@
+[
+    {
+        "gemsNeeded": 15, 
+        "horizon": 1, 
+        "map": "w0.map", 
+        "timeGiven": 50, 
+        "title": "fast things first"
+    }, 
+    {
+        "gemsNeeded": 40, 
+        "horizon": 2, 
+        "map": "w9.map", 
+        "timeGiven": 65, 
+        "title": "its like falling off a log"
+    }, 
+    {
+        "gemsNeeded": 40, 
+        "horizon": 4, 
+        "map": "w1.map", 
+        "timeGiven": 50, 
+        "title": "number 3 - the larch"
+    }, 
+    {
+        "gemsNeeded": 45, 
+        "horizon": 1, 
+        "map": "w2.map", 
+        "timeGiven": 60, 
+        "title": "the worm that turned"
+    }, 
+    {
+        "gemsNeeded": 45, 
+        "horizon": 3, 
+        "map": "w3.map", 
+        "timeGiven": 60, 
+        "title": "famous five"
+    }, 
+    {
+        "gemsNeeded": 50, 
+        "horizon": 7, 
+        "map": "w5.map", 
+        "timeGiven": 65, 
+        "title": "rope and glory"
+    }, 
+    {
+        "gemsNeeded": 60, 
+        "horizon": 6, 
+        "map": "w6.map", 
+        "timeGiven": 75, 
+        "title": "wood bee honey thief"
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 3, 
+        "map": "w7.map", 
+        "timeGiven": 45, 
+        "title": "number 9 - the larch"
+    }, 
+    {
+        "gemsNeeded": 50, 
+        "horizon": 0, 
+        "map": "g0.map", 
+        "timeGiven": 75, 
+        "title": "tangled teleports"
+    }, 
+    {
+        "gemsNeeded": 70, 
+        "horizon": 1, 
+        "map": "g2.map", 
+        "timeGiven": 85, 
+        "title": "haunted house"
+    }, 
+    {
+        "gemsNeeded": 60, 
+        "horizon": 2, 
+        "map": "g4.map", 
+        "timeGiven": 60, 
+        "title": "the clock tower"
+    }, 
+    {
+        "gemsNeeded": 45, 
+        "horizon": 3, 
+        "map": "g5.map", 
+        "timeGiven": 65, 
+        "title": "haunted hijinx"
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 4, 
+        "map": "g3.map", 
+        "timeGiven": 55, 
+        "title": "ghosted then roasted"
+    }, 
+    {
+        "gemsNeeded": 76, 
+        "horizon": 5, 
+        "map": "g6.map", 
+        "timeGiven": 80, 
+        "title": "house 2"
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 6, 
+        "map": "g1.map", 
+        "timeGiven": 50, 
+        "title": "the ghost with the most"
+    }, 
+    {
+        "gemsNeeded": 66, 
+        "horizon": 7, 
+        "map": "g7.map", 
+        "timeGiven": 99, 
+        "title": "the gallery"
+    }, 
+    {
+        "gemsNeeded": 60, 
+        "horizon": 3, 
+        "map": "i3.map", 
+        "timeGiven": 60, 
+        "title": "cool commotion"
+    }, 
+    {
+        "gemsNeeded": 90, 
+        "horizon": 1, 
+        "map": "i0.map", 
+        "timeGiven": 80, 
+        "title": "frozen frenzy"
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 4, 
+        "map": "i4.map", 
+        "timeGiven": 60, 
+        "title": "polar panic"
+    }, 
+    {
+        "gemsNeeded": 90, 
+        "horizon": 2, 
+        "map": "i1.map", 
+        "timeGiven": 85, 
+        "title": "ice is nice !not!"
+    }, 
+    {
+        "gemsNeeded": 40, 
+        "horizon": 7, 
+        "map": "i6.map", 
+        "timeGiven": 25, 
+        "title": "wheel of fortune"
+    }, 
+    {
+        "gemsNeeded": 85, 
+        "horizon": 0, 
+        "map": "i7.map", 
+        "timeGiven": 90, 
+        "title": "super slide"
+    }, 
+    {
+        "gemsNeeded": 80, 
+        "horizon": 1, 
+        "map": "i8.map", 
+        "timeGiven": 95, 
+        "title": "the polar ponds"
+    }, 
+    {
+        "gemsNeeded": 80, 
+        "horizon": 6, 
+        "map": "i5.map", 
+        "timeGiven": 99, 
+        "title": "strange loop"
+    }
+]
