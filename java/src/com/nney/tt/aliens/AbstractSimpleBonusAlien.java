@@ -1,16 +1,17 @@
-package com.nney.tt;
+package com.nney.tt.aliens;
 
-import com.nney.tt.aliens.AbstractBonusAlien;
 import com.nney.tt.sprites.Sprite;
 
-public class WingAlien extends AbstractBonusAlien {
+public abstract class AbstractSimpleBonusAlien extends AbstractBonusAlien {
 	@Override
 	protected void normalUpdate() {
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.getThePlayer().giveWings();
+			giveBonus();
 			done();
 		}
 	}
+
+	abstract protected void giveBonus();
 }

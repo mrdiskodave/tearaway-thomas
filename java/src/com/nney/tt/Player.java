@@ -141,8 +141,10 @@ public class Player extends Alien {
 	private boolean flying;
 
 	private boolean canFly;
+	
+	private boolean hasStar;
 
-	private boolean inGroundLatch;
+	private boolean inTheGroundBefore;
 
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
@@ -330,14 +332,15 @@ public class Player extends Alien {
 	 *         <code>false</code> meaning ("we are still in the air").
 	 */
 	private boolean landingLights() {
+		// SCC2
 		if (srv.inTheGround(c)) {
 			// in the ground
-			if (!inGroundLatch) {
-				inGroundLatch = true;
-				// for the first time
+			if (!inTheGroundBefore) {
+				// for the first time!
 				// ... what is above?
 				c.y--;
 				if (srv.inTheGround(c)) {
+					inTheGroundBefore = true;
 					// ground ... so we are entering the ground
 					c.y++;
 					System.out.println("LL: entering ground");
@@ -345,7 +348,7 @@ public class Player extends Alien {
 				}
 				else {
 					// sky! ... so we are touching down
-					inGroundLatch = false;
+					inTheGroundBefore = false;
 					System.out.println("LL: touching down");
 					return true;
 				}
@@ -355,7 +358,7 @@ public class Player extends Alien {
 		}
 		else {
 			// in the sky
-			inGroundLatch = false;
+			inTheGroundBefore = false;
 			return false;
 		}
 	}
@@ -881,6 +884,14 @@ public class Player extends Alien {
 		srv.drawSprite(c, playerSprite, drawInWhite);
 	}
 
+	public void giveStar() {
+		hasStar = true;
+	}
+	
+	public boolean gotStar() {
+		return hasStar;
+	}
+	
 	public void giveShield() {
 		proofTimer = 50 * 13;
 		flashTimer = 50 * 12;

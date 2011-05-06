@@ -1,15 +1,9 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.sprites.Sprite;
 
-public class ShieldAlien extends AbstractBonusAlien {
+public class ShieldAlien extends AbstractSimpleBonusAlien {
 	@Override
-	protected void normalUpdate() {
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
-		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.getThePlayer().giveShield();
-			done();
-		}
+	protected void giveBonus() {
+		srv.getThePlayer().giveShield();
 	}
 }

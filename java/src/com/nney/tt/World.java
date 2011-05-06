@@ -21,8 +21,10 @@ import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SpriteAlien;
+import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.aliens.WingAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -135,6 +137,7 @@ public class World implements AlienServices, Joystick {
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
+		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
@@ -755,10 +758,10 @@ public class World implements AlienServices, Joystick {
 		String worldName = CTC_WORLD;
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
-		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx);
+		wi = WorldInformation.load(worldName);
+		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx, wi.invisibleBlockHiding);
 		maskHolder = new MasksHolder(16, masksGfx);
 
-		wi = WorldInformation.load(worldName);
 
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
 		loadLegacyMap(mapOpenable);
@@ -768,6 +771,7 @@ public class World implements AlienServices, Joystick {
 		snapScreenTo(player.c);
 		
 		gameMap.applyRt(wi.blockRandomisationTable);
-
 	}
+
+	
 }

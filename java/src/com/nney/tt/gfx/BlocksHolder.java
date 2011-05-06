@@ -7,6 +7,7 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
+import com.nney.tt.map.BlockRandomisationTable;
 import com.nney.utils.Openable;
 
 public class BlocksHolder {
@@ -21,19 +22,24 @@ public class BlocksHolder {
 
 	private int listBase;
 	
-	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable) {
+	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable, BlockRandomisationTable hiding) {
 		this.blockSize = blockSize;
 		this.gridSize = gridSize;
 		this.gridCapacity = gridSize*gridSize;
 		
 		TemporaryBlockSource sbi = new TemporaryBlockSource(blocksOpenable, blockSize, blockSize);
 		blockCount = sbi.getBlockCount();
+		if (hiding!=null) {
+			for (int b=0; b<blockCount; b++) {
+				sbi.hideBlock(b, hiding.compress(b));
+			}
+		}
 		
 		int gridEdge = gridSize*blockSize;
 		SimpleImage grid = SimpleImage.createEmpty(gridEdge, gridEdge);
 		
 		int gridPos = 0;
-		for (int b=0; b<sbi.getBlockCount(); b++) {
+		for (int b=0; b<blockCount; b++) {
 			int x = gridPos&gridSize-1;
 			int y = gridPos/gridSize;
 			x *= blockSize;

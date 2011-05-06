@@ -8,8 +8,8 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 
 public class AlienTracker {
-	final private List<Alien> backgroundAlienList = new LinkedList<Alien>();
 	final private List<Alien> foregroundAlienList = new LinkedList<Alien>();
+	final private List<Alien> backgroundAlienList = new LinkedList<Alien>();
 	final private List<Alien> delayedAdditions = new LinkedList<Alien>();
 
 	final private Fridge<Alien> freezeTop = new Fridge<Alien>("top");

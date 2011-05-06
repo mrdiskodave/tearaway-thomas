@@ -12,11 +12,13 @@ import com.nney.utils.StringIO;
 
 public class WorldInformation {
 	public final BlockRandomisationTable blockRandomisationTable;
+	public final BlockRandomisationTable invisibleBlockHiding;
 	public final BlockInformation blockInformation;
 	public final LadderInformation ladderInformation;
 
-	private WorldInformation(BlockRandomisationTable rt, BlockInformation bi, LadderInformation li) {
+	private WorldInformation(BlockRandomisationTable rt, BlockRandomisationTable ih, BlockInformation bi, LadderInformation li) {
 		this.blockRandomisationTable = rt;
+		this.invisibleBlockHiding = ih;
 		this.blockInformation = bi;
 		this.ladderInformation = li;
 	}
@@ -25,7 +27,6 @@ public class WorldInformation {
 		try {
 			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
 			JsonValue v = JsonValue.parse(t);
-			BlockRandomisationTable rt = new BlockRandomisationTable(v.requireField("rt"));
 			BlockInformation bi = new BlockInformation(v.requireField("spec"));
 			LadderInformation ladderInfo = null;
 			if (v.fieldExists("ladder")) {
@@ -34,8 +35,9 @@ public class WorldInformation {
 				int bottom = ladderDi.requireField("bottom").requireInt();
 				ladderInfo = new LadderInformation(top, bottom);
 			}
-			return new WorldInformation(rt, bi, ladderInfo);
-
+			BlockRandomisationTable rt = new BlockRandomisationTable(v.requireField("rt"));
+			BlockRandomisationTable ih = new BlockRandomisationTable(v.requireField("invisibleBlockHiding"));
+			return new WorldInformation(rt, ih, bi, ladderInfo);
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);

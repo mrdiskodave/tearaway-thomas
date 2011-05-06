@@ -17,10 +17,10 @@ public class StopAlien extends Alien {
 		boolean collide = box.inside(pp);
 		if (collide) {
 			if (c.x < pp.x) {
-				pp.x = box.right;
+				pp.x = box.right+1;
 			}
 			else {
-				pp.x = box.left;
+				pp.x = box.left-1;
 			}
 			System.out.println("Pushed by a StopAlien of width "+box.width());
 		}

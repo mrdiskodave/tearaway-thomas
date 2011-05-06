@@ -20,10 +20,10 @@ public class TemporaryBlockSource {
 		assert allBlocksHeight % miniH == 0;
 		blocksHorizontally = allBlocksWidth / miniW;
 		int blocksVertically = allBlocksHeight / miniH;
-		
+
 		int bc = blocksHorizontally * blocksVertically;
 		for (;;) {
-			SimpleImage blockView = getBlock(bc-1); 
+			SimpleImage blockView = getBlock(bc - 1);
 			if (!blockView.isEntirely(0xffff0101)) break;
 			blockView.fill(0);
 			bc--;
@@ -33,6 +33,15 @@ public class TemporaryBlockSource {
 
 	public TemporaryBlockSource(Openable blocksOpenable, int miniW, int miniH) {
 		this(new SimpleImage(OpenableTools.mustLoad(blocksOpenable)), miniW, miniH);
+	}
+
+	public void hideBlock(int src, int dest) {
+		if (src != dest) {
+			System.out.println(String.format("Hiding %d with %d", src, dest));
+			SimpleImage tmp = SimpleImage.createEmpty(miniW, miniH);
+			tmp.overwriteWith(getBlock(src));
+			getBlock(dest).overwriteWith(tmp);
+		}
 	}
 
 	public Bounds getBlockBounds(int b) {

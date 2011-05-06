@@ -7,7 +7,8 @@ import java.util.Random;
 import com.nney.json.DataItem;
 
 public class BlockRandomisationTable {
-	private final HashMap<Integer, ArrayList<Integer>> tm = new HashMap<Integer, ArrayList<Integer>>(1, 0.1f);
+	private final HashMap<Integer, ArrayList<Integer>> expand = new HashMap<Integer, ArrayList<Integer>>(1, 0.1f);
+	private final HashMap<Integer, Integer> compress = new HashMap<Integer, Integer>(1, 0.1f);
 	
 	private final Random r = new Random();
 	
@@ -17,22 +18,39 @@ public class BlockRandomisationTable {
 			for (DataItem x: line.requireList()) {
 				al.add(x.requireInt());
 			}
-			for (int x: al) {
-				registerTransformation(x, al);
+			registerLine(al);
+		}
+	}
+
+	private void registerLine(ArrayList<Integer> al) {
+		for (int x=0; x<al.size(); x++) {
+			registerExpansion(al.get(x), al);
+			if (x!=0) {
+				registerCompression(al.get(x), al.get(0));
 			}
 		}
 	}
 
-	public void registerTransformation(int block, ArrayList<Integer> becomes) {
-		assert !tm.containsKey(block);
-		tm.put(block, becomes);
+	private void registerCompression(Integer src, Integer dest) {
+		assert !compress.containsKey(src);
+		compress.put(src, dest);
+	}
+
+	private void registerExpansion(Integer src, ArrayList<Integer> dest) {
+		assert !expand.containsKey(src);
+		expand.put(src, dest);
 	}
 
 	public int shuffle(int block) {
-		if (!tm.containsKey(block)) return block;
+		if (!expand.containsKey(block)) return block;
 
-		ArrayList<Integer> a = tm.get(block);
+		ArrayList<Integer> a = expand.get(block);
 		return a.get(r.nextInt(a.size()));
 	}
-
+	
+	public int compress(int block) {
+		Integer block2 = compress.get(block);
+		if (block2==null) return block;
+		return block2;
+	}
 }
