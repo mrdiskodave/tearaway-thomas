@@ -7,6 +7,7 @@ public abstract class AbstractSimpleBonusAlien extends AbstractBonusAlien {
 	protected void normalUpdate() {
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
+		if (!isFalling()) freezeBounds = spriteBounds(s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
 			giveBonus();
 			done();

@@ -38,9 +38,7 @@ public class TemporaryBlockSource {
 	public void hideBlock(int src, int dest) {
 		if (src != dest) {
 			System.out.println(String.format("Hiding %d with %d", src, dest));
-			SimpleImage tmp = SimpleImage.createEmpty(miniW, miniH);
-			tmp.overwriteWith(getBlock(src));
-			getBlock(dest).overwriteWith(tmp);
+			getBlock(dest).overwriteWith(getBlock(src));
 		}
 	}
 

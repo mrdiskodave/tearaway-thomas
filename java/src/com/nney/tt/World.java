@@ -13,8 +13,10 @@ import com.nney.tt.aliens.AbstractGemAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
+import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
+import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
@@ -115,6 +117,7 @@ public class World implements AlienServices, Joystick {
 		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
+		aim.add(new AlienInfo(6, "0bgem", BigGemAlien.class));
 		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
 		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
@@ -139,6 +142,7 @@ public class World implements AlienServices, Joystick {
 		aim.add(new AlienInfo(72, "wlog0", LiftAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
+		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));
 		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
@@ -241,7 +245,7 @@ public class World implements AlienServices, Joystick {
 	}
 
 	@Override
-	public void removeOneGem(int score, Coord noticeLocation) {
+	public void oneLessGem(int score, Coord noticeLocation) {
 		if (isExitOpen()) {
 			score *= 2;
 		}

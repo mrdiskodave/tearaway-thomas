@@ -95,7 +95,11 @@ public interface AlienServices {
 
 	void magicDust(Coord where);
 
-	void removeOneGem(int score, Coord noticeLocation);
+	/**
+	 * Like {@link #giveScore(int, Coord)} but for gems. Also decrements the
+	 * remaining gem counter and doubles the score if the exit is already open.
+	 */
+	void oneLessGem(int score, Coord notice);
 
 	boolean isExitOpen();
 }

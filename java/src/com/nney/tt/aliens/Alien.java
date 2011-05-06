@@ -1,13 +1,12 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.Fridge;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
-import com.nney.tt.sprites.Sprite;
 import com.nney.tt.sprites.Anims;
+import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
 	public Coord c = new Coord();
@@ -93,7 +92,11 @@ public abstract class Alien {
 
 	abstract public void update();
 	
-	public void done() {
+	protected void done() {
 		remove = true;
+	}
+
+	protected Box spriteBounds(Sprite s) {
+		return Box.fromTopLeftAndSize(c.x-s.handleX, c.y-s.handleY, s.w, s.h);
 	}
 }

@@ -35,8 +35,9 @@ public abstract class AbstractGemAlien extends AbstractBonusAlien {
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);
 
+		// TODO: we're too small for this! (play tunnels when sliding on ice)
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
-			srv.removeOneGem(ourValue(), c.copyAndMove(0, -8));
+			srv.oneLessGem(ourValue(), c.copyAndMove(0, -8));
 			done();
 		}
 

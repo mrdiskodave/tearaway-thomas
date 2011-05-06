@@ -18,7 +18,6 @@ public class SpriteAlien extends Alien {
 		changeAnimation(0);
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
-		freezeBounds = Box.fromTopLeftAndSize(c.x-s.handleX, c.y-s.handleY, s.w, s.h);
+		freezeBounds = spriteBounds(s);
 	}
-
 }
