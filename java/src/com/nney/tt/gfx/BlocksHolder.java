@@ -22,16 +22,16 @@ public class BlocksHolder {
 
 	private int listBase;
 	
-	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable, BlockRandomisationTable hiding) {
+	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable, BlockRandomisationTable invisibleBlockHiding) {
 		this.blockSize = blockSize;
 		this.gridSize = gridSize;
 		this.gridCapacity = gridSize*gridSize;
 		
 		TemporaryBlockSource sbi = new TemporaryBlockSource(blocksOpenable, blockSize, blockSize);
 		blockCount = sbi.getBlockCount();
-		if (hiding!=null) {
+		if (invisibleBlockHiding!=null) {
 			for (int b=0; b<blockCount; b++) {
-				sbi.hideBlock(b, hiding.compress(b));
+				sbi.hideBlock(invisibleBlockHiding.compress(b), b);
 			}
 		}
 		

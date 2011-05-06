@@ -46,13 +46,16 @@ import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, Joystick {
 
-	// // lift
-	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 9;
+	// lift
+//	private static final String CTC_WORLD = "w";
+//	private static final int CTC_MAP = 9;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
 	// private static final int CTC_MAP = 0;
+
+	private static final String CTC_WORLD = "g";
+	private static final int CTC_MAP = 0;
 
 	/**
 	 * Compile time configuration: play in level containing only the map.
@@ -192,8 +195,11 @@ public class World implements AlienServices, Joystick {
 	@Override
 	public boolean blockInfoIs(Coord c, String name) {
 		String s = getBlockInfo(c);
-		// System.out.println(String.format("Is %s really %s", s, name));
-		return s != null && s.equals(name);
+		boolean answer = s != null && s.equals(name);
+//		if (answer) {
+//			System.out.println(String.format("Is %s is %s", getBlock(c), name));
+//		}
+		return answer;
 	}
 
 	@Override
