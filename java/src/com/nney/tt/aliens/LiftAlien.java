@@ -1,36 +1,71 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.geom.Box;
+import com.nney.tt.Player;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.sprites.Sprite;
 
-public class LiftAlien extends AbstractLiftAlien {
-	private Box box;
-
-	@Override
-	public void load() {
-		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
-	}
-
-	static int sine(int idx) {
-		int maxInput = 1024;
-		int maxOutput = 1024;
-		idx &= maxInput - 1;
-		double angle = (2 * Math.PI * idx) / maxInput;
-		return (int) (Math.sin(angle) * maxOutput);
-	}
-
+public abstract class LiftAlien extends Alien {
+	private Coord lc;
+	private int lastMoveFrmNum;
+	private Sprite ourSprite;
 
 	@Override
-	protected void setPosition() {
-		int angle = srv.getFrameNumber() * 8;
-		Coord origin = new Coord((box.left + box.right) / 2, box.top);
-		int spin = sine(angle) / 4 + 256;
-		int xo = sine(spin + 256) * box.width();
-		int yo = sine(spin) * box.height();
-		xo /= 1024 * 2;
-		yo /= 1024;
-		c.x = origin.x + xo;
-		c.y = origin.y + yo;
+	public void init() {
+		changeAnimation(0);
+		ourSprite = nextFrame();
 	}
 
+	abstract protected void setPosition();
+
+	/**
+	 * This lift moves itself but when the player is on it then the player (who
+	 * moves first, in the order of things) needs to move it in order to
+	 * establish how to move himself. To simplify this: any method that needs a
+	 * lift that has been moved once this frame just calls this method. The risk
+	 * of moving this lift twice is then zero.
+	 */
+	private void moveIfWeNeedTo() {
+		int frmNum = srv.getFrameNumber();
+		if (frmNum != lastMoveFrmNum) {
+			lastMoveFrmNum = frmNum;
+			lc = c.copy();
+			setPosition();
+		}
+	}
+
+	private Coord lastFrameDelta() {
+		moveIfWeNeedTo();
+		Coord delta = c.copy();
+		delta.sub(lc);
+		return delta;
+	}
+
+	@Override
+	public void update() {
+		moveIfWeNeedTo();
+
+		srv.drawSprite(c, ourSprite);
+
+		Player p = srv.getThePlayer();
+		if (p.isReadyToBoardALift()) {
+			int landOn = c.y - 1;
+			boolean verticalCrossing = p.lc.y < landOn && p.c.y >= landOn;
+			if (horizontalOverlap(p) && verticalCrossing) {
+				p.startLiftMode(this, landOn);
+			}
+		}
+	}
+
+	public boolean horizontalOverlap(Player p) {
+		return p.c.x >= c.x && p.c.x <= (c.x + 44);
+		// TODO: hardwired constant!
+	}
+
+	public void movePlayer(Player player) {
+		player.c.add(lastFrameDelta());
+	}
+
+	public int getPlayerJumpBoost() {
+		return lastFrameDelta().y;
+	}
 }

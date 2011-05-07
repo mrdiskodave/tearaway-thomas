@@ -1,9 +1,8 @@
 package com.nney.tt.aliens;
 
-public class BigGemAlien extends AbstractSimpleBonusAlien {
+public class BigGemAlien extends GemAlien {
 	@Override
-	protected void giveBonus() {
-		srv.oneLessGem(500, c.copyAndMove(0, -15));
+	protected int ourValue() {
+		return 500;
 	}
-	// TODO: ! bent class hierarchy doesn't group gems!
 }

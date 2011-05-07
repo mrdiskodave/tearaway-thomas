@@ -5,7 +5,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public abstract class AbstractGemAlien extends AbstractBonusAlien {
+public abstract class WobbleGemAlien extends GemAlien {
 	private static final int FLAG_NO_WOBBLE = 3;
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
@@ -35,9 +35,9 @@ public abstract class AbstractGemAlien extends AbstractBonusAlien {
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);
 
-		// TODO: we're too small for this! (play tunnels when sliding on ice)
+		// TODO: we're too small for this! (player tunnels when sliding on ice)
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
-			srv.oneLessGem(ourValue(), c.copyAndMove(0, -8));
+			giveBonus();
 			done();
 		}
 
@@ -45,6 +45,4 @@ public abstract class AbstractGemAlien extends AbstractBonusAlien {
 			freezeBounds = Box.around(c, 20, 20);
 		}
 	}
-
-	protected abstract int ourValue();
 }

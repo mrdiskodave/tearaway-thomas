@@ -9,7 +9,7 @@ import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
-import com.nney.tt.aliens.AbstractGemAlien;
+import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
@@ -17,7 +17,7 @@ import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.HugeGemAlien;
-import com.nney.tt.aliens.LiftAlien;
+import com.nney.tt.aliens.LogLiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
@@ -139,7 +139,7 @@ public class World implements AlienServices, Joystick {
 		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
 		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
 		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
-		aim.add(new AlienInfo(72, "wlog0", LiftAlien.class));
+		aim.add(new AlienInfo(72, "wlog0", LogLiftAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));
@@ -620,7 +620,7 @@ public class World implements AlienServices, Joystick {
 	// MAP LOADING
 
 	private void loadAlienIntoWorld(Alien alien) {
-		if (alien instanceof AbstractGemAlien) {
+		if (alien instanceof WobbleGemAlien) {
 			gemCounter++;
 		}
 		alien.init();

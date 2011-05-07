@@ -1,6 +1,6 @@
 package com.nney.tt;
 
-import com.nney.tt.aliens.AbstractLiftAlien;
+import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
@@ -102,7 +102,7 @@ public class Player extends Alien {
 	/**
 	 * A lift, if we are standing on one, otherwise <code>null</code>.
 	 */
-	private AbstractLiftAlien standingOn;
+	private LiftAlien standingOn;
 
 	/**
 	 * Our Y velocity.
@@ -921,7 +921,7 @@ public class Player extends Alien {
 		jumpV(JUMP_VELOCITY);
 	}
 
-	public void startLiftMode(AbstractLiftAlien lift, int height) {
+	public void startLiftMode(LiftAlien lift, int height) {
 		reset();
 		mode = Mode.LIFT;
 		standingOn = lift;
@@ -971,4 +971,5 @@ public class Player extends Alien {
 }
 
 // TODO: ! it does look like I can land on stuff (from the side)
-// while still planly going upwards .. investigate
+// while still planly going upwards .. 
+// take vely into account...?

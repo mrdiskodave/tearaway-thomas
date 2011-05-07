@@ -1,8 +1,8 @@
 package com.nney.tt.aliens;
 
-public class HugeGemAlien extends AbstractSimpleBonusAlien {
+public class HugeGemAlien extends GemAlien {
 	@Override
-	protected void giveBonus() {
-		srv.oneLessGem(2500, c.copyAndMove(0, -30));
+	protected int ourValue() {
+		return 2500;
 	}
 }
