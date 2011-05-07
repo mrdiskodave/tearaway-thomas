@@ -14,7 +14,13 @@ public abstract class Alien {
 	private Anims spriteSet;
 	public byte[] srcData;
 	public boolean remove;
-	public boolean inFront;
+	public int depth = DEPTH_BACKGROUND;
+	
+	public static final int DEPTH_MAP = 0;
+	public static final int DEPTH_BACKGROUND = 1;
+	public static final int DEPTH_FOREGROUND = 2;
+	public static final int DEPTH_MAX = 3;
+	
 	public Box freezeBounds;
 	public AlienServices srv;
 

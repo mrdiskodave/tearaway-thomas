@@ -9,7 +9,9 @@ public class SpriteAlien extends Alien {
 
 	@Override
 	public void load() {
-		inFront = BitOp.test(loadByte(OBflags), FLAG_BEHIND);
+		if (BitOp.test(loadByte(OBflags), FLAG_BEHIND)) {
+			depth = DEPTH_FOREGROUND;
+		}
 	}
 
 	

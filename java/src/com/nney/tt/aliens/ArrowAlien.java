@@ -9,7 +9,7 @@ public class ArrowAlien extends Alien {
 
 	@Override
 	public void init() {
-		inFront = true;
+		depth = DEPTH_FOREGROUND;
 	}
 	
 	@Override

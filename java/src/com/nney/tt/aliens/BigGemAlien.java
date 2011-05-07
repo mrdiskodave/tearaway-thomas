@@ -5,5 +5,5 @@ public class BigGemAlien extends AbstractSimpleBonusAlien {
 	protected void giveBonus() {
 		srv.oneLessGem(500, c.copyAndMove(0, -15));
 	}
-	// TODO: ! bent class heirachy doesn't group gems!
+	// TODO: ! bent class hierarchy doesn't group gems!
 }

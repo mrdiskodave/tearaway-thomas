@@ -1,5 +1,6 @@
 package com.nney.tt;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,14 +9,21 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 
 public class AlienTracker {
-	final private List<Alien> foregroundAlienList = new LinkedList<Alien>();
-	final private List<Alien> backgroundAlienList = new LinkedList<Alien>();
+	final private List<List<Alien>> alienLists;
+
 	final private List<Alien> delayedAdditions = new LinkedList<Alien>();
 
 	final private Fridge<Alien> freezeTop = new Fridge<Alien>("top");
 	final private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
 	final private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
 	final private Fridge<Alien> freezeRight = new Fridge<Alien>("right");
+	
+	public AlienTracker() {
+		alienLists = new ArrayList<List<Alien>>();
+		for (int x=0; x<Alien.DEPTH_MAX; x++) {
+			alienLists.add(new LinkedList<Alien>());
+		}
+	}
 
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
 		for (;;) {
@@ -26,8 +34,7 @@ public class AlienTracker {
 	}
 
 	private void add(Alien alien) {
-		List<Alien> target = alien.inFront ? foregroundAlienList : backgroundAlienList;
-		target.add(alien);
+		alienLists.get(alien.depth).add(alien);
 	}
 
 
@@ -73,10 +80,10 @@ public class AlienTracker {
 	}
 
 	public Iterator<Alien> getForegroundIterator() {
-		return foregroundAlienList.iterator();
+		return alienLists.get(Alien.DEPTH_FOREGROUND).iterator();
 	}
 
 	public Iterator<Alien> getBackgroundIterator() {
-		return backgroundAlienList.iterator();
+		return alienLists.get(Alien.DEPTH_BACKGROUND).iterator();
 	}
 }

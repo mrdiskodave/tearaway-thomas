@@ -17,7 +17,7 @@ public class ScoreNoticeAlien extends Alien {
 	@Override
 	public void init() {
 		changeAnimation(Integer.toString(what));
-		inFront = true;
+		depth = DEPTH_FOREGROUND;
 	}
 
 	@Override
