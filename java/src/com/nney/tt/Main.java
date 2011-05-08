@@ -97,7 +97,7 @@ public class Main {
 	private void run() {
 		initLwjgl();
 		initOpenGL();
-		world.init2();
+		world.initFonts();
 		
 		
 		world.init();
