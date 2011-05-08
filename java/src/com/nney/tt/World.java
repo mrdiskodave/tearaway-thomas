@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
+import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
@@ -49,8 +50,8 @@ import com.nney.utils.OpenableTools;
 public class World implements AlienServices, Joystick {
 
 	// lift
-//	private static final String CTC_WORLD = "w";
-//	private static final int CTC_MAP = 9;
+	// private static final String CTC_WORLD = "w";
+	// private static final int CTC_MAP = 9;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -65,10 +66,20 @@ public class World implements AlienServices, Joystick {
 	private static final boolean CTC_TUMBLE_WEEDS = false;
 
 	/**
-	 * Compile time configuration:
+	 * Compile time configuration: the screen follows the player <b>exactly</b>.
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
+	/**
+	 * Compile time configuration: Only have instantiate once instance of each
+	 * alien type that is present on a level (the others are ignored).
+	 */
+	private static final boolean CTC_ITEM_ONCE = false;
+
+	/**
+	 * Compile time configuration: See the block masks (that determine ground or
+	 * sky) rather than the block graphics.
+	 */
 	private static final boolean CTC_SEE_MASKS = false;
 
 	private BlocksHolder blocksHolder;
@@ -78,11 +89,12 @@ public class World implements AlienServices, Joystick {
 	public MyFont font;
 
 	public Coord screen = new Coord();
-	public GameMap gameMap;
 	public MasksHolder maskHolder;
 	public Player player;
 
+	public GameMap gameMap;
 	public Box mapBounds;
+	private AlienTracker alienTracker = new AlienTracker();
 
 	public int frameNumber;
 
@@ -107,9 +119,9 @@ public class World implements AlienServices, Joystick {
 
 	private GlTexture horizon;
 
-	private AlienTracker alienTracker = new AlienTracker();
 	private AlienInfoMap alienInfoMap;
 	private AnimsPool animsPool;
+	private int teleAttempt;
 
 	public World() {
 		AlienInfoMap aim = new AlienInfoMap();
@@ -122,6 +134,7 @@ public class World implements AlienServices, Joystick {
 		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
 		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
+		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
 		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
 		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
@@ -156,7 +169,7 @@ public class World implements AlienServices, Joystick {
 		alienInfoMap = aim;
 	}
 
-	void init2() {
+	void initFonts() {
 		debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
 				MyFont.characterRangeHelper(0, 128));
 
@@ -200,9 +213,9 @@ public class World implements AlienServices, Joystick {
 	public boolean blockInfoIs(Coord c, String name) {
 		String s = getBlockInfo(c);
 		boolean answer = s != null && s.equals(name);
-//		if (answer) {
-//			System.out.println(String.format("Is %s is %s", getBlock(c), name));
-//		}
+		// if (answer) {
+		// System.out.println(String.format("Is %s is %s", getBlock(c), name));
+		// }
 		return answer;
 	}
 
@@ -402,6 +415,30 @@ public class World implements AlienServices, Joystick {
 		return false;
 	}
 
+	@Override
+	public boolean collideBoxWithPlayer(Coord alienPos, Box box) {
+		int diffX = player.c.x - alienPos.x;
+		int diffY = player.c.y - alienPos.y;
+
+		// drawAbsoluteDebugText(new Coord(0, 50), String.format("%s %s,%s",
+		// box, diffX, diffY));
+
+		if (diffX >= box.left - 8) {
+			if (diffX <= box.right + 8) {
+				// drawAbsoluteDebugText(new Coord(0, 70),
+				// String.format("X overlap"));
+				if (diffY >= box.top) {
+					if (diffY <= box.bottom + 30) {
+						// drawAbsoluteDebugText(new Coord(0, 90),
+						// String.format("Y overlap"));
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	// TODO: unused
 	@Override
 	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
@@ -529,12 +566,12 @@ public class World implements AlienServices, Joystick {
 		//
 		// ... well, it's either that or we separate out moving and drawing (or
 		// queue the drawing) and also accept that we won't know the exact
-		// placement of the screen until quite late (which makes pixels perfect
+		// placement of the screen until quite late (which makes pixel-perfect
 		// Alien freezing and defrosting impossible). That's a big voyage into
 		// new territory for little gain.
 		//
-		// For now, it'll work how it used to. For the first time I can say "I
-		// am clear about the limits this imposes".
+		// For now, it'll work how it used to but, for the first time, I can say
+		// "I am clear about the limits this imposes".
 		//
 	}
 
@@ -642,7 +679,7 @@ public class World implements AlienServices, Joystick {
 		player.c.x = dis.readShort();
 		player.c.y = dis.readShort();
 		player.goLeft = dis.readByte() != 0;
-	
+
 		dis.readByte(); // blkset
 		dis.readByte(); // specjsr1
 		dis.readByte(); // specjsr2
@@ -664,8 +701,10 @@ public class World implements AlienServices, Joystick {
 		try {
 			AlienInfo alienInfo = alienInfoMap.getByType(type);
 			if (alienInfo != null) {
-				// aim.remove(type); // ONCE!
-	
+				if (CTC_ITEM_ONCE) {
+					alienInfoMap.removeByType(type); // ONCE!
+				}
+
 				Alien alien = alienInfo.instantiate();
 				alien.srv = this;
 				if (alienInfo.animsName != null) {
@@ -680,12 +719,12 @@ public class World implements AlienServices, Joystick {
 				alien.c.y = y;
 				alien.srcData = rest;
 				alien.load();
-	
+
 				// if (alien instanceof LoadsFromSpriteDef) {
 				// ((LoadsFromSpriteDef)
 				// alien).load(adp.load(alienInfo.animsName));
 				// }
-	
+
 				loadAlienIntoWorld(alien);
 			}
 			else {
@@ -711,8 +750,7 @@ public class World implements AlienServices, Joystick {
 			DataInputStream di = new DataInputStream(i);
 			// get the game map off the front of the stream
 			gameMap = new GameMap(di);
-	
-	
+
 			// read the other things
 			for (;;) {
 				String id = readChunkId(di);
@@ -729,7 +767,7 @@ public class World implements AlienServices, Joystick {
 						int type = di.readByte();
 						byte[] rest = new byte[21];
 						di.readFully(rest);
-	
+
 						loadLegacyAlienIntoWorld(x, y, type, rest);
 					}
 				}
@@ -744,7 +782,7 @@ public class World implements AlienServices, Joystick {
 					throw new RuntimeException("Unknown chunk: " + id);
 				}
 			}
-	
+
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -772,16 +810,26 @@ public class World implements AlienServices, Joystick {
 		blocksHolder = new BlocksHolder(16, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx, wi.invisibleBlockHiding);
 		maskHolder = new MasksHolder(16, masksGfx);
 
-
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
 		loadLegacyMap(mapOpenable);
-		
+
 		// player.c.x = 1980;
 		// player.c.y = 1020;
 		snapScreenTo(player.c);
-		
+
 		gameMap.applyRt(wi.blockRandomisationTable);
 	}
 
-	
+	@Override
+	public void teleportTo(Coord destination) {
+		// if we didn't try teleporting last frame
+		if (teleAttempt + 1 != frameNumber) {
+			// do it
+			player.c = destination;
+			snapScreenTo(destination);
+		}
+		teleAttempt = frameNumber;
+		// (this stops us vibrating between two teleports)
+	}
+
 }

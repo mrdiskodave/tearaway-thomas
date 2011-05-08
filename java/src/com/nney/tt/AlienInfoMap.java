@@ -15,7 +15,6 @@ public class AlienInfoMap {
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
 	
-
 	void add(AlienInfo a) {
 		typeToAlienInfo.put(a.id, a);
 		classToAlienInfo.put(a.alienClass, a);
@@ -39,6 +38,10 @@ public class AlienInfoMap {
 
 	public AlienInfo getByType(int type) {
 		return typeToAlienInfo.get(type);
+	}
+	
+	void removeByType(int type) {
+		typeToAlienInfo.remove(type);
 	}
 
 	public AlienInfo getByClass(Class<? extends Alien> c) {

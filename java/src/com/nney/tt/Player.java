@@ -970,6 +970,6 @@ public class Player extends Alien {
 	}
 }
 
-// TODO: ! it does look like I can land on stuff (from the side)
+// TODO: 99: it does look like I can land on stuff (from the side)
 // while still planly going upwards .. 
 // take vely into account...?

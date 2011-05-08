@@ -102,4 +102,8 @@ public interface AlienServices {
 	void oneLessGem(int score, Coord notice);
 
 	boolean isExitOpen();
+
+	boolean collideBoxWithPlayer(Coord alienPos, Box box);
+
+	void teleportTo(Coord destination);
 }

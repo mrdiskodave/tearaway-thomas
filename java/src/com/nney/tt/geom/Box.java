@@ -23,6 +23,11 @@ public class Box {
 		return Box.fromTopLeftAndSize(c.x, c.y, width, height);
 	}
 
+	public static Box fromSquare(int i) {
+		return new Box(-i, -i, i, i);
+	}
+
+	
 	public static Box fromTopLeftAndSize(int x, int y, int width, int height) {
 		return new Box(x, y, x+width-1, y+height-1);
 	}
@@ -65,5 +70,9 @@ public class Box {
 	public int height() {
 		return 1 + bottom - top;
 	}
-
+	
+	@Override
+	public String toString() {
+		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
+	}
 }
