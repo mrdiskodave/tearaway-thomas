@@ -70,11 +70,6 @@ public class World implements AlienServices, Joystick {
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
-	/**
-	 * Compile time configuration: Only have instantiate once instance of each
-	 * alien type that is present on a level (the others are ignored).
-	 */
-	private static final boolean CTC_ITEM_ONCE = false;
 
 	/**
 	 * Compile time configuration: See the block masks (that determine ground or
@@ -657,6 +652,7 @@ public class World implements AlienServices, Joystick {
 	// MAP LOADING
 
 	private void loadAlienIntoWorld(Alien alien) {
+		alien.srv = this;
 		if (alien instanceof WobbleGemAlien) {
 			gemCounter++;
 		}
@@ -664,130 +660,6 @@ public class World implements AlienServices, Joystick {
 		alienTracker.delayedAdd(alien);
 	}
 
-	private String readChunkId(DataInputStream di) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		for (int r = 4; r-- > 0;) {
-			sb.append((char) di.readByte());
-		}
-		String id = sb.toString();
-		System.out.println("Got chunk: >" + id + "<");
-		return id;
-	}
-
-	private void loadRawSettings(byte[] rawSettings) throws IOException {
-		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
-		player.c.x = dis.readShort();
-		player.c.y = dis.readShort();
-		player.goLeft = dis.readByte() != 0;
-
-		dis.readByte(); // blkset
-		dis.readByte(); // specjsr1
-		dis.readByte(); // specjsr2
-		dis.readByte(); // specjsr3
-		int minx = dis.readByte() & 0xff;
-		int maxx = dis.readByte() & 0xff;
-		int miny = dis.readByte() & 0xff;
-		int maxy = dis.readByte() & 0xff;
-		minx *= 16;
-		maxx *= 16;
-		maxx += 15;
-		miny *= 16;
-		maxy *= 16;
-		maxy += 15;
-		mapBounds = new Box(minx, miny, maxx, maxy);
-	}
-
-	private void loadLegacyAlienIntoWorld(int x, int y, int type, byte[] rest) {
-		try {
-			AlienInfo alienInfo = alienInfoMap.getByType(type);
-			if (alienInfo != null) {
-				if (CTC_ITEM_ONCE) {
-					alienInfoMap.removeByType(type); // ONCE!
-				}
-
-				Alien alien = alienInfo.instantiate();
-				alien.srv = this;
-				if (alienInfo.animsName != null) {
-					Anims anims = animsPool.load(alienInfo.animsName);
-					alien.connectAnims(anims);
-				}
-				if (type == 2 || type == 3) {
-					// this is what gem_render -> bob_gem does
-					x += 8;
-				}
-				alien.c.x = x;
-				alien.c.y = y;
-				alien.srcData = rest;
-				alien.load();
-
-				// if (alien instanceof LoadsFromSpriteDef) {
-				// ((LoadsFromSpriteDef)
-				// alien).load(adp.load(alienInfo.animsName));
-				// }
-
-				loadAlienIntoWorld(alien);
-			}
-			else {
-				TextAlien alien = new TextAlien();
-				alien.srv = this;
-				alien.setText(String.format("%d", type));
-				alien.c.x = x;
-				alien.c.y = y;
-				loadAlienIntoWorld(alien);
-			}
-		}
-		catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		}
-		catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void loadLegacyMap(Openable mapOpenable) {
-		try {
-			InputStream i = mapOpenable.open();
-			DataInputStream di = new DataInputStream(i);
-			// get the game map off the front of the stream
-			gameMap = new GameMap(di);
-
-			// read the other things
-			for (;;) {
-				String id = readChunkId(di);
-				if (id.equals("set2")) {
-					byte[] rawSettings = new byte[0x30];
-					di.readFully(rawSettings);
-					loadRawSettings(rawSettings);
-				}
-				else if (id.equals("obj2")) {
-					for (;;) {
-						int x = di.readShort();
-						int y = di.readShort();
-						if (x < 0) break;
-						int type = di.readByte();
-						byte[] rest = new byte[21];
-						di.readFully(rest);
-
-						loadLegacyAlienIntoWorld(x, y, type, rest);
-					}
-				}
-				else if (id.equals("pal2")) {
-					while (di.readShort() != -1) {
-					}
-				}
-				else if (id.equals("end!")) {
-					break;
-				}
-				else {
-					throw new RuntimeException("Unknown chunk: " + id);
-				}
-			}
-
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	void init() {
 		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
@@ -811,7 +683,18 @@ public class World implements AlienServices, Joystick {
 		maskHolder = new MasksHolder(16, masksGfx);
 
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
-		loadLegacyMap(mapOpenable);
+
+		PersistedMap pm = new PersistedMap();
+		pm.loadLegacy(animsPool, alienInfoMap, mapOpenable);
+		for (Alien a: pm.aliens) {
+			loadAlienIntoWorld(a);
+		}
+		mapBounds = pm.mapBounds;
+		player.c.x = pm.playerX;
+		player.c.y = pm.playerY;
+		player.goLeft = pm.playerGoLeft;
+		gameMap = pm.gameMap;
+		
 
 		// player.c.x = 1980;
 		// player.c.y = 1020;
@@ -825,7 +708,7 @@ public class World implements AlienServices, Joystick {
 		// if we didn't try teleporting last frame
 		if (teleAttempt + 1 != frameNumber) {
 			// do it
-			player.c = destination;
+			player.c = destination.copy();
 			snapScreenTo(destination);
 		}
 		teleAttempt = frameNumber;
