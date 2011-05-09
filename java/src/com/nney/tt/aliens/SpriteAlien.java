@@ -1,7 +1,6 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
-import com.nney.tt.geom.Box;
 import com.nney.tt.sprites.Sprite;
 
 public class SpriteAlien extends Alien {

@@ -30,6 +30,8 @@ import java.util.ListIterator;
  */
 public class Fridge<T> {
 	private LinkedList<FridgeEntry> content = new LinkedList<FridgeEntry>();
+	
+	@SuppressWarnings("unused") // it's for debug output
 	private String name;
 
 	class FridgeEntry {

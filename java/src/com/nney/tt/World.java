@@ -1,16 +1,10 @@
 package com.nney.tt;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
-import com.nney.tt.aliens.TeleportAlien;
-import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
@@ -26,8 +20,9 @@ import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
-import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.WingAlien;
+import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;

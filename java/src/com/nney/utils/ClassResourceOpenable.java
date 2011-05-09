@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class ClassResourceOpenable implements Openable {
-	private final Class base;
+	private final Class<?> base;
 	private final String name;
 
-	public ClassResourceOpenable(Class base, String name) {
+	public ClassResourceOpenable(Class<?> base, String name) {
 		this.base = base;
 		this.name = name;
 	}
