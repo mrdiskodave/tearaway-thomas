@@ -6,17 +6,17 @@ import com.nney.json.DataItem;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
 import com.nney.tt.map.BlockInformation;
-import com.nney.tt.map.BlockRandomisationTable;
+import com.nney.tt.map.BlockAliasTable;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.StringIO;
 
 public class WorldInformation {
-	public final BlockRandomisationTable blockRandomisationTable;
-	public final BlockRandomisationTable invisibleBlockHiding;
+	public final BlockAliasTable blockRandomisationTable;
+	public final BlockAliasTable invisibleBlockHiding;
 	public final BlockInformation blockInformation;
 	public final LadderInformation ladderInformation;
 
-	private WorldInformation(BlockRandomisationTable rt, BlockRandomisationTable ih, BlockInformation bi, LadderInformation li) {
+	private WorldInformation(BlockAliasTable rt, BlockAliasTable ih, BlockInformation bi, LadderInformation li) {
 		this.blockRandomisationTable = rt;
 		this.invisibleBlockHiding = ih;
 		this.blockInformation = bi;
@@ -35,8 +35,8 @@ public class WorldInformation {
 				int bottom = ladderDi.requireField("bottom").requireInt();
 				ladderInfo = new LadderInformation(top, bottom);
 			}
-			BlockRandomisationTable rt = new BlockRandomisationTable(v.requireField("rt"));
-			BlockRandomisationTable ih = new BlockRandomisationTable(v.requireField("invisibleBlockHiding"));
+			BlockAliasTable rt = new BlockAliasTable(v.requireField("rt"));
+			BlockAliasTable ih = new BlockAliasTable(v.requireField("invisibleBlockHiding"));
 			return new WorldInformation(rt, ih, bi, ladderInfo);
 		}
 		catch (IOException e) {

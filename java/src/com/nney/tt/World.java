@@ -670,7 +670,7 @@ public class World implements AlienServices {
 		// player.c.y = 1020;
 		snapScreenTo(player.c);
 
-		gameMap.applyRt(wi.blockRandomisationTable);
+		gameMap.applyShuffle(wi.blockRandomisationTable);
 	}
 
 	@Override

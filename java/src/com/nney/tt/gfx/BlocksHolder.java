@@ -7,7 +7,7 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.tt.map.BlockRandomisationTable;
+import com.nney.tt.map.BlockAliasTable;
 import com.nney.utils.Openable;
 
 public class BlocksHolder {
@@ -22,7 +22,7 @@ public class BlocksHolder {
 
 	private int listBase;
 	
-	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable, BlockRandomisationTable invisibleBlockHiding) {
+	public BlocksHolder(int blockSize, int gridSize, Openable blocksOpenable, BlockAliasTable invisibleBlockHiding) {
 		this.blockSize = blockSize;
 		this.gridSize = gridSize;
 		this.gridCapacity = gridSize*gridSize;

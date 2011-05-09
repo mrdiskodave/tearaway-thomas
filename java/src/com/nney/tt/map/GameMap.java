@@ -59,10 +59,10 @@ public class GameMap {
 		return map[y * MAP_WIDTH + x];
 	}
 
-	public void applyRt(BlockRandomisationTable rt) {
+	public void applyShuffle(BlockAliasTable bat) {
 		StopWatch sw = new StopWatch();
 		for (int x = 0; x < map.length; x++) {
-			map[x] = (short) rt.shuffle(map[x]);
+			map[x] = (short) bat.shuffle(map[x]);
 		}
 		System.out.println("Shuffle took " + sw.readMsf() + "ms");
 	}
