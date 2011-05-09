@@ -1,4 +1,4 @@
-package com.nney.tt;
+package com.nney.tt.input;
 
 public interface Joystick {
 	public static final int DOWN = 1;
@@ -8,5 +8,5 @@ public interface Joystick {
 	public static final int FIRE = 16;
 	
 	boolean test(int mask);
-	boolean testAntiAutofire(int mask);
+	boolean testJustPressed(int mask);
 }

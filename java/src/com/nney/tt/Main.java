@@ -10,6 +10,10 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.gfx.GlTools;
+import com.nney.tt.input.Joystick;
+import com.nney.tt.input.KeyboardJoystick;
+import com.nney.tt.input.LwjglKeyboard;
+import com.nney.tt.input.LwjglPointer;
 
 public class Main {
 
@@ -18,49 +22,26 @@ public class Main {
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
 
-	private World world = new World();
+	private World world;
 
 	private boolean closing;
 
 	private FpsReporter fpsRep;
-
-	public HashSet<Integer> keys = new HashSet<Integer>();
-
+	
 	private void initLwjgl() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM));
 			Display.create();
 			Display.setVSyncEnabled(true);
 			Keyboard.create();
+//			Keyboard.enableRepeatEvents(true);
+			Mouse.create();
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private int readJoystick() {
-		int x = 0;
-		if (testKey(Keyboard.KEY_Q)) {
-			x |= Joystick.UP;
-		}
-		if (testKey(Keyboard.KEY_A)) {
-			x |= Joystick.DOWN;
-		}
-		if (testKey(Keyboard.KEY_O)) {
-			x |= Joystick.LEFT;
-		}
-		if (testKey(Keyboard.KEY_P)) {
-			x |= Joystick.RIGHT;
-		}
-		if (testKey(Keyboard.KEY_SPACE)) {
-			x |= Joystick.FIRE;
-		}
-		return x;
-	}
-
-	private boolean testKey(int key) {
-		return keys.contains(key);
-	}
 
 	private void initOpenGL() {
 		GlTools.reset();
@@ -78,27 +59,17 @@ public class Main {
 
 	// ---------------------------------------------------------------------------
 
-	private void handleKeyboard() {
-		while (Keyboard.next()) {
-			int key = Keyboard.getEventKey();
-			boolean down = Keyboard.getEventKeyState();
-			if (down) {
-				keys.add(key);
-			}
-			else {
-				keys.remove(key);
-			}
-			if (key == Keyboard.KEY_F12 && down) {
-				Mouse.setGrabbed(!Mouse.isGrabbed());
-			}
-		}
-	}
-
 	private void run() {
 		initLwjgl();
 		initOpenGL();
-		world.initFonts();
 		
+		LwjglKeyboard keys = new LwjglKeyboard();
+		KeyboardJoystick joystick = new KeyboardJoystick(keys);
+		LwjglPointer mouse = new LwjglPointer(); 
+		
+		world = new World(joystick, keys, mouse);
+		 
+		world.initFonts();
 		
 		world.init();
 
@@ -107,15 +78,23 @@ public class Main {
 		while (!closing) {
 			Display.sync(requestedFps);
 
-			handleKeyboard();
-
-			world.updateEverything(readJoystick());
+			keys.handleKeyboard();
+			joystick.update();
+			mouse.update();
+			
+//			if (testKey(Keyboard.KEY_B)) {
+//				world.blockChoosingMode();
+//			}
+//			else {
+			world.updateEverything();
+//			}
 
 			Display.update();
 			if (Display.isCloseRequested()) {
 				closing = true;
 			}
 
+			
 			fpsRep.reportFps();
 			Thread.yield();
 		}

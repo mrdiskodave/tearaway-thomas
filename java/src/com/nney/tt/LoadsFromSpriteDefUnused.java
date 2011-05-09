@@ -4,5 +4,5 @@ import com.nney.json.DataItem;
 
 public interface LoadsFromSpriteDefUnused {
 	void load(DataItem di);
-	// TODO: unused :O
+	// TODO: 99: unused?
 }

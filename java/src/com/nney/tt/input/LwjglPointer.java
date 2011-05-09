@@ -1,0 +1,21 @@
+package com.nney.tt.input;
+
+import org.lwjgl.input.Mouse;
+
+public class LwjglPointer extends PartialPointerImpl {
+	public void update() {
+//		System.out.println(String.format("movements X%04d(%+04d),Y%04d(%+04d),W%04d l%.1S r%.1S w%.1S inside%.1S", Mouse.getX(), Mouse.getDX(), Mouse.getY(), Mouse.getDY(), Mouse.getDWheel(), Mouse.isButtonDown(0), Mouse.isButtonDown(1), Mouse.isButtonDown(2), Mouse.isInsideWindow()));
+
+		int x = Mouse.getX();
+		int y = Mouse.getY();
+		int w = Mouse.getDWheel();
+		int b = 0;
+		for (int q=0; q<3; q++) {
+			if (Mouse.isButtonDown(q)) {
+				b |= 1<<q;
+			}
+		}
+		setNext(x, y, w, b);
+	}
+
+}

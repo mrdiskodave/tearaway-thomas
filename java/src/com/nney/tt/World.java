@@ -30,6 +30,9 @@ import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
 import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.input.Joystick;
+import com.nney.tt.input.Keyboard;
+import com.nney.tt.input.Pointer;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
@@ -42,18 +45,18 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class World implements AlienServices, Joystick {
+public class World implements AlienServices {
 
 	// lift
-	// private static final String CTC_WORLD = "w";
-	// private static final int CTC_MAP = 9;
+	private static final String CTC_WORLD = "w";
+	private static final int CTC_MAP = 9;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
 	// private static final int CTC_MAP = 0;
 
-	private static final String CTC_WORLD = "g";
-	private static final int CTC_MAP = 0;
+	// private static final String CTC_WORLD = "g";
+	// private static final int CTC_MAP = 0;
 
 	/**
 	 * Compile time configuration: play in level containing only the map.
@@ -64,7 +67,6 @@ public class World implements AlienServices, Joystick {
 	 * Compile time configuration: the screen follows the player <b>exactly</b>.
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
-
 
 	/**
 	 * Compile time configuration: See the block masks (that determine ground or
@@ -92,10 +94,6 @@ public class World implements AlienServices, Joystick {
 
 	private Coord ttPos;
 
-	private int joystick;
-
-	private int joystickAA;
-
 	private int score = 0;
 	private int oldScore = -1;
 
@@ -112,8 +110,17 @@ public class World implements AlienServices, Joystick {
 	private AlienInfoMap alienInfoMap;
 	private AnimsPool animsPool;
 	private int teleAttempt;
+	private int chosenBlock;
+	private Coord blockChoosingCursor = new Coord();
+	private final Joystick joystick;
+	private final Keyboard keyboard;
+	private final Pointer mouse;
 
-	public World() {
+	public World(Joystick joystick, Keyboard keyboard, Pointer mouse) {
+		this.joystick = joystick;
+		this.keyboard = keyboard;
+		this.mouse = mouse;
+
 		AlienInfoMap aim = new AlienInfoMap();
 		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
 		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
@@ -464,17 +471,7 @@ public class World implements AlienServices, Joystick {
 
 	@Override
 	public Joystick getStick() {
-		return this;
-	}
-
-	@Override
-	public boolean test(int mask) {
-		return (mask & joystick) != 0;
-	}
-
-	@Override
-	public boolean testAntiAutofire(int mask) {
-		return (mask & joystickAA) != 0;
+		return joystick;
 	}
 
 	@Override
@@ -602,49 +599,29 @@ public class World implements AlienServices, Joystick {
 		horizon.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
 	}
 
-	private void setJoystickPosition(int next) {
-		int last = joystick;
-		joystick = next;
-		joystickAA = next & ~last;
-	}
-
-	void updateEverything(int j) {
+	void updateEverything() {
 		frameNumber++;
-
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-
 		GlTools.configureFor2dBobs();
 
-		setJoystickPosition(j);
-		player.move();
-
-		if (CTC_HARD_SCROLLING) {
-			snapScreenTo(player.c);
+		if (keyboard.isDown(Keyboard.KEY_B)) {
+			blockChoosingMode();
 		}
 		else {
-			scrollScreenTo(player.c);
+
+			player.move();
+			if (CTC_HARD_SCROLLING) {
+				snapScreenTo(player.c);
+			}
+			else {
+				scrollScreenTo(player.c);
+			}
+
+			drawTheHorizon();
+			drawTheMap();
+			updateAliens();
+			updateScore();
 		}
-
-		// for (int x=0; x<15; x++) {
-		// pss.find(0).frames[0].draw(50+40*x,50+40*x,false);
-		// }
-
-		//
-		// draw everything
-		//
-
-		drawTheHorizon();
-		drawTheMap();
-
-		// font.draw(5, 50, 0x00ff00, 0, String.format("frm#%06d",
-		// frameNumber));
-		updateAliens();
-
-		updateScore();
 	}
-
-	// ---------------------------------------------------------------------------
-	// MAP LOADING
 
 	private void loadAlienIntoWorld(Alien alien) {
 		alien.srv = this;
@@ -654,7 +631,6 @@ public class World implements AlienServices, Joystick {
 		alien.init();
 		alienTracker.delayedAdd(alien);
 	}
-
 
 	void init() {
 		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
@@ -681,7 +657,7 @@ public class World implements AlienServices, Joystick {
 
 		PersistedMap pm = new PersistedMap();
 		pm.loadLegacy(animsPool, alienInfoMap, mapOpenable);
-		for (Alien a: pm.aliens) {
+		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
 		mapBounds = pm.mapBounds;
@@ -689,7 +665,6 @@ public class World implements AlienServices, Joystick {
 		player.c.y = pm.playerY;
 		player.goLeft = pm.playerGoLeft;
 		gameMap = pm.gameMap;
-		
 
 		// player.c.x = 1980;
 		// player.c.y = 1020;
@@ -708,6 +683,45 @@ public class World implements AlienServices, Joystick {
 		}
 		teleAttempt = frameNumber;
 		// (this stops us vibrating between two teleports)
+	}
+
+	void drawSolidRect(int x, int y, int w, int h, int col) {
+		GlTools.reset();
+		GlTools.selectColor(col);
+		GL11.glRecti(x, y, x + w, y + h);
+		GlTools.configureFor2dBobs();
+	}
+
+	private void drawSight(int x, int y, int i, int col) {
+		drawSolidRect(x - i, y, i * 2, 1, col);
+		drawSolidRect(x, y - i, 1, i * 2, col);
+	}
+
+	private void drawHollowRect(int x, int y, int w, int h, int c) {
+		drawSolidRect(x, y, w, 1, c);
+		drawSolidRect(x, y, 1, h, c);
+		drawSolidRect(x + w - 1, y, 1, h, c);
+		drawSolidRect(x, y + h - 1, w, 1, c);
+	}
+
+	public void blockChoosingMode() {
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+
+		GlTools.configureFor2dBobs();
+		int[] z = new int[1];
+		for (int b = 0; b < blocksHolder.getBlockCount(); b++) {
+			int x = b % 20;
+			int y = b / 20;
+			x *= 16;
+			y *= 16;
+			z[0] = b;
+			blocksHolder.draw(z, x, y);
+			if (chosenBlock == b) {
+				drawHollowRect(x, y, 16, 16, 0xffff00);
+			}
+		}
+
+		drawSight(blockChoosingCursor.x, blockChoosingCursor.y, 5, 0xff0000);
 	}
 
 }

@@ -3,6 +3,7 @@ package com.nney.tt;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.input.Joystick;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
@@ -231,12 +232,14 @@ public class Player extends Alien {
 		return getStickDelta(Joystick.LEFT, Joystick.RIGHT);
 	}
 
-	private boolean testStick(int j) {
-		return srv.getStick().test(j) && stunTimer == 0;
+	private boolean testStick(int s) {
+		// TODO: 00: stunTimer test no longer needed surely (as we are more modal)
+		return srv.getStick().test(s) && stunTimer == 0;
 	}
 
-	private boolean testStickAA(int j) {
-		return srv.getStick().testAntiAutofire(j) && stunTimer == 0;
+	private boolean testStickJustPressed(int s) {
+		// TODO: 00: stunTimer test no longer needed surely (as we are more modal)
+		return srv.getStick().testJustPressed(s) && stunTimer == 0;
 	}
 
 	private int applyGravity(int v) {
@@ -376,7 +379,7 @@ public class Player extends Alien {
 		if (airJumpTimer != 0) {
 			jumpOnFire();
 		}
-		else if (canFly && testStickAA(Joystick.FIRE)) {
+		else if (canFly && testStickJustPressed(Joystick.FIRE)) {
 			flying = true;
 			vely = 0;
 			flap = true;
@@ -610,7 +613,7 @@ public class Player extends Alien {
 			}
 		}
 
-		if (testStickAA(Joystick.FIRE)) {
+		if (testStickJustPressed(Joystick.FIRE)) {
 			jump();
 			ladderLatch = true;
 		}
@@ -676,7 +679,7 @@ public class Player extends Alien {
 			}
 
 			// exit the mode by pressing fire ..
-			if (testStickAA(Joystick.FIRE)) {
+			if (testStickJustPressed(Joystick.FIRE)) {
 				// and if you holding down ..
 				if (testStick(Joystick.DOWN)) {
 					// .. then you just drop
@@ -758,7 +761,7 @@ public class Player extends Alien {
 				setAnim("monkeymid", true);
 			}
 			// exit the mode by pressing down ..
-			if (testStickAA(Joystick.DOWN)) {
+			if (testStickJustPressed(Joystick.DOWN)) {
 				reset();
 				System.out.println("Monkey: end .. drop");
 				monkeyLatch = true;
@@ -766,7 +769,7 @@ public class Player extends Alien {
 				vely = 4;
 			}
 			// or fire ..
-			if (testStickAA(Joystick.FIRE)) {
+			if (testStickJustPressed(Joystick.FIRE)) {
 				System.out.println("Monkey: end .. jump");
 				jump();
 				monkeyLatch = true;

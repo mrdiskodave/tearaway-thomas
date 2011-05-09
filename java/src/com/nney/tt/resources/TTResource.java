@@ -29,6 +29,10 @@ public class TTResource {
 		return TTResource.formatted("fonts/%s.png", name);
 	}
 
+	public static Openable config(String name) {
+		return TTResource.formatted("config/%s.png", name);
+	}
+
 	public static Openable map(String world, int levelNumber) {
 		String filename = String.format("C:/Users/david/Desktop/newdata/maps/%s%d.map", world, levelNumber);
 		return new FileOpenable(filename);
