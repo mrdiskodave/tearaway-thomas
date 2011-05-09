@@ -34,9 +34,6 @@ package com.nney.lwjgl.demos;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -44,8 +41,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
 
 /**
  * <br>
@@ -96,8 +91,6 @@ public class MouseTest {
 	/** Whether the test is closing */
 	private boolean closing;
 
-	private Texture texture;
-
 	/** Fullscreen or not */
 	public static final boolean FULLSCREEN = false;
 
@@ -146,38 +139,7 @@ public class MouseTest {
 		
 		// Disable depth testing
 		GL11.glDisable( GL11.GL_DEPTH_TEST );
-		
-		try {
-			texture = TextureLoader.getTexture("PNG", new FileInputStream("C:\\Users\\david\\Desktop\\ttpng\\ttpng\\tearaway\\000.png"));
-			
-			System.out.println("Texture loaded: "+texture);
-			System.out.println(">> Image width: "+texture.getImageWidth());
-			System.out.println(">> Image height: "+texture.getImageWidth());
-			System.out.println(">> Texture width: "+texture.getTextureWidth());
-			System.out.println(">> Texture height: "+texture.getTextureHeight());
-			System.out.println(">> Texture ID: "+texture.getTextureID());
-		}
-//		catch (FileNotFoundException e) {
-//			throw new RuntimeException(e);
-//		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
 	}
-
-/*    public Texture initialiseTexture(byte[] data) {
-        InputStream inputStream = new ByteArrayInputStream(data);
-        try {
-            BufferedImage image = ImageIO.read(inputStream);
-            Texture texture = TextureIO.newTexture(image, false);
-            inputStream.close();
-            return texture;
-        } catch (IOException e) {
-            return null;
-        }^M
-    }^M
-*/
 
 	/**
 	 * Executes the actual test
@@ -393,16 +355,14 @@ public class MouseTest {
 	private void render() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
-		GL11.glBegin(GL11.GL_QUADS);
-		  //Define the color (blue)
-		GL11.glColor3f(255, 255, 255);
-		texture.bind();
-		  //Draw our four points, clockwise.
-		GL11.glVertex3f(0, 0, 0);
-		GL11.glVertex3f(32, 0, 0);
-		GL11.glVertex3f(32, 32, 0);
-		GL11.glVertex3f(0, 32, 0);
-		GL11.glEnd();
+//		GL11.glBegin(GL11.GL_QUADS);
+//		  //Define the color (blue)
+//		GL11.glColor3f(255, 255, 255);
+//		GL11.glVertex3f(0, 0, 0);
+//		GL11.glVertex3f(32, 0, 0);
+//		GL11.glVertex3f(32, 32, 0);
+//		GL11.glVertex3f(0, 32, 0);
+//		GL11.glEnd();
 
 		// for each triangle, render it at position, rotating degrees for each
 		for (int i = 0; i < triangles.length; i++) {
