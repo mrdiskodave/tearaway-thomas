@@ -48,17 +48,18 @@ public class GameMap {
 	}
 
 	public int getBlock(int x, int y) {
-		// assert x < 0;
-		// assert x >= MAP_WIDTH;
-		// assert y < 0;
-		// assert y >= MAP_HEIGHT;
-		if (x < 0) return 0;
-		if (x >= MAP_WIDTH) return 0;
-		if (y < 0) return 0;
-		if (y >= MAP_HEIGHT) return 0;
+		boolean valid = x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
+//		if (!valid) return 0;
+		assert valid : String.format("%d,%d", x, y);
 		return map[y * MAP_WIDTH + x];
 	}
 
+	public void setBlock(int x, int y, int b) {
+		assert x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
+		map[y * MAP_WIDTH + x] = (short) b;
+	}
+
+	
 	public void applyShuffle(BlockAliasTable bat) {
 		StopWatch sw = new StopWatch();
 		for (int x = 0; x < map.length; x++) {

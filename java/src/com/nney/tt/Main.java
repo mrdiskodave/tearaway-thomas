@@ -1,7 +1,5 @@
 package com.nney.tt;
 
-import java.util.HashSet;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -10,10 +8,11 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.gfx.GlTools;
-import com.nney.tt.input.Joystick;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.LwjglKeyboard;
 import com.nney.tt.input.LwjglPointer;
+import com.nney.tt.input.Pointer;
+import com.nney.tt.input.PointerAdapter;
 
 public class Main {
 
@@ -66,13 +65,21 @@ public class Main {
 		LwjglKeyboard keys = new LwjglKeyboard();
 		KeyboardJoystick joystick = new KeyboardJoystick(keys);
 		LwjglPointer mouse = new LwjglPointer(); 
-		
-		world = new World(joystick, keys, mouse);
-		 
-		world.initFonts();
-		
-		world.init();
 
+		// adapt the mouse to compensate for our glOrtho/glViewport screen projection 
+		Pointer correctMouse = new PointerAdapter(mouse) {
+			@Override
+			public int getX() {
+				return super.getX()/2;
+			}
+			@Override
+			public int getY() {
+				return SCREEN_HEIGHT-1-super.getY()/2;
+			}
+		};
+		
+		world = new World(joystick, keys, correctMouse);
+		 
 		int requestedFps = 50;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {

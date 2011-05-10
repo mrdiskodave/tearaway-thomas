@@ -971,6 +971,11 @@ public class Player extends Alien {
 		}
 		return false;
 	}
+
+	public void resetTo(Coord coord) {
+		reset();
+		c = coord;
+	}
 }
 
 // TODO: 99: it does look like I can land on stuff (from the side)
