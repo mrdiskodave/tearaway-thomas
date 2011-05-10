@@ -574,32 +574,20 @@ public class World implements AlienServices {
 		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6 + 14);
 	}
 	
-	private int computeScrInBlocks(int blockSrcY, int scrSize, int mapSize) {
-		int scrInBlocks = TTMath.roundUpDiv(scrSize, Main.BLOCK_SIZE);
-		int mapInBlocks = mapSize/Main.BLOCK_SIZE;
-		if (blockSrcY+scrInBlocks < mapInBlocks) {
-			scrInBlocks++;
-		}
-		return scrInBlocks;
-	}
 
 	private void drawTheMap() {
-		int blockSrcY = screen.y / Main.BLOCK_SIZE;
-		int scrHeightInBlocks = computeScrInBlocks(blockSrcY, Main.SCREEN_HEIGHT, mapBounds.bottom+1);
-		int blockSrcX = screen.x / Main.BLOCK_SIZE;
-		int scrWidthInBlocks = computeScrInBlocks(blockSrcX, Main.SCREEN_WIDTH, mapBounds.right+1);
+		MapDrawingInfo siy = new MapDrawingInfo(screen.y, Main.SCREEN_HEIGHT, mapBounds.bottom+1);
+		MapDrawingInfo six = new MapDrawingInfo(screen.x, Main.SCREEN_WIDTH, mapBounds.right+1);
 
-		int[] blockRow = new int[scrWidthInBlocks];
+		int[] blockRow = new int[six.screenSizeInBlocks];
 
-		int pixelDestY = -(screen.y & Main.BLOCK_MASK);
-		for (int loopY = 0; loopY < scrHeightInBlocks; loopY++) {
-			int pixelDestX = -(screen.x & Main.BLOCK_MASK);
-			for (int loopX = 0; loopX < scrWidthInBlocks; loopX++) {
-				blockRow[loopX] = gameMap.getBlock(blockSrcX + loopX, blockSrcY);
+		int pixelDestY = siy.initialPixelDestination;
+		for (int loopY = 0; loopY < siy.screenSizeInBlocks; loopY++) {
+			for (int loopX = 0; loopX < six.screenSizeInBlocks; loopX++) {
+				blockRow[loopX] = gameMap.getBlock(six.mapSourceInBlocks + loopX, siy.mapSourceInBlocks + loopY);
 			}
-			blocksHolder.draw(blockRow, pixelDestX, pixelDestY);
+			blocksHolder.draw(blockRow, six.initialPixelDestination, pixelDestY);
 			pixelDestY += Main.BLOCK_SIZE;
-			blockSrcY++;
 		}
 	}
 
