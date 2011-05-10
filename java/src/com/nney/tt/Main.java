@@ -20,27 +20,28 @@ public class Main {
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
+	public static final int BLOCK_SIZE = 16;
+	public static final int BLOCK_MASK = BLOCK_SIZE - 1;
 
 	private World world;
 
 	private boolean closing;
 
 	private FpsReporter fpsRep;
-	
+
 	private void initLwjgl() {
 		try {
 			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM));
 			Display.create();
 			Display.setVSyncEnabled(true);
 			Keyboard.create();
-//			Keyboard.enableRepeatEvents(true);
+			// Keyboard.enableRepeatEvents(true);
 			Mouse.create();
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	private void initOpenGL() {
 		GlTools.reset();
@@ -61,25 +62,27 @@ public class Main {
 	private void run() {
 		initLwjgl();
 		initOpenGL();
-		
+
 		LwjglKeyboard keys = new LwjglKeyboard();
 		KeyboardJoystick joystick = new KeyboardJoystick(keys);
-		LwjglPointer mouse = new LwjglPointer(); 
+		LwjglPointer mouse = new LwjglPointer();
 
-		// adapt the mouse to compensate for our glOrtho/glViewport screen projection 
+		// adapt the mouse to compensate for our glOrtho/glViewport screen
+		// projection
 		Pointer correctMouse = new PointerAdapter(mouse) {
 			@Override
 			public int getX() {
-				return super.getX()/2;
+				return super.getX() / 2;
 			}
+
 			@Override
 			public int getY() {
-				return SCREEN_HEIGHT-1-super.getY()/2;
+				return SCREEN_HEIGHT - 1 - super.getY() / 2;
 			}
 		};
-		
+
 		world = new World(joystick, keys, correctMouse);
-		 
+
 		int requestedFps = 50;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
@@ -88,20 +91,19 @@ public class Main {
 			keys.handleKeyboard();
 			joystick.update();
 			mouse.update();
-			
-//			if (testKey(Keyboard.KEY_B)) {
-//				world.blockChoosingMode();
-//			}
-//			else {
+
+			// if (testKey(Keyboard.KEY_B)) {
+			// world.blockChoosingMode();
+			// }
+			// else {
 			world.updateEverything();
-//			}
+			// }
 
 			Display.update();
 			if (Display.isCloseRequested()) {
 				closing = true;
 			}
 
-			
 			fpsRep.reportFps();
 			Thread.yield();
 		}

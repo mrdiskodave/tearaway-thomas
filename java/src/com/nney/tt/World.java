@@ -573,40 +573,36 @@ public class World implements AlienServices {
 		scoreHeadingText.draw((Main.SCREEN_WIDTH - scoreHeadingText.getWidth()) / 2, 6);
 		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6 + 14);
 	}
+	
+	private int computeScrInBlocks(int blockSrcY, int scrSize, int mapSize) {
+		int scrInBlocks = TTMath.roundUpDiv(scrSize, Main.BLOCK_SIZE);
+		int mapInBlocks = mapSize/Main.BLOCK_SIZE;
+		if (blockSrcY+scrInBlocks < mapInBlocks) {
+			scrInBlocks++;
+		}
+		return scrInBlocks;
+	}
 
 	private void drawTheMap() {
-		final int BLOCK_SIZE = 16;
-		final int BLOCK_MASK = BLOCK_SIZE - 1;
-		
-		int SCREEN_HEIGHT_IN_BLOCKS = (Main.SCREEN_HEIGHT + BLOCK_MASK) / BLOCK_SIZE + 1;
-		int SCREEN_WIDTH_IN_BLOCKS = (Main.SCREEN_WIDTH + BLOCK_MASK) / BLOCK_SIZE + 1;
+		int blockSrcY = screen.y / Main.BLOCK_SIZE;
+		int scrHeightInBlocks = computeScrInBlocks(blockSrcY, Main.SCREEN_HEIGHT, mapBounds.bottom+1);
+		int blockSrcX = screen.x / Main.BLOCK_SIZE;
+		int scrWidthInBlocks = computeScrInBlocks(blockSrcX, Main.SCREEN_WIDTH, mapBounds.right+1);
 
-		int[] blockrow = new int[SCREEN_WIDTH_IN_BLOCKS];
+		int[] blockRow = new int[scrWidthInBlocks];
 
-		int screenY = screen.y;
-		int blockSrcY = screenY / BLOCK_SIZE;
-		if (blockSrcY+SCREEN_HEIGHT_IN_BLOCKS>(mapBounds.bottom+1)/16) {
-			SCREEN_HEIGHT_IN_BLOCKS--;
-		}
-		
-		int screenX = screen.x;
-		int blockSrcX = screenX / BLOCK_SIZE;
-		if (blockSrcX+SCREEN_WIDTH_IN_BLOCKS>(mapBounds.right+1)/16) {
-			SCREEN_WIDTH_IN_BLOCKS--;
-		}
-		
-		int pixelDestY = -(screenY & BLOCK_MASK);
-		System.out.println(pixelDestY);
-		for (int loopY = 0; loopY < SCREEN_HEIGHT_IN_BLOCKS; loopY++) {
-			int pixelDestX = -(screenX & BLOCK_MASK);
-			for (int loopX = 0; loopX < SCREEN_WIDTH_IN_BLOCKS; loopX++) {
-				blockrow[loopX] = gameMap.getBlock(blockSrcX + loopX, blockSrcY);
+		int pixelDestY = -(screen.y & Main.BLOCK_MASK);
+		for (int loopY = 0; loopY < scrHeightInBlocks; loopY++) {
+			int pixelDestX = -(screen.x & Main.BLOCK_MASK);
+			for (int loopX = 0; loopX < scrWidthInBlocks; loopX++) {
+				blockRow[loopX] = gameMap.getBlock(blockSrcX + loopX, blockSrcY);
 			}
-			blocksHolder.draw(blockrow, pixelDestX, pixelDestY);
-			pixelDestY += BLOCK_SIZE;
+			blocksHolder.draw(blockRow, pixelDestX, pixelDestY);
+			pixelDestY += Main.BLOCK_SIZE;
 			blockSrcY++;
 		}
 	}
+
 
 	private void drawTheHorizon() {
 		horizon.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
