@@ -1,28 +1,15 @@
 package com.nney.tt;
 
-import org.lwjgl.opengl.GL11;
-
-import com.nney.tt.gfx.Bounds;
-import com.nney.tt.gfx.GlTexture;
-import com.nney.tt.gfx.GlTools;
-import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.BlockSource;
+import com.nney.tt.gfx.Bounds;
+import com.nney.tt.gfx.SimpleImage;
 
-public class MyFont {
-	private static final int DANGER = 0xffff0101;
-	final private SimpleImage content;
-	final private String characters;
-	final private Bounds[] boxes;
-	final private GlTexture texture;
-	private boolean mono;
-
-	public static String characterRangeHelper(int begin, int end) {
-		StringBuilder sb = new StringBuilder();
-		for (int x = begin; x < end; x++) {
-			sb.append((char) x);
-		}
-		return sb.toString();
-	}
+public abstract class MyFont {
+	protected  static final int ABSENT = 0xffff0101;
+	final protected SimpleImage content;
+	final protected  String characters;
+	final protected  Bounds[] boxes;
+	protected  boolean mono;
 
 	public MyFont(byte[] data, int miniW, int miniH, boolean proportional,
 			String characters) {
@@ -44,14 +31,14 @@ public class MyFont {
 
 		int[] palette = content.collectPalette();
 		mono = palette.length==2;
-		this.texture = new GlTexture(content, mono);
+		renderContent();
 	}
 
 	private int shaveRedOffTheRight(SimpleImage glyph) {
 		int glyphWidth = glyph.getWidth();
 		for (;;) {
 			SimpleImage stripView = glyph.view(glyphWidth-1, 0, 1, glyph.getHeight());
-			if (!stripView.isEntirely(DANGER)) break;
+			if (!stripView.isEntirely(ABSENT)) break;
 			stripView.fill(0);
 			glyphWidth--;
 		}
@@ -60,33 +47,21 @@ public class MyFont {
 
 	public int draw(int dx, int dy, int fg, int kern, String text) {
 		// configure the texture system
-		GlTools.configureForFont(mono, fg);
-
-		texture.bindTexture();
-		GL11.glBegin(GL11.GL_QUADS);
+		startDrawing(fg);
+		
 		for (int x = 0; x < text.length(); x++) {
 			char c = text.charAt(x);
 			int p = characters.indexOf(c);
 			if (p >= 0) {
 				Bounds z = boxes[p];
-				texture.drawQuad(dx, dy, z.width, z.height, z.left, z.top, z.width, z.height);
+				drawChar(dx, dy, z);
 				dx += z.width + kern;
 			}
 		}
-		GL11.glEnd();
 		
-		// put it back in its agreed-default state 
-		GlTools.configureFor2dBobs();
+		stopDrawing();
 		
 		return dx;
-	}
-	
-	PrerenderedText preDraw(int fg, int kern, String text) {
-		int id = GL11.glGenLists(1);
-		GL11.glNewList(id, GL11.GL_COMPILE);
-		int width = draw(0, 0, fg, kern, text)-kern;
-		GL11.glEndList();
-		return new PrerenderedText(width, id);
 	}
 
 	public int computeWidth(int kern, String text) {
@@ -101,9 +76,11 @@ public class MyFont {
 		}
 		return dx;
 	}
-
 	
-	public void dispose() {
-		texture.dispose();
-	}
+	abstract public void dispose();
+	abstract protected void renderContent();
+	abstract protected void stopDrawing();
+	abstract protected void drawChar(int dx, int dy, Bounds z);
+	abstract protected void startDrawing(int fg);
+	abstract public PrerenderedText preDraw(int fg, int kern, String text);
 }

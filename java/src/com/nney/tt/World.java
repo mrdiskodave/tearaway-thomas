@@ -178,11 +178,20 @@ public class World implements AlienServices {
 		init();
 	}
 
-	private void initFonts() {
-		debugFont = new MyFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
-				MyFont.characterRangeHelper(0, 128));
+	
+	private static String characterRangeHelper(int begin, int end) {
+		StringBuilder sb = new StringBuilder();
+		for (int x = begin; x < end; x++) {
+			sb.append((char) x);
+		}
+		return sb.toString();
+	}
 
-		font = new MyFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
+	private void initFonts() {
+		debugFont = gc.createFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
+				characterRangeHelper(0, 128));
+
+		font = gc.createFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
 				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
 	}
 
@@ -859,7 +868,7 @@ public class World implements AlienServices {
 		
 		BlockSource bs = new BlockSource(CTC_SEE_MASKS ? masksGfx : blocksGfx, Main.BLOCK_SIZE);
 		bs.doBlockHiding(wi.invisibleBlockHiding);
-		blocksHolder = new BlocksHolder(bs);
+		blocksHolder = gc.createBlocksHolder(bs);
 		maskHolder = new MasksHolder(Main.BLOCK_SIZE, masksGfx);
 
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);

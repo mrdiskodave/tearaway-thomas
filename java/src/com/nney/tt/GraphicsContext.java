@@ -5,6 +5,9 @@ import static org.lwjgl.opengl.GL11.glClear;
 
 import org.lwjgl.opengl.GL11;
 
+import com.nney.tt.gfx.BlockSource;
+import com.nney.tt.gfx.BlocksHolder;
+import com.nney.tt.gfx.GlBlocksHolder;
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
 import com.nney.tt.gfx.SimpleImage;
@@ -43,9 +46,9 @@ public class GraphicsContext {
 		drawSolidRect(x, y + h - 1, w, 1, c);
 	}
 	
-	public Captured capture(SimpleImage i) {
+	public Blitable createBlitable(SimpleImage i) {
 		final GlTexture gt = new GlTexture(i);
-		return new Captured() {
+		return new Blitable() {
 			@Override
 			public void draw(int dx, int dy) {
 				gt.draw(dx, dy);
@@ -60,4 +63,11 @@ public class GraphicsContext {
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
+	public BlocksHolder createBlocksHolder(BlockSource bs) {
+		return new GlBlocksHolder(bs);
+	}
+
+	public MyFont createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
+		return new GlFont(data, miniW, miniH, proportional, characters);
+	}
 }
