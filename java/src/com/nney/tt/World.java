@@ -26,6 +26,7 @@ import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
@@ -659,7 +660,7 @@ public class World implements AlienServices {
 			int y = TTMath.limit(0, mapperBlockPaletteHeight-5, (chosenBlock / MAPPER_BLOCKS_PER_LINE-2));
 			gc.drawSolidRect(0, 0, Main.BLOCK_SIZE*5, Main.BLOCK_SIZE*5, 0x0080ff);
 			for (BlockPos p : blockList(x, y, 5, 5, 0, 0)) {
-				blocksHolder.drawOneSlowly(p.b, p.x, p.y);
+				blocksHolder.draw(p.b, p.x, p.y);
 				if (chosenBlock == p.b) {
 					gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
 				}
@@ -769,7 +770,7 @@ public class World implements AlienServices {
 	}
 
 	public void blockChoosingMode() {
-		
+		gc.cls();
 
 		keyboardBlockChoice();
 
@@ -789,7 +790,7 @@ public class World implements AlienServices {
 		int hoverBlock = -1;
 
 		for (BlockPos p : blockList(0, 0, MAPPER_BLOCKS_PER_LINE, mapperBlockPaletteHeight, 0, mdy)) {
-			blocksHolder.drawOneSlowly(p.b, p.x, p.y);
+			blocksHolder.draw(p.b, p.x, p.y);
 			if (chosenBlock == p.b) {
 				gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
 				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Main.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
@@ -842,7 +843,7 @@ public class World implements AlienServices {
 		Openable ho = TTResource.horizon(1);
 		horizon = gc.loadHorizon(ho);  
 
-		animsPool = new AnimsPool(new AnimsDefPool());
+		animsPool = new AnimsPool(gc, new AnimsDefPool());
 		alienInfoMap.doPreLoad(animsPool);
 
 		player = new Player();
@@ -855,7 +856,10 @@ public class World implements AlienServices {
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
 		wi = WorldInformation.load(worldName);
-		blocksHolder = new BlocksHolder(Main.BLOCK_SIZE, 8, CTC_SEE_MASKS ? masksGfx : blocksGfx, wi.invisibleBlockHiding);
+		
+		BlockSource bs = new BlockSource(CTC_SEE_MASKS ? masksGfx : blocksGfx, Main.BLOCK_SIZE);
+		bs.doBlockHiding(wi.invisibleBlockHiding);
+		blocksHolder = new BlocksHolder(bs);
 		maskHolder = new MasksHolder(Main.BLOCK_SIZE, masksGfx);
 
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);

@@ -1,5 +1,7 @@
 package com.nney.tt.sprites;
 
+import com.nney.tt.Captured;
+import com.nney.tt.GraphicsContext;
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.ShowBoundsSip;
 import com.nney.tt.gfx.SimpleImage;
@@ -10,8 +12,8 @@ public class Sprite {
 	public final int handleY;
 	public final int w;
 	public final int h;
-	private final GlTexture texture;
-	private final GlTexture whiteVersion;
+	private final Captured texture;
+	private final Captured whiteVersion;
 	public byte[] lineInfo;
 	
 	static final boolean CTC_SEE_SPRITE_BOX = false;
@@ -29,7 +31,7 @@ public class Sprite {
 	 *            top).
 	 * @param makeWhiteVersion 
 	 */
-	public Sprite(SimpleImage si, int handleX, int handleY, boolean makeWhiteVersion) {
+	public Sprite(GraphicsContext gc, SimpleImage si, int handleX, int handleY, boolean makeWhiteVersion) {
 		assert si.getWidth()!=0 && si.getHeight()!=0;
 		
 		this.handleX = handleX;
@@ -44,11 +46,11 @@ public class Sprite {
 			z = si.copy();
 			new ShowBoundsSip().process(z);
 		}
-		this.texture = new GlTexture(z);
+		this.texture = gc.capture(z);
 
 		if (makeWhiteVersion) {
 			new WhiteOutSip().process(si);
-			this.whiteVersion = new GlTexture(si);
+			this.whiteVersion = gc.capture(si);
 		}
 		else {
 			this.whiteVersion = null;

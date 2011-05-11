@@ -1,5 +1,8 @@
 package com.nney.tt;
 
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glClear;
+
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.gfx.GlTexture;
@@ -51,6 +54,10 @@ public class GraphicsContext {
 			public void dispose() {
 				gt.dispose();
 			}};
+	}
+
+	public void cls() {
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
 }

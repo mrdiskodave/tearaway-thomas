@@ -1,5 +1,6 @@
 package com.nney.tt.sprites;
 
+import com.nney.tt.GraphicsContext;
 import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.Openable;
@@ -17,7 +18,7 @@ import com.nney.utils.OpenableTools;
  * PNG definitely works.
  */
 public class LargeImageFrameLoader {
-	public static Sprite load(Openable data, boolean makeWhiteVersion) {
+	public static Sprite load(GraphicsContext gc, Openable data, boolean makeWhiteVersion) {
 		byte[] someRawGraphicsFile = OpenableTools.mustLoad(data);
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
 
@@ -38,6 +39,6 @@ public class LargeImageFrameLoader {
 		handleY -= bounds.top;
 
 		// and that is us!
-		return new Sprite(si, handleX, handleY, makeWhiteVersion);
+		return new Sprite(gc, si, handleX, handleY, makeWhiteVersion);
 	}
 }

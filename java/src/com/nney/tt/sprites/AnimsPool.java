@@ -3,13 +3,16 @@ package com.nney.tt.sprites;
 import java.util.ArrayList;
 
 import com.nney.json.DataItem;
+import com.nney.tt.GraphicsContext;
 import com.nney.tt.resources.TTResource;
 
 public class AnimsPool extends CachedLoader<String, Anims> {
 	private final AnimsDefPool sdp;
+	private final GraphicsContext gc;
 
-	public AnimsPool(AnimsDefPool sdp) {
+	public AnimsPool(GraphicsContext gc, AnimsDefPool sdp) {
 		this.sdp = sdp;
+		this.gc = gc;
 	}
 
 	@Override
@@ -31,7 +34,7 @@ public class AnimsPool extends CachedLoader<String, Anims> {
 		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
 			@Override
 			protected Sprite populatePool(Integer k) {
-				return LargeImageFrameLoader.load(TTResource.spriteFrame(animsName, k), makeWhiteVersion);
+				return LargeImageFrameLoader.load(gc, TTResource.spriteFrame(animsName, k), makeWhiteVersion);
 			}};
 
 		for (DataItem diAnim : diRoot.requireField("anims").requireList()) {

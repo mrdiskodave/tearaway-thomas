@@ -6,7 +6,7 @@ import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.GlTexture;
 import com.nney.tt.gfx.GlTools;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.tt.gfx.TemporaryBlockSource;
+import com.nney.tt.gfx.BlockSource;
 
 public class MyFont {
 	private static final int DANGER = 0xffff0101;
@@ -27,7 +27,7 @@ public class MyFont {
 	public MyFont(byte[] data, int miniW, int miniH, boolean proportional,
 			String characters) {
 		this.content = new SimpleImage(data);
-		TemporaryBlockSource bs = new TemporaryBlockSource(content, miniW, miniH);
+		BlockSource bs = new BlockSource(content, miniW, miniH);
 		int count = bs.getBlockCount();
 		boxes = new Bounds[count];
 		this.characters = characters;

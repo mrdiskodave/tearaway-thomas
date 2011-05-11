@@ -1,19 +1,20 @@
 package com.nney.tt.gfx;
 
+import com.nney.tt.map.BlockAliasTable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class TemporaryBlockSource {
-	private final int miniW;
+public class BlockSource {
+	private final int blockWidth;
 	private final int blocksHorizontally;
 	private final int blockCount;
 	private final SimpleImage blocks;
-	private int miniH;
+	private final int blockHeight;
 
-	public TemporaryBlockSource(SimpleImage blocks, int miniW, int miniH) {
+	public BlockSource(SimpleImage blocks, int miniW, int miniH) {
 		this.blocks = blocks;
-		this.miniW = miniW;
-		this.miniH = miniH;
+		this.blockWidth = miniW;
+		this.blockHeight = miniH;
 		int allBlocksWidth = blocks.getWidth();
 		int allBlocksHeight = blocks.getHeight();
 		assert allBlocksWidth % miniW == 0;
@@ -31,8 +32,8 @@ public class TemporaryBlockSource {
 		blockCount = bc;
 	}
 
-	public TemporaryBlockSource(Openable blocksOpenable, int miniW, int miniH) {
-		this(new SimpleImage(OpenableTools.mustLoad(blocksOpenable)), miniW, miniH);
+	public BlockSource(Openable blocksOpenable, int blockSize) {
+		this(new SimpleImage(OpenableTools.mustLoad(blocksOpenable)), blockSize, blockSize);
 	}
 
 	public void hideBlock(int src, int dest) {
@@ -45,9 +46,9 @@ public class TemporaryBlockSource {
 	public Bounds getBlockBounds(int b) {
 		int x = b % blocksHorizontally;
 		int y = b / blocksHorizontally;
-		x *= miniW;
-		y *= miniH;
-		return new Bounds(x, y, miniW, miniH);
+		x *= blockWidth;
+		y *= blockHeight;
+		return new Bounds(x, y, blockWidth, blockHeight);
 	}
 
 	public SimpleImage getBlock(int b) {
@@ -56,5 +57,18 @@ public class TemporaryBlockSource {
 
 	public int getBlockCount() {
 		return blockCount;
+	}
+
+	public int getBlockSize() {
+		assert blockWidth == blockHeight;
+		return blockWidth;
+	}
+
+	public void doBlockHiding(BlockAliasTable bat) {
+		if (bat != null) {
+			for (int b = 0; b < blockCount; b++) {
+				hideBlock(bat.compress(b), b);
+			}
+		}
 	}
 }
