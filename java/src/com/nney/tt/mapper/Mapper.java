@@ -1,21 +1,22 @@
-package com.nney.tt;
+package com.nney.tt.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nney.tt.Const;
+import com.nney.tt.World;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
-import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.map.GameMap;
 import com.nney.utils.Math2;
 
 public class Mapper {
-	private static final int MAPPER_BLOCKS_PER_LINE = 20;
-	private static final int MAPPER_SELECTION_BLOCK_COLOUR = 0xff0000;
+	private static final int BLOCKS_PER_LINE = 20;
+	private static final int SELECTION_BLOCK_COLOUR = 0xff0000;
 	private static final int MAPPER_CURRENT_BLOCK_COLOUR = 0xffff00;
 
 	private Coord dragPos;
@@ -47,7 +48,7 @@ public class Mapper {
 		this.blocksHolder = blocksHolder;
 		this.debugFont = debugFont;
 		blockCount = blocksHolder.getBlockCount(); 
-		blockPaletteHeight = Math2.roundUpDiv(blockCount, MAPPER_BLOCKS_PER_LINE);
+		blockPaletteHeight = Math2.roundUpDiv(blockCount, BLOCKS_PER_LINE);
 		mapperGC = new MapperGC(gc);
 	}
 	
@@ -72,8 +73,8 @@ public class Mapper {
 		if (showTimer!=0) {
 			showTimer--;
 			
-			int x = Math2.limit(0, MAPPER_BLOCKS_PER_LINE-5, (chosenBlock % MAPPER_BLOCKS_PER_LINE)-2);
-			int y = Math2.limit(0, blockPaletteHeight-5, (chosenBlock / MAPPER_BLOCKS_PER_LINE-2));
+			int x = Math2.limit(0, BLOCKS_PER_LINE-5, (chosenBlock % BLOCKS_PER_LINE)-2);
+			int y = Math2.limit(0, blockPaletteHeight-5, (chosenBlock / BLOCKS_PER_LINE-2));
 			gc.fillRectangle(0, 0, Const.BLOCK_SIZE*5, Const.BLOCK_SIZE*5, 0x0080ff);
 			for (BlockPos p : blockList(x, y, 5, 5, 0, 0)) {
 				blocksHolder.draw(p.b, p.x, p.y);
@@ -116,7 +117,7 @@ public class Mapper {
 				Coord newBlock = mousePos.copy();
 				newBlock.div(Const.BLOCK_SIZE);
 				newBlock.sub(oldBlock);
-				moveChosenBlock(newBlock.x+newBlock.y*MAPPER_BLOCKS_PER_LINE);
+				moveChosenBlock(newBlock.x+newBlock.y*BLOCKS_PER_LINE);
 				gameMap.setBlock2(mousePos, chosenBlock);
 			}
 			drawPos = computeMousePos();
@@ -144,9 +145,9 @@ public class Mapper {
 			chosenBlock = 0;
 			return true;
 		case Keyboard.KEY_UP:
-			return moveChosenBlock(-MAPPER_BLOCKS_PER_LINE);
+			return moveChosenBlock(-BLOCKS_PER_LINE);
 		case Keyboard.KEY_DOWN:
-			return moveChosenBlock(MAPPER_BLOCKS_PER_LINE);
+			return moveChosenBlock(BLOCKS_PER_LINE);
 		case Keyboard.KEY_LEFT:
 			return moveChosenBlock(-1);
 		case Keyboard.KEY_RIGHT:
@@ -205,22 +206,22 @@ public class Mapper {
 		}
 		int hoverBlock = -1;
 
-		for (BlockPos p : blockList(0, 0, MAPPER_BLOCKS_PER_LINE, blockPaletteHeight, 0, mdy)) {
+		for (BlockPos p : blockList(0, 0, BLOCKS_PER_LINE, blockPaletteHeight, 0, mdy)) {
 			blocksHolder.draw(p.b, p.x, p.y);
 			if (chosenBlock == p.b) {
 				mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
-				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
+				debugFont.draw(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
 						String.format("%4d", chosenBlock));
 			}
 			if (my >= p.y && my <= p.y + 15 && mx >= p.x && mx <= p.x + 15) {
 				hoverBlock = p.b;
 				if (hoverBlock == chosenBlock) {
-					mapperGC.drawBox(p.x + 1, p.y + 1, 14, 14, MAPPER_SELECTION_BLOCK_COLOUR);
+					mapperGC.drawBox(p.x + 1, p.y + 1, 14, 14, SELECTION_BLOCK_COLOUR);
 				}
 				else {
-					mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_SELECTION_BLOCK_COLOUR);
+					mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, SELECTION_BLOCK_COLOUR);
 				}
-				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, MAPPER_SELECTION_BLOCK_COLOUR, 0,
+				debugFont.draw(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, SELECTION_BLOCK_COLOUR, 0,
 						String.format("%4d", hoverBlock));
 			}
 		}
@@ -233,7 +234,7 @@ public class Mapper {
 		List<BlockPos> answer = new ArrayList<BlockPos>();
 		for (int by = 0; by < height; by++) {
 			for (int bx = 0; bx < width; bx++) {
-				int b = (sy+by) * MAPPER_BLOCKS_PER_LINE + (sx+bx);
+				int b = (sy+by) * BLOCKS_PER_LINE + (sx+bx);
 				if (b < blockCount) {
 					int x = bx * Const.BLOCK_SIZE + mdx;
 					int y = by * Const.BLOCK_SIZE + mdy;
