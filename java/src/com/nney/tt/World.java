@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.lwjgl.opengl.GL11;
-
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
@@ -29,9 +27,6 @@ import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
-import com.nney.tt.gfx.GlTexture;
-import com.nney.tt.gfx.GlTools;
-import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
@@ -48,6 +43,8 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices {
+	
+	private GraphicsContext gc = new GraphicsContext(); 
 
 	// lift
 	private static final String CTC_WORLD = "w";
@@ -107,8 +104,6 @@ public class World implements AlienServices {
 
 	public WorldInformation wi;
 
-	private GlTexture horizon;
-
 	private AlienInfoMap alienInfoMap;
 	private AnimsPool animsPool;
 	private int teleAttempt;
@@ -126,6 +121,8 @@ public class World implements AlienServices {
 	private int mapperBlockPaletteHeight;
 	private int mapperBlockCount;
 	private Coord drawPos;
+
+	private Horizon horizon;
 
 	public World(Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.joystick = joystick;
@@ -605,13 +602,8 @@ public class World implements AlienServices {
 		}
 	}
 
-	private void drawTheHorizon() {
-		horizon.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, horizon.getWidth(), horizon.getHieght());
-	}
-
 	void updateEverything() {
 		frameNumber++;
-		GlTools.configureFor2dBobs();
 
 		if (usingMapper) {
 			mapper();
@@ -628,7 +620,7 @@ public class World implements AlienServices {
 				scrollScreenTo(player.c);
 			}
 
-			drawTheHorizon();
+			horizon.draw();
 			drawTheMap();
 			updateAliens();
 			updateScore();
@@ -651,13 +643,13 @@ public class World implements AlienServices {
 			return;
 		}
 
-		drawTheHorizon();
+		horizon.draw();
 		drawTheMap();
 		Coord mousePos = computeMousePos();
 		{
 			int x = mousePos.x & -Main.BLOCK_SIZE;
 			int y = mousePos.y & -Main.BLOCK_SIZE;
-			drawHollowRect(x - screen.x, y - screen.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, 0xff0000);
+			gc.drawHollowRect(x - screen.x, y - screen.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, 0xff0000);
 		}
 		
 		if (showTimer!=0) {
@@ -665,11 +657,11 @@ public class World implements AlienServices {
 			
 			int x = TTMath.limit(0, MAPPER_BLOCKS_PER_LINE-5, (chosenBlock % MAPPER_BLOCKS_PER_LINE)-2);
 			int y = TTMath.limit(0, mapperBlockPaletteHeight-5, (chosenBlock / MAPPER_BLOCKS_PER_LINE-2));
-			drawSolidRect(0, 0, Main.BLOCK_SIZE*5, Main.BLOCK_SIZE*5, 0x0080ff);
+			gc.drawSolidRect(0, 0, Main.BLOCK_SIZE*5, Main.BLOCK_SIZE*5, 0x0080ff);
 			for (BlockPos p : blockList(x, y, 5, 5, 0, 0)) {
 				blocksHolder.drawOneSlowly(p.b, p.x, p.y);
 				if (chosenBlock == p.b) {
-					drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
+					gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
 				}
 			}
 
@@ -777,7 +769,7 @@ public class World implements AlienServices {
 	}
 
 	public void blockChoosingMode() {
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		
 
 		keyboardBlockChoice();
 
@@ -799,17 +791,17 @@ public class World implements AlienServices {
 		for (BlockPos p : blockList(0, 0, MAPPER_BLOCKS_PER_LINE, mapperBlockPaletteHeight, 0, mdy)) {
 			blocksHolder.drawOneSlowly(p.b, p.x, p.y);
 			if (chosenBlock == p.b) {
-				drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
+				gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
 				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Main.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
 						String.format("%4d", chosenBlock));
 			}
 			if (my >= p.y && my <= p.y + 15 && mx >= p.x && mx <= p.x + 15) {
 				hoverBlock = p.b;
 				if (hoverBlock == chosenBlock) {
-					drawHollowRect(p.x + 1, p.y + 1, 14, 14, MAPPER_SELECTION_BLOCK_COLOUR);
+					gc.drawHollowRect(p.x + 1, p.y + 1, 14, 14, MAPPER_SELECTION_BLOCK_COLOUR);
 				}
 				else {
-					drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_SELECTION_BLOCK_COLOUR);
+					gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_SELECTION_BLOCK_COLOUR);
 				}
 				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Main.BLOCK_SIZE + 8 * 4, p.y, MAPPER_SELECTION_BLOCK_COLOUR, 0,
 						String.format("%4d", hoverBlock));
@@ -847,9 +839,8 @@ public class World implements AlienServices {
 	}
 
 	private void init() {
-		horizon = new GlTexture(new SimpleImage(OpenableTools.mustLoad(TTResource.horizon(1))));
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		Openable ho = TTResource.horizon(1);
+		horizon = gc.loadHorizon(ho);  
 
 		animsPool = new AnimsPool(new AnimsDefPool());
 		alienInfoMap.doPreLoad(animsPool);
@@ -899,23 +890,14 @@ public class World implements AlienServices {
 		// (this stops us vibrating between two teleports)
 	}
 
-	void drawSolidRect(int x, int y, int w, int h, int col) {
-		GlTools.reset();
-		GlTools.selectColor(col);
-		GL11.glRecti(x, y, x + w, y + h);
-		GlTools.configureFor2dBobs();
-	}
+	
+	
+	
 
 	private void drawSight(int x, int y, int i, int col) {
-		drawSolidRect(x - i, y, i * 2, 1, col);
-		drawSolidRect(x, y - i, 1, i * 2, col);
+		gc.drawSolidRect(x - i, y, i * 2, 1, col);
+		gc.drawSolidRect(x, y - i, 1, i * 2, col);
 	}
 
-	private void drawHollowRect(int x, int y, int w, int h, int c) {
-		drawSolidRect(x, y, w, 1, c);
-		drawSolidRect(x, y, 1, h, c);
-		drawSolidRect(x + w - 1, y, 1, h, c);
-		drawSolidRect(x, y + h - 1, w, 1, c);
-	}
 
 }

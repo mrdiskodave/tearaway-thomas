@@ -92,12 +92,8 @@ public class Main {
 			joystick.update();
 			mouse.update();
 
-			// if (testKey(Keyboard.KEY_B)) {
-			// world.blockChoosingMode();
-			// }
-			// else {
+			GlTools.configureFor2dBobs();
 			world.updateEverything();
-			// }
 
 			Display.update();
 			if (Display.isCloseRequested()) {
