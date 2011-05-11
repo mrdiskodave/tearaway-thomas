@@ -4,11 +4,9 @@ import com.nney.utils.Openable;
 
 public interface GraphicsContext {
 
-	void drawSolidRect(int x, int y, int w, int h, int col);
+	void fillRectangle(int x, int y, int w, int h, int col);
 
 	Horizon loadHorizon(Openable ho);
-
-	void drawHollowRect(int x, int y, int w, int h, int c);
 
 	Blitable createBlitable(SimpleImage i);
 

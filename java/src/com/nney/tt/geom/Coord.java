@@ -36,6 +36,11 @@ public class Coord {
 		x /= z;
 		y /= z;
 	}
+	
+	public void and(int x2, int y2) {
+		x &= x2;
+		y &= y2;
+	}
 
 	public Coord copy() {
 		return new Coord(this);

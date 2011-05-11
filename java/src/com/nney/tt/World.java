@@ -1,8 +1,6 @@
 package com.nney.tt;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 
 import com.nney.tt.aliens.Alien;
@@ -44,11 +42,10 @@ import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
-import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class World implements AlienServices {
+public class World implements AlienServices, MapperServices {
 	
 	final private GraphicsContext gc; 
 
@@ -96,7 +93,6 @@ public class World implements AlienServices {
 	public int frameNumber;
 
 	private Sprite ttSprite;
-
 	private Coord ttPos;
 
 	private int score = 0;
@@ -113,22 +109,19 @@ public class World implements AlienServices {
 	private AlienInfoMap alienInfoMap;
 	private AnimsPool animsPool;
 	private int teleAttempt;
-	private int chosenBlock;
 
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
 	// mapper vars
-
-	private final Pointer mouse;
 	private boolean usingMapper;
-	private Coord dragPos;
-	private int showTimer;
-	private int mapperBlockPaletteHeight;
-	private int mapperBlockCount;
-	private Coord drawPos;
+
+	private Mapper mapper;
 
 	private Horizon horizon;
+
+	private Pointer mouse;
+
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -310,9 +303,6 @@ public class World implements AlienServices {
 	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
 			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
 			16 };
-	private static final int MAPPER_BLOCKS_PER_LINE = 20;
-	private static final int MAPPER_SELECTION_BLOCK_COLOUR = 0xff0000;
-	private static final int MAPPER_CURRENT_BLOCK_COLOUR = 0xffff00;
 
 	private static int limit(int current, int min, int max) {
 		if (current < min) {
@@ -622,7 +612,10 @@ public class World implements AlienServices {
 		frameNumber++;
 
 		if (usingMapper) {
-			mapper();
+			if (mapper==null) {
+				mapper = new Mapper(gameMap, this, mouse, keyboard, gc, blocksHolder, debugFont);
+			}
+			mapper.run();
 		}
 		else {
 			if (keyboard.justPressed() == Keyboard.KEY_TAB) {
@@ -643,207 +636,6 @@ public class World implements AlienServices {
 		}
 	}
 	
-	// ---------------------------------------------------------------------------
-	// MAPPER
-	// ---------------------------------------------------------------------------
-
-	private void mapper() {
-		mapperBlockCount = blocksHolder.getBlockCount(); 
-		mapperBlockPaletteHeight = Math2.roundUpDiv(mapperBlockCount, MAPPER_BLOCKS_PER_LINE);
-		
-
-		// block selection
-		if (mouse.isDown(Pointer.KEY_RIGHT)) {
-			blockChoosingMode();
-			showBlocks();
-			return;
-		}
-
-		horizon.draw();
-		drawTheMap();
-		Coord mousePos = computeMousePos();
-		{
-			int x = mousePos.x & -Const.BLOCK_SIZE;
-			int y = mousePos.y & -Const.BLOCK_SIZE;
-			gc.drawHollowRect(x - screen.x, y - screen.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, 0xff0000);
-		}
-		
-		if (showTimer!=0) {
-			showTimer--;
-			
-			int x = Math2.limit(0, MAPPER_BLOCKS_PER_LINE-5, (chosenBlock % MAPPER_BLOCKS_PER_LINE)-2);
-			int y = Math2.limit(0, mapperBlockPaletteHeight-5, (chosenBlock / MAPPER_BLOCKS_PER_LINE-2));
-			gc.drawSolidRect(0, 0, Const.BLOCK_SIZE*5, Const.BLOCK_SIZE*5, 0x0080ff);
-			for (BlockPos p : blockList(x, y, 5, 5, 0, 0)) {
-				blocksHolder.draw(p.b, p.x, p.y);
-				if (chosenBlock == p.b) {
-					gc.drawHollowRect(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
-				}
-			}
-
-		}
-
-		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_TAB:
-			player.resetTo(mousePos);
-			usingMapper = false;
-			return;
-		case Keyboard.KEY_I:
-			chosenBlock = gameMap.getBlock2(mousePos);
-			showBlocks();
-			return;
-		}
-
-		if (keyboard.isDown(Keyboard.KEY_SPACE)) {
-			Coord delta = dragPos;
-			if (delta != null && mouse.isDown(Pointer.KEY_LEFT)) {
-				delta.sub(mousePos);
-				if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
-					delta.mul(2);
-				}
-				screen.add(delta);
-				limitScreenPosition();
-			}
-			dragPos = computeMousePos();
-			return;
-		}
-		dragPos = null;
-		
-		if (keyboard.isDown(Keyboard.KEY_D)) {
-			showBlocks();
-			if (drawPos != null && mouse.isDown(Pointer.KEY_LEFT)) {
-				Coord oldBlock = drawPos.copy();
-				oldBlock.div(Const.BLOCK_SIZE);
-				Coord newBlock = mousePos.copy();
-				newBlock.div(Const.BLOCK_SIZE);
-				newBlock.sub(oldBlock);
-				moveChosenBlock(newBlock.x+newBlock.y*MAPPER_BLOCKS_PER_LINE);
-				gameMap.setBlock2(mousePos, chosenBlock);
-			}
-			drawPos = computeMousePos();
-			return;
-		}
-		drawPos = null;
-
-		if (mouse.isDown(Pointer.KEY_LEFT)) {
-			gameMap.setBlock2(mousePos, chosenBlock);
-			return;
-		}
-
-		if (keyboardBlockChoice()) {
-			showBlocks();
-		}
-	}
-
-	private void showBlocks() {
-		showTimer = 100;
-	}
-
-	private boolean keyboardBlockChoice() {
-		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_0:
-			chosenBlock = 0;
-			return true;
-		case Keyboard.KEY_UP:
-			return moveChosenBlock(-MAPPER_BLOCKS_PER_LINE);
-		case Keyboard.KEY_DOWN:
-			return moveChosenBlock(MAPPER_BLOCKS_PER_LINE);
-		case Keyboard.KEY_LEFT:
-			return moveChosenBlock(-1);
-		case Keyboard.KEY_RIGHT:
-			return moveChosenBlock(1);
-		}
-		return false;
-	}
-
-	private boolean moveChosenBlock(int i) {
-		i += chosenBlock;
-		if (i<0) {
-			i += mapperBlockCount;
-		}
-		if (i>=mapperBlockCount) {
-			i -= mapperBlockCount;
-		}
-		chosenBlock = i;
-		return true;
-	}
-
-	private Coord computeMousePos() {
-		return new Coord(mouse.getX() + screen.x, mouse.getY() + screen.y);
-	}
-
-	class BlockPos {
-		public final int x;
-		public final int y;
-		public final int b;
-
-		BlockPos(int x, int y, int b) {
-			this.x = x;
-			this.y = y;
-			this.b = b;
-		}
-	}
-
-	public void blockChoosingMode() {
-		gc.drawSolidRect(0, 0, gc.screenWidth(), gc.screenHeight(), 0x0080ff);
-
-		keyboardBlockChoice();
-
-		int mx = mouse.getX();
-		int my = mouse.getY();
-		// System.out.println(String.format("%d,%d", mx, my));
-		// drawSight(mx, my, 20, 0xff0000);
-
-		int protrusion = Math.max(mapperBlockPaletteHeight * Const.BLOCK_SIZE - gc.screenHeight(), 0);
-		int mdy = 0;
-		if (protrusion != 0) {
-			int mid = 64;
-			int big = gc.screenHeight() - 1 - mid * 2;
-			int z = Math.min(Math.max(0, my - mid), big);
-			mdy = (protrusion * z) / -big;
-		}
-		int hoverBlock = -1;
-
-		for (BlockPos p : blockList(0, 0, MAPPER_BLOCKS_PER_LINE, mapperBlockPaletteHeight, 0, mdy)) {
-			blocksHolder.draw(p.b, p.x, p.y);
-			if (chosenBlock == p.b) {
-				gc.drawHollowRect(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
-				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
-						String.format("%4d", chosenBlock));
-			}
-			if (my >= p.y && my <= p.y + 15 && mx >= p.x && mx <= p.x + 15) {
-				hoverBlock = p.b;
-				if (hoverBlock == chosenBlock) {
-					gc.drawHollowRect(p.x + 1, p.y + 1, 14, 14, MAPPER_SELECTION_BLOCK_COLOUR);
-				}
-				else {
-					gc.drawHollowRect(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_SELECTION_BLOCK_COLOUR);
-				}
-				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, MAPPER_SELECTION_BLOCK_COLOUR, 0,
-						String.format("%4d", hoverBlock));
-			}
-		}
-		if (mouse.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
-			chosenBlock = hoverBlock;
-		}
-	}
-
-	List<BlockPos> blockList(int sx, int sy, int width, int height, int mdx, int mdy) {
-		List<BlockPos> answer = new ArrayList<BlockPos>();
-		for (int by = 0; by < height; by++) {
-			for (int bx = 0; bx < width; bx++) {
-				int b = (sy+by) * MAPPER_BLOCKS_PER_LINE + (sx+bx);
-				if (b < mapperBlockCount) {
-					int x = bx * Const.BLOCK_SIZE + mdx;
-					int y = by * Const.BLOCK_SIZE + mdy;
-					answer.add(new BlockPos(x, y, b));
-				}
-			}
-		}
-		return answer;
-	}
-
-	// ---------------------------------------------------------------------------
 
 	private void loadAlienIntoWorld(Alien alien) {
 		alien.srv = this;
@@ -909,14 +701,35 @@ public class World implements AlienServices {
 		// (this stops us vibrating between two teleports)
 	}
 
-	
-	
-	
 
-	private void drawSight(int x, int y, int i, int col) {
-		gc.drawSolidRect(x - i, y, i * 2, 1, col);
-		gc.drawSolidRect(x, y - i, 1, i * 2, col);
+	// ---------------------------------------------------------------------------
+	// MAPPER SERVICES
+	//
+	// It's how the Mapper attaches to the World
+	//
+	
+	@Override
+	public void quitMapper(Coord mousePos) {
+		player.resetTo(mousePos);
+		usingMapper = false;
+	}
+
+	@Override
+	public void drawMap() {
+		horizon.draw();
+		drawTheMap();
 	}
 
 
+	@Override
+	public void moveScreen(Coord delta) {
+		screen.add(delta);
+		limitScreenPosition();
+	}
+
+
+	@Override
+	public Coord getScreenPosition() {
+		return screen;
+	}
 }

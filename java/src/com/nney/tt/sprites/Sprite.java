@@ -15,7 +15,7 @@ public class Sprite {
 	private final Blitable whiteVersion;
 	public byte[] lineInfo;
 	
-	static final boolean CTC_SEE_SPRITE_BOX = true;
+	static final boolean CTC_SEE_SPRITE_BOX = false;
 
 	/**
 	 * Create a {@link Sprite}.

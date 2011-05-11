@@ -14,7 +14,7 @@ import com.nney.utils.OpenableTools;
 
 public class GlGraphicsContext implements GraphicsContext {
 	@Override
-	public void drawSolidRect(int x, int y, int w, int h, int col) {
+	public void fillRectangle(int x, int y, int w, int h, int col) {
 		GlTools.reset();
 		GlTools.selectColor(col);
 		GL11.glRecti(x, y, x + w, y + h);
@@ -37,14 +37,6 @@ public class GlGraphicsContext implements GraphicsContext {
 				gt.dispose();
 			}
 		};
-	}
-	
-	@Override
-	public void drawHollowRect(int x, int y, int w, int h, int c) {
-		drawSolidRect(x, y, w, 1, c);
-		drawSolidRect(x, y, 1, h, c);
-		drawSolidRect(x + w - 1, y, 1, h, c);
-		drawSolidRect(x, y + h - 1, w, 1, c);
 	}
 	
 	@Override
