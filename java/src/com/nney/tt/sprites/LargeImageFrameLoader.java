@@ -1,7 +1,7 @@
 package com.nney.tt.sprites;
 
-import com.nney.tt.GraphicsContext;
 import com.nney.tt.gfx.Bounds;
+import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;

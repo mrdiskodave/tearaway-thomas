@@ -1,12 +1,13 @@
-package com.nney.tt;
+package com.nney.tt.lwjgl;
 
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.gfx.Bounds;
-import com.nney.tt.gfx.GlTexture;
-import com.nney.tt.gfx.GlTools;
+import com.nney.tt.gfx.PartialFontImpl;
+import com.nney.tt.gfx.PrerenderedText;
 
-public class GlFont extends MyFont {
+
+public class GlFont extends PartialFontImpl {
 	public GlFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
 		super(data, miniW, miniH, proportional, characters);
 	}

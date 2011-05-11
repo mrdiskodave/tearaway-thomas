@@ -1,8 +1,8 @@
 package com.nney.tt.sprites;
 
-import com.nney.tt.gfx.SimpleImage;
-
 import junit.framework.TestCase;
+
+import com.nney.tt.gfx.SimpleImage;
 
 public class LineInfoTest extends TestCase {
 	public void testGenerator() throws Exception {

@@ -1,7 +1,7 @@
 package com.nney.tt.sprites;
 
-import com.nney.tt.Blitable;
-import com.nney.tt.GraphicsContext;
+import com.nney.tt.gfx.Blitable;
+import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.ShowBoundsSip;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.WhiteOutSip;
@@ -15,7 +15,7 @@ public class Sprite {
 	private final Blitable whiteVersion;
 	public byte[] lineInfo;
 	
-	static final boolean CTC_SEE_SPRITE_BOX = false;
+	static final boolean CTC_SEE_SPRITE_BOX = true;
 
 	/**
 	 * Create a {@link Sprite}.

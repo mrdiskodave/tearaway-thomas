@@ -3,9 +3,9 @@ package com.nney.tt.map;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.nney.tt.Main;
 import com.nney.tt.StopWatch;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.lwjgl.Main;
 
 public class GameMap {
 	final public static int MAP_WIDTH = 256;

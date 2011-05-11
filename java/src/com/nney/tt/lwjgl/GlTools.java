@@ -1,8 +1,10 @@
-package com.nney.tt.gfx;
+package com.nney.tt.lwjgl;
 
 import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL11;
+
+import com.nney.tt.gfx.SimpleImage;
 
 public class GlTools {
 	public static void reset() {

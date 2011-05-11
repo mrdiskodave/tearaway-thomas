@@ -1,4 +1,4 @@
-package com.nney.tt;
+package com.nney.tt.gfx;
 
 public interface PrerenderedText {
 

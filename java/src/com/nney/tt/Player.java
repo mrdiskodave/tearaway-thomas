@@ -1,9 +1,10 @@
 package com.nney.tt;
 
-import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Joystick;
+import com.nney.tt.lwjgl.Main;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {

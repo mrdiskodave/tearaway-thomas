@@ -1,17 +1,14 @@
-package com.nney.tt;
+package com.nney.tt.gfx;
 
-import com.nney.tt.gfx.BlockSource;
-import com.nney.tt.gfx.Bounds;
-import com.nney.tt.gfx.SimpleImage;
 
-public abstract class MyFont {
+public abstract class PartialFontImpl implements Font {
 	protected  static final int ABSENT = 0xffff0101;
 	final protected SimpleImage content;
 	final protected  String characters;
 	final protected  Bounds[] boxes;
 	protected  boolean mono;
 
-	public MyFont(byte[] data, int miniW, int miniH, boolean proportional,
+	public PartialFontImpl(byte[] data, int miniW, int miniH, boolean proportional,
 			String characters) {
 		this.content = new SimpleImage(data);
 		BlockSource bs = new BlockSource(content, miniW, miniH);
@@ -45,6 +42,7 @@ public abstract class MyFont {
 		return glyphWidth;
 	}
 
+	@Override
 	public int draw(int dx, int dy, int fg, int kern, String text) {
 		// configure the texture system
 		startDrawing(fg);
@@ -64,6 +62,7 @@ public abstract class MyFont {
 		return dx;
 	}
 
+	@Override
 	public int computeWidth(int kern, String text) {
 		int dx = 0;
 		for (int x = 0; x < text.length(); x++) {
@@ -77,10 +76,12 @@ public abstract class MyFont {
 		return dx;
 	}
 	
+	@Override
 	abstract public void dispose();
 	abstract protected void renderContent();
 	abstract protected void stopDrawing();
 	abstract protected void drawChar(int dx, int dy, Bounds z);
 	abstract protected void startDrawing(int fg);
+	@Override
 	abstract public PrerenderedText preDraw(int fg, int kern, String text);
 }

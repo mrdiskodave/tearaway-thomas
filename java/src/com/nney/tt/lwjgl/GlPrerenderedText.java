@@ -1,6 +1,8 @@
-package com.nney.tt;
+package com.nney.tt.lwjgl;
 
 import org.lwjgl.opengl.GL11;
+
+import com.nney.tt.gfx.PrerenderedText;
 
 public class GlPrerenderedText implements PrerenderedText {
 	private final int width;

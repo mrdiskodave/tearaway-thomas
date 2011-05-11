@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.nney.json.DataItem;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
-import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.BlockAliasTable;
+import com.nney.tt.map.BlockInformation;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.StringIO;
 

@@ -1,5 +1,7 @@
 package com.nney.tt;
 
+import com.nney.tt.lwjgl.Main;
+
 /**
  * When drawing the map we generate one of these per map axis. i.e. one for X
  * and one for Y.

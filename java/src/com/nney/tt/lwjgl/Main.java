@@ -1,4 +1,4 @@
-package com.nney.tt;
+package com.nney.tt.lwjgl;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -7,10 +7,8 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-import com.nney.tt.gfx.GlTools;
+import com.nney.tt.World;
 import com.nney.tt.input.KeyboardJoystick;
-import com.nney.tt.input.LwjglKeyboard;
-import com.nney.tt.input.LwjglPointer;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdapter;
 
@@ -66,6 +64,7 @@ public class Main {
 		LwjglKeyboard keys = new LwjglKeyboard();
 		KeyboardJoystick joystick = new KeyboardJoystick(keys);
 		LwjglPointer mouse = new LwjglPointer();
+		GlGraphicsContext gc = new GlGraphicsContext();
 
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
 		// projection
@@ -81,7 +80,7 @@ public class Main {
 			}
 		};
 
-		world = new World(joystick, keys, correctMouse);
+		world = new World(gc, joystick, keys, correctMouse);
 
 		int requestedFps = 50;
 		fpsRep = new FpsReporter(200);

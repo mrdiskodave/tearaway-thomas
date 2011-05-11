@@ -1,6 +1,8 @@
-package com.nney.tt.input;
+package com.nney.tt.lwjgl;
 
 import org.lwjgl.input.Mouse;
+
+import com.nney.tt.input.PartialPointerImpl;
 
 public class LwjglPointer extends PartialPointerImpl {
 	public void update() {

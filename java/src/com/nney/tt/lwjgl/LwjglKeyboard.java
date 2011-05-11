@@ -1,7 +1,9 @@
-package com.nney.tt.input;
+package com.nney.tt.lwjgl;
 
 import java.util.HashMap;
 import java.util.HashSet;
+
+import com.nney.tt.input.Keyboard;
 
 public class LwjglKeyboard implements Keyboard {
 	private HashSet<Integer> keys = new HashSet<Integer>();

@@ -1,4 +1,4 @@
-package com.nney.tt.gfx;
+package com.nney.tt.lwjgl;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+
+import com.nney.tt.gfx.BlockSource;
+import com.nney.tt.gfx.BlocksHolder;
+import com.nney.tt.gfx.SimpleImage;
 
 public class GlBlocksHolder implements BlocksHolder {
 	final private int blockSize;

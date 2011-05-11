@@ -3,7 +3,7 @@ package com.nney.tt.sprites;
 import java.util.ArrayList;
 
 import com.nney.json.DataItem;
-import com.nney.tt.GraphicsContext;
+import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.resources.TTResource;
 
 public class AnimsPool extends CachedLoader<String, Anims> {

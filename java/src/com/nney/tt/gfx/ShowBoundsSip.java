@@ -1,8 +1,13 @@
 package com.nney.tt.gfx;
 
 import com.nney.tt.gfx.SimpleImage.SimpleImageProcessor;
+import com.nney.tt.sprites.Sprite;
 
-
+/**
+ * Change everything transparent to cyan.
+ * 
+ * Used to help us see the full blit-box of {@link Sprite}s on screen.
+ */
 public class ShowBoundsSip implements SimpleImageProcessor {
 	@Override
 	public SimpleImage process(SimpleImage input) {
@@ -21,6 +26,5 @@ public class ShowBoundsSip implements SimpleImageProcessor {
 	public boolean inPlace() {
 		return true;
 	}
-
 
 }

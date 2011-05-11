@@ -28,9 +28,14 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
+import com.nney.tt.gfx.Font;
+import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.Horizon;
+import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.lwjgl.Main;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
@@ -45,7 +50,7 @@ import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices {
 	
-	private GraphicsContext gc = new GraphicsContext(); 
+	final private GraphicsContext gc; 
 
 	// lift
 	private static final String CTC_WORLD = "w";
@@ -77,8 +82,8 @@ public class World implements AlienServices {
 	private BlocksHolder blocksHolder;
 
 	final public Random rnd = new Random(5);
-	public MyFont debugFont;
-	public MyFont font;
+	public Font debugFont;
+	public Font font;
 
 	public Coord screen = new Coord();
 	public MasksHolder maskHolder;
@@ -125,7 +130,8 @@ public class World implements AlienServices {
 
 	private Horizon horizon;
 
-	public World(Joystick joystick, Keyboard keyboard, Pointer mouse) {
+	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
+		this.gc = gc;
 		this.joystick = joystick;
 		this.keyboard = keyboard;
 		this.mouse = mouse;
@@ -612,7 +618,7 @@ public class World implements AlienServices {
 		}
 	}
 
-	void updateEverything() {
+	public void updateEverything() {
 		frameNumber++;
 
 		if (usingMapper) {
@@ -779,7 +785,7 @@ public class World implements AlienServices {
 	}
 
 	public void blockChoosingMode() {
-		gc.cls();
+		gc.drawSolidRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0x0080ff);
 
 		keyboardBlockChoice();
 

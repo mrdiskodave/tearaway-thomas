@@ -1,27 +1,27 @@
-package com.nney.tt;
-
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
+package com.nney.tt.lwjgl;
 
 import org.lwjgl.opengl.GL11;
 
+import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
-import com.nney.tt.gfx.GlBlocksHolder;
-import com.nney.tt.gfx.GlTexture;
-import com.nney.tt.gfx.GlTools;
+import com.nney.tt.gfx.Font;
+import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.Horizon;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class GraphicsContext {
-	void drawSolidRect(int x, int y, int w, int h, int col) {
+public class GlGraphicsContext implements GraphicsContext {
+	@Override
+	public void drawSolidRect(int x, int y, int w, int h, int col) {
 		GlTools.reset();
 		GlTools.selectColor(col);
 		GL11.glRecti(x, y, x + w, y + h);
 		GlTools.configureFor2dBobs();
 	}
 
+	@Override
 	public Horizon loadHorizon(Openable ho) {
 		final GlTexture gt = new GlTexture(new SimpleImage(OpenableTools.mustLoad(ho)));
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
@@ -39,6 +39,7 @@ public class GraphicsContext {
 		};
 	}
 	
+	@Override
 	public void drawHollowRect(int x, int y, int w, int h, int c) {
 		drawSolidRect(x, y, w, 1, c);
 		drawSolidRect(x, y, 1, h, c);
@@ -46,6 +47,7 @@ public class GraphicsContext {
 		drawSolidRect(x, y + h - 1, w, 1, c);
 	}
 	
+	@Override
 	public Blitable createBlitable(SimpleImage i) {
 		final GlTexture gt = new GlTexture(i);
 		return new Blitable() {
@@ -59,15 +61,13 @@ public class GraphicsContext {
 			}};
 	}
 
-	public void cls() {
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-
+	@Override
 	public BlocksHolder createBlocksHolder(BlockSource bs) {
 		return new GlBlocksHolder(bs);
 	}
 
-	public MyFont createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
+	@Override
+	public Font createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
 		return new GlFont(data, miniW, miniH, proportional, characters);
 	}
 }

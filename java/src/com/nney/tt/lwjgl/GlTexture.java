@@ -1,7 +1,9 @@
-package com.nney.tt.gfx;
+package com.nney.tt.lwjgl;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
+import com.nney.tt.gfx.SimpleImage;
 
 public class GlTexture {
 	private int textureId;
