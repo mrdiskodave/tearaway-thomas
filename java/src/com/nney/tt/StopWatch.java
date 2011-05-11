@@ -7,11 +7,11 @@ public class StopWatch {
 		startTime = System.nanoTime();
 	}
 	
-	public long readNano() {
+	public long readNanosecondsLong() {
 		return System.nanoTime()-startTime; 
 	}
 	
-	public float readMsf() {
-		return ((float) readNano()) / 1000000;
+	public float readMillisecondsFloat() {
+		return ((float) readNanosecondsLong()) / 1000000;
 	}
 }

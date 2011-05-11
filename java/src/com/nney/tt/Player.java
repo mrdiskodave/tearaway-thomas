@@ -636,8 +636,8 @@ public class Player extends Alien {
 				if (!ropeLatch) {
 					goLeft = !goLeft;
 					// block align:
-					c.x &= -16;
-					c.x += 8;
+					c.x &= -Main.BLOCK_SIZE;
+					c.x += (Main.BLOCK_SIZE/2);
 					reset();
 					mode = Mode.ROPE;
 				}
@@ -717,7 +717,7 @@ public class Player extends Alien {
 				if (vely >= 0 && !testStick(Joystick.DOWN) && !monkeyLatch) {
 					// block align:
 					c.y -= 2;
-					c.y &= -16;
+					c.y &= -Main.BLOCK_SIZE;
 					c.y += 2;
 					reset();
 					mode = Mode.MONKEY;

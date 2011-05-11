@@ -27,6 +27,16 @@ public class Coord {
 		y += other.y;
 	}
 	
+	public void mul(int z) {
+		x *= z;
+		y *= z;
+	}
+
+	public void div(int z) {
+		x /= z;
+		y /= z;
+	}
+
 	public Coord copy() {
 		return new Coord(this);
 	}

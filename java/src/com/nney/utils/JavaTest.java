@@ -369,5 +369,4 @@ public class JavaTest extends TestCase {
 		assertEquals(1, (int) n.get(2));
 		assertEquals(0, (int) n.get(3));
 	}
-
 }

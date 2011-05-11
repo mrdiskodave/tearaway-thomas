@@ -23,12 +23,12 @@ public class PointerAdapter implements Pointer {
 	}
 
 	@Override
-	public boolean testButton(int mask) {
-		return target.testButton(mask);
+	public boolean isDown(int mask) {
+		return target.isDown(mask);
 	}
 
 	@Override
-	public boolean testButtonJustPressed(int mask) {
-		return target.testButtonJustPressed(mask);
+	public boolean justPressed(int mask) {
+		return target.justPressed(mask);
 	}
 }

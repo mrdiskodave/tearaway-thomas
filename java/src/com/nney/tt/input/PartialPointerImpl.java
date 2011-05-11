@@ -31,12 +31,12 @@ public class PartialPointerImpl implements Pointer {
 	}
 
 	@Override
-	public boolean testButton(int mask) {
+	public boolean isDown(int mask) {
 		return (currentPosition&mask)!=0;
 	}
 
 	@Override
-	public boolean testButtonJustPressed(int mask) {
+	public boolean justPressed(int mask) {
 		int pressed = (~lastPosition)&currentPosition;
 		return (pressed&mask)!=0;
 	}

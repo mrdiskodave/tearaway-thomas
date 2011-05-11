@@ -92,6 +92,12 @@ public class BlocksHolder {
 		GL11.glPopMatrix();
 	}
 	
+	public void drawOneSlowly(int block, int dx, int dy) {
+		int[] blocks = new int[1];
+		blocks[0] = block;
+		draw(blocks, dx, dy);
+	}
+	
 	public int getBlockCount() {
 		return blockCount;
 	}

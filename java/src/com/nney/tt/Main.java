@@ -35,7 +35,7 @@ public class Main {
 			Display.create();
 			Display.setVSyncEnabled(true);
 			Keyboard.create();
-			// Keyboard.enableRepeatEvents(true);
+			Keyboard.enableRepeatEvents(true);
 			Mouse.create();
 		}
 		catch (LWJGLException e) {

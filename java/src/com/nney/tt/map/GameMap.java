@@ -3,7 +3,9 @@ package com.nney.tt.map;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.nney.tt.Main;
 import com.nney.tt.StopWatch;
+import com.nney.tt.geom.Coord;
 
 public class GameMap {
 	final public static int MAP_WIDTH = 256;
@@ -47,24 +49,39 @@ public class GameMap {
 		System.out.println("Packed to "+length);
 	}
 
-	public int getBlock(int x, int y) {
-		boolean valid = x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
-//		if (!valid) return 0;
-		assert valid : String.format("%d,%d", x, y);
+	public int fastGetBlock(int x, int y) {
+		assert validPosition(x, y);
 		return map[y * MAP_WIDTH + x];
 	}
 
-	public void setBlock(int x, int y, int b) {
-		assert x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
-		map[y * MAP_WIDTH + x] = (short) b;
+	public int getBlock2(Coord c) {
+		int x = c.x;
+		int y = c.y;
+		x /= Main.BLOCK_SIZE;
+		y /= Main.BLOCK_SIZE;
+		if (!validPosition(x, y)) return 0;
+		return map[y * MAP_WIDTH + x];
 	}
 
+	public void setBlock2(Coord c, int b) {
+		int x = c.x;
+		int y = c.y;
+		x /= Main.BLOCK_SIZE;
+		y /= Main.BLOCK_SIZE;
+		if (validPosition(x, y)) {
+			map[y * MAP_WIDTH + x] = (short) b;
+		}
+	}
+
+	private boolean validPosition(int x, int y) {
+		return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
+	}
 	
 	public void applyShuffle(BlockAliasTable bat) {
 		StopWatch sw = new StopWatch();
 		for (int x = 0; x < map.length; x++) {
 			map[x] = (short) bat.shuffle(map[x]);
 		}
-		System.out.println("Shuffle took " + sw.readMsf() + "ms");
+		System.out.println("Shuffle took " + sw.readMillisecondsFloat() + "ms");
 	}
 }
