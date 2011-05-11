@@ -70,4 +70,14 @@ public class GlGraphicsContext implements GraphicsContext {
 	public Font createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
 		return new GlFont(data, miniW, miniH, proportional, characters);
 	}
+
+	@Override
+	public int screenWidth() {
+		return Main.SCREEN_WIDTH;
+	}
+
+	@Override
+	public int screenHeight() {
+		return Main.SCREEN_HEIGHT;
+	}
 }

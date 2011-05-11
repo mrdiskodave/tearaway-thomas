@@ -4,7 +4,6 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Joystick;
-import com.nney.tt.lwjgl.Main;
 import com.nney.tt.sprites.Sprite;
 
 public class Player extends Alien {
@@ -637,8 +636,8 @@ public class Player extends Alien {
 				if (!ropeLatch) {
 					goLeft = !goLeft;
 					// block align:
-					c.x &= -Main.BLOCK_SIZE;
-					c.x += (Main.BLOCK_SIZE/2);
+					c.x &= -Const.BLOCK_SIZE;
+					c.x += (Const.BLOCK_SIZE/2);
 					reset();
 					mode = Mode.ROPE;
 				}
@@ -718,7 +717,7 @@ public class Player extends Alien {
 				if (vely >= 0 && !testStick(Joystick.DOWN) && !monkeyLatch) {
 					// block align:
 					c.y -= 2;
-					c.y &= -Main.BLOCK_SIZE;
+					c.y &= -Const.BLOCK_SIZE;
 					c.y += 2;
 					reset();
 					mode = Mode.MONKEY;

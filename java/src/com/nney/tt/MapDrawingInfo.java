@@ -1,6 +1,7 @@
 package com.nney.tt;
 
-import com.nney.tt.lwjgl.Main;
+import com.nney.utils.Math2;
+
 
 /**
  * When drawing the map we generate one of these per map axis. i.e. one for X
@@ -23,12 +24,12 @@ public class MapDrawingInfo {
 	public final int blockCount;
 
 	public MapDrawingInfo(int mapSourceInPixels, int screenSizeInPixels, int mapSizeInPixels) {
-		mapSourceInBlocks = mapSourceInPixels / Main.BLOCK_SIZE;
-		initialPixelDestination = -(mapSourceInPixels & Main.BLOCK_MASK);
+		mapSourceInBlocks = mapSourceInPixels / Const.BLOCK_SIZE;
+		initialPixelDestination = -(mapSourceInPixels & Const.BLOCK_MASK);
 		// what is the minimum number of blocks to cover those pixels?
-		int blockCount = TTMath.roundUpDiv(screenSizeInPixels, Main.BLOCK_SIZE);
+		int blockCount = Math2.roundUpDiv(screenSizeInPixels, Const.BLOCK_SIZE);
 		// if that doesn't get us all the way across the visible screen ..
-		if (initialPixelDestination + blockCount * Main.BLOCK_SIZE < screenSizeInPixels) {
+		if (initialPixelDestination + blockCount * Const.BLOCK_SIZE < screenSizeInPixels) {
 			// .. then we'll need one more
 			blockCount++;
 		}

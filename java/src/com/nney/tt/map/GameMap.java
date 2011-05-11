@@ -3,9 +3,9 @@ package com.nney.tt.map;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.nney.tt.Const;
 import com.nney.tt.StopWatch;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.lwjgl.Main;
 
 public class GameMap {
 	final public static int MAP_WIDTH = 256;
@@ -57,8 +57,8 @@ public class GameMap {
 	public int getBlock2(Coord c) {
 		int x = c.x;
 		int y = c.y;
-		x /= Main.BLOCK_SIZE;
-		y /= Main.BLOCK_SIZE;
+		x /= Const.BLOCK_SIZE;
+		y /= Const.BLOCK_SIZE;
 		if (!validPosition(x, y)) return 0;
 		return map[y * MAP_WIDTH + x];
 	}
@@ -66,8 +66,8 @@ public class GameMap {
 	public void setBlock2(Coord c, int b) {
 		int x = c.x;
 		int y = c.y;
-		x /= Main.BLOCK_SIZE;
-		y /= Main.BLOCK_SIZE;
+		x /= Const.BLOCK_SIZE;
+		y /= Const.BLOCK_SIZE;
 		if (validPosition(x, y)) {
 			map[y * MAP_WIDTH + x] = (short) b;
 		}

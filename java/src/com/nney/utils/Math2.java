@@ -1,6 +1,6 @@
-package com.nney.tt;
+package com.nney.utils;
 
-public class TTMath {
+public class Math2 {
 	public static int roundUpDiv(int x, int y) {
 		return (x + y - 1) / y;
 	}

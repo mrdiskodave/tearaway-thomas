@@ -35,7 +35,6 @@ import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.lwjgl.Main;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
@@ -45,6 +44,7 @@ import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
@@ -338,13 +338,13 @@ public class World implements AlienServices {
 		return shrunkDelta;
 	}
 
-	private static Coord screenDest(Coord c) {
-		return c.copyAndMove(-Main.SCREEN_WIDTH / 2, -Main.SCREEN_HEIGHT * 11 / 16);
+	private Coord screenDest(Coord c) {
+		return c.copyAndMove(-gc.screenWidth() / 2, -gc.screenHeight() * 11 / 16);
 	}
 
 	private void limitScreenPosition() {
-		screen.x = limit(screen.x, mapBounds.left, (mapBounds.right + 1) - Main.SCREEN_WIDTH);
-		screen.y = limit(screen.y, mapBounds.top, (mapBounds.bottom + 1) - Main.SCREEN_HEIGHT);
+		screen.x = limit(screen.x, mapBounds.left, (mapBounds.right + 1) - gc.screenWidth());
+		screen.y = limit(screen.y, mapBounds.top, (mapBounds.bottom + 1) - gc.screenHeight());
 	}
 
 	private static int scrollOrd(int current, int dest) {
@@ -563,7 +563,7 @@ public class World implements AlienServices {
 
 	private void updateAliens() {
 		// add fresh aliens
-		Box screenBox = Box.fromTopLeftAndSize(screen, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		Box screenBox = Box.fromTopLeftAndSize(screen, gc.screenWidth(), gc.screenHeight());
 
 		alienTracker.begin(screenBox);
 
@@ -598,13 +598,13 @@ public class World implements AlienServices {
 			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
 			scoreText = font.preDraw(0xffffffff, 0, String.format("%08d", score));
 		}
-		scoreHeadingText.draw((Main.SCREEN_WIDTH - scoreHeadingText.getWidth()) / 2, 6);
-		scoreText.draw((Main.SCREEN_WIDTH - scoreText.getWidth()) / 2, 6 + 14);
+		scoreHeadingText.draw((gc.screenWidth() - scoreHeadingText.getWidth()) / 2, 6);
+		scoreText.draw((gc.screenWidth() - scoreText.getWidth()) / 2, 6 + 14);
 	}
 
 	private void drawTheMap() {
-		MapDrawingInfo ix = new MapDrawingInfo(screen.x, Main.SCREEN_WIDTH, mapBounds.right + 1);
-		MapDrawingInfo iy = new MapDrawingInfo(screen.y, Main.SCREEN_HEIGHT, mapBounds.bottom + 1);
+		MapDrawingInfo ix = new MapDrawingInfo(screen.x, gc.screenWidth(), mapBounds.right + 1);
+		MapDrawingInfo iy = new MapDrawingInfo(screen.y, gc.screenHeight(), mapBounds.bottom + 1);
 
 		int[] blockRow = new int[ix.blockCount];
 
@@ -614,7 +614,7 @@ public class World implements AlienServices {
 				blockRow[loopX] = gameMap.fastGetBlock(ix.mapSourceInBlocks + loopX, iy.mapSourceInBlocks + loopY);
 			}
 			blocksHolder.draw(blockRow, ix.initialPixelDestination, pixelDestY);
-			pixelDestY += Main.BLOCK_SIZE;
+			pixelDestY += Const.BLOCK_SIZE;
 		}
 	}
 
@@ -649,7 +649,7 @@ public class World implements AlienServices {
 
 	private void mapper() {
 		mapperBlockCount = blocksHolder.getBlockCount(); 
-		mapperBlockPaletteHeight = TTMath.roundUpDiv(mapperBlockCount, MAPPER_BLOCKS_PER_LINE);
+		mapperBlockPaletteHeight = Math2.roundUpDiv(mapperBlockCount, MAPPER_BLOCKS_PER_LINE);
 		
 
 		// block selection
@@ -663,21 +663,21 @@ public class World implements AlienServices {
 		drawTheMap();
 		Coord mousePos = computeMousePos();
 		{
-			int x = mousePos.x & -Main.BLOCK_SIZE;
-			int y = mousePos.y & -Main.BLOCK_SIZE;
-			gc.drawHollowRect(x - screen.x, y - screen.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, 0xff0000);
+			int x = mousePos.x & -Const.BLOCK_SIZE;
+			int y = mousePos.y & -Const.BLOCK_SIZE;
+			gc.drawHollowRect(x - screen.x, y - screen.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, 0xff0000);
 		}
 		
 		if (showTimer!=0) {
 			showTimer--;
 			
-			int x = TTMath.limit(0, MAPPER_BLOCKS_PER_LINE-5, (chosenBlock % MAPPER_BLOCKS_PER_LINE)-2);
-			int y = TTMath.limit(0, mapperBlockPaletteHeight-5, (chosenBlock / MAPPER_BLOCKS_PER_LINE-2));
-			gc.drawSolidRect(0, 0, Main.BLOCK_SIZE*5, Main.BLOCK_SIZE*5, 0x0080ff);
+			int x = Math2.limit(0, MAPPER_BLOCKS_PER_LINE-5, (chosenBlock % MAPPER_BLOCKS_PER_LINE)-2);
+			int y = Math2.limit(0, mapperBlockPaletteHeight-5, (chosenBlock / MAPPER_BLOCKS_PER_LINE-2));
+			gc.drawSolidRect(0, 0, Const.BLOCK_SIZE*5, Const.BLOCK_SIZE*5, 0x0080ff);
 			for (BlockPos p : blockList(x, y, 5, 5, 0, 0)) {
 				blocksHolder.draw(p.b, p.x, p.y);
 				if (chosenBlock == p.b) {
-					gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
+					gc.drawHollowRect(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
 				}
 			}
 
@@ -713,9 +713,9 @@ public class World implements AlienServices {
 			showBlocks();
 			if (drawPos != null && mouse.isDown(Pointer.KEY_LEFT)) {
 				Coord oldBlock = drawPos.copy();
-				oldBlock.div(Main.BLOCK_SIZE);
+				oldBlock.div(Const.BLOCK_SIZE);
 				Coord newBlock = mousePos.copy();
-				newBlock.div(Main.BLOCK_SIZE);
+				newBlock.div(Const.BLOCK_SIZE);
 				newBlock.sub(oldBlock);
 				moveChosenBlock(newBlock.x+newBlock.y*MAPPER_BLOCKS_PER_LINE);
 				gameMap.setBlock2(mousePos, chosenBlock);
@@ -785,7 +785,7 @@ public class World implements AlienServices {
 	}
 
 	public void blockChoosingMode() {
-		gc.drawSolidRect(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0x0080ff);
+		gc.drawSolidRect(0, 0, gc.screenWidth(), gc.screenHeight(), 0x0080ff);
 
 		keyboardBlockChoice();
 
@@ -794,11 +794,11 @@ public class World implements AlienServices {
 		// System.out.println(String.format("%d,%d", mx, my));
 		// drawSight(mx, my, 20, 0xff0000);
 
-		int protrusion = Math.max(mapperBlockPaletteHeight * Main.BLOCK_SIZE - Main.SCREEN_HEIGHT, 0);
+		int protrusion = Math.max(mapperBlockPaletteHeight * Const.BLOCK_SIZE - gc.screenHeight(), 0);
 		int mdy = 0;
 		if (protrusion != 0) {
 			int mid = 64;
-			int big = Main.SCREEN_HEIGHT - 1 - mid * 2;
+			int big = gc.screenHeight() - 1 - mid * 2;
 			int z = Math.min(Math.max(0, my - mid), big);
 			mdy = (protrusion * z) / -big;
 		}
@@ -807,8 +807,8 @@ public class World implements AlienServices {
 		for (BlockPos p : blockList(0, 0, MAPPER_BLOCKS_PER_LINE, mapperBlockPaletteHeight, 0, mdy)) {
 			blocksHolder.draw(p.b, p.x, p.y);
 			if (chosenBlock == p.b) {
-				gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
-				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Main.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
+				gc.drawHollowRect(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
+				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
 						String.format("%4d", chosenBlock));
 			}
 			if (my >= p.y && my <= p.y + 15 && mx >= p.x && mx <= p.x + 15) {
@@ -817,9 +817,9 @@ public class World implements AlienServices {
 					gc.drawHollowRect(p.x + 1, p.y + 1, 14, 14, MAPPER_SELECTION_BLOCK_COLOUR);
 				}
 				else {
-					gc.drawHollowRect(p.x, p.y, Main.BLOCK_SIZE, Main.BLOCK_SIZE, MAPPER_SELECTION_BLOCK_COLOUR);
+					gc.drawHollowRect(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_SELECTION_BLOCK_COLOUR);
 				}
-				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Main.BLOCK_SIZE + 8 * 4, p.y, MAPPER_SELECTION_BLOCK_COLOUR, 0,
+				debugFont.draw(MAPPER_BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, MAPPER_SELECTION_BLOCK_COLOUR, 0,
 						String.format("%4d", hoverBlock));
 			}
 		}
@@ -834,8 +834,8 @@ public class World implements AlienServices {
 			for (int bx = 0; bx < width; bx++) {
 				int b = (sy+by) * MAPPER_BLOCKS_PER_LINE + (sx+bx);
 				if (b < mapperBlockCount) {
-					int x = bx * Main.BLOCK_SIZE + mdx;
-					int y = by * Main.BLOCK_SIZE + mdy;
+					int x = bx * Const.BLOCK_SIZE + mdx;
+					int y = by * Const.BLOCK_SIZE + mdy;
 					answer.add(new BlockPos(x, y, b));
 				}
 			}
@@ -872,10 +872,10 @@ public class World implements AlienServices {
 		Openable masksGfx = TTResource.blockMask(worldName);
 		wi = WorldInformation.load(worldName);
 		
-		BlockSource bs = new BlockSource(CTC_SEE_MASKS ? masksGfx : blocksGfx, Main.BLOCK_SIZE);
+		BlockSource bs = new BlockSource(CTC_SEE_MASKS ? masksGfx : blocksGfx, Const.BLOCK_SIZE);
 		bs.doBlockHiding(wi.invisibleBlockHiding);
 		blocksHolder = gc.createBlocksHolder(bs);
-		maskHolder = new MasksHolder(Main.BLOCK_SIZE, masksGfx);
+		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGfx);
 
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
 

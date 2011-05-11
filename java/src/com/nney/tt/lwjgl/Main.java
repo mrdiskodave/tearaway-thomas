@@ -18,8 +18,6 @@ public class Main {
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
-	public static final int BLOCK_SIZE = 16;
-	public static final int BLOCK_MASK = BLOCK_SIZE - 1;
 
 	private World world;
 
@@ -63,12 +61,12 @@ public class Main {
 
 		LwjglKeyboard keys = new LwjglKeyboard();
 		KeyboardJoystick joystick = new KeyboardJoystick(keys);
-		LwjglPointer mouse = new LwjglPointer();
 		GlGraphicsContext gc = new GlGraphicsContext();
 
+		LwjglPointer wonkyMouse = new LwjglPointer();
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
 		// projection
-		Pointer correctMouse = new PointerAdapter(mouse) {
+		Pointer correctMouse = new PointerAdapter(wonkyMouse) {
 			@Override
 			public int getX() {
 				return super.getX() / 2;
@@ -89,7 +87,7 @@ public class Main {
 
 			keys.handleKeyboard();
 			joystick.update();
-			mouse.update();
+			wonkyMouse.update();
 
 			GlTools.configureFor2dBobs();
 			world.updateEverything();
@@ -106,7 +104,6 @@ public class Main {
 	}
 
 	public static void main(String[] argv) {
-		Main textureExample = new Main();
-		textureExample.run();
+		new Main().run();
 	}
 }
