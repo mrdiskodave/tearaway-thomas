@@ -204,8 +204,9 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	private int getBlock(Coord c) {
-		// TODO: slow?
-		return gameMap.getBlock2(c);
+		int x = c.x/ Const.BLOCK_SIZE;
+		int y = c.y/ Const.BLOCK_SIZE;
+		return gameMap.fastGetBlock(x, y);
 	}
 
 	@Override
@@ -330,7 +331,7 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	private Coord screenDest(Coord c) {
-		return c.copyAndMove(-gc.screenWidth() / 2, -gc.screenHeight() * 11 / 16);
+		return c.copyAndAdd(-gc.screenWidth() / 2, -gc.screenHeight() * 11 / 16);
 	}
 
 	private void limitScreenPosition() {
@@ -717,7 +718,7 @@ public class World implements AlienServices, MapperServices {
 
 	@Override
 	public void drawMap() {
-		horizon.draw();
+//		horizon.draw();
 		drawTheMap();
 	}
 

@@ -15,6 +15,7 @@ import com.nney.tt.map.GameMap;
 import com.nney.utils.Math2;
 
 public class Mapper {
+	private static final int BLOCK_CHOOSING_BG = 0x0020ff;
 	private static final int BLOCKS_PER_LINE = 20;
 	private static final int SELECTION_BLOCK_COLOUR = 0xff0000;
 	private static final int MAPPER_CURRENT_BLOCK_COLOUR = 0xffff00;
@@ -34,12 +35,16 @@ public class Mapper {
 	private final World parent;
 	private final Font debugFont;
 	private final GameMap gameMap;
+	private MapperGameMap mapperGameMap;
+	private String sayString;
+	private int sayTimer;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
-	public Mapper(GameMap gameMap, World parent, Pointer mouse, Keyboard keyboard, GraphicsContext gc, BlocksHolder blocksHolder, Font debugFont) {
+	public Mapper(GameMap gameMap, World parent, Pointer mouse, Keyboard keyboard, GraphicsContext gc,
+			BlocksHolder blocksHolder, Font debugFont) {
 		this.gameMap = gameMap;
 		this.parent = parent;
 		this.mouse = mouse;
@@ -47,11 +52,12 @@ public class Mapper {
 		this.gc = gc;
 		this.blocksHolder = blocksHolder;
 		this.debugFont = debugFont;
-		blockCount = blocksHolder.getBlockCount(); 
+		blockCount = blocksHolder.getBlockCount();
 		blockPaletteHeight = Math2.roundUpDiv(blockCount, BLOCKS_PER_LINE);
 		mapperGC = new MapperGC(gc);
+		mapperGameMap = new MapperGameMap(gameMap);
 	}
-	
+
 	public void run() {
 		// block selection
 		if (mouse.isDown(Pointer.KEY_RIGHT)) {
@@ -60,8 +66,9 @@ public class Mapper {
 			return;
 		}
 
+		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0x0080ff);
 		parent.drawMap();
-		
+
 		Coord mousePos = computeMousePos();
 		{
 			Coord box = mousePos.copy();
@@ -69,14 +76,25 @@ public class Mapper {
 			box.sub(parent.getScreenPosition());
 			mapperGC.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, 0xff0000);
 		}
-		
-		if (showTimer!=0) {
+
+		if (sayTimer != 0) {
+			sayTimer--;
+//			int x = gc.screenWidth() - 10 - debugFont.computeWidth(0, sayString);
+			int x = 10;
+			int y = 10;
+			debugFont.draw(x, y, 0xffffff, 0, sayString);
+		}
+
+		if (showTimer != 0) {
 			showTimer--;
-			
-			int x = Math2.limit(0, BLOCKS_PER_LINE-5, (chosenBlock % BLOCKS_PER_LINE)-2);
-			int y = Math2.limit(0, blockPaletteHeight-5, (chosenBlock / BLOCKS_PER_LINE-2));
-			gc.fillRectangle(0, 0, Const.BLOCK_SIZE*5, Const.BLOCK_SIZE*5, 0x0080ff);
-			for (BlockPos p : blockList(x, y, 5, 5, 0, 0)) {
+			int d = 5;
+			int x = Math2.limit(0, BLOCKS_PER_LINE - d, (chosenBlock % BLOCKS_PER_LINE) - (d/2));
+			int y = Math2.limit(0, blockPaletteHeight - d, (chosenBlock / BLOCKS_PER_LINE - (d/2)));
+			int db = Const.BLOCK_SIZE * d;
+			int sx = gc.screenWidth()-db;
+			int sy = 0;
+			gc.fillRectangle(sx, sy, db, db, BLOCK_CHOOSING_BG);
+			for (BlockPos p : blockList(x, y, d, d, sx, sy)) {
 				blocksHolder.draw(p.b, p.x, p.y);
 				if (chosenBlock == p.b) {
 					mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
@@ -90,8 +108,14 @@ public class Mapper {
 			parent.quitMapper(mousePos);
 			return;
 		case Keyboard.KEY_I:
-			chosenBlock = gameMap.getBlock2(mousePos);
+			chosenBlock = gameMap.getBlock(mousePos.copyAndDiv(Const.BLOCK_SIZE));
 			showBlocks();
+			return;
+		case Keyboard.KEY_U:
+			mapperGameMap.undo();
+			return;
+		case Keyboard.KEY_R:
+			mapperGameMap.redo();
 			return;
 		}
 
@@ -108,31 +132,37 @@ public class Mapper {
 			return;
 		}
 		dragPos = null;
-		
+
+		// Draw from the blocks (the function always falls through)
 		if (keyboard.isDown(Keyboard.KEY_D)) {
 			showBlocks();
-			if (drawPos != null && mouse.isDown(Pointer.KEY_LEFT)) {
+			if (drawPos != null) {
 				Coord oldBlock = drawPos.copy();
 				oldBlock.div(Const.BLOCK_SIZE);
 				Coord newBlock = mousePos.copy();
 				newBlock.div(Const.BLOCK_SIZE);
 				newBlock.sub(oldBlock);
-				moveChosenBlock(newBlock.x+newBlock.y*BLOCKS_PER_LINE);
-				gameMap.setBlock2(mousePos, chosenBlock);
+				moveChosenBlock(newBlock.x + newBlock.y * BLOCKS_PER_LINE);
 			}
 			drawPos = computeMousePos();
-			return;
 		}
-		drawPos = null;
+		else {
+			drawPos = null;
+		}
 
 		if (mouse.isDown(Pointer.KEY_LEFT)) {
-			gameMap.setBlock2(mousePos, chosenBlock);
+			mapperGameMap.setBlock(mousePos.copyAndDiv(Const.BLOCK_SIZE), chosenBlock);
 			return;
 		}
 
 		if (keyboardBlockChoice()) {
 			showBlocks();
 		}
+	}
+
+	private void say(String string) {
+		sayString = string;
+		sayTimer = 100;
 	}
 
 	private void showBlocks() {
@@ -158,10 +188,10 @@ public class Mapper {
 
 	private boolean moveChosenBlock(int i) {
 		i += chosenBlock;
-		if (i<0) {
+		if (i < 0) {
 			i += blockCount;
 		}
-		if (i>=blockCount) {
+		if (i >= blockCount) {
 			i -= blockCount;
 		}
 		chosenBlock = i;
@@ -170,7 +200,7 @@ public class Mapper {
 
 	private Coord computeMousePos() {
 		Coord mp = new Coord(mouse.getX(), mouse.getY());
-		mp.add(parent.getScreenPosition()); 
+		mp.add(parent.getScreenPosition());
 		return mp;
 	}
 
@@ -187,7 +217,7 @@ public class Mapper {
 	}
 
 	private void blockChoosingMode() {
-		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0x0080ff);
+		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), BLOCK_CHOOSING_BG);
 
 		keyboardBlockChoice();
 
@@ -234,7 +264,7 @@ public class Mapper {
 		List<BlockPos> answer = new ArrayList<BlockPos>();
 		for (int by = 0; by < height; by++) {
 			for (int bx = 0; bx < width; bx++) {
-				int b = (sy+by) * BLOCKS_PER_LINE + (sx+bx);
+				int b = (sy + by) * BLOCKS_PER_LINE + (sx + bx);
 				if (b < blockCount) {
 					int x = bx * Const.BLOCK_SIZE + mdx;
 					int y = by * Const.BLOCK_SIZE + mdy;

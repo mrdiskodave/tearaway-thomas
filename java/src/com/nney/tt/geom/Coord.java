@@ -47,12 +47,20 @@ public class Coord {
 	}
 	
 	// short hand, as we do it so much
-	public Coord copyAndMove(int x, int y) {
+	public Coord copyAndAdd(int x, int y) {
 		Coord answer = copy();
 		answer.x += x;
 		answer.y += y;
 		return answer;
 	}
+	
+	public Coord copyAndDiv(int z) {
+		Coord answer = copy();
+		answer.div(z);
+		return answer;
+	}
+	
+	
 	
 	@Override
 	public String toString() {

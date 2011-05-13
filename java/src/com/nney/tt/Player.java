@@ -538,8 +538,8 @@ public class Player extends Alien {
 
 	private boolean testLadder(int dx, int dy) {
 		LadderInformation li = srv.getLadderInfo();
-		return li != null && testLadder(c.copyAndMove(dx, dy + li.top))
-				&& testLadder(c.copyAndMove(dx, dy + li.bottom));
+		return li != null && testLadder(c.copyAndAdd(dx, dy + li.top))
+				&& testLadder(c.copyAndAdd(dx, dy + li.bottom));
 	}
 
 	private void perhapsStartLadderMode() {
@@ -603,7 +603,7 @@ public class Player extends Alien {
 	}
 
 	private void leaveLadder() {
-		if ((!srv.inTheGround(c) && srv.inTheGround(c.copyAndMove(0, 1)))) {
+		if ((!srv.inTheGround(c) && srv.inTheGround(c.copyAndAdd(0, 1)))) {
 			boolean leave = testStick(Joystick.LEFT | Joystick.RIGHT);
 			System.out.println("Ladder: Disembarkation: " + leave);
 			if (leave) {
@@ -620,7 +620,7 @@ public class Player extends Alien {
 	}
 
 	private boolean testForVerticalRope(int dy) {
-		Coord where = c.copyAndMove(0, dy + VROPE_SNIFF_Y);
+		Coord where = c.copyAndAdd(0, dy + VROPE_SNIFF_Y);
 		if (!srv.blockInfoIs(where, "vrope")) return false;
 		where.y += VROPE_SNIFF_YPLUS;
 		return srv.blockInfoIs(where, "vrope");
@@ -649,7 +649,7 @@ public class Player extends Alien {
 	}
 
 	private boolean testForHorizontalRope(int dx) {
-		Coord where = c.copyAndMove(dx, HROPE_SNIFF_Y);
+		Coord where = c.copyAndAdd(dx, HROPE_SNIFF_Y);
 		return srv.blockInfoIs(where, "hrope");
 	}
 
@@ -797,7 +797,7 @@ public class Player extends Alien {
 
 		if (mode == Mode.WALK) {
 			if (srv.frameTest(2, 1) && srv.blockInfoIs(c, "magic")) {
-				srv.magicDust(c.copyAndMove(srv.randomness(17) - 8, 0));
+				srv.magicDust(c.copyAndAdd(srv.randomness(17) - 8, 0));
 			}
 		}
 

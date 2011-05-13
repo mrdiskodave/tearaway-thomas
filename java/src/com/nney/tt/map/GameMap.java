@@ -54,23 +54,18 @@ public class GameMap {
 		return map[y * MAP_WIDTH + x];
 	}
 
-	public int getBlock2(Coord c) {
-		int x = c.x;
-		int y = c.y;
-		x /= Const.BLOCK_SIZE;
-		y /= Const.BLOCK_SIZE;
-		if (!validPosition(x, y)) return 0;
-		return map[y * MAP_WIDTH + x];
+	private int mapOffset(Coord c) {
+		return c.y * MAP_WIDTH + c.x;
+	}
+	
+	public int getBlock(Coord c) {
+		assert validPosition(c.x, c.y);
+		return map[mapOffset(c)];
 	}
 
-	public void setBlock2(Coord c, int b) {
-		int x = c.x;
-		int y = c.y;
-		x /= Const.BLOCK_SIZE;
-		y /= Const.BLOCK_SIZE;
-		if (validPosition(x, y)) {
-			map[y * MAP_WIDTH + x] = (short) b;
-		}
+	public void setBlock(Coord c, int b) {
+		assert validPosition(c.x, c.y);
+		map[mapOffset(c)] = (short) b;
 	}
 
 	private boolean validPosition(int x, int y) {
