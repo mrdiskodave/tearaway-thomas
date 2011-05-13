@@ -111,12 +111,6 @@ public class Mapper {
 			chosenBlock = gameMap.getBlock(mousePos.copyAndDiv(Const.BLOCK_SIZE));
 			showBlocks();
 			return;
-		case Keyboard.KEY_U:
-			mapperGameMap.undo();
-			return;
-		case Keyboard.KEY_R:
-			mapperGameMap.redo();
-			return;
 		}
 
 		if (keyboard.isDown(Keyboard.KEY_SPACE)) {
@@ -154,11 +148,24 @@ public class Mapper {
 			mapperGameMap.setBlock(mousePos.copyAndDiv(Const.BLOCK_SIZE), chosenBlock);
 			return;
 		}
+		mapperGameMap.endEdit();
+		
+		
+		switch (keyboard.justPressed()) {
+		case Keyboard.KEY_U:
+			mapperGameMap.undo();
+			return;
+		case Keyboard.KEY_R:
+			mapperGameMap.redo();
+			return;
+		}
 
 		if (keyboardBlockChoice()) {
 			showBlocks();
 		}
 	}
+
+
 
 	private void say(String string) {
 		sayString = string;
