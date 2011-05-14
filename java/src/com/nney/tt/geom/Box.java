@@ -31,7 +31,7 @@ public class Box {
 	}
 
 	public static Box around(Coord c, int width, int height) {
-		return around(c, -width, -height, width+1, height+1);
+		return around(c, -width, -height, width, height);
 	}
 
 	public static Box around(Coord c, int l, int t, int r, int b) {

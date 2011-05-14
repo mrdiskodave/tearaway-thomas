@@ -20,10 +20,8 @@ public class Mapper {
 	private static final int SELECTION_BLOCK_COLOUR = 0xff0000;
 	private static final int MAPPER_CURRENT_BLOCK_COLOUR = 0xffff00;
 
-	private Coord dragPos;
 	private int showTimer;
-	private Coord drawPos;
-	private int chosenBlock;
+	private int currentBlock;
 
 	final private int blockPaletteHeight;
 	final private int blockCount;
@@ -35,9 +33,10 @@ public class Mapper {
 	private final World parent;
 	private final Font debugFont;
 	private final GameMap gameMap;
-	private MapperGameMap mapperGameMap;
-	private String sayString;
-	private int sayTimer;
+	private UndoControler undoControler = new UndoControler();
+	private DrawingTool drawingTool;
+
+	private MM mode = new DrawTool();
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -52,124 +51,228 @@ public class Mapper {
 		this.gc = gc;
 		this.blocksHolder = blocksHolder;
 		this.debugFont = debugFont;
+		this.drawingTool = new DrawingTool(gameMap);
 		blockCount = blocksHolder.getBlockCount();
 		blockPaletteHeight = Math2.roundUpDiv(blockCount, BLOCKS_PER_LINE);
 		mapperGC = new MapperGC(gc);
-		mapperGameMap = new MapperGameMap(gameMap);
 	}
 
-	public void run() {
-		// block selection
-		if (mouse.isDown(Pointer.KEY_RIGHT)) {
+	private final class BlockChooser extends MM {
+		@Override
+		boolean ownScreen() {
+			return true;
+		}
+
+		@Override
+		String name() {
+			return "chooser";
+		}
+
+		@Override
+		void run() {
 			blockChoosingMode();
 			showBlocks();
-			return;
+		}
+	}
+
+	private final class DrawTool extends MM {
+		@Override
+		String name() {
+			return "draw";
 		}
 
-		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0x0080ff);
-		parent.drawMap();
-
-		Coord mousePos = computeMousePos();
-		{
-			Coord box = mousePos.copy();
-			box.and(-Const.BLOCK_SIZE, -Const.BLOCK_SIZE);
-			box.sub(parent.getScreenPosition());
-			mapperGC.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, 0xff0000);
+		@Override
+		void run() {
+			drawingLMB();
 		}
+	}
 
-		if (sayTimer != 0) {
-			sayTimer--;
-//			int x = gc.screenWidth() - 10 - debugFont.computeWidth(0, sayString);
-			int x = 10;
-			int y = 10;
-			debugFont.draw(x, y, 0xffffff, 0, sayString);
-		}
+	private final class TrackerTool extends MM {
+		Coord drawPos = computeMousePos();
 
-		if (showTimer != 0) {
-			showTimer--;
-			int d = 5;
-			int x = Math2.limit(0, BLOCKS_PER_LINE - d, (chosenBlock % BLOCKS_PER_LINE) - (d/2));
-			int y = Math2.limit(0, blockPaletteHeight - d, (chosenBlock / BLOCKS_PER_LINE - (d/2)));
-			int db = Const.BLOCK_SIZE * d;
-			int sx = gc.screenWidth()-db;
-			int sy = 0;
-			gc.fillRectangle(sx, sy, db, db, BLOCK_CHOOSING_BG);
-			for (BlockPos p : blockList(x, y, d, d, sx, sy)) {
-				blocksHolder.draw(p.b, p.x, p.y);
-				if (chosenBlock == p.b) {
-					mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
-				}
-			}
-
-		}
-
-		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_TAB:
-			parent.quitMapper(mousePos);
-			return;
-		case Keyboard.KEY_I:
-			chosenBlock = gameMap.getBlock(mousePos.copyAndDiv(Const.BLOCK_SIZE));
-			showBlocks();
-			return;
-		}
-
-		if (keyboard.isDown(Keyboard.KEY_SPACE)) {
-			Coord delta = dragPos;
-			if (delta != null && mouse.isDown(Pointer.KEY_LEFT)) {
-				delta.sub(mousePos);
-				if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
-					delta.mul(2);
-				}
-				parent.moveScreen(delta);
-			}
-			dragPos = computeMousePos();
-			return;
-		}
-		dragPos = null;
-
-		// Draw from the blocks (the function always falls through)
-		if (keyboard.isDown(Keyboard.KEY_D)) {
+		@Override
+		public void run() {
 			showBlocks();
 			if (drawPos != null) {
 				Coord oldBlock = drawPos.copy();
 				oldBlock.div(Const.BLOCK_SIZE);
-				Coord newBlock = mousePos.copy();
+				Coord newBlock = computeMousePos();
 				newBlock.div(Const.BLOCK_SIZE);
 				newBlock.sub(oldBlock);
-				moveChosenBlock(newBlock.x + newBlock.y * BLOCKS_PER_LINE);
+				changeCurrentBlock(newBlock.x + newBlock.y * BLOCKS_PER_LINE);
 			}
 			drawPos = computeMousePos();
-		}
-		else {
-			drawPos = null;
+			drawingLMB();
 		}
 
-		if (mouse.isDown(Pointer.KEY_LEFT)) {
-			mapperGameMap.setBlock(mousePos.copyAndDiv(Const.BLOCK_SIZE), chosenBlock);
-			return;
+		@Override
+		String name() {
+			return "track";
 		}
-		mapperGameMap.endEdit();
+	}
+
+	private final class HandTool extends MM {
+		Coord dragPos = computeMousePos();
+
+		@Override
+		public void run() {
+			if (dragPos !=null && mouse.isDown(Pointer.KEY_LEFT)) {
+				Coord delta = dragPos.copy();
+				delta.sub(computeMousePos());
+				if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
+					delta.mul(2);
+				}
+				if (keyboard.isDown(Keyboard.KEY_LCONTROL)) {
+					delta.mul(4);
+				}
+				parent.moveScreen(delta);
+			}
+			dragPos = computeMousePos();
+		}
+
+		@Override
+		String name() {
+			return "hand";
+		}
+	}
+
+	private final class EyeDropperTool extends MM {
+		@Override
+		String name() {
+			return "eyedropper";
+		}
+
+		@Override
+		void run() {
+			showBlocks();
+			if (mouse.isDown(Pointer.KEY_LEFT)) {
+				currentBlock = gameMap.getBlock(computeMousePos().copyAndDiv(Const.BLOCK_SIZE));
+			}
+			keyboardBlockChoiceShown();
+		}
+	}
+
+	abstract class MM {
+		abstract String name();
+		boolean ownScreen() { return false; }
+		void run() {};
+		void stop() {};
+	}
+	
 		
+	
+	public void run() {
+		
+		if (!mode.ownScreen()) {
+			gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0x0080ff);
+			parent.drawMap();
+
+			Coord mousePos = computeMousePos();
+			{
+				Coord box = mousePos.copy();
+				box.and(-Const.BLOCK_SIZE, -Const.BLOCK_SIZE);
+				box.sub(parent.getScreenPosition());
+				mapperGC.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, 0xff0000);
+			}
+	
+	
+			if (showTimer != 0) {
+				showTimer--;
+				int d = 5;
+				int x = Math2.limit(0, BLOCKS_PER_LINE - d, (currentBlock % BLOCKS_PER_LINE) - (d/2));
+				int y = Math2.limit(0, blockPaletteHeight - d, (currentBlock / BLOCKS_PER_LINE - (d/2)));
+				int db = Const.BLOCK_SIZE * d;
+				int sx = gc.screenWidth()-db;
+				int sy = 0;
+				gc.fillRectangle(sx, sy, db, db, BLOCK_CHOOSING_BG);
+				for (BlockPos p : blockList(x, y, d, d, sx, sy)) {
+					blocksHolder.draw(p.b, p.x, p.y);
+					if (currentBlock == p.b) {
+						mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
+					}
+				}
+	
+			}
+		}
+
 		
 		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_U:
-			mapperGameMap.undo();
+		case Keyboard.KEY_TAB:
+			parent.quitMapper(computeMousePos());
 			return;
-		case Keyboard.KEY_R:
-			mapperGameMap.redo();
+		case Keyboard.KEY_I:
+			chageMM(new EyeDropperTool());
+			return;
+		case Keyboard.KEY_H:
+			chageMM(new HandTool());
+			return;
+		case Keyboard.KEY_D:
+			chageMM(new DrawTool());
+			return;
+		case Keyboard.KEY_F:
+			chageMM(new TrackerTool());
+			return;
+		case Keyboard.KEY_C:
+			chageMM(new BlockChooser());
 			return;
 		}
+		
+		sayIt(mode.name());
+		mode.run();
+		
+		if (!mode.ownScreen()) {
+			undoRedo();
+		}
 
-		if (keyboardBlockChoice()) {
-			showBlocks();
+	}
+
+
+
+	private void sayIt(String string) {
+		int x = 10;
+		int y = 10;
+		debugFont.draw(x, y, 0xffffff, 0, string);
+	}
+
+
+
+	private void chageMM(MM mm) {
+		mode.stop();
+		mode = mm;
+	}
+
+
+
+	private void undoRedo() {
+		switch (keyboard.justPressed()) {
+		case Keyboard.KEY_U:
+			undoControler.undo();
+			break;
+		case Keyboard.KEY_R:
+			undoControler.redo();
+			break;
 		}
 	}
 
 
 
-	private void say(String string) {
-		sayString = string;
-		sayTimer = 100;
+	private void drawingLMB() {
+		// Drawing with the left button
+		if (mouse.isDown(Pointer.KEY_LEFT)) {
+			drawingTool.setBlock(computeMousePos().copyAndDiv(Const.BLOCK_SIZE), currentBlock);
+		}
+		else {
+			undoControler.addUndo(drawingTool.endEdit());
+		}
+		keyboardBlockChoiceShown();
+	}
+
+
+
+	private void keyboardBlockChoiceShown() {
+		if (keyboardBlockChoice()) {
+			showBlocks();
+		}
 	}
 
 	private void showBlocks() {
@@ -179,30 +282,33 @@ public class Mapper {
 	private boolean keyboardBlockChoice() {
 		switch (keyboard.justPressed()) {
 		case Keyboard.KEY_0:
-			chosenBlock = 0;
+			currentBlock = 0;
 			return true;
 		case Keyboard.KEY_UP:
-			return moveChosenBlock(-BLOCKS_PER_LINE);
+			changeCurrentBlock(-BLOCKS_PER_LINE);
+			return true;
 		case Keyboard.KEY_DOWN:
-			return moveChosenBlock(BLOCKS_PER_LINE);
+			changeCurrentBlock(BLOCKS_PER_LINE);
+			return true;
 		case Keyboard.KEY_LEFT:
-			return moveChosenBlock(-1);
+			changeCurrentBlock(-1);
+			return true;
 		case Keyboard.KEY_RIGHT:
-			return moveChosenBlock(1);
+			changeCurrentBlock(1);
+			return true;
 		}
 		return false;
 	}
 
-	private boolean moveChosenBlock(int i) {
-		i += chosenBlock;
-		if (i < 0) {
-			i += blockCount;
+	private void changeCurrentBlock(int delta) {
+		int b = delta +  currentBlock;
+		if (b < 0) {
+			b += blockCount;
 		}
-		if (i >= blockCount) {
-			i -= blockCount;
+		if (b >= blockCount) {
+			b -= blockCount;
 		}
-		chosenBlock = i;
-		return true;
+		currentBlock = b;
 	}
 
 	private Coord computeMousePos() {
@@ -245,14 +351,14 @@ public class Mapper {
 
 		for (BlockPos p : blockList(0, 0, BLOCKS_PER_LINE, blockPaletteHeight, 0, mdy)) {
 			blocksHolder.draw(p.b, p.x, p.y);
-			if (chosenBlock == p.b) {
+			if (currentBlock == p.b) {
 				mapperGC.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, MAPPER_CURRENT_BLOCK_COLOUR);
 				debugFont.draw(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, MAPPER_CURRENT_BLOCK_COLOUR, 0,
-						String.format("%4d", chosenBlock));
+						String.format("%4d", currentBlock));
 			}
 			if (my >= p.y && my <= p.y + 15 && mx >= p.x && mx <= p.x + 15) {
 				hoverBlock = p.b;
-				if (hoverBlock == chosenBlock) {
+				if (hoverBlock == currentBlock) {
 					mapperGC.drawBox(p.x + 1, p.y + 1, 14, 14, SELECTION_BLOCK_COLOUR);
 				}
 				else {
@@ -263,7 +369,7 @@ public class Mapper {
 			}
 		}
 		if (mouse.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
-			chosenBlock = hoverBlock;
+			currentBlock = hoverBlock;
 		}
 	}
 
