@@ -1,5 +1,6 @@
 package com.nney.tt;
 
+import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 
 public interface MapperServices {
@@ -7,4 +8,11 @@ public interface MapperServices {
 	void drawMap();
 	void moveScreen(Coord delta);
 	Coord getScreenPosition();
+	void mapperDrawAliens();
+	void addNewAlien(Alien alien);
+	Alien findClosestAlien(Coord c);
+
+	
+	
+	int getFrameNumber();
 }

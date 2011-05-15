@@ -24,7 +24,7 @@ public class AlienTracker {
 			alienLists.add(new LinkedList<Alien>());
 		}
 	}
-
+	
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
 		for (;;) {
 			Alien a = fridge.remove(restore);

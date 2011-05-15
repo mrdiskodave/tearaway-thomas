@@ -519,13 +519,6 @@ public class World implements AlienServices, MapperServices {
 		return false;
 	}
 
-	private void addNewAlien(Alien alien) {
-		alienInfoMap.connectAnims(alien, animsPool);
-		alien.srv = this;
-		alien.init();
-		alienTracker.delayedAdd(alien);
-	}
-
 	@Override
 	public void giveScore(int amount, Coord location) {
 		score += amount;
@@ -542,26 +535,45 @@ public class World implements AlienServices, MapperServices {
 	// ---------------------------------------------------------------------------
 	// UPDATING OF THINGS
 
-	private void updateList(Iterator<Alien> alienIterator, Box screenBox) {
+
+	@Override
+	public void addNewAlien(Alien alien) {
+		alienInfoMap.connectAnims(alien, animsPool);
+		alien.srv = this;
+		alien.init();
+		alienTracker.delayedAdd(alien);
+	}
+
+	private void updateList(Iterator<Alien> alienIterator, Box screenBox, boolean mapper) {
 		for (; alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
-			alien.update();
+			if (mapper) {
+				alien.mapperUpdate();
+			}
+			else {
+				alien.update();
+			}
 			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
 				alienIterator.remove();
 			}
 		}
 	}
 
-	private void updateAliens() {
+	@Override
+	public void mapperDrawAliens() {
+		updateAliens(true);
+	}
+	
+	private void updateAliens(boolean mapper) {
 		// add fresh aliens
 		Box screenBox = Box.fromTopLeftAndSize(screen, gc.screenWidth(), gc.screenHeight());
-
 		alienTracker.begin(screenBox);
-
-		updateList(alienTracker.getBackgroundIterator(), screenBox);
-		player.draw();
-		updateList(alienTracker.getForegroundIterator(), screenBox);
+		updateList(alienTracker.getBackgroundIterator(), screenBox, mapper);
+		if (!mapper) {
+			player.draw();
+		}
+		updateList(alienTracker.getForegroundIterator(), screenBox, mapper);
 
 		//
 		// Caveat1: only the background Alien gets to move the player around.
@@ -585,6 +597,9 @@ public class World implements AlienServices, MapperServices {
 		//
 	}
 
+	
+	
+	
 	private void updateScore() {
 		if (score != oldScore) {
 			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
@@ -633,7 +648,7 @@ public class World implements AlienServices, MapperServices {
 
 			horizon.draw();
 			drawTheMap();
-			updateAliens();
+			updateAliens(false);
 			updateScore();
 		}
 	}
@@ -733,5 +748,23 @@ public class World implements AlienServices, MapperServices {
 	@Override
 	public Coord getScreenPosition() {
 		return screen;
+	}
+
+	void visitVisibleAliens(AlienVisitor v) {
+		visitAll(v, alienTracker.getBackgroundIterator());
+		visitAll(v, alienTracker.getForegroundIterator());
+	}
+
+	private void visitAll(AlienVisitor v, Iterator<Alien> it) {
+		while (it.hasNext()) {
+			v.visit(it.next());
+		}
+	}
+
+
+	@Override
+	public Alien findClosestAlien(Coord c) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
