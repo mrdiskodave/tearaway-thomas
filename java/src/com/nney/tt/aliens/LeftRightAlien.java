@@ -1,18 +1,20 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
-import com.nney.tt.geom.XRange;
 
 public abstract class LeftRightAlien extends Alien {
-	protected XRange range;
-	protected boolean headedRight;
+	@AlienProp(name = "Facing", xtraDef = "left")
+	boolean goLeft;
+
+	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.")
+	XRange range = new XRange();
 
 	boolean moveLeftRight(int speed) {
-		if (headedRight) {
+		if (!goLeft) {
 			changeAnimation("right");
 			c.x += speed;
 			if (c.x > range.right) {
-				headedRight = false;
+				goLeft = true;
 				return true;
 			}
 		}
@@ -20,17 +22,17 @@ public abstract class LeftRightAlien extends Alien {
 			changeAnimation("left");
 			c.x -= speed;
 			if (c.x < range.left) {
-				headedRight = true;
+				goLeft = false;
 				return true;
 			}
 		}
 		return false;
 	}
-
+	
 	@Override
 	public void load() {
-		range = new XRange(loadShort(OBleft), loadShort(OBright));
-		headedRight = BitOp.test(loadByte(OBflags), 0);
+		range.left = loadShort(OBleft);
+		range.right = loadShort(OBright);
+		goLeft = !BitOp.test(loadByte(OBflags), 0);
 	}
-
 }

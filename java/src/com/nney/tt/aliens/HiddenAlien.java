@@ -7,7 +7,9 @@ public abstract class HiddenAlien extends Alien {
 
 	private static final int FLAG_INVIS = 5;
 	
-	private boolean invis;
+	@AlienProp(name="Invisible", doc="Will we suddenly appear when the player runs past?")
+	public boolean invis;
+	
 	private boolean falling;
 	private int fallSpeed;
 

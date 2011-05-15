@@ -5,7 +5,9 @@ import com.nney.tt.sprites.Sprite;
 
 public class ArrowAlien extends Alien {
 	private int repeat;
-	private Box box;
+	
+	@AlienProp(name="Advice box", doc="Player's location for us to blink at him?")
+	public Box box;
 
 	@Override
 	public void init() {

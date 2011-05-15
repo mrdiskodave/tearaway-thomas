@@ -10,7 +10,7 @@ public class BearAlien extends LeftRightAlien {
 			done();
 		}
 		if (!turned && srv.blockInfoIs(c, "stop")) {
-			headedRight = !headedRight;
+			goLeft = !goLeft;
 		}
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);

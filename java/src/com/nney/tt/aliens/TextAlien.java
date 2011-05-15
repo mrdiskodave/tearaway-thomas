@@ -2,7 +2,6 @@ package com.nney.tt.aliens;
 
 
 public class TextAlien extends Alien {
-
 	private String text;
 
 	public void setText(String text0) {
@@ -13,5 +12,11 @@ public class TextAlien extends Alien {
 	public void update() {
 		srv.drawDebugText(c, text);
 	}
-
+	
+	@Override
+	public void mapperUpdate() {
+		// we don't have a first animation
+		// so need to override this method
+		update();
+	}
 }

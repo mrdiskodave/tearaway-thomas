@@ -4,6 +4,9 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class LogLiftAlien extends LiftAlien {
+	// need to think about what the props are here!
+	
+	
 	private Box box;
 
 	@Override

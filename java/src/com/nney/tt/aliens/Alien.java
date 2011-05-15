@@ -9,7 +9,9 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
+	@AlienProp(name="Location", doc="Where are we?")
 	public Coord c = new Coord();
+	
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	private Anims spriteSet;
 	public byte[] srcData;
@@ -98,7 +100,13 @@ public abstract class Alien {
 
 	abstract public void update();
 	
-	protected void done() {
+	public void mapperUpdate() {
+		changeAnimation(0);
+		Sprite s = nextFrame();
+		srv.drawSprite(c, s);
+	}
+	
+	public void done() {
 		remove = true;
 	}
 

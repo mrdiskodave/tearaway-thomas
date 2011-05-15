@@ -10,7 +10,9 @@ public abstract class WobbleGemAlien extends GemAlien {
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
 
-	private boolean wobble;
+	@AlienProp(name="Wobble", doc="Do we wobble?")
+	public boolean wobble = true;
+	
 	private int wobblePhase;
 
 	@Override
