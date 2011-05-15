@@ -13,7 +13,6 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdapter;
 
 public class Main {
-
 	private static final int ZOOM = 2;
 
 	public static final int SCREEN_WIDTH = 400;

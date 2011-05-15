@@ -37,6 +37,7 @@ import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.mapper.Mapper;
+import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsDefPool;
@@ -47,8 +48,8 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, MapperServices {
-	
-	final private GraphicsContext gc; 
+
+	final private GraphicsContext gc;
 
 	// lift
 	private static final String CTC_WORLD = "w";
@@ -123,7 +124,6 @@ public class World implements AlienServices, MapperServices {
 
 	private Pointer mouse;
 
-
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
@@ -178,7 +178,6 @@ public class World implements AlienServices, MapperServices {
 		init();
 	}
 
-	
 	private static String characterRangeHelper(int begin, int end) {
 		StringBuilder sb = new StringBuilder();
 		for (int x = begin; x < end; x++) {
@@ -204,8 +203,8 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	private int getBlock(Coord c) {
-		int x = c.x/ Const.BLOCK_SIZE;
-		int y = c.y/ Const.BLOCK_SIZE;
+		int x = c.x / Const.BLOCK_SIZE;
+		int y = c.y / Const.BLOCK_SIZE;
 		return gameMap.fastGetBlock(x, y);
 	}
 
@@ -535,7 +534,6 @@ public class World implements AlienServices, MapperServices {
 	// ---------------------------------------------------------------------------
 	// UPDATING OF THINGS
 
-
 	@Override
 	public void addNewAlien(Alien alien) {
 		alienInfoMap.connectAnims(alien, animsPool);
@@ -564,7 +562,7 @@ public class World implements AlienServices, MapperServices {
 	public void mapperDrawAliens() {
 		updateAliens(true);
 	}
-	
+
 	private void updateAliens(boolean mapper) {
 		// add fresh aliens
 		Box screenBox = Box.fromTopLeftAndSize(screen, gc.screenWidth(), gc.screenHeight());
@@ -597,9 +595,6 @@ public class World implements AlienServices, MapperServices {
 		//
 	}
 
-	
-	
-	
 	private void updateScore() {
 		if (score != oldScore) {
 			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
@@ -629,7 +624,7 @@ public class World implements AlienServices, MapperServices {
 		frameNumber++;
 
 		if (usingMapper) {
-			if (mapper==null) {
+			if (mapper == null) {
 				mapper = new Mapper(gameMap, this, mouse, keyboard, gc, blocksHolder, debugFont);
 			}
 			mapper.run();
@@ -652,7 +647,6 @@ public class World implements AlienServices, MapperServices {
 			updateScore();
 		}
 	}
-	
 
 	private void loadAlienIntoWorld(Alien alien) {
 		alien.srv = this;
@@ -665,7 +659,7 @@ public class World implements AlienServices, MapperServices {
 
 	private void init() {
 		Openable ho = TTResource.horizon(1);
-		horizon = gc.loadHorizon(ho);  
+		horizon = gc.loadHorizon(ho);
 
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 		alienInfoMap.doPreLoad(animsPool);
@@ -680,7 +674,7 @@ public class World implements AlienServices, MapperServices {
 		Openable blocksGfx = TTResource.blocks(worldName);
 		Openable masksGfx = TTResource.blockMask(worldName);
 		wi = WorldInformation.load(worldName);
-		
+
 		BlockSource bs = new BlockSource(CTC_SEE_MASKS ? masksGfx : blocksGfx, Const.BLOCK_SIZE);
 		bs.doBlockHiding(wi.invisibleBlockHiding);
 		blocksHolder = gc.createBlocksHolder(bs);
@@ -718,13 +712,12 @@ public class World implements AlienServices, MapperServices {
 		// (this stops us vibrating between two teleports)
 	}
 
-
 	// ---------------------------------------------------------------------------
 	// MAPPER SERVICES
 	//
 	// It's how the Mapper attaches to the World
 	//
-	
+
 	@Override
 	public void quitMapper(Coord mousePos) {
 		player.resetTo(mousePos);
@@ -733,17 +726,15 @@ public class World implements AlienServices, MapperServices {
 
 	@Override
 	public void drawMap() {
-//		horizon.draw();
+		// horizon.draw();
 		drawTheMap();
 	}
-
 
 	@Override
 	public void moveScreen(Coord delta) {
 		screen.add(delta);
 		limitScreenPosition();
 	}
-
 
 	@Override
 	public Coord getScreenPosition() {
@@ -763,8 +754,9 @@ public class World implements AlienServices, MapperServices {
 
 
 	@Override
-	public Alien findClosestAlien(Coord c) {
-		// TODO Auto-generated method stub
-		return null;
+	public Alien findNearestAlien(Coord c) {
+		NearestAlienFinder n = new NearestAlienFinder(c);
+		visitVisibleAliens(n);
+		return n.getAnswer();
 	}
 }

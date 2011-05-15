@@ -10,7 +10,7 @@ public interface MapperServices {
 	Coord getScreenPosition();
 	void mapperDrawAliens();
 	void addNewAlien(Alien alien);
-	Alien findClosestAlien(Coord c);
+	Alien findNearestAlien(Coord c);
 
 	
 	

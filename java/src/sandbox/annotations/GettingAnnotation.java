@@ -1,10 +1,7 @@
 package sandbox.annotations;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 
-import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.aliens.PurpleGemAlien;
 
@@ -22,7 +19,7 @@ public class GettingAnnotation {
 			AlienProp z = f.getAnnotation(AlienProp.class);
 			if (z!=null) {
 				Class<?> t = f.getType();
-				System.out.println(t+" => "+f.getName()+" : "+z.xtraDef()+" "+z.name());
+				System.out.println(String.format("%-10s %-30s %-10s %s", z.name(), f.getType(), z.xtraDef(), z.doc()));
 			}
 		}
 	}

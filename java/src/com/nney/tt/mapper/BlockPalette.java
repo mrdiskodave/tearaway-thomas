@@ -12,6 +12,17 @@ import com.nney.utils.Math2;
  */
 public class BlockPalette {
 	/**
+	 * The colour we use to highlight the current block.
+	 */
+	private static final int COL_CURRENT_BLOCK = 0xffff0000;
+
+	/**
+	 * The colour used to highlight the mouse-hovered block.
+	 */
+	private static final int COL_HOVER_BLOCK = 0xff00ff00;
+
+	
+	/**
 	 * There is a zone in the middle that decides how much we scroll according
 	 * to where the mouse is within it. We have {@link #SCROLL_MARGIN} pixels of
 	 * non-zone at the top and bottom because it isn't nice if the new screen is
@@ -32,16 +43,12 @@ public class BlockPalette {
 	 */
 	private static final int COL_BACKGROUND = 0xff0020ff;
 
-	private static final int CT = 0xff0000;
-
-	private static final int HT = 0x00ff00;
-
 	private final BlocksHolder blocksHolder;
 	private final int blockCount;
 	private final int bigBlockPaletteHeight;
-	private final MapperGC gc;
+	private final MapperGC mgc;
+	private final ColorCycler colorCycler;
 
-	private final MapperColors mc;
 
 	private class BlockPos {
 		public final int x;
@@ -70,9 +77,9 @@ public class BlockPalette {
 		return answer;
 	}
 
-	public BlockPalette(MapperColors mc, MapperGC mapperGC, BlocksHolder blocksHolder) {
-		this.mc = mc;
-		this.gc = mapperGC;
+	public BlockPalette(ColorCycler colorCycler, MapperGC mgc, BlocksHolder blocksHolder) {
+		this.colorCycler = colorCycler;
+		this.mgc = mgc;
 		this.blocksHolder = blocksHolder;
 		this.blockCount = blocksHolder.getBlockCount();
 		this.bigBlockPaletteHeight = Math2.roundUpDiv(blockCount, BLOCKS_PER_LINE);
@@ -83,40 +90,40 @@ public class BlockPalette {
 		int x = Math2.limit(0, BLOCKS_PER_LINE - d, (currentBlock % BLOCKS_PER_LINE) - (d / 2));
 		int y = Math2.limit(0, bigBlockPaletteHeight - d, (currentBlock / BLOCKS_PER_LINE - (d / 2)));
 		int db = Const.BLOCK_SIZE * d;
-		int sx = gc.screenWidth() - db;
+		int sx = mgc.screenWidth() - db;
 		int sy = 0;
-		gc.fillRectangle(sx, sy, db, db, COL_BACKGROUND);
+		mgc.fillRectangle(sx, sy, db, db, COL_BACKGROUND);
 		for (BlockPos p : createBlockPosList(x, y, d, d, sx, sy)) {
 			blocksHolder.draw(p.b, p.x, p.y);
 			if (currentBlock == p.b) {
-				gc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mc.currentBlock());
+				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_CURRENT_BLOCK));
 			}
 		}
 	}
 
 	public int showBigPalette(int currentBlock, int mouseX, int mouseY) {
-		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), COL_BACKGROUND);
+		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 
-		int protrusion = Math.max(bigBlockPaletteHeight * Const.BLOCK_SIZE - gc.screenHeight(), 0);
+		int protrusion = Math.max(bigBlockPaletteHeight * Const.BLOCK_SIZE - mgc.screenHeight(), 0);
 		int vscroll = computeVerticalScrollAmount(mouseY, protrusion);
 		int hoverBlock = -1;
 
 		for (BlockPos p : createBlockPosList(0, 0, BLOCKS_PER_LINE, bigBlockPaletteHeight, 0, -vscroll)) {
 			blocksHolder.draw(p.b, p.x, p.y);
 			if (currentBlock == p.b) {
-				gc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mc.currentBlock());
-				gc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, CT,
+				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_CURRENT_BLOCK));
+				mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, COL_CURRENT_BLOCK,
 						String.format("%4d", currentBlock));
 			}
 			if (mouseY >= p.y && mouseY <= p.y + 15 && mouseX >= p.x && mouseX <= p.x + 15) {
 				hoverBlock = p.b;
 				if (hoverBlock == currentBlock) {
-					gc.drawBox(p.x + 1, p.y + 1, 14, 14, mc.hoverBlock());
+					mgc.drawBox(p.x + 1, p.y + 1, 14, 14, colorCycler.process(COL_HOVER_BLOCK));
 				}
 				else {
-					gc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mc.hoverBlock());
+					mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_HOVER_BLOCK));
 				}
-				gc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, HT,
+				mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, COL_HOVER_BLOCK,
 						String.format("%4d", hoverBlock));
 			}
 		}
@@ -124,7 +131,7 @@ public class BlockPalette {
 	}
 
 	private int computeVerticalScrollAmount(int mousePos, int protrusion) {
-		int scrollZoneSize = gc.screenHeight() - 1 - SCROLL_MARGIN * 2;
+		int scrollZoneSize = mgc.screenHeight() - 1 - SCROLL_MARGIN * 2;
 		int mousePositionWithinScrollZone = Math2.limit(0, scrollZoneSize, mousePos - SCROLL_MARGIN);
 		return (protrusion * mousePositionWithinScrollZone) / scrollZoneSize;
 	}

@@ -1,12 +1,11 @@
 package com.nney.tt.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Field;
 
 import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
-import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
@@ -16,14 +15,17 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.map.GameMap;
 
 public class Mapper {
+	/**
+	 * The colour we use to highlight the current block.
+	 */
+	private static final int COL_CURRENT_BLOCK = 0xffff0000;
 
 	private static final int COL_BACKGROUND = 0xff0080ff;
 	private int showTimer;
 	private int currentBlock;
 
 	final private int blockCount;
-	final private MapperGC mapperGC;
-	final private GraphicsContext gc;
+	final private MapperGC mgc;
 	final private Pointer mouse;
 	final private Keyboard keyboard;
 	private final MapperServices parent;
@@ -32,8 +34,10 @@ public class Mapper {
 	private UndoControler undoControler = new UndoControler();
 	private DrawingTool drawingTool;
 	private BlockPalette bp;
-	private MapperColors mc = new MapperColors();
+	private ColorCycler colorCycler = new ColorCycler();
 	private Tool mode = new DrawTool();
+	
+	private AlienTool alienTool = new AlienTool();
 	
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -45,12 +49,11 @@ public class Mapper {
 		this.parent = parent;
 		this.mouse = mouse;
 		this.keyboard = keyboard;
-		this.gc = gc;
 		this.debugFont = debugFont;
 		this.drawingTool = new DrawingTool(gameMap);
 		blockCount = blocksHolder.getBlockCount();
-		mapperGC = new MapperGC(gc, debugFont);
-		bp = new BlockPalette(mc, mapperGC, blocksHolder);
+		mgc = new MapperGC(gc, debugFont);
+		bp = new BlockPalette(colorCycler, mgc, blocksHolder);
 		
 		
 	}
@@ -83,6 +86,7 @@ public class Mapper {
 
 		@Override
 		public void run() {
+			drawBlockCursor();
 			if (keyboard.isDown(Keyboard.KEY_LCONTROL)) {
 				showBlocks();
 				if (drawPos != null) {
@@ -105,12 +109,12 @@ public class Mapper {
 			else {
 				undoControler.addUndo(drawingTool.endEdit());
 			}
-			keyboardBlockChoiceShown();
+			keyboardBlockChoiceAndShow();
 		}
 
 		@Override
 		String name() {
-			return "track";
+			return "draw";
 		}
 	}
 
@@ -152,11 +156,12 @@ public class Mapper {
 
 		@Override
 		void run() {
-			showBlocks();
+			drawBlockCursor();
 			if (mouse.isDown(Pointer.KEY_LEFT)) {
 				currentBlock = gameMap.getBlock(computeMousePos().copyAndDiv(Const.BLOCK_SIZE));
+				showBlocks();
 			}
-			keyboardBlockChoiceShown();
+			keyboardBlockChoiceAndShow();
 		}
 	}
 	
@@ -173,14 +178,23 @@ public class Mapper {
 		
 		@Override
 		void run() {
-			if (mouse.justPressed(Pointer.KEY_LEFT)) {
+			if (mouse.isDown(Pointer.KEY_LEFT)) {
 				Coord c = computeMousePos();
-				selectedAlien = parent.findClosestAlien(c);
-				if (haveAlien()) {
-					
+				selectedAlien = parent.findNearestAlien(c);
+
+				Field[] fs = selectedAlien.getClass().getFields();
+				for (Field f : fs) {
+					AlienProp z = f.getAnnotation(AlienProp.class);
+					if (z!=null) {
+						System.out.println(String.format("%-10s %-30s %-10s %s", z.name(), f.getType(), z.xtraDef(), z.doc()));
+					}
 				}
-				
-				
+				System.out.println();
+			}
+			if (haveAlien()) {
+				Coord sac = selectedAlien.c.copy();
+				sac.sub(parent.getScreenPosition());
+				mgc.drawSight(sac.x, sac.y, 20, colorCycler.process(0xff00ffff));
 			}
 		}
 		
@@ -201,22 +215,12 @@ public class Mapper {
 		
 	
 	public void run() {
-		mc.advance();
+		colorCycler.advance();
 		
 		if (!mode.ownScreen()) {
-			gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), COL_BACKGROUND);
+			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			parent.drawMap();
 			parent.mapperDrawAliens();
-
-			Coord mousePos = computeMousePos();
-			{
-				Coord box = mousePos.copy();
-				box.and(-Const.BLOCK_SIZE, -Const.BLOCK_SIZE);
-				box.sub(parent.getScreenPosition());
-				mapperGC.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mc.currentBlock());
-			}
-	
-	
 			if (showTimer != 0) {
 				showTimer--;
 				bp.showSmallPalette(currentBlock);
@@ -241,7 +245,7 @@ public class Mapper {
 			changeMode(new ChooserTool());
 			return;
 		case Keyboard.KEY_A:
-			changeMode(new AlienTool());
+			changeMode(alienTool);
 			return;
 		}
 		
@@ -252,6 +256,21 @@ public class Mapper {
 			undoRedo();
 		}
 
+	}
+
+
+
+
+
+
+	private void drawBlockCursor() {
+		Coord mousePos = computeMousePos();
+		{
+			Coord box = mousePos.copy();
+			box.and(-Const.BLOCK_SIZE, -Const.BLOCK_SIZE);
+			box.sub(parent.getScreenPosition());
+			mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_CURRENT_BLOCK));
+		}
 	}
 
 
@@ -288,7 +307,7 @@ public class Mapper {
 
 
 
-	private void keyboardBlockChoiceShown() {
+	private void keyboardBlockChoiceAndShow() {
 		if (keyboardBlockChoice()) {
 			showBlocks();
 		}
