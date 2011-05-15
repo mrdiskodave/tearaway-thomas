@@ -38,6 +38,10 @@ public class Box {
 		return new Box(c.x + l, c.y + t, c.x + r, c.y + b);
 	}
 
+	public static Box around(Coord c) {
+		return around(c, 0, 0, 0, 0);
+	}
+
 
 	public void constrain(Coord c) {
 		if (c.x < left) {

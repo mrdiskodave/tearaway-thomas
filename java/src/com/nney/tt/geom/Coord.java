@@ -60,7 +60,16 @@ public class Coord {
 		return answer;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		Coord that = (Coord) obj;
+		return that.x == x && that.y == y;
+	}
 	
+	@Override
+	public int hashCode() {
+		return x^y;
+	}
 	
 	@Override
 	public String toString() {

@@ -65,6 +65,7 @@ public class GameMap {
 
 	public void setBlock(Coord c, int b) {
 		assert validPosition(c.x, c.y);
+		System.out.println("Set "+c+" to "+b);
 		map[mapOffset(c)] = (short) b;
 	}
 
