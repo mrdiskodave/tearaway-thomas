@@ -5,10 +5,10 @@ import com.nney.tt.geom.XRange;
 
 public abstract class LeftRightAlien extends Alien {
 	@AlienProp(name = "Facing", xtraDef = "left")
-	boolean goLeft;
+	public boolean goLeft;
 
 	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.")
-	XRange range = new XRange();
+	public XRange range = new XRange();
 
 	boolean moveLeftRight(int speed) {
 		if (!goLeft) {

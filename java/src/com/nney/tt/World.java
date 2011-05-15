@@ -404,7 +404,7 @@ public class World implements AlienServices, MapperServices {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
-		Box m = new Box(mapBounds);
+		Box m = mapBounds.copy();
 		m.shrink(6);
 		m.constrain(c);
 	}

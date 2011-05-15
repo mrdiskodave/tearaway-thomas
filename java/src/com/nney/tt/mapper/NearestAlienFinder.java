@@ -19,9 +19,7 @@ public class NearestAlienFinder implements AlienVisitor {
 		Coord diff = a.c.copy();
 		diff.sub(o);
 		long ndist = diff.x*diff.x + diff.y*diff.y;
-		System.out.println("Dist"+ndist);
 		if (ndist<dist) {
-			System.out.println("BEtter!");
 			dist = ndist;
 			nearest = a;
 		}

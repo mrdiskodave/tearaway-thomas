@@ -6,8 +6,8 @@ import com.nney.tt.geom.Coord;
 public class LogLiftAlien extends LiftAlien {
 	// need to think about what the props are here!
 	
-	
-	private Box box;
+	@AlienProp(name="Movement box", doc="The area we move within.")
+	public Box box;
 
 	@Override
 	public void load() {

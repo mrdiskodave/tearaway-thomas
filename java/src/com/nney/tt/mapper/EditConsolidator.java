@@ -6,33 +6,33 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
-public class DrawingTool {
-	private final ArrayList<Event> events = new ArrayList<Event>();
+public class EditConsolidator {
+	private final ArrayList<Edit> edits = new ArrayList<Edit>();
 	private final GameMap gameMap;
 
-	private class Event {
+	private class Edit {
 		final Coord where;
 		int what;
 
-		private Event(Coord where, int what) {
+		private Edit(Coord where, int what) {
 			this.where = where;
 			this.what = what;
 		}
 	}
 	
-	public DrawingTool(GameMap gameMap) {
+	public EditConsolidator(GameMap gameMap) {
 		this.gameMap = gameMap;
 	}
 
 	public void setBlock(Coord c, int block) {
 		int existingBlock = gameMap.getBlock(c);
 		if (block != existingBlock) {
-			events.add(new Event(c, existingBlock));
+			edits.add(new Edit(c, existingBlock));
 			gameMap.setBlock(c, block);
 		}
 	}
 
-	private void swap(Event e) {
+	private void swap(Edit e) {
 		int tmp = gameMap.getBlock(e.where);
 		gameMap.setBlock(e.where, e.what);
 		e.what = tmp;
@@ -40,19 +40,18 @@ public class DrawingTool {
 
 	public UndoRedo endEdit() {
 		UndoRedo undo = null;
-		if (events.size() != 0) {
-			Box b = Box.around(events.get(0).where, 0, 0);
-			for (Event e : events) {
+		if (edits.size() != 0) {
+			Box b = Box.around(edits.get(0).where, 0, 0);
+			for (Edit e : edits) {
 				b.accommodate(e.where);
 				swap(e);
 			}
-			System.out.println("Events: " + b);
 			undo = new SavedMapBox(gameMap, b);
-			for (Event e : events) {
+			for (Edit e : edits) {
 				swap(e);
 			}
 		}
-		events.clear();
+		edits.clear();
 		return undo;
 	}
 }

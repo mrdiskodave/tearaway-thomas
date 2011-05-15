@@ -6,6 +6,7 @@ import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
@@ -21,24 +22,32 @@ public class Mapper {
 	private static final int COL_CURRENT_BLOCK = 0xffff0000;
 
 	private static final int COL_BACKGROUND = 0xff0080ff;
+
+	//
+	// stuff to do with the currentBlock
+	//
 	private int showTimer;
 	private int currentBlock;
-
 	final private int blockCount;
+	private BlockPalette bp;
+
 	final private MapperGC mgc;
 	final private Pointer mouse;
 	final private Keyboard keyboard;
 	private final MapperServices parent;
-	private final Font debugFont;
 	private final GameMap gameMap;
+	
 	private UndoControler undoControler = new UndoControler();
-	private DrawingTool drawingTool;
-	private BlockPalette bp;
 	private ColorCycler colorCycler = new ColorCycler();
-	private Tool mode = new DrawTool();
 	
 	private AlienTool alienTool = new AlienTool();
-	
+	private ChooserTool chooserTool = new ChooserTool();
+	private DrawTool drawTool = new DrawTool();
+	private EyeDropperTool eyeDropperTool = new EyeDropperTool();
+	private HandTool handTool = new HandTool();
+
+	private ToolSlot tool = new ToolSlot();
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
@@ -49,13 +58,10 @@ public class Mapper {
 		this.parent = parent;
 		this.mouse = mouse;
 		this.keyboard = keyboard;
-		this.debugFont = debugFont;
-		this.drawingTool = new DrawingTool(gameMap);
 		blockCount = blocksHolder.getBlockCount();
 		mgc = new MapperGC(gc, debugFont);
 		bp = new BlockPalette(colorCycler, mgc, blocksHolder);
-		
-		
+		tool.change(drawTool);
 	}
 
 	private final class ChooserTool extends Tool {
@@ -78,15 +84,18 @@ public class Mapper {
 
 	private final class DrawTool extends Tool {
 		private Coord drawPos;
-		
+		private EditConsolidator editConsolidator;
+
 		@Override
 		void start() {
 			drawPos = null;
+			editConsolidator = new EditConsolidator(gameMap);
 		}
-
+		
 		@Override
 		public void run() {
 			drawBlockCursor();
+			
 			if (keyboard.isDown(Keyboard.KEY_LCONTROL)) {
 				showBlocks();
 				if (drawPos != null) {
@@ -102,14 +111,21 @@ public class Mapper {
 			else {
 				drawPos = null;
 			}
+			
 			// Drawing with the left button
 			if (mouse.isDown(Pointer.KEY_LEFT)) {
-				drawingTool.setBlock(computeMousePos().copyAndDiv(Const.BLOCK_SIZE), currentBlock);
+				editConsolidator.setBlock(computeMousePos().copyAndDiv(Const.BLOCK_SIZE), currentBlock);
 			}
 			else {
-				undoControler.addUndo(drawingTool.endEdit());
+				stop();
 			}
+			
 			keyboardBlockChoiceAndShow();
+		}
+		
+		@Override
+		void stop() {
+			undoControler.addUndo(editConsolidator.endEdit());
 		}
 
 		@Override
@@ -128,7 +144,7 @@ public class Mapper {
 
 		@Override
 		public void run() {
-			if (dragPos !=null && mouse.isDown(Pointer.KEY_LEFT)) {
+			if (mouse.isDown(Pointer.KEY_LEFT)) {
 				Coord delta = dragPos.copy();
 				delta.sub(computeMousePos());
 				if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
@@ -139,6 +155,13 @@ public class Mapper {
 				}
 				parent.moveScreen(delta);
 			}
+			else {
+				stop();
+			}
+		}
+		
+		@Override
+		void stop() {
 			dragPos = computeMousePos();
 		}
 
@@ -175,26 +198,52 @@ public class Mapper {
 			selectedAlien = null;
 			return false;
 		}
+
+		@Override
+		Tool isHoliday() {
+			if (keyboard.isDown(Keyboard.KEY_SPACE)) {
+				return handTool;
+			}
+			return null;
+		}
 		
 		@Override
 		void run() {
 			if (mouse.isDown(Pointer.KEY_LEFT)) {
 				Coord c = computeMousePos();
 				selectedAlien = parent.findNearestAlien(c);
+			}
+
+			if (haveAlien()) {
+				Coord sac = selectedAlien.c.copy();
+				sac.sub(parent.getScreenPosition());
+				mgc.drawSight(sac.x, sac.y, 7, colorCycler.process(0xff00ffff));
 
 				Field[] fs = selectedAlien.getClass().getFields();
 				for (Field f : fs) {
 					AlienProp z = f.getAnnotation(AlienProp.class);
 					if (z!=null) {
-						System.out.println(String.format("%-10s %-30s %-10s %s", z.name(), f.getType(), z.xtraDef(), z.doc()));
+						if (f.getType()==Box.class) {
+							
+							try {
+								Box box = (Box) f.get(selectedAlien);
+								box = box.copy();
+								Coord c = parent.getScreenPosition();
+								c = c.copy();
+								c.mul(-1);
+								box.move(c);
+								mgc.drawTransBox(box.left, box.top, box.width(), box.height(), 0xffff0000, 0x80000000);
+							}
+							catch (IllegalArgumentException e) {
+								throw new RuntimeException(e);
+							}
+							catch (IllegalAccessException e) {
+								throw new RuntimeException(e);
+							}
+						}
+						
 					}
 				}
-				System.out.println();
-			}
-			if (haveAlien()) {
-				Coord sac = selectedAlien.c.copy();
-				sac.sub(parent.getScreenPosition());
-				mgc.drawSight(sac.x, sac.y, 20, colorCycler.process(0xff00ffff));
 			}
 		}
 		
@@ -209,7 +258,9 @@ public class Mapper {
 		abstract String name();
 		void start() {}
 		boolean ownScreen() { return false; }
+		void stop() {}
 		void run() {};
+		Tool isHoliday() { return null; }
 	}
 	
 		
@@ -217,7 +268,7 @@ public class Mapper {
 	public void run() {
 		colorCycler.advance();
 		
-		if (!mode.ownScreen()) {
+		if (!tool.get().ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			parent.drawMap();
 			parent.mapperDrawAliens();
@@ -233,29 +284,28 @@ public class Mapper {
 			parent.quitMapper(computeMousePos());
 			return;
 		case Keyboard.KEY_I:
-			changeMode(new EyeDropperTool());
+			tool.change(eyeDropperTool);
 			return;
 		case Keyboard.KEY_H:
-			changeMode(new HandTool());
+			tool.change(handTool);
 			return;
 		case Keyboard.KEY_D:
-			changeMode(new DrawTool());
+			tool.change(drawTool);
 			return;
 		case Keyboard.KEY_C:
-			changeMode(new ChooserTool());
+			tool.change(chooserTool);
 			return;
 		case Keyboard.KEY_A:
-			changeMode(alienTool);
+			tool.change(alienTool);
 			return;
 		}
 		
-		sayIt(mode.name());
-		mode.run();
+		sayIt(tool.get().name());
+		tool.get().run();
 		
-		if (!mode.ownScreen()) {
+		if (!tool.get().ownScreen()) {
 			undoRedo();
 		}
-
 	}
 
 
@@ -279,18 +329,9 @@ public class Mapper {
 
 
 	private void sayIt(String string) {
-		int x = 10;
-		int y = 10;
-		debugFont.draw(x, y, 0xffffff, 0, string);
+		mgc.drawText(10, 10, 0xffffff, string);
 	}
 
-
-
-	private void changeMode(Tool mm) {
-//		mode.stop();
-		mode = mm;
-		mode.start();
-	}
 
 
 
@@ -385,6 +426,4 @@ public class Mapper {
 			currentBlock = hoverBlock;
 		}
 	}
-
-
 }

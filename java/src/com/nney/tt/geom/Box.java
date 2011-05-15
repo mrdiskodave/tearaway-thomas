@@ -14,7 +14,7 @@ public class Box {
 		this.bottom = bottom;
 	}
 
-	public Box(Box that) {
+	private Box(Box that) {
 		this(that.left, that.top, that.right, that.bottom);
 	}
 
@@ -84,5 +84,16 @@ public class Box {
 	@Override
 	public String toString() {
 		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
+	}
+
+	public Box copy() {
+		return new Box(this);
+	}
+	
+	public void move(Coord c) {
+		left += c.x;
+		right += c.x;
+		top += c.y;
+		bottom += c.y;
 	}
 }

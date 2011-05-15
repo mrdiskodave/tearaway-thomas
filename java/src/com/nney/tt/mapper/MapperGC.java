@@ -32,12 +32,27 @@ public class MapperGC {
 		gc.fillRectangle(x, y, 1, h, c);
 	}
 	
+	public void drawTransBox(int x, int y, int w, int h, int c, int cf) {
+		drawBox(x, y, w, h, c);
+		x ++;
+		y ++;
+		w -= 2;
+		h -= 2;
+		gc.fillRectangle(x, y, w, h, cf);
+	}
+	
 	public void drawSight(int x, int y, int i, int col) {
-		gc.fillRectangle(x - i, y, i * 2, 1, col);
-		gc.fillRectangle(x, y - i, 1, i * 2, col);
+		drawTransBox(x-5, y-5, 11, 11, col);
+		gc.fillRectangle(x - i, y, i * 2+1, 1, col);
+		gc.fillRectangle(x, y - i, 1, i * 2+1, col);
+	}
+
+	private void drawTransBox(int i, int j, int k, int l, int col) {
+		drawTransBox(i, j, k, l, col, col&0x080ffffff);
 	}
 
 	public void drawText(int x, int y, int col, String text) {
 		debugFont.draw(x, y, col, 0, text);
 	}
+	
 }
