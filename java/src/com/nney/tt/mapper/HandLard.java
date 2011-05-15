@@ -7,11 +7,6 @@ public class HandLard extends Lard {
 	private Coord last;
 
 	@Override
-	Cursor cursor() {
-		return Cursor.PAN;
-	}
-	
-	@Override
 	int key() {
 		return Pointer.KEY_LEFT;
 	}

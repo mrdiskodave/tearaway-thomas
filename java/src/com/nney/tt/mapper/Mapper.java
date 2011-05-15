@@ -39,12 +39,14 @@ public class Mapper {
 
 	// private AlienTool alienTool = new AlienTool();
 	private Tool chooserTool = new ChooserTool();
-	private Tool drawTool = new GeneralTool("draw", new BlockTrackingLard(), new DrawingLard());
-	private Tool eyeDropperTool = new GeneralTool("eyeDropper", new PickerLard());
-	private Tool handTool = new GeneralTool("hand", new HandLard());
+	private Tool drawTool = new GeneralTool(Cursor.BLOCK, "draw", new BlockTrackingLard(), new DrawingLard());
+	private Tool eyeDropperTool = new GeneralTool(Cursor.NONE, "eyeDropper", new EyeDropperLard());
+	private Tool handTool = new GeneralTool(Cursor.NONE, "hand", new HandLard());
 
 	private ToolSlot tool = new ToolSlot();
 	private ToolSlot otherTool = new ToolSlot();
+
+	private int sustainOther;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -70,11 +72,6 @@ public class Mapper {
 		}
 
 		@Override
-		String name() {
-			return "chooser";
-		}
-
-		@Override
 		void run() {
 			blockChoosingMode();
 			showBlocks();
@@ -84,16 +81,22 @@ public class Mapper {
 	private final class GeneralTool extends Tool {
 		private final Lard[] ls;
 		private final String name;
+		private final Cursor cursor;
 
-		GeneralTool(String name, Lard... ls) {
+		GeneralTool(Cursor cursor, String name, Lard... ls) {
+			this.cursor = cursor;
 			this.name = name;
 			this.ls = ls;
 		}
 
 		@Override
 		public void run() {
-			if (level==0 && ukt.isDown(cKey)) {
+			if (level == 0 && ukt.isDown(cKey)) {
 				pushTool(cTool);
+				sustainOther = cKey;
+			}
+			if (cursor == Cursor.BLOCK) {
+				drawBlockCursor();
 			}
 			for (Lard l : ls) {
 				l.srv = Mapper.this;
@@ -116,9 +119,9 @@ public class Mapper {
 						level++;
 					}
 				}
+				l.always();
 			}
 		}
-
 
 		@Override
 		void stop() {
@@ -198,16 +201,21 @@ public class Mapper {
 
 	abstract class Tool {
 		int level;
-		
+
+		// TODO: many!
+		// TODO: reinstate aliens
 		int cKey;
 		Tool cTool;
-		
+
 		void connect(int key, Tool tool) {
 			cKey = key;
 			cTool = tool;
 		}
-		
-		abstract String name();
+
+		String name() {
+			assert ownScreen();
+			return null;
+		}
 
 		void start() {
 		}
@@ -257,11 +265,12 @@ public class Mapper {
 			// return;
 		}
 
-		drawTool.connect(Keyboard.KEY_Z, handTool);
-		
+		drawTool.connect(Keyboard.KEY_SPACE, handTool);
+		eyeDropperTool.connect(Keyboard.KEY_SPACE, handTool);
+
 		ToolSlot t = tool;
-		if (otherTool.get()!=null) {
-			if (!ukt.isDown(tool.get().cKey)) {
+		if (otherTool.get() != null) {
+			if (!ukt.isDown(sustainOther)) {
 				otherTool.change(null);
 			}
 			else {
@@ -381,10 +390,10 @@ public class Mapper {
 	}
 
 	public void scroll(Coord delta) {
-		if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
+		if (ukt.isDown(Keyboard.KEY_LSHIFT)) {
 			delta.mul(2);
 		}
-		if (keyboard.isDown(Keyboard.KEY_LCONTROL)) {
+		if (ukt.isDown(Keyboard.KEY_LCONTROL)) {
 			delta.mul(4);
 		}
 		parent.moveScreen(delta);

@@ -6,7 +6,6 @@ public abstract class Lard {
 	public Mapper srv;
 	public boolean active;
 	
-	Cursor cursor() { return null; };
 	abstract int key();
 	
 	void down(Coord c)  {}

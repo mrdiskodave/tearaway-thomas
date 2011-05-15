@@ -6,11 +6,6 @@ import com.nney.tt.input.Keyboard;
 
 public class BlockTrackingLard extends Lard {
 	private Coord last;
-
-	@Override
-	Cursor cursor() {
-		return Cursor.BLOCK;
-	}
 	
 	@Override
 	int key() {
@@ -30,10 +25,5 @@ public class BlockTrackingLard extends Lard {
 		delta.sub(last);
 		last = c;
 		srv.changeCurrentBlock(delta.x, delta.y);
-	}
-	
-	@Override
-	void always() {
-		srv.showBlocks();
 	}
 }

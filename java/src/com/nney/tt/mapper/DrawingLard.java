@@ -9,12 +9,6 @@ public class DrawingLard extends Lard {
 	private EditConsolidator edit;
 
 	@Override
-	Cursor cursor() {
-		return Cursor.BLOCK;
-	}
-	
-
-	@Override
 	int key() {
 		return Pointer.KEY_LEFT;
 	}
