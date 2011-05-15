@@ -15,8 +15,7 @@ import com.nney.utils.OpenableTools;
 public class GlGraphicsContext implements GraphicsContext {
 	@Override
 	public void fillRectangle(int x, int y, int w, int h, int col) {
-		GlTools.reset();
-		GlTools.selectColor(col);
+		GlTools.configureFor2dRect(col);
 		GL11.glRecti(x, y, x + w, y + h);
 		GlTools.configureFor2dBobs();
 	}

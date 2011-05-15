@@ -26,26 +26,33 @@ public class GlTools {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
+	}
+
+	public static void configureFor2dRect(int col) {
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+		GlTools.selectColor(col);
 	}
 
 	public static void configureForFont(boolean mono, int fg) {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, mono ? GL11.GL_REPLACE : GL11.GL_MODULATE);
-		selectColor(fg);
+		selectColor(0xff000000|fg);
 	}
 	
 	
 
 	public static void selectColor(int fg) {
+		int a = ( fg >> 3*8 ) & 0xff;
 		int r = ( fg >> 2*8 ) & 0xff;
 		int g = ( fg >> 8 ) & 0xff;
 		int b = ( fg ) & 0xff;
-		GL11.glColor3ub((byte)r, (byte)g, (byte)b);
+		GL11.glColor4ub((byte)r, (byte)g, (byte)b, (byte)a);
 	}
 
 
