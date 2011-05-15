@@ -1,6 +1,7 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
+import com.nney.tt.geom.XRange;
 
 public abstract class LeftRightAlien extends Alien {
 	@AlienProp(name = "Facing", xtraDef = "left")
