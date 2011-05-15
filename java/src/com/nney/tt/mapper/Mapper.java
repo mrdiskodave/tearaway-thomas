@@ -44,6 +44,7 @@ public class Mapper {
 	private Tool handTool = new GeneralTool("hand", new HandLard());
 
 	private ToolSlot tool = new ToolSlot();
+	private ToolSlot otherTool = new ToolSlot();
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -91,6 +92,9 @@ public class Mapper {
 
 		@Override
 		public void run() {
+			if (level==0 && ukt.isDown(cKey)) {
+				pushTool(cTool);
+			}
 			for (Lard l : ls) {
 				l.srv = Mapper.this;
 				Coord m = computeMousePos(l.worldCoords());
@@ -102,16 +106,19 @@ public class Mapper {
 					else {
 						l.up(m.copy());
 						l.active = false;
+						level--;
 					}
 				}
 				else {
 					if (pressed) {
 						l.down(m.copy());
 						l.active = true;
+						level++;
 					}
 				}
 			}
 		}
+
 
 		@Override
 		void stop() {
@@ -120,6 +127,7 @@ public class Mapper {
 				if (l.active) {
 					l.up(m.copy());
 					l.active = false;
+					level--;
 				}
 			}
 		}
@@ -189,6 +197,16 @@ public class Mapper {
 	// }
 
 	abstract class Tool {
+		int level;
+		
+		int cKey;
+		Tool cTool;
+		
+		void connect(int key, Tool tool) {
+			cKey = key;
+			cTool = tool;
+		}
+		
 		abstract String name();
 
 		void start() {
@@ -239,10 +257,22 @@ public class Mapper {
 			// return;
 		}
 
-		sayIt(tool.get().name());
-		tool.get().run();
+		drawTool.connect(Keyboard.KEY_Z, handTool);
+		
+		ToolSlot t = tool;
+		if (otherTool.get()!=null) {
+			if (!ukt.isDown(tool.get().cKey)) {
+				otherTool.change(null);
+			}
+			else {
+				t = otherTool;
+			}
+		}
 
-		if (!tool.get().ownScreen()) {
+		sayIt(t.get().name());
+		t.get().run();
+
+		if (!t.get().ownScreen()) {
 			undoRedo();
 		}
 	}
@@ -358,6 +388,10 @@ public class Mapper {
 			delta.mul(4);
 		}
 		parent.moveScreen(delta);
+	}
+
+	private void pushTool(Tool cTool) {
+		otherTool.change(cTool);
 	}
 
 }
