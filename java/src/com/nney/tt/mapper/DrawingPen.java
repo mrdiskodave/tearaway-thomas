@@ -6,7 +6,7 @@ import com.nney.tt.input.Pointer;
 
 public class DrawingPen extends Pen {
 
-	private EditConsolidator edit;
+	private EditDestination edit;
 
 	@Override
 	int key() {
@@ -26,7 +26,7 @@ public class DrawingPen extends Pen {
 	
 	@Override
 	void up(Coord c) {
-		srv.submitEdit(edit);
+		srv.endEdit();
 	}
 	
 	@Override

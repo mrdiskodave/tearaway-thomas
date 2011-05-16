@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 
 public abstract class Pen {
-	public Mapper srv;
+	public PenServices srv;
 	public boolean active;
 	
 	abstract int key();

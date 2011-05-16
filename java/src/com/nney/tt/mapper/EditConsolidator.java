@@ -9,7 +9,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
-public class EditConsolidator {
+public class EditConsolidator implements EditDestination {
 	private final HashMap<Coord, Integer> edits = new HashMap<Coord, Integer>();
 	private final GameMap gameMap;
 
@@ -17,6 +17,7 @@ public class EditConsolidator {
 		this.gameMap = gameMap;
 	}
 
+	@Override
 	public void setBlock(Coord c, int block) {
 		int existingBlock = gameMap.getBlock(c);
 		if (block != existingBlock) {

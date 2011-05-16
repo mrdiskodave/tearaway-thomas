@@ -13,7 +13,7 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
 
-public class Mapper {
+public class Mapper implements PenServices {
 	/**
 	 * The colour we use to highlight the current block.
 	 */
@@ -49,6 +49,8 @@ public class Mapper {
 	private Tool otherTool;
 
 	private int keyThatSustainsTheOtherTool;
+
+	private EditConsolidator edit;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -276,7 +278,8 @@ public class Mapper {
 		}
 	}
 
-	void keyboardBlockChoiceAndShow() {
+	@Override
+	public void keyboardBlockChoiceAndShow() {
 		keyboardBlockChoice();
 	}
 
@@ -321,6 +324,7 @@ public class Mapper {
 		}
 	}
 
+	@Override
 	public void changeCurrentBlock(int dx, int dy) {
 		int delta = bp.getPaletteDelta(dx, dy);
 		int b = delta + currentBlock;
@@ -334,28 +338,39 @@ public class Mapper {
 		showBlocks();
 	}
 
+	@Override
 	public void showBlocks() {
 		showTimer = 100;
 	}
 
+	@Override
 	public EditConsolidator startEdit() {
 		System.out.println("Start edit");
-		return new EditConsolidator(gameMap);
+		assert edit==null;
+		edit = new EditConsolidator(gameMap);
+		return edit;
 	}
 
+	@Override
+	public void endEdit() {
+		System.out.println("Submit edit");
+		assert edit!=null;
+		undoControler.addUndo(edit.endEdit());
+		edit=null;
+	}
+
+	@Override
 	public int getCurrentBlock() {
 		return currentBlock;
 	}
 
-	public void submitEdit(EditConsolidator edit) {
-		System.out.println("Submit edit");
-		undoControler.addUndo(edit.endEdit());
-	}
 
+	@Override
 	public void setCurrentBlockFromMap(Coord c) {
 		currentBlock = gameMap.getBlock(c);
 	}
 
+	@Override
 	public void scroll(Coord delta) {
 		if (ukt.isDown(Keyboard.KEY_LSHIFT)) {
 			delta.mul(2);
