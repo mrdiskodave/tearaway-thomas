@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import java.util.HashMap;
+
 import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
 import com.nney.tt.geom.Coord;
@@ -40,7 +42,7 @@ public class Mapper {
 	// private AlienTool alienTool = new AlienTool();
 	private Tool chooserTool = new ChooserTool();
 	private Tool drawTool = new GeneralTool(Cursor.BLOCK, "draw", new BlockTrackingLard(), new DrawingLard());
-	private Tool eyeDropperTool = new GeneralTool(Cursor.NONE, "eyeDropper", new EyeDropperLard());
+	private Tool eyeDropperTool = new GeneralTool(Cursor.BLOCK, "eyeDropper", new EyeDropperLard());
 	private Tool handTool = new GeneralTool(Cursor.NONE, "hand", new HandLard());
 
 	private ToolSlot tool = new ToolSlot();
@@ -91,9 +93,13 @@ public class Mapper {
 
 		@Override
 		public void run() {
-			if (level == 0 && ukt.isDown(cKey)) {
-				pushTool(cTool);
-				sustainOther = cKey;
+			if (level == 0) {
+				for (Integer k: nest.keySet()) {
+					if (ukt.isDown(k)) {
+						sustainOther = k;
+						pushTool(nest.get(k));
+					}
+				}
 			}
 			if (cursor == Cursor.BLOCK) {
 				drawBlockCursor();
@@ -202,14 +208,11 @@ public class Mapper {
 	abstract class Tool {
 		int level;
 
-		// TODO: many!
+		HashMap<Integer, Tool> nest = new HashMap<Integer, Mapper.Tool>(); 
 		// TODO: reinstate aliens
-		int cKey;
-		Tool cTool;
 
 		void connect(int key, Tool tool) {
-			cKey = key;
-			cTool = tool;
+			nest.put(key, tool);
 		}
 
 		String name() {
@@ -238,10 +241,6 @@ public class Mapper {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			parent.drawMap();
 			parent.mapperDrawAliens();
-			if (showTimer != 0) {
-				showTimer--;
-				bp.showSmallPalette(currentBlock);
-			}
 		}
 
 		switch (keyboard.justPressed()) {
@@ -266,11 +265,12 @@ public class Mapper {
 		}
 
 		drawTool.connect(Keyboard.KEY_SPACE, handTool);
+		drawTool.connect(Pointer.KEY_RIGHT, chooserTool);
 		eyeDropperTool.connect(Keyboard.KEY_SPACE, handTool);
 
 		ToolSlot t = tool;
 		if (otherTool.get() != null) {
-			if (!ukt.isDown(sustainOther)) {
+			if (otherTool.get().level==0 && !ukt.isDown(sustainOther)) {
 				otherTool.change(null);
 			}
 			else {
@@ -278,10 +278,14 @@ public class Mapper {
 			}
 		}
 
-		sayIt(t.get().name());
 		t.get().run();
 
 		if (!t.get().ownScreen()) {
+			sayIt(t.get().name());
+			if (showTimer != 0) {
+				showTimer--;
+				bp.showSmallPalette(currentBlock);
+			}
 			undoRedo();
 		}
 	}
@@ -294,8 +298,8 @@ public class Mapper {
 		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_CURRENT_BLOCK));
 	}
 
-	private void sayIt(String string) {
-		mgc.drawText(10, 10, 0xffffff, string);
+	private void sayIt(String s) {
+		if (s!=null) mgc.drawText(10, 10, 0xffffff, s);
 	}
 
 	private void undoRedo() {
@@ -349,7 +353,7 @@ public class Mapper {
 		// drawSight(mx, my, 20, 0xff0000);
 
 		int hoverBlock = bp.showBigPalette(currentBlock, mx, my);
-		if (mouse.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
+		if (ukt.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
 			currentBlock = hoverBlock;
 		}
 	}

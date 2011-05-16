@@ -32,6 +32,8 @@ public class PartialPointerImpl implements Pointer {
 
 	@Override
 	public boolean isDown(int mask) {
+		assert mask >= KEY_POINTER;
+		mask -= KEY_POINTER;
 		return (currentPosition&mask)!=0;
 	}
 
