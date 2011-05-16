@@ -4,5 +4,4 @@ import com.nney.tt.geom.Coord;
 
 public interface EditDestination {
 	void setBlock(Coord c, int block);
-
 }

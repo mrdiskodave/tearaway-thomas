@@ -1,10 +1,15 @@
 package com.nney.tt.mapper;
 
+import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
 import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
+import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienProp;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.geom.XRange;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
@@ -39,11 +44,11 @@ public class Mapper implements PenServices {
 	private ColorCycler colorCycler = new ColorCycler();
 	final private UnifiedKeyTester ukt;
 
-	// private AlienTool alienTool = new AlienTool();
 	private Tool chooserTool = new ChooserTool();
-	private Tool drawTool = new GeneralTool(Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
-	private Tool eyeDropperTool = new GeneralTool(Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
-	private Tool handTool = new GeneralTool(Cursor.NONE, "hand", new HandLard());
+	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
+	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
+	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
+	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienSelectionPen());
 
 	private Tool tool;
 	private Tool otherTool;
@@ -51,6 +56,8 @@ public class Mapper implements PenServices {
 	private int keyThatSustainsTheOtherTool;
 
 	private EditConsolidator edit;
+
+	private Alien selectedAlien;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -87,16 +94,26 @@ public class Mapper implements PenServices {
 		private final String name;
 		private final Cursor cursor;
 
-		GeneralTool(Cursor cursor, String name, Pen... pens) {
+		GeneralTool(PenServices srv, Cursor cursor, String name, Pen... pens) {
+			for (Pen pen : pens) {
+				pen.srv = srv;
+			}
 			this.cursor = cursor;
 			this.name = name;
 			this.pens = pens;
 		}
 
 		@Override
+		void presentation() {
+			for (Pen pen : pens) {
+				pen.always();
+			}
+		}
+		
+		@Override
 		public void run() {
 			if (isFree()) {
-				for (Entry<Integer, Tool> e: nest.entrySet()) {
+				for (Entry<Integer, Tool> e : nest.entrySet()) {
 					if (ukt.isDown(e.getKey())) {
 						pushTool(e.getKey(), e.getValue());
 					}
@@ -106,8 +123,6 @@ public class Mapper implements PenServices {
 				drawBlockCursor();
 			}
 			for (Pen pen : pens) {
-				pen.srv = Mapper.this;
-				
 				Coord m = computeMousePos(pen.usesWorldCoords());
 				boolean pressed = ukt.isDown(pen.key());
 				if (pen.active) {
@@ -127,8 +142,7 @@ public class Mapper implements PenServices {
 						moreBusy();
 					}
 				}
-				
-				pen.always();
+
 			}
 		}
 
@@ -137,67 +151,6 @@ public class Mapper implements PenServices {
 			return name;
 		}
 	}
-
-	// private final class AlienTool extends Tool {
-	// Alien selectedAlien;
-	//
-	// boolean haveAlien() {
-	// if (selectedAlien!=null && !selectedAlien.remove) {
-	// return true;
-	// }
-	// selectedAlien = null;
-	// return false;
-	// }
-	//
-	// @Override
-	// void run() {
-	// if (mouse.isDown(Pointer.KEY_LEFT)) {
-	// Coord c = computeMousePos();
-	// selectedAlien = parent.findNearestAlien(c);
-	// }
-	//
-	// if (haveAlien()) {
-	// Coord sac = selectedAlien.c.copy();
-	// sac.sub(parent.getScreenPosition());
-	// mgc.drawSight(sac.x, sac.y, 7, colorCycler.process(0xff00ffff));
-	//
-	// Field[] fs = selectedAlien.getClass().getFields();
-	// for (Field f : fs) {
-	// AlienProp z = f.getAnnotation(AlienProp.class);
-	// if (z!=null) {
-	// if (f.getType()==Box.class) {
-	//
-	// try {
-	// Box box = (Box) f.get(selectedAlien);
-	// box = box.copy();
-	// Coord c = parent.getScreenPosition();
-	// c = c.copy();
-	// c.mul(-1);
-	// box.move(c);
-	// mgc.drawTransBox(box.left, box.top, box.width(), box.height(),
-	// 0xffff0000, 0x80000000);
-	// }
-	// catch (IllegalArgumentException e) {
-	// throw new RuntimeException(e);
-	// }
-	// catch (IllegalAccessException e) {
-	// throw new RuntimeException(e);
-	// }
-	// }
-	//
-	// }
-	// }
-	// }
-	// }
-	//
-	// @Override
-	// String name() {
-	// return "alien";
-	// }
-	// }
-
-	// TODO: reinstate aliens
-
 
 	public void run() {
 		colorCycler.advance();
@@ -224,14 +177,15 @@ public class Mapper implements PenServices {
 		case Keyboard.KEY_C:
 			tool = chooserTool;
 			return;
-			// case Keyboard.KEY_A:
-			// tool.change(alienTool);
-			// return;
+		case Keyboard.KEY_A:
+			tool = alienTool;
+			return;
 		}
 
-		drawTool.connect(Keyboard.KEY_SPACE, handTool);
-		drawTool.connect(Pointer.KEY_RIGHT, chooserTool);
-		eyeDropperTool.connect(Keyboard.KEY_SPACE, handTool);
+		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
+		drawTool.addNested(Pointer.KEY_RIGHT, chooserTool);
+		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
+		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
 
 		Tool t = tool;
 		if (otherTool != null) {
@@ -243,6 +197,10 @@ public class Mapper implements PenServices {
 			}
 		}
 
+		t.presentation();
+		if (t==otherTool) {
+			tool.presentation();
+		}
 		t.run();
 
 		if (!t.ownScreen()) {
@@ -264,7 +222,7 @@ public class Mapper implements PenServices {
 	}
 
 	private void sayIt(String s) {
-		if (s!=null) mgc.drawText(10, 10, 0xffffff, s);
+		if (s != null) mgc.drawText(10, 10, 0xffffff, s);
 	}
 
 	private void undoRedo() {
@@ -346,7 +304,7 @@ public class Mapper implements PenServices {
 	@Override
 	public EditConsolidator startEdit() {
 		System.out.println("Start edit");
-		assert edit==null;
+		assert edit == null;
 		edit = new EditConsolidator(gameMap);
 		return edit;
 	}
@@ -354,16 +312,15 @@ public class Mapper implements PenServices {
 	@Override
 	public void endEdit() {
 		System.out.println("Submit edit");
-		assert edit!=null;
+		assert edit != null;
 		undoControler.addUndo(edit.endEdit());
-		edit=null;
+		edit = null;
 	}
 
 	@Override
 	public int getCurrentBlock() {
 		return currentBlock;
 	}
-
 
 	@Override
 	public void setCurrentBlockFromMap(Coord c) {
@@ -386,4 +343,81 @@ public class Mapper implements PenServices {
 		otherTool = tool;
 	}
 
+	// --------------------------------------------------
+
+	public boolean haveAlien() {
+		if (selectedAlien != null && !selectedAlien.remove) {
+			return true;
+		}
+		selectedAlien = null; // just to help with garbage collection
+		return false;
+	}
+
+	@Override
+	public void selectNearestAlien(Coord c) {
+		selectedAlien = parent.findNearestAlien(c);
+	}
+
+	@Override
+	public void showSelectedAlienProps() {
+		if (haveAlien()) {
+			Coord sac = selectedAlien.c.copy();
+			sac.sub(parent.getScreenPosition());
+			mgc.drawSight(sac.x, sac.y, 7, colorCycler.process(0xff00ffff));
+
+			System.out.println("---");
+			Field[] fs = selectedAlien.getClass().getFields();
+			for (Field f : fs) {
+				AlienProp z = f.getAnnotation(AlienProp.class);
+				if (z != null) {
+					if (f.getType()==Box.class){ 
+						Coord scr = parent.getScreenPosition(); 
+						Box p = (Box) ksfg(f, selectedAlien);
+						p = p.copy();
+						p.sub(scr);
+						mgc.drawTransBox(p.left, p.top, p.width(), p.height(), 0xff000000, 0x80000000);
+						System.out.println("Box:");
+						controlPoint(p.left, p.top);
+						controlPoint(p.right, p.bottom);
+					}
+					if (f.getType()==XRange.class){ 
+						XRange p = (XRange) ksfg(f, selectedAlien);
+						Coord scr = parent.getScreenPosition(); 
+						Box box = new Box(p.left-scr.x, 0, p.right-scr.x, mgc.screenHeight()-1);
+						mgc.drawTransBox(box.left, box.top, box.width(), box.height(), 0xff000000, 0x80000000);
+						System.out.println("Range:");
+						controlPoint(box.left, sac.y);
+						controlPoint(box.right, sac.y);
+					}
+					if (f.getType()==Coord.class) {
+						Coord scr = parent.getScreenPosition(); 
+						System.out.println("Ord:");
+						Coord p = (Coord) ksfg(f, selectedAlien);
+						p = p.copy();
+						p.sub(scr);
+						controlPoint(p.x, p.y);
+					}
+				}
+			}
+		}
+	}
+
+	private void controlPoint(int x, int y) {
+		System.out.println("   "+x+","+y);
+		int i = 3;
+		mgc.fillRectangle(x - i, y - i, i * 2+1, i * 2+1, 0xffffff00);
+//		mgc.drawSight(x, y, 10, 0xffffff00);
+	}
+
+	Object ksfg(Field f, Object o) {
+		try {
+			return f.get(o);
+		}
+		catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		}
+		catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

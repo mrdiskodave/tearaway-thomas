@@ -8,7 +8,7 @@ public abstract class LeftRightAlien extends Alien {
 	public boolean goLeft;
 
 	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.")
-	public XRange range = new XRange();
+	public XRange range;
 
 	boolean moveLeftRight(int speed) {
 		if (!goLeft) {
@@ -32,8 +32,7 @@ public abstract class LeftRightAlien extends Alien {
 	
 	@Override
 	public void load() {
-		range.left = loadShort(OBleft);
-		range.right = loadShort(OBright);
+		range = new XRange(loadShort(OBleft), loadShort(OBright));
 		goLeft = !BitOp.test(loadByte(OBflags), 0);
 	}
 }

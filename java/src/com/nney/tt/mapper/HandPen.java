@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
 
-public class HandLard extends Pen {
+public class HandPen extends Pen {
 	private Coord last;
 
 	@Override

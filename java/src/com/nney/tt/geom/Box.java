@@ -94,10 +94,18 @@ public class Box {
 		return new Box(this);
 	}
 	
-	public void move(Coord c) {
+	public void add(Coord c) {
 		left += c.x;
 		right += c.x;
 		top += c.y;
 		bottom += c.y;
 	}
+	
+	public void sub(Coord c) {
+		left -= c.x;
+		right -= c.x;
+		top -= c.y;
+		bottom -= c.y;
+	}
+
 }

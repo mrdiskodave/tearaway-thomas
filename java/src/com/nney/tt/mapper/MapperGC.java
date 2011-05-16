@@ -42,7 +42,7 @@ public class MapperGC {
 	}
 	
 	public void drawSight(int x, int y, int i, int col) {
-		drawTransBox(x-5, y-5, 11, 11, col);
+//		drawTransBox(x-5, y-5, 11, 11, col);
 		gc.fillRectangle(x - i, y, i * 2+1, 1, col);
 		gc.fillRectangle(x, y - i, 1, i * 2+1, col);
 	}

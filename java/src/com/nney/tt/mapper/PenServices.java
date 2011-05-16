@@ -19,4 +19,8 @@ public interface PenServices {
 
 	void endEdit();
 
+	void selectNearestAlien(Coord c);
+
+	void showSelectedAlienProps();
+
 }
