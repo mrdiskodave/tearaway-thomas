@@ -370,31 +370,34 @@ public class Mapper implements PenServices {
 			for (Field f : fs) {
 				AlienProp z = f.getAnnotation(AlienProp.class);
 				if (z != null) {
+					Object po = ksfg(f, selectedAlien);
 					if (f.getType()==Box.class){ 
-						Coord scr = parent.getScreenPosition(); 
-						Box p = (Box) ksfg(f, selectedAlien);
+						Coord scr = parent.getScreenPosition();
+						Box p = (Box) po;
 						p = p.copy();
 						p.sub(scr);
-						mgc.drawTransBox(p.left, p.top, p.width(), p.height(), 0xff000000, 0x80000000);
 						System.out.println("Box:");
+
+						boxPlease(p);
 						controlPoint(p.left, p.top);
 						controlPoint(p.right, p.bottom);
 					}
 					if (f.getType()==XRange.class){ 
-						XRange p = (XRange) ksfg(f, selectedAlien);
+						XRange p = (XRange) po;
 						Coord scr = parent.getScreenPosition(); 
 						Box box = new Box(p.left-scr.x, 0, p.right-scr.x, mgc.screenHeight()-1);
-						mgc.drawTransBox(box.left, box.top, box.width(), box.height(), 0xff000000, 0x80000000);
 						System.out.println("Range:");
+						boxPlease(box);
 						controlPoint(box.left, sac.y);
 						controlPoint(box.right, sac.y);
 					}
 					if (f.getType()==Coord.class) {
 						Coord scr = parent.getScreenPosition(); 
 						System.out.println("Ord:");
-						Coord p = (Coord) ksfg(f, selectedAlien);
+						Coord p = (Coord) po;
 						p = p.copy();
 						p.sub(scr);
+
 						controlPoint(p.x, p.y);
 					}
 				}
@@ -403,12 +406,17 @@ public class Mapper implements PenServices {
 	}
 
 	private void controlPoint(int x, int y) {
-		System.out.println("   "+x+","+y);
 		int i = 3;
 		mgc.fillRectangle(x - i, y - i, i * 2+1, i * 2+1, 0xffffff00);
-//		mgc.drawSight(x, y, 10, 0xffffff00);
 	}
 
+	void boxPlease(Box box) {
+		int x = box.left;
+		int y = box.top;
+		mgc.drawTransBox(x, y, box.width(), box.height(), 0xff000000, 0x80000000);
+	}
+
+	
 	Object ksfg(Field f, Object o) {
 		try {
 			return f.get(o);
