@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
 
-public class HandLard extends Lard {
+public class HandLard extends Pen {
 	private Coord last;
 
 	@Override
@@ -26,7 +26,7 @@ public class HandLard extends Lard {
 	}
 	
 	@Override
-	boolean worldCoords() {
+	boolean usesWorldCoords() {
 		return false;
 	}	
 }

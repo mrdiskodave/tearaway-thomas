@@ -1,6 +1,6 @@
 package com.nney.tt.mapper;
 
-import java.util.HashMap;
+import java.util.Map.Entry;
 
 import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
@@ -41,14 +41,14 @@ public class Mapper {
 
 	// private AlienTool alienTool = new AlienTool();
 	private Tool chooserTool = new ChooserTool();
-	private Tool drawTool = new GeneralTool(Cursor.BLOCK, "draw", new BlockTrackingLard(), new DrawingLard());
-	private Tool eyeDropperTool = new GeneralTool(Cursor.BLOCK, "eyeDropper", new EyeDropperLard());
+	private Tool drawTool = new GeneralTool(Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
+	private Tool eyeDropperTool = new GeneralTool(Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
 	private Tool handTool = new GeneralTool(Cursor.NONE, "hand", new HandLard());
 
-	private ToolSlot tool = new ToolSlot();
-	private ToolSlot otherTool = new ToolSlot();
+	private Tool tool;
+	private Tool otherTool;
 
-	private int sustainOther;
+	private int keyThatSustainsTheOtherTool;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -64,7 +64,7 @@ public class Mapper {
 		blockCount = blocksHolder.getBlockCount();
 		mgc = new MapperGC(gc, debugFont);
 		bp = new BlockPalette(colorCycler, mgc, blocksHolder);
-		tool.change(drawTool);
+		tool = drawTool;
 	}
 
 	private final class ChooserTool extends Tool {
@@ -81,63 +81,52 @@ public class Mapper {
 	}
 
 	private final class GeneralTool extends Tool {
-		private final Lard[] ls;
+		private final Pen[] pens;
 		private final String name;
 		private final Cursor cursor;
 
-		GeneralTool(Cursor cursor, String name, Lard... ls) {
+		GeneralTool(Cursor cursor, String name, Pen... pens) {
 			this.cursor = cursor;
 			this.name = name;
-			this.ls = ls;
+			this.pens = pens;
 		}
 
 		@Override
 		public void run() {
-			if (level == 0) {
-				for (Integer k: nest.keySet()) {
-					if (ukt.isDown(k)) {
-						sustainOther = k;
-						pushTool(nest.get(k));
+			if (isFree()) {
+				for (Entry<Integer, Tool> e: nest.entrySet()) {
+					if (ukt.isDown(e.getKey())) {
+						pushTool(e.getKey(), e.getValue());
 					}
 				}
 			}
 			if (cursor == Cursor.BLOCK) {
 				drawBlockCursor();
 			}
-			for (Lard l : ls) {
-				l.srv = Mapper.this;
-				Coord m = computeMousePos(l.worldCoords());
-				boolean pressed = ukt.isDown(l.key());
-				if (l.active) {
+			for (Pen pen : pens) {
+				pen.srv = Mapper.this;
+				
+				Coord m = computeMousePos(pen.usesWorldCoords());
+				boolean pressed = ukt.isDown(pen.key());
+				if (pen.active) {
 					if (pressed) {
-						l.stroke(m.copy());
+						pen.stroke(m.copy());
 					}
 					else {
-						l.up(m.copy());
-						l.active = false;
-						level--;
+						pen.up(m.copy());
+						pen.active = false;
+						lessBusy();
 					}
 				}
 				else {
 					if (pressed) {
-						l.down(m.copy());
-						l.active = true;
-						level++;
+						pen.down(m.copy());
+						pen.active = true;
+						moreBusy();
 					}
 				}
-				l.always();
-			}
-		}
-
-		@Override
-		void stop() {
-			for (Lard l : ls) {
-				Coord m = computeMousePos(l.worldCoords());
-				if (l.active) {
-					l.up(m.copy());
-					l.active = false;
-					level--;
-				}
+				
+				pen.always();
 			}
 		}
 
@@ -205,39 +194,13 @@ public class Mapper {
 	// }
 	// }
 
-	abstract class Tool {
-		int level;
+	// TODO: reinstate aliens
 
-		HashMap<Integer, Tool> nest = new HashMap<Integer, Mapper.Tool>(); 
-		// TODO: reinstate aliens
-
-		void connect(int key, Tool tool) {
-			nest.put(key, tool);
-		}
-
-		String name() {
-			assert ownScreen();
-			return null;
-		}
-
-		void start() {
-		}
-
-		boolean ownScreen() {
-			return false;
-		}
-
-		void stop() {
-		}
-
-		void run() {
-		};
-	}
 
 	public void run() {
 		colorCycler.advance();
 
-		if (!tool.get().ownScreen()) {
+		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			parent.drawMap();
 			parent.mapperDrawAliens();
@@ -248,16 +211,16 @@ public class Mapper {
 			parent.quitMapper(computeMousePos(true));
 			return;
 		case Keyboard.KEY_I:
-			tool.change(eyeDropperTool);
+			tool = eyeDropperTool;
 			return;
 		case Keyboard.KEY_H:
-			tool.change(handTool);
+			tool = handTool;
 			return;
 		case Keyboard.KEY_D:
-			tool.change(drawTool);
+			tool = drawTool;
 			return;
 		case Keyboard.KEY_C:
-			tool.change(chooserTool);
+			tool = chooserTool;
 			return;
 			// case Keyboard.KEY_A:
 			// tool.change(alienTool);
@@ -268,20 +231,20 @@ public class Mapper {
 		drawTool.connect(Pointer.KEY_RIGHT, chooserTool);
 		eyeDropperTool.connect(Keyboard.KEY_SPACE, handTool);
 
-		ToolSlot t = tool;
-		if (otherTool.get() != null) {
-			if (otherTool.get().level==0 && !ukt.isDown(sustainOther)) {
-				otherTool.change(null);
+		Tool t = tool;
+		if (otherTool != null) {
+			if (otherTool.isFree() && !ukt.isDown(keyThatSustainsTheOtherTool)) {
+				otherTool = null;
 			}
 			else {
 				t = otherTool;
 			}
 		}
 
-		t.get().run();
+		t.run();
 
-		if (!t.get().ownScreen()) {
-			sayIt(t.get().name());
+		if (!t.ownScreen()) {
+			sayIt(t.name());
 			if (showTimer != 0) {
 				showTimer--;
 				bp.showSmallPalette(currentBlock);
@@ -403,8 +366,9 @@ public class Mapper {
 		parent.moveScreen(delta);
 	}
 
-	private void pushTool(Tool cTool) {
-		otherTool.change(cTool);
+	private void pushTool(int key, Tool tool) {
+		keyThatSustainsTheOtherTool = key;
+		otherTool = tool;
 	}
 
 }

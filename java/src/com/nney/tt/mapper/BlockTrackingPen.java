@@ -4,7 +4,7 @@ import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Keyboard;
 
-public class BlockTrackingLard extends Lard {
+public class BlockTrackingPen extends Pen {
 	private Coord last;
 	
 	@Override

@@ -2,7 +2,7 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Coord;
 
-public abstract class Lard {
+public abstract class Pen {
 	public Mapper srv;
 	public boolean active;
 	
@@ -12,5 +12,6 @@ public abstract class Lard {
 	void stroke(Coord c)  {}
 	void up(Coord c)  {}
 	void always()  {}
-	boolean worldCoords() { return true; }
+	
+	boolean usesWorldCoords() { return true; }
 }
