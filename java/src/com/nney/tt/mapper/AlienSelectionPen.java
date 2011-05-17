@@ -14,7 +14,7 @@ public class AlienSelectionPen extends Pen {
 	
 	@Override
 	void down(Coord c) {
-		BatRecord bat = srv.grabBat(c);
+		BatRecord bat = srv.searchForBat(c);
 		if (bat!=null) {
 			batAddress = bat.address; 
 			c.sub(bat.where);

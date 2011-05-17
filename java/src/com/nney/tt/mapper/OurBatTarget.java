@@ -6,13 +6,13 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class OurBatTarget implements BatTarget {
-	private final BM sender;
+	private final VisualProp sender;
 	private final Coord scr;
 	private final MapperGC mgc;
 	private final List<BatRecord> target;
 	private int number;
 
-	OurBatTarget(Coord scr, MapperGC mgc, BM sender, List<BatRecord> target) {
+	OurBatTarget(Coord scr, MapperGC mgc, VisualProp sender, List<BatRecord> target) {
 		this.scr = scr;
 		this.mgc = mgc;
 		this.sender = sender;

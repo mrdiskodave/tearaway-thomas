@@ -150,6 +150,9 @@ public class Mapper implements PenServices {
 						pen.active = true;
 						moreBusy();
 					}
+					else {
+						pen.hover(m.copy());
+					}
 				}
 
 			}
@@ -369,7 +372,7 @@ public class Mapper implements PenServices {
 		if (haveAlien()) {
 			Coord sac = selectedAlien.c.copy();
 			sac.sub(parent.getScreenPosition());
-			mgc.drawSight(sac.x, sac.y, 10, colorCycler.process(0xff00ffff));
+			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
 			
 			bats.clear();
 			
@@ -380,19 +383,19 @@ public class Mapper implements PenServices {
 					Object po = safeFieldGet(field, selectedAlien);
 					if (field.getType()==Box.class){
 						Box p = (Box) po;
-						BoxBM bm = new BoxBM(p);
+						BoxBM bm = new BoxBM(z, p);
 						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
 						bm.createBats(selectedAlien.c, ourBT);
 					}
 					if (field.getType()==XRange.class){ 
 						XRange p = (XRange) po;
-						XRangeBM bm = new XRangeBM(p);
+						XRangeBM bm = new XRangeBM(z, p);
 						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
 						bm.createBats(selectedAlien.c, ourBT);
 					}
 					if (field.getType()==Coord.class) {
 						Coord p = (Coord) po;
-						CoordBM bm = new CoordBM(p);
+						CoordBM bm = new CoordBM(z, p);
 						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
 						bm.createBats(selectedAlien.c, ourBT);
 					}
@@ -402,12 +405,13 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public BatRecord grabBat(Coord c) {
+	public BatRecord searchForBat(Coord c) {
 		System.out.println("Grab at "+c);
 		for (BatRecord bat: bats) {
 			System.out.println("   inside "+bat.collisionBox);
 			if (bat.collisionBox.inside(c)) return bat;
 		}
+		System.out.println("no!");
 		return null;
 	}
 	

@@ -8,9 +8,10 @@ public abstract class Pen {
 	
 	abstract int key();
 	
-	void down(Coord c)  {}
-	void stroke(Coord c)  {}
-	void up(Coord c)  {}
+	void hover(Coord c) {}
+	void down(Coord c) {}
+	void stroke(Coord c) {}
+	void up(Coord c) {}
 	
 	// this should probably be a property of the Tool
 	void always()  {}
