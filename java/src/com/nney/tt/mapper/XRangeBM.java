@@ -25,14 +25,12 @@ public class XRangeBM extends VisualProp {
 
 	@Override
 	void takeBatMovement(int what, Coord where) {
-		int rightLimit = t.left + 10;
-		int leftLimit = t.right - 10;
 		switch (what) {
 		case 0:
-			t.left = Math.min(leftLimit, where.x);
+			t.left = Math.min(t.right - 10, where.x);
 			break;
 		case 1:
-			t.right = Math.max(rightLimit, where.x);
+			t.right = Math.max(t.left + 10, where.x);
 			break;
 		default:
 			assert false;

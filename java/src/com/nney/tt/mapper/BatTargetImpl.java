@@ -5,18 +5,23 @@ import java.util.List;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
-public class OurBatTarget implements BatTarget {
-	private final VisualProp sender;
+public class BatTargetImpl implements BatTarget {
 	private final Coord scr;
 	private final MapperGC mgc;
 	private final List<BatRecord> target;
+
+	private VisualProp sender;
 	private int number;
 
-	OurBatTarget(Coord scr, MapperGC mgc, VisualProp sender, List<BatRecord> target) {
+	BatTargetImpl(Coord scr, MapperGC mgc, List<BatRecord> target) {
 		this.scr = scr;
 		this.mgc = mgc;
-		this.sender = sender;
 		this.target = target;
+	}
+	
+	public void setSender(VisualProp sender) {
+		this.sender = sender;
+		number = 0;
 	}
 
 	@Override

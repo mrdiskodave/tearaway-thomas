@@ -4,8 +4,8 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
 
 public class AlienSelectionPen extends Pen {
-	private BatAddress batAddress;
-	private Coord delta;
+	private BatAddress selectedBat;
+	private Coord batGrip;
 
 	@Override
 	int key() {
@@ -16,21 +16,32 @@ public class AlienSelectionPen extends Pen {
 	void down(Coord c) {
 		BatRecord bat = srv.searchForBat(c);
 		if (bat!=null) {
-			batAddress = bat.address; 
+			selectedBat = bat.address; 
 			c.sub(bat.where);
-			delta = c;
+			batGrip = c;
 		}
 		else {
+			noBat();
 			srv.selectNearestAlien(c);
 		}
 	}
 	
+	private void noBat() {
+		selectedBat = null;
+		batGrip = null;
+	}
+
 	@Override
 	void stroke(Coord c) {
-		if (batAddress!=null) {
-			c.sub(delta);
-			batAddress.who.takeBatMovement(batAddress.what, c);
+		if (selectedBat!=null) {
+			c.sub(batGrip);
+			selectedBat.who.takeBatMovement(selectedBat.what, c);
 		}
+	}
+	
+	@Override
+	void up(Coord c) {
+		noBat();
 	}
 	
 	@Override

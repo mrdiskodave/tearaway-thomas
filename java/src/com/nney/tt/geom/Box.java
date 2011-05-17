@@ -123,5 +123,26 @@ public class Box {
 	public Coord getBottomRight() {
 		return new Coord(right, bottom);
 	}
+	
+	public Coord getMiddle() {
+		return new Coord((left+right)/2, (top+bottom)/2);
+	}
+
+	public void setLeft(int i, int border) {
+		left = Math.min(right - border, i);
+	}
+
+	public void setTop(int i, int border) {
+		top = Math.min(bottom - border, i);
+	}
+	
+	public void setRight(int i, int border) {
+		right = Math.max(left + border, i);
+	}
+
+	public void setBottom(int i, int border) {
+		bottom = Math.max(top + border, i);
+	}
+	
 
 }

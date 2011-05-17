@@ -358,7 +358,8 @@ public class Mapper implements PenServices {
 		if (selectedAlien != null && !selectedAlien.remove) {
 			return true;
 		}
-		selectedAlien = null; // just to help with garbage collection
+		// just to help garbage collection
+		selectedAlien = null;
 		return false;
 	}
 
@@ -376,29 +377,37 @@ public class Mapper implements PenServices {
 			
 			bats.clear();
 			
+			BatTargetImpl ourBT = new BatTargetImpl(parent.getScreenPosition(), mgc, bats);
 			Field[] fields = selectedAlien.getClass().getFields();
 			for (Field field : fields) {
-				AlienProp z = field.getAnnotation(AlienProp.class);
-				if (z != null) {
+				AlienProp p = field.getAnnotation(AlienProp.class);
+				if (p != null) {
 					Object po = safeFieldGet(field, selectedAlien);
-					if (field.getType()==Box.class){
-						Box p = (Box) po;
-						BoxBM bm = new BoxBM(z, p);
-						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
+					Class<?> ft = field.getType();
+					if (ft==Box.class){
+						BoxBM bm = new BoxBM(p, (Box) po);
+						ourBT.setSender(bm);
 						bm.createBats(selectedAlien.c, ourBT);
 					}
-					if (field.getType()==XRange.class){ 
-						XRange p = (XRange) po;
-						XRangeBM bm = new XRangeBM(z, p);
-						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
+					else if (ft==XRange.class){ 
+						XRangeBM bm = new XRangeBM(p, (XRange) po);
+						ourBT.setSender(bm);
 						bm.createBats(selectedAlien.c, ourBT);
 					}
-					if (field.getType()==Coord.class) {
-						Coord p = (Coord) po;
-						CoordBM bm = new CoordBM(z, p);
-						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
+					else if (ft==Coord.class) {
+						CoordBM bm = new CoordBM(p, (Coord) po);
+						ourBT.setSender(bm);
 						bm.createBats(selectedAlien.c, ourBT);
 					}
+					else if (ft==boolean.class || ft==Boolean.class) {
+						// TODO: non graphical properties
+						// and some text to go along with graphical ones
+					}
+					else {
+						System.out.println(ft);
+						assert false;
+					}
+					
 				}
 			}
 		}
