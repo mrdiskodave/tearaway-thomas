@@ -382,19 +382,19 @@ public class Mapper implements PenServices {
 						Box p = (Box) po;
 						BoxBM bm = new BoxBM(p);
 						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
-						bm.sendBat(selectedAlien.c, ourBT);
+						bm.createBats(selectedAlien.c, ourBT);
 					}
 					if (field.getType()==XRange.class){ 
 						XRange p = (XRange) po;
 						XRangeBM bm = new XRangeBM(p);
 						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
-						bm.sendBat(selectedAlien.c, ourBT);
+						bm.createBats(selectedAlien.c, ourBT);
 					}
 					if (field.getType()==Coord.class) {
 						Coord p = (Coord) po;
 						CoordBM bm = new CoordBM(p);
 						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
-						bm.sendBat(selectedAlien.c, ourBT);
+						bm.createBats(selectedAlien.c, ourBT);
 					}
 				}
 			}
@@ -402,11 +402,11 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public BatAddress grabBat(Coord c) {
+	public BatRecord grabBat(Coord c) {
 		System.out.println("Grab at "+c);
 		for (BatRecord bat: bats) {
-			System.out.println("   inside "+bat.where);
-			if (bat.where.inside(c)) return bat.who;
+			System.out.println("   inside "+bat.collisionBox);
+			if (bat.collisionBox.inside(c)) return bat;
 		}
 		return null;
 	}

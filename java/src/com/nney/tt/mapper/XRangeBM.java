@@ -12,21 +12,26 @@ public class XRangeBM extends BM {
 	}
 
 	@Override
-	public void sendBat(Coord alien, BatTarget rt) {
+	public void createBats(Coord alien, BatTarget rt) {
 		Box box = new Box(t.left, Integer.MIN_VALUE/4, t.right, Integer.MAX_VALUE/4);
 		rt.drawBox(box);
+		// 0
 		rt.drawBat(new Coord(box.left, alien.y));
+		// 1
 		rt.drawBat(new Coord(box.right, alien.y));
 	}
 	
 	@Override
-	void takeMovement(int what, Coord where) {
-		assert what==0 || what==1;
-		if (what==0) {
+	void takeBatMovement(int what, Coord where) {
+		switch (what) {
+		case 0:
 			t.left = where.x;
-		}
-		else {
+			break;
+		case 1:
 			t.right = where.x;
+			break;
+		default:
+			assert false;
 		}
 	}
 }

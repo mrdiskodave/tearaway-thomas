@@ -107,5 +107,21 @@ public class Box {
 		top -= c.y;
 		bottom -= c.y;
 	}
+	
+	public Coord getTopLeft() {
+		return new Coord(left, top);
+	}
+	
+	public Coord getTopRight() {
+		return new Coord(right, top);
+	}
+
+	public Coord getBottomLeft() {
+		return new Coord(left, bottom);
+	}
+	
+	public Coord getBottomRight() {
+		return new Coord(right, bottom);
+	}
 
 }

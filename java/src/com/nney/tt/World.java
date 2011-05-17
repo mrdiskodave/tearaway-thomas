@@ -217,7 +217,7 @@ public class World implements AlienServices, MapperServices {
 	/**
 	 * What is there?
 	 * 
-	 * @param where
+	 * @param collisionBox
 	 *            The pixel location being queried.
 	 * @return The kind of block that is there. e.g. "magic" or "ladder" or any
 	 *         text string used in the configuration of a

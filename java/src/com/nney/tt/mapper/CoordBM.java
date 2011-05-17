@@ -10,13 +10,14 @@ public class CoordBM extends BM {
 	}
 
 	@Override
-	public void sendBat(Coord alien, BatTarget rt) {
+	public void createBats(Coord alien, BatTarget rt) {
+		// 0
 		rt.drawBat(t.copy());
 	}
 	
 	@Override
-	void takeMovement(int what, Coord where) {
-		assert(what==0);
+	void takeBatMovement(int what, Coord where) {
+		assert what==0;
 		t.x = where.x;
 		t.y = where.y;
 	}

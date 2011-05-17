@@ -1,13 +1,16 @@
 package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Box;
+import com.nney.tt.geom.Coord;
 
 public class BatRecord {
-	public final BatAddress who;
-	public final Box where;
+	public final BatAddress address;
+	public final Box collisionBox;
+	public final Coord where;
 
-	BatRecord(BatAddress who, Box where) {
-		this.who = who;
+	BatRecord(BatAddress address, Box collisionBox, Coord where) {
+		this.address = address;
+		this.collisionBox = collisionBox;
 		this.where = where;
 	}
 

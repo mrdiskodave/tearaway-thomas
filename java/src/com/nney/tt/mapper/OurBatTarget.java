@@ -27,7 +27,7 @@ public class OurBatTarget implements BatTarget {
 		int w = i * 2 + 1;
 		mgc.fillRectangle(x - i, y - i, w, w, 0xffffff00);
 		Box batBox = Box.around(c, i, i);
-		target.add(new BatRecord(new BatAddress(sender, number++), batBox));
+		target.add(new BatRecord(new BatAddress(sender, number++), batBox, c));
 		assert batBox.width() == w;
 		assert batBox.height() == w;
 	}
