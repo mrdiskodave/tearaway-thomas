@@ -6,6 +6,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 
 public class XRangeBM extends VisualProp {
+	private static final int BORDER = 10;
 	private final XRange t;
 
 	public XRangeBM(AlienProp p, XRange t) {
@@ -18,19 +19,24 @@ public class XRangeBM extends VisualProp {
 		Box box = new Box(t.left, Integer.MIN_VALUE / 4, t.right, Integer.MAX_VALUE / 4);
 		rt.drawBox(box);
 		// 0
-		rt.drawBat(new Coord(box.left, alien.y));
+		rt.drawBat(new Coord(t.getMiddle(),alien.y));
 		// 1
-		rt.drawBat(new Coord(box.right, alien.y));
+		rt.drawBat(new Coord(t.left, alien.y));
+		// 2
+		rt.drawBat(new Coord(t.right, alien.y));
 	}
 
 	@Override
 	void takeBatMovement(int what, Coord where) {
 		switch (what) {
 		case 0:
-			t.left = Math.min(t.right - 10, where.x);
+			t.add(where.x - t.getMiddle());
 			break;
 		case 1:
-			t.right = Math.max(t.left + 10, where.x);
+			t.setLeft(where.x, BORDER);
+			break;
+		case 2:
+			t.setRight(where.x, BORDER);
 			break;
 		default:
 			assert false;

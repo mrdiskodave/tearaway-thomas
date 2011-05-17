@@ -12,4 +12,21 @@ public class XRange {
 	public XRange copy() {
 		return new XRange(left, right);
 	}
+	
+	public void setLeft(int i, int border) {
+		left = Math.min(right - border, i);
+	}
+
+	public void setRight(int i, int border) {
+		right = Math.max(left + border, i);
+	}
+	
+	public int getMiddle() {
+		return (left+right)/2;
+	}
+
+	public void add(int i) {
+		left += i;
+		right += i;
+	}
 }
