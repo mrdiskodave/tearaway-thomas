@@ -47,9 +47,9 @@ public class MapperGC {
 		gc.fillRectangle(x, y - i, 1, i * 2+1, col);
 	}
 
-	private void drawTransBox(int i, int j, int k, int l, int col) {
-		drawTransBox(i, j, k, l, col, col&0x080ffffff);
-	}
+//	private void drawTransBox(int i, int j, int k, int l, int col) {
+//		drawTransBox(i, j, k, l, col, col&0x080ffffff);
+//	}
 
 	public void drawText(int x, int y, int col, String text) {
 		debugFont.draw(x, y, col, 0, text);

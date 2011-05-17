@@ -23,4 +23,6 @@ public interface PenServices {
 
 	void showSelectedAlienProps();
 
+	BatAddress grabBat(Coord c);
+
 }

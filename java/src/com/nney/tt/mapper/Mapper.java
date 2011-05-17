@@ -1,6 +1,8 @@
 package com.nney.tt.mapper;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import com.nney.tt.Const;
@@ -59,6 +61,8 @@ public class Mapper implements PenServices {
 
 	private Alien selectedAlien;
 
+	private List<BatRecord> bats = new ArrayList<BatRecord>();
+	
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
@@ -74,6 +78,11 @@ public class Mapper implements PenServices {
 		mgc = new MapperGC(gc, debugFont);
 		bp = new BlockPalette(colorCycler, mgc, blocksHolder);
 		tool = drawTool;
+		
+		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
+		drawTool.addNested(Pointer.KEY_RIGHT, chooserTool);
+		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
+		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
 	}
 
 	private final class ChooserTool extends Tool {
@@ -167,25 +176,20 @@ public class Mapper implements PenServices {
 			return;
 		case Keyboard.KEY_I:
 			tool = eyeDropperTool;
-			return;
+			break;
 		case Keyboard.KEY_H:
 			tool = handTool;
-			return;
+			break;
 		case Keyboard.KEY_D:
 			tool = drawTool;
-			return;
+			break;
 		case Keyboard.KEY_C:
 			tool = chooserTool;
-			return;
+			break;
 		case Keyboard.KEY_A:
 			tool = alienTool;
-			return;
+			break;
 		}
-
-		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
-		drawTool.addNested(Pointer.KEY_RIGHT, chooserTool);
-		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
-		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
 
 		Tool t = tool;
 		if (otherTool != null) {
@@ -222,7 +226,9 @@ public class Mapper implements PenServices {
 	}
 
 	private void sayIt(String s) {
-		if (s != null) mgc.drawText(10, 10, 0xffffff, s);
+		if (s != null) {
+			mgc.drawText(10, 10, 0xffffff, s);
+		}
 	}
 
 	private void undoRedo() {
@@ -363,61 +369,49 @@ public class Mapper implements PenServices {
 		if (haveAlien()) {
 			Coord sac = selectedAlien.c.copy();
 			sac.sub(parent.getScreenPosition());
-			mgc.drawSight(sac.x, sac.y, 7, colorCycler.process(0xff00ffff));
-
-			System.out.println("---");
-			Field[] fs = selectedAlien.getClass().getFields();
-			for (Field f : fs) {
-				AlienProp z = f.getAnnotation(AlienProp.class);
+			mgc.drawSight(sac.x, sac.y, 10, colorCycler.process(0xff00ffff));
+			
+			bats.clear();
+			
+			Field[] fields = selectedAlien.getClass().getFields();
+			for (Field field : fields) {
+				AlienProp z = field.getAnnotation(AlienProp.class);
 				if (z != null) {
-					Object po = ksfg(f, selectedAlien);
-					if (f.getType()==Box.class){ 
-						Coord scr = parent.getScreenPosition();
+					Object po = safeFieldGet(field, selectedAlien);
+					if (field.getType()==Box.class){
 						Box p = (Box) po;
-						p = p.copy();
-						p.sub(scr);
-						System.out.println("Box:");
-
-						boxPlease(p);
-						controlPoint(p.left, p.top);
-						controlPoint(p.right, p.bottom);
+						BoxBM bm = new BoxBM(p);
+						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
+						bm.sendBat(selectedAlien.c, ourBT);
 					}
-					if (f.getType()==XRange.class){ 
+					if (field.getType()==XRange.class){ 
 						XRange p = (XRange) po;
-						Coord scr = parent.getScreenPosition(); 
-						Box box = new Box(p.left-scr.x, 0, p.right-scr.x, mgc.screenHeight()-1);
-						System.out.println("Range:");
-						boxPlease(box);
-						controlPoint(box.left, sac.y);
-						controlPoint(box.right, sac.y);
+						XRangeBM bm = new XRangeBM(p);
+						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
+						bm.sendBat(selectedAlien.c, ourBT);
 					}
-					if (f.getType()==Coord.class) {
-						Coord scr = parent.getScreenPosition(); 
-						System.out.println("Ord:");
+					if (field.getType()==Coord.class) {
 						Coord p = (Coord) po;
-						p = p.copy();
-						p.sub(scr);
-
-						controlPoint(p.x, p.y);
+						CoordBM bm = new CoordBM(p);
+						BatTarget ourBT = new OurBatTarget(parent.getScreenPosition(), mgc, bm, bats);
+						bm.sendBat(selectedAlien.c, ourBT);
 					}
 				}
 			}
 		}
 	}
 
-	private void controlPoint(int x, int y) {
-		int i = 3;
-		mgc.fillRectangle(x - i, y - i, i * 2+1, i * 2+1, 0xffffff00);
+	@Override
+	public BatAddress grabBat(Coord c) {
+		System.out.println("Grab at "+c);
+		for (BatRecord bat: bats) {
+			System.out.println("   inside "+bat.where);
+			if (bat.where.inside(c)) return bat.who;
+		}
+		return null;
 	}
-
-	void boxPlease(Box box) {
-		int x = box.left;
-		int y = box.top;
-		mgc.drawTransBox(x, y, box.width(), box.height(), 0xff000000, 0x80000000);
-	}
-
 	
-	Object ksfg(Field f, Object o) {
+	Object safeFieldGet(Field f, Object o) {
 		try {
 			return f.get(o);
 		}
@@ -428,4 +422,5 @@ public class Mapper implements PenServices {
 			throw new RuntimeException(e);
 		}
 	}
+
 }
