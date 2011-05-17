@@ -2,6 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
 import com.nney.tt.geom.XRange;
+import com.nney.tt.sprites.Sprite;
 
 public abstract class LeftRightAlien extends Alien {
 	@AlienProp(name = "Facing", xtraDef = "left")
@@ -10,6 +11,13 @@ public abstract class LeftRightAlien extends Alien {
 	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.")
 	public XRange range;
 
+	@Override
+	public void mapperUpdate() {
+		changeAnimation(goLeft ? "left" : "right");
+		Sprite s = nextFrame();
+		srv.drawSprite(c, s);
+	}
+	
 	boolean moveLeftRight(int speed) {
 		if (!goLeft) {
 			changeAnimation("right");
