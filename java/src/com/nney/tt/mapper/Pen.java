@@ -5,16 +5,26 @@ import com.nney.tt.geom.Coord;
 public abstract class Pen {
 	public PenServices srv;
 	public boolean active;
-	
+
 	abstract int key();
-	
-	void hover(Coord c) {}
-	void down(Coord c) {}
-	void stroke(Coord c) {}
-	void up(Coord c) {}
-	
+
+	void hover(Coord c) {
+	}
+
+	void down(Coord c) {
+	}
+
+	void stroke(Coord c) {
+	}
+
+	void up(Coord c) {
+	}
+
 	// this should probably be a property of the Tool
-	void always()  {}
-	
-	boolean usesWorldCoords() { return true; }
+	void always() {
+	}
+
+	boolean usesWorldCoords() {
+		return true;
+	}
 }

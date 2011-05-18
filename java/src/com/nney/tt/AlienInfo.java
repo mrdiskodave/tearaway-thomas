@@ -12,7 +12,7 @@ public class AlienInfo {
 		this.animsName = animsName;
 		this.alienClass = alienClass;
 	}
-	
+
 	Alien instantiate() throws InstantiationException, IllegalAccessException {
 		return alienClass.newInstance();
 	}

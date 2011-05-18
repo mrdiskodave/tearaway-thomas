@@ -21,7 +21,6 @@ public class BlockPalette {
 	 */
 	private static final int COL_HOVER_BLOCK = 0xff00ff00;
 
-	
 	/**
 	 * There is a zone in the middle that decides how much we scroll according
 	 * to where the mouse is within it. We have {@link #SCROLL_MARGIN} pixels of
@@ -42,13 +41,12 @@ public class BlockPalette {
 	 * Our background colour.
 	 */
 	private static final int COL_BACKGROUND = 0xff0020ff;
-	
+
 	private final BlocksHolder blocksHolder;
 	private final int blockCount;
 	private final int bigBlockPaletteHeight;
 	private final MapperGC mgc;
 	private final ColorCycler colorCycler;
-
 
 	private class BlockPos {
 		public final int x;
@@ -90,7 +88,7 @@ public class BlockPalette {
 		int x = Math2.limit(0, BLOCKS_PER_LINE - d, (currentBlock % BLOCKS_PER_LINE) - (d / 2));
 		int y = Math2.limit(0, bigBlockPaletteHeight - d, (currentBlock / BLOCKS_PER_LINE - (d / 2)));
 		int db = Const.BLOCK_SIZE * d;
-		int sx = 0; //mgc.screenWidth() - db;
+		int sx = 0; // mgc.screenWidth() - db;
 		int sy = 0;
 		mgc.fillRectangle(sx, sy, db, db, COL_BACKGROUND);
 		for (BlockPos p : createBlockPosList(x, y, d, d, sx, sy)) {

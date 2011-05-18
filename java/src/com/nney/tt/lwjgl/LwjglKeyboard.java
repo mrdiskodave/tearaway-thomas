@@ -8,16 +8,16 @@ import com.nney.tt.input.Keyboard;
 public class LwjglKeyboard implements Keyboard {
 	private HashSet<Integer> keys = new HashSet<Integer>();
 
-	private HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>(); 
+	private HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>();
 	private HashMap<Integer, Integer> toThem = new HashMap<Integer, Integer>();
-	
-	private int justPressed; 
-	
+
+	private int justPressed;
+
 	void add(int theirKey, int ourKey) {
 		fromThem.put(theirKey, ourKey);
 		toThem.put(ourKey, theirKey);
 	}
-	
+
 	public LwjglKeyboard() {
 		// regular keys
 		add(org.lwjgl.input.Keyboard.KEY_A, KEY_A);
@@ -126,7 +126,7 @@ public class LwjglKeyboard implements Keyboard {
 		add(org.lwjgl.input.Keyboard.KEY_SLASH, KEY_SLASH);
 		add(org.lwjgl.input.Keyboard.KEY_SPACE, KEY_SPACE);
 	}
-	
+
 	@Override
 	public int justPressed() {
 		return justPressed;
@@ -136,12 +136,12 @@ public class LwjglKeyboard implements Keyboard {
 	public boolean isDown(int key) {
 		return keys.contains(key);
 	}
-	
+
 	public void handleKeyboard() {
 		justPressed = -1;
 		while (org.lwjgl.input.Keyboard.next()) {
 			Integer key = fromThem.get(org.lwjgl.input.Keyboard.getEventKey());
-			if (key!=null) {
+			if (key != null) {
 				boolean down = org.lwjgl.input.Keyboard.getEventKeyState();
 				if (down) {
 					keys.add(key);
@@ -149,7 +149,7 @@ public class LwjglKeyboard implements Keyboard {
 				}
 				else {
 					keys.remove(key);
-				}	
+				}
 			}
 		}
 	}

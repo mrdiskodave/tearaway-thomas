@@ -19,9 +19,9 @@ public class GlTools {
 		GL11.glListBase(0);
 		GL11.glDisable(GL11.GL_TEXTURE_GEN_S);
 		GL11.glDisable(GL11.GL_TEXTURE_GEN_T);
-		
+
 	}
-	
+
 	public static void configureFor2dBobs() {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
@@ -42,25 +42,22 @@ public class GlTools {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, mono ? GL11.GL_REPLACE : GL11.GL_MODULATE);
-		selectColor(0xff000000|fg);
+		selectColor(0xff000000 | fg);
 	}
-	
-	
 
 	public static void selectColor(int fg) {
-		int a = ( fg >> 3*8 ) & 0xff;
-		int r = ( fg >> 2*8 ) & 0xff;
-		int g = ( fg >> 8 ) & 0xff;
-		int b = ( fg ) & 0xff;
-		GL11.glColor4ub((byte)r, (byte)g, (byte)b, (byte)a);
+		int a = (fg >> 3 * 8) & 0xff;
+		int r = (fg >> 2 * 8) & 0xff;
+		int g = (fg >> 8) & 0xff;
+		int b = (fg) & 0xff;
+		GL11.glColor4ub((byte) r, (byte) g, (byte) b, (byte) a);
 	}
-
 
 	public static ByteBuffer makeByteBuffer(SimpleImage si, int w, int h) {
 		ByteBuffer buffer = ByteBuffer.allocateDirect(w * h * 4);
-		for (int y = 0; y < si.getHeight(); y++) {
-			for (int x = 0; x < si.getWidth(); x++) {
-				int p = si.getPixel(x, y);
+		for (int y = 0; y < si.height(); y++) {
+			for (int x = 0; x < si.width(); x++) {
+				int p = si.get(x, y);
 				int a = p >> 3 * 8;
 				if (a != 0) {
 					int r = p >> 2 * 8;
@@ -79,20 +76,18 @@ public class GlTools {
 	}
 
 	public static ByteBuffer makeByteBuffer(SimpleImage si) {
-		return makeByteBuffer(si, si.getWidth(), si.getHeight());
+		return makeByteBuffer(si, si.width(), si.height());
 	}
-	
-	
-	
+
 	static public int discoverShift(int v) {
-		for (int x=0; x<32; x++) {
-			int a = 1<<x;
-			if (a==v) return x;
+		for (int x = 0; x < 32; x++) {
+			int a = 1 << x;
+			if (a == v) return x;
 		}
 		assert false : v;
 		return 0;
 	}
-	
+
 	public static int pow2(int x) {
 		int a = 2;
 		while (x > a) {

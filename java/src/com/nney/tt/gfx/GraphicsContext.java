@@ -13,9 +13,9 @@ public interface GraphicsContext {
 	BlocksHolder createBlocksHolder(BlockSource bs);
 
 	Font createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters);
-	
+
 	int screenWidth();
-	
+
 	int screenHeight();
 
 }

@@ -1,21 +1,19 @@
 package com.nney.tt.gfx;
 
-
 public abstract class PartialFontImpl implements Font {
-	protected  static final int ABSENT = 0xffff0101;
+	protected static final int ABSENT = 0xffff0101;
 	final protected SimpleImage content;
-	final protected  String characters;
-	final protected  Bounds[] boxes;
-	protected  boolean mono;
+	final protected String characters;
+	final protected Bounds[] boxes;
+	protected boolean mono;
 
-	public PartialFontImpl(byte[] data, int miniW, int miniH, boolean proportional,
-			String characters) {
+	public PartialFontImpl(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
 		this.content = new SimpleImage(data);
 		BlockSource bs = new BlockSource(content, miniW, miniH);
 		int count = bs.getBlockCount();
 		boxes = new Bounds[count];
 		this.characters = characters;
-		assert characters.length() == boxes.length : "difference "+characters.length()+" "+boxes.length;
+		assert characters.length() == boxes.length : "difference " + characters.length() + " " + boxes.length;
 
 		for (int x = 0; x < count; x++) {
 			Bounds box = bs.getBlockBounds(x);
@@ -27,14 +25,14 @@ public abstract class PartialFontImpl implements Font {
 		}
 
 		int[] palette = content.collectPalette();
-		mono = palette.length==2;
+		mono = palette.length == 2;
 		renderContent();
 	}
 
 	private int shaveRedOffTheRight(SimpleImage glyph) {
-		int glyphWidth = glyph.getWidth();
+		int glyphWidth = glyph.width();
 		for (;;) {
-			SimpleImage stripView = glyph.view(glyphWidth-1, 0, 1, glyph.getHeight());
+			SimpleImage stripView = glyph.view(glyphWidth - 1, 0, 1, glyph.height());
 			if (!stripView.isEntirely(ABSENT)) break;
 			stripView.fill(0);
 			glyphWidth--;
@@ -46,7 +44,7 @@ public abstract class PartialFontImpl implements Font {
 	public int draw(int dx, int dy, int fg, int kern, String text) {
 		// configure the texture system
 		startDrawing(fg);
-		
+
 		for (int x = 0; x < text.length(); x++) {
 			char c = text.charAt(x);
 			int p = characters.indexOf(c);
@@ -56,9 +54,9 @@ public abstract class PartialFontImpl implements Font {
 				dx += z.width + kern;
 			}
 		}
-		
+
 		stopDrawing();
-		
+
 		return dx;
 	}
 
@@ -75,13 +73,18 @@ public abstract class PartialFontImpl implements Font {
 		}
 		return dx;
 	}
-	
+
 	@Override
 	abstract public void dispose();
+
 	abstract protected void renderContent();
+
 	abstract protected void stopDrawing();
+
 	abstract protected void drawChar(int dx, int dy, Bounds z);
+
 	abstract protected void startDrawing(int fg);
+
 	@Override
 	abstract public PrerenderedText preDraw(int fg, int kern, String text);
 }

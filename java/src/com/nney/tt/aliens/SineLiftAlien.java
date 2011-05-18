@@ -3,14 +3,20 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
-public class LogLiftAlien extends LiftAlien {
-	// need to think about what the props are here!
-	
-	@AlienProp(name="Box", doc="The area we move within.")
+public class SineLiftAlien extends LiftAlien {
+	// need to think about what the props are here! could have signal generators
+	// :O
+
+	@AlienProp(name = "Box", doc = "The area we move within.")
 	public Box box;
 
 	@Override
-	public void load() {
+	public void resetTo(Coord c) {
+		box = Box.around(c, 100, 100);
+	}
+
+	@Override
+	public void loadFromLegacyData() {
 		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
 
@@ -21,7 +27,6 @@ public class LogLiftAlien extends LiftAlien {
 		double angle = (2 * Math.PI * idx) / maxInput;
 		return (int) (Math.sin(angle) * maxOutput);
 	}
-
 
 	@Override
 	protected void setPosition() {

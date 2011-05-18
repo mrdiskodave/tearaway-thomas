@@ -12,11 +12,11 @@ public class Bounds {
 		this.width = width;
 		this.height = height;
 	}
-	
+
 	public Bounds(Bounds that) {
 		this(that.left, that.top, that.width, that.height);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Bounds(%d, %d, %d, %d)", left, top, width, height);

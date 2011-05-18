@@ -17,9 +17,9 @@ public class Anims {
 				return anim;
 			}
 		}
-		throw new RuntimeException("Cannot find: "+name);
+		throw new RuntimeException("Cannot find: " + name);
 	}
-	
+
 	public Anim find(int pos) {
 		return animList.get(pos);
 	}

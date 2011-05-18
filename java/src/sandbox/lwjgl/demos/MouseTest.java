@@ -66,25 +66,15 @@ public class MouseTest {
 	private Vector2f triangleSize = new Vector2f(120, 100);
 
 	/** Triangle color */
-	private Vector3f triangleColors[] = new Vector3f[] {
-			new Vector3f(1, 1, 1),
-			new Vector3f(1, 0, 0),
-			new Vector3f(0, 1, 0),
-			new Vector3f(0, 0, 1)
-			};
+	private Vector3f triangleColors[] = new Vector3f[] { new Vector3f(1, 1, 1), new Vector3f(1, 0, 0),
+			new Vector3f(0, 1, 0), new Vector3f(0, 0, 1) };
 
-	private Vector3f quadColors[] = new Vector3f[] {
-			new Vector3f(1, 1, 1),
-			new Vector3f(1, 0, 0),
-			new Vector3f(0, 1, 0),
-			new Vector3f(0, 0, 1)
-			};
+	private Vector3f quadColors[] = new Vector3f[] { new Vector3f(1, 1, 1), new Vector3f(1, 0, 0),
+			new Vector3f(0, 1, 0), new Vector3f(0, 0, 1) };
 
 	/** Triangles to paint */
-	private Vector2f[] triangles = {
-			new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT - triangleSize.y),
-			new Vector2f(triangleSize.y, WINDOW_HEIGHT / 2),
-			new Vector2f(WINDOW_WIDTH / 2, triangleSize.y),
+	private Vector2f[] triangles = { new Vector2f(WINDOW_WIDTH / 2, WINDOW_HEIGHT - triangleSize.y),
+			new Vector2f(triangleSize.y, WINDOW_HEIGHT / 2), new Vector2f(WINDOW_WIDTH / 2, triangleSize.y),
 			new Vector2f(WINDOW_WIDTH - triangleSize.y, WINDOW_HEIGHT / 2) };
 
 	/** Whether the test is closing */
@@ -104,17 +94,15 @@ public class MouseTest {
 			Display.setFullscreen(FULLSCREEN);
 			Display.setVSyncEnabled(true);
 			Display.create();
-		} catch (LWJGLException e) {
+		}
+		catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 		Mouse.setGrabbed(true);
-		
-		
-		
-		
+
 		int xs = Display.getDisplayMode().getWidth();
 		int ys = Display.getDisplayMode().getHeight();
-		
+
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GLU.gluOrtho2D(0, xs, ys, 0);
@@ -122,22 +110,22 @@ public class MouseTest {
 		GL11.glLoadIdentity();
 		GL11.glViewport(0, 0, xs, ys);
 		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		
+
 		// enable alpha blending
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		// Disable lighting
-		GL11.glDisable( GL11.GL_LIGHTING );
-		
+		GL11.glDisable(GL11.GL_LIGHTING);
+
 		// Disable dithering
-		GL11.glDisable( GL11.GL_DITHER );
-		
+		GL11.glDisable(GL11.GL_DITHER);
+
 		// Disable blending (for now)
-		GL11.glDisable( GL11.GL_BLEND );
-		
+		GL11.glDisable(GL11.GL_BLEND);
+
 		// Disable depth testing
-		GL11.glDisable( GL11.GL_DEPTH_TEST );
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
 	}
 
 	/**
@@ -189,7 +177,8 @@ public class MouseTest {
 	private static void pause(long time) {
 		try {
 			Thread.sleep(time);
-		} catch (InterruptedException inte) {
+		}
+		catch (InterruptedException inte) {
 			inte.printStackTrace();
 		}
 	}
@@ -208,10 +197,8 @@ public class MouseTest {
 	private void handleMouse() {
 		readBufferedMouse();
 
-		Display.setTitle("x: " + Mouse.getX() + ", y: " + Mouse.getY()
-				+ ", [0]: " + Mouse.isButtonDown(0) + ", [1]: "
-				+ Mouse.isButtonDown(1) + ", [2]: " + Mouse.isButtonDown(2)
-				+ ", inside: " + Mouse.isInsideWindow());
+		Display.setTitle("x: " + Mouse.getX() + ", y: " + Mouse.getY() + ", [0]: " + Mouse.isButtonDown(0) + ", [1]: "
+				+ Mouse.isButtonDown(1) + ", [2]: " + Mouse.isButtonDown(2) + ", inside: " + Mouse.isInsideWindow());
 	}
 
 	/**
@@ -290,9 +277,11 @@ public class MouseTest {
 		// get direction to update in
 		if (dw > 0) {
 			lastScrollDirection++;
-		} else if (dw < 0) {
+		}
+		else if (dw < 0) {
 			lastScrollDirection--;
-		} else if (dw == 0) {
+		}
+		else if (dw == 0) {
 			return;
 		}
 
@@ -316,13 +305,11 @@ public class MouseTest {
 	private void handleKeyboard() {
 		while (Keyboard.next()) {
 			// closing on ESCAPE
-			if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE
-					&& Keyboard.getEventKeyState()) {
+			if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE && Keyboard.getEventKeyState()) {
 				closing = true;
 			}
 
-			if (Keyboard.getEventKey() == Keyboard.KEY_SPACE
-					&& Keyboard.getEventKeyState()) {
+			if (Keyboard.getEventKey() == Keyboard.KEY_SPACE && Keyboard.getEventKeyState()) {
 				Mouse.setGrabbed(!Mouse.isGrabbed());
 			}
 		}
@@ -353,15 +340,15 @@ public class MouseTest {
 	 */
 	private void render() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		
-//		GL11.glBegin(GL11.GL_QUADS);
-//		  //Define the color (blue)
-//		GL11.glColor3f(255, 255, 255);
-//		GL11.glVertex3f(0, 0, 0);
-//		GL11.glVertex3f(32, 0, 0);
-//		GL11.glVertex3f(32, 32, 0);
-//		GL11.glVertex3f(0, 32, 0);
-//		GL11.glEnd();
+
+		// GL11.glBegin(GL11.GL_QUADS);
+		// //Define the color (blue)
+		// GL11.glColor3f(255, 255, 255);
+		// GL11.glVertex3f(0, 0, 0);
+		// GL11.glVertex3f(32, 0, 0);
+		// GL11.glVertex3f(32, 32, 0);
+		// GL11.glVertex3f(0, 32, 0);
+		// GL11.glEnd();
 
 		// for each triangle, render it at position, rotating degrees for each
 		for (int i = 0; i < triangles.length; i++) {
@@ -370,8 +357,7 @@ public class MouseTest {
 				GL11.glTranslatef(triangles[i].x, triangles[i].y, 0);
 				GL11.glRotatef(i * 90, 0, 0, 1);
 
-				GL11.glColor3f(triangleColors[i].x, triangleColors[i].y,
-						triangleColors[i].z);
+				GL11.glColor3f(triangleColors[i].x, triangleColors[i].y, triangleColors[i].z);
 
 				GL11.glBegin(GL11.GL_TRIANGLES);
 				{
@@ -389,17 +375,13 @@ public class MouseTest {
 		GL11.glBegin(GL11.GL_QUADS);
 		{
 			GL11.glColor3f(quadColors[0].x, quadColors[0].y, quadColors[0].z);
-			GL11.glVertex2f(WINDOW_WIDTH / 2 - triangleSize.x, WINDOW_HEIGHT / 2
-					- triangleSize.x);
+			GL11.glVertex2f(WINDOW_WIDTH / 2 - triangleSize.x, WINDOW_HEIGHT / 2 - triangleSize.x);
 			GL11.glColor3f(quadColors[1].x, quadColors[1].y, quadColors[1].z);
-			GL11.glVertex2f(WINDOW_WIDTH / 2 + triangleSize.x, WINDOW_HEIGHT / 2
-					- triangleSize.x);
+			GL11.glVertex2f(WINDOW_WIDTH / 2 + triangleSize.x, WINDOW_HEIGHT / 2 - triangleSize.x);
 			GL11.glColor3f(quadColors[2].x, quadColors[2].y, quadColors[2].z);
-			GL11.glVertex2f(WINDOW_WIDTH / 2 + triangleSize.x, WINDOW_HEIGHT / 2
-					+ triangleSize.x);
+			GL11.glVertex2f(WINDOW_WIDTH / 2 + triangleSize.x, WINDOW_HEIGHT / 2 + triangleSize.x);
 			GL11.glColor3f(quadColors[3].x, quadColors[3].y, quadColors[3].z);
-			GL11.glVertex2f(WINDOW_WIDTH / 2 - triangleSize.x, WINDOW_HEIGHT / 2
-					+ triangleSize.x);
+			GL11.glVertex2f(WINDOW_WIDTH / 2 - triangleSize.x, WINDOW_HEIGHT / 2 + triangleSize.x);
 		}
 		GL11.glEnd();
 	}

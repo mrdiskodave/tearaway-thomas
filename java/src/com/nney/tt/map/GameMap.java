@@ -26,7 +26,8 @@ public class GameMap {
 	 * final word is the first word (moved there to make room for the length in
 	 * bytes ... before the entire block of memory was saved to disk).
 	 * 
-	 * @param di Stream to load from.
+	 * @param di
+	 *            Stream to load from.
 	 * @throws IOException
 	 */
 	private void loadFromLegacyMap(DataInputStream di) throws IOException {
@@ -40,13 +41,13 @@ public class GameMap {
 	}
 
 	public void unpack() {
-		System.out.println("Unpacking "+length);
+		System.out.println("Unpacking " + length);
 		MapRle.unpack(map, length);
 	}
 
 	public void pack() {
 		length = MapRle.pack(map);
-		System.out.println("Packed to "+length);
+		System.out.println("Packed to " + length);
 	}
 
 	public int fastGetBlock(int x, int y) {
@@ -57,7 +58,7 @@ public class GameMap {
 	private int mapOffset(Coord c) {
 		return c.y * MAP_WIDTH + c.x;
 	}
-	
+
 	public int getBlock(Coord c) {
 		assert validPosition(c.x, c.y);
 		return map[mapOffset(c)];
@@ -65,20 +66,20 @@ public class GameMap {
 
 	public void setBlock(Coord c, int b) {
 		assert validPosition(c.x, c.y);
-		System.out.println("Set "+c+" to "+b);
+		System.out.println("Set " + c + " to " + b);
 		map[mapOffset(c)] = (short) b;
 	}
 
 	private boolean validPosition(int x, int y) {
 		return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
 	}
-	
+
 	public void applyShuffle(BlockAliasTable bat) {
 		for (int x = 0; x < map.length; x++) {
 			map[x] = (short) bat.shuffle(map[x]);
 		}
 	}
-	
+
 	public void applyCompress(BlockAliasTable bat) {
 		for (int x = 0; x < map.length; x++) {
 			map[x] = (short) bat.compress(map[x]);

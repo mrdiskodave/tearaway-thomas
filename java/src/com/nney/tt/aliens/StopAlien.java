@@ -4,11 +4,18 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class StopAlien extends Alien {
-	@AlienProp(name="PushBox")
+	@AlienProp(name = "PushBox", doc = "The area we shove the player out of!")
 	public Box box;
 
 	@Override
-	public void load() {
+	public void resetTo(Coord p) {
+		super.resetTo(p);
+		box = Box.around(c, 32, 60);
+		box.add(new Coord(40, 0));
+	}
+
+	@Override
+	public void loadFromLegacyData() {
 		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
 
@@ -18,12 +25,12 @@ public class StopAlien extends Alien {
 		boolean collide = box.inside(pp);
 		if (collide) {
 			if (c.x < pp.x) {
-				pp.x = box.right+1;
+				pp.x = box.right + 1;
 			}
 			else {
-				pp.x = box.left-1;
+				pp.x = box.left - 1;
 			}
-			System.out.println("Pushed by a StopAlien of width "+box.width());
+			System.out.println("Pushed by a StopAlien of width " + box.width());
 		}
 	}
 }

@@ -6,9 +6,9 @@ class UndoControler {
 	private Stack<UndoRedo> undo = new Stack<UndoRedo>();
 
 	private Stack<UndoRedo> redo = new Stack<UndoRedo>();
-	
+
 	public void addUndo(UndoRedo u) {
-		if (u!=null) {
+		if (u != null) {
 			System.out.println("added undo");
 			undo.push(u);
 			redo.clear();

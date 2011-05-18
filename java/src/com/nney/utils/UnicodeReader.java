@@ -11,11 +11,11 @@ public class UnicodeReader extends Reader {
 	UnicodeReader(InputStream inputStream, String defaultEncoding) throws IOException {
 		UnicodeInputStream uis = new UnicodeInputStream(inputStream, defaultEncoding);
 		String enc = uis.getEncoding();
-		in = enc==null ? new InputStreamReader(uis) : new InputStreamReader(uis, enc);
+		in = enc == null ? new InputStreamReader(uis) : new InputStreamReader(uis, enc);
 	}
 
 	// proxy ...
-	
+
 	@Override
 	public void reset() throws IOException {
 		in.reset();

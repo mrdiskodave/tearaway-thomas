@@ -5,8 +5,6 @@ import java.util.HashMap;
 abstract class Tool {
 	private int level;
 
-	
-	
 	void moreBusy() {
 		level++;
 	}
@@ -35,8 +33,9 @@ abstract class Tool {
 		return false;
 	}
 
-	void presentation() {}
-	
+	void presentation() {
+	}
+
 	void run() {
 	};
 }

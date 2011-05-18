@@ -1,6 +1,5 @@
 package sandbox.lwjgl.demos;
 
-
 import java.nio.ByteBuffer;
 
 import org.lwjgl.LWJGLException;
@@ -9,19 +8,23 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 /**
- * <p>An example of pixel perfect blitting with proper alpha "masking" onto
- * an <b>existing</b> background. No dependencies except for lwjgl itself.
+ * <p>
+ * An example of pixel perfect blitting with proper alpha "masking" onto an
+ * <b>existing</b> background. No dependencies except for lwjgl itself.
  * 
- * <p>A big improvement on 
- * <a href="http://lwjgl.org/wiki/index.php?title=Slick-Util_Library_-_Part_1_-_Loading_Images_for_LWJGL">this</a>
- * which
+ * <p>
+ * A big improvement on <a href=
+ * "http://lwjgl.org/wiki/index.php?title=Slick-Util_Library_-_Part_1_-_Loading_Images_for_LWJGL"
+ * >this</a> which
  * <ul>
  * <li>loads an external file
  * <li>isn't pixel perfect
- * <li>doesn't mask onto an existing background but just onto a colour they select(?!)
+ * <li>doesn't mask onto an existing background but just onto a colour they
+ * select(?!)
  * </ul>
  * 
- * <p>provided entirely free (MIT license) with the hope that it is useful.
+ * <p>
+ * provided entirely free (MIT license) with the hope that it is useful.
  */
 public class OpenGlBlitExample {
 	private static final int SCREEN_HEIGHT = 200;
@@ -42,6 +45,7 @@ public class OpenGlBlitExample {
 			throw new RuntimeException(e);
 		}
 	}
+
 	private void resetOpenGl() {
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_DITHER);
@@ -54,22 +58,23 @@ public class OpenGlBlitExample {
 
 	private void initOpenGL() {
 		resetOpenGl();
-		
+
 		GL11.glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
-		
+
 		GL11.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	
+
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
+
 	private void initTexture() {
 		// generate a texture that is a blue triangle
-		ByteBuffer buffer = ByteBuffer.allocateDirect(TEXTURE_WIDTH*TEXTURE_HEIGHT*4);
-		for (int y=0; y<TEXTURE_HEIGHT; y++) {
-			for (int x=0; x<TEXTURE_WIDTH; x++) {
-				int a = x>y ? 0x00 : 0xff;
+		ByteBuffer buffer = ByteBuffer.allocateDirect(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4);
+		for (int y = 0; y < TEXTURE_HEIGHT; y++) {
+			for (int x = 0; x < TEXTURE_WIDTH; x++) {
+				int a = x > y ? 0x00 : 0xff;
 				buffer.put((byte) 0x00); // R
 				buffer.put((byte) 0x00); // G
 				buffer.put((byte) 0xff); // B
@@ -81,8 +86,8 @@ public class OpenGlBlitExample {
 		// store it under a textureId
 		textureId = GL11.glGenTextures();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0,
-				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL11.GL_RGBA,
+				GL11.GL_UNSIGNED_BYTE, buffer);
 	}
 
 	/**
@@ -91,7 +96,7 @@ public class OpenGlBlitExample {
 	private void render() {
 		// clear the screen
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-		
+
 		// configure the texture engine
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
@@ -104,7 +109,7 @@ public class OpenGlBlitExample {
 
 		// bind the texture
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-		
+
 		// draw a quad with our texture on it
 		float destination = 100f;
 		int scale = 1;

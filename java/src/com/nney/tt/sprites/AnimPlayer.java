@@ -21,11 +21,11 @@ public class AnimPlayer {
 	}
 
 	public void changeAnimation(Anim freshAnim) {
-		if (freshAnim==null) {
+		if (freshAnim == null) {
 			anim = null;
 		}
-		else if (anim!=freshAnim) {
-//			System.out.println("Fresh len "+freshAnim.frames.length);
+		else if (anim != freshAnim) {
+			// System.out.println("Fresh len "+freshAnim.frames.length);
 			anim = freshAnim;
 			rate = freshAnim.defaultRate;
 			rewind();
@@ -37,9 +37,9 @@ public class AnimPlayer {
 		acc = 0;
 		animEnded = false;
 	}
-	
+
 	public Sprite next() {
-		//if (anim==null) return null;
+		// if (anim==null) return null;
 		advance();
 		return current();
 	}
@@ -49,14 +49,14 @@ public class AnimPlayer {
 	}
 
 	private void advance() {
-		assert anim!=null;
+		assert anim != null;
 		acc += rate;
 		if (acc > Anim.MAX_RATE) {
 			acc -= Anim.MAX_RATE;
 			pos += 1;
-//			System.out.println("+"+pos);
+			// System.out.println("+"+pos);
 			if (pos >= anim.frames.length) {
-				if (anim.repeatPos<0) {
+				if (anim.repeatPos < 0) {
 					pos = anim.frames.length - 1;
 				}
 				else {
@@ -66,7 +66,7 @@ public class AnimPlayer {
 			}
 		}
 	}
-	
+
 	public boolean hasAnimEnded() {
 		return animEnded;
 	}

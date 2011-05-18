@@ -10,7 +10,7 @@ public class FieldAccessor {
 		this.f = f;
 		this.o = o;
 	}
-	
+
 	public Object get() {
 		try {
 			return f.get(o);
@@ -34,6 +34,5 @@ public class FieldAccessor {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 }

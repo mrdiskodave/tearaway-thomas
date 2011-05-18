@@ -18,11 +18,11 @@ public class BatTargetImpl implements BatTarget {
 		this.mgc = mgc;
 		this.target = target;
 	}
-	
+
 	public Coord firstBatPosition() {
 		return target.get(0).where;
 	}
-	
+
 	@Override
 	public void drawBat(Coord c) {
 		int x = c.x - scr.x;

@@ -14,7 +14,7 @@ public class PropDrawer {
 		y += 8;
 		// TODO: 00: return a Box to say where it is
 	}
-	
+
 	public void draw(Prop p) {
 		draw(p.name(), p.text());
 	}

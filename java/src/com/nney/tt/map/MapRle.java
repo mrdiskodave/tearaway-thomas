@@ -17,7 +17,7 @@ public class MapRle {
 				// NOT it for the block number
 				x ^= 0xffff;
 				// and the next word is a repeat count
-				r = (map[--s]&0xffff) + 1;
+				r = (map[--s] & 0xffff) + 1;
 			}
 			else {
 				// or it hasn't in which case it is a regular block number
@@ -25,7 +25,8 @@ public class MapRle {
 				r = 1;
 			}
 			// output the block
-//			System.out.println(String.format("U src=%04x dest=%04x repeat=%04x value=%04x", s, d, r, x&0xffff));
+			// System.out.println(String.format("U src=%04x dest=%04x repeat=%04x value=%04x",
+			// s, d, r, x&0xffff));
 			do {
 				map[--d] = (short) x;
 			} while (--r > 0);
@@ -44,9 +45,10 @@ public class MapRle {
 				if (n >= map.length || map[n] != x) break;
 				r++;
 			}
-//			System.out.println(String.format("P src=%04x dest=%04x repeat=%04x value=%04x", s, d, r, x&0xffff));
+			// System.out.println(String.format("P src=%04x dest=%04x repeat=%04x value=%04x",
+			// s, d, r, x&0xffff));
 			if (r < 3) {
-				for (int q=0; q<r; q++) {
+				for (int q = 0; q < r; q++) {
 					map[d++] = x;
 				}
 			}
@@ -56,7 +58,7 @@ public class MapRle {
 			}
 			s += r;
 		}
-		assert s==map.length;
+		assert s == map.length;
 		return d;
 	}
 

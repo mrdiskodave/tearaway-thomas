@@ -14,7 +14,7 @@ public class Sprite {
 	private final Blitable texture;
 	private final Blitable whiteVersion;
 	public byte[] lineInfo;
-	
+
 	static final boolean CTC_SEE_SPRITE_BOX = false;
 
 	/**
@@ -28,15 +28,15 @@ public class Sprite {
 	 * @param handleY
 	 *            The y coordinate of the handle within the given image (0 the
 	 *            top).
-	 * @param makeWhiteVersion 
+	 * @param makeWhiteVersion
 	 */
 	public Sprite(GraphicsContext gc, SimpleImage si, int handleX, int handleY, boolean makeWhiteVersion) {
-		assert si.getWidth()!=0 && si.getHeight()!=0;
-		
+		assert si.width() != 0 && si.height() != 0;
+
 		this.handleX = handleX;
 		this.handleY = handleY;
-		this.w = si.getWidth();
-		this.h = si.getHeight();
+		this.w = si.width();
+		this.h = si.height();
 		this.lineInfo = LineInfo.generate(si);
 
 		SimpleImage z = si;
@@ -55,7 +55,7 @@ public class Sprite {
 			this.whiteVersion = null;
 		}
 	}
-	
+
 	/**
 	 * Draw the bob.
 	 * 
@@ -71,22 +71,22 @@ public class Sprite {
 			texture.draw(dx, dy);
 		}
 		else {
-			assert whiteVersion!=null;
+			assert whiteVersion != null;
 			whiteVersion.draw(dx, dy);
 		}
 	}
 
 	public void dispose() {
 		texture.dispose();
-		if (whiteVersion!=null) {
+		if (whiteVersion != null) {
 			whiteVersion.dispose();
 		}
 	}
 
-	public int getLiftWidth() {
-		int indx = handleY*2;
+	public int liftWidth() {
+		int indx = handleY * 2;
 		int a = lineInfo[indx];
-		int b = lineInfo[indx+1];
+		int b = lineInfo[indx + 1];
 		assert handleX == a;
 		return b;
 	}

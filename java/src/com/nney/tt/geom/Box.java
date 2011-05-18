@@ -5,6 +5,7 @@ public class Box {
 	public int top;
 	public int right;
 	public int bottom;
+
 	// inclusive!
 
 	public Box(int left, int top, int right, int bottom) {
@@ -42,7 +43,6 @@ public class Box {
 		return around(c, 0, 0, 0, 0);
 	}
 
-
 	public void constrain(Coord c) {
 		if (c.x < left) {
 			c.x = left;
@@ -69,7 +69,7 @@ public class Box {
 		top = Math.min(top, c.y);
 		bottom = Math.max(bottom, c.y);
 	}
-	
+
 	public void shrink(int i) {
 		left += i;
 		right -= i;
@@ -93,39 +93,39 @@ public class Box {
 	public Box copy() {
 		return new Box(this);
 	}
-	
+
 	public void add(Coord c) {
 		left += c.x;
 		right += c.x;
 		top += c.y;
 		bottom += c.y;
 	}
-	
+
 	public void sub(Coord c) {
 		left -= c.x;
 		right -= c.x;
 		top -= c.y;
 		bottom -= c.y;
 	}
-	
-	public Coord getTopLeft() {
+
+	public Coord topLeft() {
 		return new Coord(left, top);
 	}
-	
-	public Coord getTopRight() {
+
+	public Coord topRight() {
 		return new Coord(right, top);
 	}
 
-	public Coord getBottomLeft() {
+	public Coord bottomLeft() {
 		return new Coord(left, bottom);
 	}
-	
-	public Coord getBottomRight() {
+
+	public Coord bottomRight() {
 		return new Coord(right, bottom);
 	}
-	
-	public Coord getMiddle() {
-		return new Coord((left+right)/2, (top+bottom)/2);
+
+	public Coord middle() {
+		return new Coord((left + right) / 2, (top + bottom) / 2);
 	}
 
 	public void setLeft(int i, int border) {
@@ -135,7 +135,7 @@ public class Box {
 	public void setTop(int i, int border) {
 		top = Math.min(bottom - border, i);
 	}
-	
+
 	public void setRight(int i, int border) {
 		right = Math.max(left + border, i);
 	}
@@ -143,6 +143,8 @@ public class Box {
 	public void setBottom(int i, int border) {
 		bottom = Math.max(top + border, i);
 	}
-	
 
+	public static Box around(Coord c, int i) {
+		return around(c, i, i);
+	}
 }

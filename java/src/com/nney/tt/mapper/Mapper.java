@@ -63,16 +63,17 @@ public class Mapper implements PenServices {
 	private Alien selectedAlien;
 
 	private List<BatRecord> bats = new ArrayList<BatRecord>();
-	
+
 	private List<Prop> props = new ArrayList<Prop>();
-	
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
 	public Mapper(GameMap gameMap, MapperServices srv, Pointer mouse, Keyboard keyboard, GraphicsContext gc,
 			Font debugFont) {
-		// TODO: taking a blocksholder means mask and invis stuff doesn't fully work
+		// TODO: taking a blocksholder means mask and invis stuff doesn't fully
+		// work
 		this.parent = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -82,7 +83,7 @@ public class Mapper implements PenServices {
 		mgc = new MapperGC(gc, debugFont);
 		createBlockPalette();
 		tool = drawTool;
-		
+
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
 		drawTool.addNested(Pointer.KEY_RIGHT, chooserTool);
 		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
@@ -126,7 +127,7 @@ public class Mapper implements PenServices {
 				pen.always();
 			}
 		}
-		
+
 		@Override
 		public void run() {
 			if (isFree()) {
@@ -213,7 +214,7 @@ public class Mapper implements PenServices {
 		}
 
 		t.presentation();
-		if (t==otherTool) {
+		if (t == otherTool) {
 			tool.presentation();
 		}
 		t.run();
@@ -238,7 +239,7 @@ public class Mapper implements PenServices {
 
 	private void sayIt(String s) {
 		if (s != null) {
-			mgc.drawText(mgc.screenWidth()-8*s.length(), 0, 0xffffff, s);
+			mgc.drawText(mgc.screenWidth() - 8 * s.length(), 0, 0xffffff, s);
 		}
 	}
 
@@ -390,36 +391,37 @@ public class Mapper implements PenServices {
 			Coord sac = selectedAlien.c.copy();
 			sac.sub(parent.getScreenPosition());
 			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
-			
+
 			bats.clear();
 			props.clear();
-			
+
 			Field[] fields = selectedAlien.getClass().getFields();
 			for (Field field : fields) {
 				AlienProp p = field.getAnnotation(AlienProp.class);
-				if (p != null && !(p.xtraDef().equals("location") && selectedAlien instanceof AlienWithGeneratedLocation)) {
+				if (p != null
+						&& !(p.xtraDef().equals("location") && selectedAlien instanceof AlienWithGeneratedLocation)) {
 					Prop prop = null;
 					FieldAccessor po = new FieldAccessor(field, selectedAlien);
 					Class<?> ft = field.getType();
-					
+
 					VisualProp vp = null;
-					if (ft==Box.class){
+					if (ft == Box.class) {
 						vp = new BoxBM(p, (Box) po.get());
 					}
-					else if (ft==XRange.class){ 
+					else if (ft == XRange.class) {
 						vp = new XRangeBM(p, (XRange) po.get());
 					}
-					else if (ft==Coord.class) {
+					else if (ft == Coord.class) {
 						vp = new CoordBM(p, (Coord) po.get());
 					}
-					if (vp!=null) {
+					if (vp != null) {
 						BatTargetImpl ourBT = new BatTargetImpl(parent.getScreenPosition(), vp, mgc, bats);
 						vp.createBats(selectedAlien.c, ourBT);
 						vp.showMe = ourBT.firstBatPosition();
 						prop = vp;
 					}
 					else {
-						if (ft==boolean.class) {
+						if (ft == boolean.class) {
 							prop = new BooleanProp(p, po);
 						}
 						else {
@@ -427,14 +429,14 @@ public class Mapper implements PenServices {
 							assert false;
 						}
 					}
-					assert prop!=null;
+					assert prop != null;
 					props.add(0, prop);
 				}
 			}
 
 			PropDrawer pd = new PropDrawer(mgc);
-//			pd.draw("Type", selectedAlien.getClass().getSimpleName());
-			for (Prop p: props) {
+			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
+			for (Prop p : props) {
 				pd.draw(p);
 			}
 			// TODO: 01: mouse over
@@ -443,20 +445,20 @@ public class Mapper implements PenServices {
 			// TODO: serialise and deserialise
 			// TODO: copy
 			// TODO: new
-			
+
 			// TODO: block editor box select
 			// TODO: box copy
 			// TODO: paste
 			// TODO: fill
-			
+
 			// TODO: make a list of keys
 		}
 	}
-	
+
 	String padTo(String s, int x) {
 		int l = s.length();
 		StringBuffer b = new StringBuffer(s.substring(0, Math.min(x, l)));
-		while (l<x) {
+		while (l < x) {
 			b.append(' ');
 			l++;
 		}
@@ -465,12 +467,11 @@ public class Mapper implements PenServices {
 
 	@Override
 	public BatRecord searchForBat(Coord c) {
-		for (BatRecord bat: bats) {
+		for (BatRecord bat : bats) {
 			if (bat.collisionBox.inside(c)) return bat;
 		}
 		return null;
 	}
-	
 
 	@Override
 	public Coord getNudge() {

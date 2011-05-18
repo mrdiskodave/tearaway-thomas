@@ -11,7 +11,7 @@ import com.nney.tt.geom.Coord;
  */
 public abstract class VisualProp extends Prop {
 	Coord showMe;
-	
+
 	public VisualProp(AlienProp aprop) {
 		super(aprop);
 	}
@@ -19,6 +19,7 @@ public abstract class VisualProp extends Prop {
 	abstract void createBats(Coord alien, BatTarget rt);
 
 	abstract void moveTo(int what, Coord where);
-	
-	void click(MapperServices srv) {}
+
+	void click(MapperServices srv) {
+	}
 }

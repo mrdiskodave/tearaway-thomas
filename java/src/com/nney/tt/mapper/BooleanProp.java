@@ -19,7 +19,7 @@ public class BooleanProp extends Prop {
 		textTrue = t;
 		textFalse = f;
 	}
-	
+
 	@Override
 	public String text() {
 		return read() ? textTrue : textFalse;

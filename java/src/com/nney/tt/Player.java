@@ -142,7 +142,7 @@ public class Player extends Alien {
 	private boolean flying;
 
 	private boolean canFly;
-	
+
 	private boolean hasStar;
 
 	private boolean inTheGroundBefore;
@@ -233,12 +233,14 @@ public class Player extends Alien {
 	}
 
 	private boolean testStick(int s) {
-		// TODO: 30: stunTimer test no longer needed surely (as we are more modal)
+		// TODO: 30: stunTimer test no longer needed surely (as we are more
+		// modal)
 		return srv.getStick().test(s) && stunTimer == 0;
 	}
 
 	private boolean testStickJustPressed(int s) {
-		// TODO: 30: stunTimer test no longer needed surely (as we are more modal)
+		// TODO: 30: stunTimer test no longer needed surely (as we are more
+		// modal)
 		return srv.getStick().testJustPressed(s) && stunTimer == 0;
 	}
 
@@ -538,8 +540,7 @@ public class Player extends Alien {
 
 	private boolean testLadder(int dx, int dy) {
 		LadderInformation li = srv.getLadderInfo();
-		return li != null && testLadder(c.copyAndAdd(dx, dy + li.top))
-				&& testLadder(c.copyAndAdd(dx, dy + li.bottom));
+		return li != null && testLadder(c.copyAndAdd(dx, dy + li.top)) && testLadder(c.copyAndAdd(dx, dy + li.bottom));
 	}
 
 	private void perhapsStartLadderMode() {
@@ -637,7 +638,7 @@ public class Player extends Alien {
 					goLeft = !goLeft;
 					// block align:
 					c.x &= -Const.BLOCK_SIZE;
-					c.x += (Const.BLOCK_SIZE/2);
+					c.x += (Const.BLOCK_SIZE / 2);
 					reset();
 					mode = Mode.ROPE;
 				}
@@ -879,7 +880,7 @@ public class Player extends Alien {
 	}
 
 	@Override
-	public void init() {
+	public void visualReset() {
 		setStandingAnim();
 	}
 
@@ -890,11 +891,11 @@ public class Player extends Alien {
 	public void giveStar() {
 		hasStar = true;
 	}
-	
+
 	public boolean gotStar() {
 		return hasStar;
 	}
-	
+
 	public void giveShield() {
 		proofTimer = 50 * 13;
 		flashTimer = 50 * 12;
@@ -972,6 +973,7 @@ public class Player extends Alien {
 		return false;
 	}
 
+	@Override
 	public void resetTo(Coord coord) {
 		reset();
 		c = coord;
@@ -979,5 +981,5 @@ public class Player extends Alien {
 }
 
 // TODO: 99: it does look like I can land on stuff (from the side)
-// while still planly going upwards .. 
+// while still planly going upwards ..
 // take vely into account...?

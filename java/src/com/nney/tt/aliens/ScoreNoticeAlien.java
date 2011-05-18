@@ -13,9 +13,9 @@ public class ScoreNoticeAlien extends Alien {
 		c = where;
 		timer = 40;
 	}
-	
+
 	@Override
-	public void init() {
+	public void visualReset() {
 		changeAnimation(Integer.toString(what));
 		depth = DEPTH_FOREGROUND;
 	}
@@ -24,13 +24,13 @@ public class ScoreNoticeAlien extends Alien {
 	public void update() {
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
-		if (--timer<0) {
+		if (--timer < 0) {
 			done();
 		}
-		c.y -= vely+1;
-//		if (srv.frameTest(4, 1)) {
-//			vely ++;
-//		}
+		c.y -= vely + 1;
+		// if (srv.frameTest(4, 1)) {
+		// vely ++;
+		// }
 	}
 
 }

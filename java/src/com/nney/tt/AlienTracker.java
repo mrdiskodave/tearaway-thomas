@@ -17,18 +17,18 @@ public class AlienTracker {
 	final private Fridge<Alien> freezeBottom = new Fridge<Alien>("bottom");
 	final private Fridge<Alien> freezeLeft = new Fridge<Alien>("left");
 	final private Fridge<Alien> freezeRight = new Fridge<Alien>("right");
-	
+
 	public AlienTracker() {
 		alienLists = new ArrayList<List<Alien>>();
-		for (int x=0; x<Alien.DEPTH_MAX; x++) {
+		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
 			alienLists.add(new LinkedList<Alien>());
 		}
 	}
-	
+
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
 		for (;;) {
 			Alien a = fridge.remove(restore);
-			if (a==null) break;
+			if (a == null) break;
 			add(a);
 		}
 	}
@@ -37,18 +37,17 @@ public class AlienTracker {
 		alienLists.get(alien.depth).add(alien);
 	}
 
-
 	public void delayedAdd(Alien alien) {
 		delayedAdditions.add(alien);
 	}
 
 	public void begin(Box screenBox) {
 		// delayed
-		for (Alien alien: delayedAdditions) {
+		for (Alien alien : delayedAdditions) {
 			add(alien);
 		}
 		delayedAdditions.clear();
-		
+
 		// defrosted
 		defrostAnyFrom(freezeLeft, -screenBox.left);
 		defrostAnyFrom(freezeTop, -screenBox.top);

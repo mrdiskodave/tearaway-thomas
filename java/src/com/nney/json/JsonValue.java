@@ -1,6 +1,5 @@
 package com.nney.json;
 
-
 public abstract class JsonValue implements DataItem {
 	abstract public void writeJson(DataWriter writer) throws JsonException;
 

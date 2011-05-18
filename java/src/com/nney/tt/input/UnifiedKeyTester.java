@@ -8,12 +8,12 @@ public class UnifiedKeyTester {
 		this.mouse = mouse;
 		this.keyboard = keyboard;
 	}
-	
+
 	public boolean isDown(int key) {
-		if (key>=Pointer.KEY_POINTER) {
+		if (key >= Pointer.KEY_POINTER) {
 			return mouse.isDown(key);
 		}
 		return keyboard.isDown(key);
 	}
-	
+
 }

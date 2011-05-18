@@ -17,7 +17,7 @@ public class GlPrerenderedText implements PrerenderedText {
 	public int getWidth() {
 		return width;
 	}
-	
+
 	@Override
 	public void draw(int x, int y) {
 		GL11.glPushMatrix();
@@ -25,7 +25,7 @@ public class GlPrerenderedText implements PrerenderedText {
 		GL11.glCallList(id);
 		GL11.glPopMatrix();
 	}
-	
+
 	@Override
 	public void dispose() {
 		GL11.glDeleteLists(id, 1);

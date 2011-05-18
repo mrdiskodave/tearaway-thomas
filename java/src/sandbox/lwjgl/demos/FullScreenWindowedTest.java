@@ -59,32 +59,32 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
- *
+ * 
  * Tests switching between windowed and fullscreen
- *
+ * 
  * @author Brian Matzon <brian@matzon.dk>
- * @version $Revision$
- * $Id$
+ * @version $Revision$ $Id$
  */
 public class FullScreenWindowedTest {
 	/** Intended deiplay mode */
-	private DisplayMode			mode;
+	private DisplayMode mode;
 	/** our quad moving around */
-	private Vector2f			quadPosition;
+	private Vector2f quadPosition;
 	/** our quadVelocity */
-	private Vector2f			quadVelocity;
+	private Vector2f quadVelocity;
 	/** angle of quad */
-	private float				angle;
+	private float angle;
 	/** degrees to rotate per frame */
-	private float				angleRotation	= 1.0f;
+	private float angleRotation = 1.0f;
 	/** Max speed of all changable attributes */
-	private static final float	MAX_SPEED		= 20.0f;
+	private static final float MAX_SPEED = 20.0f;
 
 	/**
 	 * Creates a FullScreenWindowedTest
 	 */
 	public FullScreenWindowedTest() {
 	}
+
 	/**
 	 * Executes the test
 	 */
@@ -104,17 +104,19 @@ public class FullScreenWindowedTest {
 	 */
 	private void initialize() {
 		try {
-			//find displaymode
+			// find displaymode
 			switchMode();
 			// start of in windowed mode
 			Display.create();
 			glInit();
 			quadPosition = new Vector2f(100f, 100f);
 			quadVelocity = new Vector2f(1.0f, 1.0f);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * Runs the main loop of the "test"
 	 */
@@ -126,7 +128,8 @@ public class FullScreenWindowedTest {
 				// do "game" logic, and render it
 				logic();
 				render();
-			} else {
+			}
+			else {
 				// no need to render/paint if nothing has changed (ie. window
 				// dragged over)
 				if (Display.isDirty()) {
@@ -135,13 +138,15 @@ public class FullScreenWindowedTest {
 				// don't waste cpu time, sleep more
 				try {
 					Thread.sleep(100);
-				} catch (InterruptedException inte) {
+				}
+				catch (InterruptedException inte) {
 				}
 			}
 			// Update window
 			Display.update();
 		}
 	}
+
 	/**
 	 * Performs the logic
 	 */
@@ -152,17 +157,18 @@ public class FullScreenWindowedTest {
 		}
 		quadPosition.x += quadVelocity.x;
 		quadPosition.y += quadVelocity.y;
-		//check colision with vertical border border
+		// check colision with vertical border border
 		if (quadPosition.x + 50 >= mode.getWidth() || quadPosition.x - 50 <= 0) {
 			quadVelocity.x *= -1;
 		}
-		//check collision with horizontal border
+		// check collision with horizontal border
 		if (quadPosition.y + 50 >= mode.getHeight() || quadPosition.y - 50 <= 0) {
 			quadVelocity.y *= -1;
 		}
 	}
+
 	private void render() {
-		//clear background
+		// clear background
 		glClear(GL_COLOR_BUFFER_BIT);
 		// draw white quad
 		glPushMatrix();
@@ -181,29 +187,32 @@ public class FullScreenWindowedTest {
 		}
 		glPopMatrix();
 	}
+
 	/**
 	 * Processes keyboard input
 	 */
 	private void processKeyboard() {
-		//check for fullscreen key
+		// check for fullscreen key
 		if (Keyboard.isKeyDown(Keyboard.KEY_F)) {
 			try {
 				switchMode();
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		//check for window key
+		// check for window key
 		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
 			try {
 				mode = new DisplayMode(640, 480);
 				Display.setDisplayModeAndFullscreen(mode);
 				glInit();
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		//check for speed changes
+		// check for speed changes
 		if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
 			quadVelocity.y += 0.1f;
 		}
@@ -222,7 +231,7 @@ public class FullScreenWindowedTest {
 		if (Keyboard.isKeyDown(Keyboard.KEY_SUBTRACT)) {
 			angleRotation -= 0.1f;
 		}
-		//throttle
+		// throttle
 		if (quadVelocity.x < -MAX_SPEED) {
 			quadVelocity.x = -MAX_SPEED;
 		}
@@ -242,8 +251,10 @@ public class FullScreenWindowedTest {
 			angleRotation = MAX_SPEED;
 		}
 
-		while ( Mouse.next() );
+		while (Mouse.next())
+			;
 	}
+
 	/**
 	 * Cleans up the test
 	 */
@@ -253,7 +264,7 @@ public class FullScreenWindowedTest {
 
 	/**
 	 * Retrieves a displaymode, if one such is available
-	 *
+	 * 
 	 * @param width
 	 *            Required width
 	 * @param height
@@ -264,13 +275,15 @@ public class FullScreenWindowedTest {
 	 */
 	private DisplayMode findDisplayMode(int width, int height, int bpp) throws LWJGLException {
 		DisplayMode[] modes = Display.getAvailableDisplayModes();
-		for ( DisplayMode mode : modes ) {
-			if ( mode.getWidth() == width && mode.getHeight() == height && mode.getBitsPerPixel() >= bpp && mode.getFrequency() <= 60 ) {
+		for (DisplayMode mode : modes) {
+			if (mode.getWidth() == width && mode.getHeight() == height && mode.getBitsPerPixel() >= bpp
+					&& mode.getFrequency() <= 60) {
 				return mode;
 			}
 		}
 		return Display.getDesktopDisplayMode();
 	}
+
 	/**
 	 * Initializes OGL
 	 */
@@ -282,11 +295,12 @@ public class FullScreenWindowedTest {
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glViewport(0, 0, mode.getWidth(), mode.getHeight());
-		//set clear color to black
+		// set clear color to black
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		//sync frame (only works on windows)
+		// sync frame (only works on windows)
 		Display.setVSyncEnabled(true);
 	}
+
 	/**
 	 * Test entry point
 	 */

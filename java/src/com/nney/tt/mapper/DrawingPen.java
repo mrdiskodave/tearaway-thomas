@@ -12,23 +12,23 @@ public class DrawingPen extends Pen {
 	int key() {
 		return Pointer.KEY_LEFT;
 	}
-	
+
 	@Override
 	void down(Coord c) {
 		edit = srv.startEdit();
 	}
-	
+
 	@Override
 	void stroke(Coord c) {
 		c.div(Const.BLOCK_SIZE);
 		edit.setBlock(c, srv.getCurrentBlock());
 	}
-	
+
 	@Override
 	void up(Coord c) {
 		srv.endEdit();
 	}
-	
+
 	@Override
 	void always() {
 		srv.keyboardBlockChoiceAndShow();

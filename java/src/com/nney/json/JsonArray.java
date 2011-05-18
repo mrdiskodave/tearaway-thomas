@@ -44,7 +44,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 		};
 		input.parseList('[', ']', "Array", block);
 	}
-	
+
 	public JsonArray(JsonValue... values) {
 		for (JsonValue value : values) {
 			content.add(value);
@@ -60,21 +60,19 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 		w.end();
 	}
 
-	
-	public @Override DataItem requireElement(int position) throws DataException {
-		if (position>=content.size()) {
-			throw new DataException("position "+position+" not found in array of length "+content.size());
+	public @Override
+	DataItem requireElement(int position) throws DataException {
+		if (position >= content.size()) {
+			throw new DataException("position " + position + " not found in array of length " + content.size());
 		}
 		return content.get(position);
 	}
-	
+
 	@Override
 	public DataItem[] requireList() throws DataException {
 		return content.toArray(new DataItem[content.size()]);
 	}
-	
-	
-	
+
 	//
 	// the proxying required to support interface List ...
 	//

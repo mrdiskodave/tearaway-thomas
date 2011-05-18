@@ -7,7 +7,6 @@ public class JsonBoolean extends JsonValue {
 		this.value = value;
 	}
 
-	
 	public @Override
 	boolean requireBoolean() {
 		return value;

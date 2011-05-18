@@ -8,7 +8,7 @@ import java.io.InputStream;
 
 public class MustBeClosedInputStream extends InputStream {
 	private final InputStream target;
-	
+
 	private final MustBeReleased mbr = new MustBeReleased();
 
 	public MustBeClosedInputStream(InputStream target) {
@@ -75,8 +75,7 @@ public class MustBeClosedInputStream extends InputStream {
 	public String toString() {
 		return target.toString();
 	}
-	
-	
+
 	static public InputStream open(File file) throws FileNotFoundException {
 		return new MustBeClosedInputStream(new FileInputStream(file));
 	}

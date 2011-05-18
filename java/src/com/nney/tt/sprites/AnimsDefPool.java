@@ -22,5 +22,5 @@ public class AnimsDefPool extends CachedLoader<String, DataItem> {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 }

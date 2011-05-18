@@ -38,7 +38,7 @@ public class EditConsolidator implements EditDestination {
 			Box b = null;
 			System.out.println("undo");
 			for (Coord c : edits.keySet()) {
-				if (b==null) {
+				if (b == null) {
 					b = Box.around(c);
 				}
 				else {
@@ -46,7 +46,7 @@ public class EditConsolidator implements EditDestination {
 				}
 				swap(c);
 			}
-			System.out.println("capture:"+b);
+			System.out.println("capture:" + b);
 			undo = new SavedMapBox(gameMap, b);
 			System.out.println("redo");
 			for (Coord c : edits.keySet()) {

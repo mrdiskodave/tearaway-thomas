@@ -25,19 +25,20 @@ public class GlGraphicsContext implements GraphicsContext {
 		final GlTexture gt = new GlTexture(new SimpleImage(OpenableTools.mustLoad(ho)));
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		
+
 		return new Horizon() {
 			@Override
 			public void draw() {
 				gt.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, gt.getWidth(), gt.getHieght());
 			}
+
 			@Override
 			public void dispose() {
 				gt.dispose();
 			}
 		};
 	}
-	
+
 	@Override
 	public Blitable createBlitable(SimpleImage i) {
 		final GlTexture gt = new GlTexture(i);
@@ -46,10 +47,12 @@ public class GlGraphicsContext implements GraphicsContext {
 			public void draw(int dx, int dy) {
 				gt.draw(dx, dy);
 			}
+
 			@Override
 			public void dispose() {
 				gt.dispose();
-			}};
+			}
+		};
 	}
 
 	@Override

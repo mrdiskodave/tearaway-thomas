@@ -12,7 +12,7 @@ public class CycleTest extends TestCase {
 		assertEquals(0, c.next());
 		assertEquals(1, c.next());
 	}
-	
+
 	public void test3() throws Exception {
 		Cycle c = new Cycle(3);
 		assertEquals(0, c.next());
@@ -25,7 +25,7 @@ public class CycleTest extends TestCase {
 		assertEquals(1, c.next());
 		assertEquals(2, c.next());
 	}
-	
+
 	public void test3slow() throws Exception {
 		Cycle c = new Cycle(3, 2, 1);
 		assertEquals(0, c.next());
@@ -47,6 +47,5 @@ public class CycleTest extends TestCase {
 		assertEquals(2, c.next());
 		assertEquals(2, c.next());
 	}
-
 
 }

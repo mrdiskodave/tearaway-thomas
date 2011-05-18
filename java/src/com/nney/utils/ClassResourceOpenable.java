@@ -16,8 +16,8 @@ public class ClassResourceOpenable implements Openable {
 	@Override
 	public InputStream open() throws IOException {
 		InputStream answer = base.getResourceAsStream(name);
-		if (answer==null) {
-			throw new FileNotFoundException(base.toString()+" "+name+" classpath resource not found");
+		if (answer == null) {
+			throw new FileNotFoundException(base.toString() + " " + name + " classpath resource not found");
 		}
 		return answer;
 	}

@@ -52,14 +52,15 @@ public class BlockAliasTable {
 	 * Randomly shuffle the given block number - producing the same block number
 	 * or one of its aliases (if it has any) all with equal probability.
 	 * 
-	 * @param block A block number.
+	 * @param block
+	 *            A block number.
 	 * @return A block number.
 	 */
 	public int shuffle(int block) {
 		ArrayList<Integer> row = expand.get(block);
-		if (row==null) return block;
+		if (row == null) return block;
 		int answer = row.get(r.nextInt(row.size()));
-//		System.out.println(block+"-shuffle->"+answer);
+		// System.out.println(block+"-shuffle->"+answer);
 		return answer;
 	}
 
@@ -67,13 +68,14 @@ public class BlockAliasTable {
 	 * Compress the given block number reducing it to its canonical
 	 * representation.
 	 * 
-	 * @param block Any block number.
+	 * @param block
+	 *            Any block number.
 	 * @return A canonical block number.
 	 */
 	public int compress(int block) {
 		Integer answer = compress.get(block);
 		if (answer == null) return block;
-//		System.out.println(block+"-compress->"+answer);
+		// System.out.println(block+"-compress->"+answer);
 		return answer;
 	}
 }

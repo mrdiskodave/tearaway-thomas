@@ -19,7 +19,7 @@ public class XRangeBM extends VisualProp {
 		Box box = new Box(t.left, Integer.MIN_VALUE / 4, t.right, Integer.MAX_VALUE / 4);
 		rt.drawBox(box);
 		// 0
-		rt.drawBat(new Coord(t.getMiddle(),alien.y));
+		rt.drawBat(new Coord(t.middle(), alien.y));
 		// 1
 		rt.drawBat(new Coord(t.left, alien.y));
 		// 2
@@ -30,7 +30,7 @@ public class XRangeBM extends VisualProp {
 	void moveTo(int what, Coord where) {
 		switch (what) {
 		case 0:
-			t.add(where.x - t.getMiddle());
+			t.add(where.x - t.middle());
 			break;
 		case 1:
 			t.setLeft(where.x, BORDER);
@@ -42,7 +42,7 @@ public class XRangeBM extends VisualProp {
 			assert false;
 		}
 	}
-	
+
 	@Override
 	public String text() {
 		return String.format("%d-%d", t.left, t.right);

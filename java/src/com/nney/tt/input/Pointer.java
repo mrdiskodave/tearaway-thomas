@@ -7,9 +7,12 @@ public interface Pointer {
 	public static final int KEY_MIDDLE = KEY_POINTER + 4;
 
 	int getX();
+
 	int getY();
+
 	int getDWheel();
-	
+
 	boolean isDown(int mask);
+
 	boolean justPressed(int mask);
 }

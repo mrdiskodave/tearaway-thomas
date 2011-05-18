@@ -22,16 +22,15 @@ public class LargeImageFrameLoader {
 		byte[] someRawGraphicsFile = OpenableTools.mustLoad(data);
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
 
-
 		// Establish where the handle is
-		assert si.getWidth() % 2 == 1;
-		assert si.getHeight() % 2 == 1;
-		int handleX = si.getWidth() / 2;
-		int handleY = si.getHeight() / 2;
+		assert si.width() % 2 == 1;
+		assert si.height() % 2 == 1;
+		int handleX = si.width() / 2;
+		int handleY = si.height() / 2;
 
 		// Establish the bounds of the bob
 		// (as it is surrounded on all four sides by transparency)
-		Bounds bounds = si.getBounds();
+		Bounds bounds = si.bounds();
 
 		// Crop it to those bounds
 		si = si.view(bounds);

@@ -20,9 +20,9 @@ public class PersistedMap {
 	public short playerX;
 	public short playerY;
 	public boolean playerGoLeft;
-	
+
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
-	
+
 	/**
 	 * Compile time configuration: Only have instantiate once instance of each
 	 * alien type that is present on a level (the others are ignored).
@@ -62,8 +62,8 @@ public class PersistedMap {
 		mapBounds = new Box(minx, miny, maxx, maxy);
 	}
 
-
-	private void loadLegacyAlienIntoWorld(AnimsPool animsPool, AlienInfoMap alienInfoMap, int x, int y, int type, byte[] rest) {
+	private void loadLegacyAlienIntoWorld(AnimsPool animsPool, AlienInfoMap alienInfoMap, int x, int y, int type,
+			byte[] rest) {
 		try {
 			AlienInfo alienInfo = alienInfoMap.getByType(type);
 			if (alienInfo != null) {
@@ -82,8 +82,8 @@ public class PersistedMap {
 				}
 				alien.c.x = x;
 				alien.c.y = y;
-				alien.srcData = rest;
-				alien.load();
+				alien.legacyData = rest;
+				alien.loadFromLegacyData();
 
 				// if (alien instanceof LoadsFromSpriteDef) {
 				// ((LoadsFromSpriteDef)
@@ -108,9 +108,8 @@ public class PersistedMap {
 		}
 	}
 
-	
 	private void loadAlienIntoWorld(Alien alien) {
-		aliens .add(alien);
+		aliens.add(alien);
 	}
 
 	public void loadLegacy(AnimsPool animsPool, AlienInfoMap alienInfoMap, Openable mapOpenable) {

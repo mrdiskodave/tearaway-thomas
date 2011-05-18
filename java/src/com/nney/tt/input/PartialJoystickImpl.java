@@ -8,16 +8,16 @@ public class PartialJoystickImpl implements Joystick {
 		lastPosition = currentPosition;
 		currentPosition = n;
 	}
-	
+
 	@Override
 	public boolean test(int mask) {
-		return (currentPosition&mask)!=0;
+		return (currentPosition & mask) != 0;
 	}
 
 	@Override
 	public boolean testJustPressed(int mask) {
-		int pressed = (~lastPosition)&currentPosition;
-		return (pressed&mask)!=0;
+		int pressed = (~lastPosition) & currentPosition;
+		return (pressed & mask) != 0;
 	}
 
 }

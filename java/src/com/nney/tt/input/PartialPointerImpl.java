@@ -14,7 +14,7 @@ public class PartialPointerImpl implements Pointer {
 		y = y0;
 		w = w0;
 	}
-	
+
 	@Override
 	public int getX() {
 		return x;
@@ -34,13 +34,13 @@ public class PartialPointerImpl implements Pointer {
 	public boolean isDown(int mask) {
 		assert mask >= KEY_POINTER;
 		mask -= KEY_POINTER;
-		return (currentPosition&mask)!=0;
+		return (currentPosition & mask) != 0;
 	}
 
 	@Override
 	public boolean justPressed(int mask) {
-		int pressed = (~lastPosition)&currentPosition;
-		return (pressed&mask)!=0;
+		int pressed = (~lastPosition) & currentPosition;
+		return (pressed & mask) != 0;
 	}
 
 }

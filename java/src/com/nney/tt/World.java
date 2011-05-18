@@ -10,7 +10,8 @@ import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.HugeGemAlien;
-import com.nney.tt.aliens.LogLiftAlien;
+import com.nney.tt.aliens.PlainLiftAlien;
+import com.nney.tt.aliens.SineLiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
@@ -164,7 +165,7 @@ public class World implements AlienServices, MapperServices {
 		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
 		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
 		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
-		aim.add(new AlienInfo(72, "wlog0", LogLiftAlien.class));
+		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));
@@ -173,6 +174,7 @@ public class World implements AlienServices, MapperServices {
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
+		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
 
 		if (CTC_TUMBLE_WEEDS) {
 			aim.clear();
@@ -544,7 +546,7 @@ public class World implements AlienServices, MapperServices {
 	public void addNewAlien(Alien alien) {
 		alienInfoMap.connectAnims(alien, animsPool);
 		alien.srv = this;
-		alien.init();
+		alien.visualReset();
 		alienTracker.delayedAdd(alien);
 	}
 
@@ -660,7 +662,7 @@ public class World implements AlienServices, MapperServices {
 		if (alien instanceof WobbleGemAlien) {
 			gemCounter++;
 		}
-		alien.init();
+		alien.visualReset();
 		alienTracker.delayedAdd(alien);
 	}
 
@@ -675,7 +677,7 @@ public class World implements AlienServices, MapperServices {
 		player.srv = this;
 		Anims playerAnims = animsPool.load("0tt");
 		player.connectAnims(playerAnims);
-		player.init();
+		player.visualReset();
 
 		wi = WorldInformation.load(worldName);
 		loadBlocks();
@@ -734,7 +736,7 @@ public class World implements AlienServices, MapperServices {
 		gameMap.applyShuffle(wi.blockRandomisationTable);
 		usingMapper = false;
 	}
-	
+
 	@Override
 	public void drawMap() {
 		// horizon.draw();
@@ -763,20 +765,19 @@ public class World implements AlienServices, MapperServices {
 		}
 	}
 
-
 	@Override
 	public Alien findNearestAlien(Coord c) {
 		NearestAlienFinder n = new NearestAlienFinder(c);
 		visitVisibleAliens(n);
 		return n.getAnswer();
 	}
-	
+
 	@Override
 	public void toggleSeeMasks() {
 		configSeeMasks = !configSeeMasks;
 		loadBlocks();
 	}
-	
+
 	@Override
 	public void toggleShowInvisible() {
 		configShowInvisible = !configShowInvisible;

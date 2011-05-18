@@ -26,7 +26,7 @@ public class Coord {
 		x += other.x;
 		y += other.y;
 	}
-	
+
 	public void mul(int z) {
 		x *= z;
 		y *= z;
@@ -36,7 +36,7 @@ public class Coord {
 		x /= z;
 		y /= z;
 	}
-	
+
 	public void and(int x2, int y2) {
 		x &= x2;
 		y &= y2;
@@ -45,7 +45,7 @@ public class Coord {
 	public Coord copy() {
 		return new Coord(this);
 	}
-	
+
 	// short hand, as we do it so much
 	public Coord copyAndAdd(int x, int y) {
 		Coord answer = copy();
@@ -53,24 +53,24 @@ public class Coord {
 		answer.y += y;
 		return answer;
 	}
-	
+
 	public Coord copyAndDiv(int z) {
 		Coord answer = copy();
 		answer.div(z);
 		return answer;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		Coord that = (Coord) obj;
 		return that.x == x && that.y == y;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return x^y;
+		return x ^ y;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("%sx%s", x, y);

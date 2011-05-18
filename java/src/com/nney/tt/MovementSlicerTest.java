@@ -14,24 +14,24 @@ public class MovementSlicerTest extends TestCase {
 	}
 
 	private void assertBigTestWorks(int sign) {
-		MovementSlicer a = new MovementSlicer(sign*5);
+		MovementSlicer a = new MovementSlicer(sign * 5);
 		assertTrue(a.more());
-		assertEquals(sign*2, a.next(2));
+		assertEquals(sign * 2, a.next(2));
 		assertTrue(a.more());
-		assertEquals(sign*2, a.next(2));
+		assertEquals(sign * 2, a.next(2));
 		assertTrue(a.more());
-		assertEquals(sign*1, a.next(2));
+		assertEquals(sign * 1, a.next(2));
 		assertDone(a);
 	}
 
 	private void assertSmallTestWorks(int sign) {
-		MovementSlicer a = new MovementSlicer(sign*3);
+		MovementSlicer a = new MovementSlicer(sign * 3);
 		assertTrue(a.more());
-		assertEquals(sign*1, a.next(1));
+		assertEquals(sign * 1, a.next(1));
 		assertTrue(a.more());
-		assertEquals(sign*1, a.next(1));
+		assertEquals(sign * 1, a.next(1));
 		assertTrue(a.more());
-		assertEquals(sign*1, a.next(1));
+		assertEquals(sign * 1, a.next(1));
 		assertDone(a);
 	}
 

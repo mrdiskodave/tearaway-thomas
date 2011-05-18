@@ -82,8 +82,7 @@ class UnicodeInputStream extends InputStream {
 			unread = n;
 		}
 
-		if (unread > 0)
-			internalIn.unread(bom, (n - unread), unread);
+		if (unread > 0) internalIn.unread(bom, (n - unread), unread);
 	}
 
 	@Override

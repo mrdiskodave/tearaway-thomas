@@ -24,12 +24,12 @@ public class PlayerVelocityTable {
 	private int[] getTable() {
 		return plSprint ? VEL_TURBO : VEL_NORM;
 	}
-	
+
 	public int max() {
 		int[] t = getTable();
-		return t[t.length-1];
+		return t[t.length - 1];
 	}
-	
+
 	public void reset() {
 		velStep = 0;
 	}

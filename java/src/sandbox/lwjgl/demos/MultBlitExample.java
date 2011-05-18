@@ -56,7 +56,7 @@ public class MultBlitExample {
 		for (int y = 0; y < TEXTURE_HEIGHT; y++) {
 			for (int x = 0; x < TEXTURE_WIDTH; x++) {
 				int a = x > y ? 0x00 : 0xff;
-				int z = 255-(255*x)/TEXTURE_WIDTH;
+				int z = 255 - (255 * x) / TEXTURE_WIDTH;
 				buffer.put((byte) z); // R
 				buffer.put((byte) z); // G
 				buffer.put((byte) z); // B << white-black
@@ -72,8 +72,8 @@ public class MultBlitExample {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0,
-				GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL11.GL_RGBA,
+				GL11.GL_UNSIGNED_BYTE, buffer);
 	}
 
 	/**
@@ -88,7 +88,9 @@ public class MultBlitExample {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glColor3f(1.0f, 0.0f, 1.0f);
-		// GL_MODULATE simply takes the color and alpha data from the texture and multiplies it with the color data from glColor and/or the lighting system.
+		// GL_MODULATE simply takes the color and alpha data from the texture
+		// and multiplies it with the color data from glColor and/or the
+		// lighting system.
 		// says http://www.nullterminator.net/gltexture.html
 		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 

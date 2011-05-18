@@ -5,6 +5,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HelloAnno {
-    String value();
-    String greetTo();
+	String value();
+
+	String greetTo();
 }

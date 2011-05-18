@@ -9,7 +9,7 @@ public class EyeDropperPen extends Pen {
 	int key() {
 		return Pointer.KEY_LEFT;
 	}
-	
+
 	@Override
 	void stroke(Coord c) {
 		c.div(Const.BLOCK_SIZE);

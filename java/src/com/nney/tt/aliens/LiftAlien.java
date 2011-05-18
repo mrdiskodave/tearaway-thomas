@@ -12,10 +12,10 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 	private int width;
 
 	@Override
-	public void init() {
+	public void visualReset() {
 		changeAnimation(0);
 		ourSprite = nextFrame();
-		width = ourSprite.getLiftWidth() + EXTRA_WIDTH * 2;
+		width = ourSprite.liftWidth() + EXTRA_WIDTH * 2;
 	}
 
 	abstract protected void setPosition();

@@ -15,8 +15,8 @@ public class BlockSource {
 		this.blocks = blocks;
 		this.blockWidth = miniW;
 		this.blockHeight = miniH;
-		int allBlocksWidth = blocks.getWidth();
-		int allBlocksHeight = blocks.getHeight();
+		int allBlocksWidth = blocks.width();
+		int allBlocksHeight = blocks.height();
 		assert allBlocksWidth % miniW == 0;
 		assert allBlocksHeight % miniH == 0;
 		blocksHorizontally = allBlocksWidth / miniW;

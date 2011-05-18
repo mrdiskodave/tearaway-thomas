@@ -14,7 +14,7 @@ public class AlienInfoMap {
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
-	
+
 	void add(AlienInfo a) {
 		typeToAlienInfo.put(a.id, a);
 		classToAlienInfo.put(a.alienClass, a);
@@ -24,12 +24,12 @@ public class AlienInfoMap {
 		if (useCount == null) useCount = 0;
 		classUseCount.put(a.alienClass, useCount + 1);
 	}
-	
+
 	public void doPreLoad(AnimsPool animsPool) {
-		for (AlienInfo a: aim) {
+		for (AlienInfo a : aim) {
 			// if it doesn't have an id that is because it
 			// doesn't occur in any map but is instead deployed live at runtime
-			if (a.id<0) {
+			if (a.id < 0) {
 				// so preload its graphics now
 				animsPool.load(a.animsName);
 			}
@@ -39,7 +39,7 @@ public class AlienInfoMap {
 	public AlienInfo getByType(int type) {
 		return typeToAlienInfo.get(type);
 	}
-	
+
 	void removeByType(int type) {
 		typeToAlienInfo.remove(type);
 	}
@@ -55,9 +55,9 @@ public class AlienInfoMap {
 
 		AlienInfo ai = getByClass(c.getClass());
 		if (ai.animsName != null) {
-//			System.out.println(c.getClass() + " gets " + ai.animsName);
+			// System.out.println(c.getClass() + " gets " + ai.animsName);
 			Anims anims = animsPool.directGet(ai.animsName);
-			assert anims!=null : "need to preload "+ai.animsName;
+			assert anims != null : "need to preload " + ai.animsName;
 			c.connectAnims(anims);
 		}
 	}

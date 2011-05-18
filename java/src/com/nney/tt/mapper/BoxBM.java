@@ -17,22 +17,22 @@ public class BoxBM extends VisualProp {
 	public void createBats(Coord alien, BatTarget rt) {
 		rt.drawBox(t);
 		// 0
-		rt.drawBat(t.getMiddle());
+		rt.drawBat(t.middle());
 		// 1
-		rt.drawBat(t.getTopLeft());
+		rt.drawBat(t.topLeft());
 		// 2
-		rt.drawBat(t.getBottomRight());
+		rt.drawBat(t.bottomRight());
 		// 3
-		rt.drawBat(t.getTopRight());
+		rt.drawBat(t.topRight());
 		// 4
-		rt.drawBat(t.getBottomLeft());
+		rt.drawBat(t.bottomLeft());
 	}
 
 	@Override
 	void moveTo(int what, Coord where) {
 		switch (what) {
 		case 0:
-			where.sub(t.getMiddle());
+			where.sub(t.middle());
 			t.add(where);
 			break;
 		case 1:
@@ -55,7 +55,7 @@ public class BoxBM extends VisualProp {
 			assert false;
 		}
 	}
-	
+
 	@Override
 	public String text() {
 		return String.format("%dx%d,%dx%d", t.left, t.top, t.right, t.bottom);

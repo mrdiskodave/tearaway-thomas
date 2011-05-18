@@ -22,9 +22,9 @@ public class Pump {
 	public long processBytes(long length) throws IOException {
 		long done = 0;
 		byte[] buffer = new byte[4096];
-		while (length!=0) {
+		while (length != 0) {
 			int attempt = buffer.length;
-			if (attempt>length) {
+			if (attempt > length) {
 				attempt = (int) length;
 			}
 			int got = in.read(buffer, 0, attempt);
@@ -37,7 +37,7 @@ public class Pump {
 		}
 		return done;
 	}
-	
+
 	// Utilities:
 	static public byte[] loadIntoByteArray(Openable openable) throws IOException {
 		InputStream in = openable.open();

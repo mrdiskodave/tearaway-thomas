@@ -30,15 +30,16 @@ import java.util.ListIterator;
  */
 public class Fridge<T> {
 	private LinkedList<FridgeEntry> content = new LinkedList<FridgeEntry>();
-	
-	@SuppressWarnings("unused") // it's for debug output
+
+	@SuppressWarnings("unused")
+	// it's for debug output
 	private String name;
 
 	class FridgeEntry {
 		final T item;
 		final int pos;
 
-		FridgeEntry (T item, int pos) {
+		FridgeEntry(T item, int pos) {
 			this.item = item;
 			this.pos = pos;
 		}
@@ -57,7 +58,8 @@ public class Fridge<T> {
 	 *            The place to put it.
 	 */
 	public void add(T item, int pos) {
-//		System.out.println(String.format("Fridge: %08x(%7d) frozen    into %-6s", item.hashCode(), pos, name));
+		// System.out.println(String.format("Fridge: %08x(%7d) frozen    into %-6s",
+		// item.hashCode(), pos, name));
 		// Skip (to the right) over existing items that should be to
 		// the left of the one we've been given.
 		ListIterator<FridgeEntry> ci = content.listIterator();
@@ -81,7 +83,8 @@ public class Fridge<T> {
 	public T remove(int left) {
 		FridgeEntry fe = content.peekFirst();
 		if (fe == null || fe.pos > left) return null;
-//		System.out.println(String.format("Fridge: %08x(%7d) defrosted from %-6s using %d", fe.item.hashCode(), fe.pos, name, left));
+		// System.out.println(String.format("Fridge: %08x(%7d) defrosted from %-6s using %d",
+		// fe.item.hashCode(), fe.pos, name, left));
 		assert fe == content.removeFirst();
 		return fe.item;
 	}

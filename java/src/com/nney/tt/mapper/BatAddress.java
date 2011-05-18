@@ -10,7 +10,7 @@ public class BatAddress {
 		this.who = who;
 		this.what = what;
 	}
-	
+
 	public void moveTo(Coord c) {
 		who.moveTo(what, c);
 	}

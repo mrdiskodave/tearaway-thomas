@@ -47,7 +47,7 @@ public class TTResource {
 		String filename = String.format("C:/Users/david/Desktop/newdata/bobs/%s/def.txt", spriteName);
 		return new FileOpenable(filename);
 	}
-	
+
 	public static Openable horizon(int name) {
 		String filename = String.format("C:/Users/david/Desktop/newdata/horizons/%d.png", name);
 		return new FileOpenable(filename);

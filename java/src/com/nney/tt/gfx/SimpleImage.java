@@ -20,12 +20,12 @@ public class SimpleImage {
 
 	final private boolean isView;
 
-	
 	public interface SimpleImageProcessor {
 		boolean inPlace();
+
 		SimpleImage process(SimpleImage input);
 	}
-	
+
 	public interface MovePixel {
 		void move(Coord c);
 	}
@@ -50,7 +50,7 @@ public class SimpleImage {
 			int alpha = c >>> 3 * 8;
 			// all
 			if (alpha != 0xff)
-				// or nothing
+			// or nothing
 				c = 0;
 			return c;
 		}
@@ -103,64 +103,59 @@ public class SimpleImage {
 		changePixels(IMPORTER);
 	}
 
-	public int getHeight() {
+	public int height() {
 		return height;
 	}
 
-	public int getWidth() {
+	public int width() {
 		return width;
 	}
 
 	private int computeOffset(int x, int y) {
-		assert x >= 0: x;
-		assert y >= 0: y;
-		assert x < width: x;
-		assert y < height: y;
+		assert x >= 0 : x;
+		assert y >= 0 : y;
+		assert x < width : x;
+		assert y < height : y;
 		return offset + y * stride + x;
 	}
 
-	public int getPixel(int x, int y) {
+	public int get(int x, int y) {
 		return this.pixels[computeOffset(x, y)];
 	}
 
-	public void putPixel(int x, int y, int c) {
+	public void put(int x, int y, int c) {
 		this.pixels[computeOffset(x, y)] = c;
 	}
 
 	public boolean isEntirely(int c) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				int p = getPixel(x, y);
-				if (p != c)
-					return false;
+				int p = get(x, y);
+				if (p != c) return false;
 			}
 		}
 		return true;
 	}
 
-	public Bounds getBounds() {
+	public Bounds bounds() {
 		int left;
 		for (left = 0; left < width; left++) {
-			if (!view(left, 0, 1, height).isEntirely(0))
-				break;
+			if (!view(left, 0, 1, height).isEntirely(0)) break;
 		}
 
 		int right;
 		for (right = width - 1; right >= 0; right--) {
-			if (!view(right, 0, 1, height).isEntirely(0))
-				break;
+			if (!view(right, 0, 1, height).isEntirely(0)) break;
 		}
 
 		int top;
 		for (top = 0; top < height; top++) {
-			if (!view(0, top, width, 1).isEntirely(0))
-				break;
+			if (!view(0, top, width, 1).isEntirely(0)) break;
 		}
 
 		int bottom;
 		for (bottom = height - 1; bottom >= 0; bottom--) {
-			if (!view(0, bottom, width, 1).isEntirely(0))
-				break;
+			if (!view(0, bottom, width, 1).isEntirely(0)) break;
 		}
 
 		// start-stop not first-last
@@ -195,20 +190,20 @@ public class SimpleImage {
 		assert height == src.height;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, src.getPixel(x, y));
+				put(x, y, src.get(x, y));
 			}
 		}
 	}
 
 	public SimpleImage movePixels(MovePixel pixelMovement) {
-		SimpleImage answer = SimpleImage.createEmpty(getWidth(), getHeight());
+		SimpleImage answer = SimpleImage.createEmpty(width(), height());
 		Coord c = new Coord();
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				c.x = x;
 				c.y = y;
 				pixelMovement.move(c);
-				answer.putPixel(c.x, c.y, getPixel(x, y));
+				answer.put(c.x, c.y, get(x, y));
 			}
 		}
 		return answer;
@@ -218,13 +213,13 @@ public class SimpleImage {
 		for (int y = 0; y < height; y++) {
 			// System.out.println("Line"+y);
 			for (int x = 0; x < width; x++) {
-				int o = getPixel(x, y);
+				int o = get(x, y);
 				int n = p.change(o);
 				// if (o!=n && o!=0xff01ff) {
 				// System.out.println(String.format("Changed from %08x to %08x",
 				// o, n));
 				// }
-				putPixel(x, y, n);
+				put(x, y, n);
 			}
 		}
 	}
@@ -232,12 +227,12 @@ public class SimpleImage {
 	public void visitPixels(VisitPixel p) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				int o = getPixel(x, y);
+				int o = get(x, y);
 				p.visit(o);
 			}
 		}
 	}
-	
+
 	public int[] collectPalette() {
 		final TreeSet<Integer> pal = new TreeSet<Integer>();
 		visitPixels(new VisitPixel() {
@@ -248,7 +243,7 @@ public class SimpleImage {
 		});
 		Integer[] boxed = (Integer[]) pal.toArray(new Integer[pal.size()]);
 		int[] unboxed = new int[boxed.length];
-		for (int x=0; x<boxed.length; x++) {
+		for (int x = 0; x < boxed.length; x++) {
 			unboxed[x] = boxed[x];
 		}
 		return unboxed;
@@ -258,7 +253,7 @@ public class SimpleImage {
 		for (int y = 0; y < height; y++) {
 			StringBuilder b = new StringBuilder();
 			for (int x = 0; x < width; x++) {
-				b.append(getPixel(x, y) < 0 ? "0" : ":");
+				b.append(get(x, y) < 0 ? "0" : ":");
 			}
 			System.out.println(b);
 		}
@@ -267,7 +262,7 @@ public class SimpleImage {
 	public void fill(int c) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				putPixel(x, y, c);
+				put(x, y, c);
 			}
 		}
 	}

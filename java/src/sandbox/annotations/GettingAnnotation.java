@@ -8,16 +8,13 @@ import com.nney.tt.aliens.PurpleGemAlien;
 @HelloAnno(value = "Hello", greetTo = "Universe")
 public class GettingAnnotation {
 	public static void main(String[] args) {
-		
-		
-		
-		
+
 		Class<PurpleGemAlien> a = PurpleGemAlien.class;
-		
+
 		Field[] fs = a.getFields();
 		for (Field f : fs) {
 			AlienProp z = f.getAnnotation(AlienProp.class);
-			if (z!=null) {
+			if (z != null) {
 				Class<?> t = f.getType();
 				System.out.println(String.format("%-10s %-30s %-10s %s", z.name(), f.getType(), z.xtraDef(), z.doc()));
 			}

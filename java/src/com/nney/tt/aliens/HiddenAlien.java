@@ -6,20 +6,20 @@ public abstract class HiddenAlien extends Alien {
 	private static final boolean CTC_FLASH_HIDDEN = false;
 
 	private static final int FLAG_INVIS = 5;
-	
-	@AlienProp(name="Invisible", doc="Will we suddenly appear when the player runs past?")
+
+	@AlienProp(name = "Invisible", doc = "Will we suddenly appear when the player runs past?")
 	public boolean invis;
-	
+
 	private boolean falling;
 	private int fallSpeed;
 
 	@Override
-	public void load() {
+	public void loadFromLegacyData() {
 		invis = BitOp.test(loadByte(OBflags), FLAG_INVIS);
 	}
 
 	@Override
-	public void init() {
+	public void visualReset() {
 		changeAnimation(0);
 	}
 
@@ -61,7 +61,7 @@ public abstract class HiddenAlien extends Alien {
 	}
 
 	abstract protected void normalUpdate();
-	
+
 	protected boolean isFalling() {
 		return falling;
 	}

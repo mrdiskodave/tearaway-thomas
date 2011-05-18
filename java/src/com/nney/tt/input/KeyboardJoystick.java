@@ -6,7 +6,7 @@ public class KeyboardJoystick extends PartialJoystickImpl {
 	public KeyboardJoystick(Keyboard target) {
 		this.keyboard = target;
 	}
-	
+
 	public void update() {
 		int x = 0;
 		if (keyboard.isDown(Keyboard.KEY_Q)) {

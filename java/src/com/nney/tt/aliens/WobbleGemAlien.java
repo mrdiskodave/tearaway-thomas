@@ -10,20 +10,20 @@ public abstract class WobbleGemAlien extends GemAlien {
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
 
-	@AlienProp(name="Wobble", doc="Do we wobble?")
+	@AlienProp(name = "Wobble", doc = "Do we wobble?")
 	public boolean wobble = true;
-	
+
 	private int wobblePhase;
 
 	@Override
-	public void load() {
-		super.load();
+	public void loadFromLegacyData() {
+		super.loadFromLegacyData();
 		wobble = !BitOp.test(loadByte(OBflags), FLAG_NO_WOBBLE);
 	}
 
 	@Override
-	public void init() {
-		super.init();
+	public void visualReset() {
+		super.visualReset();
 		wobblePhase = srv.randomness(WOBBLE.length);
 	}
 

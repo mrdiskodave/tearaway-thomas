@@ -9,19 +9,23 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
-	@AlienProp(name="Location", doc="Where are we?", xtraDef="location")
+	@AlienProp(name = "Location", doc = "Where are we?", xtraDef = "location")
 	public Coord c = new Coord();
-	
+
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	private Anims spriteSet;
-	public byte[] srcData;
+	public byte[] legacyData;
 	public boolean remove;
 	public int depth = DEPTH_BACKGROUND;
-	
+
 	public static final int DEPTH_MAP = 0;
 	public static final int DEPTH_BACKGROUND = 1;
 	public static final int DEPTH_FOREGROUND = 2;
 	public static final int DEPTH_MAX = 3;
+
+	public void resetTo(Coord p) {
+		c = p;
+	}
 	
 	public Box freezeBounds;
 	public AlienServices srv;
@@ -44,12 +48,15 @@ public abstract class Alien {
 	protected static final int OBstatus6 = 28 - OBbase; // B
 	protected static final int OBstatus7 = 29 - OBbase; // B
 
+	// abstract public void reset();
+	public void onPropUpdate() {}
+	
 	protected int loadShort(int x) {
 		return (loadByte(x) << 8) + loadByte(x + 1);
 	}
 
 	protected int loadByte(int x) {
-		return (srcData[x] & 255);
+		return (legacyData[x] & 255);
 	}
 
 	protected void changeAnimation(String name) {
@@ -75,7 +82,7 @@ public abstract class Alien {
 	protected Sprite nextFrame() {
 		return animPlayer.next();
 	}
-	
+
 	protected Sprite sameFrame() {
 		return animPlayer.current();
 	}
@@ -91,26 +98,26 @@ public abstract class Alien {
 		}
 	}
 
-	public void init() {
+	public void visualReset() {
 	}
 
-	public void load() {
+	public void loadFromLegacyData() {
 
 	}
 
 	abstract public void update();
-	
+
 	public void mapperUpdate() {
 		changeAnimation(0);
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 	}
-	
+
 	public void done() {
 		remove = true;
 	}
 
 	protected Box spriteBounds(Sprite s) {
-		return Box.fromTopLeftAndSize(c.x-s.handleX, c.y-s.handleY, s.w, s.h);
+		return Box.fromTopLeftAndSize(c.x - s.handleX, c.y - s.handleY, s.w, s.h);
 	}
 }

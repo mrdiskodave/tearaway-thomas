@@ -10,7 +10,7 @@ public class MustBeClosedOutputStream extends OutputStream {
 	private final OutputStream target;
 
 	private MustBeReleased mbr = new MustBeReleased();
-	
+
 	public MustBeClosedOutputStream(OutputStream target) {
 		this.target = target;
 	}
@@ -56,7 +56,6 @@ public class MustBeClosedOutputStream extends OutputStream {
 		target.write(b);
 	}
 
-	
 	public static OutputStream open(File file) throws FileNotFoundException {
 		return new MustBeClosedOutputStream(new FileOutputStream(file));
 	}

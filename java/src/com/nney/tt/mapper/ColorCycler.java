@@ -14,8 +14,8 @@ public class ColorCycler {
 	private int getOrIn() {
 		int v = c.current();
 		int answer = 0;
-		for (int x=0; x<6; x++) {
-			answer |= v<<(x*4);
+		for (int x = 0; x < 6; x++) {
+			answer |= v << (x * 4);
 		}
 		return answer;
 	}

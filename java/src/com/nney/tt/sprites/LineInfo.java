@@ -7,14 +7,15 @@ public final class LineInfo {
 	/**
 	 * Generate line info for the given {@link SimpleImage}.
 	 * 
-	 * @param si The image.
+	 * @param si
+	 *            The image.
 	 * @return The line info.
 	 */
 	static byte[] generate(SimpleImage si) {
-		byte[] li = new byte[si.getHeight() * 2];
-		for (int y = 0; y < si.getHeight(); y++) {
-			int right = si.getWidth() - 1;
-			while (right >= 0 && si.getPixel(right, y) == 0) {
+		byte[] li = new byte[si.height() * 2];
+		for (int y = 0; y < si.height(); y++) {
+			int right = si.width() - 1;
+			while (right >= 0 && si.get(right, y) == 0) {
 				right--;
 			}
 			if (right < 0) {
@@ -25,7 +26,7 @@ public final class LineInfo {
 			else {
 				// non-empty line
 				int left = 0;
-				while (si.getPixel(left, y) == 0) {
+				while (si.get(left, y) == 0) {
 					left++;
 				}
 				int width = right - left + 1;

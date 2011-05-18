@@ -4,7 +4,7 @@ import com.nney.tt.gfx.SimpleImage.SimpleImageProcessor;
 
 /**
  * Make any non-transparent pixel white.
- *
+ * 
  * Used to white-out the player to how that he is invulnerable.
  */
 public class WhiteOutSip implements SimpleImageProcessor {

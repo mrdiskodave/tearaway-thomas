@@ -7,9 +7,9 @@ public class MagicDustAlien extends Alien {
 	public MagicDustAlien(Coord where) {
 		c = where;
 	}
-	
+
 	@Override
-	public void init() {
+	public void visualReset() {
 		changeAnimation(0);
 	}
 

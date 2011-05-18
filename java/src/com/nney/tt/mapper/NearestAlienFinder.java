@@ -18,13 +18,13 @@ public class NearestAlienFinder implements AlienVisitor {
 	public void visit(Alien a) {
 		Coord diff = a.c.copy();
 		diff.sub(o);
-		long ndist = diff.x*diff.x + diff.y*diff.y;
-		if (ndist<dist) {
+		long ndist = diff.x * diff.x + diff.y * diff.y;
+		if (ndist < dist) {
 			dist = ndist;
 			nearest = a;
 		}
 	};
-	
+
 	public Alien getAnswer() {
 		return nearest;
 	}

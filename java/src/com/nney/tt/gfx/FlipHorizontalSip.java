@@ -12,7 +12,7 @@ public class FlipHorizontalSip implements SimpleImageProcessor {
 
 	@Override
 	public SimpleImage process(SimpleImage input) {
-		final int w = input.getWidth();
+		final int w = input.width();
 		SimpleImage.MovePixel pixelMovement = new SimpleImage.MovePixel() {
 			@Override
 			public void move(Coord c) {

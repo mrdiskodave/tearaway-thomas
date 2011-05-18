@@ -10,19 +10,19 @@ public class FpsReporter {
 	public FpsReporter(int count) {
 		this.count = count;
 	}
-	
+
 	public void reportFps() {
-		counter ++;
-		if (counter==count) {
+		counter++;
+		if (counter == count) {
 			counter = 0;
 			long past = lastTime;
-			long present  = System.nanoTime();
-			
+			long present = System.nanoTime();
+
 			float diff = present - past;
 			diff /= 1000000000;
 			float actual_fps = (float) count / diff;
-			Display.setTitle("FPS: "+actual_fps);
-			
+			Display.setTitle("FPS: " + actual_fps);
+
 			lastTime = System.nanoTime();
 			// not "= present" in case it took a while to setTitle()
 		}

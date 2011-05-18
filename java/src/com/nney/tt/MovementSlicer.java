@@ -9,16 +9,16 @@ public class MovementSlicer {
 	public MovementSlicer(int distance) {
 		this.kipper = distance;
 	}
-	
+
 	public int next(int slice) {
-		if (slice<=0) {
+		if (slice <= 0) {
 			throw new IllegalArgumentException();
 		}
 		int answer;
-		if (kipper==0) {
+		if (kipper == 0) {
 			answer = 0;
 		}
-		else if (kipper<0) {
+		else if (kipper < 0) {
 			answer = Math.max(-slice, kipper);
 		}
 		else {
@@ -27,8 +27,8 @@ public class MovementSlicer {
 		kipper -= answer;
 		return answer;
 	}
-	
+
 	public boolean more() {
-		return kipper!=0;
+		return kipper != 0;
 	}
 }

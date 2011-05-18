@@ -1,6 +1,8 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
+import com.nney.tt.geom.Box;
+import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 import com.nney.tt.sprites.Sprite;
 
@@ -11,13 +13,20 @@ public abstract class LeftRightAlien extends Alien {
 	@AlienProp(name = "Facing", xtraDef = "leftright")
 	public boolean goLeft;
 
+	
+	@Override
+	public void resetTo(Coord p) {
+		super.resetTo(p);
+		range.around(c.x, 50);
+	}
+	
 	@Override
 	public void mapperUpdate() {
 		changeAnimation(goLeft ? "left" : "right");
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 	}
-	
+
 	boolean moveLeftRight(int speed) {
 		if (!goLeft) {
 			changeAnimation("right");
@@ -37,9 +46,9 @@ public abstract class LeftRightAlien extends Alien {
 		}
 		return false;
 	}
-	
+
 	@Override
-	public void load() {
+	public void loadFromLegacyData() {
 		range = new XRange(loadShort(OBleft), loadShort(OBright));
 		goLeft = !BitOp.test(loadByte(OBflags), 0);
 	}
