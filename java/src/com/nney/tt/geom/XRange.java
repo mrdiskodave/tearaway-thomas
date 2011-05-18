@@ -1,8 +1,9 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
+import com.nney.utils.OldCopyable;
 
-public class XRange implements Copyable<XRange> {
+public class XRange implements Copyable<XRange>, OldCopyable {
 	public int left;
 	public int right;
 

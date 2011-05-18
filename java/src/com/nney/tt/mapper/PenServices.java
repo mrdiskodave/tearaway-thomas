@@ -27,4 +27,7 @@ public interface PenServices {
 
 	Coord getNudge();
 
+	void startAlienEdit();
+
+	void endAlienEdit();
 }

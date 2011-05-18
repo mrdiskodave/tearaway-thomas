@@ -19,6 +19,8 @@ import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.Mapper.AlienEdit;
+import com.nney.utils.OldCopyable;
 
 public class Mapper implements PenServices {
 	/**
@@ -64,7 +66,7 @@ public class Mapper implements PenServices {
 
 	private List<BatRecord> bats = new ArrayList<BatRecord>();
 
-	private List<Prop> props = new ArrayList<Prop>();
+	private AlienEdit alienEdit;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -330,7 +332,7 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public EditConsolidator startEdit() {
+	public EditDestination startEdit() {
 		System.out.println("Start edit");
 		assert edit == null;
 		edit = new EditConsolidator(gameMap);
@@ -341,7 +343,8 @@ public class Mapper implements PenServices {
 	public void endEdit() {
 		System.out.println("Submit edit");
 		assert edit != null;
-		undoControler.add(edit.endEdit());
+		DoUndo u = edit.endEdit();
+		undoControler.add(u);
 		edit = null;
 	}
 
@@ -394,14 +397,13 @@ public class Mapper implements PenServices {
 
 	public void setSelectedAlien(Alien s) {
 		this.selectedAlien = s;
-		if (s==null) {
-			props.clear();
-		}
-		else {
-			props = propsForAlien(s);
-		}
 	}
 
+	List<Prop> makeProps() {
+		if (selectedAlien==null) return null;
+		return propsForAlien(selectedAlien);
+	}
+	
 	List<Prop> propsForAlien(Alien alien) {
 		List<Prop> props = new ArrayList<Prop>();
 		Field[] fields = alien.getClass().getFields();
@@ -440,7 +442,9 @@ public class Mapper implements PenServices {
 		if (haveAlien()) {
 			switch (keyboard.justPressed()) {
 			case Keyboard.KEY_R:
+				startAlienEdit();
 				getSelectedAlien().resetTo(computeMousePos(true));
+				endAlienEdit();
 				break;
 			case Keyboard.KEY_DELETE:
 				final Alien a = getSelectedAlien();
@@ -466,6 +470,9 @@ public class Mapper implements PenServices {
 			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
 
 			bats.clear();
+			
+			List<Prop> props = makeProps();
+			
 			for (Prop p : props) {
 				BatTargetImpl bt = new BatTargetImpl(parent.getScreenPosition(), p, mgc, bats);
 				p.createBats(getSelectedAlien().c, bt);
@@ -537,5 +544,59 @@ public class Mapper implements PenServices {
 		return null;
 	}
 
+	class AlienEdit implements DoUndo {
+		class Content {
+			FieldAccessor fa;
+			Object content;
 
+			Content(FieldAccessor fa, Object content) {
+				this.fa = fa;
+				this.content = content;
+				System.out.println("Saving "+fa+" = "+content);
+			}
+			
+			void swap() {
+				Object t = fa.get();
+				fa.put(content);
+				content = ((OldCopyable) t).copy();
+			}
+		}
+		List<Content> cs = new ArrayList<Content>();
+
+		AlienEdit(Alien alien) {
+			List<Prop> props = propsForAlien(alien);
+			for (Prop p: props) {
+				FieldAccessor fa = p.fa;
+				Object o = ((OldCopyable) fa.get()).copy();
+				cs.add(new Content(fa, o));
+			}
+		}
+
+		void swap() {
+			for (Content c: cs) {
+				c.swap();
+			}
+		}
+
+		@Override
+		public void redo() {
+			swap();
+		}
+
+		@Override
+		public void undo() {
+			swap();
+		}
+	}
+
+	@Override
+	public void startAlienEdit() {
+		alienEdit = new AlienEdit(selectedAlien); 
+	}
+
+	@Override
+	public void endAlienEdit() {
+		alienEdit.swap();
+		undoControler.add(alienEdit);
+	}
 }

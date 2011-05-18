@@ -1,8 +1,9 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
+import com.nney.utils.OldCopyable;
 
-public class Box implements Copyable<Box> {
+public class Box implements Copyable<Box>, OldCopyable {
 	public int left;
 	public int top;
 	public int right;

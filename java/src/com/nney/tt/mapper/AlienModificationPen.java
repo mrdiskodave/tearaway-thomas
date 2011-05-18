@@ -6,6 +6,7 @@ import com.nney.tt.input.Pointer;
 public class AlienModificationPen extends Pen {
 	private BatAddress selectedBat;
 	private Coord batGrip;
+	private Object backup;
 
 	@Override
 	int key() {
@@ -30,6 +31,7 @@ public class AlienModificationPen extends Pen {
 		BatRecord bat = srv.searchForBat(c);
 		if (bat != null) {
 			selectedBat = bat.address;
+			srv.startAlienEdit();
 			c.sub(bat.where);
 			batGrip = c;
 		}
@@ -48,6 +50,9 @@ public class AlienModificationPen extends Pen {
 
 	@Override
 	void up(Coord c) {
+		if (selectedBat != null) {
+			srv.endAlienEdit();
+		}
 		noBat();
 	}
 	

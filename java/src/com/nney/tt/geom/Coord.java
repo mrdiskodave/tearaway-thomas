@@ -1,8 +1,9 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
+import com.nney.utils.OldCopyable;
 
-public class Coord implements Copyable<Coord> {
+public class Coord implements Copyable<Coord>, OldCopyable {
 	public int x;
 	public int y;
 

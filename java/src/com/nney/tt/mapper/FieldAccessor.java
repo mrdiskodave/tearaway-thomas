@@ -23,7 +23,7 @@ public class FieldAccessor {
 		}
 	}
 
-	public void put(Object o, Object v) {
+	public void put(Object v) {
 		try {
 			f.set(o, v);
 		}
@@ -33,6 +33,11 @@ public class FieldAccessor {
 		catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return f.getName();
 	}
 
 }
