@@ -1,6 +1,8 @@
 package com.nney.tt.geom;
 
-public class Box {
+import com.nney.utils.Copyable;
+
+public class Box implements Copyable<Box> {
 	public int left;
 	public int top;
 	public int right;
@@ -90,6 +92,7 @@ public class Box {
 		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
 	}
 
+	@Override
 	public Box copy() {
 		return new Box(this);
 	}

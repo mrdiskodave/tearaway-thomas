@@ -51,7 +51,7 @@ public class Mapper implements PenServices {
 	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
 	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
 	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
-	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienSelectionPen());
+	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienSelectionPen(), new AlienModificationPen());
 
 	private Tool tool;
 	private Tool otherTool;
@@ -384,6 +384,7 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void selectNearestAlien(Coord c) {
+		System.out.println("nearest...");
 		selectedAlien = parent.findNearestAlien(c);
 	}
 
@@ -431,13 +432,13 @@ public class Mapper implements PenServices {
 
 					VisualProp vp = null;
 					if (ft == Box.class) {
-						vp = new BoxBM(p, (Box) po.get());
+						vp = new BoxVisualProp(p, (Box) po.get());
 					}
 					else if (ft == XRange.class) {
-						vp = new XRangeBM(p, (XRange) po.get());
+						vp = new XRangeVisualProp(p, (XRange) po.get());
 					}
 					else if (ft == Coord.class) {
-						vp = new CoordBM(p, (Coord) po.get());
+						vp = new CoordVisualProp(p, (Coord) po.get());
 					}
 					if (vp != null) {
 						BatTargetImpl ourBT = new BatTargetImpl(parent.getScreenPosition(), vp, mgc, bats);

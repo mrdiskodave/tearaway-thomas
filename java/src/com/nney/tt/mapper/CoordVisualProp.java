@@ -3,10 +3,10 @@ package com.nney.tt.mapper;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 
-public class CoordBM extends VisualProp {
+public class CoordVisualProp extends VisualProp {
 	private final Coord t;
 
-	public CoordBM(AlienProp p, Coord t) {
+	public CoordVisualProp(AlienProp p, Coord t) {
 		super(p);
 		this.t = t;
 	}

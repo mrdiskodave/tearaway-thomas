@@ -1,6 +1,8 @@
 package com.nney.tt.geom;
 
-public class Coord {
+import com.nney.utils.Copyable;
+
+public class Coord implements Copyable<Coord> {
 	public int x;
 	public int y;
 
@@ -42,6 +44,7 @@ public class Coord {
 		y &= y2;
 	}
 
+	@Override
 	public Coord copy() {
 		return new Coord(this);
 	}

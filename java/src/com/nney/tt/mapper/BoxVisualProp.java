@@ -4,11 +4,11 @@ import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
-public class BoxBM extends VisualProp {
+public class BoxVisualProp extends VisualProp {
 	private static final int BORDER = 10;
 	private final Box t;
 
-	BoxBM(AlienProp p, Box t) {
+	BoxVisualProp(AlienProp p, Box t) {
 		super(p);
 		this.t = t;
 	}

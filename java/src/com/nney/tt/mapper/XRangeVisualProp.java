@@ -5,11 +5,11 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 
-public class XRangeBM extends VisualProp {
+public class XRangeVisualProp extends VisualProp {
 	private static final int BORDER = 10;
 	private final XRange t;
 
-	public XRangeBM(AlienProp p, XRange t) {
+	public XRangeVisualProp(AlienProp p, XRange t) {
 		super(p);
 		this.t = t;
 	}

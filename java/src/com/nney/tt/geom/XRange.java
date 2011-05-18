@@ -1,6 +1,8 @@
 package com.nney.tt.geom;
 
-public class XRange {
+import com.nney.utils.Copyable;
+
+public class XRange implements Copyable<XRange> {
 	public int left;
 	public int right;
 
@@ -9,6 +11,7 @@ public class XRange {
 		this.right = right;
 	}
 
+	@Override
 	public XRange copy() {
 		return new XRange(left, right);
 	}
