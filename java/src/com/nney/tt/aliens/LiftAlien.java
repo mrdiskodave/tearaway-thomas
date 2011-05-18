@@ -5,6 +5,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class LiftAlien extends AlienWithGeneratedLocation {
+	private static final int EXTRA_WIDTH = 5;
 	private Coord lc;
 	private int lastMoveFrmNum;
 	private Sprite ourSprite;
@@ -14,7 +15,7 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 	public void init() {
 		changeAnimation(0);
 		ourSprite = nextFrame();
-		width = ourSprite.getLiftWidth();
+		width = ourSprite.getLiftWidth() + EXTRA_WIDTH * 2;
 	}
 
 	abstract protected void setPosition();
@@ -59,7 +60,9 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 	}
 
 	public boolean horizontalOverlap(Player p) {
-		return p.c.x >= c.x && p.c.x <= (c.x + width);
+		int s = c.x - EXTRA_WIDTH;
+		int e = s + width;
+		return p.c.x >= s && p.c.x < e;
 	}
 
 	public void movePlayer(Player player) {
