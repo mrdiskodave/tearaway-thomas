@@ -24,4 +24,6 @@ public interface MapperServices {
 	void toggleShowInvisible();
 
 	BlocksHolder getBlocksHolder();
+
+	void reinstateAlien(Alien alien);
 }

@@ -182,27 +182,6 @@ public class Mapper implements PenServices {
 			parent.drawAliensForMapper();
 		}
 
-		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_TAB:
-			parent.quitMapper(computeMousePos(true));
-			return;
-		case Keyboard.KEY_I:
-			tool = eyeDropperTool;
-			break;
-		case Keyboard.KEY_H:
-			tool = handTool;
-			break;
-		case Keyboard.KEY_D:
-			tool = drawTool;
-			break;
-		case Keyboard.KEY_C:
-			tool = chooserTool;
-			break;
-		case Keyboard.KEY_A:
-			tool = alienTool;
-			break;
-		}
-
 		Tool t = tool;
 		if (otherTool != null) {
 			if (otherTool.isFree() && !ukt.isDown(keyThatSustainsTheOtherTool)) {
@@ -225,7 +204,30 @@ public class Mapper implements PenServices {
 				showTimer--;
 				bp.showSmallPalette(currentBlock);
 			}
+		}
+
+		if (t.isFree()) {
 			undoRedo();
+			switch (keyboard.justPressed()) {
+			case Keyboard.KEY_TAB:
+				parent.quitMapper(computeMousePos(true));
+				return;
+			case Keyboard.KEY_I:
+				tool = eyeDropperTool;
+				break;
+			case Keyboard.KEY_H:
+				tool = handTool;
+				break;
+			case Keyboard.KEY_D:
+				tool = drawTool;
+				break;
+			case Keyboard.KEY_C:
+				tool = chooserTool;
+				break;
+			case Keyboard.KEY_A:
+				tool = alienTool;
+				break;
+			}
 		}
 	}
 
@@ -245,10 +247,10 @@ public class Mapper implements PenServices {
 
 	private void undoRedo() {
 		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_U:
+		case Keyboard.KEY_Z:
 			undoControler.undo();
 			break;
-		case Keyboard.KEY_R:
+		case Keyboard.KEY_Y:
 			undoControler.redo();
 			break;
 		}
@@ -339,7 +341,7 @@ public class Mapper implements PenServices {
 	public void endEdit() {
 		System.out.println("Submit edit");
 		assert edit != null;
-		undoControler.addUndo(edit.endEdit());
+		undoControler.add(edit.endEdit());
 		edit = null;
 	}
 
@@ -387,6 +389,29 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void showSelectedAlienProps() {
+		if (haveAlien()) {
+			switch (keyboard.justPressed()) {
+			case Keyboard.KEY_R:
+				selectedAlien.resetTo(computeMousePos(true));
+				break;
+			case Keyboard.KEY_DELETE:
+				final Alien a = selectedAlien;
+				undoControler.add(new DoUndo() {
+					@Override
+					public void undo() {
+						parent.reinstateAlien(a);
+						selectedAlien = a;
+					}
+
+					@Override
+					public void redo() {
+						deleteAlien(a);
+					}
+				});
+				break;
+			}
+		}
+
 		if (haveAlien()) {
 			Coord sac = selectedAlien.c.copy();
 			sac.sub(parent.getScreenPosition());
@@ -451,7 +476,18 @@ public class Mapper implements PenServices {
 			// TODO: paste
 			// TODO: fill
 
-			// TODO: make a list of keys
+			// TODO: make a list of mapper controls
+
+			// TODO: resetTo() opens up the option for a reset key.
+			// TODO: resetTo() opens up the option for fresh alien creation and
+			// copying.
+		}
+	}
+
+	private void deleteAlien(Alien a) {
+		a.done();
+		if (a == selectedAlien) {
+			selectedAlien = null;
 		}
 	}
 

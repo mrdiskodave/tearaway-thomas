@@ -549,6 +549,18 @@ public class World implements AlienServices, MapperServices {
 		alien.visualReset();
 		alienTracker.delayedAdd(alien);
 	}
+	
+	private void loadAlienIntoWorld(Alien alien) {
+		alien.srv = this;
+		alien.visualReset();
+		alienTracker.delayedAdd(alien);
+	}
+
+	@Override
+	public void reinstateAlien(Alien alien) {
+		alien.remove = false;
+		alienTracker.delayedAdd(alien);
+	}
 
 	private void updateList(Iterator<Alien> alienIterator, Box screenBox, boolean mapper) {
 		for (; alienIterator.hasNext();) {
@@ -657,14 +669,6 @@ public class World implements AlienServices, MapperServices {
 		}
 	}
 
-	private void loadAlienIntoWorld(Alien alien) {
-		alien.srv = this;
-		if (alien instanceof WobbleGemAlien) {
-			gemCounter++;
-		}
-		alien.visualReset();
-		alienTracker.delayedAdd(alien);
-	}
 
 	private void init() {
 		Openable ho = TTResource.horizon(1);
