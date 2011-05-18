@@ -2,18 +2,21 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.aliens.AlienProp;
 
-public class Prop {
-	protected AlienProp prop;
+public abstract class Prop {
+	protected AlienProp aprop;
 	
-	public Prop(AlienProp prop) {
-		this.prop = prop;
+	public Prop(AlienProp aprop) {
+		this.aprop = aprop;
 	}
 	
 	public String name() {
-		return prop.name();
+		return aprop.name();
 	}
 	
 	public String doc() {
-		return prop.doc();
+		return aprop.doc();
 	}
+	
+	abstract public String text();
+
 }

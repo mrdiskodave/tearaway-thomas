@@ -29,7 +29,7 @@ public class BoxBM extends VisualProp {
 	}
 
 	@Override
-	void takeBatMovement(int what, Coord where) {
+	void moveTo(int what, Coord where) {
 		switch (what) {
 		case 0:
 			where.sub(t.getMiddle());
@@ -54,5 +54,10 @@ public class BoxBM extends VisualProp {
 		default:
 			assert false;
 		}
+	}
+	
+	@Override
+	public String text() {
+		return String.format("%dx%d,%dx%d", t.left, t.top, t.right, t.bottom);
 	}
 }

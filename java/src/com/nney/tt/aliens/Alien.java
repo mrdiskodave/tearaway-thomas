@@ -9,7 +9,7 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
-	@AlienProp(name="Location", doc="Where are we?")
+	@AlienProp(name="Location", doc="Where are we?", xtraDef="location")
 	public Coord c = new Coord();
 	
 	protected AnimPlayer animPlayer = new AnimPlayer();

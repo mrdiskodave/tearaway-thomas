@@ -233,12 +233,12 @@ public class Player extends Alien {
 	}
 
 	private boolean testStick(int s) {
-		// TODO: 00: stunTimer test no longer needed surely (as we are more modal)
+		// TODO: 30: stunTimer test no longer needed surely (as we are more modal)
 		return srv.getStick().test(s) && stunTimer == 0;
 	}
 
 	private boolean testStickJustPressed(int s) {
-		// TODO: 00: stunTimer test no longer needed surely (as we are more modal)
+		// TODO: 30: stunTimer test no longer needed surely (as we are more modal)
 		return srv.getStick().testJustPressed(s) && stunTimer == 0;
 	}
 

@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class StopAlien extends Alien {
-	@AlienProp(name="Push box")
+	@AlienProp(name="PushBox")
 	public Box box;
 
 	@Override

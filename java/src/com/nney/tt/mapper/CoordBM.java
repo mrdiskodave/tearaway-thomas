@@ -18,9 +18,14 @@ public class CoordBM extends VisualProp {
 	}
 	
 	@Override
-	void takeBatMovement(int what, Coord where) {
+	void moveTo(int what, Coord where) {
 		assert what==0;
 		t.x = where.x;
 		t.y = where.y;
+	}
+	
+	@Override
+	public String text() {
+		return String.format("%dx%d", t.x, t.y);
 	}
 }

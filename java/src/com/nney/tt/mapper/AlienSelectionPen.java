@@ -13,6 +13,19 @@ public class AlienSelectionPen extends Pen {
 	}
 	
 	@Override
+	void hover(Coord c) {
+		BatRecord bat = srv.searchForBat(c);
+		if (bat!=null) {
+			Coord nudge = srv.getNudge();
+			if (nudge!=null) {
+				Coord q = bat.where.copy();
+				q.add(nudge);
+				bat.address.moveTo(q);
+			}
+		}
+	}
+	
+	@Override
 	void down(Coord c) {
 		BatRecord bat = srv.searchForBat(c);
 		if (bat!=null) {
@@ -35,7 +48,7 @@ public class AlienSelectionPen extends Pen {
 	void stroke(Coord c) {
 		if (selectedBat!=null) {
 			c.sub(batGrip);
-			selectedBat.who.takeBatMovement(selectedBat.what, c);
+			selectedBat.moveTo(c);
 		}
 	}
 	

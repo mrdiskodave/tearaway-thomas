@@ -56,9 +56,11 @@ public class BlockAliasTable {
 	 * @return A block number.
 	 */
 	public int shuffle(int block) {
-		ArrayList<Integer> a = expand.get(block);
-		if (a==null) return block;
-		return a.get(r.nextInt(a.size()));
+		ArrayList<Integer> row = expand.get(block);
+		if (row==null) return block;
+		int answer = row.get(r.nextInt(row.size()));
+//		System.out.println(block+"-shuffle->"+answer);
+		return answer;
 	}
 
 	/**
@@ -69,8 +71,9 @@ public class BlockAliasTable {
 	 * @return A canonical block number.
 	 */
 	public int compress(int block) {
-		Integer block2 = compress.get(block);
-		if (block2 == null) return block;
-		return block2;
+		Integer answer = compress.get(block);
+		if (answer == null) return block;
+//		System.out.println(block+"-compress->"+answer);
+		return answer;
 	}
 }

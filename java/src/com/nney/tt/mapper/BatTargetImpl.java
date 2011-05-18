@@ -9,21 +9,20 @@ public class BatTargetImpl implements BatTarget {
 	private final Coord scr;
 	private final MapperGC mgc;
 	private final List<BatRecord> target;
-
-	private VisualProp sender;
+	private final VisualProp sender;
 	private int number;
 
-	BatTargetImpl(Coord scr, MapperGC mgc, List<BatRecord> target) {
+	BatTargetImpl(Coord scr, VisualProp sender, MapperGC mgc, List<BatRecord> target) {
 		this.scr = scr;
+		this.sender = sender;
 		this.mgc = mgc;
 		this.target = target;
 	}
 	
-	public void setSender(VisualProp sender) {
-		this.sender = sender;
-		number = 0;
+	public Coord firstBatPosition() {
+		return target.get(0).where;
 	}
-
+	
 	@Override
 	public void drawBat(Coord c) {
 		int x = c.x - scr.x;

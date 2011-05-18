@@ -27,7 +27,7 @@ public class XRangeBM extends VisualProp {
 	}
 
 	@Override
-	void takeBatMovement(int what, Coord where) {
+	void moveTo(int what, Coord where) {
 		switch (what) {
 		case 0:
 			t.add(where.x - t.getMiddle());
@@ -41,5 +41,10 @@ public class XRangeBM extends VisualProp {
 		default:
 			assert false;
 		}
+	}
+	
+	@Override
+	public String text() {
+		return String.format("%d-%d", t.left, t.right);
 	}
 }

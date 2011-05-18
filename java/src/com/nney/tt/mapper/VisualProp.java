@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.MapperServices;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 
@@ -9,11 +10,15 @@ import com.nney.tt.geom.Coord;
  * mouthful.
  */
 public abstract class VisualProp extends Prop {
-	public VisualProp(AlienProp prop) {
-		super(prop);
+	Coord showMe;
+	
+	public VisualProp(AlienProp aprop) {
+		super(aprop);
 	}
 
 	abstract void createBats(Coord alien, BatTarget rt);
 
-	abstract void takeBatMovement(int what, Coord where);
+	abstract void moveTo(int what, Coord where);
+	
+	void click(MapperServices srv) {}
 }

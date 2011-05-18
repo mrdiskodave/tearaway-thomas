@@ -124,6 +124,12 @@ public class World implements AlienServices, MapperServices {
 
 	private Pointer mouse;
 
+	private String worldName = CTC_WORLD;
+
+	private boolean configShowInvisible;
+
+	private boolean configSeeMasks;
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
@@ -559,7 +565,7 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	@Override
-	public void mapperDrawAliens() {
+	public void drawAliensForMapper() {
 		updateAliens(true);
 	}
 
@@ -625,13 +631,14 @@ public class World implements AlienServices, MapperServices {
 
 		if (usingMapper) {
 			if (mapper == null) {
-				mapper = new Mapper(gameMap, this, mouse, keyboard, gc, blocksHolder, debugFont);
+				mapper = new Mapper(gameMap, this, mouse, keyboard, gc, debugFont);
 			}
 			mapper.run();
 		}
 		else {
 			if (keyboard.justPressed() == Keyboard.KEY_TAB) {
 				usingMapper = true;
+				gameMap.applyCompress(wi.blockRandomisationTable);
 			}
 			player.move();
 			if (CTC_HARD_SCROLLING) {
@@ -670,15 +677,8 @@ public class World implements AlienServices, MapperServices {
 		player.connectAnims(playerAnims);
 		player.init();
 
-		String worldName = CTC_WORLD;
-		Openable blocksGfx = TTResource.blocks(worldName);
-		Openable masksGfx = TTResource.blockMask(worldName);
 		wi = WorldInformation.load(worldName);
-
-		BlockSource bs = new BlockSource(CTC_SEE_MASKS ? masksGfx : blocksGfx, Const.BLOCK_SIZE);
-		bs.doBlockHiding(wi.invisibleBlockHiding);
-		blocksHolder = gc.createBlocksHolder(bs);
-		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGfx);
+		loadBlocks();
 
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
 
@@ -698,6 +698,16 @@ public class World implements AlienServices, MapperServices {
 		snapScreenTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
+	}
+
+	private void loadBlocks() {
+		Openable blocksGfx = TTResource.blocks(worldName);
+		Openable masksGfx = TTResource.blockMask(worldName);
+
+		BlockSource bs = new BlockSource(configSeeMasks ? masksGfx : blocksGfx, Const.BLOCK_SIZE);
+		if (!configShowInvisible) bs.doBlockHiding(wi.invisibleBlockHiding);
+		blocksHolder = gc.createBlocksHolder(bs);
+		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGfx);
 	}
 
 	@Override
@@ -721,9 +731,10 @@ public class World implements AlienServices, MapperServices {
 	@Override
 	public void quitMapper(Coord mousePos) {
 		player.resetTo(mousePos);
+		gameMap.applyShuffle(wi.blockRandomisationTable);
 		usingMapper = false;
 	}
-
+	
 	@Override
 	public void drawMap() {
 		// horizon.draw();
@@ -758,5 +769,22 @@ public class World implements AlienServices, MapperServices {
 		NearestAlienFinder n = new NearestAlienFinder(c);
 		visitVisibleAliens(n);
 		return n.getAnswer();
+	}
+	
+	@Override
+	public void toggleSeeMasks() {
+		configSeeMasks = !configSeeMasks;
+		loadBlocks();
+	}
+	
+	@Override
+	public void toggleShowInvisible() {
+		configShowInvisible = !configShowInvisible;
+		loadBlocks();
+	}
+
+	@Override
+	public BlocksHolder getBlocksHolder() {
+		return blocksHolder;
 	}
 }

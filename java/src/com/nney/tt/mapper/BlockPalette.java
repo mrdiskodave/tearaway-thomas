@@ -42,7 +42,7 @@ public class BlockPalette {
 	 * Our background colour.
 	 */
 	private static final int COL_BACKGROUND = 0xff0020ff;
-
+	
 	private final BlocksHolder blocksHolder;
 	private final int blockCount;
 	private final int bigBlockPaletteHeight;
@@ -90,7 +90,7 @@ public class BlockPalette {
 		int x = Math2.limit(0, BLOCKS_PER_LINE - d, (currentBlock % BLOCKS_PER_LINE) - (d / 2));
 		int y = Math2.limit(0, bigBlockPaletteHeight - d, (currentBlock / BLOCKS_PER_LINE - (d / 2)));
 		int db = Const.BLOCK_SIZE * d;
-		int sx = mgc.screenWidth() - db;
+		int sx = 0; //mgc.screenWidth() - db;
 		int sy = 0;
 		mgc.fillRectangle(sx, sy, db, db, COL_BACKGROUND);
 		for (BlockPos p : createBlockPosList(x, y, d, d, sx, sy)) {

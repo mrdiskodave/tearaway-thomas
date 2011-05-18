@@ -82,4 +82,12 @@ public class Sprite {
 			whiteVersion.dispose();
 		}
 	}
+
+	public int getLiftWidth() {
+		int indx = handleY*2;
+		int a = lineInfo[indx];
+		int b = lineInfo[indx+1];
+		assert handleX == a;
+		return b;
+	}
 }

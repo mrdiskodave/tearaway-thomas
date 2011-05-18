@@ -5,11 +5,11 @@ import com.nney.tt.geom.XRange;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class LeftRightAlien extends Alien {
-	@AlienProp(name = "Facing", xtraDef = "leftright")
-	public boolean goLeft;
-
 	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.")
 	public XRange range;
+
+	@AlienProp(name = "Facing", xtraDef = "leftright")
+	public boolean goLeft;
 
 	@Override
 	public void mapperUpdate() {

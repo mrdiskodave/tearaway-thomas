@@ -25,4 +25,6 @@ public interface PenServices {
 
 	BatRecord searchForBat(Coord c);
 
+	Coord getNudge();
+
 }

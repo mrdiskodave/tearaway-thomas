@@ -17,7 +17,7 @@ public class StunSpriteAlien extends Alien {
 			srv.getThePlayer().stun();
 			
 			
-			// TODO: 00: not quite as simple as that!
+			// TODO: 30: not quite as simple as that!
 			// see 'rflm_alien'
 			// they have variable delays on the end
 			// and the flame probably does need a custom

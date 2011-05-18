@@ -74,10 +74,14 @@ public class GameMap {
 	}
 	
 	public void applyShuffle(BlockAliasTable bat) {
-		StopWatch sw = new StopWatch();
 		for (int x = 0; x < map.length; x++) {
 			map[x] = (short) bat.shuffle(map[x]);
 		}
-		System.out.println("Shuffle took " + sw.readMillisecondsFloat() + "ms");
+	}
+	
+	public void applyCompress(BlockAliasTable bat) {
+		for (int x = 0; x < map.length; x++) {
+			map[x] = (short) bat.compress(map[x]);
+		}
 	}
 }
