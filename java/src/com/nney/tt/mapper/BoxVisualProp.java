@@ -8,9 +8,9 @@ public class BoxVisualProp extends VisualProp {
 	private static final int BORDER = 10;
 	private final Box t;
 
-	BoxVisualProp(AlienProp p, Box t) {
-		super(p);
-		this.t = t;
+	BoxVisualProp(AlienProp p, FieldAccessor fa) {
+		super(p, fa);
+		this.t = (Box) fa.get();
 	}
 
 	@Override

@@ -9,9 +9,9 @@ public class XRangeVisualProp extends VisualProp {
 	private static final int BORDER = 10;
 	private final XRange t;
 
-	public XRangeVisualProp(AlienProp p, XRange t) {
-		super(p);
-		this.t = t;
+	public XRangeVisualProp(AlienProp p, FieldAccessor fa) {
+		super(p, fa);
+		this.t = (XRange) fa.get();
 	}
 
 	@Override

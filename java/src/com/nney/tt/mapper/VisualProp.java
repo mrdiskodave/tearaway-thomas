@@ -10,16 +10,7 @@ import com.nney.tt.geom.Coord;
  * mouthful.
  */
 public abstract class VisualProp extends Prop {
-	Coord showMe;
-
-	public VisualProp(AlienProp aprop) {
-		super(aprop);
-	}
-
-	abstract void createBats(Coord alien, BatTarget rt);
-
-	abstract void moveTo(int what, Coord where);
-
-	void click(MapperServices srv) {
+	public VisualProp(AlienProp aprop, FieldAccessor fa) {
+		super(aprop, fa);
 	}
 }

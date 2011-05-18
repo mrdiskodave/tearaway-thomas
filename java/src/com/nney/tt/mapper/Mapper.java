@@ -10,7 +10,6 @@ import com.nney.tt.MapperServices;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.aliens.AlienWithGeneratedLocation;
-import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
@@ -51,7 +50,8 @@ public class Mapper implements PenServices {
 	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
 	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
 	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
-	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienSelectionPen(), new AlienModificationPen());
+	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienSelectionPen(),
+			new AlienModificationPen());
 
 	private Tool tool;
 	private Tool otherTool;
@@ -374,18 +374,65 @@ public class Mapper implements PenServices {
 	// --------------------------------------------------
 
 	public boolean haveAlien() {
-		if (selectedAlien != null && !selectedAlien.remove) {
+		if (getSelectedAlien() != null && !getSelectedAlien().remove) {
 			return true;
 		}
 		// just to help garbage collection
-		selectedAlien = null;
+		setSelectedAlien(null);
 		return false;
 	}
 
 	@Override
 	public void selectNearestAlien(Coord c) {
 		System.out.println("nearest...");
-		selectedAlien = parent.findNearestAlien(c);
+		setSelectedAlien(parent.findNearestAlien(c));
+	}
+
+	public Alien getSelectedAlien() {
+		return selectedAlien;
+	}
+
+	public void setSelectedAlien(Alien s) {
+		this.selectedAlien = s;
+		if (s==null) {
+			props.clear();
+		}
+		else {
+			props = propsForAlien(s);
+		}
+	}
+
+	List<Prop> propsForAlien(Alien alien) {
+		List<Prop> props = new ArrayList<Prop>();
+		Field[] fields = alien.getClass().getFields();
+		for (Field field : fields) {
+			AlienProp p = field.getAnnotation(AlienProp.class);
+			if (p != null && !(p.xtraDef().equals("location") && alien instanceof AlienWithGeneratedLocation)) {
+				Prop prop = null;
+				FieldAccessor po = new FieldAccessor(field, alien);
+				Class<?> ft = field.getType();
+
+				if (ft == Box.class) {
+					prop = new BoxVisualProp(p, po);
+				}
+				else if (ft == XRange.class) {
+					prop = new XRangeVisualProp(p, po);
+				}
+				else if (ft == Coord.class) {
+					prop = new CoordVisualProp(p, po);
+				}
+				else if (ft == boolean.class) {
+					prop = new BooleanProp(p, po);
+				}
+				else {
+					System.out.println(ft);
+					assert false;
+				}
+				assert prop != null;
+				props.add(0, prop);
+			}
+		}
+		return props;
 	}
 
 	@Override
@@ -393,15 +440,15 @@ public class Mapper implements PenServices {
 		if (haveAlien()) {
 			switch (keyboard.justPressed()) {
 			case Keyboard.KEY_R:
-				selectedAlien.resetTo(computeMousePos(true));
+				getSelectedAlien().resetTo(computeMousePos(true));
 				break;
 			case Keyboard.KEY_DELETE:
-				final Alien a = selectedAlien;
+				final Alien a = getSelectedAlien();
 				undoControler.add(new DoUndo() {
 					@Override
 					public void undo() {
 						parent.reinstateAlien(a);
-						selectedAlien = a;
+						setSelectedAlien(a);
 					}
 
 					@Override
@@ -414,50 +461,14 @@ public class Mapper implements PenServices {
 		}
 
 		if (haveAlien()) {
-			Coord sac = selectedAlien.c.copy();
+			Coord sac = getSelectedAlien().c.copy();
 			sac.sub(parent.getScreenPosition());
 			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
 
 			bats.clear();
-			props.clear();
-
-			Field[] fields = selectedAlien.getClass().getFields();
-			for (Field field : fields) {
-				AlienProp p = field.getAnnotation(AlienProp.class);
-				if (p != null
-						&& !(p.xtraDef().equals("location") && selectedAlien instanceof AlienWithGeneratedLocation)) {
-					Prop prop = null;
-					FieldAccessor po = new FieldAccessor(field, selectedAlien);
-					Class<?> ft = field.getType();
-
-					VisualProp vp = null;
-					if (ft == Box.class) {
-						vp = new BoxVisualProp(p, (Box) po.get());
-					}
-					else if (ft == XRange.class) {
-						vp = new XRangeVisualProp(p, (XRange) po.get());
-					}
-					else if (ft == Coord.class) {
-						vp = new CoordVisualProp(p, (Coord) po.get());
-					}
-					if (vp != null) {
-						BatTargetImpl ourBT = new BatTargetImpl(parent.getScreenPosition(), vp, mgc, bats);
-						vp.createBats(selectedAlien.c, ourBT);
-						vp.showMe = ourBT.firstBatPosition();
-						prop = vp;
-					}
-					else {
-						if (ft == boolean.class) {
-							prop = new BooleanProp(p, po);
-						}
-						else {
-							System.out.println(ft);
-							assert false;
-						}
-					}
-					assert prop != null;
-					props.add(0, prop);
-				}
+			for (Prop p : props) {
+				BatTargetImpl bt = new BatTargetImpl(parent.getScreenPosition(), p, mgc, bats);
+				p.createBats(getSelectedAlien().c, bt);
 			}
 
 			PropDrawer pd = new PropDrawer(mgc);
@@ -465,6 +476,7 @@ public class Mapper implements PenServices {
 			for (Prop p : props) {
 				pd.draw(p);
 			}
+			
 			// TODO: 01: mouse over
 			// TODO: 02: visual items: goto or reset
 			// TODO: 02: boolean items: toggle
@@ -487,8 +499,8 @@ public class Mapper implements PenServices {
 
 	private void deleteAlien(Alien a) {
 		a.done();
-		if (a == selectedAlien) {
-			selectedAlien = null;
+		if (a == getSelectedAlien()) {
+			setSelectedAlien(null);
 		}
 	}
 
@@ -524,5 +536,6 @@ public class Mapper implements PenServices {
 		}
 		return null;
 	}
+
 
 }

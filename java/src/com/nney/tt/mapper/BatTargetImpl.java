@@ -9,10 +9,10 @@ public class BatTargetImpl implements BatTarget {
 	private final Coord scr;
 	private final MapperGC mgc;
 	private final List<BatRecord> target;
-	private final VisualProp sender;
+	private final Prop sender;
 	private int number;
 
-	BatTargetImpl(Coord scr, VisualProp sender, MapperGC mgc, List<BatRecord> target) {
+	BatTargetImpl(Coord scr, Prop sender, MapperGC mgc, List<BatRecord> target) {
 		this.scr = scr;
 		this.sender = sender;
 		this.mgc = mgc;

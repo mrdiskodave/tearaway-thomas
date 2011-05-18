@@ -3,10 +3,10 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 
 public class BatAddress {
-	public final VisualProp who;
+	public final Prop who;
 	public final int what;
 
-	public BatAddress(VisualProp who, int what) {
+	public BatAddress(Prop who, int what) {
 		this.who = who;
 		this.what = what;
 	}
