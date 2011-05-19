@@ -1,32 +1,25 @@
 package com.nney.tt.mapper;
 
 public class PropDrawer {
-	private final MapperGC mgc;
 	private int y;
+	private final StatusLayer statusLayer;
 
-	public PropDrawer(MapperGC mgc) {
-		this.mgc = mgc;
+	public PropDrawer(StatusLayer statusLayer) {
+		this.statusLayer = statusLayer;
 	}
 
 	public void draw(String t, String v) {
-		String s = padTo(t, 10) + padTo(v, 30);
-		mgc.drawText(0, y, 0xffffff, 0x60000000, s);
-		y += 8;
-		// TODO: 00: return a Box to say where it is
+		statusLayer.draw(0, y, 0xffffffff, clip(t, 10));
+		statusLayer.draw(10, y, 0xffffffff, v);
+		y ++;
 	}
 
 	public void draw(Prop p) {
 		draw(p.name(), p.text());
 	}
 
-	private static String padTo(String s, int x) {
-		int l = s.length();
-		StringBuffer b = new StringBuffer(s.substring(0, Math.min(x, l)));
-		while (l < x) {
-			b.append(' ');
-			l++;
-		}
-		return b.toString();
+	private static String clip(String s, int x) {
+		return s.substring(0, Math.min(x, s.length()));
 	}
 
 }

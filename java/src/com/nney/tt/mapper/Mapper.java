@@ -479,7 +479,9 @@ public class Mapper implements PenServices {
 				p.createBats(getSelectedAlien().c, bt);
 			}
 
-			PropDrawer pd = new PropDrawer(mgc);
+			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
+
+			PropDrawer pd = new PropDrawer(statusLayer);
 			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
 			for (Prop p : props) {
 				pd.draw(p);

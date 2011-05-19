@@ -42,24 +42,22 @@ public class MapperGC {
 	}
 
 	public void drawSight(int x, int y, int i, int col) {
-		// drawTransBox(x-5, y-5, 11, 11, col);
 		gc.fillRectangle(x - i, y, i * 2 + 1, 1, col);
 		gc.fillRectangle(x, y - i, 1, i * 2 + 1, col);
 	}
-
-	// private void drawTransBox(int i, int j, int k, int l, int col) {
-	// drawTransBox(i, j, k, l, col, col&0x080ffffff);
-	// }
 
 	public void drawText(int x, int y, int fg, String text) {
 		debugFont.draw(x, y, fg, 0, text);
 	}
 
-	public int characterWidth() {
-		// TODO: we should ask the font about this (determining that it is non-proportional and stuff)
-		return 8;
+	public int charWidth() {
+		return debugFont.charWidth();
 	}
-	
+
+	public int charHeight() {
+		return debugFont.charWidth();
+	}
+
 	public void drawText(int x, int y, int fg, int bg, String text) {
 		gc.fillRectangle(x, y, 8 * text.length(), 8, bg);
 		debugFont.draw(x, y, fg, 0, text);

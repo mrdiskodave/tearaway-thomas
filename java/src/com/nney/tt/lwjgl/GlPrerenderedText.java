@@ -7,15 +7,22 @@ import com.nney.tt.gfx.PrerenderedText;
 public class GlPrerenderedText implements PrerenderedText {
 	private final int width;
 	private final int id;
+	private final int height;
 
-	public GlPrerenderedText(int width, int id) {
+	public GlPrerenderedText(int width, int height, int id) {
 		this.width = width;
+		this.height = height;
 		this.id = id;
 	}
 
 	@Override
-	public int getWidth() {
+	public int width() {
 		return width;
+	}
+
+	@Override
+	public int height() {
+		return height;
 	}
 
 	@Override

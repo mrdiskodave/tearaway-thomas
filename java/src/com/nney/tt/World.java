@@ -620,8 +620,8 @@ public class World implements AlienServices, MapperServices {
 			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
 			scoreText = font.preDraw(0xffffffff, 0, String.format("%08d", score));
 		}
-		scoreHeadingText.draw((gc.screenWidth() - scoreHeadingText.getWidth()) / 2, 6);
-		scoreText.draw((gc.screenWidth() - scoreText.getWidth()) / 2, 6 + 14);
+		scoreHeadingText.draw((gc.screenWidth() - scoreHeadingText.width()) / 2, 6);
+		scoreText.draw((gc.screenWidth() - scoreText.width()) / 2, 6 + 14);
 	}
 
 	private void drawTheMap() {

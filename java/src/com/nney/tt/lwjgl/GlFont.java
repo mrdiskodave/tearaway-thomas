@@ -47,6 +47,6 @@ public class GlFont extends PartialFontImpl {
 		GL11.glNewList(id, GL11.GL_COMPILE);
 		int width = draw(0, 0, fg, kern, text) - kern;
 		GL11.glEndList();
-		return new GlPrerenderedText(width, id);
+		return new GlPrerenderedText(width, miniH, id);
 	}
 }

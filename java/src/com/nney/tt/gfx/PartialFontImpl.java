@@ -6,8 +6,23 @@ public abstract class PartialFontImpl implements Font {
 	final protected String characters;
 	final protected Bounds[] boxes;
 	protected boolean mono;
+	private final boolean proportional;
+	private final int miniW;
+	protected final int miniH;
 
+	@Override
+	public int charWidth() {
+		return proportional ? -1 : miniW;
+	}
+
+	@Override
+	public int charHeight() {
+		return miniH;
+	}
 	public PartialFontImpl(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
+		this.miniW = miniW;
+		this.miniH = miniH;
+		this.proportional = proportional;
 		this.content = new SimpleImage(data);
 		BlockSource bs = new BlockSource(content, miniW, miniH);
 		int count = bs.getBlockCount();
