@@ -20,7 +20,6 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.Mapper.AlienEdit;
-import com.nney.utils.OldCopyable;
 
 public class Mapper implements PenServices {
 	/**
@@ -556,9 +555,9 @@ public class Mapper implements PenServices {
 			}
 			
 			void swap() {
-				Object t = fa.get();
+				Object t = fa.getCopy();
 				fa.put(content);
-				content = ((OldCopyable) t).copy();
+				content = t;
 			}
 		}
 		List<Content> cs = new ArrayList<Content>();
@@ -567,7 +566,7 @@ public class Mapper implements PenServices {
 			List<Prop> props = propsForAlien(alien);
 			for (Prop p: props) {
 				FieldAccessor fa = p.fa;
-				Object o = ((OldCopyable) fa.get()).copy();
+				Object o = fa.getCopy();
 				cs.add(new Content(fa, o));
 			}
 		}

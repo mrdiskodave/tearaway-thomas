@@ -26,6 +26,6 @@ public class CoordVisualProp extends VisualProp {
 
 	@Override
 	public String text() {
-		return String.format("%dx%d", t.x, t.y);
+		return String.format("x%dy%d", t.x, t.y);
 	}
 }

@@ -1,9 +1,8 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
-import com.nney.utils.OldCopyable;
 
-public class Box implements Copyable<Box>, OldCopyable {
+public class Box implements Copyable<Box>, Cloneable {
 	public int left;
 	public int top;
 	public int right;
@@ -88,16 +87,6 @@ public class Box implements Copyable<Box>, OldCopyable {
 		return 1 + bottom - top;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
-	}
-
-	@Override
-	public Box copy() {
-		return new Box(this);
-	}
-
 	public void add(Coord c) {
 		left += c.x;
 		right += c.x;
@@ -150,5 +139,27 @@ public class Box implements Copyable<Box>, OldCopyable {
 
 	public static Box around(Coord c, int i) {
 		return around(c, i, i);
+	}
+
+
+	@Override
+	public Box copy() {
+		return new Box(this);
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Box that = (Box) obj;
+		return left == that.left && right == that.right && top == that.top && bottom == that.bottom;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
 	}
 }

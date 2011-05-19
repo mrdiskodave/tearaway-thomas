@@ -58,6 +58,6 @@ public class BoxVisualProp extends VisualProp {
 
 	@Override
 	public String text() {
-		return String.format("%dx%d,%dx%d", t.left, t.top, t.right, t.bottom);
+		return String.format("x%dy%d w%dh%d", t.left, t.top, t.width(), t.height());
 	}
 }

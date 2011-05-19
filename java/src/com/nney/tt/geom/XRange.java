@@ -1,20 +1,14 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
-import com.nney.utils.OldCopyable;
 
-public class XRange implements Copyable<XRange>, OldCopyable {
+public class XRange implements Copyable<XRange>, Cloneable {
 	public int left;
 	public int right;
 
 	public XRange(int left, int right) {
 		this.left = left;
 		this.right = right;
-	}
-
-	@Override
-	public XRange copy() {
-		return new XRange(left, right);
 	}
 
 	public void setLeft(int i, int border) {
@@ -37,5 +31,32 @@ public class XRange implements Copyable<XRange>, OldCopyable {
 	public void around(int x, int i) {
 		left = x-i;
 		right = x+i;
+	}
+
+	public int width() {
+		return right-left+1;
+	}
+
+
+	@Override
+	public XRange copy() {
+		return new XRange(left, right);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Box that = (Box) obj;
+		return left == that.left && right == that.right;
+	}
+	
+
+	@Override
+	public String toString() {
+		return String.format("XRange(%d, %d)", left, right);
 	}
 }

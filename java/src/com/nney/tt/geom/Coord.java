@@ -1,9 +1,8 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
-import com.nney.utils.OldCopyable;
 
-public class Coord implements Copyable<Coord>, OldCopyable {
+public class Coord implements Copyable<Coord>, Cloneable {
 	public int x;
 	public int y;
 
@@ -45,10 +44,6 @@ public class Coord implements Copyable<Coord>, OldCopyable {
 		y &= y2;
 	}
 
-	@Override
-	public Coord copy() {
-		return new Coord(this);
-	}
 
 	// short hand, as we do it so much
 	public Coord copyAndAdd(int x, int y) {
@@ -64,6 +59,16 @@ public class Coord implements Copyable<Coord>, OldCopyable {
 		return answer;
 	}
 
+	@Override
+	public Coord copy() {
+		return new Coord(this);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		Coord that = (Coord) obj;

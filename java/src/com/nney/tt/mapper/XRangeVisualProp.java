@@ -45,6 +45,6 @@ public class XRangeVisualProp extends VisualProp {
 
 	@Override
 	public String text() {
-		return String.format("%d-%d", t.left, t.right);
+		return String.format("x%d w%d", t.left, t.width());
 	}
 }
