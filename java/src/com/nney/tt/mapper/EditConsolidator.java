@@ -24,7 +24,7 @@ public class EditConsolidator implements EditDestination {
 		}
 	}
 
-	public DoUndo endEdit() {
+	public UndoRedo endEdit() {
 		SavedMapBox undo = null;
 		Box b = sizeUpEdits();
 		if (b!=null) {

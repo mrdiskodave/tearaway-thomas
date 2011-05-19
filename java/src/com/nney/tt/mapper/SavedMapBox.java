@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
-public class SavedMapBox implements DoUndo {
+public class SavedMapBox extends SymmetricalUndoRedo {
 	private final int top;
 	private final int left;
 	private final short[] what;
@@ -31,17 +31,8 @@ public class SavedMapBox implements DoUndo {
 	}
 
 	@Override
-	public void undo() {
-		swap();
-	}
-
 	public void swap() {
 		process(true, true);
-	}
-
-	@Override
-	public void redo() {
-		swap();
 	}
 
 	private void process(boolean read, boolean write) {

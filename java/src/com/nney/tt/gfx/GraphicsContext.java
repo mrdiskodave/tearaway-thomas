@@ -12,6 +12,7 @@ public interface GraphicsContext {
 
 	BlocksHolder createBlocksHolder(BlockSource bs);
 
+	// TODO: hide all these params inside -- just wanna pass a font name
 	Font createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters);
 
 	int screenWidth();

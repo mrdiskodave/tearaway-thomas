@@ -55,12 +55,13 @@ public class MapperGC {
 		debugFont.draw(x, y, fg, 0, text);
 	}
 
+	public int characterWidth() {
+		// TODO: we should ask the font about this (determining that it is non-proportional and stuff)
+		return 8;
+	}
+	
 	public void drawText(int x, int y, int fg, int bg, String text) {
 		gc.fillRectangle(x, y, 8 * text.length(), 8, bg);
 		debugFont.draw(x, y, fg, 0, text);
-	}
-
-	public int characterWidth() {
-		return 8;
 	}
 }

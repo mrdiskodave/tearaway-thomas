@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -19,7 +20,6 @@ import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.mapper.Mapper.AlienEdit;
 
 public class Mapper implements PenServices {
 	/**
@@ -32,10 +32,12 @@ public class Mapper implements PenServices {
 	//
 	// stuff to do with the currentBlock
 	//
-	private int showTimer;
 	private int currentBlock;
 	final private int blockCount;
+	private int showSmallPaletteTimer;
 	private BlockPalette bp;
+	
+	
 
 	final private MapperGC mgc;
 	final private Pointer mouse;
@@ -201,8 +203,8 @@ public class Mapper implements PenServices {
 
 		if (!t.ownScreen()) {
 			sayIt(t.name());
-			if (showTimer != 0) {
-				showTimer--;
+			if (showSmallPaletteTimer != 0) {
+				showSmallPaletteTimer--;
 				bp.showSmallPalette(currentBlock);
 			}
 		}
@@ -327,7 +329,7 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void showBlocks() {
-		showTimer = 100;
+		showSmallPaletteTimer = 100;
 	}
 
 	@Override
@@ -342,8 +344,8 @@ public class Mapper implements PenServices {
 	public void endEdit() {
 		System.out.println("Submit edit");
 		assert edit != null;
-		DoUndo u = edit.endEdit();
-		undoControler.add(u);
+		UndoRedo u = edit.endEdit();
+		if (u!=null) undoControler.redoThenAdd(u);
 		edit = null;
 	}
 
@@ -447,7 +449,7 @@ public class Mapper implements PenServices {
 				break;
 			case Keyboard.KEY_DELETE:
 				final Alien a = getSelectedAlien();
-				undoControler.add(new DoUndo() {
+				undoControler.redoThenAdd(new UndoRedo() {
 					@Override
 					public void undo() {
 						parent.reinstateAlien(a);
@@ -543,59 +545,20 @@ public class Mapper implements PenServices {
 		return null;
 	}
 
-	class AlienEdit implements DoUndo {
-		class Content {
-			FieldAccessor fa;
-			Object content;
 
-			Content(FieldAccessor fa, Object content) {
-				this.fa = fa;
-				this.content = content;
-				System.out.println("Saving "+fa+" = "+content);
-			}
-			
-			void swap() {
-				Object t = fa.getCopy();
-				fa.put(content);
-				content = t;
-			}
-		}
-		List<Content> cs = new ArrayList<Content>();
 
-		AlienEdit(Alien alien) {
-			List<Prop> props = propsForAlien(alien);
-			for (Prop p: props) {
-				FieldAccessor fa = p.fa;
-				Object o = fa.getCopy();
-				cs.add(new Content(fa, o));
-			}
-		}
-
-		void swap() {
-			for (Content c: cs) {
-				c.swap();
-			}
-		}
-
-		@Override
-		public void redo() {
-			swap();
-		}
-
-		@Override
-		public void undo() {
-			swap();
-		}
-	}
 
 	@Override
 	public void startAlienEdit() {
-		alienEdit = new AlienEdit(selectedAlien); 
+		alienEdit = new AlienEdit(propsForAlien(selectedAlien)); 
 	}
 
 	@Override
 	public void endAlienEdit() {
-		alienEdit.swap();
-		undoControler.add(alienEdit);
+		int size = alienEdit.size();
+		System.out.println(size+" fields changed!");
+		if (size!=0) {
+			undoControler.add(alienEdit);
+		}
 	}
 }

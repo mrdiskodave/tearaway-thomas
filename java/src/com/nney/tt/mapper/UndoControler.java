@@ -1,29 +1,41 @@
 package com.nney.tt.mapper;
 
+import java.security.InvalidParameterException;
 import java.util.Stack;
 
 class UndoControler {
-	private Stack<DoUndo> undo = new Stack<DoUndo>();
+	private Stack<UndoRedo> undo = new Stack<UndoRedo>();
 
-	private Stack<DoUndo> redo = new Stack<DoUndo>();
+	private Stack<UndoRedo> redo = new Stack<UndoRedo>();
+
+	/**
+	 * Add a new action. Any actions waiting to be redone are lost.
+	 * 
+	 * @param u
+	 *            The action to add.
+	 */
+	public void add(UndoRedo u) {
+		if (u==null) {
+			throw new InvalidParameterException();
+		}
+		redo.clear();
+		undo.push(u);
+	}
 
 	/**
 	 * Add a new action. Any actions waiting to be redone are lost. This method
-	 * calls {@link DoUndo#redo()} immediately in order to take the action for
+	 * calls {@link UndoRedo#redo()} immediately in order to take the action for
 	 * the first time.
 	 * 
 	 * @param u
 	 *            The action to add.
-	 * 
-	 * @see DoUndo
 	 */
-	public void add(DoUndo u) {
-		if (u != null) {
-			System.out.println("adding undo (redoing first!)");
-			u.redo();
-			redo.clear();
-			undo.push(u);
+	public void redoThenAdd(UndoRedo u) {
+		if (u==null) {
+			throw new InvalidParameterException();
 		}
+		u.redo();
+		add(u);
 	}
 
 	/**
@@ -34,7 +46,7 @@ class UndoControler {
 	public void undo() {
 		if (!undo.isEmpty()) {
 			System.out.println("undo");
-			DoUndo u = undo.pop();
+			UndoRedo u = undo.pop();
 			u.undo();
 			redo.push(u);
 		}
@@ -44,12 +56,12 @@ class UndoControler {
 	 * Redo the last undo action. The action's effects are reinstated. This
 	 * method can be called repeatedly to redo all undone actions <b>unless</b>
 	 * the redo "future-history" has been truncated by a call to
-	 * {@link #add(DoUndo)}.
+	 * {@link #redoThenAdd(UndoRedo)}.
 	 */
 	public void redo() {
 		if (!redo.isEmpty()) {
 			System.out.println("redo");
-			DoUndo u = redo.pop();
+			UndoRedo u = redo.pop();
 			u.redo();
 			undo.push(u);
 		}
