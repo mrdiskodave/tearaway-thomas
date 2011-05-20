@@ -72,6 +72,8 @@ public class Mapper implements PenServices {
 
 	private Alien oldSelectedAlien;
 
+	private HoverStatus hs = new HoverStatus();
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
@@ -493,7 +495,7 @@ public class Mapper implements PenServices {
 			// property descriptions and buttons
 			buttons.clear();
 			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
-			PropDrawer pd = new PropDrawer(statusLayer, buttons);
+			PropDrawer pd = new PropDrawer(hs, statusLayer, buttons);
 			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
 			for (Prop p : props) {
 				pd.draw(p);
@@ -584,6 +586,11 @@ public class Mapper implements PenServices {
 		if (size != 0) {
 			undoControler.add(alienEdit);
 		}
+	}
+
+	@Override
+	public HoverStatus getHoverStatus() {
+		return hs;
 	}
 
 }

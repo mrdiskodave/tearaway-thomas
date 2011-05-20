@@ -32,4 +32,6 @@ public interface PenServices {
 	void endAlienEdit();
 
 	ButtonRecord searchForButton(Coord c);
+	
+	HoverStatus getHoverStatus();
 }

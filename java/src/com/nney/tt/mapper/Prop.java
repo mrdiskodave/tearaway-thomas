@@ -6,13 +6,12 @@ import com.nney.tt.geom.Coord;
 public abstract class Prop {
 	protected final AlienProp aprop;
 	protected final FieldAccessor fa;
-	private boolean down;
 
 	public Prop(AlienProp aprop, FieldAccessor fa) {
 		this.aprop = aprop;
 		this.fa = fa;
 	}
-
+	
 	/**
 	 * Generate this properties bats.
 	 * 
@@ -53,18 +52,8 @@ public abstract class Prop {
 	}
 
 	abstract public String text();
-
-	public void down() {
-		down = true;
-		System.out.println("***DOWN");
-	}
-
-	public void up() {
-		down = false;
-		System.out.println("***UP");
-	}
 	
-	public boolean isDown() {
-		return down;
+	public String getUniqueName() {
+		return fa.fieldName();
 	}
 }

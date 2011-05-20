@@ -102,4 +102,8 @@ public class FieldAccessor {
 	public String toString() {
 		return f.getName();
 	}
+
+	public String fieldName() {
+		return f.getDeclaringClass().getCanonicalName()+" "+f.getName();
+	}
 }
