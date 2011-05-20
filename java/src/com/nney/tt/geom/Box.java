@@ -141,7 +141,6 @@ public class Box implements Copyable<Box>, Cloneable {
 		return around(c, i, i);
 	}
 
-
 	@Override
 	public Box copy() {
 		return new Box(this);

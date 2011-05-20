@@ -9,7 +9,7 @@ public class ArrowAlien extends Alien {
 
 	@AlienProp(name = "AdviceBox", doc = "Player's location for us to blink at him?")
 	public Box box;
-	
+
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);

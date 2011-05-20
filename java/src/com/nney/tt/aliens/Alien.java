@@ -26,7 +26,7 @@ public abstract class Alien {
 	public void resetTo(Coord p) {
 		c = p;
 	}
-	
+
 	public Box freezeBounds;
 	public AlienServices srv;
 
@@ -49,8 +49,9 @@ public abstract class Alien {
 	protected static final int OBstatus7 = 29 - OBbase; // B
 
 	// abstract public void reset();
-	public void onPropUpdate() {}
-	
+	public void onPropUpdate() {
+	}
+
 	protected int loadShort(int x) {
 		return (loadByte(x) << 8) + loadByte(x + 1);
 	}

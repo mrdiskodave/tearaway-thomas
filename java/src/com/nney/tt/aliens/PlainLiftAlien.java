@@ -8,7 +8,7 @@ public class PlainLiftAlien extends LiftAlien {
 
 	@AlienProp(name = "Box", doc = "The area we move within.")
 	public Box box;
-	
+
 	@Override
 	public void resetTo(Coord c) {
 		box = Box.around(c, 100, 20);

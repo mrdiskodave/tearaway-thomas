@@ -14,7 +14,7 @@ public class AlienSelectionPen extends Pen {
 	void stroke(Coord c) {
 		srv.selectNearestAlien(c);
 	}
-	
+
 	@Override
 	void always() {
 		srv.showSelectedAlienProps();

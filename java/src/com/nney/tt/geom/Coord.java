@@ -44,7 +44,6 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		y &= y2;
 	}
 
-
 	// short hand, as we do it so much
 	public Coord copyAndAdd(int x, int y) {
 		Coord answer = copy();
@@ -63,12 +62,12 @@ public class Coord implements Copyable<Coord>, Cloneable {
 	public Coord copy() {
 		return new Coord(this);
 	}
-	
+
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		Coord that = (Coord) obj;

@@ -27,7 +27,7 @@ public class XRangeVisualProp extends VisualProp {
 	}
 
 	@Override
-	void moveTo(int what, Coord where) {
+	void onBatMovement(int what, Coord where) {
 		switch (what) {
 		case 0:
 			t.add(where.x - t.middle());

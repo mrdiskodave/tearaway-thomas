@@ -29,7 +29,7 @@ public class BoxVisualProp extends VisualProp {
 	}
 
 	@Override
-	void moveTo(int what, Coord where) {
+	void onBatMovement(int what, Coord where) {
 		switch (what) {
 		case 0:
 			where.sub(t.middle());

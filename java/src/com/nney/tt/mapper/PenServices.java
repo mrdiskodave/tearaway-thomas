@@ -30,4 +30,6 @@ public interface PenServices {
 	void startAlienEdit();
 
 	void endAlienEdit();
+
+	ButtonRecord searchForButton(Coord c);
 }

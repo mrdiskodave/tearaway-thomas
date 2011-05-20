@@ -15,7 +15,7 @@ class UndoControler {
 	 *            The action to add.
 	 */
 	public void add(UndoRedo u) {
-		if (u==null) {
+		if (u == null) {
 			throw new InvalidParameterException();
 		}
 		redo.clear();
@@ -31,7 +31,7 @@ class UndoControler {
 	 *            The action to add.
 	 */
 	public void redoThenAdd(UndoRedo u) {
-		if (u==null) {
+		if (u == null) {
 			throw new InvalidParameterException();
 		}
 		u.redo();

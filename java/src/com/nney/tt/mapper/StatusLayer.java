@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import java.util.HashSet;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Bounds;
 
 public abstract class StatusLayer {
@@ -13,7 +14,7 @@ public abstract class StatusLayer {
 	protected int shp;
 	private int swp;
 	private int cwp;
-	protected int chp; 
+	protected int chp;
 
 	public StatusLayer(MapperGC mgc) {
 		this.mgc = mgc;
@@ -21,15 +22,16 @@ public abstract class StatusLayer {
 		shp = mgc.screenHeight();
 		cwp = mgc.charWidth();
 		chp = mgc.charHeight();
-		swc = swp/cwp;
-		shc = shp/chp;
+		swc = swp / cwp;
+		shc = shp / chp;
 	}
 
 	protected abstract int computeFirstY();
+
 	protected abstract int computeRow(int row);
-	
+
 	private int cx(int x) {
-		if (x<0) {
+		if (x < 0) {
 			x += swc;
 		}
 		x *= cwp;
@@ -43,11 +45,14 @@ public abstract class StatusLayer {
 		return y;
 	}
 
-	public void draw(int x, int y, int fg, String text) {
+	public Box draw(int x, int y, int fg, String text) {
+		int sx = cx(x);
+		int sy = cy(y);
 		if (!seenRow.contains(y)) {
 			seenRow.add(y);
-			mgc.fillRectangle(0, cy(y), swp, chp, 0x60000000);
+			mgc.fillRectangle(0, sy, swp, chp, 0x60000000);
 		}
-		mgc.drawText(cx(x), cy(y), fg, text);
+		mgc.drawText(sx, sy, fg, text);
+		return Box.fromTopLeftAndSize(sx, sy, cwp * text.length(), chp);
 	}
 }

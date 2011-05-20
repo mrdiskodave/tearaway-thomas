@@ -58,11 +58,12 @@ public class FieldAccessor {
 	 * to enumerate all the classes that you think <code>x</code> could be
 	 * (which is horrid) or resort to reflection (which is what I've done here).
 	 * 
-	 * <p>A <a href=
+	 * <p>
+	 * A <a href=
 	 * "http://stackoverflow.com/questions/1803503/why-are-java-enums-not-clonable"
 	 * >further<a> gotcha is that immutable types cannot be cloned (and don't
-	 * need to be) <b>but</b> there is no run-time way to ask if a type is immutable.
-	 * I've included a list of the ones I'm using.
+	 * need to be) <b>but</b> there is no run-time way to ask if a type is
+	 * immutable. I've included a list of the ones I'm using.
 	 * 
 	 * @param o
 	 *            Object to clone.

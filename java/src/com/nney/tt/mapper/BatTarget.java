@@ -6,10 +6,12 @@ import com.nney.tt.geom.Coord;
 public interface BatTarget {
 	/**
 	 * Draw a bat. The bat is also remembered so the user can grab onto it with
-	 * their mouse and walk it around.
+	 * their mouse and move it around.
 	 * 
 	 * @param c
 	 *            A location in world coordinates (not screen coordinates).
+	 * 
+	 * @see Prop#onBatMovement(int, Coord)
 	 */
 	void drawBat(Coord c);
 

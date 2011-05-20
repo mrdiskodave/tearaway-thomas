@@ -13,13 +13,12 @@ public abstract class LeftRightAlien extends Alien {
 	@AlienProp(name = "Facing", xtraDef = "leftright")
 	public boolean goLeft;
 
-	
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
 		range.around(c.x, 50);
 	}
-	
+
 	@Override
 	public void mapperUpdate() {
 		changeAnimation(goLeft ? "left" : "right");

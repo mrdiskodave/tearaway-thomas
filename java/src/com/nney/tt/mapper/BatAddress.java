@@ -12,6 +12,6 @@ public class BatAddress {
 	}
 
 	public void moveTo(Coord c) {
-		who.moveTo(what, c);
+		who.onBatMovement(what, c);
 	}
 }

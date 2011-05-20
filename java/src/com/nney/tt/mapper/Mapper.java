@@ -36,8 +36,6 @@ public class Mapper implements PenServices {
 	final private int blockCount;
 	private int showSmallPaletteTimer;
 	private BlockPalette bp;
-	
-	
 
 	final private MapperGC mgc;
 	final private Pointer mouse;
@@ -53,8 +51,8 @@ public class Mapper implements PenServices {
 	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
 	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
 	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
-	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienSelectionPen(),
-			new AlienModificationPen());
+	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(), new AlienBatMovingPen(),
+			new AlienSelectionPen());
 
 	private Tool tool;
 	private Tool otherTool;
@@ -66,8 +64,13 @@ public class Mapper implements PenServices {
 	private Alien selectedAlien;
 
 	private List<BatRecord> bats = new ArrayList<BatRecord>();
+	private List<ButtonRecord> buttons = new ArrayList<ButtonRecord>();
 
 	private AlienEdit alienEdit;
+
+	private List<Prop> alienProps;
+
+	private Alien oldSelectedAlien;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -75,8 +78,6 @@ public class Mapper implements PenServices {
 
 	public Mapper(GameMap gameMap, MapperServices srv, Pointer mouse, Keyboard keyboard, GraphicsContext gc,
 			Font debugFont) {
-		// TODO: taking a blocksholder means mask and invis stuff doesn't fully
-		// work
 		this.parent = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -345,7 +346,7 @@ public class Mapper implements PenServices {
 		System.out.println("Submit edit");
 		assert edit != null;
 		UndoRedo u = edit.endEdit();
-		if (u!=null) undoControler.redoThenAdd(u);
+		if (u != null) undoControler.redoThenAdd(u);
 		edit = null;
 	}
 
@@ -398,14 +399,24 @@ public class Mapper implements PenServices {
 
 	public void setSelectedAlien(Alien s) {
 		this.selectedAlien = s;
+		if (oldSelectedAlien!=s) {
+			if (selectedAlien!=null) {
+				alienProps = propsForAlien(s);
+			}
+			else {
+				alienProps = null;
+			}
+		}
+		oldSelectedAlien = s;
 	}
 
-	List<Prop> makeProps() {
-		if (selectedAlien==null) return null;
-		return propsForAlien(selectedAlien);
-	}
-	
+//	List<Prop> makeProps() {
+//		if (selectedAlien == null) return null;
+//		return propsForAlien(selectedAlien);
+//	}
+
 	List<Prop> propsForAlien(Alien alien) {
+		assert alien != null;
 		List<Prop> props = new ArrayList<Prop>();
 		Field[] fields = alien.getClass().getFields();
 		for (Field field : fields) {
@@ -470,40 +481,41 @@ public class Mapper implements PenServices {
 			sac.sub(parent.getScreenPosition());
 			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
 
+			List<Prop> props = alienProps;
+			
+			// bats
 			bats.clear();
-			
-			List<Prop> props = makeProps();
-			
 			for (Prop p : props) {
 				BatTargetImpl bt = new BatTargetImpl(parent.getScreenPosition(), p, mgc, bats);
 				p.createBats(getSelectedAlien().c, bt);
 			}
 
+			// property descriptions and buttons
+			buttons.clear();
 			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
-
-			PropDrawer pd = new PropDrawer(statusLayer);
+			PropDrawer pd = new PropDrawer(statusLayer, buttons);
 			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
 			for (Prop p : props) {
 				pd.draw(p);
 			}
 			
-			// TODO: 01: mouse over
-			// TODO: 02: visual items: goto or reset
-			// TODO: 02: boolean items: toggle
-			// TODO: serialise and deserialise
-			// TODO: copy
-			// TODO: new
+			
+			// TODO: prop drawer work ...
 
-			// TODO: block editor box select
-			// TODO: box copy
-			// TODO: paste
-			// TODO: fill
+			// NEXT::
+			// look at the issue of events "dropping thru"
+			// so I can have the statuslayer buttons (AT LEAST?) really be in
+			// front
+			//
+			// of course if the entire status layer was infront that'd be easier
+			// :)
 
+			// TODO: alien: copy
+			// TODO: alien: new (via resetTo())
+
+			// TODO: block editor box select: copy & paste & fill
 			// TODO: make a list of mapper controls
-
-			// TODO: resetTo() opens up the option for a reset key.
-			// TODO: resetTo() opens up the option for fresh alien creation and
-			// copying.
+			// TODO: serialise and deserialise
 		}
 	}
 
@@ -533,6 +545,19 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
+	public ButtonRecord searchForButton(Coord c) {
+		System.out.println("Search for button " + c);
+		for (ButtonRecord button : buttons) {
+			System.out.println(button.collisionBox);
+			if (button.collisionBox.inside(c)) {
+				System.out.println("Yep!");
+				return button;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public Coord getNudge() {
 		switch (keyboard.justPressed()) {
 		case Keyboard.KEY_UP:
@@ -547,20 +572,18 @@ public class Mapper implements PenServices {
 		return null;
 	}
 
-
-
-
 	@Override
 	public void startAlienEdit() {
-		alienEdit = new AlienEdit(propsForAlien(selectedAlien)); 
+		alienEdit = new AlienEdit(propsForAlien(selectedAlien));
 	}
 
 	@Override
 	public void endAlienEdit() {
 		int size = alienEdit.size();
-		System.out.println(size+" fields changed!");
-		if (size!=0) {
+		System.out.println(size + " fields changed!");
+		if (size != 0) {
 			undoControler.add(alienEdit);
 		}
 	}
+
 }

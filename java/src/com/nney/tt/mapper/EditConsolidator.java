@@ -27,9 +27,9 @@ public class EditConsolidator implements EditDestination {
 	public UndoRedo endEdit() {
 		SavedMapBox undo = null;
 		Box b = sizeUpEdits();
-		if (b!=null) {
+		if (b != null) {
 			undo = new SavedMapBox(gameMap, b);
-			for (Entry<Coord, Integer> kv: originalBlocks.entrySet()) {
+			for (Entry<Coord, Integer> kv : originalBlocks.entrySet()) {
 				gameMap.setBlock(kv.getKey(), kv.getValue());
 			}
 		}

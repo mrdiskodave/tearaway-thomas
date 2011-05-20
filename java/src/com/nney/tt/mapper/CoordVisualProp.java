@@ -18,7 +18,7 @@ public class CoordVisualProp extends VisualProp {
 	}
 
 	@Override
-	void moveTo(int what, Coord where) {
+	void onBatMovement(int what, Coord where) {
 		assert what == 0;
 		t.x = where.x;
 		t.y = where.y;

@@ -19,6 +19,7 @@ public abstract class PartialFontImpl implements Font {
 	public int charHeight() {
 		return miniH;
 	}
+
 	public PartialFontImpl(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
 		this.miniW = miniW;
 		this.miniH = miniH;

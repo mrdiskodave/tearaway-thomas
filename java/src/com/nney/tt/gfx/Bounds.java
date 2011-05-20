@@ -13,6 +13,12 @@ public class Bounds {
 		this.height = height;
 	}
 
+	public boolean inside(int x, int y) {
+		x -= left;
+		y -= top;
+		return x >= 0 & x < width && y >= 0 && y < height;
+	}
+
 	public Bounds(Bounds that) {
 		this(that.left, that.top, that.width, that.height);
 	}

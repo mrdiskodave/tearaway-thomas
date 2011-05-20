@@ -34,7 +34,19 @@ public class BooleanProp extends Prop {
 	}
 
 	@Override
-	void moveTo(int what, Coord where) {
+	void onBatMovement(int what, Coord where) {
 		// do nothing because we are not a visual property
+	}
+
+	@Override
+	String[] createButtons() {
+		return new String[] { "toggle" };
+	}
+
+	@Override
+	void onButtonPress(int what) {
+		System.out.println("Boolean click!");
+		assert what == 0;
+		fa.put(!read());
 	}
 }

@@ -3,10 +3,9 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
 
-public class AlienModificationPen extends Pen {
+public class AlienBatMovingPen extends Pen {
 	private BatAddress selectedBat;
 	private Coord batGrip;
-	private Object backup;
 
 	@Override
 	int key() {
@@ -55,7 +54,7 @@ public class AlienModificationPen extends Pen {
 		}
 		noBat();
 	}
-	
+
 	private void noBat() {
 		selectedBat = null;
 		batGrip = null;

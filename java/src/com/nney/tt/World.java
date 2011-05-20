@@ -549,7 +549,7 @@ public class World implements AlienServices, MapperServices {
 		alien.visualReset();
 		alienTracker.delayedAdd(alien);
 	}
-	
+
 	private void loadAlienIntoWorld(Alien alien) {
 		alien.srv = this;
 		alien.visualReset();
@@ -668,7 +668,6 @@ public class World implements AlienServices, MapperServices {
 			updateScore();
 		}
 	}
-
 
 	private void init() {
 		Openable ho = TTResource.horizon(1);

@@ -12,7 +12,7 @@ public class TeleportAlien extends Alien {
 	public void loadFromLegacyData() {
 		destination = new Coord(loadShort(OBleft), loadShort(OBtop));
 	}
-	
+
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
