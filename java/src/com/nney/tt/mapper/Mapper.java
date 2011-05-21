@@ -67,10 +67,6 @@ public class Mapper implements PenServices {
 
 	private AlienEdit alienEdit;
 
-	private List<Prop> alienProps;
-
-	private Alien oldSelectedAlien;
-
 	private HoverStatus hs = new HoverStatus();
 
 	// ---------------------------------------------------------------------------
@@ -400,21 +396,7 @@ public class Mapper implements PenServices {
 
 	public void setSelectedAlien(Alien s) {
 		this.selectedAlien = s;
-		if (oldSelectedAlien!=s) {
-			if (selectedAlien!=null) {
-				alienProps = propsForAlien(s);
-			}
-			else {
-				alienProps = null;
-			}
-		}
-		oldSelectedAlien = s;
 	}
-
-//	List<Prop> makeProps() {
-//		if (selectedAlien == null) return null;
-//		return propsForAlien(selectedAlien);
-//	}
 
 	List<Prop> propsForAlien(Alien alien) {
 		assert alien != null;
@@ -477,7 +459,7 @@ public class Mapper implements PenServices {
 			sac.sub(parent.getScreenPosition());
 			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
 
-			List<Prop> props = alienProps;
+			List<Prop> props = propsForAlien(selectedAlien);
 			
 			// bats
 			bats.clear();
