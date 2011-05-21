@@ -2,7 +2,7 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Coord;
 
-public interface PenServices {
+public interface PenServices extends ButtonPressServices {
 	void changeCurrentBlock(int x, int y);
 
 	int getCurrentBlock();

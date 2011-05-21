@@ -1,10 +1,10 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.AlienVisitor;
+import com.nney.tt.Visitor;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 
-public class NearestAlienFinder implements AlienVisitor {
+public class NearestAlienFinder implements Visitor<Alien> {
 	long dist = Long.MAX_VALUE;
 	private final Coord o;
 	private Alien nearest;

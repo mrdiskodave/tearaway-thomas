@@ -2,7 +2,6 @@ package com.nney.tt.mapper;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -455,11 +454,6 @@ public class Mapper implements PenServices {
 	public void showSelectedAlienProps() {
 		if (haveAlien()) {
 			switch (keyboard.justPressed()) {
-			case Keyboard.KEY_R:
-				startAlienEdit();
-				getSelectedAlien().resetTo(computeMousePos(true));
-				endAlienEdit();
-				break;
 			case Keyboard.KEY_DELETE:
 				final Alien a = getSelectedAlien();
 				undoControler.redoThenAdd(new UndoRedo() {
@@ -488,8 +482,12 @@ public class Mapper implements PenServices {
 			// bats
 			bats.clear();
 			for (Prop p : props) {
-				BatTargetImpl bt = new BatTargetImpl(parent.getScreenPosition(), p, mgc, bats);
-				p.createBats(getSelectedAlien().c, bt);
+				BatTargetImpl bt = new BatTargetImpl(selectedAlien.c, parent.getScreenPosition(), p, mgc);
+				p.createBats(bt);
+				if (bt.hasBats()) {
+					p.setPosition(bt.firstBatPosition());
+					bt.collectBats(bats);
+				}
 			}
 
 			// property descriptions and buttons
@@ -548,11 +546,11 @@ public class Mapper implements PenServices {
 
 	@Override
 	public ButtonRecord searchForButton(Coord c) {
-		System.out.println("Search for button " + c);
+//		System.out.println("Search for button " + c);
 		for (ButtonRecord button : buttons) {
-			System.out.println(button.collisionBox);
+//			System.out.println(button.collisionBox);
 			if (button.collisionBox.inside(c)) {
-				System.out.println("Yep!");
+//				System.out.println("Yep!");
 				return button;
 			}
 		}
@@ -586,11 +584,29 @@ public class Mapper implements PenServices {
 		if (size != 0) {
 			undoControler.add(alienEdit);
 		}
+		selectedAlien.onPropUpdate();
 	}
 
 	@Override
 	public HoverStatus getHoverStatus() {
 		return hs;
+	}
+
+	@Override
+	public Coord screenCentre() {
+		Coord centerDisplacement = new Coord(mgc.screenWidth()/2, mgc.screenHeight()/2);
+		Coord c = parent.getScreenPosition();
+		c = c.copy();
+		c.add(centerDisplacement);
+		return c;
+	}
+
+	@Override
+	public void setScreenCentre(Coord c) {
+		Coord centerDisplacement = new Coord(mgc.screenWidth()/2, mgc.screenHeight()/2);
+		c = c.copy();
+		c.sub(centerDisplacement);
+		parent.setScreenPosition(c);
 	}
 
 }

@@ -14,7 +14,7 @@ public class BoxVisualProp extends VisualProp {
 	}
 
 	@Override
-	public void createBats(Coord alien, BatTarget rt) {
+	public void createBats(BatTarget rt) {
 		rt.drawBox(t);
 		// 0
 		rt.drawBat(t.middle());
@@ -59,5 +59,12 @@ public class BoxVisualProp extends VisualProp {
 	@Override
 	public String text() {
 		return String.format("x%dy%d w%dh%d", t.left, t.top, t.width(), t.height());
+	}
+
+	@Override
+	void onBring(Coord c) {
+		Coord delta = t.middle();
+		delta.sub(c);
+		t.sub(delta);
 	}
 }

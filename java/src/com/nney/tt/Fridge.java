@@ -88,4 +88,14 @@ public class Fridge<T> {
 		assert fe == content.removeFirst();
 		return fe.item;
 	}
+	
+	public void visit(Visitor<T> v) {
+		for (FridgeEntry fe: content) {
+			v.visit(fe.item);
+		}
+	}
+	
+	public void clear() {
+		content.clear();
+	}
 }

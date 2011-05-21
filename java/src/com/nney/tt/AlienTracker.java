@@ -1,7 +1,6 @@
 package com.nney.tt;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,6 +22,7 @@ public class AlienTracker {
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
 			alienLists.add(new LinkedList<Alien>());
 		}
+
 	}
 
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
@@ -78,11 +78,64 @@ public class AlienTracker {
 		return true;
 	}
 
-	public Iterator<Alien> getForegroundIterator() {
-		return alienLists.get(Alien.DEPTH_FOREGROUND).iterator();
+	public List<Alien> getForegroundList() {
+		return alienLists.get(Alien.DEPTH_FOREGROUND);
 	}
 
-	public Iterator<Alien> getBackgroundIterator() {
-		return alienLists.get(Alien.DEPTH_BACKGROUND).iterator();
+	public List<Alien> getBackgroundList() {
+		return alienLists.get(Alien.DEPTH_BACKGROUND);
+	}
+
+	static private void visitIt(Visitor<Alien> v, List<Alien> l) {
+		for (Alien a : l) {
+			v.visit(a);
+		}
+	}
+
+	public void visitVisible(Visitor<Alien> v) {
+		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
+			visitIt(v, alienLists.get(x));
+		}
+	}
+
+	public void visitAll(Visitor<Alien> v) {
+		visitVisible(v);
+		freezeBottom.visit(v);
+		freezeTop.visit(v);
+		freezeLeft.visit(v);
+		freezeRight.visit(v);
+	}
+
+	private void clearAll() {
+		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
+			alienLists.get(x).clear();
+		}
+		freezeBottom.clear();
+		freezeTop.clear();
+		freezeLeft.clear();
+		freezeRight.clear();
+	}
+
+//	private void visitAllVisibleAlienLists(Visitor<List<Alien>> v) {
+//		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
+//			v.visit(alienLists.get(x));
+//		}
+//	}
+//	
+//	private void visitAllFridges(Visitor<Fridge> v) {
+//		v.visit(freezeBottom);
+//		v.visit(freezeTop);
+//		v.visit(freezeLeft);
+//		v.visit(freezeRight);
+//	}
+	
+	public void reclassify() {
+		visitAll(new Visitor<Alien>() {
+			@Override
+			public void visit(Alien a) {
+				delayedAdditions.add(a);
+			}
+		});
+		clearAll();
 	}
 }

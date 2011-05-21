@@ -3,8 +3,6 @@ package com.nney.tt.map;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.nney.tt.Const;
-import com.nney.tt.StopWatch;
 import com.nney.tt.geom.Coord;
 
 public class GameMap {

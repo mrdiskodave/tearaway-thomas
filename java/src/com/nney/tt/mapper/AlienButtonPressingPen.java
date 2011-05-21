@@ -29,7 +29,7 @@ public class AlienButtonPressingPen extends Pen {
 		if (srv.getHoverStatus().up(brn(c))) {
 			ButtonRecord selected = srv.searchForButton(c);
 			srv.startAlienEdit();
-			selected.prop.onButtonPress(selected.buttonNumber);
+			selected.prop.onButtonPress(selected.buttonNumber, srv);
 			srv.endAlienEdit();
 		}
 	}
@@ -42,7 +42,6 @@ public class AlienButtonPressingPen extends Pen {
 	String brn(Coord c) {
 		ButtonRecord br = srv.searchForButton(c);
 		if (br==null) return "";
-		if (!br.collisionBox.inside(c)) return "";		
-		return br.prop.getUniqueName();
+		return br.getUniqueName();
 	}
 }

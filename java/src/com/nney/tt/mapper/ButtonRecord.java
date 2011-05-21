@@ -17,4 +17,8 @@ public class ButtonRecord {
 	public String toString() {
 		return collisionBox.toString();
 	}
+
+	public String getUniqueName() {
+		return prop.getUniqueName()+"#"+buttonNumber;
+	}
 }

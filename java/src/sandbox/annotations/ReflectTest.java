@@ -2,8 +2,6 @@ package sandbox.annotations;
 
 import java.lang.reflect.Field;
 
-import sandbox.annotations.ReflectTest.A;
-
 import junit.framework.TestCase;
 
 public class ReflectTest extends TestCase {

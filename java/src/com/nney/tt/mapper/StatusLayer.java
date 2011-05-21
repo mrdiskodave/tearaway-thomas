@@ -3,7 +3,6 @@ package com.nney.tt.mapper;
 import java.util.HashSet;
 
 import com.nney.tt.geom.Box;
-import com.nney.tt.gfx.Bounds;
 
 public abstract class StatusLayer {
 	private final MapperGC mgc;
@@ -45,14 +44,30 @@ public abstract class StatusLayer {
 		return y;
 	}
 
-	public Box draw(int x, int y, int fg, String text) {
+	public void draw(int x, int y, ButtonState status, String text) {
 		int sx = cx(x);
 		int sy = cy(y);
 		if (!seenRow.contains(y)) {
 			seenRow.add(y);
 			mgc.fillRectangle(0, sy, swp, chp, 0x60000000);
 		}
-		mgc.drawText(sx, sy, fg, text);
+		switch (status) {
+		case PASSIVE:
+			mgc.drawText(sx, sy, 0xffffffff, text);
+			break;
+		case HOVER:
+			mgc.drawText(sx, sy, 0xffffaaaa, 0x30ff0000, text);
+			break;
+		case PRESSED:
+			mgc.drawText(sx, sy, 0xffbbffbb, 0x5000ff00, text);
+			break;
+		}
+	}
+	
+	public Box getBox(int x, int y, String text) {
+		int sx = cx(x);
+		int sy = cy(y);
 		return Box.fromTopLeftAndSize(sx, sy, cwp * text.length(), chp);
 	}
+
 }

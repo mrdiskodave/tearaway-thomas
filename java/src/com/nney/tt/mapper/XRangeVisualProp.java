@@ -15,15 +15,15 @@ public class XRangeVisualProp extends VisualProp {
 	}
 
 	@Override
-	public void createBats(Coord alien, BatTarget rt) {
+	public void createBats(BatTarget rt) {
 		Box box = new Box(t.left, Integer.MIN_VALUE / 4, t.right, Integer.MAX_VALUE / 4);
 		rt.drawBox(box);
 		// 0
-		rt.drawBat(new Coord(t.middle(), alien.y));
+		rt.drawBat(t.middle());
 		// 1
-		rt.drawBat(new Coord(t.left, alien.y));
+		rt.drawBat(t.left);
 		// 2
-		rt.drawBat(new Coord(t.right, alien.y));
+		rt.drawBat(t.right);
 	}
 
 	@Override
@@ -46,5 +46,12 @@ public class XRangeVisualProp extends VisualProp {
 	@Override
 	public String text() {
 		return String.format("x%d w%d", t.left, t.width());
+	}
+
+	@Override
+	void onBring(Coord c) {
+		int delta = t.middle();
+		delta -= c.x;
+		t.sub(delta);
 	}
 }

@@ -1,7 +1,6 @@
 package com.nney.tt.mapper;
 
 import com.nney.tt.aliens.AlienProp;
-import com.nney.tt.geom.Coord;
 
 public class BooleanProp extends Prop {
 	private final String textTrue;
@@ -29,22 +28,12 @@ public class BooleanProp extends Prop {
 	}
 
 	@Override
-	void createBats(Coord alien, BatTarget rt) {
-		// do nothing because we are not a visual property
-	}
-
-	@Override
-	void onBatMovement(int what, Coord where) {
-		// do nothing because we are not a visual property
-	}
-
-	@Override
 	String[] createButtons() {
 		return new String[] { "toggle" };
 	}
 
 	@Override
-	void onButtonPress(int what) {
+	void onButtonPress(int what, ButtonPressServices bps) {
 		System.out.println("Boolean click!");
 		assert what == 0;
 		fa.put(!read());

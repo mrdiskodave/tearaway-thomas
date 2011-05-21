@@ -26,4 +26,6 @@ public interface MapperServices {
 	BlocksHolder getBlocksHolder();
 
 	void reinstateAlien(Alien alien);
+
+	void setScreenPosition(Coord c);
 }

@@ -14,33 +14,35 @@ public abstract class Prop {
 	
 	/**
 	 * Generate this properties bats.
-	 * 
-	 * @param alien
-	 *            The alien position.
 	 * @param bt
 	 *            A destination for the bats (and also somewhere to render other
 	 *            visual hints about this {@link Prop}).
 	 */
-	abstract void createBats(Coord alien, BatTarget bt);
+	void createBats(BatTarget bt) {}
 
 	/**
 	 * Respond to a bat movement.
 	 * 
 	 * @param what
 	 *            A bat number where <code>0</code> is the first bat sent to the
-	 *            {@link BatTarget} by {@link #createBats(Coord, BatTarget)} and
+	 *            {@link BatTarget} by {@link #createBats(BatTarget)} and
 	 *            they number upward from there.
 	 * @param where
 	 *            Where the user is trying to move the bat to (in world
 	 *            coordinates).
 	 */
-	abstract void onBatMovement(int what, Coord where);
+	void onBatMovement(int what, Coord where) {
+		// shouldn't be called on things that don't know how to respond to it
+		assert false;
+	}
 
 	String[] createButtons() {
 		return null;
 	}
 
-	void onButtonPress(int what) {
+	void onButtonPress(int what, ButtonPressServices bps) {
+		// shouldn't be called on things that don't know how to respond to it
+		assert false;
 	}
 
 	public String name() {
@@ -55,5 +57,10 @@ public abstract class Prop {
 	
 	public String getUniqueName() {
 		return fa.fieldName();
+	}
+
+	public void setPosition(Coord ourPosition) {
+		// shouldn't be called on things that don't know how to respond to it
+		assert false;
 	}
 }

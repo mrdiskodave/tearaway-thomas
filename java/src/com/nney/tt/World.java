@@ -1,6 +1,7 @@
 package com.nney.tt;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import com.nney.tt.aliens.Alien;
@@ -10,18 +11,17 @@ import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.HugeGemAlien;
-import com.nney.tt.aliens.PlainLiftAlien;
-import com.nney.tt.aliens.SineLiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
+import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
+import com.nney.tt.aliens.SineLiftAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.WingAlien;
-import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -562,8 +562,8 @@ public class World implements AlienServices, MapperServices {
 		alienTracker.delayedAdd(alien);
 	}
 
-	private void updateList(Iterator<Alien> alienIterator, Box screenBox, boolean mapper) {
-		for (; alienIterator.hasNext();) {
+	private void updateList(List<Alien> alienList, Box screenBox, boolean mapper) {
+		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
 			if (mapper) {
@@ -587,11 +587,11 @@ public class World implements AlienServices, MapperServices {
 		// add fresh aliens
 		Box screenBox = Box.fromTopLeftAndSize(screen, gc.screenWidth(), gc.screenHeight());
 		alienTracker.begin(screenBox);
-		updateList(alienTracker.getBackgroundIterator(), screenBox, mapper);
+		updateList(alienTracker.getBackgroundList(), screenBox, mapper);
 		if (!mapper) {
 			player.draw();
 		}
-		updateList(alienTracker.getForegroundIterator(), screenBox, mapper);
+		updateList(alienTracker.getForegroundList(), screenBox, mapper);
 
 		//
 		// Caveat1: only the background Alien gets to move the player around.
@@ -706,13 +706,13 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	private void loadBlocks() {
-		Openable blocksGfx = TTResource.blocks(worldName);
-		Openable masksGfx = TTResource.blockMask(worldName);
+		Openable blocksGraphics = TTResource.blocks(worldName);
+		Openable masksGraphics = TTResource.blockMask(worldName);
 
-		BlockSource bs = new BlockSource(configSeeMasks ? masksGfx : blocksGfx, Const.BLOCK_SIZE);
+		BlockSource bs = new BlockSource(configSeeMasks ? masksGraphics : blocksGraphics, Const.BLOCK_SIZE);
 		if (!configShowInvisible) bs.doBlockHiding(wi.invisibleBlockHiding);
 		blocksHolder = gc.createBlocksHolder(bs);
-		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGfx);
+		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGraphics);
 	}
 
 	@Override
@@ -737,7 +737,9 @@ public class World implements AlienServices, MapperServices {
 	public void quitMapper(Coord mousePos) {
 		player.resetTo(mousePos);
 		gameMap.applyShuffle(wi.blockRandomisationTable);
+		
 		usingMapper = false;
+		alienTracker.reclassify();
 	}
 
 	@Override
@@ -757,21 +759,10 @@ public class World implements AlienServices, MapperServices {
 		return screen;
 	}
 
-	void visitVisibleAliens(AlienVisitor v) {
-		visitAll(v, alienTracker.getBackgroundIterator());
-		visitAll(v, alienTracker.getForegroundIterator());
-	}
-
-	private void visitAll(AlienVisitor v, Iterator<Alien> it) {
-		while (it.hasNext()) {
-			v.visit(it.next());
-		}
-	}
-
 	@Override
 	public Alien findNearestAlien(Coord c) {
 		NearestAlienFinder n = new NearestAlienFinder(c);
-		visitVisibleAliens(n);
+		alienTracker.visitVisible(n);
 		return n.getAnswer();
 	}
 
@@ -790,5 +781,11 @@ public class World implements AlienServices, MapperServices {
 	@Override
 	public BlocksHolder getBlocksHolder() {
 		return blocksHolder;
+	}
+
+	@Override
+	public void setScreenPosition(Coord c) {
+		screen = c;
+		limitScreenPosition();
 	}
 }

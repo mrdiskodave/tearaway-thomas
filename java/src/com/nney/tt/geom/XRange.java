@@ -27,6 +27,10 @@ public class XRange implements Copyable<XRange>, Cloneable {
 		left += i;
 		right += i;
 	}
+	
+	public void sub(int delta) {
+		add(-delta);
+	}
 
 	public void around(int x, int i) {
 		left = x - i;
@@ -49,7 +53,7 @@ public class XRange implements Copyable<XRange>, Cloneable {
 
 	@Override
 	public boolean equals(Object obj) {
-		Box that = (Box) obj;
+		XRange that = (XRange) obj;
 		return left == that.left && right == that.right;
 	}
 

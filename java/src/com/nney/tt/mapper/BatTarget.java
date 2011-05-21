@@ -14,6 +14,9 @@ public interface BatTarget {
 	 * @see Prop#onBatMovement(int, Coord)
 	 */
 	void drawBat(Coord c);
+	
+	void drawBat(int x);
+	
 
 	/**
 	 * Draw a box (which you might position bats around the edge of).

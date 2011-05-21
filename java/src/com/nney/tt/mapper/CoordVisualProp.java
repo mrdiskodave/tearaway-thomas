@@ -12,7 +12,7 @@ public class CoordVisualProp extends VisualProp {
 	}
 
 	@Override
-	public void createBats(Coord alien, BatTarget rt) {
+	public void createBats(BatTarget rt) {
 		// 0
 		rt.drawBat(t.copy());
 	}
@@ -20,8 +20,14 @@ public class CoordVisualProp extends VisualProp {
 	@Override
 	void onBatMovement(int what, Coord where) {
 		assert what == 0;
-		t.x = where.x;
-		t.y = where.y;
+		onBring(where);
+	}
+	
+
+	@Override
+	void onBring(Coord c) {
+		t.x = c.x;
+		t.y = c.y;
 	}
 
 	@Override
