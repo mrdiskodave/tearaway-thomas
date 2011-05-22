@@ -15,8 +15,6 @@ public interface MapperServices {
 
 	Coord getScreenPosition();
 
-	void addNewAlien(Alien alien);
-
 	Alien findNearestAlien(Coord c);
 
 	void toggleSeeMasks();
@@ -28,4 +26,8 @@ public interface MapperServices {
 	void reinstateAlien(Alien alien);
 
 	void setScreenPosition(Coord c);
+	
+	Alien createAlien(int typeCode);
+
+	void loadAlienIntoWorld(Alien alien);
 }

@@ -13,10 +13,11 @@ public class AlienInfoMap {
 	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
+	
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
 
 	void add(AlienInfo a) {
-		typeToAlienInfo.put(a.id, a);
+		typeToAlienInfo.put(a.typeCode, a);
 		classToAlienInfo.put(a.alienClass, a);
 		aim.add(a);
 
@@ -29,7 +30,7 @@ public class AlienInfoMap {
 		for (AlienInfo a : aim) {
 			// if it doesn't have an id that is because it
 			// doesn't occur in any map but is instead deployed live at runtime
-			if (a.id < 0) {
+			if (a.typeCode < 0) {
 				// so preload its graphics now
 				animsPool.load(a.animsName);
 			}
@@ -45,17 +46,16 @@ public class AlienInfoMap {
 	}
 
 	public AlienInfo getByClass(Class<? extends Alien> c) {
+		// it's a problem if we cannot give an unambiguous answer
+		assert classUseCount.get(c.getClass()) == 1;
+
 		return classToAlienInfo.get(c);
 	}
 
-	public void connectAnims(Alien c, AnimsPool animsPool) {
-		assert classUseCount.get(c.getClass()) == 1;
-		// class is used with many animation names so how
-		// do we know which to give it???
-
+	public void giveTypeCodeAndConnectAnims(Alien c, AnimsPool animsPool) {
 		AlienInfo ai = getByClass(c.getClass());
+		c.typeCode = ai.typeCode;
 		if (ai.animsName != null) {
-			// System.out.println(c.getClass() + " gets " + ai.animsName);
 			Anims anims = animsPool.directGet(ai.animsName);
 			assert anims != null : "need to preload " + ai.animsName;
 			c.connectAnims(anims);

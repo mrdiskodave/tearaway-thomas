@@ -28,7 +28,7 @@ public class PointerAdapter implements Pointer {
 	}
 
 	@Override
-	public boolean justPressed(int mask) {
-		return target.justPressed(mask);
+	public int justPressed() {
+		return target.justPressed();
 	}
 }

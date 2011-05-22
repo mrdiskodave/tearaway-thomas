@@ -12,8 +12,9 @@ public class HandPen extends Pen {
 	}
 
 	@Override
-	void down(Coord c) {
+	boolean down(Coord c) {
 		last = c;
+		return false;
 	}
 
 	@Override

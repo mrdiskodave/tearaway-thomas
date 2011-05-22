@@ -7,7 +7,7 @@ public interface PenServices extends ButtonPressServices {
 
 	int getCurrentBlock();
 
-	void keyboardBlockChoiceAndShow();
+	void keyboardBlockChoice();
 
 	void scroll(Coord delta);
 
@@ -15,9 +15,9 @@ public interface PenServices extends ButtonPressServices {
 
 	void showBlocks();
 
-	EditDestination startEdit();
+	EditDestination startBlockEdit();
 
-	void endEdit();
+	void endBlockEdit();
 
 	void selectNearestAlien(Coord c);
 

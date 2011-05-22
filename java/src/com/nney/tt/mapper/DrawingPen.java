@@ -14,8 +14,9 @@ public class DrawingPen extends Pen {
 	}
 
 	@Override
-	void down(Coord c) {
-		edit = srv.startEdit();
+	boolean down(Coord c) {
+		edit = srv.startBlockEdit();
+		return false;
 	}
 
 	@Override
@@ -26,11 +27,11 @@ public class DrawingPen extends Pen {
 
 	@Override
 	void up(Coord c) {
-		srv.endEdit();
+		srv.endBlockEdit();
 	}
 
 	@Override
-	void always() {
-		srv.keyboardBlockChoiceAndShow();
+	void presentation() {
+		srv.keyboardBlockChoice();
 	}
 }

@@ -20,14 +20,8 @@ public class PersistedMap {
 	public short playerX;
 	public short playerY;
 	public boolean playerGoLeft;
-
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
 
-	/**
-	 * Compile time configuration: Only have instantiate once instance of each
-	 * alien type that is present on a level (the others are ignored).
-	 */
-	private static final boolean CTC_ITEM_ONCE = false;
 
 	private String readChunkId(DataInputStream di) throws IOException {
 		StringBuilder sb = new StringBuilder();
@@ -62,57 +56,35 @@ public class PersistedMap {
 		mapBounds = new Box(minx, miny, maxx, maxy);
 	}
 
-	private void loadLegacyAlienIntoWorld(AnimsPool animsPool, AlienInfoMap alienInfoMap, int x, int y, int type,
+	private void loadLegacyAlienIntoWorld(World world, int x, int y, int type,
 			byte[] rest) {
-		try {
-			AlienInfo alienInfo = alienInfoMap.getByType(type);
-			if (alienInfo != null) {
-				if (CTC_ITEM_ONCE) {
-					alienInfoMap.removeByType(type); // ONCE!
-				}
 
-				Alien alien = alienInfo.instantiate();
-				if (alienInfo.animsName != null) {
-					Anims anims = animsPool.load(alienInfo.animsName);
-					alien.connectAnims(anims);
-				}
-				if (type == 2 || type == 3) {
-					// this is what gem_render -> bob_gem does
-					x += 8;
-				}
-				alien.c.x = x;
-				alien.c.y = y;
-				alien.legacyData = rest;
-				alien.loadFromLegacyData();
+		Alien alien = world.createAlien(type);
+				
+		if (type == 2 || type == 3) {
+			// this is what gem_render -> bob_gem does
+			x += 8;
+		}
+
+		alien.c.x = x;
+		alien.c.y = y;
+		alien.legacyData = rest;
+		alien.loadFromLegacyData();
 
 				// if (alien instanceof LoadsFromSpriteDef) {
 				// ((LoadsFromSpriteDef)
 				// alien).load(adp.load(alienInfo.animsName));
 				// }
 
-				loadAlienIntoWorld(alien);
-			}
-			else {
-				TextAlien alien = new TextAlien();
-				alien.setText(String.format("%d", type));
-				alien.c.x = x;
-				alien.c.y = y;
-				loadAlienIntoWorld(alien);
-			}
-		}
-		catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		}
-		catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private void loadAlienIntoWorld(Alien alien) {
 		aliens.add(alien);
 	}
 
-	public void loadLegacy(AnimsPool animsPool, AlienInfoMap alienInfoMap, Openable mapOpenable) {
+	/**
+	 * 
+	 * @param world Only used for {@link World#createAlien(int)}.
+	 * @param mapOpenable
+	 */
+	public void loadLegacy(World world, Openable mapOpenable) {
 		try {
 			InputStream i = mapOpenable.open();
 			DataInputStream di = new DataInputStream(i);
@@ -136,7 +108,7 @@ public class PersistedMap {
 						byte[] rest = new byte[21];
 						di.readFully(rest);
 
-						loadLegacyAlienIntoWorld(animsPool, alienInfoMap, x, y, type, rest);
+						loadLegacyAlienIntoWorld(world, x, y, type, rest);
 					}
 				}
 				else if (id.equals("pal2")) {

@@ -63,4 +63,8 @@ public abstract class Prop {
 		// shouldn't be called on things that don't know how to respond to it
 		assert false;
 	}
+	
+	public void copyFrom(Prop other) {
+		fa.put(other.fa.getCopy());
+	}
 }

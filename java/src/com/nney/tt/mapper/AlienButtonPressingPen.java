@@ -11,23 +11,25 @@ public class AlienButtonPressingPen extends Pen {
 
 	@Override
 	void hover(Coord c) {
-		srv.getHoverStatus().move(brn(c));
+		srv.getHoverStatus().move(buttonRecordToString(srv.searchForButton(c)));
 	}
 	
 	@Override
 	void stroke(Coord c) {
-		srv.getHoverStatus().move(brn(c));
+		hover(c);
 	}
 	
 	@Override
-	void down(Coord c) {
-		srv.getHoverStatus().down(brn(c));
+	boolean down(Coord c) {
+		ButtonRecord br = srv.searchForButton(c);
+		srv.getHoverStatus().down(buttonRecordToString(br));
+		return br==null;
 	}
 
 	@Override
 	void up(Coord c) {
-		if (srv.getHoverStatus().up(brn(c))) {
-			ButtonRecord selected = srv.searchForButton(c);
+		ButtonRecord selected = srv.searchForButton(c);
+		if (srv.getHoverStatus().up(buttonRecordToString(selected))) {
 			srv.startAlienEdit();
 			selected.prop.onButtonPress(selected.buttonNumber, srv);
 			srv.endAlienEdit();
@@ -39,8 +41,7 @@ public class AlienButtonPressingPen extends Pen {
 		return false;
 	}
 
-	String brn(Coord c) {
-		ButtonRecord br = srv.searchForButton(c);
+	private String buttonRecordToString(ButtonRecord br) {
 		if (br==null) return "";
 		return br.getUniqueName();
 	}

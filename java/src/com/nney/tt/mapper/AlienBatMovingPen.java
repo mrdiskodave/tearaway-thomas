@@ -26,16 +26,18 @@ public class AlienBatMovingPen extends Pen {
 	}
 
 	@Override
-	void down(Coord c) {
+	boolean down(Coord c) {
 		BatRecord bat = srv.searchForBat(c);
 		if (bat != null) {
 			selectedBat = bat.address;
 			srv.startAlienEdit();
 			c.sub(bat.where);
 			batGrip = c;
+			return false;
 		}
 		else {
 			noBat();
+			return true;
 		}
 	}
 

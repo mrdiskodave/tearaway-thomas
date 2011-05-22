@@ -7,11 +7,13 @@ abstract class Tool {
 
 	void moreBusy() {
 		level++;
+		System.out.println("MORE BUSY"+level);
 	}
 
 	void lessBusy() {
 		assert level != 0;
 		level--;
+		System.out.println("LESS BUSY"+level);
 	}
 
 	boolean isFree() {

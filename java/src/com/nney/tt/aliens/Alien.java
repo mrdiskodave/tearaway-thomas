@@ -13,7 +13,8 @@ public abstract class Alien {
 	public Coord c = new Coord();
 
 	protected AnimPlayer animPlayer = new AnimPlayer();
-	private Anims spriteSet;
+	private Anims anims;
+	public int typeCode = -1;
 	public byte[] legacyData;
 	public boolean remove;
 	public int depth = DEPTH_BACKGROUND;
@@ -48,7 +49,6 @@ public abstract class Alien {
 	protected static final int OBstatus6 = 28 - OBbase; // B
 	protected static final int OBstatus7 = 29 - OBbase; // B
 
-	// abstract public void reset();
 	public void onPropUpdate() {
 	}
 
@@ -61,9 +61,9 @@ public abstract class Alien {
 	}
 
 	protected void changeAnimation(String name) {
-		assert spriteSet != null;
+		assert anims != null;
 		assert name != null;
-		changeAnimation(spriteSet.find(name));
+		changeAnimation(anims.find(name));
 	}
 
 	protected void changeAnimation(Anim anim) {
@@ -72,8 +72,8 @@ public abstract class Alien {
 	}
 
 	protected void changeAnimation(int name) {
-		assert spriteSet != null;
-		animPlayer.changeAnimation(spriteSet.find(name));
+		assert anims != null;
+		animPlayer.changeAnimation(anims.find(name));
 	}
 
 	protected void hide() {
@@ -89,7 +89,7 @@ public abstract class Alien {
 	}
 
 	public void connectAnims(Anims s) {
-		spriteSet = s;
+		anims = s;
 	}
 
 	protected void draw(Coord c2) {

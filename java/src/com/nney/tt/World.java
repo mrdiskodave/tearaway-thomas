@@ -21,6 +21,7 @@ import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TeleportAlien;
+import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.aliens.WingAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
@@ -542,15 +543,44 @@ public class World implements AlienServices, MapperServices {
 	// ---------------------------------------------------------------------------
 	// UPDATING OF THINGS
 
+	/**
+	 * Compile time configuration: Only have instantiate once instance of each
+	 * alien type that is present on a level (the others are ignored).
+	 */
+	private static final boolean CTC_ITEM_ONCE = false;
+
 	@Override
-	public void addNewAlien(Alien alien) {
-		alienInfoMap.connectAnims(alien, animsPool);
+	public Alien createAlien(int typeCode) {
+		assert typeCode>=0;
+		
+		AlienInfo alienInfo = alienInfoMap.getByType(typeCode);
+		if (alienInfo != null) {
+			if (CTC_ITEM_ONCE) {
+				alienInfoMap.removeByType(typeCode);
+			}
+			Alien alien = alienInfo.instantiate();
+			if (alienInfo.animsName != null) {
+				Anims anims = animsPool.load(alienInfo.animsName);
+				alien.connectAnims(anims);
+			}
+			alien.typeCode = typeCode;
+			return alien;
+		}
+
+		TextAlien alien = new TextAlien();
+		alien.setText(String.format("%d", typeCode));
+		return alien;
+	}
+
+	private void addNewAlien(Alien alien) {
+		alienInfoMap.giveTypeCodeAndConnectAnims(alien, animsPool);
 		alien.srv = this;
 		alien.visualReset();
 		alienTracker.delayedAdd(alien);
 	}
 
-	private void loadAlienIntoWorld(Alien alien) {
+	@Override
+	public void loadAlienIntoWorld(Alien alien) {
 		alien.srv = this;
 		alien.visualReset();
 		alienTracker.delayedAdd(alien);
@@ -688,7 +718,7 @@ public class World implements AlienServices, MapperServices {
 		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
 
 		PersistedMap pm = new PersistedMap();
-		pm.loadLegacy(animsPool, alienInfoMap, mapOpenable);
+		pm.loadLegacy(this, mapOpenable);
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
@@ -737,7 +767,7 @@ public class World implements AlienServices, MapperServices {
 	public void quitMapper(Coord mousePos) {
 		player.resetTo(mousePos);
 		gameMap.applyShuffle(wi.blockRandomisationTable);
-		
+
 		usingMapper = false;
 		alienTracker.reclassify();
 	}

@@ -15,9 +15,9 @@ public class LwjglPointer extends PartialPointerImpl {
 		int y = Mouse.getY();
 		int w = Mouse.getDWheel();
 		int b = 0;
-		if (Mouse.isButtonDown(0)) b |= KEY_LEFT;
-		if (Mouse.isButtonDown(1)) b |= KEY_RIGHT;
-		if (Mouse.isButtonDown(2)) b |= KEY_MIDDLE;
+		for (int z=0; z<Mouse.getButtonCount(); z++) {
+			if (Mouse.isButtonDown(z)) b |= 1<<z;
+		}
 		setNext(x, y, w, b);
 	}
 

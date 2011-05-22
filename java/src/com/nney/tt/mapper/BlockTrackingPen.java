@@ -13,9 +13,10 @@ public class BlockTrackingPen extends Pen {
 	}
 
 	@Override
-	void down(Coord c) {
+	boolean down(Coord c) {
 		c.div(Const.BLOCK_SIZE);
 		last = c;
+		return true;
 	}
 
 	@Override

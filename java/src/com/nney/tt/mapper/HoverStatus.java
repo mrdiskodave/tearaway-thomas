@@ -39,7 +39,7 @@ public class HoverStatus {
 				return ButtonState.PRESSED;
 			}
 			else {
-				boolean isPressedOnSomethingElse = pressed.length()!=0;
+				boolean isPressedOnSomethingElse = pressed.length()>0;
 				if (isPressedOnSomethingElse) {
 					return ButtonState.PASSIVE;
 				}
@@ -57,5 +57,4 @@ public class HoverStatus {
 			}
 		}
 	}
-
 }

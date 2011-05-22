@@ -7,12 +7,12 @@ import java.util.List;
 import com.nney.tt.aliens.Alien;
 
 /**
- * Captures any property edit to an Alien for undo-redo purposes.
+ * Captures any property-edit to an Alien for undo-redo purposes.
  * 
  * <p>
  * Usage: Construct it on a list of {@link Prop}. Then change those properties
  * (by directly accessing the {@link Alien}. Then call {@link #size()} and if it
- * is non-zero then submit this object to the {@link UndoControler}.
+ * is non-zero then submit this object to {@link UndoControler#add(UndoRedo)}.
  */
 class AlienEdit extends SymmetricalUndoRedo {
 	class Content {

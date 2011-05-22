@@ -27,21 +27,24 @@ import com.nney.tt.map.GameMap;
  * 
  * <pre>
  * A Alien Tool - for changing aliens
- *			RETURN - select alien
- *			LMB - change alien (either by pressing on-screen buttons or dragging yellow control points)
- *			Cursor Keys - nudge a control point by one pixel
+ * 		LMB - select alien
+ * 		LMB - change alien properties by dragging yellow control points
+ * 		LMB - change alien properties by clicking on the panel at the bottom of the screen
+ * 		Cursor Keys - nudge a control point by one pixel
+ *      C - Copy alien to the mouse (other graphical control points stay unchanged)
  * D Draw Tool - for changing blocks
- *			Hold:RMB - temporary use of the Chooser Tool from the Drawing Tool
- *			Cursor Keys - mini block chooser
- *			Hold:Left CTRL - block choice follows mouse movements
- *						   (useful for drawing multi-block things from the block palette)
- * C Chooser Tool - full screen current-block choosing tool
- *			LMB - select block
- *			Cursor Keys - change block
+ * 		Hold:RMB - temporary use of the Block Chooser Tool from the Drawing Tool
+ * 		Cursor Keys - mini block chooser
+ * 		Hold:Left CTRL - block choice follows mouse movements
+ *                       (useful for drawing multi-block things from the block palette)
+ * B Block Chooser Tool - full screen current-block choosing tool
+ * 		LMB - select block
+ * 		Cursor Keys - change block
  * I Eyedropper Tool - for picking the current-block from the map
- *			Cursor Keys - mini block chooser
+ * 		Cursor Keys - mini block chooser
  * H Hand Tool - for panning around
- *			CTRL, SHIFT or CTRL+SHIFT give various levels of acceleration
+ * 		CTRL, SHIFT or CTRL+SHIFT give various levels of acceleration
+ * 
  * Hold:SPACE - temporary use of the Hand Tool from other tools
  * Z undo (endless - all changes)
  * Y redo
@@ -73,12 +76,50 @@ public class Mapper implements PenServices {
 	private ColorCycler colorCycler = new ColorCycler();
 	final private UnifiedKeyTester ukt;
 
-	private Tool chooserTool = new ChooserTool();
+	private Tool blockChooserTool = new ChooserTool();
 	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
 	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
 	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
-	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(), new AlienBatMovingPen(),
-			new AlienSelectionPen());
+	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(),
+			new AlienBatMovingPen(), new AlienSelectionPen()) {
+		@Override
+		void run() {
+			super.run();
+
+			if (haveAlien()) {
+				final Alien a = getSelectedAlien();
+				switch (keyboard.justPressed()) {
+				case Keyboard.KEY_DELETE: {
+					undoControler.redoThenAdd(new UndoRedo() {
+						@Override
+						public void undo() {
+							parent.reinstateAlien(a);
+							setSelectedAlien(a);
+						}
+
+						@Override
+						public void redo() {
+							deleteAlien(a);
+						}
+					});
+					break;
+				}
+				case Keyboard.KEY_C: {
+					if (a.typeCode >= 0) {
+						final Alien z = parent.createAlien(a.typeCode);
+						List<Prop> zp = propsForAlien(z);
+						List<Prop> ap = propsForAlien(a);
+						assert ap.size() == zp.size();
+						for (int x = 0; x < ap.size(); x++) {
+							zp.get(x).copyFrom(ap.get(x));
+						}
+						createAlienAtMouseWithUndoRedo(z);
+					}
+				}
+				}
+			}
+		}
+	};
 
 	private Tool tool;
 	private Tool otherTool;
@@ -111,13 +152,30 @@ public class Mapper implements PenServices {
 		mgc = new MapperGC(gc, debugFont);
 		createBlockPalette();
 		tool = drawTool;
-		
-		
 
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
-		drawTool.addNested(Pointer.KEY_RIGHT, chooserTool);
+		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
+	}
+
+	void createAlienAtMouseWithUndoRedo(final Alien alien) {
+		alien.c = computeMousePos(true);
+		parent.loadAlienIntoWorld(alien);
+		setSelectedAlien(alien);
+		UndoRedo u = new UndoRedo() {
+			@Override
+			public void redo() {
+				parent.reinstateAlien(alien);
+				setSelectedAlien(alien);
+			}
+
+			@Override
+			public void undo() {
+				deleteAlien(alien);
+			}
+		};
+		undoControler.add(u);
 	}
 
 	private void createBlockPalette() {
@@ -137,7 +195,7 @@ public class Mapper implements PenServices {
 		}
 	}
 
-	private final class GeneralTool extends Tool {
+	private class GeneralTool extends Tool {
 		private final Pen[] pens;
 		private final String name;
 		private final Cursor cursor;
@@ -154,15 +212,15 @@ public class Mapper implements PenServices {
 		@Override
 		void presentation() {
 			for (Pen pen : pens) {
-				pen.always();
+				pen.presentation();
 			}
 		}
 
 		@Override
-		public void run() {
+		void run() {
 			if (isFree()) {
 				for (Entry<Integer, Tool> e : nest.entrySet()) {
-					if (ukt.isDown(e.getKey())) {
+					if (ukt.justPressed() == e.getKey()) {
 						pushTool(e.getKey(), e.getValue());
 					}
 				}
@@ -173,9 +231,9 @@ public class Mapper implements PenServices {
 
 			for (Pen pen : pens) {
 				Coord m = computeMousePos(pen.usesWorldCoords());
-				boolean pressed = ukt.isDown(pen.key());
 				if (pen.active) {
-					if (pressed) {
+					boolean held = ukt.isDown(pen.key());
+					if (held) {
 						pen.stroke(m.copy());
 					}
 					else {
@@ -185,16 +243,17 @@ public class Mapper implements PenServices {
 					}
 				}
 				else {
+					boolean pressed = ukt.justPressed() == pen.key();
 					if (pressed) {
-						pen.down(m.copy());
+						boolean more = pen.down(m.copy());
 						pen.active = true;
 						moreBusy();
+						if (!more) break;
 					}
 					else {
 						pen.hover(m.copy());
 					}
 				}
-
 			}
 		}
 
@@ -206,6 +265,7 @@ public class Mapper implements PenServices {
 
 	public void run() {
 		colorCycler.advance();
+		ukt.next();
 
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
@@ -217,6 +277,7 @@ public class Mapper implements PenServices {
 		if (otherTool != null) {
 			if (otherTool.isFree() && !ukt.isDown(keyThatSustainsTheOtherTool)) {
 				otherTool = null;
+				System.out.println("POP TOOL");
 			}
 			else {
 				t = otherTool;
@@ -252,8 +313,8 @@ public class Mapper implements PenServices {
 			case Keyboard.KEY_D:
 				tool = drawTool;
 				break;
-			case Keyboard.KEY_C:
-				tool = chooserTool;
+			case Keyboard.KEY_B:
+				tool = blockChooserTool;
 				break;
 			case Keyboard.KEY_A:
 				tool = alienTool;
@@ -288,37 +349,32 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public void keyboardBlockChoiceAndShow() {
-		keyboardBlockChoice();
-	}
-
-	private boolean keyboardBlockChoice() {
+	public void keyboardBlockChoice() {
 		switch (keyboard.justPressed()) {
 		case Keyboard.KEY_0:
 			currentBlock = 0;
-			return true;
+			break;
 		case Keyboard.KEY_UP:
 			changeCurrentBlock(0, -1);
-			return true;
+			break;
 		case Keyboard.KEY_DOWN:
 			changeCurrentBlock(0, 1);
-			return true;
+			break;
 		case Keyboard.KEY_LEFT:
 			changeCurrentBlock(-1, 0);
-			return true;
+			break;
 		case Keyboard.KEY_RIGHT:
 			changeCurrentBlock(1, 0);
-			return true;
+			break;
 		case Keyboard.KEY_M:
 			parent.toggleSeeMasks();
 			createBlockPalette();
-			return true;
+			break;
 		case Keyboard.KEY_V:
 			parent.toggleShowInvisible();
 			createBlockPalette();
-			return true;
+			break;
 		}
-		return false;
 	}
 
 	private Coord computeMousePos(boolean world) {
@@ -328,7 +384,31 @@ public class Mapper implements PenServices {
 	}
 
 	private void blockChoosingMode() {
-		keyboardBlockChoice();
+		switch (keyboard.justPressed()) {
+		case Keyboard.KEY_0:
+			currentBlock = 0;
+			break;
+		case Keyboard.KEY_UP:
+			changeCurrentBlock(0, -1);
+			break;
+		case Keyboard.KEY_DOWN:
+			changeCurrentBlock(0, 1);
+			break;
+		case Keyboard.KEY_LEFT:
+			changeCurrentBlock(-1, 0);
+			break;
+		case Keyboard.KEY_RIGHT:
+			changeCurrentBlock(1, 0);
+			break;
+		case Keyboard.KEY_M:
+			parent.toggleSeeMasks();
+			createBlockPalette();
+			break;
+		case Keyboard.KEY_V:
+			parent.toggleShowInvisible();
+			createBlockPalette();
+			break;
+		}
 		int mx = mouse.getX();
 		int my = mouse.getY();
 
@@ -361,7 +441,7 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public EditDestination startEdit() {
+	public EditDestination startBlockEdit() {
 		System.out.println("Start edit");
 		assert edit == null;
 		edit = new EditConsolidator(gameMap);
@@ -369,7 +449,7 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public void endEdit() {
+	public void endBlockEdit() {
 		System.out.println("Submit edit");
 		assert edit != null;
 		UndoRedo u = edit.endEdit();
@@ -399,6 +479,7 @@ public class Mapper implements PenServices {
 	}
 
 	private void pushTool(int key, Tool tool) {
+		System.out.println("PUSH TOOL");
 		keyThatSustainsTheOtherTool = key;
 		otherTool = tool;
 	}
@@ -465,32 +546,12 @@ public class Mapper implements PenServices {
 	@Override
 	public void showSelectedAlienProps() {
 		if (haveAlien()) {
-			switch (keyboard.justPressed()) {
-			case Keyboard.KEY_DELETE:
-				final Alien a = getSelectedAlien();
-				undoControler.redoThenAdd(new UndoRedo() {
-					@Override
-					public void undo() {
-						parent.reinstateAlien(a);
-						setSelectedAlien(a);
-					}
-
-					@Override
-					public void redo() {
-						deleteAlien(a);
-					}
-				});
-				break;
-			}
-		}
-
-		if (haveAlien()) {
 			Coord sac = getSelectedAlien().c.copy();
 			sac.sub(parent.getScreenPosition());
 			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
 
 			List<Prop> props = propsForAlien(selectedAlien);
-			
+
 			// bats
 			bats.clear();
 			for (Prop p : props) {
@@ -510,23 +571,13 @@ public class Mapper implements PenServices {
 			for (Prop p : props) {
 				pd.draw(p);
 			}
-			
-			
-			// TODO: prop drawer work ...
 
-			// NEXT::
-			// look at the issue of events "dropping thru"
-			// so I can have the statuslayer buttons (AT LEAST?) really be in
-			// front
-			//
-			// of course if the entire status layer was infront that'd be easier
-			// :)
+			// TODO: prop drawer work ...
 
 			// TODO: alien: copy
 			// TODO: alien: new (via resetTo())
 
 			// TODO: block editor box select: copy & paste & fill
-			// TODO: make a list of mapper controls
 			// TODO: serialise and deserialise
 		}
 	}
@@ -558,11 +609,11 @@ public class Mapper implements PenServices {
 
 	@Override
 	public ButtonRecord searchForButton(Coord c) {
-//		System.out.println("Search for button " + c);
+		// System.out.println("Search for button " + c);
 		for (ButtonRecord button : buttons) {
-//			System.out.println(button.collisionBox);
+			// System.out.println(button.collisionBox);
 			if (button.collisionBox.inside(c)) {
-//				System.out.println("Yep!");
+				// System.out.println("Yep!");
 				return button;
 			}
 		}
@@ -606,7 +657,7 @@ public class Mapper implements PenServices {
 
 	@Override
 	public Coord screenCentre() {
-		Coord centerDisplacement = new Coord(mgc.screenWidth()/2, mgc.screenHeight()/2);
+		Coord centerDisplacement = new Coord(mgc.screenWidth() / 2, mgc.screenHeight() / 2);
 		Coord c = parent.getScreenPosition();
 		c = c.copy();
 		c.add(centerDisplacement);
@@ -615,7 +666,7 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void setScreenCentre(Coord c) {
-		Coord centerDisplacement = new Coord(mgc.screenWidth()/2, mgc.screenHeight()/2);
+		Coord centerDisplacement = new Coord(mgc.screenWidth() / 2, mgc.screenHeight() / 2);
 		c = c.copy();
 		c.sub(centerDisplacement);
 		parent.setScreenPosition(c);

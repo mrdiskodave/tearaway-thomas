@@ -1,5 +1,7 @@
 package com.nney.tt.input;
 
+import com.nney.utils.Math2;
+
 public class PartialPointerImpl implements Pointer {
 	private int currentPosition;
 	private int lastPosition;
@@ -31,16 +33,19 @@ public class PartialPointerImpl implements Pointer {
 	}
 
 	@Override
-	public boolean isDown(int mask) {
-		assert mask >= KEY_POINTER;
-		mask -= KEY_POINTER;
-		return (currentPosition & mask) != 0;
+	public boolean isDown(int key) {
+		if (key==Pointer.KEY_LEFT) return Math2.bitTest(currentPosition, 0);
+		if (key==Pointer.KEY_RIGHT) return Math2.bitTest(currentPosition, 1);
+		if (key==Pointer.KEY_MIDDLE) return Math2.bitTest(currentPosition, 2);
+		return false;
 	}
 
 	@Override
-	public boolean justPressed(int mask) {
+	public int justPressed() {
 		int pressed = (~lastPosition) & currentPosition;
-		return (pressed & mask) != 0;
+		if (Math2.bitTest(pressed, 0)) return Pointer.KEY_LEFT;
+		if (Math2.bitTest(pressed, 1)) return Pointer.KEY_RIGHT;
+		if (Math2.bitTest(pressed, 2)) return Pointer.KEY_MIDDLE;
+		return 0;
 	}
-
 }
