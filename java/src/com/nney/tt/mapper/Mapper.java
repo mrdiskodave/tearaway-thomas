@@ -20,6 +20,33 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
 
+/**
+ * A level editor.
+ * 
+ * Keys:
+ * 
+ * <pre>
+ * A Alien Tool - for changing aliens
+ *			RETURN - select alien
+ *			LMB - change alien (either by pressing on-screen buttons or dragging yellow control points)
+ *			Cursor Keys - nudge a control point by one pixel
+ * D Draw Tool - for changing blocks
+ *			Hold:RMB - temporary use of the Chooser Tool from the Drawing Tool
+ *			Cursor Keys - mini block chooser
+ *			Hold:Left CTRL - block choice follows mouse movements
+ *						   (useful for drawing multi-block things from the block palette)
+ * C Chooser Tool - full screen current-block choosing tool
+ *			LMB - select block
+ *			Cursor Keys - change block
+ * I Eyedropper Tool - for picking the current-block from the map
+ *			Cursor Keys - mini block chooser
+ * H Hand Tool - for panning around
+ *			CTRL, SHIFT or CTRL+SHIFT give various levels of acceleration
+ * Hold:SPACE - temporary use of the Hand Tool from other tools
+ * Z undo (endless - all changes)
+ * Y redo
+ * </pre>
+ */
 public class Mapper implements PenServices {
 	/**
 	 * The colour we use to highlight the current block.
@@ -84,6 +111,8 @@ public class Mapper implements PenServices {
 		mgc = new MapperGC(gc, debugFont);
 		createBlockPalette();
 		tool = drawTool;
+		
+		
 
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
 		drawTool.addNested(Pointer.KEY_RIGHT, chooserTool);
@@ -141,6 +170,7 @@ public class Mapper implements PenServices {
 			if (cursor == Cursor.BLOCK) {
 				drawBlockCursor();
 			}
+
 			for (Pen pen : pens) {
 				Coord m = computeMousePos(pen.usesWorldCoords());
 				boolean pressed = ukt.isDown(pen.key());

@@ -17,5 +17,9 @@ public class EyeDropperPen extends Pen {
 		srv.showBlocks();
 		srv.keyboardBlockChoiceAndShow();
 	}
-
+	
+	@Override
+	void always() {
+		srv.keyboardBlockChoiceAndShow();
+	}
 }
