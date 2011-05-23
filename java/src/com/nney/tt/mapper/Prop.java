@@ -59,7 +59,7 @@ public abstract class Prop {
 		return fa.fieldName();
 	}
 
-	public void setPosition(Coord ourPosition) {
+	public void tellPosition(Coord ourPosition) {
 		// shouldn't be called on things that don't know how to respond to it
 		assert false;
 	}

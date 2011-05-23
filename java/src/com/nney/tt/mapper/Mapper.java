@@ -558,10 +558,21 @@ public class Mapper implements PenServices {
 				BatTargetImpl bt = new BatTargetImpl(selectedAlien.c, parent.getScreenPosition(), p, mgc);
 				p.createBats(bt);
 				if (bt.hasBats()) {
-					p.setPosition(bt.firstBatPosition());
+					p.tellPosition(bt.firstBatPosition());
 					bt.collectBats(bats);
 				}
 			}
+			
+			// TODO: what if the bats and buttons moved inside the Prop?
+			// bats and the drawing of them are also intermished
+			// what do I really want out of this??
+			//
+			// Objective:
+			// I want to move all the visualprops along as part of alien-copy
+			// (not just move the aliens location but all its other stuff as well)
+			// otherwise you can't easilly tell that you've copied it!
+			//
+			
 
 			// property descriptions and buttons
 			buttons.clear();

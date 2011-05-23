@@ -16,7 +16,7 @@ public abstract class VisualProp extends Prop {
 	}
 	
 	@Override
-	public void setPosition(Coord ourPosition) {
+	public void tellPosition(Coord ourPosition) {
 		this.ourPosition = ourPosition;
 	}
 	
