@@ -1,21 +1,22 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 
 public abstract class Prop {
-	final private AlienProp aprop;
-	final private FieldAccessor fa;
-	
-	public Prop(AlienProp aprop, FieldAccessor fa) {
-		this.aprop = aprop;
-		this.fa = fa;
+	private PropPack pp;
+
+	public Prop(PropPack pp) {
+		this.pp = pp;
 	}
 	
-	public FieldAccessor getFieldAccessor() {
-		return fa;
+	protected Coord alienPos() {
+		return pp.alien().c;
 	}
 
+	public FieldAccessor getFieldAccessor() {
+		return pp.access();
+	}
+	
 	public Coord[] getBats(Coord alien) {
 		return null;
 	}
@@ -54,20 +55,16 @@ public abstract class Prop {
 	}
 
 	public String name() {
-		return aprop.name();
+		return pp.getAnn().name();
 	}
 
 	public String doc() {
-		return aprop.doc();
+		return pp.getAnn().doc();
 	}
 
 	abstract public String text();
 	
-	public String getUniqueName() {
-		return fa.fieldName();
-	}
-
 	public void copyFrom(Prop other) {
-		fa.put(other.fa.getCopy());
+		pp.access().put(other.pp.access().getCopy());
 	}
 }

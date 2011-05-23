@@ -2,20 +2,23 @@ package com.nney.tt.mapper;
 
 import java.util.List;
 
+import com.nney.tt.geom.Coord;
 
 public class PropDrawer {
 	private int y;
 	private final StatusLayer statusLayer;
-	private final List<ButtonRecord> buttonRecords;
+	private final CollidableList<ButtonRecord> buttonRecords;
 	private final HoverStatus hs;
+	private final ButtonPressServices bps;
 
-	public PropDrawer(HoverStatus hs, StatusLayer statusLayer, List<ButtonRecord> buttonRecords) {
+	public PropDrawer(ButtonPressServices bps, HoverStatus hs, StatusLayer statusLayer, CollidableList<ButtonRecord> buttons) {
+		this.bps = bps;
 		this.hs = hs;
 		this.statusLayer = statusLayer;
-		this.buttonRecords = buttonRecords;
+		this.buttonRecords = buttons;
 	}
 
-	public void draw(Prop p) {
+	public void draw(final Prop p) {
 		statusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
 		statusLayer.draw(10, y, ButtonState.PASSIVE, clip(p.text(), 20));
 
@@ -24,7 +27,9 @@ public class PropDrawer {
 			int x = 30;
 			for (int b = 0; b < buttons.length; b++) {
 				String buttonText = "[" + buttons[b] + "]";
-				ButtonRecord br = new ButtonRecord(new ButtonAction(p, b), statusLayer.getBox(x, y, buttonText));
+				final int bb = b;
+				VisualAction va = new ButtonVisualAction(bps, bb, p);
+				ButtonRecord br = new ButtonRecord(va, statusLayer.getBox(x, y, buttonText));
 				buttonRecords.add(br);
 				statusLayer.draw(x, y, hs.status(br.getUniqueName()), buttonText);
 				x += buttonText.length() + 1;

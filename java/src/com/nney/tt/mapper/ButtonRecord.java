@@ -3,15 +3,16 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
-public class ButtonRecord {
-	public final ButtonAction buttonAction;
-	public final Box collisionBox;
+public class ButtonRecord implements Collidable {
+	public final VisualAction action;
+	private final Box collisionBox;
 
-	public ButtonRecord(ButtonAction buttonAction, Box collisionBox) {
-		this.buttonAction = buttonAction;
+	public ButtonRecord(VisualAction action, Box collisionBox) {
+		this.action = action;
 		this.collisionBox = collisionBox;
 	}
 
+	@Override
 	public boolean inside(Coord c) {
 		return collisionBox.inside(c);
 	}

@@ -9,10 +9,14 @@ import com.nney.tt.geom.Coord;
  * mouthful.
  */
 public abstract class VisualProp extends Prop {
-	public VisualProp(AlienProp aprop, FieldAccessor fa) {
-		super(aprop, fa);
+	public VisualProp(PropPack pp) {
+		super(pp);
 	}
 	
+	private Coord location() {
+		return getBats(alienPos())[0];
+	}
+
 	@Override
 	String[] createButtons() {
 		return new String[] { "find", "bring" };
@@ -23,7 +27,7 @@ public abstract class VisualProp extends Prop {
 		switch (what) {
 		case 0:
 			// find
-//			bps.setScreenCentre(ourPosition);
+			bps.setScreenCentre(location());
 			break;
 		case 1:
 			// bring

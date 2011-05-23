@@ -23,7 +23,7 @@ public interface PenServices extends ButtonPressServices {
 
 	void showSelectedAlienProps();
 
-	BatRecord searchForBat(Coord c);
+	BatRecord findBat(Coord c);
 
 	Coord getNudge();
 
@@ -31,7 +31,7 @@ public interface PenServices extends ButtonPressServices {
 
 	void endAlienEdit();
 
-	ButtonRecord searchForButton(Coord c);
+	ButtonRecord findButton(Coord c);
 	
 	HoverStatus getHoverStatus();
 }

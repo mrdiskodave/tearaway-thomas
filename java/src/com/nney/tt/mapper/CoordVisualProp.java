@@ -6,9 +6,9 @@ import com.nney.tt.geom.Coord;
 public class CoordVisualProp extends VisualProp {
 	private final Coord t;
 
-	public CoordVisualProp(AlienProp p, FieldAccessor fa) {
-		super(p, fa);
-		this.t = (Coord) fa.get();
+	public CoordVisualProp(PropPack pp) {
+		super(pp);
+		this.t = (Coord) pp.access().get();
 	}
 
 	@Override

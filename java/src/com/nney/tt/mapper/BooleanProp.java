@@ -6,11 +6,11 @@ public class BooleanProp extends Prop {
 	private final String textTrue;
 	private final String textFalse;
 
-	public BooleanProp(AlienProp aprop, FieldAccessor fa) {
-		super(aprop, fa);
+	public BooleanProp(PropPack pp) {
+		super(pp);
 		String t = "YES";
 		String f = "NO";
-		if (aprop.xtraDef().equals("leftright")) {
+		if (pp.getAnn().xtraDef().equals("leftright")) {
 			t = "LEFT";
 			f = "RIGHT";
 		}

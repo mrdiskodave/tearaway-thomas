@@ -130,8 +130,9 @@ public class Mapper implements PenServices {
 
 	private Alien selectedAlien;
 
-	private List<BatRecord> bats = new ArrayList<BatRecord>();
-	private List<ButtonRecord> buttons = new ArrayList<ButtonRecord>();
+	
+	private CollidableList<BatRecord> bats = new CollidableList<BatRecord>();
+	private CollidableList<ButtonRecord> buttons = new CollidableList<ButtonRecord>();
 
 	private AlienEdit alienEdit;
 
@@ -517,20 +518,20 @@ public class Mapper implements PenServices {
 			AlienProp p = field.getAnnotation(AlienProp.class);
 			if (p != null && !(p.xtraDef().equals("location") && alien instanceof AlienWithGeneratedLocation)) {
 				Prop prop = null;
-				FieldAccessor po = new FieldAccessor(field, alien);
+				PropPack pp = new PropPack(alien, field);
 				Class<?> ft = field.getType();
 
 				if (ft == Box.class) {
-					prop = new BoxVisualProp(p, po);
+					prop = new BoxVisualProp(pp);
 				}
 				else if (ft == XRange.class) {
-					prop = new XRangeVisualProp(p, po);
+					prop = new XRangeVisualProp(pp);
 				}
 				else if (ft == Coord.class) {
-					prop = new CoordVisualProp(p, po);
+					prop = new CoordVisualProp(pp);
 				}
 				else if (ft == boolean.class) {
-					prop = new BooleanProp(p, po);
+					prop = new BooleanProp(pp);
 				}
 				else {
 					System.out.println(ft);
@@ -561,9 +562,11 @@ public class Mapper implements PenServices {
 				Coord[] bps = p.getBats(selectedAlien.c);
 				if (bps!=null) {
 					for (int x=0; x<bps.length; x++) {
-						BatAction ba = new BatAction(p, x);
-						Coord c = bps[x];
-						bats.add(new BatRecord(ba, c));
+						BatVisualAction ba = new BatVisualAction(p, x);
+						bats.add(new BatRecord(ba, bps[x]));
+					}
+					
+					for (Coord c: bps) {
 						batGc.drawBat(c);
 					}
 				}
@@ -583,7 +586,7 @@ public class Mapper implements PenServices {
 			// property descriptions and buttons
 			buttons.clear();
 			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
-			PropDrawer pd = new PropDrawer(hs, statusLayer, buttons);
+			PropDrawer pd = new PropDrawer(this, hs, statusLayer, buttons);
 			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
 			for (Prop p : props) {
 				pd.draw(p);
@@ -617,19 +620,13 @@ public class Mapper implements PenServices {
 	}
 
 	@Override
-	public BatRecord searchForBat(Coord c) {
-		for (BatRecord bat : bats) {
-			if (bat.inside(c)) return bat;
-		}
-		return null;
+	public BatRecord findBat(Coord c) {
+		return bats.find(c);
 	}
 
 	@Override
-	public ButtonRecord searchForButton(Coord c) {
-		for (ButtonRecord button : buttons) {
-			if (button.inside(c)) return button;
-		}
-		return null;
+	public ButtonRecord findButton(Coord c) {
+		return buttons.find(c);
 	}
 
 	@Override
