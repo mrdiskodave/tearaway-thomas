@@ -555,11 +555,17 @@ public class Mapper implements PenServices {
 			// bats
 			bats.clear();
 			for (Prop p : props) {
-				BatTargetImpl bt = new BatTargetImpl(selectedAlien.c, parent.getScreenPosition(), p, mgc);
-				p.createBats(bt);
-				if (bt.hasBats()) {
-					p.tellPosition(bt.firstBatPosition());
-					bt.collectBats(bats);
+				BatGCImpl batGc = new BatGCImpl(parent.getScreenPosition(), mgc);
+				p.drawAuxBatStuff(batGc);
+				
+				Coord[] bps = p.getBats(selectedAlien.c);
+				if (bps!=null) {
+					for (int x=0; x<bps.length; x++) {
+						BatAddress ba = new BatAddress(p, x);
+						Coord c = bps[x];
+						bats.add(new BatRecord(ba, c));
+						batGc.drawBat(c);
+					}
 				}
 			}
 			
@@ -613,20 +619,15 @@ public class Mapper implements PenServices {
 	@Override
 	public BatRecord searchForBat(Coord c) {
 		for (BatRecord bat : bats) {
-			if (bat.collisionBox.inside(c)) return bat;
+			if (bat.inside(c)) return bat;
 		}
 		return null;
 	}
 
 	@Override
 	public ButtonRecord searchForButton(Coord c) {
-		// System.out.println("Search for button " + c);
 		for (ButtonRecord button : buttons) {
-			// System.out.println(button.collisionBox);
-			if (button.collisionBox.inside(c)) {
-				// System.out.println("Yep!");
-				return button;
-			}
+			if (button.inside(c)) return button;
 		}
 		return null;
 	}

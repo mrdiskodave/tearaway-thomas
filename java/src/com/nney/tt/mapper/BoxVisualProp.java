@@ -14,18 +14,13 @@ public class BoxVisualProp extends VisualProp {
 	}
 
 	@Override
-	public void createBats(BatTarget rt) {
+	public Coord[] getBats(Coord alien) {
+		return new Coord[] { t.middle(), t.topLeft(), t.bottomRight(), t.topRight(), t.bottomLeft() };
+	}
+	
+	@Override
+	public void drawAuxBatStuff(BatGC rt) {
 		rt.drawBox(t);
-		// 0
-		rt.drawBat(t.middle());
-		// 1
-		rt.drawBat(t.topLeft());
-		// 2
-		rt.drawBat(t.bottomRight());
-		// 3
-		rt.drawBat(t.topRight());
-		// 4
-		rt.drawBat(t.bottomLeft());
 	}
 
 	@Override

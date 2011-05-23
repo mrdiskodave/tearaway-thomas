@@ -20,7 +20,7 @@ public class AlienBatMovingPen extends Pen {
 			if (nudge != null) {
 				Coord q = bat.where.copy();
 				q.add(nudge);
-				bat.address.moveTo(q);
+				bat.address.onBatMovement(q);
 			}
 		}
 	}
@@ -45,7 +45,7 @@ public class AlienBatMovingPen extends Pen {
 	void stroke(Coord c) {
 		if (selectedBat != null) {
 			c.sub(batGrip);
-			selectedBat.moveTo(c);
+			selectedBat.onBatMovement(c);
 		}
 	}
 

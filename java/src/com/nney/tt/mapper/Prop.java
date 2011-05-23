@@ -11,21 +11,25 @@ public abstract class Prop {
 		this.aprop = aprop;
 		this.fa = fa;
 	}
-	
+
+	public Coord[] getBats(Coord alien) {
+		return null;
+	}
+
 	/**
 	 * Generate this properties bats.
 	 * @param bt
 	 *            A destination for the bats (and also somewhere to render other
 	 *            visual hints about this {@link Prop}).
 	 */
-	void createBats(BatTarget bt) {}
+	void drawAuxBatStuff(BatGC bt) {}
 
 	/**
 	 * Respond to a bat movement.
 	 * 
 	 * @param what
 	 *            A bat number where <code>0</code> is the first bat sent to the
-	 *            {@link BatTarget} by {@link #createBats(BatTarget)} and
+	 *            {@link BatGC} by {@link #drawAuxBatStuff(BatGC)} and
 	 *            they number upward from there.
 	 * @param where
 	 *            Where the user is trying to move the bat to (in world
@@ -67,4 +71,5 @@ public abstract class Prop {
 	public void copyFrom(Prop other) {
 		fa.put(other.fa.getCopy());
 	}
+
 }

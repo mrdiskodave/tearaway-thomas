@@ -12,9 +12,8 @@ public class CoordVisualProp extends VisualProp {
 	}
 
 	@Override
-	public void createBats(BatTarget rt) {
-		// 0
-		rt.drawBat(t.copy());
+	public Coord[] getBats(Coord alien) {
+		return new Coord[] { t.copy() };
 	}
 
 	@Override
