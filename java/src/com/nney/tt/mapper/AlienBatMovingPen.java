@@ -4,7 +4,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
 
 public class AlienBatMovingPen extends Pen {
-	private VisualAction selectedBat;
+	private BatRecord selectedBat;
 	private Coord batGrip;
 
 	@Override
@@ -20,7 +20,7 @@ public class AlienBatMovingPen extends Pen {
 			if (nudge != null) {
 				Coord q = bat.where.copy();
 				q.add(nudge);
-				bat.action.takeAction(q);
+				bat.press(q);
 			}
 		}
 	}
@@ -29,7 +29,7 @@ public class AlienBatMovingPen extends Pen {
 	boolean down(Coord c) {
 		BatRecord bat = srv.findBat(c);
 		if (bat != null) {
-			selectedBat = bat.action;
+			selectedBat = bat;
 			srv.startAlienEdit();
 			c.sub(bat.where);
 			batGrip = c;
@@ -45,7 +45,7 @@ public class AlienBatMovingPen extends Pen {
 	void stroke(Coord c) {
 		if (selectedBat != null) {
 			c.sub(batGrip);
-			selectedBat.takeAction(c);
+			selectedBat.press(c);
 		}
 	}
 

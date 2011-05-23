@@ -9,7 +9,7 @@ public abstract class Prop {
 		this.pp = pp;
 	}
 	
-	protected Coord alienPos() {
+	public Coord alienPos() {
 		return pp.alien().c;
 	}
 

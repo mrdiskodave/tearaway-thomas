@@ -1,6 +1,5 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 
 public class CoordVisualProp extends VisualProp {

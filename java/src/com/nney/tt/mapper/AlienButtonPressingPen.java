@@ -31,7 +31,7 @@ public class AlienButtonPressingPen extends Pen {
 		ButtonRecord selected = srv.findButton(c);
 		if (srv.getHoverStatus().up(buttonRecordToString(selected))) {
 			srv.startAlienEdit();
-			selected.action.takeAction(c);
+			selected.press();
 			srv.endAlienEdit();
 		}
 	}

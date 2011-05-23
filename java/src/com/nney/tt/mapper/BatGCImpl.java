@@ -1,8 +1,5 @@
 package com.nney.tt.mapper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 

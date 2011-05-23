@@ -562,8 +562,7 @@ public class Mapper implements PenServices {
 				Coord[] bps = p.getBats(selectedAlien.c);
 				if (bps!=null) {
 					for (int x=0; x<bps.length; x++) {
-						BatVisualAction ba = new BatVisualAction(p, x);
-						bats.add(new BatRecord(ba, bps[x]));
+						bats.add(new BatRecord(p, x, bps[x]));
 					}
 					
 					for (Coord c: bps) {

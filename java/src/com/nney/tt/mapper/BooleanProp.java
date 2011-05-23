@@ -1,6 +1,5 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.aliens.AlienProp;
 
 public class BooleanProp extends Prop {
 	private final String textTrue;

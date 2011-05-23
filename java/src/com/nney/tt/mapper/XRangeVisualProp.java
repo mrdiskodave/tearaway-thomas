@@ -1,6 +1,5 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;

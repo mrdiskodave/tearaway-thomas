@@ -7,11 +7,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.sprites.Anims;
-import com.nney.tt.sprites.AnimsPool;
 import com.nney.utils.Openable;
 
 public class PersistedMap {

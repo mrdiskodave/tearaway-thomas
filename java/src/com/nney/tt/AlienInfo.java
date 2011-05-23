@@ -1,7 +1,5 @@
 package com.nney.tt;
 
-import javax.management.RuntimeErrorException;
-
 import com.nney.tt.aliens.Alien;
 
 public class AlienInfo {

@@ -1,6 +1,5 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 
 /**
@@ -16,6 +15,8 @@ public abstract class VisualProp extends Prop {
 	private Coord location() {
 		return getBats(alienPos())[0];
 	}
+	
+	// TODO: moveBy (to be used as part of copy-alien)
 
 	@Override
 	String[] createButtons() {

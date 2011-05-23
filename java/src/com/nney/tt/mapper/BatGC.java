@@ -1,7 +1,6 @@
 package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Box;
-import com.nney.tt.geom.Coord;
 
 public interface BatGC {
 	/**

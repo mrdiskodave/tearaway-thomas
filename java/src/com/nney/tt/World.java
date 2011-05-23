@@ -74,12 +74,6 @@ public class World implements AlienServices, MapperServices {
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
-	/**
-	 * Compile time configuration: See the block masks (that determine ground or
-	 * sky) rather than the block graphics.
-	 */
-	private static final boolean CTC_SEE_MASKS = false;
-
 	private BlocksHolder blocksHolder;
 
 	final public Random rnd = new Random(5);

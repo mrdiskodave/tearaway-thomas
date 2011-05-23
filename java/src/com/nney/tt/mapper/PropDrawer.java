@@ -1,8 +1,5 @@
 package com.nney.tt.mapper;
 
-import java.util.List;
-
-import com.nney.tt.geom.Coord;
 
 public class PropDrawer {
 	private int y;
@@ -28,8 +25,7 @@ public class PropDrawer {
 			for (int b = 0; b < buttons.length; b++) {
 				String buttonText = "[" + buttons[b] + "]";
 				final int bb = b;
-				VisualAction va = new ButtonVisualAction(bps, bb, p);
-				ButtonRecord br = new ButtonRecord(va, statusLayer.getBox(x, y, buttonText));
+				ButtonRecord br = new ButtonRecord(bb, p, bps, statusLayer.getBox(x, y, buttonText));
 				buttonRecords.add(br);
 				statusLayer.draw(x, y, hs.status(br.getUniqueName()), buttonText);
 				x += buttonText.length() + 1;
