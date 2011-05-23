@@ -3,10 +3,10 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 
 public class BatRecord {
-	public final BatAddress address;
+	public final BatAction address;
 	public final Coord where;
 
-	BatRecord(BatAddress address, Coord where) {
+	BatRecord(BatAction address, Coord where) {
 		this.address = address;
 		this.where = where;
 	}

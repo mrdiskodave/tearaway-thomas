@@ -40,7 +40,7 @@ class AlienEdit extends SymmetricalUndoRedo {
 
 	AlienEdit(List<Prop> props) {
 		for (Prop p : props) {
-			FieldAccessor fa = p.fa;
+			FieldAccessor fa = p.getFieldAccessor();
 			Object o = fa.getCopy();
 			cs.add(new Content(fa, o));
 		}

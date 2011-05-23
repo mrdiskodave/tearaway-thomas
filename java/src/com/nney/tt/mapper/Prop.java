@@ -4,12 +4,16 @@ import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Coord;
 
 public abstract class Prop {
-	protected final AlienProp aprop;
-	protected final FieldAccessor fa;
-
+	final private AlienProp aprop;
+	final private FieldAccessor fa;
+	
 	public Prop(AlienProp aprop, FieldAccessor fa) {
 		this.aprop = aprop;
 		this.fa = fa;
+	}
+	
+	public FieldAccessor getFieldAccessor() {
+		return fa;
 	}
 
 	public Coord[] getBats(Coord alien) {
@@ -63,13 +67,7 @@ public abstract class Prop {
 		return fa.fieldName();
 	}
 
-	public void tellPosition(Coord ourPosition) {
-		// shouldn't be called on things that don't know how to respond to it
-		assert false;
-	}
-	
 	public void copyFrom(Prop other) {
 		fa.put(other.fa.getCopy());
 	}
-
 }

@@ -24,7 +24,7 @@ public class BooleanProp extends Prop {
 	}
 
 	private boolean read() {
-		return (Boolean) fa.get();
+		return (Boolean) getFieldAccessor().get();
 	}
 
 	@Override
@@ -36,6 +36,6 @@ public class BooleanProp extends Prop {
 	void onButtonPress(int what, ButtonPressServices bps) {
 		System.out.println("Boolean click!");
 		assert what == 0;
-		fa.put(!read());
+		getFieldAccessor().put(!read());
 	}
 }

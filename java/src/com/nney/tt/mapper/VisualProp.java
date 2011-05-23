@@ -9,15 +9,8 @@ import com.nney.tt.geom.Coord;
  * mouthful.
  */
 public abstract class VisualProp extends Prop {
-	private Coord ourPosition;
-	
 	public VisualProp(AlienProp aprop, FieldAccessor fa) {
 		super(aprop, fa);
-	}
-	
-	@Override
-	public void tellPosition(Coord ourPosition) {
-		this.ourPosition = ourPosition;
 	}
 	
 	@Override
@@ -30,7 +23,7 @@ public abstract class VisualProp extends Prop {
 		switch (what) {
 		case 0:
 			// find
-			bps.setScreenCentre(ourPosition);
+//			bps.setScreenCentre(ourPosition);
 			break;
 		case 1:
 			// bring
