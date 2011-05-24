@@ -356,13 +356,13 @@ public class JavaTest extends TestCase {
 	}
 
 	public void testRerverse() {
-		ArrayList<Integer> s = new ArrayList<Integer>();
+		ArrayList<Integer> ohDear = new ArrayList<Integer>();
 		for (int x = 0; x < 4; x++) {
-			s.add(x);
+			ohDear.add(x);
 		}
 		ArrayList<Integer> n = new ArrayList<Integer>();
-		for (int x = s.size(); --x >= 0;) {
-			n.add(s.get(x));
+		for (int x = ohDear.size(); --x >= 0;) {
+			n.add(ohDear.get(x));
 		}
 		assertEquals(3, (int) n.get(0));
 		assertEquals(2, (int) n.get(1));

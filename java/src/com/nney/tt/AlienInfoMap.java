@@ -23,7 +23,9 @@ public class AlienInfoMap {
 
 		Integer useCount = classUseCount.get(a.alienClass);
 		if (useCount == null) useCount = 0;
-		classUseCount.put(a.alienClass, useCount + 1);
+		useCount++;
+		classUseCount.put(a.alienClass, useCount);
+//		System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
 	}
 
 	public void doPreLoad(AnimsPool animsPool) {
@@ -47,8 +49,10 @@ public class AlienInfoMap {
 
 	public AlienInfo getByClass(Class<? extends Alien> c) {
 		// it's a problem if we cannot give an unambiguous answer
-		assert classUseCount.get(c.getClass()) == 1;
-
+		Integer cuc = classUseCount.get(c);
+		if (cuc==null || cuc!=1) {
+			throw new RuntimeException("Class count is "+cuc+" for "+c);
+		}
 		return classToAlienInfo.get(c);
 	}
 
@@ -63,6 +67,7 @@ public class AlienInfoMap {
 	}
 
 	public void clear() {
+		assert false;
 		typeToAlienInfo.clear();
 		classToAlienInfo.clear();
 		classUseCount.clear();

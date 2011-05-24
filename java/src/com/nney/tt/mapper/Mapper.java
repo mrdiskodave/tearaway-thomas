@@ -85,65 +85,19 @@ public class Mapper implements PenServices {
 		@Override
 		void run() {
 			super.run();
-
 			if (haveAlien()) {
-				final Alien a = getSelectedAlien();
 				switch (keyboard.justPressed()) {
-				case Keyboard.KEY_DELETE: {
-					undoControler.redoThenAdd(new UndoRedo() {
-						@Override
-						public void undo() {
-							parent.reinstateAlien(a);
-							setSelectedAlien(a);
-						}
-
-						@Override
-						public void redo() {
-							deleteAlien(a);
-						}
-					});
+				case Keyboard.KEY_DELETE:
+					deleteSelectedAlien();
 					break;
-				}
-				case Keyboard.KEY_C: {
-					if (a.typeCode >= 0) {
-
-						
-						final Alien z = parent.createAlien(a.typeCode);
-						
-						{
-							List<Prop> zps = propsForAlien(z);
-							List<Prop> aps = propsForAlien(a);
-							assert aps.size() == zps.size();
-							for (int x = 0; x < aps.size(); x++) {
-								zps.get(x).copyFrom(aps.get(x));
-							}
-						}
-
-						{
-							// need to rebind to the props as
-							// we have set their values
-							// i.e. the objects will now be somewhere else
-							List<Prop> zps = propsForAlien(z);
-							Coord mp = computeMousePos(true);
-							Coord diff = mp.copy();
-							diff.sub(a.c);
-							System.out.println("DIFF!"+diff);
-							for (Prop zp: zps) {
-								zp.moveBy(diff);
-							}
-							// though the alien's location will
-							// probably have changed it might have a computed location
-							// so change it here to be sure
-							z.c = mp;  // onPropUpdate????
-						}
-
-						
-						createAlienWithUndoRedo(z);
-					}
-				}
+				case Keyboard.KEY_C:
+					copySelectedAlien();
+					break;
 				}
 			}
 		}
+
+
 	};
 
 	private Tool tool;
@@ -239,6 +193,11 @@ public class Mapper implements PenServices {
 			for (Pen pen : pens) {
 				pen.presentation();
 			}
+			for (Pen pen : pens) {
+				if (cursor == Cursor.BLOCK) {
+					drawBlockCursor();
+				}
+			}
 		}
 
 		@Override
@@ -249,9 +208,6 @@ public class Mapper implements PenServices {
 						pushTool(e.getKey(), e.getValue());
 					}
 				}
-			}
-			if (cursor == Cursor.BLOCK) {
-				drawBlockCursor();
 			}
 
 			for (Pen pen : pens) {
@@ -345,6 +301,10 @@ public class Mapper implements PenServices {
 				tool = alienTool;
 				break;
 			}
+		}
+
+		if (selectedAlien!=null) {
+			selectedAlien.onPropUpdate();
 		}
 	}
 
@@ -702,6 +662,60 @@ public class Mapper implements PenServices {
 		c = c.copy();
 		c.sub(centerDisplacement);
 		parent.setScreenPosition(c);
+	}
+
+	public void deleteSelectedAlien() {
+		final Alien a = getSelectedAlien();
+		undoControler.redoThenAdd(new UndoRedo() {
+			@Override
+			public void undo() {
+				parent.reinstateAlien(a);
+				setSelectedAlien(a);
+			}
+
+			@Override
+			public void redo() {
+				deleteAlien(a);
+			}
+		});
+	}
+
+	public void copySelectedAlien() {
+		final Alien a = selectedAlien;
+		if (a.typeCode >= 0) {
+			final Alien z = parent.createAlien(a.typeCode);
+			
+			{
+				List<Prop> zps = propsForAlien(z);
+				List<Prop> aps = propsForAlien(a);
+				assert aps.size() == zps.size();
+				for (int x = 0; x < aps.size(); x++) {
+					zps.get(x).copyFrom(aps.get(x));
+				}
+			}
+
+			{
+				// need to rebind to the props as
+				// we have set their values
+				// i.e. the objects will now be somewhere else
+				List<Prop> zps = propsForAlien(z);
+				Coord mp = computeMousePos(true);
+				Coord diff = mp.copy();
+				diff.sub(a.c);
+				System.out.println("DIFF!"+diff);
+				for (Prop zp: zps) {
+					zp.moveBy(diff);
+				}
+				
+				// though the alien's location will
+				// probably have changed it might have a computed location
+				// so change it here to be sure
+				z.c = mp;
+				z.onPropUpdate();
+			}
+			
+			createAlienWithUndoRedo(z);
+		}
 	}
 
 }

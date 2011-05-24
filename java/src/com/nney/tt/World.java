@@ -665,8 +665,6 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	public void updateEverything() {
-		frameNumber++;
-
 		if (usingMapper) {
 			if (mapper == null) {
 				mapper = new Mapper(gameMap, this, mouse, keyboard, gc, debugFont);
@@ -674,6 +672,8 @@ public class World implements AlienServices, MapperServices {
 			mapper.run();
 		}
 		else {
+			frameNumber++;
+
 			if (keyboard.justPressed() == Keyboard.KEY_TAB) {
 				usingMapper = true;
 				gameMap.applyCompress(wi.blockRandomisationTable);

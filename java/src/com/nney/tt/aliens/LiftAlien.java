@@ -42,6 +42,12 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 		delta.sub(lc);
 		return delta;
 	}
+	
+	@Override
+	public void onPropUpdate() {
+		setPosition();
+	}
+
 
 	@Override
 	public void update() {
