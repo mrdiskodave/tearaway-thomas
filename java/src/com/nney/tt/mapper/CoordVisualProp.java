@@ -8,11 +8,12 @@ public class CoordVisualProp extends VisualProp {
 	public CoordVisualProp(PropPack pp) {
 		super(pp);
 		this.t = (Coord) pp.access().get();
+		assert t!=null;
 	}
 
 	@Override
-	public Coord[] getBats(Coord alien) {
-		return new Coord[] { t.copy() };
+	public Coord[] getBats() {
+		return new Coord[] { location() };
 	}
 
 	@Override
@@ -29,7 +30,17 @@ public class CoordVisualProp extends VisualProp {
 	}
 
 	@Override
+	public void moveBy(Coord delta) {
+		t.add(delta);
+	}
+
+	@Override
 	public String text() {
 		return String.format("x%dy%d", t.x, t.y);
+	}
+
+	@Override
+	Coord location() {
+		return t.copy();
 	}
 }

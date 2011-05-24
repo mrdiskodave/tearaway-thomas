@@ -11,11 +11,13 @@ public class XRangeVisualProp extends VisualProp {
 	public XRangeVisualProp(PropPack pp) {
 		super(pp);
 		this.t = (XRange) pp.access().get();
+		assert t!=null;
 	}
 
 	@Override
-	public Coord[] getBats(Coord alien) {
-		return new Coord[] { new Coord(t.middle(), alien.y), new Coord(t.left, alien.y), new Coord(t.right, alien.y) };
+	public Coord[] getBats() {
+		int apy = alienPos().y;
+		return new Coord[] { location(), new Coord(t.left, apy), new Coord(t.right, apy) };
 	}
 	
 	@Override
@@ -48,8 +50,20 @@ public class XRangeVisualProp extends VisualProp {
 
 	@Override
 	void onBring(Coord c) {
-		int delta = t.middle();
-		delta -= c.x;
-		t.sub(delta);
+		int delta = c.x;
+		delta -= t.middle();
+		t.add(delta);
 	}
+	
+	@Override
+	public void moveBy(Coord delta) {
+		t.add(delta.x);
+	}
+
+	@Override
+	Coord location() {
+		int apy = alienPos().y;
+		return new Coord(t.middle(), apy);
+	}
+
 }

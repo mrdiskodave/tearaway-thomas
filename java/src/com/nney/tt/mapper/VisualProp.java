@@ -12,12 +12,8 @@ public abstract class VisualProp extends Prop {
 		super(pp);
 	}
 	
-	private Coord location() {
-		return getBats(alienPos())[0];
-	}
+	abstract Coord location();
 	
-	// TODO: moveBy (to be used as part of copy-alien)
-
 	@Override
 	String[] createButtons() {
 		return new String[] { "find", "bring" };

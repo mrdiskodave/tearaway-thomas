@@ -106,14 +106,39 @@ public class Mapper implements PenServices {
 				}
 				case Keyboard.KEY_C: {
 					if (a.typeCode >= 0) {
+
+						
 						final Alien z = parent.createAlien(a.typeCode);
-						List<Prop> zp = propsForAlien(z);
-						List<Prop> ap = propsForAlien(a);
-						assert ap.size() == zp.size();
-						for (int x = 0; x < ap.size(); x++) {
-							zp.get(x).copyFrom(ap.get(x));
+						
+						{
+							List<Prop> zps = propsForAlien(z);
+							List<Prop> aps = propsForAlien(a);
+							assert aps.size() == zps.size();
+							for (int x = 0; x < aps.size(); x++) {
+								zps.get(x).copyFrom(aps.get(x));
+							}
 						}
-						createAlienAtMouseWithUndoRedo(z);
+
+						{
+							// need to rebind to the props as
+							// we have set their values
+							// i.e. the objects will now be somewhere else
+							List<Prop> zps = propsForAlien(z);
+							Coord mp = computeMousePos(true);
+							Coord diff = mp.copy();
+							diff.sub(a.c);
+							System.out.println("DIFF!"+diff);
+							for (Prop zp: zps) {
+								zp.moveBy(diff);
+							}
+							// though the alien's location will
+							// probably have changed it might have a computed location
+							// so change it here to be sure
+							z.c = mp;  // onPropUpdate????
+						}
+
+						
+						createAlienWithUndoRedo(z);
 					}
 				}
 				}
@@ -160,8 +185,7 @@ public class Mapper implements PenServices {
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
 	}
 
-	void createAlienAtMouseWithUndoRedo(final Alien alien) {
-		alien.c = computeMousePos(true);
+	void createAlienWithUndoRedo(final Alien alien) {
 		parent.loadAlienIntoWorld(alien);
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
@@ -559,7 +583,7 @@ public class Mapper implements PenServices {
 				BatGCImpl batGc = new BatGCImpl(parent.getScreenPosition(), mgc);
 				p.drawAuxBatStuff(batGc);
 				
-				Coord[] bps = p.getBats(selectedAlien.c);
+				Coord[] bps = p.getBats();
 				if (bps!=null) {
 					for (int x=0; x<bps.length; x++) {
 						bats.add(new BatRecord(p, x, bps[x]));

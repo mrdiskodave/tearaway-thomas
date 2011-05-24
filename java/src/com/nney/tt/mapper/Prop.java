@@ -17,10 +17,39 @@ public abstract class Prop {
 		return pp.access();
 	}
 	
-	public Coord[] getBats(Coord alien) {
+	public String name() {
+		return pp.getAnn().name();
+	}
+
+	public String doc() {
+		return pp.getAnn().doc();
+	}
+
+	abstract public String text();
+	
+	public void copyFrom(Prop other) {
+		pp.access().put(other.pp.access().getCopy());
+	}
+	
+	// ---------------------------------------------------------------------------
+	// TEXT UI 
+	
+	String[] createButtons() {
 		return null;
 	}
 
+	void onButtonPress(int what, ButtonPressServices bps) {
+		// shouldn't be called on things that don't know how to respond to it
+		assert false;
+	}
+
+	// ---------------------------------------------------------------------------
+	// GRAPHICAL UI 
+
+	public Coord[] getBats() {
+		return null;
+	}
+	
 	/**
 	 * Generate this properties bats.
 	 * @param bt
@@ -44,27 +73,7 @@ public abstract class Prop {
 		// shouldn't be called on things that don't know how to respond to it
 		assert false;
 	}
-
-	String[] createButtons() {
-		return null;
-	}
-
-	void onButtonPress(int what, ButtonPressServices bps) {
-		// shouldn't be called on things that don't know how to respond to it
-		assert false;
-	}
-
-	public String name() {
-		return pp.getAnn().name();
-	}
-
-	public String doc() {
-		return pp.getAnn().doc();
-	}
-
-	abstract public String text();
 	
-	public void copyFrom(Prop other) {
-		pp.access().put(other.pp.access().getCopy());
+	public void moveBy(Coord delta) {
 	}
 }

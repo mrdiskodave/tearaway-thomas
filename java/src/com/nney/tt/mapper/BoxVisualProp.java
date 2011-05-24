@@ -10,11 +10,13 @@ public class BoxVisualProp extends VisualProp {
 	BoxVisualProp(PropPack pp) {
 		super(pp);
 		this.t = (Box) pp.access().get();
+		assert t!=null;
 	}
 
+	
 	@Override
-	public Coord[] getBats(Coord alien) {
-		return new Coord[] { t.middle(), t.topLeft(), t.bottomRight(), t.topRight(), t.bottomLeft() };
+	public Coord[] getBats() {
+		return new Coord[] { location(), t.topLeft(), t.bottomRight(), t.topRight(), t.bottomLeft() };
 	}
 	
 	@Override
@@ -57,8 +59,21 @@ public class BoxVisualProp extends VisualProp {
 
 	@Override
 	void onBring(Coord c) {
-		Coord delta = t.middle();
-		delta.sub(c);
-		t.sub(delta);
+		Coord delta = c.copy();
+		delta.sub(location());
+		t.add(delta);
+	}
+	
+	@Override
+	public void moveBy(Coord delta) {
+		System.out.println("Before:"+t);
+		t.add(delta);
+		System.out.println("After:"+t);
+	}
+
+
+	@Override
+	Coord location() {
+		return t.middle();
 	}
 }

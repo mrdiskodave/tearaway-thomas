@@ -8,7 +8,7 @@ public class ArrowAlien extends Alien {
 	private int repeat;
 
 	@AlienProp(name = "AdviceBox", doc = "Player's location for us to blink at him?")
-	public Box box;
+	public Box box = new Box(0, 0, 0, 0);
 
 	@Override
 	public void resetTo(Coord p) {
