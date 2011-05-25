@@ -34,7 +34,7 @@ public abstract class Prop {
 	// ---------------------------------------------------------------------------
 	// TEXT UI 
 	
-	String[] createButtons() {
+	String[] getButtons() {
 		return null;
 	}
 

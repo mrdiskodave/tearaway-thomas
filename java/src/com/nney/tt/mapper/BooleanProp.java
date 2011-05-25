@@ -27,7 +27,7 @@ public class BooleanProp extends Prop {
 	}
 
 	@Override
-	String[] createButtons() {
+	String[] getButtons() {
 		return new String[] { "change" };
 	}
 

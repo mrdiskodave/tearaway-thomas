@@ -19,7 +19,7 @@ public class PropDrawer {
 		statusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
 		statusLayer.draw(10, y, ButtonState.PASSIVE, clip(p.text(), 20));
 
-		String[] buttons = p.createButtons();
+		String[] buttons = p.getButtons();
 		if (buttons != null) {
 			int x = 30;
 			for (int b = 0; b < buttons.length; b++) {

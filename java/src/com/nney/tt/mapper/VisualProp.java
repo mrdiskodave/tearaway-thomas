@@ -15,7 +15,7 @@ public abstract class VisualProp extends Prop {
 	abstract Coord location();
 	
 	@Override
-	String[] createButtons() {
+	String[] getButtons() {
 		return new String[] { "find", "bring" };
 	}
 	

@@ -18,9 +18,7 @@ public class AlienBatMovingPen extends Pen {
 		if (bat != null) {
 			Coord nudge = srv.getNudge();
 			if (nudge != null) {
-				Coord q = bat.where.copy();
-				q.add(nudge);
-				bat.press(q);
+				bat.press(nudge);
 			}
 		}
 	}
@@ -31,8 +29,7 @@ public class AlienBatMovingPen extends Pen {
 		if (bat != null) {
 			selectedBat = bat;
 			srv.startAlienEdit();
-			c.sub(bat.where);
-			batGrip = c;
+			batGrip = c.copy();
 			return false;
 		}
 		else {
@@ -44,8 +41,7 @@ public class AlienBatMovingPen extends Pen {
 	@Override
 	void stroke(Coord c) {
 		if (selectedBat != null) {
-			c.sub(batGrip);
-			selectedBat.press(c);
+			selectedBat.press(c.sub2(batGrip));
 		}
 	}
 

@@ -1,18 +1,12 @@
 package com.nney.tt.mapper;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
 import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.AlienProp;
-import com.nney.tt.aliens.AlienWithGeneratedLocation;
-import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.geom.XRange;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.Keyboard;
@@ -193,10 +187,8 @@ public class Mapper implements PenServices {
 			for (Pen pen : pens) {
 				pen.presentation();
 			}
-			for (Pen pen : pens) {
-				if (cursor == Cursor.BLOCK) {
-					drawBlockCursor();
-				}
+			if (cursor == Cursor.BLOCK) {
+				drawBlockCursor();
 			}
 		}
 
@@ -494,51 +486,19 @@ public class Mapper implements PenServices {
 		this.selectedAlien = s;
 	}
 
-	List<Prop> propsForAlien(Alien alien) {
-		assert alien != null;
-		List<Prop> props = new ArrayList<Prop>();
-		Field[] fields = alien.getClass().getFields();
-		for (Field field : fields) {
-			AlienProp p = field.getAnnotation(AlienProp.class);
-			if (p != null && !(p.xtraDef().equals("location") && alien instanceof AlienWithGeneratedLocation)) {
-				Prop prop = null;
-				PropPack pp = new PropPack(alien, field);
-				Class<?> ft = field.getType();
-
-				if (ft == Box.class) {
-					prop = new BoxVisualProp(pp);
-				}
-				else if (ft == XRange.class) {
-					prop = new XRangeVisualProp(pp);
-				}
-				else if (ft == Coord.class) {
-					prop = new CoordVisualProp(pp);
-				}
-				else if (ft == boolean.class) {
-					prop = new BooleanProp(pp);
-				}
-				else {
-					System.out.println(ft);
-					assert false;
-				}
-				assert prop != null;
-				props.add(0, prop);
-			}
-		}
-		return props;
-	}
-
 	@Override
 	public void showSelectedAlienProps() {
 		if (haveAlien()) {
 			Coord sac = getSelectedAlien().c.copy();
 			sac.sub(parent.getScreenPosition());
-			mgc.drawSight(sac.x, sac.y, 16, colorCycler.process(0xff00ffff));
+			mgc.drawSight2(sac.x, sac.y, 25, colorCycler.process(0xff00ffff), BatGCImpl.SUPERBAT_GIRTH, 0x40000000);
 
-			List<Prop> props = propsForAlien(selectedAlien);
+			List<Prop> props = APS.propsForAlien(selectedAlien);
 
 			// bats
 			bats.clear();
+
+			int hasBats = 0;
 			for (Prop p : props) {
 				BatGCImpl batGc = new BatGCImpl(parent.getScreenPosition(), mgc);
 				p.drawAuxBatStuff(batGc);
@@ -546,7 +506,7 @@ public class Mapper implements PenServices {
 				Coord[] bps = p.getBats();
 				if (bps!=null) {
 					for (int x=0; x<bps.length; x++) {
-						bats.add(new BatRecord(p, x, bps[x]));
+						bats.add(new CommonBatRecord(p, x, bps[x]));
 					}
 					
 					for (Coord c: bps) {
@@ -554,18 +514,8 @@ public class Mapper implements PenServices {
 					}
 				}
 			}
+			bats.add(new SuperBatRecord(selectedAlien));
 			
-			// TODO: what if the bats and buttons moved inside the Prop?
-			// bats and the drawing of them are also intermished
-			// what do I really want out of this??
-			//
-			// Objective:
-			// I want to move all the visualprops along as part of alien-copy
-			// (not just move the aliens location but all its other stuff as well)
-			// otherwise you can't easilly tell that you've copied it!
-			//
-			
-
 			// property descriptions and buttons
 			buttons.clear();
 			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
@@ -629,7 +579,7 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void startAlienEdit() {
-		alienEdit = new AlienEdit(propsForAlien(selectedAlien));
+		alienEdit = new AlienEdit(APS.propsForAlien(selectedAlien));
 	}
 
 	@Override
@@ -686,8 +636,8 @@ public class Mapper implements PenServices {
 			final Alien z = parent.createAlien(a.typeCode);
 			
 			{
-				List<Prop> zps = propsForAlien(z);
-				List<Prop> aps = propsForAlien(a);
+				List<Prop> zps = APS.propsForAlien(z);
+				List<Prop> aps = APS.propsForAlien(a);
 				assert aps.size() == zps.size();
 				for (int x = 0; x < aps.size(); x++) {
 					zps.get(x).copyFrom(aps.get(x));
@@ -698,7 +648,7 @@ public class Mapper implements PenServices {
 				// need to rebind to the props as
 				// we have set their values
 				// i.e. the objects will now be somewhere else
-				List<Prop> zps = propsForAlien(z);
+				List<Prop> zps = APS.propsForAlien(z);
 				Coord mp = computeMousePos(true);
 				Coord diff = mp.copy();
 				diff.sub(a.c);
@@ -706,11 +656,6 @@ public class Mapper implements PenServices {
 				for (Prop zp: zps) {
 					zp.moveBy(diff);
 				}
-				
-				// though the alien's location will
-				// probably have changed it might have a computed location
-				// so change it here to be sure
-				z.c = mp;
 				z.onPropUpdate();
 			}
 			

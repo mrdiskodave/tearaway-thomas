@@ -42,8 +42,17 @@ public class MapperGC {
 	}
 
 	public void drawSight(int x, int y, int i, int col) {
-		gc.fillRectangle(x - i, y, i * 2 + 1, 1, col);
-		gc.fillRectangle(x, y - i, 1, i * 2 + 1, col);
+		int i2 = i*2+1;
+		gc.fillRectangle(x - i, y, i2, 1, col);
+		gc.fillRectangle(x, y - i, 1, i2, col);
+	}
+
+	public void drawSight2(int x, int y, int i, int col, int j, int col2) {
+		int i2 = i*2+1;
+		gc.fillRectangle(x - i, y, i2, 1, col);
+		gc.fillRectangle(x, y - i, 1, i2, col);
+		int j2 = j*2+1;
+		drawTransBox(x-j, y-j, j2, j2, col, col2);
 	}
 
 	public void drawText(int x, int y, int fg, String text) {

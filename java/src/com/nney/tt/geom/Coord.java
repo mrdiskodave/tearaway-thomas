@@ -83,4 +83,18 @@ public class Coord implements Copyable<Coord>, Cloneable {
 	public String toString() {
 		return String.format("%sx%s", x, y);
 	}
+	
+	public Coord add2(Coord c) {
+		Coord a = copy();
+		a.add(c);
+		return a;
+	}
+
+	public Coord sub2(Coord c) {
+		Coord a = copy();
+		a.sub(c);
+		return a;
+	}
+
+
 }
