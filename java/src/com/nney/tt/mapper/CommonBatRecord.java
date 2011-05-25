@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 
 public class CommonBatRecord implements BatRecord {
-	public final Coord where;
+	private final Coord where;
 	private final Prop who;
 	private final int what;
 
@@ -20,6 +20,11 @@ public class CommonBatRecord implements BatRecord {
 
 	@Override
 	public void press(Coord delta) {
-		who.onBatMovement(what, where.add2(delta));
+		// Our lifetime is the same as the Pen#stroke()
+		// because the BatMovingPen has a reference to us.
+		// We track the cumulative movement here:
+		where.add(delta);
+		
+		who.onBatMovement(what, where);
 	}
 }

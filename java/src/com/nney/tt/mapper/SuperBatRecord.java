@@ -20,14 +20,8 @@ public class SuperBatRecord implements BatRecord {
 
 	@Override
 	public void press(Coord delta) {
-		// it's a bit awkward because we live
-		// for the whole drag (because the Pen
-		// has a reference to us)
-		Coord dest = where.add2(delta);
-		Coord actualDelta = dest.sub2(alien.c);
-		
 		for (Prop p: APS.propsForAlien(alien)) {
-			p.moveBy(actualDelta);
+			p.moveBy(delta);
 		}
 	}
 }

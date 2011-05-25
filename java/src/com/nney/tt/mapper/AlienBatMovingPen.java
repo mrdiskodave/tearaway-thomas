@@ -42,6 +42,7 @@ public class AlienBatMovingPen extends Pen {
 	void stroke(Coord c) {
 		if (selectedBat != null) {
 			selectedBat.press(c.sub2(batGrip));
+			batGrip = c;
 		}
 	}
 
