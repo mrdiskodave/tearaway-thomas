@@ -64,10 +64,10 @@ public class World implements AlienServices, MapperServices {
 	// private static final String CTC_WORLD = "g";
 	// private static final int CTC_MAP = 0;
 
-	/**
-	 * Compile time configuration: play in level containing only the map.
-	 */
-	private static final boolean CTC_TUMBLE_WEEDS = false;
+//	/**
+//	 * Compile time configuration: play in level containing only the map.
+//	 */
+//	private static final boolean CTC_TUMBLE_WEEDS = false;
 
 	/**
 	 * Compile time configuration: the screen follows the player <b>exactly</b>.
@@ -126,6 +126,8 @@ public class World implements AlienServices, MapperServices {
 
 	private boolean configSeeMasks;
 
+	private Box gameMapBounds;
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
@@ -170,10 +172,6 @@ public class World implements AlienServices, MapperServices {
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
-
-		if (CTC_TUMBLE_WEEDS) {
-			aim.clear();
-		}
 
 		alienInfoMap = aim;
 
@@ -337,8 +335,9 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	private void limitScreenPosition() {
-		screen.x = limit(screen.x, mapBounds.left, (mapBounds.right + 1) - gc.screenWidth());
-		screen.y = limit(screen.y, mapBounds.top, (mapBounds.bottom + 1) - gc.screenHeight());
+		Box b = mapBounds;
+		screen.x = limit(screen.x, b.left, (b.right + 1) - gc.screenWidth());
+		screen.y = limit(screen.y, b.top, (b.bottom + 1) - gc.screenHeight());
 	}
 
 	private static int scrollOrd(int current, int dest) {
@@ -666,17 +665,20 @@ public class World implements AlienServices, MapperServices {
 
 	public void updateEverything() {
 		if (usingMapper) {
-			if (mapper == null) {
-				mapper = new Mapper(gameMap, this, mouse, keyboard, gc, debugFont);
-			}
+			mapBounds = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH*Const.BLOCK_SIZE, GameMap.MAP_WIDTH*Const.BLOCK_SIZE); 
 			mapper.run();
 		}
 		else {
+			mapBounds = gameMapBounds;
 			frameNumber++;
 
 			if (keyboard.justPressed() == Keyboard.KEY_TAB) {
 				usingMapper = true;
 				gameMap.applyCompress(wi.blockRandomisationTable);
+				if (mapper == null) {
+					mapper = new Mapper(gameMapBounds, alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
+				}
+				mapper.init();
 			}
 			player.move();
 			if (CTC_HARD_SCROLLING) {
@@ -716,7 +718,7 @@ public class World implements AlienServices, MapperServices {
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
-		mapBounds = pm.mapBounds;
+		gameMapBounds = pm.mapBounds;
 		player.c.x = pm.playerX;
 		player.c.y = pm.playerY;
 		player.goLeft = pm.playerGoLeft;
@@ -724,6 +726,7 @@ public class World implements AlienServices, MapperServices {
 
 		// player.c.x = 1980;
 		// player.c.y = 1020;
+		mapBounds = gameMapBounds;
 		snapScreenTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);

@@ -161,4 +161,12 @@ public class Box implements Copyable<Box>, Cloneable {
 	public String toString() {
 		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
 	}
+	
+	public int xEnd() {
+		return right+1;
+	}
+	
+	public int yEnd() {
+		return bottom+1;
+	}
 }

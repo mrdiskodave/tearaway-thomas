@@ -1,9 +1,11 @@
 package com.nney.tt;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.sprites.Anims;
@@ -13,6 +15,7 @@ public class AlienInfoMap {
 	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
+	private final ArrayList<Integer> typeCodes = new ArrayList<Integer>();
 	
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
 
@@ -25,6 +28,10 @@ public class AlienInfoMap {
 		if (useCount == null) useCount = 0;
 		useCount++;
 		classUseCount.put(a.alienClass, useCount);
+		if (a.typeCode>=0) {
+			typeCodes.add(a.typeCode);
+		}
+		
 //		System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
 	}
 
@@ -65,11 +72,9 @@ public class AlienInfoMap {
 			c.connectAnims(anims);
 		}
 	}
-
-	public void clear() {
-		assert false;
-		typeToAlienInfo.clear();
-		classToAlienInfo.clear();
-		classUseCount.clear();
+	
+	public List<Integer> getTypeCodes() {
+		Collections.sort(typeCodes);
+		return typeCodes;
 	}
 }

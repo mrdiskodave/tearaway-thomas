@@ -3,9 +3,11 @@ package com.nney.tt.mapper;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.nney.tt.AlienInfoMap;
 import com.nney.tt.Const;
 import com.nney.tt.MapperServices;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
@@ -66,7 +68,6 @@ public class Mapper implements PenServices {
 	private final MapperServices parent;
 	private final GameMap gameMap;
 
-	private UndoControler undoControler = new UndoControler();
 	private ColorCycler colorCycler = new ColorCycler();
 	final private UnifiedKeyTester ukt;
 
@@ -79,7 +80,7 @@ public class Mapper implements PenServices {
 		@Override
 		void run() {
 			super.run();
-			if (haveAlien()) {
+			if (haveAlien() && isFree()) {
 				switch (keyboard.justPressed()) {
 				case Keyboard.KEY_DELETE:
 					deleteSelectedAlien();
@@ -90,8 +91,6 @@ public class Mapper implements PenServices {
 				}
 			}
 		}
-
-
 	};
 
 	private Tool tool;
@@ -101,22 +100,34 @@ public class Mapper implements PenServices {
 
 	private EditConsolidator edit;
 
-	private Alien selectedAlien;
-
-	
 	private CollidableList<BatRecord> bats = new CollidableList<BatRecord>();
 	private CollidableList<ButtonRecord> buttons = new CollidableList<ButtonRecord>();
 
 	private AlienEdit alienEdit;
 
 	private HoverStatus hs = new HoverStatus();
+	private Alien selectedAlien;
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	// -
+	// Things that need to be reset on
+	// (because playing the game will have
+	// messed with the assumptions they hold)
+
+	private UndoControler undoControler;
+
+	private final AlienInfoMap alienInfoMap;
+
+	private final Box gameMapBounds;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
-	public Mapper(GameMap gameMap, MapperServices srv, Pointer mouse, Keyboard keyboard, GraphicsContext gc,
-			Font debugFont) {
+	public Mapper(Box gameMapBounds, AlienInfoMap alienInfoMap, GameMap gameMap, MapperServices srv, Pointer mouse,
+			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
+		this.gameMapBounds = gameMapBounds;
+		this.alienInfoMap = alienInfoMap;
 		this.parent = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -236,6 +247,10 @@ public class Mapper implements PenServices {
 		}
 	}
 
+	public void init() {
+		undoControler = new UndoControler();
+	}
+
 	public void run() {
 		colorCycler.advance();
 		ukt.next();
@@ -244,6 +259,8 @@ public class Mapper implements PenServices {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			parent.drawMap();
 			parent.drawAliensForMapper();
+
+			drawMapBounds();
 		}
 
 		Tool t = tool;
@@ -295,9 +312,22 @@ public class Mapper implements PenServices {
 			}
 		}
 
-		if (selectedAlien!=null) {
-			selectedAlien.onPropUpdate();
+		if (haveAlien()) {
+			getSelectedAlien().onPropUpdate();
 		}
+	}
+
+	private void drawMapBounds() {
+		int sh = mgc.screenHeight();
+		int sw = mgc.screenWidth();
+		Coord scr = parent.getScreenPosition();
+		Box t = gameMapBounds.copy();
+		int col = 0x50ff0000;
+		mgc.fillRectangle(0, 0, t.left - scr.x, sh, col);
+		mgc.fillRectangle(t.xEnd() - scr.x, 0, sw, sh, col);
+
+		mgc.fillRectangle(0, 0, sw, t.top - scr.y, col);
+		mgc.fillRectangle(0, t.yEnd() - scr.y, sw, sh, col);
 	}
 
 	private void drawBlockCursor() {
@@ -463,22 +493,20 @@ public class Mapper implements PenServices {
 
 	// --------------------------------------------------
 
-	public boolean haveAlien() {
-		if (getSelectedAlien() != null && !getSelectedAlien().remove) {
-			return true;
-		}
-		// just to help garbage collection
-		setSelectedAlien(null);
-		return false;
-	}
-
 	@Override
 	public void selectNearestAlien(Coord c) {
 		System.out.println("nearest...");
 		setSelectedAlien(parent.findNearestAlien(c));
 	}
 
+	public boolean haveAlien() {
+		return getSelectedAlien() != null;
+	}
+
 	public Alien getSelectedAlien() {
+		if (selectedAlien != null && selectedAlien.remove) {
+			selectedAlien = null;
+		}
 		return selectedAlien;
 	}
 
@@ -493,29 +521,27 @@ public class Mapper implements PenServices {
 			sac.sub(parent.getScreenPosition());
 			mgc.drawSight2(sac.x, sac.y, 25, colorCycler.process(0xff00ffff), BatGCImpl.SUPERBAT_GIRTH, 0x40000000);
 
-			List<Prop> props = APS.propsForAlien(selectedAlien);
+			List<Prop> props = APS.propsForAlien(getSelectedAlien());
 
 			// bats
 			bats.clear();
-
-			int hasBats = 0;
 			for (Prop p : props) {
 				BatGCImpl batGc = new BatGCImpl(parent.getScreenPosition(), mgc);
 				p.drawAuxBatStuff(batGc);
-				
+
 				Coord[] bps = p.getBats();
-				if (bps!=null) {
-					for (int x=0; x<bps.length; x++) {
+				if (bps != null) {
+					for (int x = 0; x < bps.length; x++) {
 						bats.add(new CommonBatRecord(p, x, bps[x]));
 					}
-					
-					for (Coord c: bps) {
+
+					for (Coord c : bps) {
 						batGc.drawBat(c);
 					}
 				}
 			}
-			bats.add(new SuperBatRecord(selectedAlien));
-			
+			bats.add(new SuperBatRecord(getSelectedAlien()));
+
 			// property descriptions and buttons
 			buttons.clear();
 			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
@@ -579,7 +605,7 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void startAlienEdit() {
-		alienEdit = new AlienEdit(APS.propsForAlien(selectedAlien));
+		alienEdit = new AlienEdit(APS.propsForAlien(getSelectedAlien()));
 	}
 
 	@Override
@@ -589,7 +615,7 @@ public class Mapper implements PenServices {
 		if (size != 0) {
 			undoControler.add(alienEdit);
 		}
-		selectedAlien.onPropUpdate();
+		getSelectedAlien().onPropUpdate();
 	}
 
 	@Override
@@ -631,36 +657,14 @@ public class Mapper implements PenServices {
 	}
 
 	public void copySelectedAlien() {
-		final Alien a = selectedAlien;
-		if (a.typeCode >= 0) {
-			final Alien z = parent.createAlien(a.typeCode);
-			
-			{
-				List<Prop> zps = APS.propsForAlien(z);
-				List<Prop> aps = APS.propsForAlien(a);
-				assert aps.size() == zps.size();
-				for (int x = 0; x < aps.size(); x++) {
-					zps.get(x).copyFrom(aps.get(x));
-				}
-			}
+		final Alien src = getSelectedAlien();
+		if (src.typeCode >= 0) {
+			final Alien dest = parent.createAlien(src.typeCode);
+			APS.copyProps(src, dest);
 
-			{
-				// need to rebind to the props as
-				// we have set their values
-				// i.e. the objects will now be somewhere else
-				List<Prop> zps = APS.propsForAlien(z);
-				Coord mp = computeMousePos(true);
-				Coord diff = mp.copy();
-				diff.sub(a.c);
-				System.out.println("DIFF!"+diff);
-				for (Prop zp: zps) {
-					zp.moveBy(diff);
-				}
-				z.onPropUpdate();
-			}
-			
-			createAlienWithUndoRedo(z);
+			Coord diff = computeMousePos(true).sub2(src.c);
+			APS.moveProps(dest, diff);
+			createAlienWithUndoRedo(dest);
 		}
 	}
-
 }

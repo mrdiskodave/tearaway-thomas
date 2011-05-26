@@ -12,6 +12,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 
 public class APS {
+
 	static List<Prop> propsForAlien(Alien alien) {
 		assert alien != null;
 		List<Prop> props = new ArrayList<Prop>();
@@ -44,6 +45,23 @@ public class APS {
 			}
 		}
 		return props;
+	}
+
+	public static void copyProps(Alien src, final Alien dest) {
+		List<Prop> destProps = APS.propsForAlien(dest);
+		List<Prop> srcProps = APS.propsForAlien(src);
+		assert srcProps.size() == destProps.size();
+		for (int x = 0; x < srcProps.size(); x++) {
+			destProps.get(x).copyFrom(srcProps.get(x));
+		}
+	}
+
+	public static void moveProps(Alien dest, Coord diff) {
+		List<Prop> zps = APS.propsForAlien(dest);
+		for (Prop zp: zps) {
+			zp.moveBy(diff);
+		}
+		dest.onPropUpdate();
 	}
 
 }
