@@ -12,7 +12,7 @@ public class ChooserTool extends Tool {
 
 	@Override
 	void run() {
-		parent.blockChoosingMode();
-		parent.showBlocks();
+		srv.blockChoosingMode();
+		srv.showBlocks();
 	}
 }

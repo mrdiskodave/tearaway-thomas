@@ -34,4 +34,6 @@ public interface PenServices extends ButtonPressServices {
 	ButtonRecord findButton(Coord c);
 	
 	HoverStatus getHoverStatus();
+
+	void perhapsPaste();
 }

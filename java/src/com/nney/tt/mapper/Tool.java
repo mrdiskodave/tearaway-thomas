@@ -15,18 +15,18 @@ abstract class Tool {
 	private int level;
 	private HashMap<Integer, Tool> nest = new HashMap<Integer, Tool>();
 
-	protected Mapper parent;
+	protected Mapper srv;
 
-	public Tool(Mapper parent) {
-		this.parent = parent;
+	public Tool(Mapper srv) {
+		this.srv = srv;
 	}
 	
 
 	void drawBlockCursor() {
-		Coord box = parent.computeMousePos(true);
+		Coord box = srv.computeMousePos(true);
 		box.and(-Const.BLOCK_SIZE, -Const.BLOCK_SIZE);
-		box.sub(parent.getScreenPosition());
-		parent.getMGC().drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, parent.getMGC().process(COL_CURRENT_BLOCK));
+		box.sub(srv.getScreenPosition());
+		srv.getMGC().drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, srv.getMGC().process(COL_CURRENT_BLOCK));
 	}
 
 	protected void moreBusy() {
@@ -65,8 +65,8 @@ abstract class Tool {
 	void checkPushTool() {
 		if (isFree()) {
 			for (Entry<Integer, Tool> e : nest.entrySet()) {
-				if (parent.justPressed() == e.getKey()) {
-					parent.pushTool(e.getKey(), e.getValue());
+				if (srv.justPressed() == e.getKey()) {
+					srv.pushTool(e.getKey(), e.getValue());
 				}
 			}
 		}

@@ -3,8 +3,10 @@ package com.nney.tt.mapper;
 import java.util.List;
 
 import com.nney.tt.AlienInfoMap;
+import com.nney.tt.Const;
 import com.nney.tt.WorldServicesToMapper;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
@@ -63,7 +65,7 @@ public class Mapper implements PenServices {
 	final UnifiedKeyTester ukt;
 
 	private Tool blockChooserTool = new ChooserTool(this);
-	private Tool bigBoxTool = new BigBoxTool(this);
+	private Tool bigBoxTool = new RectangleTool(this);
 	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
 	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
 	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
@@ -568,6 +570,36 @@ public class Mapper implements PenServices {
 
 	MapperGC getMGC() {
 		return mgc;
+	}
+
+	SBM[] slots = new SBM[12];
+	
+	public void copyRect(int slotNumber, Box rectangle) {
+		SBM s = new SBM(rectangle.width(), rectangle.height());
+		s.process(true, false, rectangle.left, rectangle.top, gameMap);
+		slots[slotNumber] = s;
+		System.out.println("SLOT "+slotNumber);
+		slots[slotNumber].dump();
+	}
+
+	@Override
+	public void perhapsPaste() {
+		int k = ukt.justPressed();
+		if (k>=Keyboard.KEY_F1 && k<=Keyboard.KEY_F12) {
+			int slotNumber = k-Keyboard.KEY_F1;
+			SBM slot = slots[slotNumber];
+			if (slot!=null) {
+				Coord c = computeMousePos(true);
+				c.div(Const.BLOCK_SIZE);
+				if ((c.x + slot.w)<=GameMap.MAP_WIDTH &&
+						(c.y + slot.h)<=GameMap.MAP_HEIGHT) {
+					UndoRedo u = new SavedMapBox(gameMap, c.x, c.y, slot);
+					undoControler.redoThenAdd(u);
+				}
+				// does it fit?
+				// paste it!
+			}
+		}
 	}
 
 }

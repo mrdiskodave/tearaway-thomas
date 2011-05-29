@@ -28,7 +28,9 @@ public class EditConsolidator implements EditDestination {
 		SavedMapBox undo = null;
 		Box b = sizeUpEdits();
 		if (b != null) {
+			System.out.println("SAVING");
 			undo = new SavedMapBox(gameMap, b);
+			System.out.println("SAVED");
 			for (Entry<Coord, Integer> kv : originalBlocks.entrySet()) {
 				gameMap.setBlock(kv.getKey(), kv.getValue());
 			}

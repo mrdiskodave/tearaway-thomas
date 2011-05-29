@@ -59,7 +59,9 @@ public class GameMap {
 
 	public int getBlock(Coord c) {
 		assert validPosition(c.x, c.y);
-		return map[mapOffset(c)];
+		short answer = map[mapOffset(c)];
+//		System.out.println("Get " + c + " is " + answer);
+		return answer;
 	}
 
 	public void setBlock(Coord c, int b) {

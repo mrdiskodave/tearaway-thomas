@@ -36,9 +36,9 @@ public class GeneralTool extends Tool {
 		checkPushTool();
 		
 		for (Pen pen : pens) {
-			Coord m = parent.computeMousePos(pen.usesWorldCoords());
+			Coord m = srv.computeMousePos(pen.usesWorldCoords());
 			if (pen.active) {
-				boolean held = parent.isDown(pen.key());
+				boolean held = srv.isDown(pen.key());
 				if (held) {
 					pen.stroke(m.copy());
 				}
@@ -49,7 +49,7 @@ public class GeneralTool extends Tool {
 				}
 			}
 			else {
-				boolean pressed = parent.justPressed() == pen.key();
+				boolean pressed = srv.justPressed() == pen.key();
 				if (pressed) {
 					boolean more = pen.down(m.copy());
 					pen.active = true;
