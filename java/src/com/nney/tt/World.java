@@ -49,7 +49,7 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class World implements AlienServices, MapperServices {
+public class World implements AlienServices, WorldServicesToMapper {
 
 	final private GraphicsContext gc;
 
@@ -64,10 +64,10 @@ public class World implements AlienServices, MapperServices {
 	// private static final String CTC_WORLD = "g";
 	// private static final int CTC_MAP = 0;
 
-//	/**
-//	 * Compile time configuration: play in level containing only the map.
-//	 */
-//	private static final boolean CTC_TUMBLE_WEEDS = false;
+	// /**
+	// * Compile time configuration: play in level containing only the map.
+	// */
+	// private static final boolean CTC_TUMBLE_WEEDS = false;
 
 	/**
 	 * Compile time configuration: the screen follows the player <b>exactly</b>.
@@ -544,8 +544,8 @@ public class World implements AlienServices, MapperServices {
 
 	@Override
 	public Alien createAlien(int typeCode) {
-		assert typeCode>=0;
-		
+		assert typeCode >= 0;
+
 		AlienInfo alienInfo = alienInfoMap.getByType(typeCode);
 		if (alienInfo != null) {
 			if (CTC_ITEM_ONCE) {
@@ -648,8 +648,10 @@ public class World implements AlienServices, MapperServices {
 	}
 
 	private void drawTheMap() {
-		MapDrawingInfo ix = new MapDrawingInfo(screen.x, gc.screenWidth(), mapBounds.right + 1);
-		MapDrawingInfo iy = new MapDrawingInfo(screen.y, gc.screenHeight(), mapBounds.bottom + 1);
+		MapDrawingInfo ix = new MapDrawingInfo(screen.x, gc.screenWidth());
+		MapDrawingInfo iy = new MapDrawingInfo(screen.y, gc.screenHeight());
+		// ix.checkForOverread(mapBounds.xEnd(), GameMap.MAP_WIDTH);
+		// iy.checkForOverread(mapBounds.yEnd(), GameMap.MAP_HEIGHT);
 
 		int[] blockRow = new int[ix.blockCount];
 
@@ -665,7 +667,8 @@ public class World implements AlienServices, MapperServices {
 
 	public void updateEverything() {
 		if (usingMapper) {
-			mapBounds = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH*Const.BLOCK_SIZE, GameMap.MAP_WIDTH*Const.BLOCK_SIZE); 
+			mapBounds = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH * Const.BLOCK_SIZE, GameMap.MAP_HEIGHT
+					* Const.BLOCK_SIZE);
 			mapper.run();
 		}
 		else {
@@ -676,7 +679,7 @@ public class World implements AlienServices, MapperServices {
 				usingMapper = true;
 				gameMap.applyCompress(wi.blockRandomisationTable);
 				if (mapper == null) {
-					mapper = new Mapper(gameMapBounds, alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
+					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
 				mapper.init();
 			}

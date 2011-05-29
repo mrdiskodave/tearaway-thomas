@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nney.tt.Const;
+import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.utils.Math2;
 
@@ -46,7 +47,6 @@ public class BlockPalette {
 	private final int blockCount;
 	private final int bigBlockPaletteHeight;
 	private final MapperGC mgc;
-	private final ColorCycler colorCycler;
 
 	private class BlockPos {
 		public final int x;
@@ -75,8 +75,7 @@ public class BlockPalette {
 		return answer;
 	}
 
-	public BlockPalette(ColorCycler colorCycler, MapperGC mgc, BlocksHolder blocksHolder) {
-		this.colorCycler = colorCycler;
+	public BlockPalette(MapperGC mgc, BlocksHolder blocksHolder) {
 		this.mgc = mgc;
 		this.blocksHolder = blocksHolder;
 		this.blockCount = blocksHolder.getBlockCount();
@@ -94,32 +93,32 @@ public class BlockPalette {
 		for (BlockPos p : createBlockPosList(x, y, d, d, sx, sy)) {
 			blocksHolder.draw(p.b, p.x, p.y);
 			if (currentBlock == p.b) {
-				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_CURRENT_BLOCK));
+				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 			}
 		}
 	}
 
-	public int showBigPalette(int currentBlock, int mouseX, int mouseY) {
+	public int showBigPalette(int currentBlock, Coord mouse) {
 		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 
 		int protrusion = Math.max(bigBlockPaletteHeight * Const.BLOCK_SIZE - mgc.screenHeight(), 0);
-		int vscroll = computeVerticalScrollAmount(mouseY, protrusion);
+		int vscroll = computeVerticalScrollAmount(mouse.y, protrusion);
 		int hoverBlock = -1;
 
 		for (BlockPos p : createBlockPosList(0, 0, BLOCKS_PER_LINE, bigBlockPaletteHeight, 0, -vscroll)) {
 			blocksHolder.draw(p.b, p.x, p.y);
 			if (currentBlock == p.b) {
-				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_CURRENT_BLOCK));
+				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 				mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, COL_CURRENT_BLOCK,
 						String.format("%4d", currentBlock));
 			}
-			if (mouseY >= p.y && mouseY <= p.y + 15 && mouseX >= p.x && mouseX <= p.x + 15) {
+			if (mouse.y >= p.y && mouse.y <= p.y + 15 && mouse.x >= p.x && mouse.x <= p.x + 15) {
 				hoverBlock = p.b;
 				if (hoverBlock == currentBlock) {
-					mgc.drawBox(p.x + 1, p.y + 1, 14, 14, colorCycler.process(COL_HOVER_BLOCK));
+					mgc.drawBox(p.x + 1, p.y + 1, 14, 14, mgc.process(COL_HOVER_BLOCK));
 				}
 				else {
-					mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, colorCycler.process(COL_HOVER_BLOCK));
+					mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_HOVER_BLOCK));
 				}
 				mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, COL_HOVER_BLOCK,
 						String.format("%4d", hoverBlock));
@@ -134,7 +133,7 @@ public class BlockPalette {
 		return (protrusion * mousePositionWithinScrollZone) / scrollZoneSize;
 	}
 
-	public int getPaletteDelta(int dx, int dy) {
+	public static int getPaletteDelta(int dx, int dy) {
 		return dy * BLOCKS_PER_LINE + dx;
 	}
 }

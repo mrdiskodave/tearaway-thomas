@@ -7,8 +7,7 @@ public class Box implements Copyable<Box>, Cloneable {
 	public int top;
 	public int right;
 	public int bottom;
-
-	// inclusive!
+	// inclusive!!
 
 	public Box(int left, int top, int right, int bottom) {
 		this.left = left;
@@ -37,7 +36,7 @@ public class Box implements Copyable<Box>, Cloneable {
 		return around(c, -width, -height, width, height);
 	}
 
-	public static Box around(Coord c, int l, int t, int r, int b) {
+	private static Box around(Coord c, int l, int t, int r, int b) {
 		return new Box(c.x + l, c.y + t, c.x + r, c.y + b);
 	}
 
@@ -61,15 +60,15 @@ public class Box implements Copyable<Box>, Cloneable {
 
 	}
 
-	public boolean inside(Coord c) {
-		return c.x >= left && c.x <= right && c.y >= top && c.y <= bottom;
-	}
-
 	public void accommodate(Coord c) {
 		left = Math.min(left, c.x);
 		right = Math.max(right, c.x);
 		top = Math.min(top, c.y);
 		bottom = Math.max(bottom, c.y);
+	}
+
+	public boolean inside(Coord c) {
+		return c.x >= left && c.x <= right && c.y >= top && c.y <= bottom;
 	}
 
 	public void shrink(int i) {
@@ -168,5 +167,28 @@ public class Box implements Copyable<Box>, Cloneable {
 	
 	public int yEnd() {
 		return bottom+1;
+	}
+
+//	public void mul(int z) {
+//		left *= z;
+//		top *= z;
+//		right *= z;
+//		bottom *= z;
+//	}
+// not very useful as the size doesn't scale too! grrr
+	
+	public void validate() {
+//		right = Math.max(left, right);
+//		bottom = Math.max(top, bottom);
+		if (right<left) {
+			int t = right;
+			right = left;
+			left = t;
+		}
+		if (bottom<top) {
+			int t = bottom;
+			bottom = top;
+			top = t;
+		}
 	}
 }

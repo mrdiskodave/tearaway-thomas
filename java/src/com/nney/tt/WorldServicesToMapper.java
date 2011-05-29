@@ -4,7 +4,7 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
 
-public interface MapperServices {
+public interface WorldServicesToMapper {
 	void quitMapper(Coord newPlayerPosition);
 
 	void drawMap();
@@ -15,6 +15,8 @@ public interface MapperServices {
 
 	Coord getScreenPosition();
 
+	void setScreenPosition(Coord c);
+
 	Alien findNearestAlien(Coord c);
 
 	void toggleSeeMasks();
@@ -24,8 +26,6 @@ public interface MapperServices {
 	BlocksHolder getBlocksHolder();
 
 	void reinstateAlien(Alien alien);
-
-	void setScreenPosition(Coord c);
 	
 	Alien createAlien(int typeCode);
 

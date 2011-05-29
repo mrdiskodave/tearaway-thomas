@@ -6,10 +6,12 @@ import com.nney.tt.gfx.GraphicsContext;
 public class MapperGC {
 	private GraphicsContext gc;
 	private final Font debugFont;
+	private final ColorCycler cycler;
 
-	MapperGC(GraphicsContext gc, Font debugFont) {
+	MapperGC(GraphicsContext gc, Font debugFont, ColorCycler cycler) {
 		this.gc = gc;
 		this.debugFont = debugFont;
+		this.cycler = cycler;
 	}
 
 	public void fillRectangle(int x, int y, int w, int h, int col) {
@@ -70,5 +72,13 @@ public class MapperGC {
 	public void drawText(int x, int y, int fg, int bg, String text) {
 		gc.fillRectangle(x, y, 8 * text.length(), 8, bg);
 		debugFont.draw(x, y, fg, 0, text);
+	}
+	
+	public int process(int col) {
+		return cycler.process(col);
+	}
+	
+	public void nextFrame() {
+		cycler.advance();
 	}
 }
