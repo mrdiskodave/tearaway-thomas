@@ -371,12 +371,15 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void scroll(Coord delta) {
-		if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
+		if (keyboard.isDown(Keyboard.KEY_SHIFT)) {
+			System.out.println("S");
 			delta.mul(2);
 		}
-		if (keyboard.isDown(Keyboard.KEY_LCONTROL)) {
+		if (keyboard.isDown(Keyboard.KEY_CONTROL)) {
+			System.out.println("C");
 			delta.mul(4);
 		}
+		System.out.println(" ");
 		srv.moveScreen(delta);
 	}
 

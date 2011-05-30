@@ -1,6 +1,7 @@
 package com.nney.tt.input;
 
 public interface Keyboard extends HasKeys {
+
 	// regular keys
 	static final int KEY_A = 1;
 	static final int KEY_B = 2;
@@ -68,45 +69,42 @@ public interface Keyboard extends HasKeys {
 	static final int KEY_DOWN = 62;
 
 	// shift keys
-	static final int KEYBEGIN_SHIFT_KEYS = 63;
-	static final int KEY_LSHIFT = 63;
-	static final int KEY_RSHIFT = 64;
-	static final int KEY_LCONTROL = 65;
-	static final int KEY_RCONTROL = 66;
-	static final int KEY_LMENU = 67;
-	static final int KEY_RMENU = 68;
-	static final int KEYEND_SHIFT_KEYS = 69;
+	static final int KEYBEGIN_SHIFTS = 62;
+	static final int KEY_SHIFT = 63;
+	static final int KEY_CONTROL = 64;
+	static final int KEY_MENU = 65;
+	static final int KEYEND_SHIFTS = 65;
 
 	// round the numeric keypad
-	static final int KEY_DIVIDE = 69;
-	static final int KEY_MULTIPLY = 70;
-	static final int KEY_SUBTRACT = 71;
-	static final int KEY_ADD = 72;
-	static final int KEY_DECIMAL = 74;
+	static final int KEY_DIVIDE = 66;
+	static final int KEY_MULTIPLY = 67;
+	static final int KEY_SUBTRACT = 68;
+	static final int KEY_ADD = 69;
+	static final int KEY_DECIMAL = 70;
 
 	// the navigation cluster
-	static final int KEY_INSERT = 75;
-	static final int KEY_HOME = 76;
-	static final int KEY_END = 77;
-	static final int KEY_PRIOR = 78;
-	static final int KEY_NEXT = 79;
-	static final int KEY_DELETE = 80;
+	static final int KEY_INSERT = 71;
+	static final int KEY_HOME = 72;
+	static final int KEY_END = 73;
+	static final int KEY_PRIOR = 74;
+	static final int KEY_NEXT = 75;
+	static final int KEY_DELETE = 76;
 
 	// main keyboard misc
-	static final int KEY_ESCAPE = 81;
-	static final int KEY_GRAVE = 82;
-	static final int KEY_MINUS = 83;
-	static final int KEY_EQUALS = 84;
-	static final int KEY_BACK = 85;
-	static final int KEY_TAB = 86;
-	static final int KEY_LBRACKET = 87;
-	static final int KEY_RBRACKET = 88;
-	static final int KEY_RETURN = 89;
-	static final int KEY_SEMICOLON = 90;
-	static final int KEY_APOSTROPHE = 91;
-	static final int KEY_BACKSLASH = 92;
-	static final int KEY_COMMA = 93;
-	static final int KEY_PERIOD = 94;
-	static final int KEY_SLASH = 95;
-	static final int KEY_SPACE = 96;
+	static final int KEY_ESCAPE = 77;
+	static final int KEY_GRAVE = 78;
+	static final int KEY_MINUS = 79;
+	static final int KEY_EQUALS = 80;
+	static final int KEY_BACK = 81;
+	static final int KEY_TAB = 82;
+	static final int KEY_LBRACKET = 83;
+	static final int KEY_RBRACKET = 84;
+	static final int KEY_RETURN = 85;
+	static final int KEY_SEMICOLON = 86;
+	static final int KEY_APOSTROPHE = 87;
+	static final int KEY_BACKSLASH = 88;
+	static final int KEY_COMMA = 89;
+	static final int KEY_PERIOD = 90;
+	static final int KEY_SLASH = 91;
+	static final int KEY_SPACE = 92;
 }

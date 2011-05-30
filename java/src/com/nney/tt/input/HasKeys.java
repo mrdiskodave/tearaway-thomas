@@ -13,12 +13,13 @@ public interface HasKeys {
 
 	/**
 	 * Which key has just been pressed? Only one key can be pressed per period.
-	 * If two keys or more are pressed in a period ten this method returns the
+	 * If two keys or more are pressed in a period then this method returns the
 	 * last one. A period is generally a game frame (e.g. one fiftieth of a
 	 * second) so this is not as shoddy as it sounds.
 	 * 
-	 * @return The key code of the key just pressed or <code>-1</code> if
+	 * @return The key code of the key just pressed or <code>0</code> if
 	 *         nothing has been pressed recently.
 	 */
 	int justPressed();
 }
+

@@ -22,7 +22,7 @@ public class HandPen extends Pen {
 	void stroke(Coord c) {
 		Coord delta = last.copy();
 		delta.sub(c);
-		System.out.println(last + "-" + c + "=" + delta);
+//		System.out.println(last + "-" + c + "=" + delta);
 		last = c;
 		srv.scroll(delta);
 	}

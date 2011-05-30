@@ -9,7 +9,7 @@ public class BlockTrackingPen extends Pen {
 
 	@Override
 	int key() {
-		return Keyboard.KEY_LCONTROL;
+		return Keyboard.KEY_CONTROL;
 	}
 
 	@Override

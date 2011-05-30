@@ -6,19 +6,17 @@ import java.util.HashSet;
 import com.nney.tt.input.Keyboard;
 
 public class LwjglKeyboard implements Keyboard {
-	private HashSet<Integer> keys = new HashSet<Integer>();
-
 	private HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>();
-	private HashMap<Integer, Integer> toThem = new HashMap<Integer, Integer>();
+	private MultiCountingSet<Integer, Integer> keys = new MultiCountingSet<Integer, Integer>();
 
 	private int justPressed;
 
 	void add(int theirKey, int ourKey) {
 		fromThem.put(theirKey, ourKey);
-		toThem.put(ourKey, theirKey);
 	}
 
 	public LwjglKeyboard() {
+
 		// regular keys
 		add(org.lwjgl.input.Keyboard.KEY_A, KEY_A);
 		add(org.lwjgl.input.Keyboard.KEY_B, KEY_B);
@@ -86,12 +84,12 @@ public class LwjglKeyboard implements Keyboard {
 		add(org.lwjgl.input.Keyboard.KEY_DOWN, KEY_DOWN);
 
 		// shift keys
-	    add(org.lwjgl.input.Keyboard.KEY_LSHIFT, KEY_LSHIFT);
-	    add(org.lwjgl.input.Keyboard.KEY_RSHIFT, KEY_RSHIFT);
-	    add(org.lwjgl.input.Keyboard.KEY_LCONTROL, KEY_LCONTROL);
-	    add(org.lwjgl.input.Keyboard.KEY_RCONTROL, KEY_RCONTROL);
-	    add(org.lwjgl.input.Keyboard.KEY_LMENU, KEY_LMENU);
-	    add(org.lwjgl.input.Keyboard.KEY_RMENU, KEY_RMENU);
+		add(org.lwjgl.input.Keyboard.KEY_LSHIFT, KEY_SHIFT);
+		add(org.lwjgl.input.Keyboard.KEY_RSHIFT, KEY_SHIFT);
+		add(org.lwjgl.input.Keyboard.KEY_LCONTROL, KEY_CONTROL);
+		add(org.lwjgl.input.Keyboard.KEY_RCONTROL, KEY_CONTROL);
+		add(org.lwjgl.input.Keyboard.KEY_LMENU, KEY_MENU);
+		add(org.lwjgl.input.Keyboard.KEY_RMENU, KEY_MENU);
 
 		// round the numeric keypad
 		add(org.lwjgl.input.Keyboard.KEY_DIVIDE, KEY_DIVIDE);
@@ -140,15 +138,19 @@ public class LwjglKeyboard implements Keyboard {
 	public void handleKeyboard() {
 		justPressed = 0;
 		while (org.lwjgl.input.Keyboard.next()) {
-			Integer key = fromThem.get(org.lwjgl.input.Keyboard.getEventKey());
-			if (key != null) {
+			Integer theirKey = org.lwjgl.input.Keyboard.getEventKey();
+			Integer ourKey = fromThem.get(theirKey);
+			if (ourKey != null) {
 				boolean down = org.lwjgl.input.Keyboard.getEventKeyState();
 				if (down) {
-					keys.add(key);
-					justPressed = key;
+					keys.add(ourKey, theirKey);
+					justPressed = ourKey;
 				}
 				else {
-					keys.remove(key);
+					keys.remove(ourKey, theirKey);
+					// we need to do it this way -- a simple map with a
+					// count in it fails when auto-repeat is on because
+					// then the press and release counts no longer match
 				}
 			}
 		}
