@@ -10,7 +10,7 @@ public class UnifiedKeyTester implements HasKeys {
 		this.keyboard = keyboard;
 	}
 	
-	public void next() {
+	public void nextFrame() {
 		justPressed = getNext();
 	}
 

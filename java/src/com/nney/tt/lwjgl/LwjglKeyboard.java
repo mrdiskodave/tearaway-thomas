@@ -138,7 +138,7 @@ public class LwjglKeyboard implements Keyboard {
 	}
 
 	public void handleKeyboard() {
-		justPressed = -1;
+		justPressed = 0;
 		while (org.lwjgl.input.Keyboard.next()) {
 			Integer key = fromThem.get(org.lwjgl.input.Keyboard.getEventKey());
 			if (key != null) {

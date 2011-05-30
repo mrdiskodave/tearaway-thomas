@@ -133,6 +133,8 @@ public class Mapper implements PenServices {
 		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
+		bigBoxTool.addNested(Keyboard.KEY_SPACE, handTool);
+		bigBoxTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -163,7 +165,7 @@ public class Mapper implements PenServices {
 
 	public void run() {
 		mgc.nextFrame();
-		ukt.next();
+		ukt.nextFrame();
 
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
