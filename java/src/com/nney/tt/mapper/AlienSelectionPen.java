@@ -5,7 +5,7 @@ import com.nney.tt.input.Pointer;
 
 public class AlienSelectionPen extends Pen {
 	@Override
-	void presentation() {
+	void otherActions() {
 		srv.showSelectedAlienProps();
 	}
 

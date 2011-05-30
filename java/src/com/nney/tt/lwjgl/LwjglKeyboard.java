@@ -86,12 +86,12 @@ public class LwjglKeyboard implements Keyboard {
 		add(org.lwjgl.input.Keyboard.KEY_DOWN, KEY_DOWN);
 
 		// shift keys
-		add(org.lwjgl.input.Keyboard.KEY_LSHIFT, KEY_LSHIFT);
-		add(org.lwjgl.input.Keyboard.KEY_LCONTROL, KEY_LCONTROL);
-		add(org.lwjgl.input.Keyboard.KEY_LMENU, KEY_LMENU);
-		add(org.lwjgl.input.Keyboard.KEY_RMENU, KEY_RMENU);
-		add(org.lwjgl.input.Keyboard.KEY_RCONTROL, KEY_RCONTROL);
-		add(org.lwjgl.input.Keyboard.KEY_RSHIFT, KEY_RSHIFT);
+	    add(org.lwjgl.input.Keyboard.KEY_LSHIFT, KEY_LSHIFT);
+	    add(org.lwjgl.input.Keyboard.KEY_RSHIFT, KEY_RSHIFT);
+	    add(org.lwjgl.input.Keyboard.KEY_LCONTROL, KEY_LCONTROL);
+	    add(org.lwjgl.input.Keyboard.KEY_RCONTROL, KEY_RCONTROL);
+	    add(org.lwjgl.input.Keyboard.KEY_LMENU, KEY_LMENU);
+	    add(org.lwjgl.input.Keyboard.KEY_RMENU, KEY_RMENU);
 
 		// round the numeric keypad
 		add(org.lwjgl.input.Keyboard.KEY_DIVIDE, KEY_DIVIDE);

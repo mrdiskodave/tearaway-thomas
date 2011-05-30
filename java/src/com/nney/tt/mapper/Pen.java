@@ -14,7 +14,7 @@ public abstract class Pen {
 	 * needs to for status-display etc (independent of the location of the
 	 * pointer).
 	 */
-	void presentation() {
+	void otherActions() {
 	}
 
 	/**

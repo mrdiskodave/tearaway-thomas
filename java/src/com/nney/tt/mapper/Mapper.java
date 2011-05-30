@@ -11,6 +11,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.Keyboard;
+import com.nney.tt.input.Shifts;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
@@ -29,7 +30,6 @@ import com.nney.tt.map.GameMap;
  *      [C] - Copy alien to the mouse
  * [D] Draw Tool - for changing blocks
  * 		Hold:RMB - temporary use of the Block Chooser Tool from the Drawing Tool
- * 		Cursor Keys - mini block chooser
  * 		Hold:CTRL - block choice follows mouse movements
  *                  (useful for drawing multi-block things from the block palette)
  * [B] Block Chooser Tool - full screen current-block choosing tool
@@ -41,9 +41,16 @@ import com.nney.tt.map.GameMap;
  * 		CTRL, SHIFT or CTRL+SHIFT give various levels of acceleration
  * 
  * Hold:SPACE - temporary use of the Hand Tool from other tools
- * [Z] undo (endless - all changes)
- * [Y] redo
+ * [CTRL+Z] undo (endless - all changes)
+ * [CTRL+Y] redo
+ * 
+ * A mini block chooser that uses CTRL with cursors or '0'.
+ * And also CTRL+M to toggle showing block masks.
+ * And also CTRL+V to toggle visibility of hidden blocks (magic floors etc).
+ * Is available in the Draw 
  * </pre>
+ * 
+ * Mini
  */
 public class Mapper implements PenServices {
 
@@ -56,20 +63,22 @@ public class Mapper implements PenServices {
 	final private int blockCount;
 	private int showSmallPaletteTimer;
 
+	
 	final MapperGC mgc;
 	final private Pointer mouse;
-	final private Keyboard keyboard;
 	final WorldServicesToMapper srv;
 	private final GameMap gameMap;
 
-	final UnifiedKeyTester ukt;
+	private final UnifiedKeyTester ukt2;
+	private final SaveMapBlock[] slots = new SaveMapBlock[12];
 
-	private Tool blockChooserTool = new ChooserTool(this);
-	private Tool bigBoxTool = new RectangleTool(this);
-	private Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
-	private Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
-	private Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
-	private Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(),
+
+	private final Tool blockChooserTool = new BlockChooserTool(this);
+	private final Tool bigBoxTool = new RectangleTool(this);
+	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
+	private final Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
+	private final Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
+	private final Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(),
 			new AlienBatMovingPen(), new AlienSelectionPen()) {
 		@Override
 		void run() {
@@ -112,6 +121,8 @@ public class Mapper implements PenServices {
 
 	private final AlienInfoMap alienInfoMap;
 
+	private UnifiedKeyTester keyboard;
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
@@ -122,8 +133,8 @@ public class Mapper implements PenServices {
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
-		this.keyboard = keyboard;
-		this.ukt = new UnifiedKeyTester(mouse, keyboard);
+		this.ukt2 = new UnifiedKeyTester(mouse, keyboard);
+		this.keyboard = ukt2;
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
@@ -165,7 +176,7 @@ public class Mapper implements PenServices {
 
 	public void run() {
 		mgc.nextFrame();
-		ukt.nextFrame();
+		ukt2.nextFrame();
 
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
@@ -177,7 +188,7 @@ public class Mapper implements PenServices {
 
 		Tool t = tool;
 		if (otherTool != null) {
-			if (otherTool.isFree() && !ukt.isDown(keyThatSustainsTheOtherTool)) {
+			if (otherTool.isFree() && !keyboard.isDown(keyThatSustainsTheOtherTool)) {
 				otherTool = null;
 				System.out.println("POP TOOL");
 			}
@@ -196,7 +207,7 @@ public class Mapper implements PenServices {
 			sayIt(t.name());
 			if (showSmallPaletteTimer != 0) {
 				showSmallPaletteTimer--;
-				makeBP().showSmallPalette(currentBlock);
+				makeBP().showSmallPalette(getCurrentBlock());
 			}
 		}
 
@@ -267,9 +278,11 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void keyboardBlockChoice() {
-		switch (keyboard.justPressed()) {
+		int jp = keyboard.justPressed();
+		if (jp==0) return;
+		switch (jp) {
 		case Keyboard.KEY_0:
-			currentBlock = 0;
+			setCurrentBlock(0);
 			break;
 		case Keyboard.KEY_UP:
 			changeCurrentBlock(0, -1);
@@ -309,30 +322,25 @@ public class Mapper implements PenServices {
 	
 	void blockChoosingMode() {
 		keyboardBlockChoice();
-		int hoverBlock = makeBP().showBigPalette(currentBlock, computeMousePos(CoordType.SCREEN_PIXELS));
-		if (ukt.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
-			currentBlock = hoverBlock;
+		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), computeMousePos(CoordType.SCREEN_PIXELS));
+		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
+			setCurrentBlock(hoverBlock);
 		}
 	}
 
 	@Override
 	public void changeCurrentBlock(int dx, int dy) {
 		int delta = BlockPalette.getPaletteDelta(dx, dy);
-		int b = delta + currentBlock;
+		int b = delta + getCurrentBlock();
 		if (b < 0) {
 			b += blockCount;
 		}
 		if (b >= blockCount) {
 			b -= blockCount;
 		}
-		currentBlock = b;
-		showBlocks();
+		setCurrentBlock(b);
 	}
 
-	@Override
-	public void showBlocks() {
-		showSmallPaletteTimer = 100;
-	}
 
 	@Override
 	public EditDestination startBlockEdit() {
@@ -358,15 +366,15 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void setCurrentBlockFromMap(Coord c) {
-		currentBlock = gameMap.getBlock(c);
+		setCurrentBlock(gameMap.getBlock(c));
 	}
 
 	@Override
 	public void scroll(Coord delta) {
-		if (ukt.isDown(Keyboard.KEY_LSHIFT)) {
+		if (keyboard.isDown(Keyboard.KEY_LSHIFT)) {
 			delta.mul(2);
 		}
-		if (ukt.isDown(Keyboard.KEY_LCONTROL)) {
+		if (keyboard.isDown(Keyboard.KEY_LCONTROL)) {
 			delta.mul(4);
 		}
 		srv.moveScreen(delta);
@@ -560,18 +568,16 @@ public class Mapper implements PenServices {
 	}
 
 	int justPressed() {
-		return ukt.justPressed();
+		return keyboard.justPressed();
 	}
 
 	boolean isDown(int key) {
-		return ukt.isDown(key);
+		return keyboard.isDown(key);
 	}
 
 	MapperGC getMGC() {
 		return mgc;
 	}
-
-	SaveMapBlock[] slots = new SaveMapBlock[12];
 
 	public void copyRect(int slotNumber, Box rectangle) {
 		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
@@ -583,19 +589,19 @@ public class Mapper implements PenServices {
 
 	@Override
 	public void perhapsPaste() {
-		int k = ukt.justPressed();
+		int k = keyboard.justPressed();
 		if (k >= Keyboard.KEY_F1 && k <= Keyboard.KEY_F12) {
 			int slotNumber = k - Keyboard.KEY_F1;
 			SaveMapBlock slot = slots[slotNumber];
 			if (slot != null) {
 				Coord c = computeMousePos(CoordType.WORLD_BLOCKS);
+				// does it fit?
 				boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
 				if (itFits) {
+					// paste it!
 					MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot);
 					submitEdit(u);
 				}
-				// does it fit?
-				// paste it!
 			}
 		}
 	}
@@ -606,8 +612,13 @@ public class Mapper implements PenServices {
 
 	public void fillRect(Box rectangle) {
 		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
-		s.fill(currentBlock);
+		s.fill(getCurrentBlock());
 		MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, rectangle.left, rectangle.top, s);
 		submitEdit(u);
+	}
+
+	private void setCurrentBlock(int currentBlock) {
+		this.currentBlock = currentBlock;
+		showSmallPaletteTimer = 100;
 	}
 }

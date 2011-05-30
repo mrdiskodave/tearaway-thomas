@@ -68,12 +68,14 @@ public interface Keyboard extends HasKeys {
 	static final int KEY_DOWN = 62;
 
 	// shift keys
+	static final int KEYBEGIN_SHIFT_KEYS = 63;
 	static final int KEY_LSHIFT = 63;
-	static final int KEY_LCONTROL = 64;
-	static final int KEY_LMENU = 65;
-	static final int KEY_RMENU = 66;
-	static final int KEY_RCONTROL = 67;
-	static final int KEY_RSHIFT = 68;
+	static final int KEY_RSHIFT = 64;
+	static final int KEY_LCONTROL = 65;
+	static final int KEY_RCONTROL = 66;
+	static final int KEY_LMENU = 67;
+	static final int KEY_RMENU = 68;
+	static final int KEYEND_SHIFT_KEYS = 69;
 
 	// round the numeric keypad
 	static final int KEY_DIVIDE = 69;

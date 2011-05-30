@@ -14,12 +14,10 @@ public class EyeDropperPen extends Pen {
 	void stroke(Coord c) {
 		c.div(Const.BLOCK_SIZE);
 		srv.setCurrentBlockFromMap(c);
-		srv.showBlocks();
-		srv.keyboardBlockChoice();
 	}
 	
 	@Override
-	void presentation() {
+	void otherActions() {
 		srv.keyboardBlockChoice();
 	}
 }

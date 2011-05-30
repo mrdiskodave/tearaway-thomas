@@ -1,8 +1,5 @@
 package com.nney.tt.mapper;
 
-import java.util.Map.Entry;
-
-import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
 
 public class GeneralTool extends Tool {
@@ -23,9 +20,6 @@ public class GeneralTool extends Tool {
 
 	@Override
 	void presentation() {
-		for (Pen pen : pens) {
-			pen.presentation();
-		}
 		if (cursor == Cursor.BLOCK) {
 			drawBlockCursor();
 		}
@@ -60,6 +54,7 @@ public class GeneralTool extends Tool {
 					pen.hover(m.copy());
 				}
 			}
+			pen.otherActions();
 		}
 	}
 

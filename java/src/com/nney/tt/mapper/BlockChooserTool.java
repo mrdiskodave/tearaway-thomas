@@ -1,7 +1,7 @@
 package com.nney.tt.mapper;
 
-public class ChooserTool extends Tool {
-	public ChooserTool(Mapper parent) {
+public class BlockChooserTool extends Tool {
+	public BlockChooserTool(Mapper parent) {
 		super(parent);
 	}
 
@@ -13,6 +13,5 @@ public class ChooserTool extends Tool {
 	@Override
 	void run() {
 		srv.blockChoosingMode();
-		srv.showBlocks();
 	}
 }

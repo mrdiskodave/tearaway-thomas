@@ -31,7 +31,7 @@ public class DrawingPen extends Pen {
 	}
 
 	@Override
-	void presentation() {
+	void otherActions() {
 		srv.keyboardBlockChoice();
 		srv.perhapsPaste();
 	}

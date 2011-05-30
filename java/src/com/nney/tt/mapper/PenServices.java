@@ -13,8 +13,6 @@ public interface PenServices extends ButtonPressServices {
 
 	void setCurrentBlockFromMap(Coord c);
 
-	void showBlocks();
-
 	EditDestination startBlockEdit();
 
 	void endBlockEdit();
