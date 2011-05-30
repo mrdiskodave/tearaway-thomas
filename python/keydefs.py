@@ -1,15 +1,21 @@
 i = 1;
 
-def q(z):
+def q(z, i):
 	print "\tstatic final int "+z+" = "+str(i)+";";
 
-def q2(z):
-	print "\tcase org.lwjgl.input.Keyboard."+z+": return "+z+";"
+def q2(z, i):
+	if i: print "\tadd(org.lwjgl.input.Keyboard."+z+", "+z+");"
 
 def p(z):
 	global i
-	q("KEY_"+z)
+	q("KEY_"+z, True)
 	i += 1;
+
+def pb(z):
+	q("KEYBEGIN_"+z, False)
+
+def pe(z):
+	q("KEYEND_"+z, False)
 
 def pc(z):
 	print
@@ -33,12 +39,14 @@ def list_keys():
 	p("DOWN")
 
 	pc("shift keys")
+	pb("SHIFT_KEYS");
 	p("LSHIFT")
+	p("RSHIFT")
 	p("LCONTROL")
+	p("RCONTROL")
 	p("LMENU")
 	p("RMENU")
-	p("RCONTROL")
-	p("RSHIFT")
+	pe("SHIFT_KEYS");
 
 	pc("round the numeric keypad")
 	p("DIVIDE")
