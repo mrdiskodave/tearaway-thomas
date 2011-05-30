@@ -28,8 +28,7 @@ public class BoxVisualProp extends VisualProp {
 	void onBatMovement(int what, Coord where) {
 		switch (what) {
 		case 0:
-			where.sub(t.middle());
-			t.add(where);
+			t.add(where.sub2(t.middle()));
 			break;
 		case 1:
 			t.setLeft(where.x, BORDER);
@@ -59,16 +58,13 @@ public class BoxVisualProp extends VisualProp {
 
 	@Override
 	void onBring(Coord c) {
-		Coord delta = c.copy();
-		delta.sub(location());
+		Coord delta = c.sub2(location());
 		t.add(delta);
 	}
 	
 	@Override
 	public void moveBy(Coord delta) {
-		System.out.println("Before:"+t);
 		t.add(delta);
-		System.out.println("After:"+t);
 	}
 
 

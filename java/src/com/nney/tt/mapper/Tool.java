@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.mapper.Mapper.CoordType;
 
 abstract class Tool {
 	/**
@@ -20,11 +21,10 @@ abstract class Tool {
 	public Tool(Mapper srv) {
 		this.srv = srv;
 	}
-	
 
 	void drawBlockCursor() {
-		Coord box = srv.computeMousePos(true);
-		box.and(-Const.BLOCK_SIZE, -Const.BLOCK_SIZE);
+		Coord box = srv.computeMousePos(CoordType.WORLD_BLOCKS);
+		box.mul(Const.BLOCK_SIZE);
 		box.sub(srv.getScreenPosition());
 		srv.getMGC().drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, srv.getMGC().process(COL_CURRENT_BLOCK));
 	}

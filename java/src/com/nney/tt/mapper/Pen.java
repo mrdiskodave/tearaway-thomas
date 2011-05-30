@@ -3,6 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.mapper.Mapper.CoordType;
 
 public abstract class Pen {
 	public PenServices srv;
@@ -17,14 +18,10 @@ public abstract class Pen {
 	}
 
 	/**
-	 * Does this object work with world coordinates or screen coordinates?
-	 * 
-	 * @return <code>true</code> meaning "world coordinates" or
-	 *         <code>false</code> meaning "screen coordinates". This changes all
-	 *         the {@link Coord} parameters given to other methods.
+	 * What type of coordinates does this pen need?
 	 */
-	boolean usesWorldCoords() {
-		return true;
+	CoordType requiredCoordType() {
+		return CoordType.WORLD_PIXELS;
 	}
 
 	/**

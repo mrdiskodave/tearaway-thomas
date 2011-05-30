@@ -112,13 +112,12 @@ public class Mapper implements PenServices {
 
 	private final AlienInfoMap alienInfoMap;
 
-
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
-	public Mapper(AlienInfoMap alienInfoMap, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse, Keyboard keyboard,
-			GraphicsContext gc, Font debugFont) {
+	public Mapper(AlienInfoMap alienInfoMap, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
+			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
 		this.alienInfoMap = alienInfoMap;
 		this.srv = srv;
 		this.gameMap = gameMap;
@@ -157,7 +156,6 @@ public class Mapper implements PenServices {
 	public BlockPalette makeBP() {
 		return new BlockPalette(mgc, srv.getBlocksHolder());
 	}
-
 
 	public void init() {
 		undoControler = new UndoControler();
@@ -204,7 +202,7 @@ public class Mapper implements PenServices {
 			undoRedo();
 			switch (keyboard.justPressed()) {
 			case Keyboard.KEY_TAB:
-				srv.quitMapper(computeMousePos(true));
+				srv.quitMapper(computeMousePos(CoordType.WORLD_PIXELS));
 				return;
 			case Keyboard.KEY_I:
 				tool = eyeDropperTool;
@@ -233,23 +231,20 @@ public class Mapper implements PenServices {
 	}
 
 	/**
-	 * Big box.
-	 * Big box tool.
-	 * Four keys to set the edge of the big-box.
-	 * Current block selection shortcuts all work (arrows and RMB).
-	 * [F] fill bigbox.
-	 * Function keys take a copy of the big-box (function keys in draw mode paste that stuff).
+	 * Big box. Big box tool. Four keys to set the edge of the big-box. Current
+	 * block selection shortcuts all work (arrows and RMB). [F] fill bigbox.
+	 * Function keys take a copy of the big-box (function keys in draw mode
+	 * paste that stuff).
 	 * 
-	 * [G] get map bounds
-	 * [S] set map bounds
+	 * [G] get map bounds [S] set map bounds
 	 * 
-	 * big box should probably look different (different color?) if it is the map bounds
+	 * big box should probably look different (different color?) if it is the
+	 * map bounds
 	 * 
 	 * 
 	 */
 	private void drawMapBounds() {
 	}
-
 
 	private void sayIt(String s) {
 		if (s != null) {
@@ -295,15 +290,24 @@ public class Mapper implements PenServices {
 		}
 	}
 
-	Coord computeMousePos(boolean world) {
+	enum CoordType {
+		WORLD_PIXELS,
+		SCREEN_PIXELS,
+		WORLD_BLOCKS
+	}
+	
+	Coord computeMousePos(CoordType ct) {
 		Coord mp = new Coord(mouse.getX(), mouse.getY());
-		if (world) mp.add(srv.getScreenPosition());
+		if (ct==CoordType.SCREEN_PIXELS) return mp;
+		mp.add(srv.getScreenPosition());
+		if (ct==CoordType.WORLD_PIXELS) return mp;
+		mp.div(Const.BLOCK_SIZE);
 		return mp;
 	}
-
+	
 	void blockChoosingMode() {
 		keyboardBlockChoice();
-		int hoverBlock = makeBP().showBigPalette(currentBlock, computeMousePos(false));
+		int hoverBlock = makeBP().showBigPalette(currentBlock, computeMousePos(CoordType.SCREEN_PIXELS));
 		if (ukt.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
 			currentBlock = hoverBlock;
 		}
@@ -340,8 +344,8 @@ public class Mapper implements PenServices {
 	public void endBlockEdit() {
 		System.out.println("Submit edit");
 		assert edit != null;
-		UndoRedo u = edit.endEdit();
-		if (u != null) undoControler.redoThenAdd(u);
+		MapSymmetricalUndoRedo u = edit.endEdit();
+		if (u != null) submitEdit(u);
 		edit = null;
 	}
 
@@ -543,22 +547,16 @@ public class Mapper implements PenServices {
 			final Alien dest = srv.createAlien(src.typeCode);
 			APS.copyProps(src, dest);
 
-			Coord diff = computeMousePos(true).sub2(src.c);
+			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.c);
 			APS.moveProps(dest, diff);
 			createAlienWithUndoRedo(dest);
 		}
 	}
 
-	
-	
-	
-	
-	
-	
 	public Coord getScreenPosition() {
 		return srv.getScreenPosition();
 	}
-	
+
 	int justPressed() {
 		return ukt.justPressed();
 	}
@@ -567,34 +565,32 @@ public class Mapper implements PenServices {
 		return ukt.isDown(key);
 	}
 
-
 	MapperGC getMGC() {
 		return mgc;
 	}
 
-	SBM[] slots = new SBM[12];
-	
+	SaveMapBlock[] slots = new SaveMapBlock[12];
+
 	public void copyRect(int slotNumber, Box rectangle) {
-		SBM s = new SBM(rectangle.width(), rectangle.height());
+		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
 		s.process(true, false, rectangle.left, rectangle.top, gameMap);
 		slots[slotNumber] = s;
-		System.out.println("SLOT "+slotNumber);
-		slots[slotNumber].dump();
+		System.out.println("SLOT " + slotNumber);
+//		slots[slotNumber].dump();
 	}
 
 	@Override
 	public void perhapsPaste() {
 		int k = ukt.justPressed();
-		if (k>=Keyboard.KEY_F1 && k<=Keyboard.KEY_F12) {
-			int slotNumber = k-Keyboard.KEY_F1;
-			SBM slot = slots[slotNumber];
-			if (slot!=null) {
-				Coord c = computeMousePos(true);
-				c.div(Const.BLOCK_SIZE);
-				if ((c.x + slot.w)<=GameMap.MAP_WIDTH &&
-						(c.y + slot.h)<=GameMap.MAP_HEIGHT) {
-					UndoRedo u = new SavedMapBox(gameMap, c.x, c.y, slot);
-					undoControler.redoThenAdd(u);
+		if (k >= Keyboard.KEY_F1 && k <= Keyboard.KEY_F12) {
+			int slotNumber = k - Keyboard.KEY_F1;
+			SaveMapBlock slot = slots[slotNumber];
+			if (slot != null) {
+				Coord c = computeMousePos(CoordType.WORLD_BLOCKS);
+				boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
+				if (itFits) {
+					MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot);
+					submitEdit(u);
 				}
 				// does it fit?
 				// paste it!
@@ -602,4 +598,14 @@ public class Mapper implements PenServices {
 		}
 	}
 
+	private void submitEdit(MapSymmetricalUndoRedo u) {
+		if (!u.changesNothing()) undoControler.redoThenAdd(u);
+	}
+
+	public void fillRect(Box rectangle) {
+		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
+		s.fill(currentBlock);
+		MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, rectangle.left, rectangle.top, s);
+		submitEdit(u);
+	}
 }

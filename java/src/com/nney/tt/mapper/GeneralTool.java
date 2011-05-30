@@ -36,7 +36,7 @@ public class GeneralTool extends Tool {
 		checkPushTool();
 		
 		for (Pen pen : pens) {
-			Coord m = srv.computeMousePos(pen.usesWorldCoords());
+			Coord m = srv.computeMousePos(pen.requiredCoordType());
 			if (pen.active) {
 				boolean held = srv.isDown(pen.key());
 				if (held) {

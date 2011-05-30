@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.mapper.Mapper.CoordType;
 
 public class AlienButtonPressingPen extends Pen {
 	@Override
@@ -37,8 +38,8 @@ public class AlienButtonPressingPen extends Pen {
 	}
 
 	@Override
-	boolean usesWorldCoords() {
-		return false;
+	CoordType requiredCoordType() {
+		return CoordType.SCREEN_PIXELS;
 	}
 
 	private String buttonRecordToString(ButtonRecord br) {

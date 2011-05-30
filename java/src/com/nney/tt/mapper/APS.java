@@ -11,6 +11,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 
+// alien property services
 public class APS {
 
 	static List<Prop> propsForAlien(Alien alien) {

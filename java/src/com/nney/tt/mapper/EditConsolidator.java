@@ -24,12 +24,12 @@ public class EditConsolidator implements EditDestination {
 		}
 	}
 
-	public UndoRedo endEdit() {
-		SavedMapBox undo = null;
+	public MapSymmetricalUndoRedo endEdit() {
+		MapSymmetricalUndoRedo undo = null;
 		Box b = sizeUpEdits();
 		if (b != null) {
 			System.out.println("SAVING");
-			undo = new SavedMapBox(gameMap, b);
+			undo = new MapSymmetricalUndoRedo(gameMap, b);
 			System.out.println("SAVED");
 			for (Entry<Coord, Integer> kv : originalBlocks.entrySet()) {
 				gameMap.setBlock(kv.getKey(), kv.getValue());
