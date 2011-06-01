@@ -32,7 +32,7 @@ public class DrawingPen extends Pen {
 
 	@Override
 	void otherActions() {
-		srv.keyboardBlockChoice();
+		srv.keyboardBlockChoice(false);
 		srv.perhapsPaste();
 	}
 }

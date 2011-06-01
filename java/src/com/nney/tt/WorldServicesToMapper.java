@@ -3,6 +3,7 @@ package com.nney.tt;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
+import com.nney.tt.sprites.Anims;
 
 public interface WorldServicesToMapper {
 	void quitMapper(Coord newPlayerPosition);
@@ -30,4 +31,6 @@ public interface WorldServicesToMapper {
 	Alien createAlien(int typeCode);
 
 	void loadAlienIntoWorld(Alien alien);
+
+	Anims loadAnims(String animsName);
 }

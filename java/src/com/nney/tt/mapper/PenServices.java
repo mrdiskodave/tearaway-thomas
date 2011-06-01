@@ -7,8 +7,6 @@ public interface PenServices extends ButtonPressServices {
 
 	int getCurrentBlock();
 
-	void keyboardBlockChoice();
-
 	void scroll(Coord delta);
 
 	void setCurrentBlockFromMap(Coord c);
@@ -34,4 +32,6 @@ public interface PenServices extends ButtonPressServices {
 	HoverStatus getHoverStatus();
 
 	void perhapsPaste();
+
+	void keyboardBlockChoice(boolean theMainThing);
 }

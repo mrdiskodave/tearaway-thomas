@@ -18,6 +18,6 @@ public class EyeDropperPen extends Pen {
 	
 	@Override
 	void otherActions() {
-		srv.keyboardBlockChoice();
+		srv.keyboardBlockChoice(false);
 	}
 }

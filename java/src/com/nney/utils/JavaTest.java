@@ -369,4 +369,15 @@ public class JavaTest extends TestCase {
 		assertEquals(1, (int) n.get(2));
 		assertEquals(0, (int) n.get(3));
 	}
+	
+	public void testModAndNeg() throws Exception {
+		// the sign of the modulo result is solely determined
+		// by the sign of the left operand
+		assertEquals(3, 13%10);
+		assertEquals(-3, -13%10);
+		assertEquals(3, 13%-10);
+		assertEquals(-3, -13%-10);
+		
+		
+	}
 }
