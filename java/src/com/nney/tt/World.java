@@ -552,10 +552,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 				alienInfoMap.removeByType(typeCode);
 			}
 			Alien alien = alienInfo.instantiate();
-			if (alienInfo.animsName != null) {
-				Anims anims = animsPool.load(alienInfo.animsName);
-				alien.connectAnims(anims);
-			}
+			String animsName = alienInfo.animsName;
+			assert animsName != null;
+			alien.connectAnims(loadAnims(animsName));
 			alien.typeCode = typeCode;
 			return alien;
 		}
@@ -563,6 +562,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		TextAlien alien = new TextAlien();
 		alien.setText(String.format("%d", typeCode));
 		return alien;
+	}
+
+	@Override
+	public Anims loadAnims(String animsName) {
+		return animsPool.load(animsName);
 	}
 
 	private void addNewAlien(Alien alien) {
@@ -675,7 +679,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			mapBounds = gameMapBounds;
 			frameNumber++;
 
-			if (keyboard.justPressed() == Keyboard.KEY_TAB) {
+			if (keyboard.justPressed() == Mapper.MAPPER_KEY) {
 				usingMapper = true;
 				gameMap.applyCompress(wi.blockRandomisationTable);
 				if (mapper == null) {

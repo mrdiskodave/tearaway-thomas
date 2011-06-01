@@ -23,7 +23,7 @@ public class RectangleTool extends Tool {
 	void run() {
 		checkPushTool();
 		drawBlockCursor();
-		srv.keyboardBlockChoice();
+		srv.keyboardBlockChoice(false);
 		
 		Coord c = srv.computeMousePos(CoordType.WORLD_BLOCKS);
 		if (srv.isDown(Keyboard.KEY_UP)) {

@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import java.util.List;
 
+import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
 import com.nney.tt.Const;
 import com.nney.tt.WorldServicesToMapper;
@@ -15,6 +16,10 @@ import com.nney.tt.input.Shifts;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.sprites.Anim;
+import com.nney.tt.sprites.AnimPlayer;
+import com.nney.tt.sprites.Anims;
+import com.nney.tt.sprites.Sprite;
 
 /**
  * A level editor.
@@ -47,12 +52,13 @@ import com.nney.tt.map.GameMap;
  * A mini block chooser that uses CTRL with cursors or '0'.
  * And also CTRL+M to toggle showing block masks.
  * And also CTRL+V to toggle visibility of hidden blocks (magic floors etc).
- * Is available in the Draw 
+ * Is available in the Draw
  * </pre>
  * 
  * Mini
  */
 public class Mapper implements PenServices {
+	final static public int MAPPER_KEY = Keyboard.KEY_TAB;
 
 	private static final int COL_BACKGROUND = 0xff0080ff;
 
@@ -63,7 +69,18 @@ public class Mapper implements PenServices {
 	final private int blockCount;
 	private int showSmallPaletteTimer;
 
-	
+	//
+	// stuff to do with the current alien
+	//
+	private final AlienInfoMap alienInfoMap;
+	private TypeCodeTabber alienTabber;
+	private int showAlienPaletteTimer;
+	private final static int TABBING_ALIENS_OUTSIDE = 1;
+	private final static int TABBING_ALIENS_TOTAL = TABBING_ALIENS_OUTSIDE * 2 + 1;
+	private final AnimPlayer animPlayers[] = new AnimPlayer[TABBING_ALIENS_TOTAL];
+	private static final int ALIENS_TAB_BOX_RADIUS = 70;
+	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
+
 	final MapperGC mgc;
 	final private Pointer mouse;
 	final WorldServicesToMapper srv;
@@ -71,7 +88,6 @@ public class Mapper implements PenServices {
 
 	private final UnifiedKeyTester ukt2;
 	private final SaveMapBlock[] slots = new SaveMapBlock[12];
-
 
 	private final Tool blockChooserTool = new BlockChooserTool(this);
 	private final Tool bigBoxTool = new RectangleTool(this);
@@ -83,15 +99,21 @@ public class Mapper implements PenServices {
 		@Override
 		void run() {
 			super.run();
-			if (haveAlien() && isFree()) {
-				switch (keyboard.justPressed()) {
-				case Keyboard.KEY_DELETE:
-					deleteSelectedAlien();
-					break;
-				case Keyboard.KEY_C:
-					copySelectedAlien();
-					break;
+			if (isFree()) {
+				if (haveAlien()) {
+					switch (keyboard.justPressed()) {
+					case Keyboard.KEY_DELETE:
+						deleteSelectedAlien();
+						break;
+					case Keyboard.KEY_C:
+						copySelectedAlien();
+						break;
+					case Keyboard.KEY_N:
+						createAlien();
+						break;
+					}
 				}
+				keyboardAlienChoice();
 			}
 		}
 	};
@@ -119,8 +141,6 @@ public class Mapper implements PenServices {
 
 	private UndoControler undoControler;
 
-	private final AlienInfoMap alienInfoMap;
-
 	private UnifiedKeyTester keyboard;
 
 	// ---------------------------------------------------------------------------
@@ -130,6 +150,7 @@ public class Mapper implements PenServices {
 	public Mapper(AlienInfoMap alienInfoMap, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
 			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
 		this.alienInfoMap = alienInfoMap;
+		this.alienTabber = new TypeCodeTabber(alienInfoMap.getTypeCodes());
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -146,6 +167,10 @@ public class Mapper implements PenServices {
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
 		bigBoxTool.addNested(Keyboard.KEY_SPACE, handTool);
 		bigBoxTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
+
+		for (int x = 0; x < TABBING_ALIENS_TOTAL; x++) {
+			animPlayers[x] = new AnimPlayer();
+		}
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -209,12 +234,16 @@ public class Mapper implements PenServices {
 				showSmallPaletteTimer--;
 				makeBP().showSmallPalette(getCurrentBlock());
 			}
+			if (showAlienPaletteTimer != 0) {
+				showAlienPaletteTimer--;
+				showAlienPalette();
+			}
 		}
 
 		if (t.isFree()) {
 			undoRedo();
 			switch (keyboard.justPressed()) {
-			case Keyboard.KEY_TAB:
+			case MAPPER_KEY:
 				srv.quitMapper(computeMousePos(CoordType.WORLD_PIXELS));
 				return;
 			case Keyboard.KEY_I:
@@ -266,20 +295,85 @@ public class Mapper implements PenServices {
 	}
 
 	private void undoRedo() {
+		if (keyboard.isDown(Keyboard.KEY_CONTROL)) {
+			switch (keyboard.justPressed()) {
+			case Keyboard.KEY_Z:
+				undoControler.undo();
+				break;
+			case Keyboard.KEY_Y:
+				undoControler.redo();
+				break;
+			}
+		}
+	}
+
+	public void keyboardAlienChoice() {
 		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_Z:
-			undoControler.undo();
+		case Keyboard.KEY_NEXT:
+			alienTabber.next();
+			showAlienPaletteTimer = 100;
 			break;
-		case Keyboard.KEY_Y:
-			undoControler.redo();
+		case Keyboard.KEY_PRIOR:
+			alienTabber.prev();
+			showAlienPaletteTimer = 100;
 			break;
+		case Keyboard.KEY_HOME:
+			alienTabber.home();
+			showAlienPaletteTimer = 100;
+			break;
+		case Keyboard.KEY_END:
+			alienTabber.end();
+			showAlienPaletteTimer = 100;
+			break;
+		}
+	}
+	
+	private void createAlien() {
+		AlienInfo ai = getAlienInfo(alienTabber);
+		Alien a = srv.createAlien(ai.typeCode);
+		a.resetTo(computeMousePos(CoordType.WORLD_PIXELS));
+		createAlienWithUndoRedo(a);
+	}
+
+
+	private AlienInfo getAlienInfo(TypeCodeTabber tabber) {
+		AlienInfo answer = alienInfoMap.getByType(tabber.get());
+		assert answer != null;
+		return answer;
+	}
+
+	private void showAlienPalette() {
+		int sx = mgc.screenWidth() / 2;
+		int sy = mgc.screenHeight() / 2;
+
+		TypeCodeTabber at = alienTabber.copy();
+		for (int x = 0; x < TABBING_ALIENS_OUTSIDE; x++) {
+			at.prev();
+			sy -= ALIENS_TAB_BOX_DIAMETER;
+		}
+
+		for (int x = 0; x < TABBING_ALIENS_TOTAL; x++) {
+			AlienInfo ai = getAlienInfo(at);
+			Anims anims = srv.loadAnims(ai.animsName);
+			Anim anim = anims.find(0);
+			animPlayers[x].changeAnimation(anim);
+			Sprite sprite = animPlayers[x].next();
+			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy - ALIENS_TAB_BOX_RADIUS, ALIENS_TAB_BOX_DIAMETER,
+					ALIENS_TAB_BOX_DIAMETER, mgc.process(0xff00ff00), 0xb00020ff);
+			sprite.draw(sx, sy, false);
+			sy += ALIENS_TAB_BOX_DIAMETER;
+			at.next();
 		}
 	}
 
 	@Override
-	public void keyboardBlockChoice() {
+	public void keyboardBlockChoice(boolean fullScreen) {
+		if (!fullScreen && !keyboard.isDown(Keyboard.KEY_CONTROL)) {
+			return;
+		}
+
 		int jp = keyboard.justPressed();
-		if (jp==0) return;
+		if (jp == 0) return;
 		switch (jp) {
 		case Keyboard.KEY_0:
 			setCurrentBlock(0);
@@ -306,22 +400,20 @@ public class Mapper implements PenServices {
 	}
 
 	enum CoordType {
-		WORLD_PIXELS,
-		SCREEN_PIXELS,
-		WORLD_BLOCKS
+		WORLD_PIXELS, SCREEN_PIXELS, WORLD_BLOCKS
 	}
-	
+
 	Coord computeMousePos(CoordType ct) {
 		Coord mp = new Coord(mouse.getX(), mouse.getY());
-		if (ct==CoordType.SCREEN_PIXELS) return mp;
+		if (ct == CoordType.SCREEN_PIXELS) return mp;
 		mp.add(srv.getScreenPosition());
-		if (ct==CoordType.WORLD_PIXELS) return mp;
+		if (ct == CoordType.WORLD_PIXELS) return mp;
 		mp.div(Const.BLOCK_SIZE);
 		return mp;
 	}
-	
+
 	void blockChoosingMode() {
-		keyboardBlockChoice();
+		keyboardBlockChoice(true);
 		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), computeMousePos(CoordType.SCREEN_PIXELS));
 		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
 			setCurrentBlock(hoverBlock);
@@ -340,7 +432,6 @@ public class Mapper implements PenServices {
 		}
 		setCurrentBlock(b);
 	}
-
 
 	@Override
 	public EditDestination startBlockEdit() {
@@ -533,9 +624,7 @@ public class Mapper implements PenServices {
 	@Override
 	public void setScreenCentre(Coord c) {
 		Coord centerDisplacement = new Coord(mgc.screenWidth() / 2, mgc.screenHeight() / 2);
-		c = c.copy();
-		c.sub(centerDisplacement);
-		srv.setScreenPosition(c);
+		srv.setScreenPosition(c.sub2(centerDisplacement));
 	}
 
 	public void deleteSelectedAlien() {
@@ -587,7 +676,7 @@ public class Mapper implements PenServices {
 		s.process(true, false, rectangle.left, rectangle.top, gameMap);
 		slots[slotNumber] = s;
 		System.out.println("SLOT " + slotNumber);
-//		slots[slotNumber].dump();
+		// slots[slotNumber].dump();
 	}
 
 	@Override
