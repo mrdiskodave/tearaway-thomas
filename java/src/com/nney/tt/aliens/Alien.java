@@ -10,15 +10,16 @@ import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
 	/**
-	 * Our location.
+	 * Our location. Simple.
 	 * 
-	 * For some objects like the {@link LiftAlien}s this is something that is
-	 * not visible in the game. Lifts generate a new location every frame from
-	 * other properties like their bounding box. They don't really have a
-	 * location, as such. Nonetheless they still have one behind the scenes for
-	 * the map editor and so on. If every {@link Alien} didn't have a single
-	 * canonical "place" then map editing would be rather awkward.
-	 * 
+	 * <p>
+	 * For multi-part Aliens or Aliens with generated coordinates 
+	 * still have a single canonical location behind the scenes even if it isn't
+	 * visible in-game (and only surfaces in the map editor and map-saves). e.g.
+	 * {@link LiftAlien}s generate a new location every frame from other
+	 * properties like their bounding box. They don't really have a location, as
+	 * such. Nonetheless they still have one behind the scenes for the map
+	 * editor and things.
 	 */
 	@AlienProp(name = "Location", doc = "Where are we?", xtraDef = "location")
 	public Coord c = new Coord();
