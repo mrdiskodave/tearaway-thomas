@@ -23,9 +23,9 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 	/**
 	 * This lift moves itself but when the player is on it then the player (who
 	 * moves first, in the order of things) needs to move it in order to
-	 * establish how to move himself. To simplify this: any method that needs a
-	 * lift that has been moved once this frame just calls this method. The risk
-	 * of moving this lift twice is then zero.
+	 * establish how to move himself. To simplify this: any method that needs "a
+	 * lift that has been moved once this frame" just calls this method. The
+	 * risk of moving this lift twice is then zero.
 	 */
 	private void moveIfWeNeedTo() {
 		int frmNum = srv.getFrameNumber();
@@ -42,12 +42,11 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 		delta.sub(lc);
 		return delta;
 	}
-	
+
 	@Override
 	public void onPropUpdate() {
 		setPosition();
 	}
-
 
 	@Override
 	public void update() {
@@ -65,7 +64,11 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 		}
 	}
 
-	public boolean horizontalOverlap(Player p) {
+	public boolean amIStillOnThisLift(Player player) {
+		return horizontalOverlap(player);
+	}
+
+	private boolean horizontalOverlap(Player p) {
 		int s = c.x - EXTRA_WIDTH;
 		int e = s + width;
 		return p.c.x >= s && p.c.x < e;

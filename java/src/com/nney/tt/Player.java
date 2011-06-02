@@ -437,7 +437,7 @@ public class Player {
 	private void doLiftModeX(MovementSlicer xslicer) {
 		int n = xslicer.next(1);
 		c.x += n;
-		if (!standingOn.horizontalOverlap(this)) {
+		if (!standingOn.amIStillOnThisLift(this)) {
 			fallOff();
 		}
 	}
@@ -832,15 +832,15 @@ public class Player {
 			// X
 			//
 
-			// These all run off the same MovementSlicer.
-			// e.g. if we're running along the ground at 5 pix per frame
-			// and after 1 pixel we run off the edge we still
-			// have 4 pixels to go in the air.
 			if (mode == Mode.LIFT) {
 				assert standingOn != null;
 				standingOn.movePlayer(this);
 			}
 
+			// These all run off the same MovementSlicer.
+			// e.g. if we're running along the ground at 5 pix per frame
+			// and after 1 pixel we run off the edge we still
+			// have 4 pixels to go in the air.
 			int xmovement = getXDelta();
 			MovementSlicer xslicer = new MovementSlicer(xmovement);
 			while (xslicer.more()) {
@@ -988,14 +988,6 @@ public class Player {
 	public void resetTo(Coord coord) {
 		reset();
 		c = coord;
-	}
-
-	public void connectAnims(Anims playerAnims) {
-		playersAnimations = playerAnims;
-	}
-	
-	public void visualReset() {
-		setStandingAnim();
 	}
 }
 
