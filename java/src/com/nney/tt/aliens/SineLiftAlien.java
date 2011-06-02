@@ -29,7 +29,7 @@ public class SineLiftAlien extends LiftAlien {
 	}
 
 	@Override
-	protected void setPosition() {
+	protected Coord setPosition() {
 		int angle = srv.getFrameNumber() * 8;
 		Coord origin = new Coord((box.left + box.right) / 2, box.top);
 		int spin = sine(angle) / 4 + 256;
@@ -37,8 +37,7 @@ public class SineLiftAlien extends LiftAlien {
 		int yo = sine(spin) * box.height();
 		xo /= 1024 * 2;
 		yo /= 1024;
-		c.x = origin.x + xo;
-		c.y = origin.y + yo;
+		return origin.copyAndAdd(xo, yo);
 	}
 
 }

@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
-import com.nney.tt.aliens.AlienWithGeneratedLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
@@ -20,7 +19,8 @@ public class APS {
 		Field[] fields = alien.getClass().getFields();
 		for (Field field : fields) {
 			AlienProp p = field.getAnnotation(AlienProp.class);
-			if (p != null && !(p.xtraDef().equals("location") && alien instanceof AlienWithGeneratedLocation)) {
+//			boolean generatedLocation = p.xtraDef().equals("location") && alien instanceof AlienWithGeneratedLocation;
+			if (p != null) {
 				Prop prop = null;
 				PropPack pp = new PropPack(alien, field);
 				Class<?> ft = field.getType();

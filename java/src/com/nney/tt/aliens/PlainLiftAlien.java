@@ -15,19 +15,21 @@ public class PlainLiftAlien extends LiftAlien {
 	}
 
 	@Override
-	protected void setPosition() {
+	protected Coord setPosition() {
 		int frm = srv.getFrameNumber();
 
 		int w = box.width();
 		int h = box.height();
 		boolean horizontalLift = w > h;
 		if (horizontalLift) {
-			c.x = box.left + sawToothWave(frm, w - 1);
-			c.y = (box.top + box.bottom) / 2;
+			int x = box.left + sawToothWave(frm, w - 1);
+			int y = (box.top + box.bottom) / 2;
+			return new Coord(x, y);
 		}
 		else {
-			c.x = (box.left + box.right) / 2;
-			c.y = box.top + sawToothWave(frm, h - 1);
+			int x = (box.left + box.right) / 2;
+			int y = box.top + sawToothWave(frm, h - 1);
+			return new Coord(x, y);
 		}
 	}
 

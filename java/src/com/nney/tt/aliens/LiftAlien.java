@@ -4,21 +4,29 @@ import com.nney.tt.Player;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public abstract class LiftAlien extends AlienWithGeneratedLocation {
+public abstract class LiftAlien extends Alien {
 	private static final int EXTRA_WIDTH = 5;
-	private Coord lc;
+
+	/**
+	 * Our generated location.
+	 * 
+	 * @see Alien#c
+	 */
+	private Coord ourPlace = new Coord();
+	private Coord lastPlace = new Coord();
+
 	private int lastMoveFrmNum;
+
 	private Sprite ourSprite;
 	private int width;
 
 	@Override
 	public void visualReset() {
-		changeAnimation(0);
-		ourSprite = nextFrame();
+		ourSprite = firstFrame();
 		width = ourSprite.liftWidth() + EXTRA_WIDTH * 2;
 	}
 
-	abstract protected void setPosition();
+	abstract protected Coord setPosition();
 
 	/**
 	 * This lift moves itself but when the player is on it then the player (who
@@ -31,15 +39,15 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 		int frmNum = srv.getFrameNumber();
 		if (frmNum != lastMoveFrmNum) {
 			lastMoveFrmNum = frmNum;
-			lc = c.copy();
-			setPosition();
+			lastPlace = ourPlace.copy();
+			ourPlace = setPosition();
 		}
 	}
 
 	private Coord lastFrameDelta() {
 		moveIfWeNeedTo();
-		Coord delta = c.copy();
-		delta.sub(lc);
+		Coord delta = ourPlace.copy();
+		delta.sub(lastPlace);
 		return delta;
 	}
 
@@ -52,11 +60,11 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 	public void update() {
 		moveIfWeNeedTo();
 
-		srv.drawSprite(c, ourSprite);
+		srv.drawSprite(ourPlace, ourSprite);
 
 		Player p = srv.getThePlayer();
 		if (p.isReadyToBoardALift()) {
-			int landOn = c.y - 1;
+			int landOn = ourPlace.y - 1;
 			boolean verticalCrossing = p.lc.y < landOn && p.c.y >= landOn;
 			if (horizontalOverlap(p) && verticalCrossing) {
 				p.startLiftMode(this, landOn);
@@ -69,7 +77,7 @@ public abstract class LiftAlien extends AlienWithGeneratedLocation {
 	}
 
 	private boolean horizontalOverlap(Player p) {
-		int s = c.x - EXTRA_WIDTH;
+		int s = ourPlace.x - EXTRA_WIDTH;
 		int e = s + width;
 		return p.c.x >= s && p.c.x < e;
 	}

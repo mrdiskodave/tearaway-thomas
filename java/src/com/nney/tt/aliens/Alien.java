@@ -9,6 +9,17 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
+	/**
+	 * Our location.
+	 * 
+	 * For some objects like the {@link LiftAlien}s this is something that is
+	 * not visible in the game. Lifts generate a new location every frame from
+	 * other properties like their bounding box. They don't really have a
+	 * location, as such. Nonetheless they still have one behind the scenes for
+	 * the map editor and so on. If every {@link Alien} didn't have a single
+	 * canonical "place" then map editing would be rather awkward.
+	 * 
+	 */
 	@AlienProp(name = "Location", doc = "Where are we?", xtraDef = "location")
 	public Coord c = new Coord();
 
@@ -86,6 +97,10 @@ public abstract class Alien {
 
 	protected Sprite sameFrame() {
 		return animPlayer.current();
+	}
+
+	protected Sprite firstFrame() {
+		return anims.find(0).frames[0];
 	}
 
 	public void connectAnims(Anims s) {
