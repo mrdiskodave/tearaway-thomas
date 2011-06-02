@@ -1,12 +1,54 @@
 package com.nney.tt;
 
-import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Joystick;
+import com.nney.tt.sprites.Anim;
+import com.nney.tt.sprites.AnimPlayer;
+import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
-public class Player extends Alien {
+public class Player {
+	public Coord c;
+	
+	// the AnimPlayer plays animations
+	// (in this case it plays them for the Player, confusingly)
+	private AnimPlayer animPlayer = new AnimPlayer();
+	
+	private Anims playersAnimations;
+	
+	private AlienServices srv;
+
+	public Player(AlienServices srv, Anims playerAnims, Coord playerStart, boolean goLeft) {
+		this.srv = srv;
+		this.playersAnimations = playerAnims;
+		this.c = playerStart.copy();
+		this.goLeft = goLeft;
+	}
+
+	private boolean testStick(int s) {
+		// TODO: 30: stunTimer test no longer needed surely (as we are more
+		// modal)
+		return srv.getStick().test(s) && stunTimer == 0;
+	}
+
+	private boolean testStickJustPressed(int s) {
+		// TODO: 30: stunTimer test no longer needed surely (as we are more
+		// modal)
+		return srv.getStick().testJustPressed(s) && stunTimer == 0;
+	}
+
+	private void setAnim(String name, boolean animate) {
+		Anim anim = playersAnimations.find(name);
+		animPlayer.changeAnimation(anim);
+		Sprite s = animate ? animPlayer.next() : animPlayer.current();
+		srv.registerPlayerSpriteForAlienColisions(c, s);
+		playerSprite = s;
+	}
+	
+	
+	
+	
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
@@ -210,12 +252,6 @@ public class Player extends Alien {
 		return left ? -x : x;
 	}
 
-	private void setAnim(String name, boolean animate) {
-		changeAnimation(name);
-		Sprite s = animate ? nextFrame() : sameFrame();
-		srv.registerPlayerSpriteForAlienColisions(c, s);
-		playerSprite = s;
-	}
 
 	private int getStickDelta(int less, int more) {
 		int delta = 0;
@@ -232,17 +268,6 @@ public class Player extends Alien {
 		return getStickDelta(Joystick.LEFT, Joystick.RIGHT);
 	}
 
-	private boolean testStick(int s) {
-		// TODO: 30: stunTimer test no longer needed surely (as we are more
-		// modal)
-		return srv.getStick().test(s) && stunTimer == 0;
-	}
-
-	private boolean testStickJustPressed(int s) {
-		// TODO: 30: stunTimer test no longer needed surely (as we are more
-		// modal)
-		return srv.getStick().testJustPressed(s) && stunTimer == 0;
-	}
 
 	private int applyGravity(int v) {
 		if (!flying || (srv.getFrameNumber() & 1) == 0) {
@@ -879,11 +904,6 @@ public class Player extends Alien {
 		move2();
 	}
 
-	@Override
-	public void visualReset() {
-		setStandingAnim();
-	}
-
 	public void draw() {
 		srv.drawSprite(c, playerSprite, drawInWhite);
 	}
@@ -932,14 +952,6 @@ public class Player extends Alien {
 		c.y = height;
 	}
 
-	@Override
-	public void update() {
-		// We need this method because the player is a pseudo Alien.
-		// Actually, it's move() and draw() that are our entry points.
-		// We're the only entity in the game with separate move and draw logic.
-		assert false;
-	}
-
 	/**
 	 * Does the players movement prompt the given hidden object to appear?
 	 * 
@@ -973,10 +985,17 @@ public class Player extends Alien {
 		return false;
 	}
 
-	@Override
 	public void resetTo(Coord coord) {
 		reset();
 		c = coord;
+	}
+
+	public void connectAnims(Anims playerAnims) {
+		playersAnimations = playerAnims;
+	}
+	
+	public void visualReset() {
+		setStandingAnim();
 	}
 }
 

@@ -51,6 +51,9 @@ import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, WorldServicesToMapper {
 
+	public static final Box WHOLE_MAP_BOUNDS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH * Const.BLOCK_SIZE, GameMap.MAP_HEIGHT
+						* Const.BLOCK_SIZE);
+
 	final private GraphicsContext gc;
 
 	// lift
@@ -671,8 +674,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	public void updateEverything() {
 		if (usingMapper) {
-			mapBounds = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH * Const.BLOCK_SIZE, GameMap.MAP_HEIGHT
-					* Const.BLOCK_SIZE);
+			mapBounds = WHOLE_MAP_BOUNDS;
 			mapper.run();
 		}
 		else {
@@ -709,12 +711,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 		alienInfoMap.doPreLoad(animsPool);
 
-		player = new Player();
-		player.srv = this;
-		Anims playerAnims = animsPool.load("0tt");
-		player.connectAnims(playerAnims);
-		player.visualReset();
-
 		wi = WorldInformation.load(worldName);
 		loadBlocks();
 
@@ -722,13 +718,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		PersistedMap pm = new PersistedMap();
 		pm.loadLegacy(this, mapOpenable);
+		
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
 		gameMapBounds = pm.mapBounds;
-		player.c.x = pm.playerX;
-		player.c.y = pm.playerY;
-		player.goLeft = pm.playerGoLeft;
+		
+		Anims playerAnims = animsPool.load("0tt");
+		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
 		gameMap = pm.gameMap;
 
 		// player.c.x = 1980;
