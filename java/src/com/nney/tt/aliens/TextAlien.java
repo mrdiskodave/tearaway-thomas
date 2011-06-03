@@ -1,6 +1,6 @@
 package com.nney.tt.aliens;
 
-public class TextAlien extends Alien {
+public class TextAlien extends AlienWithLocation {
 	private String text;
 
 	public void setText(String text0) {

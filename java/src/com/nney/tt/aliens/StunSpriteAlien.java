@@ -2,7 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.sprites.Sprite;
 
-public class StunSpriteAlien extends Alien {
+public class StunSpriteAlien extends AlienWithLocation {
 
 	@Override
 	public void visualReset() {

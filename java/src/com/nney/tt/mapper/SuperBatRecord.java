@@ -10,7 +10,7 @@ public class SuperBatRecord implements BatRecord {
 
 	public SuperBatRecord(Alien selectedAlien) {
 		this.alien = selectedAlien;
-		this.where = alien.c.copy();
+		this.where = alien.getLocation().copy();
 	}
 
 	@Override

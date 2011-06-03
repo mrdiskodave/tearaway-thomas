@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.BitOp;
 import com.nney.tt.sprites.Sprite;
 
-public class SpriteAlien extends Alien {
+public class SpriteAlien extends AlienWithLocation {
 	private static final int FLAG_BEHIND = 6;
 
 	@AlienProp(name = "Front", doc = "Do we appear in front of other graphics?")

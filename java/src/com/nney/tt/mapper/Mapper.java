@@ -12,7 +12,6 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.Keyboard;
-import com.nney.tt.input.Shifts;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
@@ -100,22 +99,26 @@ public class Mapper implements PenServices {
 		void run() {
 			super.run();
 			if (isFree()) {
-				if (haveAlien()) {
-					switch (keyboard.justPressed()) {
-					case Keyboard.KEY_DELETE:
-						deleteSelectedAlien();
-						break;
-					case Keyboard.KEY_C:
-						copySelectedAlien();
-						break;
-					case Keyboard.KEY_N:
-						createAlien();
-						break;
+				int k = srv.justPressed();
+				if (srv.haveAlien()) {
+					if (k==Keyboard.KEY_DELETE) {
+						srv.deleteSelectedAlien();
+					}
+					else if (k==Keyboard.KEY_C) {
+						srv.copySelectedAlien();
 					}
 				}
-				keyboardAlienChoice();
+				if (k==Keyboard.KEY_N){
+					srv.createAlien();
+				}
+				srv.keyboardAlienChoice();
 			}
 		}
+		
+		@Override
+		void presentation() {
+			srv.showSelectedAlienProps();
+		};
 	};
 
 	private Tool tool;
@@ -203,6 +206,7 @@ public class Mapper implements PenServices {
 		mgc.nextFrame();
 		ukt2.nextFrame();
 
+		System.out.println("---");
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			srv.drawMap();
@@ -332,9 +336,9 @@ public class Mapper implements PenServices {
 		AlienInfo ai = getAlienInfo(alienTabber);
 		Alien a = srv.createAlien(ai.typeCode);
 		a.resetTo(computeMousePos(CoordType.WORLD_PIXELS));
+		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
 	}
-
 
 	private AlienInfo getAlienInfo(TypeCodeTabber tabber) {
 		AlienInfo answer = alienInfoMap.getByType(tabber.get());
@@ -506,11 +510,12 @@ public class Mapper implements PenServices {
 	@Override
 	public void showSelectedAlienProps() {
 		if (haveAlien()) {
-			Coord sac = getSelectedAlien().c.copy();
+			Coord sac = getSelectedAlien().getLocation().copy();
 			sac.sub(srv.getScreenPosition());
 			mgc.drawSight2(sac.x, sac.y, 25, mgc.process(0xff00ffff), BatGCImpl.SUPERBAT_GIRTH, 0x40000000);
 
 			List<Prop> props = APS.propsForAlien(getSelectedAlien());
+			System.out.println("showSelectedAlienProps "+props.size());
 
 			// bats
 			bats.clear();
@@ -547,6 +552,9 @@ public class Mapper implements PenServices {
 
 			// TODO: block editor box select: copy & paste & fill
 			// TODO: serialise and deserialise
+		}
+		else {
+			System.out.println("showSelectedAlienProps 0");
 		}
 	}
 
@@ -649,7 +657,7 @@ public class Mapper implements PenServices {
 			final Alien dest = srv.createAlien(src.typeCode);
 			APS.copyProps(src, dest);
 
-			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.c);
+			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.getLocation());
 			APS.moveProps(dest, diff);
 			createAlienWithUndoRedo(dest);
 		}

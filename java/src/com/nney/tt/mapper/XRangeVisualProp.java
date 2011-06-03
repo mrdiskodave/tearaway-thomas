@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
@@ -30,7 +31,7 @@ public class XRangeVisualProp extends VisualProp {
 	void onBatMovement(int what, Coord where) {
 		switch (what) {
 		case 0:
-			t.add(where.x - t.middle());
+			onBring(where);
 			break;
 		case 1:
 			t.setLeft(where.x, BORDER);
@@ -53,6 +54,12 @@ public class XRangeVisualProp extends VisualProp {
 		int delta = c.x;
 		delta -= t.middle();
 		t.add(delta);
+		validate();
+	}
+
+	@Override
+	public void validate() {
+		t.resideInside(World.WHOLE_MAP_BOUNDS.toXRange());
 	}
 	
 	@Override
@@ -65,5 +72,5 @@ public class XRangeVisualProp extends VisualProp {
 		int apy = alienPos().y;
 		return new Coord(t.middle(), apy);
 	}
-
+	
 }

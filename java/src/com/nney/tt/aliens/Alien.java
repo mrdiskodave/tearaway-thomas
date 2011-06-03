@@ -3,27 +3,11 @@ package com.nney.tt.aliens;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
-	/**
-	 * Our location. Simple.
-	 * 
-	 * <p>
-	 * For multi-part Aliens or Aliens with generated coordinates 
-	 * still have a single canonical location behind the scenes even if it isn't
-	 * visible in-game (and only surfaces in the map editor and map-saves). e.g.
-	 * {@link LiftAlien}s generate a new location every frame from other
-	 * properties like their bounding box. They don't really have a location, as
-	 * such. Nonetheless they still have one behind the scenes for the map
-	 * editor and things.
-	 */
-	@AlienProp(name = "Location", doc = "Where are we?", xtraDef = "location")
-	public Coord c = new Coord();
-
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	private Anims anims;
 	public int typeCode = -1;
@@ -36,9 +20,6 @@ public abstract class Alien {
 	public static final int DEPTH_FOREGROUND = 2;
 	public static final int DEPTH_MAX = 3;
 
-	public void resetTo(Coord p) {
-		c = p;
-	}
 
 	public Box freezeBounds;
 	public AlienServices srv;
@@ -61,9 +42,6 @@ public abstract class Alien {
 	protected static final int OBstatus6 = 28 - OBbase; // B
 	protected static final int OBstatus7 = 29 - OBbase; // B
 
-	public void onPropUpdate() {
-	}
-
 	protected int loadShort(int x) {
 		return (loadByte(x) << 8) + loadByte(x + 1);
 	}
@@ -75,12 +53,7 @@ public abstract class Alien {
 	protected void changeAnimation(String name) {
 		assert anims != null;
 		assert name != null;
-		changeAnimation(anims.find(name));
-	}
-
-	protected void changeAnimation(Anim anim) {
-		assert anim != null;
-		animPlayer.changeAnimation(anim);
+		animPlayer.changeAnimation(anims.find(name));
 	}
 
 	protected void changeAnimation(int name) {
@@ -122,19 +95,25 @@ public abstract class Alien {
 
 	}
 
-	abstract public void update();
 
-	public void mapperUpdate() {
-		changeAnimation(0);
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
-	}
 
 	public void done() {
 		remove = true;
 	}
 
-	protected Box spriteBounds(Sprite s) {
-		return Box.fromTopLeftAndSize(c.x - s.handleX, c.y - s.handleY, s.w, s.h);
+
+	public void mapperUpdate() {
+		Coord c = getLocation();
+		System.out.println("Drawn at "+c);
+		srv.drawSprite(c, firstFrame());
+	}
+	
+	abstract public void update();
+
+	abstract public void resetTo(Coord p);
+
+	abstract public Coord getLocation();
+
+	public void onPropUpdate() {
 	}
 }

@@ -7,6 +7,7 @@ public class Box implements Copyable<Box>, Cloneable {
 	public int top;
 	public int right;
 	public int bottom;
+
 	// inclusive!!
 
 	public Box(int left, int top, int right, int bottom) {
@@ -68,7 +69,15 @@ public class Box implements Copyable<Box>, Cloneable {
 	}
 
 	public boolean inside(Coord c) {
-		return c.x >= left && c.x <= right && c.y >= top && c.y <= bottom;
+		return insideX(c.x) && insideY(c.y);
+	}
+
+	private boolean insideY(int y) {
+		return y >= top && y <= bottom;
+	}
+
+	private boolean insideX(int x) {
+		return x >= left && x <= right;
 	}
 
 	public void shrink(int i) {
@@ -160,35 +169,68 @@ public class Box implements Copyable<Box>, Cloneable {
 	public String toString() {
 		return String.format("Box(%d, %d, %d, %d)", left, top, right, bottom);
 	}
-	
+
 	public int xEnd() {
-		return right+1;
-	}
-	
-	public int yEnd() {
-		return bottom+1;
+		return right + 1;
 	}
 
-//	public void mul(int z) {
-//		left *= z;
-//		top *= z;
-//		right *= z;
-//		bottom *= z;
-//	}
-// not very useful as the size doesn't scale too! grrr
-	
+	public int yEnd() {
+		return bottom + 1;
+	}
+
+	// public void mul(int z) {
+	// left *= z;
+	// top *= z;
+	// right *= z;
+	// bottom *= z;
+	// }
+	// not very useful as the size doesn't scale too! grrr
+
 	public void validate() {
-//		right = Math.max(left, right);
-//		bottom = Math.max(top, bottom);
-		if (right<left) {
+		// right = Math.max(left, right);
+		// bottom = Math.max(top, bottom);
+		if (right < left) {
 			int t = right;
 			right = left;
 			left = t;
 		}
-		if (bottom<top) {
+		if (bottom < top) {
 			int t = bottom;
 			bottom = top;
 			top = t;
 		}
+	}
+
+	public void resideInside(Box bigger) {
+		int spareX = bigger.width() - width();
+		int spareY = bigger.height() - height();
+		assert spareX>=0;
+		assert spareY>=0;
+
+		if (!bigger.insideX(left) || !bigger.insideX(right)) {
+			if (left<bigger.left) {
+				left = bigger.left;
+				right = bigger.right - spareX;
+			}
+			else {
+				left = bigger.left + spareX;
+				right = bigger.right;
+			}
+		}
+		
+		if (!bigger.insideY(top) || !bigger.insideY(bottom)) {
+			if (top<bigger.top) {
+				top = bigger.top;
+				bottom = bigger.bottom - spareY;
+			}
+			else {
+				top = bigger.top + spareY;
+				bottom = bigger.bottom;
+			}
+		}
+	}
+	
+	public XRange toXRange() {
+		return new XRange(left, right);
 	}
 }

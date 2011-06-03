@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.map.GameMap;
 import com.nney.utils.Openable;
@@ -63,8 +64,12 @@ public class PersistedMap {
 			x += 8;
 		}
 
-		alien.c.x = x;
-		alien.c.y = y;
+		if (alien instanceof AlienWithLocation) {
+			AlienWithLocation awl = (AlienWithLocation) alien;
+			awl.c.x = x;
+			awl.c.y = y;
+		}
+		
 		alien.legacyData = rest;
 		alien.loadFromLegacyData();
 

@@ -10,7 +10,7 @@ public abstract class Prop {
 	}
 	
 	public Coord alienPos() {
-		return pp.alien().c;
+		return pp.alien().getLocation();
 	}
 
 	public FieldAccessor getFieldAccessor() {
@@ -75,5 +75,8 @@ public abstract class Prop {
 	}
 	
 	public void moveBy(Coord delta) {
+	}
+
+	public void validate() {
 	}
 }

@@ -11,6 +11,11 @@ public class XRange implements Copyable<XRange>, Cloneable {
 		this.right = right;
 	}
 
+	public void around(int x, int i) {
+		left = x - i;
+		right = x + i;
+	}
+
 	public void setLeft(int i, int border) {
 		left = Math.min(right - border, i);
 	}
@@ -30,11 +35,6 @@ public class XRange implements Copyable<XRange>, Cloneable {
 	
 	public void sub(int delta) {
 		add(-delta);
-	}
-
-	public void around(int x, int i) {
-		left = x - i;
-		right = x + i;
 	}
 
 	public int width() {
@@ -61,4 +61,25 @@ public class XRange implements Copyable<XRange>, Cloneable {
 	public String toString() {
 		return String.format("XRange(%d, %d)", left, right);
 	}
+	
+	public void resideInside(XRange bigger) {
+		int spare = bigger.width() - width();
+		assert spare>=0;
+		if (!bigger.inside(left) || !bigger.inside(right)) {
+			if (left<bigger.left) {
+				left = bigger.left;
+				right = bigger.right - spare;
+			}
+			else {
+				left = bigger.left + spare;
+				right = bigger.right;
+			}
+		}
+	}
+
+	private boolean inside(int x) {
+		return x>=left && x<=right;
+	}
+
+	
 }

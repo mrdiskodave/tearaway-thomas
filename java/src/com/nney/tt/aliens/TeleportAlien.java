@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class TeleportAlien extends Alien {
+public class TeleportAlien extends AlienWithLocation {
 	@AlienProp(name = "Destination", doc = "Where do we teleport the player to?")
 	public Coord destination;
 

@@ -5,7 +5,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 import com.nney.tt.sprites.Sprite;
 
-public abstract class LeftRightAlien extends Alien {
+public abstract class LeftRightAlien extends AlienWithLocation {
 	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.")
 	public XRange range;
 
@@ -16,6 +16,7 @@ public abstract class LeftRightAlien extends Alien {
 	public void resetTo(Coord p) {
 		super.resetTo(p);
 		range.around(c.x, 50);
+		range.add(25);
 	}
 
 	@Override

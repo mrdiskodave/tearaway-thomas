@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
@@ -28,7 +29,7 @@ public class BoxVisualProp extends VisualProp {
 	void onBatMovement(int what, Coord where) {
 		switch (what) {
 		case 0:
-			t.add(where.sub2(t.middle()));
+			onBring(where);
 			break;
 		case 1:
 			t.setLeft(where.x, BORDER);
@@ -60,6 +61,13 @@ public class BoxVisualProp extends VisualProp {
 	void onBring(Coord c) {
 		Coord delta = c.sub2(location());
 		t.add(delta);
+		validate();
+	}
+
+
+	@Override
+	public void validate() {
+		t.resideInside(World.WHOLE_MAP_BOUNDS);
 	}
 	
 	@Override

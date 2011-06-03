@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class ArrowAlien extends Alien {
+public class ArrowAlien extends AlienWithLocation {
 	private int repeat;
 
 	@AlienProp(name = "AdviceBox", doc = "Player's location for us to blink at him?")
@@ -13,7 +13,8 @@ public class ArrowAlien extends Alien {
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
-		box = Box.around(c, 32);
+		box = Box.around(c, 50);
+		box.add(new Coord(25, 0));
 	}
 
 	@Override

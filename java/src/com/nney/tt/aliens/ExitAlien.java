@@ -2,7 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.sprites.Sprite;
 
-public class ExitAlien extends Alien {
+public class ExitAlien extends AlienWithLocation {
 	@Override
 	public void update() {
 		changeAnimation(srv.isExitOpen() ? "open" : "shut");

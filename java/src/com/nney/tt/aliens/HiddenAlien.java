@@ -2,7 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
 
-public abstract class HiddenAlien extends Alien {
+public abstract class HiddenAlien extends AlienWithLocation {
 	private static final boolean CTC_FLASH_HIDDEN = false;
 
 	private static final int FLAG_INVIS = 5;

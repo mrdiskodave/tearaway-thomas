@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class ScoreNoticeAlien extends Alien {
+public class ScoreNoticeAlien extends AlienWithLocation {
 	private int what;
 	private int timer;
 	private int vely;

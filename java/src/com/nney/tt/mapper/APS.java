@@ -19,7 +19,8 @@ public class APS {
 		Field[] fields = alien.getClass().getFields();
 		for (Field field : fields) {
 			AlienProp p = field.getAnnotation(AlienProp.class);
-//			boolean generatedLocation = p.xtraDef().equals("location") && alien instanceof AlienWithGeneratedLocation;
+			// boolean generatedLocation = p.xtraDef().equals("location") &&
+			// alien instanceof AlienWithGeneratedLocation;
 			if (p != null) {
 				Prop prop = null;
 				PropPack pp = new PropPack(alien, field);
@@ -58,11 +59,18 @@ public class APS {
 	}
 
 	public static void moveProps(Alien dest, Coord diff) {
-		List<Prop> zps = APS.propsForAlien(dest);
-		for (Prop zp: zps) {
-			zp.moveBy(diff);
+		List<Prop> props = APS.propsForAlien(dest);
+		for (Prop prop : props) {
+			prop.moveBy(diff);
 		}
 		dest.onPropUpdate();
+	}
+
+	public static void validateAlien(Alien a) {
+		List<Prop> props = APS.propsForAlien(a);
+		for (Prop prop : props) {
+			prop.validate();
+		}
 	}
 
 }

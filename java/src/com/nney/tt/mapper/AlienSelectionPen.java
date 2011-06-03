@@ -5,11 +5,6 @@ import com.nney.tt.input.Pointer;
 
 public class AlienSelectionPen extends Pen {
 	@Override
-	void otherActions() {
-		srv.showSelectedAlienProps();
-	}
-
-	@Override
 	int key() {
 		return Pointer.KEY_LEFT;
 	}
@@ -18,4 +13,11 @@ public class AlienSelectionPen extends Pen {
 	void stroke(Coord c) {
 		srv.selectNearestAlien(c);
 	}
+	
+	@Override
+	boolean down(Coord c) {
+		srv.selectNearestAlien(c);
+		return true;
+	}
+
 }

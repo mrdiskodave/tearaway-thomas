@@ -89,4 +89,9 @@ public abstract class LiftAlien extends Alien {
 	public int getPlayerJumpBoost() {
 		return lastFrameDelta().y;
 	}
+	
+	@Override
+	public Coord getLocation() {
+		return setPosition();
+	}
 }
