@@ -16,8 +16,7 @@ public class NearestAlienFinder implements Visitor<Alien> {
 
 	@Override
 	public void visit(Alien a) {
-		Coord diff = a.c.copy();
-		diff.sub(o);
+		Coord diff = a.getLocation().sub2(o);
 		long ndist = diff.x * diff.x + diff.y * diff.y;
 		if (ndist < dist) {
 			dist = ndist;
