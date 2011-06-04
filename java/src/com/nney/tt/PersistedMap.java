@@ -60,7 +60,8 @@ public class PersistedMap {
 		Alien alien = world.createAlien(type);
 				
 		if (type == 2 || type == 3) {
-			// this is what gem_render -> bob_gem does
+			// this is what gem_render -> bob_gem did
+			// at rendering time! which is pretty horrid
 			x += 8;
 		}
 
