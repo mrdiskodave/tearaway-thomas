@@ -25,8 +25,10 @@ public class TeleportAlien extends AlienWithLocation {
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 
-		if (srv.collideBoxWithPlayer(c, Box.fromSquare(5))) {
-			srv.drawDebugText(new Coord(10, 10), "hit");
+		Box b = boxAroundUs(5);
+		freezeBounds = b;
+		if (srv.collideBoxWithPlayer(b)) {
+//			srv.drawDebugText(new Coord(10, 10), "hit");
 			srv.teleportTo(destination);
 		}
 	}
