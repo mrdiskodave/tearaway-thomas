@@ -45,12 +45,6 @@ public class PersistedMap {
 		int maxx = dis.readByte() & 0xff;
 		int miny = dis.readByte() & 0xff;
 		int maxy = dis.readByte() & 0xff;
-		minx *= 16;
-		maxx *= 16;
-		maxx += 15;
-		miny *= 16;
-		maxy *= 16;
-		maxy += 15;
 		mapBounds = new Box(minx, miny, maxx, maxy);
 	}
 

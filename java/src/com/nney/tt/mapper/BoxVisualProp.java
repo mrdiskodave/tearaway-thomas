@@ -67,7 +67,7 @@ public class BoxVisualProp extends VisualProp {
 
 	@Override
 	public void validate() {
-		t.resideInside(World.WHOLE_MAP_BOUNDS);
+		t.resideInside(World.WHOLE_MAP_BOUNDS_IN_PIXELS);
 	}
 	
 	@Override

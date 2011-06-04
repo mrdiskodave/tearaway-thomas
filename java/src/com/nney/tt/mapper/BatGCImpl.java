@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class BatGCImpl implements BatGC {
-	public static final int SUPERBAT_GIRTH = 10;
+	public static final int SUPERBAT_SIZE = 10;
 	private final Coord scr;
 	private final MapperGC mgc;
 
@@ -27,7 +27,7 @@ public class BatGCImpl implements BatGC {
 	}
 
 	public static Box boxForSuperBat(Coord c) {
-		return Box.around(c, SUPERBAT_GIRTH);
+		return Box.around(c, SUPERBAT_SIZE);
 	}
 
 	@Override

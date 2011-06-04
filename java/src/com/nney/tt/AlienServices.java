@@ -27,8 +27,6 @@ public interface AlienServices {
 
 	void drawSprite(Coord c, Sprite s, boolean drawWhite);
 
-	void drawDebugText(Coord c, String text);
-
 	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
 
 	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
@@ -103,7 +101,11 @@ public interface AlienServices {
 
 	boolean isExitOpen();
 
-	boolean collideBoxWithPlayer(Coord alienPos, Box box);
+	boolean collideBoxWithPlayer(Box box);
 
 	void teleportTo(Coord destination);
+
+	
+	
+	void drawDebugText(Coord c, String text);
 }

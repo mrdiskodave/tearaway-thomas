@@ -14,6 +14,7 @@ import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
+import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
@@ -51,14 +52,14 @@ import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, WorldServicesToMapper {
 
-	public static final Box WHOLE_MAP_BOUNDS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH * Const.BLOCK_SIZE, GameMap.MAP_HEIGHT
-						* Const.BLOCK_SIZE);
+	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
+			* Const.BLOCK_SIZE, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE);
 
 	final private GraphicsContext gc;
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 9;
+	private static final int CTC_MAP = 0;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -88,7 +89,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public Player player;
 
 	public GameMap gameMap;
-	public Box mapBounds;
+	public Box mapBoundsInBlocks;
+	private Box liveScrollBoundsInPixels;
+
 	private AlienTracker alienTracker = new AlienTracker();
 
 	public int frameNumber;
@@ -129,13 +132,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private boolean configSeeMasks;
 
-	private Box gameMapBounds;
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
 		this.keyboard = keyboard;
 		this.mouse = mouse;
+
+		initFonts();
 
 		AlienInfoMap aim = new AlienInfoMap();
 		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
@@ -155,7 +159,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
-		// ail.add(new AlienInfo(34, null, ScoreGivingAlien.class));
+		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
@@ -178,7 +182,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		alienInfoMap = aim;
 
-		initFonts();
 		init();
 	}
 
@@ -338,7 +341,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void limitScreenPosition() {
-		Box b = mapBounds;
+		Box b = mapBoundsInBlocks;
 		screen.x = limit(screen.x, b.left, (b.right + 1) - gc.screenWidth());
 		screen.y = limit(screen.y, b.top, (b.bottom + 1) - gc.screenHeight());
 	}
@@ -384,17 +387,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void drawDebugText(Coord c, final String text) {
-		final Coord p = c.copy();
-		p.sub(screen);
-		drawAbsoluteDebugText(p, text);
-	}
-
-	private void drawAbsoluteDebugText(final Coord p, final String text) {
-		debugFont.draw(p.x, p.y, 0x0000ff, 0, text);
-	}
-
-	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
 		ttPos = c.copy();
 		ttPos.x -= s.handleX;
@@ -409,7 +401,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
-		Box m = mapBounds.copy();
+		Box m = mapBoundsInBlocks.copy();
 		m.shrink(6);
 		m.constrain(c);
 	}
@@ -440,9 +432,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public boolean collideBoxWithPlayer(Coord alienPos, Box box) {
-		int diffX = player.c.x - alienPos.x;
-		int diffY = player.c.y - alienPos.y;
+	public boolean collideBoxWithPlayer(Box box) {
+		int diffX = player.c.x;
+		int diffY = player.c.y;
 
 		// drawAbsoluteDebugText(new Coord(0, 50), String.format("%s %s,%s",
 		// box, diffX, diffY));
@@ -556,8 +548,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 			Alien alien = alienInfo.instantiate();
 			String animsName = alienInfo.animsName;
-			assert animsName != null;
-			alien.connectAnims(loadAnims(animsName));
+			if (animsName != null) {
+				alien.connectAnims(loadAnims(animsName));
+			}
 			alien.typeCode = typeCode;
 			return alien;
 		}
@@ -672,13 +665,21 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
+	public void computeMapBounds() {
+		if (usingMapper) {
+			mapBoundsInBlocks = WHOLE_MAP_BOUNDS_IN_PIXELS;
+		}
+		else {
+			mapBoundsInBlocks = liveScrollBoundsInPixels.copy();
+			mapBoundsInBlocks.mult(Const.BLOCK_SIZE);
+		}
+	}
+
 	public void updateEverything() {
 		if (usingMapper) {
-			mapBounds = WHOLE_MAP_BOUNDS;
 			mapper.run();
 		}
 		else {
-			mapBounds = gameMapBounds;
 			frameNumber++;
 
 			if (keyboard.justPressed() == Mapper.MAPPER_KEY) {
@@ -718,19 +719,17 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		PersistedMap pm = new PersistedMap();
 		pm.loadLegacy(this, mapOpenable);
-		
+
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
-		gameMapBounds = pm.mapBounds;
-		
+		liveScrollBoundsInPixels = pm.mapBounds;
+
 		Anims playerAnims = animsPool.load("0tt");
 		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
 		gameMap = pm.gameMap;
 
-		// player.c.x = 1980;
-		// player.c.y = 1020;
-		mapBounds = gameMapBounds;
+		computeMapBounds();
 		snapScreenTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
@@ -818,5 +817,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public void setScreenPosition(Coord c) {
 		screen = c;
 		limitScreenPosition();
+	}
+
+	@Override
+	public void drawDebugText(Coord c, String text) {
+		Coord a = c.sub2(screen);
+		int w = debugFont.charWidth() * text.length();
+		int h = debugFont.charHeight();
+		gc.fillRectangle(a.x, a.y, w, h, 0xff000000);
+		debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
 	}
 }

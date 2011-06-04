@@ -104,7 +104,7 @@ public abstract class Alien {
 
 	public void mapperUpdate() {
 		Coord c = getLocation();
-		System.out.println("Drawn at "+c);
+//		System.out.println("Drawn at "+c);
 		srv.drawSprite(c, firstFrame());
 	}
 	

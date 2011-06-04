@@ -2,14 +2,14 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Coord;
 
-public interface PenServices extends ButtonPressServices {
+public interface MapperServicesToPens extends ButtonPressServices {
 	void changeCurrentBlock(int x, int y);
 
 	int getCurrentBlock();
 
-	void scroll(Coord delta);
-
 	void setCurrentBlockFromMap(Coord c);
+
+	void scroll(Coord delta);
 
 	EditDestination startBlockEdit();
 

@@ -6,7 +6,7 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.mapper.Mapper.CoordType;
 
 public abstract class Pen {
-	public PenServices srv;
+	public MapperServicesToPens srv;
 	public boolean active;
 
 	/**

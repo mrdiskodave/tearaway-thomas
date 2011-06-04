@@ -59,7 +59,7 @@ public class XRangeVisualProp extends VisualProp {
 
 	@Override
 	public void validate() {
-		t.resideInside(World.WHOLE_MAP_BOUNDS.toXRange());
+		t.resideInside(World.WHOLE_MAP_BOUNDS_IN_PIXELS.toXRange());
 	}
 	
 	@Override

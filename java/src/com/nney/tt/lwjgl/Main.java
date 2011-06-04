@@ -79,7 +79,7 @@ public class Main {
 
 		world = new World(gc, joystick, keys, correctMouse);
 
-		int requestedFps = 5;
+		int requestedFps = 50;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			Display.sync(requestedFps);

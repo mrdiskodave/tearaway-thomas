@@ -56,7 +56,7 @@ import com.nney.tt.sprites.Sprite;
  * 
  * Mini
  */
-public class Mapper implements PenServices {
+public class Mapper implements MapperServicesToPens {
 	final static public int MAPPER_KEY = Keyboard.KEY_TAB;
 
 	private static final int COL_BACKGROUND = 0xff0080ff;
@@ -206,7 +206,7 @@ public class Mapper implements PenServices {
 		mgc.nextFrame();
 		ukt2.nextFrame();
 
-		System.out.println("---");
+//		System.out.println("---");
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			srv.drawMap();
@@ -467,14 +467,11 @@ public class Mapper implements PenServices {
 	@Override
 	public void scroll(Coord delta) {
 		if (keyboard.isDown(Keyboard.KEY_SHIFT)) {
-			System.out.println("S");
 			delta.mul(2);
 		}
 		if (keyboard.isDown(Keyboard.KEY_CONTROL)) {
-			System.out.println("C");
 			delta.mul(4);
 		}
-		System.out.println(" ");
 		srv.moveScreen(delta);
 	}
 
@@ -512,10 +509,9 @@ public class Mapper implements PenServices {
 		if (haveAlien()) {
 			Coord sac = getSelectedAlien().getLocation().copy();
 			sac.sub(srv.getScreenPosition());
-			mgc.drawSight2(sac.x, sac.y, 25, mgc.process(0xff00ffff), BatGCImpl.SUPERBAT_GIRTH, 0x40000000);
+			mgc.drawSight2(sac.x, sac.y, 25, mgc.process(0xff00ffff), BatGCImpl.SUPERBAT_SIZE, 0x40000000);
 
 			List<Prop> props = APS.propsForAlien(getSelectedAlien());
-			System.out.println("showSelectedAlienProps "+props.size());
 
 			// bats
 			bats.clear();
@@ -552,9 +548,6 @@ public class Mapper implements PenServices {
 
 			// TODO: block editor box select: copy & paste & fill
 			// TODO: serialise and deserialise
-		}
-		else {
-			System.out.println("showSelectedAlienProps 0");
 		}
 	}
 

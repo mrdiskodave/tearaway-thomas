@@ -233,4 +233,14 @@ public class Box implements Copyable<Box>, Cloneable {
 	public XRange toXRange() {
 		return new XRange(left, right);
 	}
+
+	public void mult(int z) {
+		left *= z;
+		right *= z;
+		right += z-1;
+		
+		top *= z;
+		bottom *= z;
+		bottom += z-1;
+	}
 }
