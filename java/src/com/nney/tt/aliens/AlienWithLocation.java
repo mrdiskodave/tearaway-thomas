@@ -17,6 +17,12 @@ public abstract class AlienWithLocation extends Alien {
 		Coord c = getLocation();
 		return Box.fromTopLeftAndSize(c.x - s.handleX, c.y - s.handleY, s.w, s.h);
 	}
+	
+	protected Box boxAroundUs(int size) {
+		Box b = Box.fromSquare(size);
+		b.add(c);
+		return b;
+	}
 
 	@Override
 	public Coord getLocation() {
