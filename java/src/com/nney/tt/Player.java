@@ -270,7 +270,7 @@ public class Player {
 
 
 	private int applyGravity(int v) {
-		if (!flying || (srv.getFrameNumber() & 1) == 0) {
+		if (!flying || srv.frameTest(2, 1)) {
 			return Math.min(v + 1, 16);
 		}
 		return v;

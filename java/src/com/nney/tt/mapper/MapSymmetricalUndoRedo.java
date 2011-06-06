@@ -15,24 +15,24 @@ public class MapSymmetricalUndoRedo extends SymmetricalUndoRedo {
 		this.sbm = new SaveMapBlock(b.width(), b.height());
 		top = b.top;
 		left = b.left;
-		process(true, false);
+		read();
 	}
 	
 	// For Pasting a saved box
-	public MapSymmetricalUndoRedo(GameMap gameMap, int x, int y, SaveMapBlock sbm) {
+	public MapSymmetricalUndoRedo(GameMap gameMap, int x, int y, SaveMapBlock savedBoxForPasting) {
 		this.gameMap = gameMap;
-		this.sbm = sbm.copy();
+		this.sbm = savedBoxForPasting.copy();
 		top = y;
 		left = x;
 	}
 
 	@Override
 	public void swap() {
-		process(true, true);
+		sbm.swap(left, top, gameMap);
 	}
 
-	private void process(boolean read, boolean write) {
-		sbm.process(read, write, left, top, gameMap);
+	private void read() {
+		sbm.read(left, top, gameMap);
 	}
 	
 	public boolean changesNothing() {

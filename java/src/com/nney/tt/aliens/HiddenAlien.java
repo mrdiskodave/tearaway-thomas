@@ -3,15 +3,15 @@ package com.nney.tt.aliens;
 import com.nney.tt.BitOp;
 
 public abstract class HiddenAlien extends AlienWithLocation {
-	private static final boolean CTC_FLASH_HIDDEN = false;
-
 	private static final int FLAG_INVIS = 5;
 
-	@AlienProp(name = "Invisible", doc = "Will we suddenly appear when the player runs past?")
+	@AlienProp(name = "Hidden", doc = "Will we suddenly appear when the player runs past?")
 	public boolean invis;
 
 	private boolean falling;
 	private int fallSpeed;
+
+	private int fizzTimer;
 
 	@Override
 	public void loadFromLegacyData() {
@@ -43,15 +43,28 @@ public abstract class HiddenAlien extends AlienWithLocation {
 			}
 			else {
 				// we're hidden
-				if (CTC_FLASH_HIDDEN) {
-					if (srv.frameTest(32, 16)) {
+				boolean reveal = srv.getThePlayer().checkReveal(c);
+				
+				if (srv.isMapping()) {
+					boolean fizz = fizzTimer!=0;
+					if (fizz) {
+						fizzTimer--;
+					}
+					int freq = fizz ? 8 : 64;
+					boolean show = srv.frameTest(freq, freq/2);
+					if (show) {
 						normalUpdate();
 					}
+					if (reveal) {
+						fizzTimer = 32;
+					}
 				}
-				// reveal?
-				if (srv.getThePlayer().checkReveal(c)) {
-					// yes - reveal!
-					falling = true;
+				else {
+					// reveal?
+					if (reveal) {
+						// yes - reveal!
+						falling = true;
+					}
 				}
 			}
 		}

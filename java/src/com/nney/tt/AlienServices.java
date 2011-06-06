@@ -53,8 +53,6 @@ public interface AlienServices {
 
 	// called by the player
 
-	void scrollScreenTo(Coord c);
-
 	void snapScreenTo(Coord c);
 
 	Joystick getStick();
@@ -105,7 +103,12 @@ public interface AlienServices {
 
 	void teleportTo(Coord destination);
 
-	
-	
 	void drawDebugText(Coord c, String text);
+
+	/**
+	 * Are we creating a level?
+	 * 
+	 * @return <code>true</code> meaning "Yes we are <b>so</b> don't do anything irreversible to it".
+	 */
+	boolean isMapping();
 }

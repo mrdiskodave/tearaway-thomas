@@ -26,21 +26,31 @@ public class RectangleTool extends Tool {
 		srv.keyboardBlockChoice(false);
 		
 		Coord c = srv.computeMousePos(CoordType.WORLD_BLOCKS);
-		if (srv.isDown(Keyboard.KEY_UP)) {
-			rectangle.top = c.y;
-		}
-		if (srv.isDown(Keyboard.KEY_DOWN)) {
-			rectangle.bottom = c.y;
-		}
-		if (srv.isDown(Keyboard.KEY_LEFT)) {
-			rectangle.left = c.x;
-		}
-		if (srv.isDown(Keyboard.KEY_RIGHT)) {
-			rectangle.right = c.x;
-		}
+		if (!srv.isDown(Keyboard.KEY_CONTROL)) {
+			if (srv.isDown(Keyboard.KEY_UP)) {
+				rectangle.top = c.y;
+			}
+			if (srv.isDown(Keyboard.KEY_DOWN)) {
+				rectangle.bottom = c.y;
+			}
+			if (srv.isDown(Keyboard.KEY_LEFT)) {
+				rectangle.left = c.x;
+			}
+			if (srv.isDown(Keyboard.KEY_RIGHT)) {
+				rectangle.right = c.x;
+			}
+		}	
 		rectangle.validate();
 		
 		int k = srv.justPressed();
+		if (k==Keyboard.KEY_G) {
+			rectangle = srv.getMapBoundsInBlocks();
+		}
+		if (k==Keyboard.KEY_S) {
+			srv.setMapBoundsInBlocks(rectangle);
+		}
+		
+		
 		if (k>=Keyboard.KEY_F1 && k<=Keyboard.KEY_F12) {
 			int slotNumber = k-Keyboard.KEY_F1;
 			srv.copyRect(slotNumber, rectangle);

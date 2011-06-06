@@ -21,8 +21,16 @@ public class SaveMapBlock {
 	private void set(int x, int y, int s) {
 		z[y][x] = (short) s;
 	}
+	
+	public void read(int x, int y, GameMap gameMap) {
+		process(true, false, x, y, gameMap);
+	}
 
-	public void process(boolean read, boolean write, int left, int top, GameMap gameMap) {
+	public void swap(int x, int y, GameMap gameMap) {
+		process(true, true, x, y, gameMap);
+	}
+
+	private void process(boolean read, boolean write, int left, int top, GameMap gameMap) {
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				Coord mapCoord = new Coord(left + x, top + y);

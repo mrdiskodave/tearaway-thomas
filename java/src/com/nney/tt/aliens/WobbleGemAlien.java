@@ -37,11 +37,11 @@ public abstract class WobbleGemAlien extends GemAlien {
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);
 
-		// TODO: we're too small for this! (player tunnels when sliding on ice)
-		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
-			giveBonus();
-			done();
-		}
+		handleCollison(c2, s);
+		// TODO: override 
+		// collisionDetection(c2, s)
+		// because we're too small
+		// (so player tunnels when sliding on ice)
 
 		if (!isFalling()) {
 			freezeBounds = Box.around(c, 20, 20);

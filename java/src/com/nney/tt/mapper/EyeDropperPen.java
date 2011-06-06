@@ -1,23 +1,27 @@
 package com.nney.tt.mapper;
 
-import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.input.Pointer;
+import com.nney.tt.input.Keyboard;
+import com.nney.tt.mapper.Mapper.CoordType;
 
 public class EyeDropperPen extends Pen {
 	@Override
 	int key() {
-		return Pointer.KEY_LEFT;
+		return Keyboard.KEY_I;
 	}
 
 	@Override
 	void stroke(Coord c) {
-		c.div(Const.BLOCK_SIZE);
 		srv.setCurrentBlockFromMap(c);
 	}
 	
 	@Override
 	void otherActions() {
 		srv.keyboardBlockChoice(false);
+	}
+	
+	@Override
+	CoordType requiredCoordType() {
+		return CoordType.WORLD_BLOCKS;
 	}
 }

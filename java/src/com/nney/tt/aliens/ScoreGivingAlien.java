@@ -11,7 +11,12 @@ public class ScoreGivingAlien extends AlienWithLocation {
 		freezeBounds = b;
 		if (amount>0 && srv.collideBoxWithPlayer(b)) {
 			srv.giveScore(100, null);
-			amount--;
+			if (!srv.isMapping()) {
+				amount--;
+				if (amount==0) {
+					done();
+				}
+			}
 		}
 	}
 	

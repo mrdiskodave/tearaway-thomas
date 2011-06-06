@@ -33,16 +33,14 @@ import com.nney.tt.sprites.Sprite;
  * 		Cursor Keys - nudge a control point by one pixel
  *      [C] - Copy alien to the mouse
  * [D] Draw Tool - for changing blocks
- * 		Hold:RMB - temporary use of the Block Chooser Tool from the Drawing Tool
- * 		Hold:CTRL - block choice follows mouse movements
+ * 		Hold RMB - temporary use of the Block Chooser Tool from the Drawing Tool
+ * 		Hold CTRL - block choice follows mouse movements
  *                  (useful for drawing multi-block things from the block palette)
  * [B] Block Chooser Tool - full screen current-block choosing tool
  * 		LMB - select block
  * 		Cursor Keys - change block
- * [I] Eyedropper Tool - for picking the current-block from the map
- * 		Cursor Keys - mini block chooser
  * [H] Hand Tool - for panning around
- * 		CTRL, SHIFT or CTRL+SHIFT give various levels of acceleration
+ * 		Hold SHIFT to go faster
  * 
  * Hold:SPACE - temporary use of the Hand Tool from other tools
  * [CTRL+Z] undo (endless - all changes)
@@ -90,8 +88,14 @@ public class Mapper implements MapperServicesToPens {
 
 	private final Tool blockChooserTool = new BlockChooserTool(this);
 	private final Tool bigBoxTool = new RectangleTool(this);
-	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new DrawingPen());
-	private final Tool eyeDropperTool = new GeneralTool(this, Cursor.BLOCK, "eyeDropper", new EyeDropperPen());
+	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new EyeDropperPen(), new DrawingPen()) {
+		@Override
+		void run() {
+			super.run();
+			srv.keyboardBlockChoice(false);
+			srv.perhapsPaste();
+		};
+	};
 	private final Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
 	private final Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(),
 			new AlienBatMovingPen(), new AlienSelectionPen()) {
@@ -166,7 +170,6 @@ public class Mapper implements MapperServicesToPens {
 
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
 		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
-		eyeDropperTool.addNested(Keyboard.KEY_SPACE, handTool);
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
 		bigBoxTool.addNested(Keyboard.KEY_SPACE, handTool);
 		bigBoxTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
@@ -205,6 +208,11 @@ public class Mapper implements MapperServicesToPens {
 	public void run() {
 		mgc.nextFrame();
 		ukt2.nextFrame();
+		
+		int k = justPressed();
+		if (k!=0) {
+			System.out.println("JustPressed:"+k);
+		}
 
 //		System.out.println("---");
 		if (!tool.ownScreen()) {
@@ -250,9 +258,6 @@ public class Mapper implements MapperServicesToPens {
 			case MAPPER_KEY:
 				srv.quitMapper(computeMousePos(CoordType.WORLD_PIXELS));
 				return;
-			case Keyboard.KEY_I:
-				tool = eyeDropperTool;
-				break;
 			case Keyboard.KEY_H:
 				tool = handTool;
 				break;
@@ -312,23 +317,29 @@ public class Mapper implements MapperServicesToPens {
 	}
 
 	public void keyboardAlienChoice() {
-		switch (keyboard.justPressed()) {
-		case Keyboard.KEY_NEXT:
+		boolean somethingHappened = true;
+		int k = keyboard.justPressed();
+		if (k==Keyboard.KEY_NEXT) {
 			alienTabber.next();
-			showAlienPaletteTimer = 100;
-			break;
-		case Keyboard.KEY_PRIOR:
+		}
+		else if (k==Keyboard.KEY_PRIOR) {
 			alienTabber.prev();
-			showAlienPaletteTimer = 100;
-			break;
-		case Keyboard.KEY_HOME:
+		}
+		else if (k==Keyboard.KEY_HOME) {
 			alienTabber.home();
-			showAlienPaletteTimer = 100;
-			break;
-		case Keyboard.KEY_END:
+		}
+		else if (k==Keyboard.KEY_END) {
 			alienTabber.end();
+		}
+		else if (k==Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().typeCode)) {
+			
+		}
+		else {
+			somethingHappened = false;
+		}
+		
+		if (somethingHappened) {
 			showAlienPaletteTimer = 100;
-			break;
 		}
 	}
 	
@@ -410,7 +421,7 @@ public class Mapper implements MapperServicesToPens {
 	Coord computeMousePos(CoordType ct) {
 		Coord mp = new Coord(mouse.getX(), mouse.getY());
 		if (ct == CoordType.SCREEN_PIXELS) return mp;
-		mp.add(srv.getScreenPosition());
+		mp.add(getScreenPosition());
 		if (ct == CoordType.WORLD_PIXELS) return mp;
 		mp.div(Const.BLOCK_SIZE);
 		return mp;
@@ -467,9 +478,6 @@ public class Mapper implements MapperServicesToPens {
 	@Override
 	public void scroll(Coord delta) {
 		if (keyboard.isDown(Keyboard.KEY_SHIFT)) {
-			delta.mul(2);
-		}
-		if (keyboard.isDown(Keyboard.KEY_CONTROL)) {
 			delta.mul(4);
 		}
 		srv.moveScreen(delta);
@@ -508,7 +516,7 @@ public class Mapper implements MapperServicesToPens {
 	public void showSelectedAlienProps() {
 		if (haveAlien()) {
 			Coord sac = getSelectedAlien().getLocation().copy();
-			sac.sub(srv.getScreenPosition());
+			sac.sub(getScreenPosition());
 			mgc.drawSight2(sac.x, sac.y, 25, mgc.process(0xff00ffff), BatGCImpl.SUPERBAT_SIZE, 0x40000000);
 
 			List<Prop> props = APS.propsForAlien(getSelectedAlien());
@@ -516,7 +524,7 @@ public class Mapper implements MapperServicesToPens {
 			// bats
 			bats.clear();
 			for (Prop p : props) {
-				BatGCImpl batGc = new BatGCImpl(srv.getScreenPosition(), mgc);
+				BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 				p.drawAuxBatStuff(batGc);
 
 				Coord[] bps = p.getBats();
@@ -616,10 +624,7 @@ public class Mapper implements MapperServicesToPens {
 	@Override
 	public Coord screenCentre() {
 		Coord centerDisplacement = new Coord(mgc.screenWidth() / 2, mgc.screenHeight() / 2);
-		Coord c = srv.getScreenPosition();
-		c = c.copy();
-		c.add(centerDisplacement);
-		return c;
+		return getScreenPosition().add2(centerDisplacement);
 	}
 
 	@Override
@@ -656,25 +661,9 @@ public class Mapper implements MapperServicesToPens {
 		}
 	}
 
-	public Coord getScreenPosition() {
-		return srv.getScreenPosition();
-	}
-
-	int justPressed() {
-		return keyboard.justPressed();
-	}
-
-	boolean isDown(int key) {
-		return keyboard.isDown(key);
-	}
-
-	MapperGC getMGC() {
-		return mgc;
-	}
-
 	public void copyRect(int slotNumber, Box rectangle) {
 		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
-		s.process(true, false, rectangle.left, rectangle.top, gameMap);
+		s.read(rectangle.left, rectangle.top, gameMap);
 		slots[slotNumber] = s;
 		System.out.println("SLOT " + slotNumber);
 		// slots[slotNumber].dump();
@@ -713,5 +702,35 @@ public class Mapper implements MapperServicesToPens {
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
 		showSmallPaletteTimer = 100;
+	}
+	
+	
+
+	//
+	// Delegates:
+	//
+	
+	public Coord getScreenPosition() {
+		return srv.getScreenPosition();
+	}
+
+	public Box getMapBoundsInBlocks() {
+		return srv.getMapBoundsInBlocks();
+	}
+
+	public void setMapBoundsInBlocks(Box mapBoundsInBlocks) {
+		srv.setMapBoundsInBlocks(mapBoundsInBlocks);
+	}
+
+	int justPressed() {
+		return keyboard.justPressed();
+	}
+
+	boolean isDown(int key) {
+		return keyboard.isDown(key);
+	}
+
+	MapperGC getMGC() {
+		return mgc;
 	}
 }

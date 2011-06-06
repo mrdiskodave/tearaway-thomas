@@ -29,10 +29,4 @@ public class DrawingPen extends Pen {
 	void up(Coord c) {
 		srv.endBlockEdit();
 	}
-
-	@Override
-	void otherActions() {
-		srv.keyboardBlockChoice(false);
-		srv.perhapsPaste();
-	}
 }

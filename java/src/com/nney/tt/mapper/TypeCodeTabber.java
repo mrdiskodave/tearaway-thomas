@@ -45,4 +45,11 @@ public class TypeCodeTabber {
 	public TypeCodeTabber copy() {
 		return new TypeCodeTabber(list, pos);
 	}
+
+	public boolean find(int typeCode) {
+		int where = list.indexOf(typeCode);
+		if (where<0) return false;
+		pos = where;
+		return true;
+	}
 }

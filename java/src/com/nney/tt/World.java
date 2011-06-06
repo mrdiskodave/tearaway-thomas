@@ -59,7 +59,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 0;
+	private static final int CTC_MAP = 9;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -80,21 +80,22 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private BlocksHolder blocksHolder;
 
-	final public Random rnd = new Random(5);
-	public Font debugFont;
-	public Font font;
+	final private Random rnd = new Random(5);
+	private Font debugFont;
+	private Font font;
 
-	public Coord screen = new Coord();
-	public MasksHolder maskHolder;
-	public Player player;
+	private Coord screen = new Coord();
+	private MasksHolder maskHolder;
+	private Player player;
 
-	public GameMap gameMap;
-	public Box mapBoundsInBlocks;
+	private GameMap gameMap;
 	private Box liveScrollBoundsInPixels;
+
+	private Box mapBoundsInBlocks;
 
 	private AlienTracker alienTracker = new AlienTracker();
 
-	public int frameNumber;
+	private int frameNumber;
 
 	private Sprite ttSprite;
 	private Coord ttPos;
@@ -108,30 +109,29 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int gemCounter;
 
-	public WorldInformation wi;
+	private WorldInformation wi;
 
 	private AlienInfoMap alienInfoMap;
 	private AnimsPool animsPool;
 	private int teleAttempt;
 
 	private final Joystick joystick;
+	private Horizon horizon;
+
 	private final Keyboard keyboard;
+
+	private String worldName = CTC_WORLD;
 
 	// mapper vars
 	private boolean usingMapper;
 
 	private Mapper mapper;
 
-	private Horizon horizon;
-
 	private Pointer mouse;
-
-	private String worldName = CTC_WORLD;
 
 	private boolean configShowInvisible;
 
 	private boolean configSeeMasks;
-
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -341,7 +341,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void limitScreenPosition() {
-		Box b = mapBoundsInBlocks;
+		Box b = liveScrollBoundsInPixels;
 		screen.x = limit(screen.x, b.left, (b.right + 1) - gc.screenWidth());
 		screen.y = limit(screen.y, b.top, (b.bottom + 1) - gc.screenHeight());
 	}
@@ -354,8 +354,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	/**
 	 * Scroll the screen gently towards the given position.
 	 */
-	@Override
-	public void scrollScreenTo(Coord c) {
+	private void scrollScreenTo(Coord c) {
 		Coord sd = screenDest(c);
 		screen.x = scrollOrd(screen.x, sd.x);
 		screen.y = scrollOrd(screen.y, sd.y);
@@ -401,7 +400,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
-		Box m = mapBoundsInBlocks.copy();
+		Box m = liveScrollBoundsInPixels.copy();
 		m.shrink(6);
 		m.constrain(c);
 	}
@@ -634,7 +633,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// new territory for little gain.
 		//
 		// For now, it'll work how it used to but, for the first time, I can say
-		// "I am clear about the limits this imposes".
+		// "I am clear about the limits that this imposes".
 		//
 	}
 
@@ -667,11 +666,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	public void computeMapBounds() {
 		if (usingMapper) {
-			mapBoundsInBlocks = WHOLE_MAP_BOUNDS_IN_PIXELS;
+			liveScrollBoundsInPixels = WHOLE_MAP_BOUNDS_IN_PIXELS;
 		}
 		else {
-			mapBoundsInBlocks = liveScrollBoundsInPixels.copy();
-			mapBoundsInBlocks.mult(Const.BLOCK_SIZE);
+			liveScrollBoundsInPixels = mapBoundsInBlocks.copy();
+			liveScrollBoundsInPixels.mult(Const.BLOCK_SIZE);
 		}
 	}
 
@@ -680,28 +679,30 @@ public class World implements AlienServices, WorldServicesToMapper {
 			mapper.run();
 		}
 		else {
-			frameNumber++;
-
 			if (keyboard.justPressed() == Mapper.MAPPER_KEY) {
 				usingMapper = true;
+				computeMapBounds();
 				gameMap.applyCompress(wi.blockRandomisationTable);
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
 				mapper.init();
 			}
-			player.move();
-			if (CTC_HARD_SCROLLING) {
-				snapScreenTo(player.c);
-			}
 			else {
-				scrollScreenTo(player.c);
-			}
+				frameNumber++;
+				player.move();
+				if (CTC_HARD_SCROLLING) {
+					snapScreenTo(player.c);
+				}
+				else {
+					scrollScreenTo(player.c);
+				}
 
-			horizon.draw();
-			drawTheMap();
-			updateAliens(false);
-			updateScore();
+				horizon.draw();
+				drawTheMap();
+				updateAliens(false);
+				updateScore();
+			}
 		}
 	}
 
@@ -723,7 +724,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
-		liveScrollBoundsInPixels = pm.mapBounds;
+		mapBoundsInBlocks = pm.mapBounds;
 
 		Anims playerAnims = animsPool.load("0tt");
 		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
@@ -770,6 +771,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		usingMapper = false;
 		alienTracker.reclassify();
+		computeMapBounds();
 	}
 
 	@Override
@@ -780,6 +782,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void moveScreen(Coord delta) {
+		System.out.println("DELTA" + delta);
 		screen.add(delta);
 		limitScreenPosition();
 	}
@@ -826,5 +829,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 		int h = debugFont.charHeight();
 		gc.fillRectangle(a.x, a.y, w, h, 0xff000000);
 		debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
+	}
+
+	@Override
+	public Box getMapBoundsInBlocks() {
+		return mapBoundsInBlocks.copy();
+	}
+
+	@Override
+	public void setMapBoundsInBlocks(Box mapBoundsInBlocks) {
+		this.mapBoundsInBlocks = mapBoundsInBlocks.copy();
+	}
+	
+	@Override
+	public boolean isMapping() {
+		return true;
 	}
 }
