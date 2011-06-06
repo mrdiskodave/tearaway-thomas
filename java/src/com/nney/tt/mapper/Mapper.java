@@ -369,13 +369,21 @@ public class Mapper implements MapperServicesToPens {
 
 		for (int x = 0; x < TABBING_ALIENS_TOTAL; x++) {
 			AlienInfo ai = getAlienInfo(at);
-			Anims anims = srv.loadAnims(ai.animsName);
-			Anim anim = anims.find(0);
-			animPlayers[x].changeAnimation(anim);
-			Sprite sprite = animPlayers[x].next();
 			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy - ALIENS_TAB_BOX_RADIUS, ALIENS_TAB_BOX_DIAMETER,
 					ALIENS_TAB_BOX_DIAMETER, mgc.process(0xff00ff00), 0xb00020ff);
-			sprite.draw(sx, sy, false);
+
+			String animsName = ai.animsName;
+			if (animsName!=null) {
+				Anims anims = srv.loadAnims(animsName);
+				Anim anim = anims.find(0);
+				animPlayers[x].changeAnimation(anim);
+				Sprite sprite = animPlayers[x].next();
+				sprite.draw(sx, sy, false);
+			}
+
+			String s = ai.alienClass.getSimpleName();
+			s = s.replace("Alien", "");
+			mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + ALIENS_TAB_BOX_RADIUS - 5 - mgc.charHeight(), 0x80ffff, s);
 			sy += ALIENS_TAB_BOX_DIAMETER;
 			at.next();
 		}
