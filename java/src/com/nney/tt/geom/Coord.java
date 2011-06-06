@@ -1,6 +1,7 @@
 package com.nney.tt.geom;
 
 import com.nney.utils.Copyable;
+import com.nney.utils.Math2;
 
 public class Coord implements Copyable<Coord>, Cloneable {
 	public int x;
@@ -94,6 +95,11 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		Coord a = copy();
 		a.sub(c);
 		return a;
+	}
+	
+	public void closer(Coord other, int amount) {
+		x = Math2.closer(x, other.x, amount);
+		y = Math2.closer(y, other.y, amount);
 	}
 
 

@@ -12,6 +12,7 @@ public abstract class AlienWithLocation extends Alien {
 	public void resetTo(Coord p) {
 		c = p;
 	}
+	
 
 	protected Box spriteBounds(Sprite s) {
 		Coord c = getLocation();

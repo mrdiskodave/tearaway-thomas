@@ -2,11 +2,9 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.BitOp;
 
-public abstract class HiddenAlien extends AlienWithLocation {
-	private static final int FLAG_INVIS = 5;
-
+public abstract class AppearingAlien extends AlienWithLocation {
 	@AlienProp(name = "Hidden", doc = "Will we suddenly appear when the player runs past?")
-	public boolean invis;
+	public boolean hidden;
 
 	private boolean falling;
 	private int fallSpeed;
@@ -15,7 +13,7 @@ public abstract class HiddenAlien extends AlienWithLocation {
 
 	@Override
 	public void loadFromLegacyData() {
-		invis = BitOp.test(loadByte(OBflags), FLAG_INVIS);
+		hidden = BitOp.test(loadByte(OBflags), OBFinvis);
 	}
 
 	@Override
@@ -25,12 +23,12 @@ public abstract class HiddenAlien extends AlienWithLocation {
 
 	@Override
 	public void update() {
-		if (invis) {
+		if (hidden) {
 			if (falling) {
 				if (srv.fall(c, fallSpeed)) {
 					// we hit the ground
 					falling = false;
-					invis = false;
+					hidden = false;
 					normalUpdate();
 				}
 				else {

@@ -41,6 +41,8 @@ public abstract class Alien {
 	protected static final int OBstatus5 = 27 - OBbase; // B
 	protected static final int OBstatus6 = 28 - OBbase; // B
 	protected static final int OBstatus7 = 29 - OBbase; // B
+	
+	protected static final int OBFinvis = 5;
 
 	protected int loadShort(int x) {
 		return (loadByte(x) << 8) + loadByte(x + 1);

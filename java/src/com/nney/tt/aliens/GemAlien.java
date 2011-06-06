@@ -1,10 +1,8 @@
 package com.nney.tt.aliens;
 
-public abstract class GemAlien extends BonusAlien {
+public abstract class GemAlien extends ScoreCollectableAlien {
 	@Override
 	protected void giveBonus() {
-		srv.oneLessGem(ourValue(), c.copyAndAdd(0, sameFrame().h / -2));
+		srv.oneLessGem(ourValue(), scoreLocation());
 	}
-
-	abstract protected int ourValue();
 }

@@ -16,4 +16,26 @@ public final class Math2 {
 	public static final boolean bitTest(int x, int bit) {
 		return maskTest(x, 1<<bit);
 	}
+	
+	public static int signOf(int x) {
+		if (x < 0) return -1;
+		if (x > 0) return 1;
+		return 0;
+	}
+
+	public static int closer(int x, int target, int amount) {
+		if (x<target) {
+			x += amount;
+			if (x>target) {
+				x = target;
+			}
+		}
+		else if (x>target) {
+			x -= amount;
+			if (x<target) {
+				x = target;
+			}
+		}
+		return x;
+	}
 }

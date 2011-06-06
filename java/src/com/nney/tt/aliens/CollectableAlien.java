@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public abstract class BonusAlien extends HiddenAlien {
+public abstract class CollectableAlien extends AppearingAlien {
 	@Override
 	protected void normalUpdate() {
 		Sprite s = sameFrame();

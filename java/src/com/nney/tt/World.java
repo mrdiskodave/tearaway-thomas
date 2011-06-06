@@ -7,9 +7,11 @@ import java.util.Random;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BearAlien;
+import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
+import com.nney.tt.aliens.HoneyAlien;
 import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
@@ -59,7 +61,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 9;
+	private static final int CTC_MAP = 6;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -153,15 +155,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
-		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
-		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
+//		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
+//		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
+//		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
 		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		aim.add(new AlienInfo(62, "whone", HoneyAlien.class));
+		// TODO: 00: should the score just be part of AlienInfoMap???
+		aim.add(new AlienInfo(63, "wabee", BeeAlien.class));
 		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
 		aim.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
 		aim.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
@@ -554,6 +559,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			return alien;
 		}
 
+		System.out.println("Unknown Alien Type:" + typeCode);
 		TextAlien alien = new TextAlien();
 		alien.setText(String.format("%d", typeCode));
 		return alien;
@@ -846,3 +852,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return true;
 	}
 }
+
+
+// 64: worm - forget it
+// 74: ybrd - write it
+// 78: scrh ....
+// change it to something that prohibits horizontal scrolling, since that is the intent
+// 63: bee - write it 
+// 73: trampoline - write it

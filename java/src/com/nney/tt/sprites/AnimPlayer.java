@@ -31,6 +31,10 @@ public class AnimPlayer {
 			rewind();
 		}
 	}
+	
+	public void customiseRate(int customRate) {
+		rate = customRate;
+	}
 
 	public void rewind() {
 		pos = 0;
