@@ -86,7 +86,9 @@ public class PersistedMap {
 			InputStream i = mapOpenable.open();
 			DataInputStream di = new DataInputStream(i);
 			// get the game map off the front of the stream
-			gameMap = new GameMap(di);
+			gameMap = new GameMap();
+			gameMap.loadFromLegacyMap(di);
+			
 
 			// read the other things
 			for (;;) {

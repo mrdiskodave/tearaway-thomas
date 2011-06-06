@@ -240,7 +240,7 @@ public class Player {
 	private void jumpOnFire() {
 		if (testStick(Joystick.FIRE)) {
 			jump();
-			System.out.println("Jump!");
+//			System.out.println("Jump!");
 		}
 	}
 
@@ -373,13 +373,13 @@ public class Player {
 					inTheGroundBefore = true;
 					// ground ... so we are entering the ground
 					c.y++;
-					System.out.println("LL: entering ground");
+//					System.out.println("LL: entering ground");
 					return false;
 				}
 				else {
 					// sky! ... so we are touching down
 					inTheGroundBefore = false;
-					System.out.println("LL: touching down");
+//					System.out.println("LL: touching down");
 					return true;
 				}
 			}

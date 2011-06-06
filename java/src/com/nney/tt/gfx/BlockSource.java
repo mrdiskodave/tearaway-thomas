@@ -38,7 +38,7 @@ public class BlockSource {
 
 	public void hideBlock(int src, int dest) {
 		if (src != dest) {
-			System.out.println(String.format("Hiding %d with %d", src, dest));
+//			System.out.println(String.format("Hiding %d with %d", src, dest));
 			getBlock(dest).overwriteWith(getBlock(src));
 		}
 	}

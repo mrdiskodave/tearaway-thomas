@@ -10,12 +10,6 @@ public class GameMap {
 	final public static int MAP_HEIGHT = 128;
 	final public static int MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
 	final private short[] map = new short[MAP_SIZE];
-	private int length;
-
-	public GameMap(DataInputStream di) throws IOException {
-		loadFromLegacyMap(di);
-		unpack();
-	}
 
 	/**
 	 * Load from a legacy map file.
@@ -28,25 +22,17 @@ public class GameMap {
 	 *            Stream to load from.
 	 * @throws IOException
 	 */
-	private void loadFromLegacyMap(DataInputStream di) throws IOException {
+	public void loadFromLegacyMap(DataInputStream di) throws IOException {
 		int firstWord = di.readUnsignedShort();
 		assert (firstWord & 1) == 0;
-		length = firstWord / 2 - 1;
+		int length = firstWord / 2 - 1;
 		for (int x = 1; x < length;) {
 			map[x++] = (short) di.readUnsignedShort();
 		}
 		map[0] = (short) di.readUnsignedShort();
-	}
-
-	public void unpack() {
-		System.out.println("Unpacking " + length);
 		MapRle.unpack(map, length);
 	}
 
-	public void pack() {
-		length = MapRle.pack(map);
-		System.out.println("Packed to " + length);
-	}
 
 	public int fastGetBlock(int x, int y) {
 		assert validPosition(x, y);
@@ -66,7 +52,7 @@ public class GameMap {
 
 	public void setBlock(Coord c, int b) {
 		assert validPosition(c.x, c.y);
-		System.out.println("Set " + c + " to " + b);
+//		System.out.println("Set " + c + " to " + b);
 		map[mapOffset(c)] = (short) b;
 	}
 
