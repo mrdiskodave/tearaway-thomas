@@ -10,16 +10,6 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.utils.Math2;
 
 public class Player {
-	public Coord c;
-	
-	// the AnimPlayer plays animations
-	// (in this case it plays them for the Player, confusingly)
-	private AnimPlayer animPlayer = new AnimPlayer();
-	
-	private Anims playersAnimations;
-	
-	private AlienServices srv;
-
 	public Player(AlienServices srv, Anims playerAnims, Coord playerStart, boolean goLeft) {
 		this.srv = srv;
 		this.playersAnimations = playerAnims;
@@ -46,10 +36,7 @@ public class Player {
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}
-	
-	
-	
-	
+
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
@@ -91,6 +78,26 @@ public class Player {
 
 	// ---------------------------------------------------------------------------
 	// FIELDS
+
+	/**
+	 * Where we are at.
+	 */
+	public Coord c;
+
+	/**
+	 * Services we need from our environment.
+	 */
+	private AlienServices srv;
+
+	/**
+	 * The AnimPlayer plays animations (in this case it plays them for the Player, confusingly).
+	 */
+	private AnimPlayer animPlayer = new AnimPlayer();
+
+	/**
+	 * Our animations.
+	 */
+	private Anims playersAnimations;
 
 	/**
 	 * Player accelerates from standing and this object manages that.
@@ -190,6 +197,8 @@ public class Player {
 
 	private boolean inTheGroundBefore;
 
+	private int touchDownVel;
+
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
 
@@ -241,7 +250,7 @@ public class Player {
 	private void jumpOnFire() {
 		if (testStick(Joystick.FIRE)) {
 			jump();
-//			System.out.println("Jump!");
+			// System.out.println("Jump!");
 		}
 	}
 
@@ -252,7 +261,6 @@ public class Player {
 	private int directionalMovement(boolean left, int x) {
 		return left ? -x : x;
 	}
-
 
 	private int getStickDelta(int less, int more) {
 		int delta = 0;
@@ -269,7 +277,6 @@ public class Player {
 		return getStickDelta(Joystick.LEFT, Joystick.RIGHT);
 	}
 
-
 	private int applyGravity(int v) {
 		if (!flying || srv.frameTest(2, 1)) {
 			return Math.min(v + 1, 16);
@@ -278,18 +285,14 @@ public class Player {
 	}
 
 	private int getXDelta() {
-		moveStick = false;
-
 		int xdelta = 0;
 		if (testStick(Joystick.LEFT)) {
 			xdelta = -pvt.next();
 			goLeft = true;
-			moveStick = true;
 		}
 		else if (testStick(Joystick.RIGHT)) {
 			xdelta = pvt.next();
 			goLeft = false;
-			moveStick = true;
 		}
 		else {
 			pvt.reset();
@@ -308,7 +311,7 @@ public class Player {
 	}
 
 	private void setStandingAnim() {
-		if (moveStick) {
+		if (moveStick()) {
 			setAnim(directionalAnimName(""), true);
 		}
 		else {
@@ -374,13 +377,13 @@ public class Player {
 					inTheGroundBefore = true;
 					// ground ... so we are entering the ground
 					c.y++;
-//					System.out.println("LL: entering ground");
+					// System.out.println("LL: entering ground");
 					return false;
 				}
 				else {
 					// sky! ... so we are touching down
 					inTheGroundBefore = false;
-//					System.out.println("LL: touching down");
+					// System.out.println("LL: touching down");
 					return true;
 				}
 			}
@@ -413,6 +416,7 @@ public class Player {
 			flap = true;
 		}
 		if (normalVerticalMovement()) {
+			touchDownVel = vely;
 			startModeWalk();
 		}
 
@@ -427,7 +431,7 @@ public class Player {
 				setAnim(directionalAnimName("jump"), true);
 			}
 			else {
-				setAnim(directionalAnimName(""), false);
+				setStandingAnim();
 			}
 		}
 	}
@@ -568,7 +572,7 @@ public class Player {
 			// snap: [ maxSnap ... 3 2 1] *0* [-1 -2 -3 ... -maxSnap ]
 
 			int maxSnap;
-			if (moveStick) {
+			if (moveStick()) {
 				// work out maxSnap from our maximum speed
 				// to ensure the player get's at least one
 				// shot at getting on the ladder as he runs by
@@ -602,6 +606,10 @@ public class Player {
 				ladderLatch = false;
 			}
 		}
+	}
+
+	private boolean moveStick() {
+		return testStick(Joystick.LEFT | Joystick.RIGHT);
 	}
 
 	private void doLadderMode() {
@@ -801,6 +809,8 @@ public class Player {
 	// MAIN MOVEMENT ROUTINE
 
 	private void move2() {
+		touchDownVel = 0;
+
 		// remember our initial coordinate
 		ic = c.copy();
 
@@ -891,8 +901,15 @@ public class Player {
 		lc = ic;
 	}
 
+	private void jump() {
+		jumpV(JUMP_VELOCITY);
+	}
+
 	// ---------------------------------------------------------------------------
 	// OUR PUBLIC METHODS
+
+	// frame-loop calls
+	//
 
 	public void move() {
 		move2();
@@ -901,6 +918,9 @@ public class Player {
 	public void draw() {
 		srv.drawSprite(c, playerSprite, drawInWhite);
 	}
+
+	// gifts
+	//
 
 	public void giveStar() {
 		hasStar = true;
@@ -919,12 +939,12 @@ public class Player {
 		canFly = true;
 	}
 
-	public boolean isStunned() {
-		return stunTimer != 0;
-	}
+	// actions
+	//
 
-	public boolean isReadyToBoardALift() {
-		return mode == Mode.AIR;
+	public void resetTo(Coord coord) {
+		reset();
+		c = coord;
 	}
 
 	public void stun() {
@@ -935,15 +955,36 @@ public class Player {
 		}
 	}
 
-	public void jump() {
-		jumpV(JUMP_VELOCITY);
-	}
-
 	public void startLiftMode(LiftAlien lift, int height) {
 		reset();
 		mode = Mode.LIFT;
 		standingOn = lift;
 		c.y = height;
+	}
+
+	// enquires
+	//
+
+	/**
+	 * How hard did we hit the ground?
+	 * 
+	 * <p>
+	 * The result is for <b>this frame only</b> so you have to keep asking if
+	 * you don't want to miss it.
+	 * 
+	 * @return The velocity in pixels per frame with which we hit the ground (or
+	 *         zero if we didn't).
+	 */
+	public int getTouchDownVel() {
+		return touchDownVel;
+	}
+
+	public boolean isStunned() {
+		return stunTimer != 0;
+	}
+
+	public boolean isReadyToBoardALift() {
+		return mode == Mode.AIR;
 	}
 
 	/**
@@ -977,11 +1018,6 @@ public class Player {
 			}
 		}
 		return false;
-	}
-
-	public void resetTo(Coord coord) {
-		reset();
-		c = coord;
 	}
 }
 

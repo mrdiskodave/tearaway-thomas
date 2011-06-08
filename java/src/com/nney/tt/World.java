@@ -11,6 +11,7 @@ import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
+import com.nney.tt.aliens.FloorFailAlien;
 import com.nney.tt.aliens.HoneyAlien;
 import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
@@ -155,6 +156,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
+		aim.add(new AlienInfo(15, null, FloorFailAlien.class));
 //		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
 //		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
 //		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
@@ -849,7 +851,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 	
 	@Override
 	public boolean isMapping() {
-		return true;
+		return false;
+	}
+
+	@Override
+	public void applyMapEdits(Coord c, int[][] mapEdits) {
+		c = c.div2(Const.BLOCK_SIZE);
+		for (int[] line: mapEdits) {
+			for (int block: line) {
+				gameMap.setBlock(c, block);
+				c.x++;
+			}
+			c.x -= line.length;
+			c.y ++;
+		}
 	}
 }
 
@@ -858,5 +873,4 @@ public class World implements AlienServices, WorldServicesToMapper {
 // 74: ybrd - write it
 // 78: scrh ....
 // change it to something that prohibits horizontal scrolling, since that is the intent
-// 63: bee - write it 
 // 73: trampoline - write it

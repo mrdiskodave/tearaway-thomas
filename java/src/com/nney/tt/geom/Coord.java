@@ -96,7 +96,19 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		a.sub(c);
 		return a;
 	}
-	
+
+	public Coord div2(int z) {
+		Coord a = copy();
+		a.div(z);
+		return a;
+	}
+
+	public Coord mul2(int z) {
+		Coord a = copy();
+		a.mul(z);
+		return a;
+	}
+
 	public void closer(Coord other, int amount) {
 		x = Math2.closer(x, other.x, amount);
 		y = Math2.closer(y, other.y, amount);

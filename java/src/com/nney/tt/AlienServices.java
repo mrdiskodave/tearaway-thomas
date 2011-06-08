@@ -111,4 +111,6 @@ public interface AlienServices {
 	 * @return <code>true</code> meaning "Yes we are <b>so</b> don't do anything irreversible to it".
 	 */
 	boolean isMapping();
+
+	void applyMapEdits(Coord c, int[][] mapEdits);
 }

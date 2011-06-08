@@ -28,7 +28,7 @@ public class Box implements Copyable<Box>, Cloneable {
 	public static Box fromSquare(int i) {
 		return new Box(-i, -i, i, i);
 	}
-
+	
 	public static Box fromTopLeftAndSize(int x, int y, int width, int height) {
 		return new Box(x, y, x + width - 1, y + height - 1);
 	}
@@ -45,6 +45,9 @@ public class Box implements Copyable<Box>, Cloneable {
 		return around(c, 0, 0, 0, 0);
 	}
 
+	
+	
+	
 	public void constrain(Coord c) {
 		if (c.x < left) {
 			c.x = left;
@@ -107,6 +110,18 @@ public class Box implements Copyable<Box>, Cloneable {
 		right -= c.x;
 		top -= c.y;
 		bottom -= c.y;
+	}
+
+	public Box add2(Coord c) {
+		Box a = copy();
+		a.add(c);
+		return a;
+	}
+
+	public Box sub2(Coord c) {
+		Box a = copy();
+		a.sub(c);
+		return a;
 	}
 
 	public Coord topLeft() {
