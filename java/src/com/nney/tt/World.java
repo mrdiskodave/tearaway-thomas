@@ -26,6 +26,7 @@ import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.aliens.TrampolineAlien;
 import com.nney.tt.aliens.WingAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
@@ -179,6 +180,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
 		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
+		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));

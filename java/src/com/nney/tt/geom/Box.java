@@ -25,8 +25,8 @@ public class Box implements Copyable<Box>, Cloneable {
 		return Box.fromTopLeftAndSize(c.x, c.y, width, height);
 	}
 
-	public static Box fromSquare(int i) {
-		return new Box(-i, -i, i, i);
+	public static Box fromSquare(int radius) {
+		return new Box(-radius, -radius, radius, radius);
 	}
 	
 	public static Box fromTopLeftAndSize(int x, int y, int width, int height) {

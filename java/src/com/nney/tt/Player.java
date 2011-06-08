@@ -239,6 +239,7 @@ public class Player {
 		vely = velocity;
 		mode = Mode.AIR;
 		airSpin = true;
+		System.out.println("Twang"+velocity);
 	}
 
 	private boolean wantsToJump() {
@@ -1015,6 +1016,10 @@ public class Player {
 			}
 		}
 		return false;
+	}
+
+	public void boost(int i) {
+		jumpV(i);
 	}
 }
 
