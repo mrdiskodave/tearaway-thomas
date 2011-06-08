@@ -963,13 +963,14 @@ public class Player {
 	//
 
 	/**
-	 * How hard did we hit the ground?
+	 * How hard did we bounce off the ground?
 	 * 
 	 * <p>
 	 * The result is for <b>this frame only</b> so you have to keep asking if
-	 * you don't want to miss it.
+	 * you don't want to miss it. The requirement is not just that the player
+	 * hits the ground but that they intend (next frame) to jump up again.
 	 * 
-	 * @return The velocity in pixels per frame with which we hit the ground (or
+	 * @return The velocity in pixels per frame with which we bounced (or
 	 *         zero if we didn't).
 	 */
 	public int getTouchDownVel() {
