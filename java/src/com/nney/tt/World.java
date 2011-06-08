@@ -63,7 +63,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 6;
+	private static final int CTC_MAP = 7;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -899,5 +899,5 @@ public class World implements AlienServices, WorldServicesToMapper {
 // 74: ybrd - write it
 // 78: scrh ....
 // change it to something that prohibits horizontal scrolling, since that is the
-// intent
-// 73: trampoline - write it
+// intent .... BUT what do we do about screen width??
+

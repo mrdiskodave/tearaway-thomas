@@ -241,9 +241,16 @@ public class Player {
 		airSpin = true;
 	}
 
+	
+	private boolean wantsToExitModeByJumping() {
+		return testStickJustPressed(Joystick.FIRE);
+	}
+	
+	
 	private boolean wantsToJump() {
 		return testStick(Joystick.FIRE);
 	}
+	
 	private void jumpOnFire() {
 		if (wantsToJump()) {
 			jump();
@@ -638,7 +645,7 @@ public class Player {
 			}
 		}
 
-		if (wantsToJump()) {
+		if (wantsToExitModeByJumping()) {
 			jump();
 			ladderLatch = true;
 		}
@@ -703,8 +710,8 @@ public class Player {
 				nonTwistMoving = true;
 			}
 
-			// jump off the ladder
-			if (wantsToJump()) {
+			// jump off the rope
+			if (wantsToExitModeByJumping()) {
 				// though if you are holding down ...
 				if (testStick(Joystick.DOWN)) {
 					// .. then you just drop
@@ -794,7 +801,7 @@ public class Player {
 				vely = 4;
 			}
 			// or jumping off
-			if (wantsToJump()) {
+			if (wantsToExitModeByJumping()) {
 				System.out.println("Monkey: end .. jump");
 				jump();
 				monkeyLatch = true;
