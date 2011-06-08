@@ -49,6 +49,10 @@ public class BeeAlien extends AlienWithLocation {
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
 			srv.getThePlayer().stun();
 		}
+		
+		freezeBounds = box.copy();
+		freezeBounds.shrink(-50); // TODO: measure all sprites?
+		
 	}
 	
 	private void nextDestination() {
@@ -57,6 +61,5 @@ public class BeeAlien extends AlienWithLocation {
 		box.constrain(d);
 		d.x += srv.randomness(81)-40;
 		d.y += srv.randomness(81)-40;
-//		System.out.println(p+" so we are headed to "+d);
 	}
 }

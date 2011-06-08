@@ -136,6 +136,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private boolean configSeeMasks;
 
+	private int whiteTimer;
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
@@ -157,9 +159,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
 		aim.add(new AlienInfo(15, null, FloorFailAlien.class));
-//		aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
-//		aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
-//		aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
+		// aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
+		// aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
+		// aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
 		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
@@ -460,7 +462,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean collideBoxWithPlayerHandle(Box box) {
 		int diffX = player.c.x;
@@ -476,7 +478,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		return false;
 	}
-	
 
 	// TODO: unused
 	@Override
@@ -715,18 +716,24 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 			else {
 				frameNumber++;
-				player.move();
-				if (CTC_HARD_SCROLLING) {
-					snapScreenTo(player.c);
+				if (whiteTimer != 0) {
+					whiteTimer--;
+					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 				}
 				else {
-					scrollScreenTo(player.c);
-				}
+					player.move();
+					if (CTC_HARD_SCROLLING) {
+						snapScreenTo(player.c);
+					}
+					else {
+						scrollScreenTo(player.c);
+					}
 
-				horizon.draw();
-				drawTheMap();
-				updateAliens(false);
-				updateScore();
+					horizon.draw();
+					drawTheMap();
+					updateAliens(false);
+					updateScore();
+				}
 			}
 		}
 	}
@@ -778,6 +785,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			// do it
 			player.c = destination.copy();
 			snapScreenTo(destination);
+			whiteTimer = 10;
 		}
 		teleAttempt = frameNumber;
 		// (this stops us vibrating between two teleports)
@@ -865,7 +873,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public void setMapBoundsInBlocks(Box mapBoundsInBlocks) {
 		this.mapBoundsInBlocks = mapBoundsInBlocks.copy();
 	}
-	
+
 	@Override
 	public boolean isMapping() {
 		return false;
@@ -874,20 +882,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void applyMapEdits(Coord c, int[][] mapEdits) {
 		c = c.div2(Const.BLOCK_SIZE);
-		for (int[] line: mapEdits) {
-			for (int block: line) {
+		for (int[] line : mapEdits) {
+			for (int block : line) {
 				gameMap.setBlock(c, block);
 				c.x++;
 			}
 			c.x -= line.length;
-			c.y ++;
+			c.y++;
 		}
 	}
 }
 
-
 // 64: worm - forget it
 // 74: ybrd - write it
 // 78: scrh ....
-// change it to something that prohibits horizontal scrolling, since that is the intent
+// change it to something that prohibits horizontal scrolling, since that is the
+// intent
 // 73: trampoline - write it

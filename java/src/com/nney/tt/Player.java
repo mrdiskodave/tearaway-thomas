@@ -122,12 +122,6 @@ public class Player {
 	boolean goLeft;
 
 	/**
-	 * Is the player moving the stick to the left or the right in
-	 * {@link Mode#NORMAL}?
-	 */
-	private boolean moveStick;
-
-	/**
 	 * The player is stunned until this timer counts down to zero.
 	 */
 	private int stunTimer;
@@ -247,8 +241,11 @@ public class Player {
 		airSpin = true;
 	}
 
+	private boolean wantsToJump() {
+		return testStick(Joystick.FIRE);
+	}
 	private void jumpOnFire() {
-		if (testStick(Joystick.FIRE)) {
+		if (wantsToJump()) {
 			jump();
 			// System.out.println("Jump!");
 		}
@@ -416,7 +413,7 @@ public class Player {
 			flap = true;
 		}
 		if (normalVerticalMovement()) {
-			touchDownVel = vely;
+			if (wantsToJump()) touchDownVel = vely;
 			startModeWalk();
 		}
 
@@ -641,7 +638,7 @@ public class Player {
 			}
 		}
 
-		if (testStickJustPressed(Joystick.FIRE)) {
+		if (wantsToJump()) {
 			jump();
 			ladderLatch = true;
 		}
@@ -706,9 +703,9 @@ public class Player {
 				nonTwistMoving = true;
 			}
 
-			// exit the mode by pressing fire ..
-			if (testStickJustPressed(Joystick.FIRE)) {
-				// and if you holding down ..
+			// jump off the ladder
+			if (wantsToJump()) {
+				// though if you are holding down ...
 				if (testStick(Joystick.DOWN)) {
 					// .. then you just drop
 					reset();
@@ -796,8 +793,8 @@ public class Player {
 				c.y -= 4;
 				vely = 4;
 			}
-			// or fire ..
-			if (testStickJustPressed(Joystick.FIRE)) {
+			// or jumping off
+			if (wantsToJump()) {
 				System.out.println("Monkey: end .. jump");
 				jump();
 				monkeyLatch = true;
