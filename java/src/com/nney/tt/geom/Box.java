@@ -21,6 +21,10 @@ public class Box implements Copyable<Box>, Cloneable {
 		this(that.left, that.top, that.right, that.bottom);
 	}
 
+	public static Box fromTopLeftAndSize(int x, int y, int width, int height) {
+		return new Box(x, y, x + width - 1, y + height - 1);
+	}
+
 	public static Box fromTopLeftAndSize(Coord c, int width, int height) {
 		return Box.fromTopLeftAndSize(c.x, c.y, width, height);
 	}
@@ -29,9 +33,6 @@ public class Box implements Copyable<Box>, Cloneable {
 		return new Box(-radius, -radius, radius, radius);
 	}
 	
-	public static Box fromTopLeftAndSize(int x, int y, int width, int height) {
-		return new Box(x, y, x + width - 1, y + height - 1);
-	}
 
 	public static Box around(Coord c, int width, int height) {
 		return around(c, -width, -height, width, height);
@@ -65,10 +66,18 @@ public class Box implements Copyable<Box>, Cloneable {
 	}
 
 	public void accommodate(Coord c) {
+		// same as accommodate(Box.around(c))
 		left = Math.min(left, c.x);
 		right = Math.max(right, c.x);
 		top = Math.min(top, c.y);
 		bottom = Math.max(bottom, c.y);
+	}
+	
+	public void accommodate(Box c) {
+		left = Math.min(left, c.left);
+		right = Math.max(right, c.right);
+		top = Math.min(top, c.top);
+		bottom = Math.max(bottom, c.bottom);
 	}
 
 	public boolean inside(Coord c) {

@@ -9,7 +9,7 @@ import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
 	protected AnimPlayer animPlayer = new AnimPlayer();
-	private Anims anims;
+	protected Anims anims;
 	public int typeCode = -1;
 	public byte[] legacyData;
 	public boolean remove;

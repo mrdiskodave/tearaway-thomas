@@ -1,5 +1,6 @@
 package com.nney.tt.sprites;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.ShowBoundsSip;
@@ -81,6 +82,10 @@ public class Sprite {
 		if (whiteVersion != null) {
 			whiteVersion.dispose();
 		}
+	}
+	
+	public Box box() {
+		return Box.fromTopLeftAndSize(-handleX, -handleY, w, h);
 	}
 
 	public int liftWidth() {
