@@ -460,6 +460,23 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean collideBoxWithPlayerHandle(Box box) {
+		int diffX = player.c.x;
+		int diffY = player.c.y;
+		if (diffX >= box.left) {
+			if (diffX <= box.right) {
+				if (diffY >= box.top) {
+					if (diffY <= box.bottom) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
 
 	// TODO: unused
 	@Override

@@ -414,6 +414,7 @@ public class Mapper implements MapperServicesToPens {
 			changeCurrentBlock(1, 0);
 			break;
 		case Keyboard.KEY_M:
+			System.out.println("TOGGLE MASKS");
 			srv.toggleSeeMasks();
 			break;
 		case Keyboard.KEY_V:

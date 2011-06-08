@@ -113,4 +113,6 @@ public interface AlienServices {
 	boolean isMapping();
 
 	void applyMapEdits(Coord c, int[][] mapEdits);
+
+	boolean collideBoxWithPlayerHandle(Box box);
 }

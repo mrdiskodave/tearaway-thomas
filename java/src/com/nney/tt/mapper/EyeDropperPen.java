@@ -16,11 +16,6 @@ public class EyeDropperPen extends Pen {
 	}
 	
 	@Override
-	void otherActions() {
-		srv.keyboardBlockChoice(false);
-	}
-	
-	@Override
 	CoordType requiredCoordType() {
 		return CoordType.WORLD_BLOCKS;
 	}
