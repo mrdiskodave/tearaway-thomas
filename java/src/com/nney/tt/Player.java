@@ -1028,3 +1028,6 @@ public class Player {
 // TODO: 99: it does look like I can land on stuff (from the side)
 // while still planly going upwards ..
 // take vely into account...?
+
+
+// TODO: ladderLatch should be cancelled by touching the ground

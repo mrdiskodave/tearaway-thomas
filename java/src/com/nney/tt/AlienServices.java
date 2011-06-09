@@ -115,4 +115,6 @@ public interface AlienServices {
 	void applyMapEdits(Coord c, int[][] mapEdits);
 
 	boolean collideBoxWithPlayerHandle(Box box);
+
+	void extraTime(int seconds);
 }

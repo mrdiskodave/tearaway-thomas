@@ -10,6 +10,7 @@ import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
+import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.FloorFailAlien;
 import com.nney.tt.aliens.GhostAlien;
@@ -140,6 +141,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int whiteTimer;
 
+	private int timeRemaining;
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
@@ -154,6 +157,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
 		aim.add(new AlienInfo(6, "0bgem", BigGemAlien.class));
+		aim.add(new AlienInfo(7, "0clok", ClockAlien.class));
 		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
 		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
 		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
@@ -898,6 +902,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 			c.y++;
 		}
 	}
+
+	@Override
+	public void extraTime(int seconds) {
+		timeRemaining = Math.min(timeRemaining+seconds, 99);
+	}
 }
 
 // 64: worm - forget it
@@ -906,3 +915,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 // change it to something that prohibits horizontal scrolling, since that is the
 // intent .... BUT what do we do about screen width??
 
+// 46
+// 47: the flames!
+// 7: clock!
