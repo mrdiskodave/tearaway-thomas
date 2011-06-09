@@ -12,6 +12,7 @@ import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.FloorFailAlien;
+import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HoneyAlien;
 import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
@@ -62,8 +63,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	final private GraphicsContext gc;
 
 	// lift
-	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 7;
+	private static final String CTC_WORLD = "g";
+	private static final int CTC_MAP = 0;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -169,6 +170,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
 		aim.add(new AlienInfo(62, "whone", HoneyAlien.class));
 		// TODO: 00: should the score just be part of AlienInfoMap???
 		aim.add(new AlienInfo(63, "wabee", BeeAlien.class));
@@ -723,7 +725,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 				}
 				else {
+					ttPos = null;
 					player.move();
+					assert ttPos!=null;
+					
 					if (CTC_HARD_SCROLLING) {
 						snapScreenTo(player.c);
 					}
@@ -878,7 +883,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public boolean isMapping() {
-		return false;
+		return true;
 	}
 
 	@Override

@@ -13,7 +13,7 @@ public class Anims {
 
 	public Anim find(String name) {
 		for (Anim anim : animList) {
-			if (anim.name.equals(name)) {
+			if (anim.name!=null && anim.name.equals(name)) {
 				return anim;
 			}
 		}

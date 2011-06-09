@@ -18,15 +18,11 @@ public class Player {
 	}
 
 	private boolean testStick(int s) {
-		// TODO: 30: stunTimer test no longer needed surely (as we are more
-		// modal)
-		return srv.getStick().test(s) && stunTimer == 0;
+		return srv.getStick().test(s);
 	}
 
 	private boolean testStickJustPressed(int s) {
-		// TODO: 30: stunTimer test no longer needed surely (as we are more
-		// modal)
-		return srv.getStick().testJustPressed(s) && stunTimer == 0;
+		return srv.getStick().testJustPressed(s);
 	}
 
 	private void setAnim(String name, boolean animate) {
@@ -254,7 +250,6 @@ public class Player {
 	private void jumpOnFire() {
 		if (wantsToJump()) {
 			jump();
-			// System.out.println("Jump!");
 		}
 	}
 
