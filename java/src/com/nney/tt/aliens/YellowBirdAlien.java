@@ -67,11 +67,7 @@ public class YellowBirdAlien extends AlienWithLocation {
 			}
 		}
 
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
-		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.getThePlayer().stun();
-		}
+		animateDrawAndStun(c);
 	}
 
 	private void loadStep() {

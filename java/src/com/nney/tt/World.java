@@ -32,6 +32,7 @@ import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.aliens.TrampolineAlien;
 import com.nney.tt.aliens.WingAlien;
+import com.nney.tt.aliens.YellowBirdAlien;
 import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -66,8 +67,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	final private GraphicsContext gc;
 
 	// lift
-	private static final String CTC_WORLD = "g";
-	private static final int CTC_MAP = 5;
+	private static final String CTC_WORLD = "w";
+	private static final int CTC_MAP = 1;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -197,6 +198,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
 		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
+		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));
@@ -926,6 +928,5 @@ public class World implements AlienServices, WorldServicesToMapper {
 // intent .... BUT what do we do about screen width??
 
 // Unknown Alien Type:101
-// Unknown Alien Type:40 pic0
 // Unknown Alien Type:102
 

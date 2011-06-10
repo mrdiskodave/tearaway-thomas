@@ -4,13 +4,13 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class GhostAlien extends LeftRightAlien {
-	private static final int SINE_LENGTH = 64;
-	static final private SineTable GHOST_SINE = new SineTable(SINE_LENGTH, 16);
+	private static final int SINEWAVE_LENGTH = 64;
+	static final private SineTable SINEWAVE = new SineTable(SINEWAVE_LENGTH, 16);
 	private int sinePos;
 	
 	@Override
 	public void onLoaded() {
-		sinePos = srv.randomness(SINE_LENGTH);
+		sinePos = srv.randomness(SINEWAVE_LENGTH);
 	}
 
 	@Override
@@ -22,14 +22,11 @@ public class GhostAlien extends LeftRightAlien {
 		if (!turned && srv.blockInfoIs(c, "stop")) {
 			goLeft = !goLeft;
 		}
-		Sprite s = nextFrame();
 		
-		Coord c2 = c.copyAndAdd(0, GHOST_SINE.get(sinePos++)-16);
-		if (sinePos==SINE_LENGTH) sinePos=0;
 		
-		srv.drawSprite(c2, s);
-		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
-			srv.getThePlayer().stun();
-		}
+		Coord c2 = c.copyAndAdd(0, SINEWAVE.get(sinePos++)-16);
+		if (sinePos==SINEWAVE_LENGTH) sinePos=0;
+		
+		animateDrawAndStun(c2);
 	}
 }

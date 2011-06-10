@@ -113,4 +113,13 @@ public abstract class Alien {
 
 	public void onPropUpdate() {
 	}
+	
+	protected void animateDrawAndStun(Coord c2) {
+		Sprite s = nextFrame();
+		srv.drawSprite(c2, s);
+		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
+			srv.getThePlayer().stun();
+		}
+	}
+
 }

@@ -40,11 +40,7 @@ public abstract class BumbleAlien extends AlienWithLocation {
 		}
 		bumbleAnimation(lc);
 
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
-		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.getThePlayer().stun();
-		}
+		animateDrawAndStun(c);
 		
 		freezeBounds = box.copy();
 		int grow = 50+travelBeyondBox(); // TODO: measure all sprites?

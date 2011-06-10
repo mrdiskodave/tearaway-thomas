@@ -16,11 +16,7 @@ public class FlameAlien extends AlienWithLocation {
 			pause--;
 		}
 		else {
-			Sprite s = nextFrame();
-			srv.drawSprite(c, s);
-			if (srv.collideAlienWithPlayerHiRes(c, s)) {
-				srv.getThePlayer().stun();
-			}
+			animateDrawAndStun(c);
 			if (animPlayer.hasAnimEnded()) {
 				animPlayer.rewind();
 				pause = srv.randomness(64)+25;
