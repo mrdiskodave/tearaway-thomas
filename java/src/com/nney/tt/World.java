@@ -18,6 +18,7 @@ import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HoneyAlien;
 import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
+import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
 import com.nney.tt.aliens.ScoreGivingAlien;
@@ -66,7 +67,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "g";
-	private static final int CTC_MAP = 2;
+	private static final int CTC_MAP = 5;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -173,7 +174,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
+
+		aim.add(new AlienInfo(40, "gpic2", SpriteAlien.class));
+		aim.add(new AlienInfo(40, "gpic0", PortraitAlien.class));
+		aim.add(new AlienInfo(41, "gpic1", PortraitAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
+		aim.add(new AlienInfo(43, "gpic3", PortraitAlien.class));
+		aim.add(new AlienInfo(44, "gpic4", PortraitAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		aim.add(new AlienInfo(46, "glflm", FlameAlien.class));
 		aim.add(new AlienInfo(47, "grflm", FlameAlien.class));
@@ -918,6 +925,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 // change it to something that prohibits horizontal scrolling, since that is the
 // intent .... BUT what do we do about screen width??
 
-// 46
-// 47: the flames!
-// 7: clock!
+// Unknown Alien Type:101
+// Unknown Alien Type:40 pic0
+// Unknown Alien Type:102
+
