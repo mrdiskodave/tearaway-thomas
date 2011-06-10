@@ -6,17 +6,17 @@ import java.util.Random;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
+import com.nney.tt.aliens.BattAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.ExitAlien;
-import com.nney.tt.aliens.FloorFailAlien;
+import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HoneyAlien;
 import com.nney.tt.aliens.HugeGemAlien;
-import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
@@ -66,7 +66,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "g";
-	private static final int CTC_MAP = 0;
+	private static final int CTC_MAP = 2;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -169,7 +169,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
+		aim.add(new AlienInfo(31, "gwall", SpriteAlien.class));
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
+		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
+		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		aim.add(new AlienInfo(46, "glflm", FlameAlien.class));
