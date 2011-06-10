@@ -45,9 +45,9 @@ public class AnimPlayer {
 	}
 
 	public Sprite next() {
-		// if (anim==null) return null;
+		Sprite answer = current();
 		advance();
-		return current();
+		return answer;
 	}
 
 	public Sprite current() {
@@ -60,7 +60,6 @@ public class AnimPlayer {
 		if (acc > Anim.MAX_RATE) {
 			acc -= Anim.MAX_RATE;
 			pos += 1;
-			// System.out.println("+"+pos);
 			if (pos >= anim.frames.length) {
 				if (anim.repeatPos < 0) {
 					pos = anim.frames.length - 1;
