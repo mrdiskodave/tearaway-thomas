@@ -1,7 +1,5 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.MovementSlicer;
-import com.nney.tt.sprites.Sprite;
 
 public class YellowBirdAlien extends AlienWithLocation {
 	private final static BirdTableEntry[] BIRD_TABLE = new BirdTableEntry[] { 
@@ -52,18 +50,14 @@ public class YellowBirdAlien extends AlienWithLocation {
 			c.y += diff;
 		}
 		else {
-			MovementSlicer sy = new MovementSlicer(diff);
-			while (sy.more()) {
-				c.y += sy.next(1);
-				if (srv.inTheGround(c)) {
-					// System.out.println("BONK!");
-					while (srv.inTheGround(c)) {
-						c.y--;
-					}
-					birdTableIdx = 0;
-					loadStep();
-					break;
+			c.y += diff;
+			if (srv.inTheGround(c)) {
+				// System.out.println("BONK!");
+				while (srv.inTheGround(c)) {
+					c.y--;
 				}
+				birdTableIdx = 0;
+				loadStep();
 			}
 		}
 
