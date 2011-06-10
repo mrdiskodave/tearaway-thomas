@@ -7,7 +7,7 @@ public class TrampolineAlien extends AlienWithLocation {
 	private Box box;
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(0);
 		box = anims.find(0).box();
 	}

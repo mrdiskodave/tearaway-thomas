@@ -24,7 +24,7 @@ public class BeeAlien extends AlienWithLocation {
 
 	
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(0);
 		d = c.copy();
 	}

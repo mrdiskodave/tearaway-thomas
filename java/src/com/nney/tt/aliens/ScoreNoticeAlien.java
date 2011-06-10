@@ -15,7 +15,7 @@ public class ScoreNoticeAlien extends AlienWithLocation {
 	}
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(Integer.toString(what));
 		depth = DEPTH_FOREGROUND;
 	}

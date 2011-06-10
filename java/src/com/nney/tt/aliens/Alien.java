@@ -63,10 +63,6 @@ public abstract class Alien {
 		animPlayer.changeAnimation(anims.find(name));
 	}
 
-	protected void hide() {
-		animPlayer.changeAnimation(null);
-	}
-
 	protected Sprite nextFrame() {
 		return animPlayer.next();
 	}
@@ -90,7 +86,7 @@ public abstract class Alien {
 		}
 	}
 
-	public void visualReset() {
+	public void onLoaded() {
 	}
 
 	public void loadFromLegacyData() {

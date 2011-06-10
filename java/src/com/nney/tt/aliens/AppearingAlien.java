@@ -17,7 +17,7 @@ public abstract class AppearingAlien extends AlienWithLocation {
 	}
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(0);
 	}
 
@@ -42,7 +42,6 @@ public abstract class AppearingAlien extends AlienWithLocation {
 			else {
 				// we're hidden
 				boolean reveal = srv.getThePlayer().checkReveal(c);
-				
 				if (srv.isMapping()) {
 					boolean fizz = fizzTimer!=0;
 					if (fizz) {

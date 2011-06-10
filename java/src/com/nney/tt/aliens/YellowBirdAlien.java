@@ -23,7 +23,7 @@ public class YellowBirdAlien extends AlienWithLocation {
 			new Step(300, Integer.MAX_VALUE, 100) };
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(0);
 	}
 	

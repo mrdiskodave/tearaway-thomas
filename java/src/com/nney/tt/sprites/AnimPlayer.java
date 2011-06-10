@@ -21,6 +21,8 @@ public class AnimPlayer {
 	}
 
 	public void changeAnimation(Anim freshAnim) {
+		assert freshAnim!=null;
+		
 		if (freshAnim == null) {
 			anim = null;
 		}

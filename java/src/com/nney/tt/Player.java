@@ -635,9 +635,7 @@ public class Player {
 			boolean leave = testStick(Joystick.LEFT | Joystick.RIGHT);
 			System.out.println("Ladder: Disembarkation: " + leave);
 			if (leave) {
-				reset();
 				startModeWalk();
-				ladderLatch = true;
 			}
 		}
 

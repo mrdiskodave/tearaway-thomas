@@ -9,7 +9,7 @@ public class MagicDustAlien extends AlienWithLocation {
 	}
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(0);
 	}
 

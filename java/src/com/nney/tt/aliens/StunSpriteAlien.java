@@ -5,7 +5,7 @@ import com.nney.tt.sprites.Sprite;
 public class StunSpriteAlien extends AlienWithLocation {
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		changeAnimation(0);
 	}
 

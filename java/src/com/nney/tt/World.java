@@ -16,6 +16,7 @@ import com.nney.tt.aliens.FloorFailAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HoneyAlien;
 import com.nney.tt.aliens.HugeGemAlien;
+import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PurpleGemAlien;
@@ -164,16 +165,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-		aim.add(new AlienInfo(15, null, FloorFailAlien.class));
-		// aim.add(new AlienInfo(15, "0spl1", SpriteAlien.class)); // special 1
-		// aim.add(new AlienInfo(16, "0spl2", SpriteAlien.class)); // special 2
-		// aim.add(new AlienInfo(17, "0spl3", SpriteAlien.class)); // special 3
+//		aim.add(new AlienInfo(15, null, FloorFailAlien.class));			// special1 for w6.map
 		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
+		aim.add(new AlienInfo(46, "glflm", FlameAlien.class));
+		aim.add(new AlienInfo(47, "grflm", FlameAlien.class));
 		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
 		aim.add(new AlienInfo(62, "whone", HoneyAlien.class));
 		// TODO: 00: should the score just be part of AlienInfoMap???
@@ -601,14 +601,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private void addNewAlien(Alien alien) {
 		alienInfoMap.giveTypeCodeAndConnectAnims(alien, animsPool);
 		alien.srv = this;
-		alien.visualReset();
+		alien.onLoaded();
 		alienTracker.delayedAdd(alien);
 	}
 
 	@Override
 	public void loadAlienIntoWorld(Alien alien) {
 		alien.srv = this;
-		alien.visualReset();
+		alien.onLoaded();
 		alienTracker.delayedAdd(alien);
 	}
 

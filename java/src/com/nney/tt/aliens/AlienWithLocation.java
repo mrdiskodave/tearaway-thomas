@@ -15,8 +15,7 @@ public abstract class AlienWithLocation extends Alien {
 	
 
 	protected Box spriteBounds(Sprite s) {
-		Coord c = getLocation();
-		return Box.fromTopLeftAndSize(c.x - s.handleX, c.y - s.handleY, s.w, s.h);
+		return s.box().add2(c);
 	}
 	
 	protected Box boxAroundUs(int size) {

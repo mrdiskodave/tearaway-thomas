@@ -3,25 +3,30 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Box;
 
 public class ScoreGivingAlien extends AlienWithLocation {
-	int amount = 50;
+	private static final int SCORE_GIVEN = 100;
+	private static final int NUMER_OF_TIMES = 50;
+
+	int count;
+	
+	@Override
+	public void onLoaded() {
+		count = NUMER_OF_TIMES;
+	}
 	
 	@Override
 	public void update() {
 		Box b = boxAroundUs(7);
 		freezeBounds = b;
-		if (amount>0 && srv.collideBoxWithPlayer(b)) {
-			srv.giveScore(100, null);
+		if (count>0 && srv.collideBoxWithPlayer(b)) {
+			srv.giveScore(SCORE_GIVEN, null);
 			if (!srv.isMapping()) {
-				amount--;
-				if (amount==0) {
-					done();
-				}
+				count--;
 			}
 		}
 	}
 	
 	@Override
 	public void mapperUpdate() {
-		srv.drawDebugText(c, "Hidden Score");
+		srv.drawDebugText(c, "Hidden Score:"+count*SCORE_GIVEN);
 	}
 }

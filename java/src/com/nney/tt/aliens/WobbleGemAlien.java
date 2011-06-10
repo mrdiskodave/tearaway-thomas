@@ -22,8 +22,8 @@ public abstract class WobbleGemAlien extends GemAlien {
 	}
 
 	@Override
-	public void visualReset() {
-		super.visualReset();
+	public void onLoaded() {
+		super.onLoaded();
 		wobblePhase = srv.randomness(WOBBLE.length);
 	}
 

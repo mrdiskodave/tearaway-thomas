@@ -21,7 +21,7 @@ public abstract class LiftAlien extends Alien {
 	private int width;
 
 	@Override
-	public void visualReset() {
+	public void onLoaded() {
 		ourSprite = firstFrame();
 		width = ourSprite.liftWidth() + EXTRA_WIDTH * 2;
 	}
