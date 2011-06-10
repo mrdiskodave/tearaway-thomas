@@ -47,7 +47,8 @@ public abstract class BumbleAlien extends AlienWithLocation {
 		}
 		
 		freezeBounds = box.copy();
-		freezeBounds.shrink(-50+travelBeyondBox()); // TODO: measure all sprites?
+		int grow = 50+travelBeyondBox(); // TODO: measure all sprites?
+		freezeBounds.shrink(-grow); 
 		
 	}
 
