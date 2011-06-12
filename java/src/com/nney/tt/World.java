@@ -25,6 +25,7 @@ import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
+import com.nney.tt.aliens.SpikeAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
@@ -67,8 +68,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	final private GraphicsContext gc;
 
 	// lift
-	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 1;
+	private static final String CTC_WORLD = "g";
+	private static final int CTC_MAP = 6;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -175,8 +176,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
-
-		aim.add(new AlienInfo(40, "gpic2", SpriteAlien.class));
+		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
 		aim.add(new AlienInfo(40, "gpic0", PortraitAlien.class));
 		aim.add(new AlienInfo(41, "gpic1", PortraitAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));

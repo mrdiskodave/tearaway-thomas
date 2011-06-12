@@ -86,7 +86,8 @@ public class Player {
 	private AlienServices srv;
 
 	/**
-	 * The AnimPlayer plays animations (in this case it plays them for the Player, confusingly).
+	 * The AnimPlayer plays animations (in this case it plays them for the
+	 * Player, confusingly).
 	 */
 	private AnimPlayer animPlayer = new AnimPlayer();
 
@@ -220,7 +221,6 @@ public class Player {
 	private void startModeWalk() {
 		reset();
 		mode = Mode.WALK;
-		ladderLatch = false;
 
 		// it is important that we immediately check for slides
 		// or the player could get off a rogue jump-off-a-slide
@@ -238,16 +238,14 @@ public class Player {
 		airSpin = true;
 	}
 
-	
 	private boolean wantsToExitModeByJumping() {
 		return testStickJustPressed(Joystick.FIRE);
 	}
-	
-	
+
 	private boolean wantsToJump() {
 		return testStick(Joystick.FIRE);
 	}
-	
+
 	private void jumpOnFire() {
 		if (wantsToJump()) {
 			jump();
@@ -625,24 +623,24 @@ public class Player {
 					moving = true;
 				}
 			}
-			leaveLadder();
+			
+			// leave the ladder?
+			boolean wantToWalkOffLadder = testStick(Joystick.LEFT | Joystick.RIGHT);
+			if (wantToWalkOffLadder && canWalkOffLadder()) {
+				startModeWalk();
+				ladderLatch = true;
+			}
+			else if (wantsToExitModeByJumping()) {
+				jump();
+				ladderLatch = true;
+			}
+			
 			setAnim("climb", moving);
 		}
 	}
 
-	private void leaveLadder() {
-		if ((!srv.inTheGround(c) && srv.inTheGround(c.copyAndAdd(0, 1)))) {
-			boolean leave = testStick(Joystick.LEFT | Joystick.RIGHT);
-			System.out.println("Ladder: Disembarkation: " + leave);
-			if (leave) {
-				startModeWalk();
-			}
-		}
-
-		if (wantsToExitModeByJumping()) {
-			jump();
-			ladderLatch = true;
-		}
+	private boolean canWalkOffLadder() {
+		return !srv.inTheGround(c) && srv.inTheGround(c.copyAndAdd(0, 1));
 	}
 
 	private boolean testForVerticalRope(int dy) {
@@ -971,8 +969,8 @@ public class Player {
 	 * you don't want to miss it. The requirement is not just that the player
 	 * hits the ground but that they intend (next frame) to jump up again.
 	 * 
-	 * @return The velocity in pixels per frame with which we bounced (or
-	 *         zero if we didn't).
+	 * @return The velocity in pixels per frame with which we bounced (or zero
+	 *         if we didn't).
 	 */
 	public int getTouchDownVel() {
 		return touchDownVel;

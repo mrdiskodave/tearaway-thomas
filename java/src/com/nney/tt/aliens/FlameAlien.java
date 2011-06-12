@@ -1,6 +1,7 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.sprites.Sprite;
+import com.nney.tt.geom.Box;
+
 
 public class FlameAlien extends AlienWithLocation {
 	private int pause;
@@ -12,8 +13,9 @@ public class FlameAlien extends AlienWithLocation {
 	
 	@Override
 	public void update() {
-		if (pause!=0) {
+		if (pause>0) {
 			pause--;
+			freezeBounds = Box.around(c, 100, 50);
 		}
 		else {
 			animateDrawAndStun(c);
@@ -22,6 +24,5 @@ public class FlameAlien extends AlienWithLocation {
 				pause = srv.randomness(64)+25;
 			}
 		}
-		freezeBounds = anims.find(0).box().add2(c);
 	}
 }
