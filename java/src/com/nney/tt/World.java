@@ -174,6 +174,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
 		aim.add(new AlienInfo(31, "gwall", SpriteAlien.class));
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
+		aim.add(new AlienInfo(35, "gpic4", PortraitAlien.class));
 		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
 		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
@@ -181,7 +182,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(41, "gpic1", PortraitAlien.class));
 		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
 		aim.add(new AlienInfo(43, "gpic3", PortraitAlien.class));
-		aim.add(new AlienInfo(44, "gpic4", PortraitAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		aim.add(new AlienInfo(46, "glflm", FlameAlien.class));
 		aim.add(new AlienInfo(47, "grflm", FlameAlien.class));
