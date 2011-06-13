@@ -1,0 +1,15 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ]
+        }, 
+        {
+            "frames": [
+                1
+            ]
+        }
+    ], 
+    "comment": "GFXlife"
+}

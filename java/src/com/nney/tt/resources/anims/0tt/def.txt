@@ -1,0 +1,204 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6, 
+                7
+            ], 
+            "name": "right", 
+            "rate": 105, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                15, 
+                14, 
+                13, 
+                12, 
+                11, 
+                10, 
+                9, 
+                8
+            ], 
+            "name": "left", 
+            "rate": 105, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                16, 
+                17, 
+                18, 
+                19, 
+                20, 
+                21, 
+                22, 
+                23
+            ], 
+            "name": "jumpright", 
+            "rate": 255, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                24, 
+                25, 
+                26, 
+                27, 
+                28, 
+                29, 
+                30, 
+                31
+            ], 
+            "name": "jumpleft", 
+            "rate": 255, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                38
+            ], 
+            "name": "stoodright"
+        }, 
+        {
+            "frames": [
+                39
+            ], 
+            "name": "stoodleft"
+        }, 
+        {
+            "frames": [
+                40, 
+                41, 
+                42, 
+                41
+            ], 
+            "name": "wobble", 
+            "rate": 128, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                32, 
+                33, 
+                34, 
+                35, 
+                36, 
+                37, 
+                36, 
+                35, 
+                34, 
+                33
+            ], 
+            "name": "climb", 
+            "rate": 128, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                43, 
+                44, 
+                45, 
+                44, 
+                43
+            ], 
+            "name": "flyright", 
+            "rate": 100
+        }, 
+        {
+            "frames": [
+                46, 
+                47, 
+                48, 
+                47, 
+                46
+            ], 
+            "name": "flyleft", 
+            "rate": 100
+        }, 
+        {
+            "frames": [
+                49, 
+                50, 
+                51, 
+                52
+            ], 
+            "name": "monkeyright", 
+            "rate": 80, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                56, 
+                55, 
+                54, 
+                53
+            ], 
+            "name": "monkeyleft", 
+            "rate": 80, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                57
+            ], 
+            "name": "monkeymid"
+        }, 
+        {
+            "frames": [
+                58, 
+                59, 
+                60, 
+                61, 
+                62, 
+                63
+            ], 
+            "name": "ropeleft", 
+            "rate": 128, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                64, 
+                65, 
+                66, 
+                67, 
+                68, 
+                69
+            ], 
+            "name": "roperight", 
+            "rate": 128, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                70, 
+                71, 
+                72, 
+                73, 
+                74, 
+                64
+            ], 
+            "name": "ropetwistright", 
+            "rate": 200
+        }, 
+        {
+            "frames": [
+                74, 
+                73, 
+                72, 
+                71, 
+                70, 
+                58
+            ], 
+            "name": "ropetwistleft", 
+            "rate": 200
+        }
+    ]
+}

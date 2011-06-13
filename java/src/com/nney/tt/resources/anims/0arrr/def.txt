@@ -1,0 +1,11 @@
+{
+	"box": [ 117,144,201,113 ],
+    "anims": [
+        {
+            "frames": [
+                0
+            ]
+        }
+    ], 
+    "comment": "GFXright"
+}

@@ -1,0 +1,17 @@
+{
+    "anims": [
+        {
+            "frames": [ 0 ],
+            "name":	"static"
+	},
+	{
+	    "frames": [ 1 ],
+            "name":   "lowscore"
+	},
+	{
+	    "frames": [ 2 ],
+            "name":	"hiscore"
+        }
+    ], 
+    "comment": "GFXygem"
+}

@@ -1,0 +1,16 @@
+{
+    "anims": [
+        {
+            "static": [
+                0
+            ],
+            "lowscore": [
+                1
+            ],
+            "hiscore": [
+                2
+            ]
+        }
+    ], 
+    "comment": "GFXpgem"
+}

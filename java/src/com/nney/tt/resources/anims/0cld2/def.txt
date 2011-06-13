@@ -1,0 +1,10 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ]
+        }
+    ], 
+    "comment": "GFXcld2"
+}
