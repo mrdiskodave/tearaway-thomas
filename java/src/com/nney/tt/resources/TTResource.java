@@ -30,7 +30,7 @@ public class TTResource {
 	}
 
 	public static Openable config(String name) {
-		return TTResource.formatted("config/%s.png", name);
+		return TTResource.formatted("config/%s", name);
 	}
 
 	public static Openable map(String world, int levelNumber) {
@@ -39,18 +39,15 @@ public class TTResource {
 	}
 
 	public static Openable spriteFrame(String spriteName, int frameNumber) {
-		String filename = String.format("C:/Users/david/Desktop/newdata/bobs/%s/%03d.png", spriteName, frameNumber);
-		return new FileOpenable(filename);
+		return TTResource.formatted("anims/%s/%03d.png", spriteName, frameNumber);
 	}
 
 	public static Openable spriteDef(String spriteName) {
-		String filename = String.format("C:/Users/david/Desktop/newdata/bobs/%s/def.txt", spriteName);
-		return new FileOpenable(filename);
+		return TTResource.formatted("anims/%s/def.txt", spriteName);
 	}
 
 	public static Openable horizon(int name) {
-		String filename = String.format("C:/Users/david/Desktop/newdata/horizons/%d.png", name);
-		return new FileOpenable(filename);
+		return TTResource.formatted("horizons/%d.png", name);
 	}
 
 }
