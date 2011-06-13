@@ -1,0 +1,23 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ], 
+            "name": "l"
+        }, 
+        {
+            "frames": [
+                1
+            ], 
+            "name": "m"
+        }, 
+        {
+            "frames": [
+                2
+            ], 
+            "name": "r"
+        }
+    ], 
+    "comment": "GFXpic0"
+}

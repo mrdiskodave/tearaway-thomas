@@ -1,0 +1,24 @@
+{
+    "anims": [
+        {
+            "frames": [
+                1, 
+                2, 
+                3, 
+                4, 
+                3, 
+                2
+            ], 
+            "name": "fly", 
+            "rate": 80, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                0
+            ], 
+            "name": "hang"
+        }
+    ], 
+    "comment": "GFXbatt"
+}

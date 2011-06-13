@@ -1,0 +1,41 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6, 
+                7
+            ], 
+            "name": "right", 
+            "rate": 80, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                8, 
+                9, 
+                10, 
+                11, 
+                12, 
+                13, 
+                14, 
+                15
+            ], 
+            "name": "left", 
+            "rate": 80, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                16
+            ], 
+            "name": "fright"
+        }
+    ], 
+    "comment": "GFXpara"
+}
