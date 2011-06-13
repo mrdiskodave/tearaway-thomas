@@ -1,0 +1,13 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1
+            ], 
+            "rate": 40, 
+            "repeatPos": 0
+        }
+    ], 
+    "comment": "GFXspdr"
+}

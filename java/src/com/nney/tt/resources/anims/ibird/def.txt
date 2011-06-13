@@ -1,0 +1,35 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                3, 
+                2, 
+                1
+            ], 
+            "name": "right", 
+            "rate": 100, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                6, 
+                7, 
+                8, 
+                9, 
+                10, 
+                9, 
+                8, 
+                7
+            ], 
+            "name": "left", 
+            "rate": 100, 
+            "repeatPos": 0
+        }
+    ], 
+    "comment": "GFXibird"
+}

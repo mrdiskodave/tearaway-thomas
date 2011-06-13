@@ -1,0 +1,36 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ], 
+            "name": "waiting"
+        }, 
+        {
+            "frames": [
+                1, 
+                2, 
+                3, 
+                4
+            ], 
+            "name": "ready", 
+            "rate": 40
+        }, 
+        {
+            "frames": [
+                5
+            ], 
+            "name": "drop"
+        }, 
+        {
+            "frames": [
+                6, 
+                7
+            ], 
+            "name": "frazzle", 
+            "rate": 128, 
+            "repeatPos": 0
+        }
+    ], 
+    "comment": "GFXiblln"
+}
