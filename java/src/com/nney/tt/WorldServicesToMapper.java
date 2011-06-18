@@ -13,8 +13,6 @@ public interface WorldServicesToMapper {
 
 	void drawAliensForMapper();
 
-	void moveScreen(Coord delta);
-
 	Coord getScreenPosition();
 
 	void setScreenPosition(Coord c);

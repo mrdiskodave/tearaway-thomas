@@ -53,8 +53,6 @@ public interface AlienServices {
 
 	// called by the player
 
-	void snapScreenTo(Coord c);
-
 	Joystick getStick();
 
 	void validatePlayerPosition(Coord c);

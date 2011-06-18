@@ -83,6 +83,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// */
 	// private static final boolean CTC_TUMBLE_WEEDS = false;
 
+	
+	private ScreenPosition scr;
+	
 	/**
 	 * Compile time configuration: the screen follows the player <b>exactly</b>.
 	 */
@@ -94,12 +97,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private Font debugFont;
 	private Font font;
 
-	private Coord screen = new Coord();
 	private MasksHolder maskHolder;
 	private Player player;
 
 	private GameMap gameMap;
-	private Box liveScrollBoundsInPixels;
 
 	private Box mapBoundsInBlocks;
 
@@ -149,6 +150,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
+		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
 		this.joystick = joystick;
 		this.keyboard = keyboard;
 		this.mouse = mouse;
@@ -330,83 +332,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return gemCounter == 0;
 	}
 
-	// ---------------------------------------------------------------------------
-	// SCROLLING
-
-	/**
-	 * A curve of sorts that dictates how much to {@link #scrollScreenTo(Coord)}
-	 * pulls tracked {@link Coord} back into the centre (given its distance from
-	 * the centre).
-	 */
-	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
-			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
-			16 };
-
-	private static int limit(int current, int playStart, int playSize, int scrSize) {
-		if (playSize<scrSize) {
-			current = playStart - (scrSize-playSize)/2;
-			// and we'll be needing some black borders on that! TODO
-		}
-		else {
-			if (current < playStart) {
-				current = playStart;
-			}
-			int max = playStart + playSize - scrSize;
-			if (current > max) {
-				current = max;
-			}
-		}
-		return current;
-	}
-
-	private static int shrinkDelta(int delta) {
-		boolean neg = false;
-		if (delta < 0) {
-			neg = true;
-			delta = -delta;
-		}
-		delta = Math.min(delta, SCROLLING_TABLE.length - 1);
-		int shrunkDelta = SCROLLING_TABLE[delta];
-		if (neg) {
-			shrunkDelta = -shrunkDelta;
-		}
-		return shrunkDelta;
-	}
-
-	private Coord screenDest(Coord c) {
-		return c.copyAndAdd(-gc.screenWidth() / 2, -gc.screenHeight() * 11 / 16);
-	}
-
-	private void limitScreenPosition() {
-		Box b = liveScrollBoundsInPixels;
-		
-		screen.x = limit(screen.x, b.left, b.width(), gc.screenWidth());
-		screen.y = limit(screen.y, b.top, b.height(), gc.screenHeight());
-	}
-
-	private static int scrollOrd(int current, int dest) {
-		current += shrinkDelta(dest - current);
-		return current;
-	}
-
-	/**
-	 * Scroll the screen gently towards the given position.
-	 */
-	private void scrollScreenTo(Coord c) {
-		Coord sd = screenDest(c);
-		screen.x = scrollOrd(screen.x, sd.x);
-		screen.y = scrollOrd(screen.y, sd.y);
-		limitScreenPosition();
-	}
-
-	/**
-	 * Snap the screen instantly to the given position.
-	 */
-	@Override
-	public void snapScreenTo(Coord c) {
-		screen = screenDest(c);
-		limitScreenPosition();
-	}
 
 	// ---------------------------------------------------------------------------
 	// DRAWING
@@ -418,6 +343,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
+		Coord screen = scr.position();
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
 		s.draw(x, y, drawWhite);
@@ -438,9 +364,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
-		Box m = liveScrollBoundsInPixels.copy();
-		m.shrink(6);
-		m.constrain(c);
+		scr.keepPlayerInView(c);
 	}
 
 	@Override
@@ -662,7 +586,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void updateAliens(boolean mapper) {
 		// add fresh aliens
-		Box screenBox = Box.fromTopLeftAndSize(screen, gc.screenWidth(), gc.screenHeight());
+		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
 		updateList(alienTracker.getBackgroundList(), screenBox, mapper);
 		if (!mapper) {
@@ -702,6 +626,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void drawTheMap() {
+		Coord screen = scr.position();
 		MapDrawingInfo ix = new MapDrawingInfo(screen.x, gc.screenWidth());
 		MapDrawingInfo iy = new MapDrawingInfo(screen.y, gc.screenHeight());
 //		ix.checkForOverread(mapBoundsInBlocks.xEnd(), GameMap.MAP_WIDTH);
@@ -721,11 +646,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	public void computeMapBounds() {
 		if (usingMapper) {
-			liveScrollBoundsInPixels = WHOLE_MAP_BOUNDS_IN_PIXELS;
+			scr.setWorldBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
 		}
 		else {
-			liveScrollBoundsInPixels = mapBoundsInBlocks.copy();
-			liveScrollBoundsInPixels.mult(Const.BLOCK_SIZE);
+			Box tmp = mapBoundsInBlocks.copy();
+			tmp.mult(Const.BLOCK_SIZE);
+			scr.setWorldBoundsInPixels(tmp);
 		}
 	}
 
@@ -755,10 +681,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 					assert ttPos != null;
 
 					if (CTC_HARD_SCROLLING) {
-						snapScreenTo(player.c);
+						scr.snapTo(player.c);
 					}
 					else {
-						scrollScreenTo(player.c);
+						scr.scrollTo(player.c);
 					}
 
 					horizon.draw();
@@ -795,7 +721,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gameMap = pm.gameMap;
 
 		computeMapBounds();
-		snapScreenTo(player.c);
+		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
 	}
@@ -816,7 +742,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (teleAttempt + 1 != frameNumber) {
 			// do it
 			player.c = destination.copy();
-			snapScreenTo(destination);
+			scr.snapTo(destination);
 			whiteTimer = 10;
 		}
 		teleAttempt = frameNumber;
@@ -845,16 +771,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawTheMap();
 	}
 
-	@Override
-	public void moveScreen(Coord delta) {
-		screen.add(delta);
-		limitScreenPosition();
-	}
-
-	@Override
-	public Coord getScreenPosition() {
-		return screen;
-	}
 
 	@Override
 	public Alien findNearestAlien(Coord c) {
@@ -880,20 +796,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return blocksHolder;
 	}
 
-	@Override
-	public void setScreenPosition(Coord c) {
-		screen = c;
-		limitScreenPosition();
-	}
-
-	@Override
-	public void drawDebugText(Coord c, String text) {
-		Coord a = c.sub2(screen);
-		int w = debugFont.charWidth() * text.length();
-		int h = debugFont.charHeight();
-		gc.fillRectangle(a.x, a.y, w, h, 0xff000000);
-		debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
-	}
 
 	@Override
 	public Box getMapBoundsInBlocks() {
@@ -903,11 +805,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void setMapBoundsInBlocks(Box mapBoundsInBlocks) {
 		this.mapBoundsInBlocks = mapBoundsInBlocks.copy();
-	}
-
-	@Override
-	public boolean isMapping() {
-		return true;
 	}
 
 	@Override
@@ -921,6 +818,37 @@ public class World implements AlienServices, WorldServicesToMapper {
 			c.x -= line.length;
 			c.y++;
 		}
+	}
+
+
+	@Override
+	public Coord getScreenPosition() {
+		return scr.position();
+	}
+
+	
+	@Override
+	public void setScreenPosition(Coord c) {
+		scr.setPosition(c);
+	}
+	
+	// ---------------------------------------------------------------------------
+	
+	
+	
+	@Override
+	public void drawDebugText(Coord c, String text) {
+		Coord a = c.sub2(scr.position());
+		int w = debugFont.charWidth() * text.length();
+		int h = debugFont.charHeight();
+		gc.fillRectangle(a.x, a.y, w, h, 0xff000000);
+		debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
+	}
+
+
+	@Override
+	public boolean isMapping() {
+		return true;
 	}
 
 	@Override

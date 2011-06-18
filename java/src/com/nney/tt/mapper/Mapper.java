@@ -489,7 +489,7 @@ public class Mapper implements MapperServicesToPens {
 		if (keyboard.isDown(Keyboard.KEY_SHIFT)) {
 			delta.mul(4);
 		}
-		srv.moveScreen(delta);
+		srv.setScreenPosition(srv.getScreenPosition().add2(delta));
 	}
 
 	void pushTool(int key, Tool tool) {
