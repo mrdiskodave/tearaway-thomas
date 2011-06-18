@@ -5,8 +5,6 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class BumbleAlien extends AlienWithLocation {
-	private static final int BUMBLE = 40;
-
 	@AlienProp(name = "Area", doc = "The area we're confined to")
 	public Box box;
 	

@@ -626,9 +626,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void drawTheMap() {
-		Coord screen = scr.position();
-		MapDrawingInfo ix = new MapDrawingInfo(screen.x, gc.screenWidth());
-		MapDrawingInfo iy = new MapDrawingInfo(screen.y, gc.screenHeight());
+		ScreenOrdinate ix = scr.scrOrdX;
+		ScreenOrdinate iy = scr.scrOrdY;
 //		ix.checkForOverread(mapBoundsInBlocks.xEnd(), GameMap.MAP_WIDTH);
 //		iy.checkForOverread(mapBoundsInBlocks.yEnd(), GameMap.MAP_HEIGHT);
 
