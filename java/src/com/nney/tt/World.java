@@ -68,8 +68,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	final private GraphicsContext gc;
 
 	// lift
-	private static final String CTC_WORLD = "g";
-	private static final int CTC_MAP = 6;
+	private static final String CTC_WORLD = "w";
+	private static final int CTC_MAP = 1;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -168,7 +168,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-//		aim.add(new AlienInfo(15, null, FloorFailAlien.class));			// special1 for w6.map
+		// aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
+		// for w6.map
 		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
 		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
 		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
@@ -341,12 +342,19 @@ public class World implements AlienServices, WorldServicesToMapper {
 			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
 			16 };
 
-	private static int limit(int current, int min, int max) {
-		if (current < min) {
-			current = min;
+	private static int limit(int current, int playStart, int playSize, int scrSize) {
+		if (playSize<scrSize) {
+			current = playStart - (scrSize-playSize)/2;
+			// and we'll be needing some black borders on that! TODO
 		}
-		if (current > max) {
-			current = max;
+		else {
+			if (current < playStart) {
+				current = playStart;
+			}
+			int max = playStart + playSize - scrSize;
+			if (current > max) {
+				current = max;
+			}
 		}
 		return current;
 	}
@@ -371,8 +379,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void limitScreenPosition() {
 		Box b = liveScrollBoundsInPixels;
-		screen.x = limit(screen.x, b.left, (b.right + 1) - gc.screenWidth());
-		screen.y = limit(screen.y, b.top, (b.bottom + 1) - gc.screenHeight());
+		
+		screen.x = limit(screen.x, b.left, b.width(), gc.screenWidth());
+		screen.y = limit(screen.y, b.top, b.height(), gc.screenHeight());
 	}
 
 	private static int scrollOrd(int current, int dest) {
@@ -695,8 +704,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private void drawTheMap() {
 		MapDrawingInfo ix = new MapDrawingInfo(screen.x, gc.screenWidth());
 		MapDrawingInfo iy = new MapDrawingInfo(screen.y, gc.screenHeight());
-		// ix.checkForOverread(mapBounds.xEnd(), GameMap.MAP_WIDTH);
-		// iy.checkForOverread(mapBounds.yEnd(), GameMap.MAP_HEIGHT);
+//		ix.checkForOverread(mapBoundsInBlocks.xEnd(), GameMap.MAP_WIDTH);
+//		iy.checkForOverread(mapBoundsInBlocks.yEnd(), GameMap.MAP_HEIGHT);
 
 		int[] blockRow = new int[ix.blockCount];
 
@@ -743,8 +752,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 				else {
 					ttPos = null;
 					player.move();
-					assert ttPos!=null;
-					
+					assert ttPos != null;
+
 					if (CTC_HARD_SCROLLING) {
 						snapScreenTo(player.c);
 					}
@@ -782,7 +791,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		mapBoundsInBlocks = pm.mapBounds;
 
 		Anims playerAnims = animsPool.load("0tt");
-		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
+		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY - 20), pm.playerGoLeft);
 		gameMap = pm.gameMap;
 
 		computeMapBounds();
@@ -838,7 +847,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void moveScreen(Coord delta) {
-		System.out.println("DELTA" + delta);
 		screen.add(delta);
 		limitScreenPosition();
 	}
@@ -917,7 +925,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void extraTime(int seconds) {
-		timeRemaining = Math.min(timeRemaining+seconds, 99);
+		timeRemaining = Math.min(timeRemaining + seconds, 99);
 	}
 }
 

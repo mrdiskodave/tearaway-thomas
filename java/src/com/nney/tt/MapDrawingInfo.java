@@ -23,10 +23,10 @@ public class MapDrawingInfo {
 	public final int blockCount;
 
 	public MapDrawingInfo(int mapSourceInPixels, int screenSizeInPixels) {
+		
 		//
 		// The actual logic per ordinate
 		//
-		
 		mapSourceInBlocks = mapSourceInPixels / Const.BLOCK_SIZE;
 		initialPixelDestination = -(mapSourceInPixels & Const.BLOCK_MASK);
 		// what is the minimum number of blocks to cover those pixels?
@@ -39,13 +39,11 @@ public class MapDrawingInfo {
 		this.blockCount = blockCount;
 	}
 
-	public void checkForOverread(int mapSizeInPixels, int availableMapInBlocks) {
+	public void checkForOverread(int mapSizeInBlocks, int availableMapInBlocks) {
 		//
 		// Some asserts to check we got the logic right
 		//
 		
-		assert !Math2.maskTest(mapSizeInPixels, Const.BLOCK_MASK);
-		int mapSizeInBlocks = mapSizeInPixels / 16;
 		// do we think we're allow to read beyond the edge of the map?
 		assert mapSizeInBlocks<=availableMapInBlocks;
 		

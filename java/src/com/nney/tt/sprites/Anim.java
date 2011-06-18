@@ -1,6 +1,7 @@
 package com.nney.tt.sprites;
 
 import com.nney.tt.geom.Box;
+import com.nney.utils.Math2;
 
 public class Anim {
 	public static final int MAX_RATE = 256;
@@ -24,4 +25,28 @@ public class Anim {
 		}
 		return b;
 	}
+
+	
+	
+	public Sprite randomAccessByFrameNumber(int rate, int f) {
+		f *= rate;
+		f /= Anim.MAX_RATE;
+		if (f<frames.length) return frames[f];
+		return null;
+	}
+
+	public int lengthInFrames(int rate) {
+		return Math2.roundUpDiv(Anim.MAX_RATE*frames.length, rate);
+	}
+	
+	
+	public Sprite randomAccessByFrameNumber(int f) {
+		return randomAccessByFrameNumber(defaultRate, f);
+	}
+
+	public int lengthInFrames() {
+		return lengthInFrames(defaultRate);
+		
+	}
+
 }

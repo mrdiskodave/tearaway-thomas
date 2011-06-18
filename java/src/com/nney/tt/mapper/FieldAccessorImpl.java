@@ -73,7 +73,7 @@ public class FieldAccessorImpl implements FieldAccessor {
 	 * @return The cloned object.
 	 */
 	static private Object cloneAnObject(Object o) {
-		if (o instanceof Boolean || o instanceof Enum || o instanceof String) {
+		if (isImutable(o)) {
 			return o;
 		}
 		try {
@@ -99,6 +99,10 @@ public class FieldAccessorImpl implements FieldAccessor {
 			// TODO: 70: yet?
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static boolean isImutable(Object o) {
+		return o instanceof Integer || o instanceof Boolean || o instanceof Enum || o instanceof String;
 	}
 
 	@Override

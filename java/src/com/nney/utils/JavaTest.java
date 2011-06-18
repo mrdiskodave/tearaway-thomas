@@ -377,7 +377,10 @@ public class JavaTest extends TestCase {
 		assertEquals(-3, -13%10);
 		assertEquals(3, 13%-10);
 		assertEquals(-3, -13%-10);
-		
-		
+	}
+	
+	private void testAnimLength() {
+		// 80 rate, 16 frames is 52 frames long
+
 	}
 }

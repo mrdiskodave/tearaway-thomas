@@ -28,7 +28,7 @@ public class Player {
 	private void setAnim(String name, boolean animate) {
 		Anim anim = playersAnimations.find(name);
 		animPlayer.changeAnimation(anim);
-		Sprite s = animate ? animPlayer.next() : animPlayer.current();
+		Sprite s = animate ? animPlayer.nextFrame() : animPlayer.currentFrame();
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}
@@ -429,7 +429,7 @@ public class Player {
 				setAnim(directionalAnimName("jump"), true);
 			}
 			else {
-				setStandingAnim();
+				setAnim(directionalAnimName(""), false);
 			}
 		}
 	}

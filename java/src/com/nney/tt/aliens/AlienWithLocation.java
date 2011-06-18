@@ -5,7 +5,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class AlienWithLocation extends Alien {
-	@AlienProp(name = "Location", doc = "Where are we?", xtraDef = "location")
+	@AlienProp(name = "Location", doc = "Where are we?")
 	public Coord c = new Coord();
 
 	@Override

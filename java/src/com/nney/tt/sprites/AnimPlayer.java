@@ -44,16 +44,16 @@ public class AnimPlayer {
 		animEnded = false;
 	}
 
-	public Sprite next() {
-		Sprite answer = current();
+	public Sprite nextFrame() {
+		Sprite answer = currentFrame();
 		advance();
 		return answer;
 	}
 
-	public Sprite current() {
+	public Sprite currentFrame() {
 		return anim.frames[pos];
 	}
-
+	
 	private void advance() {
 		assert anim != null;
 		acc += rate;

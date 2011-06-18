@@ -87,7 +87,7 @@ public class Mapper implements MapperServicesToPens {
 	private final SaveMapBlock[] slots = new SaveMapBlock[12];
 
 	private final Tool blockChooserTool = new BlockChooserTool(this);
-	private final Tool bigBoxTool = new RectangleTool(this);
+	private final Tool rectangleTool = new RectangleTool(this);
 	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new EyeDropperPen(), new DrawingPen()) {
 		@Override
 		void run() {
@@ -171,8 +171,8 @@ public class Mapper implements MapperServicesToPens {
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
 		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
-		bigBoxTool.addNested(Keyboard.KEY_SPACE, handTool);
-		bigBoxTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
+		rectangleTool.addNested(Keyboard.KEY_SPACE, handTool);
+		rectangleTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 
 		for (int x = 0; x < TABBING_ALIENS_TOTAL; x++) {
 			animPlayers[x] = new AnimPlayer();
@@ -268,7 +268,7 @@ public class Mapper implements MapperServicesToPens {
 				tool = blockChooserTool;
 				break;
 			case Keyboard.KEY_R:
-				tool = bigBoxTool;
+				tool = rectangleTool;
 				break;
 			case Keyboard.KEY_A:
 				tool = alienTool;
@@ -377,7 +377,7 @@ public class Mapper implements MapperServicesToPens {
 				Anims anims = srv.loadAnims(animsName);
 				Anim anim = anims.find(0);
 				animPlayers[x].changeAnimation(anim);
-				Sprite sprite = animPlayers[x].next();
+				Sprite sprite = animPlayers[x].nextFrame();
 				sprite.draw(sx, sy, false);
 			}
 

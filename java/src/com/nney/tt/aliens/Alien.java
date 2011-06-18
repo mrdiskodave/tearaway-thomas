@@ -64,11 +64,11 @@ public abstract class Alien {
 	}
 
 	protected Sprite nextFrame() {
-		return animPlayer.next();
+		return animPlayer.nextFrame();
 	}
 
 	protected Sprite sameFrame() {
-		return animPlayer.current();
+		return animPlayer.currentFrame();
 	}
 
 	protected Sprite firstFrame() {

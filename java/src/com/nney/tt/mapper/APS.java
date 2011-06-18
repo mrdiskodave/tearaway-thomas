@@ -38,6 +38,9 @@ public class APS {
 				else if (ft == boolean.class) {
 					prop = new BooleanProp(pp);
 				}
+				else if (ft == int.class) {
+					prop = new IntegerProp(pp);
+				}
 				else {
 					System.out.println(ft);
 					assert false;

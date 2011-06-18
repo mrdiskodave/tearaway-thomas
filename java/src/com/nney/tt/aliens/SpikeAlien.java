@@ -1,31 +1,32 @@
 package com.nney.tt.aliens;
 
+import com.nney.tt.sprites.Anim;
+import com.nney.tt.sprites.Sprite;
+
 public class SpikeAlien extends AlienWithLocation {
 	private int freq = 100;
-	private int phase = 50;
-	private int resume;
+	private Anim ourAnim;
 
+	@AlienProp(name = "Phase", doc = "Our movement in relation to other spikes")
+	public int phase;
+	
 	@Override
 	public void onLoaded() {
-		changeAnimation(0);
+		ourAnim = anims.find(0);
 	}
 	
 	@Override
 	public void update() {
-		int frameNumber = srv.getFrameNumber();
-		if (frameNumber<resume) {
-			freezeBounds = anims.find(0).box().add2(c);
-		}
-		else {
-			animateDrawAndStun(c);
-			if (!animPlayer.hasAnimEnded()) {
-				animPlayer.rewind();
-				
-				int a = frameNumber+phase;
-				a /= freq;
-				a ++;
-				a *= freq;
-				resume = a;
+		freezeBounds = ourAnim.box().add2(c);
+
+		int f = srv.getFrameNumber() + phase;
+		f %= freq;
+
+		Sprite s = ourAnim.randomAccessByFrameNumber(f);
+		if (s!=null) {
+			srv.drawSprite(c, s);
+			if (srv.collideAlienWithPlayerHiRes(c, s)) {
+				srv.getThePlayer().stun();
 			}
 		}
 	}

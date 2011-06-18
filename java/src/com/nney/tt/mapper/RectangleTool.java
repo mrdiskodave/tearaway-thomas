@@ -58,10 +58,10 @@ public class RectangleTool extends Tool {
 		if (k==Keyboard.KEY_F) {
 			srv.fillRect(rectangle);
 		}
-		drawIt();
 	}
 
-	private void drawIt() {
+	@Override
+	void presentation() {
 		Box t = rectangle.copy();
 		Coord z = new Coord(t.left*Const.BLOCK_SIZE, t.top*Const.BLOCK_SIZE);
 		z.sub(srv.getScreenPosition());
