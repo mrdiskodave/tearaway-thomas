@@ -62,6 +62,8 @@ import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, WorldServicesToMapper {
 
+	private static final int BORDER_COLOR = 0x80000000;
+
 	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
 			* Const.BLOCK_SIZE, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE);
 
@@ -69,7 +71,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 1;
+	private static final int CTC_MAP = 4;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -666,6 +668,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
+				setScreenPosition(getScreenPosition());
 				mapper.init();
 			}
 			else {
@@ -691,6 +694,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 					updateAliens(false);
 					updateScore();
 				}
+				
+				
+				
+				ScreenOrdinate s = scr.scrOrdX;
+				if (s.highBorderStart>=0) {
+					gc.fillRectangle(0, 0, s.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
+					gc.fillRectangle(s.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+				}
+				s = scr.scrOrdY;
+				if (s.highBorderStart>=0) {
+					gc.fillRectangle(0, 0, gc.screenWidth(), s.initialPixelDestination, BORDER_COLOR);
+					gc.fillRectangle(0, s.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+				}
+				
 			}
 		}
 	}

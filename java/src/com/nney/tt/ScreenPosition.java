@@ -29,8 +29,6 @@ public class ScreenPosition {
 		liveScrollBoundsInPixels = b;
 	}
 
-	
-	
 	public void setPosition(Coord c) {
 		Box b = liveScrollBoundsInPixels;
 		screen.x = scrOrdX.generate(c.x, screenWidth, b.left, b.width(), "X");
@@ -84,7 +82,7 @@ public class ScreenPosition {
 		m.constrain(c);
 	}
 
-	// mapper:
+	// everyone:
 
 	public Coord position() {
 		return screen;
