@@ -4,6 +4,8 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
+@AlienInfoAnns({ @AlienInfoAnn(type = 8, gfx = "0arru"), @AlienInfoAnn(type = 9, gfx = "0arrd"),
+		@AlienInfoAnn(type = 10, gfx = "0arrl"), @AlienInfoAnn(type = 11, gfx = "0arrr") })
 public class ArrowAlien extends AlienWithLocation {
 	private int repeat;
 

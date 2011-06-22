@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienInfoAnn;
+import com.nney.tt.aliens.AlienInfoAnns;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 
@@ -76,5 +78,26 @@ public class AlienInfoMap {
 	public List<Integer> getTypeCodes() {
 		Collections.sort(typeCodes);
 		return typeCodes;
+	}
+
+	public void addAnn(Class<? extends Alien> c) {
+		AlienInfoAnns a = c.getAnnotation(AlienInfoAnns.class);
+		if (a!=null) {
+			addAnn(c, a);
+		}
+		AlienInfoAnn b = c.getAnnotation(AlienInfoAnn.class);
+		if (b!=null) {
+			addAnn(c, b);
+		}
+	}
+
+	private void addAnn(Class<? extends Alien> c, AlienInfoAnns a) {
+		for (AlienInfoAnn v: a.value()) {
+			addAnn(c, v);
+		}
+	}
+
+	private void addAnn(Class<? extends Alien> c, AlienInfoAnn a) {
+		add(new AlienInfo(a.type(), a.gfx(), c));
 	}
 }

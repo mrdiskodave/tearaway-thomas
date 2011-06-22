@@ -71,7 +71,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 4;
+	private static final int CTC_MAP = 1;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -166,53 +166,36 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
 		aim.add(new AlienInfo(6, "0bgem", BigGemAlien.class));
 		aim.add(new AlienInfo(7, "0clok", ClockAlien.class));
-		aim.add(new AlienInfo(8, "0arru", ArrowAlien.class));
-		aim.add(new AlienInfo(9, "0arrd", ArrowAlien.class));
-		aim.add(new AlienInfo(10, "0arrl", ArrowAlien.class));
-		aim.add(new AlienInfo(11, "0arrr", ArrowAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
 		// aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
 		// for w6.map
-		aim.add(new AlienInfo(18, "0cld0", SpriteAlien.class));
-		aim.add(new AlienInfo(19, "0cld1", SpriteAlien.class));
-		aim.add(new AlienInfo(20, "0cld2", SpriteAlien.class));
-		aim.add(new AlienInfo(31, "gwall", SpriteAlien.class));
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
-		aim.add(new AlienInfo(35, "gpic4", PortraitAlien.class));
 		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
 		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
-		aim.add(new AlienInfo(40, "gpic0", PortraitAlien.class));
-		aim.add(new AlienInfo(41, "gpic1", PortraitAlien.class));
-		aim.add(new AlienInfo(42, "gpic2", SpriteAlien.class));
-		aim.add(new AlienInfo(43, "gpic3", PortraitAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		aim.add(new AlienInfo(46, "glflm", FlameAlien.class));
 		aim.add(new AlienInfo(47, "grflm", FlameAlien.class));
 		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
 		aim.add(new AlienInfo(62, "whone", HoneyAlien.class));
-		// TODO: 00: should the score just be part of AlienInfoMap???
 		aim.add(new AlienInfo(63, "wabee", BeeAlien.class));
-		aim.add(new AlienInfo(65, "wfce0", SpriteAlien.class));
-		aim.add(new AlienInfo(66, "wfce1", SpriteAlien.class));
-		aim.add(new AlienInfo(67, "wfce2", SpriteAlien.class));
-		aim.add(new AlienInfo(68, "wflr0", SpriteAlien.class));
-		aim.add(new AlienInfo(69, "wflr1", SpriteAlien.class));
-		aim.add(new AlienInfo(70, "wtrk0", SpriteAlien.class));
-		aim.add(new AlienInfo(71, "wtrk1", SpriteAlien.class));
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
 		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
 		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));
-		aim.add(new AlienInfo(93, "wfnsh", SpriteAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
+		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
+		
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
-		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
+
+		aim.addAnn(ArrowAlien.class);
+		aim.addAnn(PortraitAlien.class);
+		aim.addAnn(SpriteAlien.class);
 
 		alienInfoMap = aim;
 

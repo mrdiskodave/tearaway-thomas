@@ -10,6 +10,7 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.map.GameMap;
+import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 
 public class PersistedMap {
@@ -45,6 +46,20 @@ public class PersistedMap {
 		int maxx = dis.readByte() & 0xff;
 		int miny = dis.readByte() & 0xff;
 		int maxy = dis.readByte() & 0xff;
+		
+		// seemed like we saved an exclusive box
+		// where as we need an inclusive one
+		maxx++;
+		maxy++;
+		
+		// also vertical levels were strangely less than 18 wide
+		// (when 18 was there actual width)
+		maxx = Math2.atLeast(minx+(18-1), maxx);
+		
+		assert maxx<=GameMap.MAP_WIDTH;
+		assert maxy<=GameMap.MAP_HEIGHT;
+		assert minx<maxx;
+		assert miny<maxy;
 		mapBounds = new Box(minx, miny, maxx, maxy);
 	}
 

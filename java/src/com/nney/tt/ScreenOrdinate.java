@@ -26,7 +26,7 @@ public class ScreenOrdinate {
 
 	/**
 	 * A screen ordinate in pixels (or <code>-1</code> if there is no border
-	 * needed). If this value is at least zero the borders are <b>on</b> for
+	 * needed). If this value is at least zero then borders are <b>on</b> for
 	 * this ordinate. The low border goes from 0-
 	 * {@link #initialPixelDestination} exclusive and the high border goes from
 	 * {@link #highBorderStart} to the high ordinate edge of the screen.
@@ -35,7 +35,7 @@ public class ScreenOrdinate {
 
 	/**
 	 * Make sure given current position is valid and also generate the other
-	 * field data in this class. There will be two instances of this class - one
+	 * field data in this object. There will be two instances of this class - one
 	 * for X and one for Y. All parameters are in pixels.
 	 * 
 	 * @param current
