@@ -29,9 +29,10 @@ public class JsonDataDestination implements DataDestination {
 
 	private void begin(char open, char shut, State newState) {
 		cantBeWaitingForDictKey();
+		stateChangeForValues();
+		put(open+" ");
 		stack.push(state);
 		term.push(shut);
-		put(open+" ");
 		state = newState;
 	}
 
@@ -66,6 +67,13 @@ public class JsonDataDestination implements DataDestination {
 	}
 
 	private void w(String s) {
+		stateChangeForValues();
+		
+		// expecting value string?
+		put(s);
+	}
+
+	private void stateChangeForValues() {
 		if (state == State.LIST_START) {
 			state = State.LIST_NEXT;
 		}
@@ -83,9 +91,6 @@ public class JsonDataDestination implements DataDestination {
 			put(", ");
 			state = State.DICT_VALUE;
 		}
-		
-		// expecting value string?
-		put(s);
 	}
 
 	private void put(String s) {
