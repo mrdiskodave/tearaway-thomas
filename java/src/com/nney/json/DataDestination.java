@@ -16,4 +16,6 @@ public interface DataDestination {
 	void write(boolean value);
 
 	void write(String value);
+	
+	void writeNull();
 }

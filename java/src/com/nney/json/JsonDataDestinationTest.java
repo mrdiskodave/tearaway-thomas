@@ -3,61 +3,52 @@ package com.nney.json;
 import junit.framework.TestCase;
 
 public class JsonDataDestinationTest extends TestCase {
-//	public void test1() throws Exception {
-//		JsonDataDestination j = new JsonDataDestination();
-//		j.write(false);
-//		j.write(true);
-//		j.write(5);
-//		j.write(-99);
-//		j.write("\n\r\t\u0000\uffff yeah");
-//		System.out.println(j);
-//	}
-//	
-//	public void test2() throws Exception {
-//		JsonDataDestination j = new JsonDataDestination();
-//		j.beginArray();
-//		j.write(false);
-//		j.write(true);
-//		j.write(5);
-//		j.write(-99);
-//		j.write("\n\r\t\u0000\uffff yeah");
-//		j.end();
-//		System.out.println(j);
-//	}
+	JsonDataDestination f = new JsonDataDestination();
 
-	public void test3() throws Exception {
-		JsonDataDestination j = new JsonDataDestination();
-		j.beginDict();
-		j.write("hello");
-		j.write(true);
-		j.write("yeah!");
-		j.write(5);
-		j.end();
-		assertEquals("{ \"hello\": true, \"yeah!\": 5 }", j.toString());
+	private void assertResult(String answer) {
+		assertEquals(answer, f.toString());
+	}
+
+	public void testValues() throws Exception {
+		f.write(false);
+		f.write(true);
+		f.write(5);
+		f.write(6L);
+		f.write(-99);
+		f.write("\n\r\t\u0000\uffff yeah");
+		assertResult("false, true, 5, 6, -99, \"\\n\\r\\t\\u0000\\uffff yeah\"");
+	}
+
+	public void testSimpleDict() throws Exception {
+		f.beginDict();
+		f.write("hello");
+		f.write(true);
+		f.write("yeah!");
+		f.write(5);
+		f.end();
+		assertResult("{ \"hello\": true, \"yeah!\": 5 }");
 	}
 
 	public void testIntArray() {
-		JsonDataDestination j = new JsonDataDestination();
-		j.beginArray();
-		j.write(1);
-		j.write(2);
-		j.write(3);
-		j.end();
-		assertEquals("[ 1, 2, 3 ]", j.toString());
+		f.beginArray();
+		f.write(1);
+		f.write(2);
+		f.write(3);
+		f.end();
+		assertResult("[ 1, 2, 3 ]");
 	}
 	
-	public void test4() throws Exception {
-		JsonDataDestination j = new JsonDataDestination();
-		j.beginDict();
-		j.write("hello");
-		j.write(true);
-		j.write("yeah");
-		j.beginArray();
-		j.end();
-		j.write("a");
-		j.write(5);
-		j.end();
-		System.out.println(j.toString());
+	public void testNestedDict() throws Exception {
+		f.beginDict();
+		f.write("hello");
+		f.write(true);
+		f.write("yeah");
+		f.beginArray();
+		f.end();
+		f.write("a");
+		f.write(5);
+		f.end();
+		assertResult("{ \"hello\": true, \"yeah\": [  ], \"a\": 5 }");
 	}
 
 }
