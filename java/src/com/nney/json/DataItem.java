@@ -22,7 +22,7 @@ public interface DataItem {
 	/**
 	 * Assuming this item is an array, get all the elements from it.
 	 * 
-	 * @return THe array content.
+	 * @return The array content.
 	 * @throws DataException
 	 *             If the item is not an array.
 	 */
