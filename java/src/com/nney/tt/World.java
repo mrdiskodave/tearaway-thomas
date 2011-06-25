@@ -9,18 +9,16 @@ import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BattAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
-import com.nney.tt.aliens.BigGemAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.FlameAlien;
+import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
-import com.nney.tt.aliens.HoneyAlien;
-import com.nney.tt.aliens.HugeGemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
-import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
-import com.nney.tt.aliens.PurpleGemAlien;
+import com.nney.tt.aliens.PortraitAlien;
+import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
@@ -33,8 +31,8 @@ import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.aliens.TrampolineAlien;
 import com.nney.tt.aliens.WingAlien;
+import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowBirdAlien;
-import com.nney.tt.aliens.YellowGemAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlockSource;
@@ -71,7 +69,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// lift
 	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 1;
+	private static final int CTC_MAP = 8;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -85,9 +83,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// */
 	// private static final boolean CTC_TUMBLE_WEEDS = false;
 
-	
 	private ScreenPosition scr;
-	
+
 	/**
 	 * Compile time configuration: the screen follows the player <b>exactly</b>.
 	 */
@@ -160,11 +157,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		initFonts();
 
 		AlienInfoMap aim = new AlienInfoMap();
-		aim.add(new AlienInfo(2, "0ygem", YellowGemAlien.class));
-		aim.add(new AlienInfo(3, "0pgem", PurpleGemAlien.class));
+		
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
-		aim.add(new AlienInfo(6, "0bgem", BigGemAlien.class));
 		aim.add(new AlienInfo(7, "0clok", ClockAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
@@ -175,27 +170,27 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
 		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
 		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
-		aim.add(new AlienInfo(46, "glflm", FlameAlien.class));
-		aim.add(new AlienInfo(47, "grflm", FlameAlien.class));
 		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
-		aim.add(new AlienInfo(62, "whone", HoneyAlien.class));
 		aim.add(new AlienInfo(63, "wabee", BeeAlien.class));
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
 		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
 		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
-		aim.add(new AlienInfo(86, "0hgem", HugeGemAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
-		
+
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 
+		aim.addAnn(FlameAlien.class);
+		aim.addAnn(WobbleGemAlien.class);
+		aim.addAnn(GemAlien.class);
 		aim.addAnn(ArrowAlien.class);
 		aim.addAnn(PortraitAlien.class);
 		aim.addAnn(SpriteAlien.class);
+		aim.addAnn(ScoreCollectableAlien.class);
 
 		alienInfoMap = aim;
 
@@ -316,7 +311,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public boolean isExitOpen() {
 		return gemCounter == 0;
 	}
-
 
 	// ---------------------------------------------------------------------------
 	// DRAWING
@@ -513,7 +507,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			if (animsName != null) {
 				alien.connectAnims(loadAnims(animsName));
 			}
-			alien.typeCode = typeCode;
+			alien.alienInfo = alienInfo;
 			return alien;
 		}
 
@@ -613,8 +607,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private void drawTheMap() {
 		ScreenOrdinate ix = scr.scrOrdX;
 		ScreenOrdinate iy = scr.scrOrdY;
-//		ix.checkForOverread(mapBoundsInBlocks.xEnd(), GameMap.MAP_WIDTH);
-//		iy.checkForOverread(mapBoundsInBlocks.yEnd(), GameMap.MAP_HEIGHT);
+		// ix.checkForOverread(mapBoundsInBlocks.xEnd(), GameMap.MAP_WIDTH);
+		// iy.checkForOverread(mapBoundsInBlocks.yEnd(), GameMap.MAP_HEIGHT);
 
 		int[] blockRow = new int[ix.blockCount];
 
@@ -677,20 +671,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 					updateAliens(false);
 					updateScore();
 				}
-				
-				
-				
-				ScreenOrdinate s = scr.scrOrdX;
-				if (s.highBorderStart>=0) {
-					gc.fillRectangle(0, 0, s.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
-					gc.fillRectangle(s.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+
+				// draw borders on the playing area if the map is small
+				ScreenOrdinate lr = scr.scrOrdX;
+				if (lr.highBorderStart >= 0) {
+					gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
+					gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 				}
-				s = scr.scrOrdY;
-				if (s.highBorderStart>=0) {
-					gc.fillRectangle(0, 0, gc.screenWidth(), s.initialPixelDestination, BORDER_COLOR);
-					gc.fillRectangle(0, s.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+				ScreenOrdinate tb = scr.scrOrdY;
+				if (tb.highBorderStart >= 0) {
+					gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
+					gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 				}
-				
 			}
 		}
 	}
@@ -770,7 +762,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawTheMap();
 	}
 
-
 	@Override
 	public Alien findNearestAlien(Coord c) {
 		NearestAlienFinder n = new NearestAlienFinder(c);
@@ -795,7 +786,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return blocksHolder;
 	}
 
-
 	@Override
 	public Box getMapBoundsInBlocks() {
 		return mapBoundsInBlocks.copy();
@@ -819,22 +809,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-
 	@Override
 	public Coord getScreenPosition() {
 		return scr.position();
 	}
 
-	
 	@Override
 	public void setScreenPosition(Coord c) {
 		scr.setPosition(c);
 	}
-	
+
 	// ---------------------------------------------------------------------------
-	
-	
-	
+
 	@Override
 	public void drawDebugText(Coord c, String text) {
 		Coord a = c.sub2(scr.position());
@@ -843,7 +829,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gc.fillRectangle(a.x, a.y, w, h, 0xff000000);
 		debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
 	}
-
 
 	@Override
 	public boolean isMapping() {

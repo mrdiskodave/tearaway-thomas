@@ -5,7 +5,10 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public abstract class WobbleGemAlien extends GemAlien {
+@AlienInfoAnns({ @AlienInfoAnn(type = 2, gfx = "0ygem", score=50),
+	@AlienInfoAnn(type = 3, gfx = "0pgem", score=100)
+})
+public class WobbleGemAlien extends GemAlien {
 	private static final int FLAG_NO_WOBBLE = 3;
 
 	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };

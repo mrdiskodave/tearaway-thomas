@@ -67,7 +67,7 @@ public class AlienInfoMap {
 
 	public void giveTypeCodeAndConnectAnims(Alien c, AnimsPool animsPool) {
 		AlienInfo ai = getByClass(c.getClass());
-		c.typeCode = ai.typeCode;
+		c.alienInfo = ai;
 		if (ai.animsName != null) {
 			Anims anims = animsPool.directGet(ai.animsName);
 			assert anims != null : "need to preload " + ai.animsName;

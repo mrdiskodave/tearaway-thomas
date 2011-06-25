@@ -331,7 +331,7 @@ public class Mapper implements MapperServicesToPens {
 		else if (k==Keyboard.KEY_END) {
 			alienTabber.end();
 		}
-		else if (k==Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().typeCode)) {
+		else if (k==Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().alienInfo.typeCode)) {
 			
 		}
 		else {
@@ -660,8 +660,8 @@ public class Mapper implements MapperServicesToPens {
 
 	public void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
-		if (src.typeCode >= 0) {
-			final Alien dest = srv.createAlien(src.typeCode);
+		if (src.alienInfo.typeCode >= 0) {
+			final Alien dest = srv.createAlien(src.alienInfo.typeCode);
 			APS.copyProps(src, dest);
 
 			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.getLocation());

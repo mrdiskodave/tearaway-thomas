@@ -3,13 +3,13 @@ package sandbox.annotations;
 import java.lang.reflect.Field;
 
 import com.nney.tt.aliens.AlienProp;
-import com.nney.tt.aliens.PurpleGemAlien;
+import com.nney.tt.aliens.WobbleGemAlien;
 
 @HelloAnno(value = "Hello", greetTo = "Universe")
 public class GettingAnnotation {
 	public static void main(String[] args) {
 
-		Class<PurpleGemAlien> a = PurpleGemAlien.class;
+		Class<WobbleGemAlien> a = WobbleGemAlien.class;
 
 		Field[] fs = a.getFields();
 		for (Field f : fs) {

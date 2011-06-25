@@ -2,7 +2,8 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Coord;
 
-public abstract class ScoreCollectableAlien extends CollectableAlien {
+@AlienInfoAnn(type = 62, gfx = "whone", score = 500)
+public class ScoreCollectableAlien extends CollectableAlien {
 	@Override
 	protected void giveBonus() {
 		srv.giveScore(ourValue(), scoreLocation());
@@ -12,5 +13,7 @@ public abstract class ScoreCollectableAlien extends CollectableAlien {
 		return c.copyAndAdd(0, sameFrame().h / -2);
 	}
 
-	abstract protected int ourValue();
+	protected int ourValue() {
+		return alienInfo.score;
+	}
 }

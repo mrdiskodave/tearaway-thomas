@@ -1,5 +1,6 @@
 package com.nney.tt.aliens;
 
+import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -10,7 +11,7 @@ import com.nney.tt.sprites.Sprite;
 public abstract class Alien {
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	protected Anims anims;
-	public int typeCode = -1;
+	public AlienInfo alienInfo;
 	public byte[] legacyData;
 	public boolean remove;
 	public int depth = DEPTH_BACKGROUND;

@@ -8,4 +8,6 @@ public @interface AlienInfoAnn {
 	int type();
 
 	String gfx();
+	
+	int score() default 0;
 }
