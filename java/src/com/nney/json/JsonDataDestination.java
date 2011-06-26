@@ -3,7 +3,7 @@ package com.nney.json;
 import java.util.Stack;
 
 public class JsonDataDestination implements DataDestination {
-	private StringBuilder sb = new StringBuilder();
+	private SimpleJsonFormatter target;
 
 	private enum State {
 		LIST_START, // to LIST_NEXT
@@ -14,63 +14,54 @@ public class JsonDataDestination implements DataDestination {
 		DICT_VALUE, // to DICT_NEXT
 	}
 
+	JsonDataDestination(SimpleJsonFormatter target) {
+		this.target = target;
+	}
+
 	private Stack<State> stack = new Stack<State>();
-	private Stack<String> term = new Stack<String>();
 
 	private State state = State.LIST_START;
 
-	private String stringListSep = ", ";
-	private String stringDictSep = ": ";
-	private String stringArrayBegin = "[ ";
-	private String stringArrayEnd = " ]";
-	private String stringDictBegin = "{ ";
-	private String stringDictEnd = " }";
+	private String key;
 
-	private void put(String s) {
-		sb.append(s);
-		System.out.println(">" + s + "<");
-	}
-
-	private void stateChange(boolean isName) {
-		if (!isName) {
-			boolean dictionaryKey = state == State.DICT_START || state == State.DICT_NEXT;
-			if (dictionaryKey) {
-				throw new IllegalArgumentException("Dictionary keys can only be Strings");
-			}
-		}
-		
+	private void stateChange() {
 		if (state == State.LIST_START) {
 			state = State.LIST_NEXT;
 		}
 		else if (state == State.LIST_NEXT) {
-			put(stringListSep);
+			target.listSep();
 		}
 		else if (state == State.DICT_START) {
 			state = State.DICT_VALUE;
 		}
 		else if (state == State.DICT_VALUE) {
-			put(stringDictSep);
+			target.dictSep();
 			state = State.DICT_NEXT;
 		}
 		else if (state == State.DICT_NEXT) {
-			put(stringListSep);
+			target.listSep();
 			state = State.DICT_VALUE;
 		}
 	}
 
-	private void outputValue(String s, boolean isName) {
-		stateChange(isName);
-		put(s);
+	private boolean waitingForKey() {
+		return state == State.DICT_START || state == State.DICT_NEXT;
 	}
 
-	private void begin(String open, String shut, State newState) {
-		stateChange(false);
-		put(open);
-		stack.push(state);
-		term.push(shut);
-		state = newState;
-	}
+	private void outputValue(String s) {
+		if (waitingForKey()) {
+			throw new IllegalArgumentException("Dictionary keys can only be Strings");
+		}
 
+		stateChange();
+		target.value(s);
+	}
+	
+	private void outputValueString(String s) {
+		stateChange();
+		target.value(s);
+	}
+	
 	@Override
 	public void end() {
 		if (state == State.DICT_VALUE) {
@@ -79,18 +70,27 @@ public class JsonDataDestination implements DataDestination {
 		if (stack.empty()) {
 			throw new IllegalStateException("end() without begin()");
 		}
-		put(term.pop());
+		target.end();
 		state = stack.pop();
+	}
+
+	private void begin(State newState) {
+		stack.push(state);
+		state = newState;
 	}
 
 	@Override
 	public void beginArray() {
-		begin(stringArrayBegin, stringArrayEnd, State.LIST_START);
+		stateChange();
+		target.beginArray();
+		begin(State.LIST_START);
 	}
 
 	@Override
 	public void beginDict() {
-		begin(stringDictBegin, stringDictEnd, State.DICT_START);
+		stateChange();
+		target.beginDict();
+		begin(State.DICT_START);
 	}
 
 	@Override
@@ -100,22 +100,22 @@ public class JsonDataDestination implements DataDestination {
 
 	@Override
 	public void write(int value) {
-		outputValue(String.format("%s", value), false);
+		outputValue(String.format("%s", value));
 	}
 
 	@Override
 	public void write(long value) {
-		outputValue(String.format("%s", value), false);
+		outputValue(String.format("%s", value));
 	}
 
 	@Override
 	public void write(boolean value) {
-		outputValue(value ? "true" : "false", false);
+		outputValue(value ? "true" : "false");
 	}
-	
+
 	@Override
 	public void writeNull() {
-		outputValue("null", false);
+		outputValue("null");
 	}
 
 	@Override
@@ -150,11 +150,10 @@ public class JsonDataDestination implements DataDestination {
 			}
 		}
 		b.append('"');
-		outputValue(b.toString(), true);
-	}
-
-	@Override
-	public String toString() {
-		return sb.toString();
+//		if (waitingForKey()) {
+//			key = b.toString();
+//			stateChange();
+//		}
+		outputValueString(b.toString());
 	}
 }

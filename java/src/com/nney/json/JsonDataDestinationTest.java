@@ -3,10 +3,11 @@ package com.nney.json;
 import junit.framework.TestCase;
 
 public class JsonDataDestinationTest extends TestCase {
-	JsonDataDestination f = new JsonDataDestination();
+	SimpleJsonFormatter dest = new SimpleJsonFormatter();
+	JsonDataDestination f = new JsonDataDestination(dest);
 
 	private void assertResult(String answer) {
-		assertEquals(answer, f.toString());
+		assertEquals(answer, dest.result());
 	}
 
 	public void testValues() throws Exception {
@@ -50,5 +51,4 @@ public class JsonDataDestinationTest extends TestCase {
 		f.end();
 		assertResult("{ \"hello\": true, \"yeah\": [  ], \"a\": 5 }");
 	}
-
 }
