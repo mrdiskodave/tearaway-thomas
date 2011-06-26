@@ -57,4 +57,16 @@ public class JsonDataDestinationTest extends TestCase {
 		f.end();
 		assertResult("{ \"hello\": true, \"yeah\": [  ], \"a\": 5 }");
 	}
+	
+	public void testNestedArray() throws Exception {
+		f.beginArray();
+		f.write(1);
+		f.beginArray();
+		f.beginArray();
+		f.end();
+		f.write(2);
+		f.end();
+		f.end();
+		assertResult("[ 1, [ [  ], 2 ] ]");
+	}
 }
