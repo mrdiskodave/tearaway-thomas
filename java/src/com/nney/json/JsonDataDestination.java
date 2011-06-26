@@ -6,11 +6,9 @@ public class JsonDataDestination implements DataDestination {
 	private SimpleJsonFormatter target;
 
 	private enum State {
-		LIST,
-
-		DICT_START, // to DICT_VALUE
-		DICT_NEXT, // to DICT_VALUE
-		DICT_VALUE, // to DICT_NEXT
+		LIST_ITEM,
+		DICT_KEY,
+		DICT_VALUE,
 	}
 
 	JsonDataDestination(SimpleJsonFormatter target) {
@@ -19,24 +17,19 @@ public class JsonDataDestination implements DataDestination {
 
 	private Stack<State> stack = new Stack<State>();
 
-	private State state = State.LIST;
+	private State state = State.LIST_ITEM;
 
 	private void stateChange() {
-		if (state == State.LIST) {
-		}
-		else if (state == State.DICT_START) {
+		if (state == State.DICT_KEY) {
 			state = State.DICT_VALUE;
 		}
 		else if (state == State.DICT_VALUE) {
-			state = State.DICT_NEXT;
-		}
-		else if (state == State.DICT_NEXT) {
-			state = State.DICT_VALUE;
+			state = State.DICT_KEY;
 		}
 	}
 
 	private boolean waitingForKey() {
-		return state == State.DICT_START || state == State.DICT_NEXT;
+		return state == State.DICT_KEY;
 	}
 
 	private void outputValue(String s) {
@@ -80,14 +73,14 @@ public class JsonDataDestination implements DataDestination {
 	public void beginArray() {
 		stateChange();
 		target.beginArray();
-		begin(State.LIST);
+		begin(State.LIST_ITEM);
 	}
 
 	@Override
 	public void beginDict() {
 		stateChange();
 		target.beginDict();
-		begin(State.DICT_START);
+		begin(State.DICT_KEY);
 	}
 
 	@Override
