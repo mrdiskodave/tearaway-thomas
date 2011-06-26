@@ -11,15 +11,20 @@ public class SimpleJsonFormatter {
 	public String stringDictEnd = " }";
 
 	private StringBuilder sb = new StringBuilder();
-	private Stack<String> term = new Stack<String>(); 
+	private Stack<String> term = new Stack<String>();
+	private boolean sepNext; 
 
 	private void put(String s) {
+		if (sepNext) {
+			sb.append(stringListSep);
+			sepNext = false;
+		}
 		sb.append(s);
 	}
 
 	public void value(String s) {
 		put(s);
-		put(stringListSep);
+		sepNext = true;
 	}
 
 	public void beginArray() {
@@ -38,32 +43,12 @@ public class SimpleJsonFormatter {
 	}
 
 	public void end() {
-		strip();
+		sepNext = false;
 		put(term.pop());
-		put(stringListSep);
+		sepNext = true;
 	}
 	
-	private void strip() {
-		if (endsWith(sb, stringListSep)) {
-			sb.setLength(sb.length()-stringListSep.length());
-		}
-	}
-
-	private boolean endsWith(StringBuilder b, String a) {
-		int i = b.length()-a.length();
-		if (i<0) {
-			return false;
-		}
-		for (int x=0; x<a.length(); x++) {
-			if (a.charAt(x)!=b.charAt(i++)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public String result() {
-		strip();
 		return sb.toString();
 	}
 }
