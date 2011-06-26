@@ -21,10 +21,6 @@ public class SimpleJsonFormatter {
 		put(stringListSep);
 	}
 
-	public void dictSep() {
-		put(stringDictSep);
-	}
-
 	public void value(String s) {
 		put(s);
 	}
@@ -37,6 +33,11 @@ public class SimpleJsonFormatter {
 	public void beginDict() {
 		put(stringDictBegin);
 		term.push(stringDictEnd);
+	}
+
+	public void key(String s) {
+		put(s);
+		put(stringDictSep);
 	}
 
 	public void end() {

@@ -10,6 +10,12 @@ public class JsonDataDestinationTest extends TestCase {
 		assertEquals(answer, dest.result());
 	}
 
+	public void testSimple() {
+		f.write(false);
+		f.write(true);
+		assertResult("false, true");
+	}
+	
 	public void testValues() throws Exception {
 		f.write(false);
 		f.write(true);

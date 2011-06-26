@@ -379,8 +379,16 @@ public class JavaTest extends TestCase {
 		assertEquals(-3, -13%-10);
 	}
 	
-	private void testAnimLength() {
-		// 80 rate, 16 frames is 52 frames long
-
+	public void testStringBufferInit() {
+		// initialise the string buffer
+		StringBuffer a = new StringBuffer("h");
+		a.append('i');
+		assertEquals("hi", a.toString());
+		
+		// set the capacity of the string buffer
+		// (gotcha: though it doesn't look like it!)
+		StringBuffer b = new StringBuffer('h');
+		b.append('i');
+		assertEquals("i", b.toString());
 	}
 }

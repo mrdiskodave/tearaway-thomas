@@ -22,8 +22,6 @@ public class JsonDataDestination implements DataDestination {
 
 	private State state = State.LIST_START;
 
-	private String key;
-
 	private void stateChange() {
 		if (state == State.LIST_START) {
 			state = State.LIST_NEXT;
@@ -35,7 +33,6 @@ public class JsonDataDestination implements DataDestination {
 			state = State.DICT_VALUE;
 		}
 		else if (state == State.DICT_VALUE) {
-			target.dictSep();
 			state = State.DICT_NEXT;
 		}
 		else if (state == State.DICT_NEXT) {
@@ -52,14 +49,20 @@ public class JsonDataDestination implements DataDestination {
 		if (waitingForKey()) {
 			throw new IllegalArgumentException("Dictionary keys can only be Strings");
 		}
-
 		stateChange();
 		target.value(s);
+
 	}
 	
 	private void outputValueString(String s) {
+		boolean w = waitingForKey(); 
 		stateChange();
-		target.value(s);
+		if (w) {
+			target.key(s);
+		}
+		else {
+			target.value(s);
+		}
 	}
 	
 	@Override
@@ -150,10 +153,6 @@ public class JsonDataDestination implements DataDestination {
 			}
 		}
 		b.append('"');
-//		if (waitingForKey()) {
-//			key = b.toString();
-//			stateChange();
-//		}
 		outputValueString(b.toString());
 	}
 }
