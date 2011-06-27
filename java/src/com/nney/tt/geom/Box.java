@@ -1,6 +1,7 @@
 package com.nney.tt.geom;
 
 import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.utils.Copyable;
 
 public class Box implements Copyable<Box>, Cloneable {
@@ -276,5 +277,13 @@ public class Box implements Copyable<Box>, Cloneable {
 		d.write(right);
 		d.write(bottom);
 		d.end();
+	}
+
+	public static Box load(DataItem d) {
+		int left = d.requireElement(0).requireInt();
+		int top = d.requireElement(1).requireInt();
+		int right = d.requireElement(2).requireInt();
+		int bottom = d.requireElement(3).requireInt();
+		return new Box(left, top, right, bottom);
 	}
 }

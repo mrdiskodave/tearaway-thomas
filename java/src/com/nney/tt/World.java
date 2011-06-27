@@ -717,33 +717,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		wi = WorldInformation.load(worldName);
 		loadBlocks();
 
-		// ---
-		// SAVE MAP
-		
-		SafeWriter sw = new SafeWriter() {
-			@Override
-			public void write(String text) {
-				System.out.print(text);
-			}
-		};
-
-		IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
-		ijf.spaciousSeperators();
-		DataDestination dd = new JsonDataDestination(ijf);
-
-		dd.beginDict();
-		dd.write("objects");
-		dd.beginArray();
-		for (Alien a : pm.aliens) {
-			dd.beginDict();
-			dd.write("type");
-			dd.write(a.alienInfo.typeCode);
-			APS.saveProps(a, dd);
-			dd.end();
-		}
-		dd.end();
-		
-		// ---
 		
 
 		Anims playerAnims = animsPool.load("0tt");

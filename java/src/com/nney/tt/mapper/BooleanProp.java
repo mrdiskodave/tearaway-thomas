@@ -4,7 +4,7 @@ import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 
 
-public class BooleanProp extends Prop {
+public class BooleanProp extends SpecificProp<Boolean> {
 	private final String textTrue;
 	private final String textFalse;
 
@@ -25,13 +25,6 @@ public class BooleanProp extends Prop {
 		return read() ? textTrue : textFalse;
 	}
 
-	private boolean read() {
-		return (Boolean) getFieldAccessor().get();
-	}
-
-	private void write(boolean n) {
-		getFieldAccessor().put(n);
-	}
 	@Override
 	String[] getButtons() {
 		return new String[] { "change" };
@@ -39,8 +32,6 @@ public class BooleanProp extends Prop {
 
 	@Override
 	void onButtonPress(int what, ButtonPressServices bps) {
-		System.out.println("Boolean click!");
-		assert what == 0;
 		write(!read());
 	}
 

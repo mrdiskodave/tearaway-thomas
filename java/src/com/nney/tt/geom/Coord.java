@@ -1,5 +1,7 @@
 package com.nney.tt.geom;
 
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.utils.Copyable;
 import com.nney.utils.Math2;
 
@@ -112,6 +114,19 @@ public class Coord implements Copyable<Coord>, Cloneable {
 	public void closer(Coord other, int amount) {
 		x = Math2.closer(x, other.x, amount);
 		y = Math2.closer(y, other.y, amount);
+	}
+
+	public void save(DataDestination d) {
+		d.beginArray();
+		d.write(x);
+		d.write(y);
+		d.end();
+	}
+
+	public static Coord load(DataItem d) {
+		int x = d.requireElement(0).requireInt();
+		int y = d.requireElement(1).requireInt();
+		return new Coord(x, y);
 	}
 
 

@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 
-public class IntegerProp extends Prop {
+public class IntegerProp extends SpecificProp<Integer> {
 	public IntegerProp(PropPack pp) {
 		super(pp);
 	}
@@ -13,14 +13,6 @@ public class IntegerProp extends Prop {
 		return Integer.toString(read());
 	}
 	
-	private int read() {
-		return (Integer) getFieldAccessor().get();
-	}
-	
-	private void write(int n) {
-		getFieldAccessor().put(n);
-	}
-
 	@Override
 	String[] getButtons() {
 		return new String[] { "more", "less" };

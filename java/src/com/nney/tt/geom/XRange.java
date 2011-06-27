@@ -1,5 +1,7 @@
 package com.nney.tt.geom;
 
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.utils.Copyable;
 
 public class XRange implements Copyable<XRange>, Cloneable {
@@ -79,6 +81,19 @@ public class XRange implements Copyable<XRange>, Cloneable {
 
 	private boolean inside(int x) {
 		return x>=left && x<=right;
+	}
+
+	public void save(DataDestination d) {
+		d.beginArray();
+		d.write(left);
+		d.write(right);
+		d.end();
+	}
+
+	public static XRange load(DataItem d) {
+		int left = d.requireElement(0).requireInt();
+		int right = d.requireElement(1).requireInt();
+		return new XRange(left, right);
 	}
 
 	

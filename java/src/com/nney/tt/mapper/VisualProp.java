@@ -7,7 +7,7 @@ import com.nney.tt.geom.Coord;
  * "bats" (as in "sports bats") throughout because "control point" is such a
  * mouthful.
  */
-public abstract class VisualProp extends Prop {
+public abstract class VisualProp<T> extends SpecificProp<T> {
 	public VisualProp(PropPack pp) {
 		super(pp);
 	}

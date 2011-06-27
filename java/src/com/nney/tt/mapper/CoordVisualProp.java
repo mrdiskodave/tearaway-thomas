@@ -4,13 +4,9 @@ import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
 
-public class CoordVisualProp extends VisualProp {
-	private final Coord t;
-
+public class CoordVisualProp extends VisualProp<Coord> {
 	public CoordVisualProp(PropPack pp) {
 		super(pp);
-		this.t = (Coord) pp.access().get();
-		assert t!=null;
 	}
 
 	@Override
@@ -27,36 +23,34 @@ public class CoordVisualProp extends VisualProp {
 
 	@Override
 	void onBring(Coord c) {
-		t.x = c.x;
-		t.y = c.y;
+		write(c.copy());
 	}
 
 	@Override
 	public void moveBy(Coord delta) {
+		Coord t = read();
 		t.add(delta);
 	}
 
 	@Override
 	public String text() {
+		Coord t = read();
 		return String.format("x%dy%d", t.x, t.y);
 	}
 
 	@Override
 	Coord location() {
+		Coord t = read();
 		return t.copy();
 	}
 	
 	@Override
 	void save(DataDestination d) {
-		d.beginArray();
-		d.write(t.x);
-		d.write(t.y);
-		d.end();
+		read().save(d);
 	}
 	
 	@Override
 	void load(DataItem d) {
-		t.x = d.requireElement(0).requireInt();
-		t.y = d.requireElement(1).requireInt();
+		write(Coord.load(d));
 	}	
 }

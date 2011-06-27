@@ -6,11 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
+import com.nney.json.IndentedJsonFormatter;
+import com.nney.json.JsonDataDestination;
+import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.APS;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Math2;
 import com.nney.utils.Openable;
@@ -149,6 +154,31 @@ public class PersistedMap {
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	void save() {
+		SafeWriter sw = new SafeWriter() {
+			@Override
+			public void write(String text) {
+				System.out.print(text);
+			}
+		};
+
+		IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
+		ijf.spaciousSeperators();
+		DataDestination dd = new JsonDataDestination(ijf);
+
+		dd.beginDict();
+		dd.write("objects");
+		dd.beginArray();
+		for (Alien a : aliens) {
+			dd.beginDict();
+			dd.write("type");
+			dd.write(a.alienInfo.typeCode);
+			APS.saveProps(a, dd);
+			dd.end();
+		}
+		dd.end();
 	}
 
 }

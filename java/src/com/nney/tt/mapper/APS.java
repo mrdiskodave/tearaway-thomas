@@ -21,8 +21,6 @@ public class APS {
 		Field[] fields = alien.getClass().getFields();
 		for (Field field : fields) {
 			AlienProp p = field.getAnnotation(AlienProp.class);
-			// boolean generatedLocation = p.xtraDef().equals("location") &&
-			// alien instanceof AlienWithGeneratedLocation;
 			if (p != null) {
 				Prop prop = null;
 				PropPack pp = new PropPack(alien, field);
