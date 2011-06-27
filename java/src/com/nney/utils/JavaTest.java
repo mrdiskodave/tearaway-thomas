@@ -85,7 +85,7 @@ public class JavaTest extends TestCase {
 	 * Why does this work? Well, if a byte comes in bigger than 127 it will be
 	 * signed extended. e.g. 255 becomes -1. -1 decrements the shift-register
 	 * which knocks one off the value which we previously shifted in. However I
-	 * think this "information lost" is expressed in the resuling lower-order
+	 * think this "information lost" is expressed in the resulting lower-order
 	 * byte so it works out that no information is <i>really</i> lost.
 	 * 
 	 * This fact is exploited in the hash used in my antivirus scanner. (so it
@@ -176,7 +176,7 @@ public class JavaTest extends TestCase {
 			fail();
 		}
 		catch (NumberFormatException e) {
-			// expected (at least, now that I understand this gotcha!)
+			// expected (at least it is now!)
 		}
 	}
 

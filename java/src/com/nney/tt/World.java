@@ -668,7 +668,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 					horizon.draw();
 					drawTheMap();
 					updateAliens(false);
-					hud.update(score);
+					hud.update(score, 0, 0);
 				}
 
 				// draw borders on the playing area if the map is small
