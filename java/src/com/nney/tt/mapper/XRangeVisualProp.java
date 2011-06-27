@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -72,5 +74,18 @@ public class XRangeVisualProp extends VisualProp {
 		int apy = alienPos().y;
 		return new Coord(t.middle(), apy);
 	}
+
+	@Override
+	void save(DataDestination d) {
+		d.beginArray();
+		d.write(t.left);
+		d.write(t.right);
+		d.end();
+	}
 	
+	@Override
+	void load(DataItem d) {
+		t.left = d.requireElement(0).requireInt();
+		t.right = d.requireElement(1).requireInt();
+	}	
 }

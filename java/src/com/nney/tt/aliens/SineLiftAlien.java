@@ -7,7 +7,7 @@ public class SineLiftAlien extends LiftAlien {
 	// need to think about what the props are here! could have signal generators
 	// :O
 
-	@AlienProp(name = "Box", doc = "The area we move within.")
+	@AlienProp(name = "Box", doc = "The area we move within.", label = "box")
 	public Box box;
 
 	@Override

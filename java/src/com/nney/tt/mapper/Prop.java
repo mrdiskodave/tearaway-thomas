@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
 
 public abstract class Prop {
@@ -25,12 +27,19 @@ public abstract class Prop {
 		return pp.getAnn().doc();
 	}
 
+	public String label() {
+		return pp.getAnn().label();
+	}
+
 	abstract public String text();
 	
 	public void copyFrom(Prop other) {
 		pp.access().put(other.pp.access().getCopy());
 	}
-	
+
+	public void validate() {
+	}
+
 	// ---------------------------------------------------------------------------
 	// TEXT UI 
 	
@@ -77,6 +86,9 @@ public abstract class Prop {
 	public void moveBy(Coord delta) {
 	}
 
-	public void validate() {
-	}
+	// ---------------------------------------------------------------------------
+	// LOAD AND SAVE
+	
+	abstract void save(DataDestination d);
+	abstract void load(DataItem d);
 }

@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.BitOp;
 
 public abstract class AppearingAlien extends AlienWithLocation {
-	@AlienProp(name = "Hidden", doc = "Will we suddenly appear when the player runs past?")
+	@AlienProp(name = "Hidden", doc = "Will we suddenly appear when the player runs past?", label = "hidden")
 	public boolean hidden;
 
 	private boolean falling;

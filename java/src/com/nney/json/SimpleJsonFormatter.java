@@ -3,23 +3,43 @@ package com.nney.json;
 import java.util.Stack;
 
 public class SimpleJsonFormatter {
-	public String stringListSep = ", ";
-	public String stringDictSep = ": ";
-	public String stringArrayBegin = "[ ";
-	public String stringArrayEnd = " ]";
-	public String stringDictBegin = "{ ";
-	public String stringDictEnd = " }";
+	public String stringListSep = ",";
+	public String stringDictSep = ":";
+	public String stringArrayBegin = "[";
+	public String stringArrayEnd = "]";
+	public String stringDictBegin = "{";
+	public String stringDictEnd = "}";
+	private final SafeWriter sw;
 
-	private StringBuilder sb = new StringBuilder();
+	SimpleJsonFormatter(SafeWriter sw) {
+		this.sw = sw;
+	}
+	
 	private Stack<String> term = new Stack<String>();
-	private boolean sepNext; 
-
+	private boolean sepNext;
+	
+	public void spaciousBrackets() {
+		stringArrayBegin = "[ ";
+		stringArrayEnd = " ]";
+		stringDictBegin = "{ ";
+		stringDictEnd = " }";
+	}
+	
+	public void spaciousSeperators() {
+		stringListSep = ", ";
+		stringDictSep = ": ";
+	}
+	
 	private void put(String s) {
 		if (sepNext) {
-			sb.append(stringListSep);
+			sw.write(stringListSep);
 			sepNext = false;
 		}
-		sb.append(s);
+		makeOutput(s);
+	}
+
+	protected void makeOutput(String s) {
+		sw.write(s);
 	}
 
 	public void value(String s) {
@@ -44,11 +64,10 @@ public class SimpleJsonFormatter {
 
 	public void end() {
 		sepNext = false;
-		put(term.pop());
-		sepNext = true;
+		value(term.pop());
 	}
 	
-	public String result() {
-		return sb.toString();
+	protected int depth() {
+		return term.size();
 	}
 }

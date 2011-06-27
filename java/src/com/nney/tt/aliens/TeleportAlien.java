@@ -7,10 +7,10 @@ import com.nney.tt.sprites.Sprite;
 
 public class TeleportAlien extends AlienWithLocation {
 
-	@AlienProp(name = "Destination", doc = "Where do we teleport the player to?")
+	@AlienProp(name = "Destination", doc = "Where do we teleport the player to?", label = "destination")
 	public Coord destination;
 	
-	@AlienProp(name = "Hidden", doc = "Are we hidden from view?")
+	@AlienProp(name = "Hidden", doc = "Are we hidden from view?", label = "hidden")
 	private boolean hidden;
 	
 	@Override

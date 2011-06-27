@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
 
 public class CoordVisualProp extends VisualProp {
@@ -43,4 +45,18 @@ public class CoordVisualProp extends VisualProp {
 	Coord location() {
 		return t.copy();
 	}
+	
+	@Override
+	void save(DataDestination d) {
+		d.beginArray();
+		d.write(t.x);
+		d.write(t.y);
+		d.end();
+	}
+	
+	@Override
+	void load(DataItem d) {
+		t.x = d.requireElement(0).requireInt();
+		t.y = d.requireElement(1).requireInt();
+	}	
 }

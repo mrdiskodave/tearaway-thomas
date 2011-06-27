@@ -6,7 +6,7 @@ import com.nney.tt.geom.Coord;
 public class PlainLiftAlien extends LiftAlien {
 	// TODO: signal generators? :O
 
-	@AlienProp(name = "Box", doc = "The area we move within.")
+	@AlienProp(name = "Box", doc = "The area we move within.", label = "box")
 	public Box box;
 
 	@Override

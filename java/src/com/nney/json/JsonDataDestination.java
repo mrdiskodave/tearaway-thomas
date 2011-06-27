@@ -11,7 +11,7 @@ public class JsonDataDestination implements DataDestination {
 		DICT_VALUE,
 	}
 
-	JsonDataDestination(SimpleJsonFormatter target) {
+	public JsonDataDestination(SimpleJsonFormatter target) {
 		this.target = target;
 	}
 

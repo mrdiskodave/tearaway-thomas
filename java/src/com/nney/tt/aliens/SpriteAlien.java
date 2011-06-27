@@ -13,7 +13,7 @@ import com.nney.tt.sprites.Sprite;
 public class SpriteAlien extends AlienWithLocation {
 	private static final int FLAG_BEHIND = 6;
 
-	@AlienProp(name = "Front", doc = "Do we appear in front of other graphics?")
+	@AlienProp(name = "Front", doc = "Do we appear in front of other graphics?", label = "foreground")
 	public boolean foreground;
 
 	@Override

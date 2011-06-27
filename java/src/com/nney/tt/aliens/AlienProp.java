@@ -10,6 +10,8 @@ public @interface AlienProp {
 	String doc() default "";;
 
 	String xtraDef() default "";
+	
+	String label();
 }
 
 

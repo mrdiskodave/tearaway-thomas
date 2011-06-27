@@ -1,7 +1,9 @@
 package com.nney.tt.mapper;
 
-public class IntegerProp extends Prop {
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 
+public class IntegerProp extends Prop {
 	public IntegerProp(PropPack pp) {
 		super(pp);
 	}
@@ -15,6 +17,10 @@ public class IntegerProp extends Prop {
 		return (Integer) getFieldAccessor().get();
 	}
 	
+	private void write(int n) {
+		getFieldAccessor().put(n);
+	}
+
 	@Override
 	String[] getButtons() {
 		return new String[] { "more", "less" };
@@ -23,10 +29,20 @@ public class IntegerProp extends Prop {
 	@Override
 	void onButtonPress(int what, ButtonPressServices bps) {
 		if (what==0) {
-			getFieldAccessor().put(read()+1);
+			write(read()+1);
 		}
 		else {
-			getFieldAccessor().put(read()-1);
+			write(read()-1);
 		}
+	}
+	
+	@Override
+	void save(DataDestination d) {
+		d.write(read());
+	}
+
+	@Override
+	void load(DataItem d) {
+		write(d.requireInt());
 	}
 }

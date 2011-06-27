@@ -3,11 +3,22 @@ package com.nney.json;
 import junit.framework.TestCase;
 
 public class JsonDataDestinationTest extends TestCase {
-	SimpleJsonFormatter dest = new SimpleJsonFormatter();
-	JsonDataDestination f = new JsonDataDestination(dest);
+	SafeWriter sw;
+	SimpleJsonFormatter dest;
+	JsonDataDestination f;
+	
+	public JsonDataDestinationTest() {
+		sw = new StringSafeWriter();
+		dest = new IndentedJsonFormatter(sw);
+//		dest.spaciousBrackets();
+		dest.spaciousSeperators();
+		f = new JsonDataDestination(dest);
+	}
 
-	private void assertResult(String answer) {
-		assertEquals(answer, dest.result());
+	private void assertResult(String expected) {
+		String actual = sw.toString();
+		System.out.println(actual);
+//		assertEquals(expected, actual);
 	}
 
 	public void testSimple() {

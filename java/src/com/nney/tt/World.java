@@ -4,6 +4,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import com.nney.json.DataDestination;
+import com.nney.json.IndentedJsonFormatter;
+import com.nney.json.JsonDataDestination;
+import com.nney.json.JsonDataDestinationTest;
+import com.nney.json.SafeWriter;
+import com.nney.json.SimpleJsonFormatter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BattAlien;
@@ -47,6 +53,7 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
+import com.nney.tt.mapper.APS;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.resources.TTResource;
@@ -196,6 +203,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		init();
 	}
+
+	// ---------------------------------------------------------------------------
+	// FONTS
+
 
 	private static String characterRangeHelper(int begin, int end) {
 		StringBuilder sb = new StringBuilder();
@@ -574,7 +585,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		updateList(alienTracker.getForegroundList(), screenBox, mapper);
 
 		//
-		// Caveat1: only the background Alien gets to move the player around.
+		// Caveat1: only background Aliens get to move the player around.
 		// Caveat2: if any Alien does move him the scrolling for this frame
 		// won't know about it (because it has already happened) but you don't
 		// notice that because it is not hard scrolling but scrolling based on a
@@ -702,9 +713,34 @@ public class World implements AlienServices, WorldServicesToMapper {
 		PersistedMap pm = new PersistedMap();
 		pm.loadLegacy(this, mapOpenable);
 
+
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
+
+		SafeWriter sw = new SafeWriter() {
+			@Override
+			public void write(String text) {
+				System.out.print(text);
+			}
+		};
+
+		IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
+		ijf.spaciousSeperators();
+		DataDestination dd = new JsonDataDestination(ijf);
+
+		dd.beginDict();
+		dd.write("objects");
+		dd.beginArray();
+		for (Alien a : pm.aliens) {
+			dd.beginDict();
+			dd.write("type");
+			dd.write(a.alienInfo.typeCode);
+			APS.saveProps(a, dd);
+			dd.end();
+		}
+		dd.end();
+		
 		mapBoundsInBlocks = pm.mapBounds;
 
 		Anims playerAnims = animsPool.load("0tt");

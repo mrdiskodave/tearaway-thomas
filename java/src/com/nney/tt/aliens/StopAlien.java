@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class StopAlien extends AlienWithLocation {
-	@AlienProp(name = "PushBox", doc = "The area we shove the player out of!")
+	@AlienProp(name = "PushBox", doc = "The area we shove the player out of!", label = "pushBox")
 	public Box box;
 
 	@Override

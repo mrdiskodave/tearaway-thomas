@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -79,5 +81,23 @@ public class BoxVisualProp extends VisualProp {
 	@Override
 	Coord location() {
 		return t.middle();
+	}
+	
+	@Override
+	void save(DataDestination d) {
+		d.beginArray();
+		d.write(t.left);
+		d.write(t.top);
+		d.write(t.right);
+		d.write(t.bottom);
+		d.end();
+	}
+	
+	@Override
+	void load(DataItem d) {
+		t.left = d.requireElement(0).requireInt();
+		t.top = d.requireElement(1).requireInt();
+		t.right = d.requireElement(2).requireInt();
+		t.bottom = d.requireElement(3).requireInt();
 	}
 }
