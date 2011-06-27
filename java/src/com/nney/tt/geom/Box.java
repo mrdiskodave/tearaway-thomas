@@ -1,5 +1,6 @@
 package com.nney.tt.geom;
 
+import com.nney.json.DataDestination;
 import com.nney.utils.Copyable;
 
 public class Box implements Copyable<Box>, Cloneable {
@@ -266,5 +267,14 @@ public class Box implements Copyable<Box>, Cloneable {
 		top *= z;
 		bottom *= z;
 		bottom += z-1;
+	}
+	
+	public void save(DataDestination d) {
+		d.beginArray();
+		d.write(left);
+		d.write(top);
+		d.write(right);
+		d.write(bottom);
+		d.end();
 	}
 }

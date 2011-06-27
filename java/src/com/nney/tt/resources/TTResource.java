@@ -1,8 +1,12 @@
 package com.nney.tt.resources;
 
+import com.nney.json.DataItem;
+import com.nney.json.JsonException;
+import com.nney.json.JsonValue;
 import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
+import com.nney.utils.StringIO;
 
 /**
  * All the knowledge about how to open our external resources. Some are still on
@@ -33,8 +37,8 @@ public class TTResource {
 		return TTResource.formatted("config/%s", name);
 	}
 
-	public static Openable map(String world, int levelNumber) {
-		String filename = String.format("C:/Users/david/Desktop/newdata/maps/%s%d.map", world, levelNumber);
+	public static Openable legacyMap(String fn) {
+		String filename = String.format("C:/Users/david/Desktop/newdata/maps/%s", fn);
 		return new FileOpenable(filename);
 	}
 
@@ -48,6 +52,19 @@ public class TTResource {
 
 	public static Openable horizon(int name) {
 		return TTResource.formatted("horizons/%d.png", name);
+	}
+
+	
+	
+	
+	public static DataItem diFromText(Openable o) {
+		try {
+			String t = StringIO.mustLoadText(o, null);
+			return JsonValue.parse(t);
+		}
+		catch (JsonException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

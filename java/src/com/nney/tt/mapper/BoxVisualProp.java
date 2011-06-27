@@ -85,12 +85,7 @@ public class BoxVisualProp extends VisualProp {
 	
 	@Override
 	void save(DataDestination d) {
-		d.beginArray();
-		d.write(t.left);
-		d.write(t.top);
-		d.write(t.right);
-		d.write(t.bottom);
-		d.end();
+		t.save(d);
 	}
 	
 	@Override

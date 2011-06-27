@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
-import com.nney.json.JsonDataDestinationTest;
 import com.nney.json.SafeWriter;
-import com.nney.json.SimpleJsonFormatter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BattAlien;
@@ -75,8 +74,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	final private GraphicsContext gc;
 
 	// lift
-	private static final String CTC_WORLD = "w";
-	private static final int CTC_MAP = 8;
 
 	// ladders & ice
 	// private static final String CTC_WORLD = "i";
@@ -137,7 +134,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private final Keyboard keyboard;
 
-	private String worldName = CTC_WORLD;
+	private String worldName;
 
 	// mapper vars
 	private boolean usingMapper;
@@ -704,20 +701,25 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 		alienInfoMap.doPreLoad(animsPool);
-
-		wi = WorldInformation.load(worldName);
-		loadBlocks();
-
-		Openable mapOpenable = TTResource.map(worldName, CTC_MAP);
+		
+		
 
 		PersistedMap pm = new PersistedMap();
-		pm.loadLegacy(this, mapOpenable);
-
-
+		pm.populateFromLevelInfo(this, 0);
+		worldName = pm.worldName;
+		
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
 
+		mapBoundsInBlocks = pm.mapBounds;
+
+		wi = WorldInformation.load(worldName);
+		loadBlocks();
+
+		// ---
+		// SAVE MAP
+		
 		SafeWriter sw = new SafeWriter() {
 			@Override
 			public void write(String text) {
@@ -741,7 +743,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		dd.end();
 		
-		mapBoundsInBlocks = pm.mapBounds;
+		// ---
+		
 
 		Anims playerAnims = animsPool.load("0tt");
 		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY - 20), pm.playerGoLeft);

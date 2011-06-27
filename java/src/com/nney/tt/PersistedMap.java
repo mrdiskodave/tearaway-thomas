@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import com.nney.json.DataItem;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.resources.TTResource;
 import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 
@@ -20,7 +22,21 @@ public class PersistedMap {
 	public short playerY;
 	public boolean playerGoLeft;
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
+	public int gemsNeeded;
+	public int horizon;
+	public int timeGiven;
+	public String worldName;
 
+	public void populateFromLevelInfo(World world, int lev) {
+		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
+		levelInfo = levelInfo.requireElement(0);
+		gemsNeeded = levelInfo.requireField("gemsNeeded").requireInt();
+		horizon = levelInfo.requireField("horizon").requireInt();
+		timeGiven = levelInfo.requireField("timeGiven").requireInt();
+		String map = levelInfo.requireField("map").requireString();
+		worldName = map.substring(0, 1);
+		loadLegacy(world, TTResource.legacyMap(map));
+	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
 		StringBuilder sb = new StringBuilder();
@@ -46,31 +62,29 @@ public class PersistedMap {
 		int maxx = dis.readByte() & 0xff;
 		int miny = dis.readByte() & 0xff;
 		int maxy = dis.readByte() & 0xff;
-		
+
 		// seemed like we saved an exclusive box
 		// where as we need an inclusive one
 		maxx++;
 		maxy++;
-		
+
 		// also vertical levels were strangely less than 18 wide
 		// (when 18 was there actual width)
-		maxx = Math2.atLeast(minx+(18-1), maxx);
-		
-		assert maxx<=GameMap.MAP_WIDTH;
-		assert maxy<=GameMap.MAP_HEIGHT;
-		assert minx<maxx;
-		assert miny<maxy;
+		maxx = Math2.atLeast(minx + (18 - 1), maxx);
+
+		assert maxx <= GameMap.MAP_WIDTH;
+		assert maxy <= GameMap.MAP_HEIGHT;
+		assert minx < maxx;
+		assert miny < maxy;
 		mapBounds = new Box(minx, miny, maxx, maxy);
 	}
 
-	private void loadLegacyAlienIntoWorld(World world, int x, int y, int type,
-			byte[] rest) {
-
+	private void createLegacyAlien(World world, int x, int y, int type, byte[] rest) {
 		Alien alien = world.createAlien(type);
-				
+
 		if (type == 2 || type == 3) {
 			// this is what gem_render -> bob_gem did
-			// at rendering time! which is pretty horrid
+			// at rendering time! horrid
 			x += 8;
 		}
 
@@ -79,21 +93,16 @@ public class PersistedMap {
 			awl.c.x = x;
 			awl.c.y = y;
 		}
-		
+
 		alien.legacyData = rest;
 		alien.loadFromLegacyData();
-
-				// if (alien instanceof LoadsFromSpriteDef) {
-				// ((LoadsFromSpriteDef)
-				// alien).load(adp.load(alienInfo.animsName));
-				// }
-
 		aliens.add(alien);
 	}
 
 	/**
 	 * 
-	 * @param world Only used for {@link World#createAlien(int)}.
+	 * @param world
+	 *            Only used for {@link World#createAlien(int)}.
 	 * @param mapOpenable
 	 */
 	public void loadLegacy(World world, Openable mapOpenable) {
@@ -103,7 +112,6 @@ public class PersistedMap {
 			// get the game map off the front of the stream
 			gameMap = new GameMap();
 			gameMap.loadFromLegacyMap(di);
-			
 
 			// read the other things
 			for (;;) {
@@ -122,7 +130,7 @@ public class PersistedMap {
 						byte[] rest = new byte[21];
 						di.readFully(rest);
 
-						loadLegacyAlienIntoWorld(world, x, y, type, rest);
+						createLegacyAlien(world, x, y, type, rest);
 					}
 				}
 				else if (id.equals("pal2")) {

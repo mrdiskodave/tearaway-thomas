@@ -8,6 +8,7 @@ import com.nney.json.JsonValue;
 import com.nney.tt.map.BlockAliasTable;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.resources.TTResource;
+import com.nney.utils.Openable;
 import com.nney.utils.StringIO;
 
 public class WorldInformation {
@@ -24,26 +25,17 @@ public class WorldInformation {
 	}
 
 	static public WorldInformation load(String worldName) {
-		try {
-			String t = StringIO.loadText(TTResource.blockDef(worldName), null);
-			JsonValue v = JsonValue.parse(t);
-			BlockInformation bi = new BlockInformation(v.requireField("spec"));
-			LadderInformation ladderInfo = null;
-			if (v.fieldExists("ladder")) {
-				DataItem ladderDi = v.requireField("ladder");
-				int top = ladderDi.requireField("top").requireInt();
-				int bottom = ladderDi.requireField("bottom").requireInt();
-				ladderInfo = new LadderInformation(top, bottom);
-			}
-			BlockAliasTable rt = new BlockAliasTable(v.requireField("rt"));
-			BlockAliasTable ih = new BlockAliasTable(v.requireField("invisibleBlockHiding"));
-			return new WorldInformation(rt, ih, bi, ladderInfo);
+		DataItem v = TTResource.diFromText(TTResource.blockDef(worldName));
+		BlockInformation bi = new BlockInformation(v.requireField("spec"));
+		LadderInformation ladderInfo = null;
+		if (v.fieldExists("ladder")) {
+			DataItem ladderDi = v.requireField("ladder");
+			int top = ladderDi.requireField("top").requireInt();
+			int bottom = ladderDi.requireField("bottom").requireInt();
+			ladderInfo = new LadderInformation(top, bottom);
 		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		catch (JsonException e) {
-			throw new RuntimeException(e);
-		}
+		BlockAliasTable rt = new BlockAliasTable(v.requireField("rt"));
+		BlockAliasTable ih = new BlockAliasTable(v.requireField("invisibleBlockHiding"));
+		return new WorldInformation(rt, ih, bi, ladderInfo);
 	}
 }

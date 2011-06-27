@@ -5,6 +5,15 @@ import java.io.InputStream;
 import java.io.Reader;
 
 public class StringIO {
+	public static String mustLoadText(Openable o, String defaultEncoding) {
+		try {
+			return loadText(o, defaultEncoding);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static String loadText(Openable o, String defaultEncoding) throws IOException {
 		InputStream i = o.open();
 		try {
