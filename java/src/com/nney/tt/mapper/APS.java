@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nney.json.DataDestination;
-import com.nney.json.JsonDataDestination;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Box;

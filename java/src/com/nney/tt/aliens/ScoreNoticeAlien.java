@@ -4,19 +4,20 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public class ScoreNoticeAlien extends AlienWithLocation {
-	private int what;
+	private int amount;
 	private int timer;
 	private int vely;
 
-	public ScoreNoticeAlien(int what, Coord where) {
-		this.what = what;
+	public ScoreNoticeAlien(int amount, Coord where) {
+		assert amount>=0;
+		this.amount = amount;
 		c = where;
 		timer = 40;
 	}
 
 	@Override
 	public void onLoaded() {
-		changeAnimation(Integer.toString(what));
+		changeAnimation(Integer.toString(amount));
 		depth = DEPTH_FOREGROUND;
 	}
 

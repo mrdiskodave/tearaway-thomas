@@ -70,7 +70,7 @@ public class Player {
 	 */
 	private static final int NO_SLIDE = 9;
 
-	private static final boolean CTC_VULNERABLE = false;
+	private static final boolean CTC_VULNERABLE = true;
 
 	// ---------------------------------------------------------------------------
 	// FIELDS

@@ -16,7 +16,7 @@ public abstract class CollectableAlien extends AppearingAlien {
 	}
 
 	protected void handleCollison(Coord c, Sprite s) {
-		if (!srv.isMapping() && isCollisionDetected(c, s)) {
+		if (isCollisionDetected(c, s)) {
 			giveBonus();
 			done();
 		}

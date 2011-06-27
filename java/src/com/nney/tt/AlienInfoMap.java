@@ -98,6 +98,6 @@ public class AlienInfoMap {
 	}
 
 	private void addAnn(Class<? extends Alien> c, AlienInfoAnn a) {
-		add(new AlienInfo(a.type(), a.gfx(), c));
+		add(new AlienInfo(a.type(), a.gfx(), a.score(), c));
 	}
 }

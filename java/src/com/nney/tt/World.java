@@ -115,11 +115,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private Coord ttPos;
 
 	private int score = 0;
-	private int oldScore = -1;
 
-	private PrerenderedText scoreHeadingText;
-
-	private PrerenderedText scoreText;
+	
+	
 
 	private int gemCounter;
 
@@ -150,6 +148,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private int whiteTimer;
 
 	private int timeRemaining;
+
+	private HeadUpDisplay hud;
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -603,15 +603,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		//
 	}
 
-	private void updateScore() {
-		if (score != oldScore) {
-			scoreHeadingText = font.preDraw(0xffffff00, 0, "score");
-			scoreText = font.preDraw(0xffffffff, 0, String.format("%08d", score));
-		}
-		scoreHeadingText.draw((gc.screenWidth() - scoreHeadingText.width()) / 2, 6);
-		scoreText.draw((gc.screenWidth() - scoreText.width()) / 2, 6 + 14);
-	}
-
 	private void drawTheMap() {
 		ScreenOrdinate ix = scr.scrOrdX;
 		ScreenOrdinate iy = scr.scrOrdY;
@@ -677,7 +668,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 					horizon.draw();
 					drawTheMap();
 					updateAliens(false);
-					updateScore();
+					hud.update(score);
 				}
 
 				// draw borders on the playing area if the map is small
@@ -727,6 +718,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
+		hud = new HeadUpDisplay(gc, font);
 	}
 
 	private void loadBlocks() {
