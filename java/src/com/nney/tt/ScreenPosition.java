@@ -52,7 +52,7 @@ public class ScreenPosition {
 	}
 
 	private Coord screenDest(Coord c) {
-		return c.copyAndAdd(-screenWidth / 2, -screenHeight * 11 / 16);
+		return c.copyAndAdd(-screenWidth / 2, -screenHeight * 64 / 100);
 	}
 
 	private static int scrollOrd(int current, int dest) {

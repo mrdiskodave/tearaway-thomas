@@ -927,8 +927,8 @@ public class Player {
 	}
 
 	public void giveShield() {
-		proofTimer = 50 * 13;
-		flashTimer = 50 * 12;
+		proofTimer = Const.FPS * 13;
+		flashTimer = Const.FPS * 12;
 	}
 
 	public void giveWings() {

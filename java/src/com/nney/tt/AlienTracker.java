@@ -98,7 +98,7 @@ public class AlienTracker {
 		}
 	}
 
-	public void visitAll(Visitor<Alien> v) {
+	private void visitAll2(Visitor<Alien> v) {
 		visitVisible(v);
 		freezeBottom.visit(v);
 		freezeTop.visit(v);
@@ -106,7 +106,7 @@ public class AlienTracker {
 		freezeRight.visit(v);
 	}
 
-	private void clearAll() {
+	private void clearAll2() {
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
 			alienLists.get(x).clear();
 		}
@@ -115,27 +115,20 @@ public class AlienTracker {
 		freezeLeft.clear();
 		freezeRight.clear();
 	}
-
-//	private void visitAllVisibleAlienLists(Visitor<List<Alien>> v) {
-//		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
-//			v.visit(alienLists.get(x));
-//		}
-//	}
-//	
-//	private void visitAllFridges(Visitor<Fridge> v) {
-//		v.visit(freezeBottom);
-//		v.visit(freezeTop);
-//		v.visit(freezeLeft);
-//		v.visit(freezeRight);
-//	}
 	
+	public void visitAll(Visitor<Alien> v) {
+		visitAll2(v);
+		visitIt(v, delayedAdditions);
+	}
+
 	public void reclassify() {
-		visitAll(new Visitor<Alien>() {
+		visitAll2(new Visitor<Alien>() {
 			@Override
 			public void visit(Alien a) {
 				delayedAdditions.add(a);
 			}
 		});
-		clearAll();
+		clearAll2();
 	}
+	
 }

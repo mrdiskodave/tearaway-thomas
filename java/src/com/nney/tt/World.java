@@ -1,5 +1,6 @@
 package com.nney.tt;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -116,11 +117,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int score = 0;
 
-	
-	
-
-	private int gemCounter;
-
 	private WorldInformation wi;
 
 	private AlienInfoMap alienInfoMap;
@@ -151,6 +147,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private HeadUpDisplay hud;
 
+	private int gemsNeeded;
+
+	private int gemsTotal;
+
+	private int gemsCollected;
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
@@ -161,7 +163,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		initFonts();
 
 		AlienInfoMap aim = new AlienInfoMap();
-		
+
 		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
 		aim.add(new AlienInfo(7, "0clok", ClockAlien.class));
@@ -203,7 +205,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// ---------------------------------------------------------------------------
 	// FONTS
-
 
 	private static String characterRangeHelper(int begin, int end) {
 		StringBuilder sb = new StringBuilder();
@@ -308,16 +309,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (isExitOpen()) {
 			score *= 2;
 		}
-		else {
-			gemCounter--;
-			System.out.println(gemCounter + " gems left!");
-		}
+		gemsCollected++;
 		giveScore(score, noticeLocation);
 	}
 
+	private GemStatus getGemStatus() {
+		if (gemsCollected==gemsTotal) return GemStatus.PERFECT;
+		return isExitOpen() ? GemStatus.DONE : GemStatus.COLLECTING;
+	}
+	
 	@Override
 	public boolean isExitOpen() {
-		return gemCounter == 0;
+		return gemsCollected >= gemsNeeded;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -649,6 +652,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 			else {
 				frameNumber++;
+
+				int timeDec = player.isStunned() ? 3 : 1;
+				timeRemaining = Math.max(timeRemaining - timeDec, 0);
+
 				if (whiteTimer != 0) {
 					whiteTimer--;
 					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
@@ -668,20 +675,25 @@ public class World implements AlienServices, WorldServicesToMapper {
 					horizon.draw();
 					drawTheMap();
 					updateAliens(false);
-					hud.update(score, 0, 0);
-				}
 
-				// draw borders on the playing area if the map is small
-				ScreenOrdinate lr = scr.scrOrdX;
-				if (lr.highBorderStart >= 0) {
-					gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
-					gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+					int showGems = gemsNeeded - gemsCollected;
+					if (isExitOpen()) {
+						showGems = gemsTotal - gemsCollected;
+					}
+					hud.update(score, timeRemaining / Const.FPS, showGems, isExitOpen());
 				}
-				ScreenOrdinate tb = scr.scrOrdY;
-				if (tb.highBorderStart >= 0) {
-					gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
-					gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
-				}
+			}
+
+			// draw borders on the playing area if the map is small
+			ScreenOrdinate lr = scr.scrOrdX;
+			if (lr.highBorderStart >= 0) {
+				gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
+				gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+			}
+			ScreenOrdinate tb = scr.scrOrdY;
+			if (tb.highBorderStart >= 0) {
+				gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
+				gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 			}
 		}
 	}
@@ -692,13 +704,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 		alienInfoMap.doPreLoad(animsPool);
-		
-		
 
 		PersistedMap pm = new PersistedMap();
 		pm.populateFromLevelInfo(this, 0);
 		worldName = pm.worldName;
-		
+
 		for (Alien a : pm.aliens) {
 			loadAlienIntoWorld(a);
 		}
@@ -707,8 +717,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		wi = WorldInformation.load(worldName);
 		loadBlocks();
-
-		
 
 		Anims playerAnims = animsPool.load("0tt");
 		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY - 20), pm.playerGoLeft);
@@ -719,6 +727,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
 		hud = new HeadUpDisplay(gc, font);
+
+		gemsTotal = countGems();
+		gemsNeeded = pm.gemsNeeded;
+		gemsCollected = 0;
+
+		timeRemaining = pm.timeGiven * Const.FPS + Const.FPS - 1;
 	}
 
 	private void loadBlocks() {
@@ -841,7 +855,23 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void extraTime(int seconds) {
-		timeRemaining = Math.min(timeRemaining + seconds, 99);
+		timeRemaining = Math.min(timeRemaining + seconds, 99 * Const.FPS);
+	}
+
+	private int countGems() {
+		final ArrayList<Integer> n = new ArrayList<Integer>();
+		n.add(0);
+		alienTracker.visitAll(new Visitor<Alien>() {
+			@Override
+			public void visit(Alien a) {
+				if (a instanceof GemAlien) {
+					n.set(0, n.get(0) + 1);
+				}
+			}
+		});
+		int answer = n.get(0);
+		System.out.println("Gems:" + answer);
+		return answer;
 	}
 }
 

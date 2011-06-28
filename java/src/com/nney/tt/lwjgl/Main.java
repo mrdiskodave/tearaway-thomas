@@ -7,6 +7,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
+import com.nney.tt.Const;
 import com.nney.tt.World;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
@@ -79,7 +80,7 @@ public class Main {
 
 		world = new World(gc, joystick, keys, correctMouse);
 
-		int requestedFps = 50;
+		int requestedFps = Const.FPS;
 		fpsRep = new FpsReporter(200);
 		while (!closing) {
 			Display.sync(requestedFps);
