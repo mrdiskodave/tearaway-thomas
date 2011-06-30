@@ -3,23 +3,27 @@ package com.nney.tt;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.PrerenderedText;
+import com.nney.tt.sprites.Sprite;
 
 public class HeadUpDisplay {
 	private static final int COL_HEADING = 0xffffffff;
 
 	private static final int COL_NORMAL = 0xffffff00;
-	private static final int COL_GEM_HAPPY = 0xff00ff00;
+	private static final int COL_BAD = 0xffff0000;
+	private static final int COL_GOOD = 0xff00ff00;
 
-	private static final int COL_EXIT_OPEN = 0xff00ff00;
-	private static final int COL_HURRY_UP = 0xffff0000;
+	private static final int COL_GEM_HAPPY = COL_GOOD;
 
-	
+	private static final int COL_EXIT_OPEN = COL_GOOD;
+
+	private static final int COL_HURRY_UP = COL_BAD;
+
 	private static final int GAP = 3;
 
 	private final GraphicsContext gc;
 
 	private final Font font;
-	
+
 	class SmartText {
 		private PrerenderedText content;
 
@@ -28,8 +32,8 @@ public class HeadUpDisplay {
 		public SmartText() {
 		}
 
-		public SmartText(int i, String string) {
-			set(i, string);
+		public SmartText(int col, String string) {
+			set(col, string);
 		}
 
 		void set(int col, String next) {
@@ -40,12 +44,16 @@ public class HeadUpDisplay {
 			}
 		}
 
-		void draw(int x, int y) {
-			content.draw(x-halfWidth(), y);
+		void centredDraw(int x, int y) {
+			draw(x - width() / 2, y);
 		}
-		
-		int halfWidth() {
-			return content.width() / 2;
+
+		void draw(int x, int y) {
+			content.draw(x, y);
+		}
+
+		int width() {
+			return content.width();
 		}
 
 		int height() {
@@ -69,19 +77,18 @@ public class HeadUpDisplay {
 			headingText.set(COL_HEADING, heading);
 			contentText.set(col, content);
 		}
-		
-		void draw(int x, int y) {
-			headingText.draw(x, y);
-			contentText.draw(x, y + headingText.height() + GAP);
+
+		void centredDraw(int x, int y) {
+			headingText.centredDraw(x, y);
+			contentText.centredDraw(x, y + headingText.height() + GAP);
 		}
-		
-		
-		int halfWidth() {
-			return headingText.halfWidth();
+
+		int width() {
+			return headingText.width();
 		}
 
 		int height() {
-			return contentText.height()*2+GAP;
+			return contentText.height() * 2 + GAP;
 		}
 	}
 
@@ -92,38 +99,86 @@ public class HeadUpDisplay {
 	private SmartText exitOpen;
 
 	private SmartText hurryUp;
+	private SmartText livesText;
 
-	public HeadUpDisplay(GraphicsContext gc, Font font) {
+	private final Sprite lifeSprite;
+
+	public HeadUpDisplay(GraphicsContext gc, Font font, Sprite lifeSprite) {
 		this.gc = gc;
 		this.font = font;
+		this.lifeSprite = lifeSprite;
 		scoreReadOut = new ReadOut("score");
 		gemsReadOut = new ReadOut("gems");
 		timeReadOut = new ReadOut("time");
-		
+
+		livesText = new SmartText();
 		exitOpen = new SmartText(COL_EXIT_OPEN, "exit open");
 		hurryUp = new SmartText(COL_HURRY_UP, "hurry up");
-		
+
 	}
 
-	public void update(int score, int time, int gems, boolean isExitOpen) {
+	public void update(int score, int time, int gems, boolean isExitOpen, int lives) {
+		//
+		// score/gems/time
+		//
+		
 		int border = 6;
+
+		int midX = gc.screenWidth() / 2;
 
 		scoreReadOut.set(COL_NORMAL, String.format("%08d", score));
 
 		gemsReadOut.set(isExitOpen ? COL_GEM_HAPPY : COL_NORMAL, String.format("%02d", gems));
-		timeReadOut.set(COL_NORMAL, String.format("%02d", time));
 
-		scoreReadOut.draw(gc.screenWidth() / 2, border);
+		boolean hurryUp2 = time < 6 * Const.FPS;
+		timeReadOut.set(hurryUp2 ? COL_BAD : COL_NORMAL, String.format("%02d", time / Const.FPS));
+
+		scoreReadOut.centredDraw(midX, border);
 
 		int bottomY = gc.screenHeight() - gemsReadOut.height() - border;
-		int middleFromEdgeX = border + gemsReadOut.halfWidth();
+		int middleFromEdgeX = border + gemsReadOut.width() / 2;
 
-		gemsReadOut.draw(middleFromEdgeX, bottomY);
-		timeReadOut.draw(gc.screenWidth() - middleFromEdgeX, bottomY);
+		gemsReadOut.centredDraw(middleFromEdgeX, bottomY);
+		timeReadOut.centredDraw(gc.screenWidth() - middleFromEdgeX, bottomY);
+
+		
+		//
+		// exit open
+		//
 		
 		if (isExitOpen) {
-			exitOpen.draw(gc.screenWidth() / 2, gc.screenHeight()*7/20);
+			exitOpen.centredDraw(midX, gc.screenHeight() * 7 / 20);
 		}
+
+		//
+		// hurry up
+		//
+		
+		int mod = 20;
+
+		if (hurryUp2 && (time % mod) < (mod / 2)) {
+			hurryUp.centredDraw(midX, gc.screenHeight() * 16 / 20);
+		}
+
+		//
+		// lives
+		//
+		
+		livesText.set(COL_HEADING, String.format("x%d", lives));
+
+		int livesDisplayHeight = Math.max(livesText.height(), lifeSprite.h);
+		int livesDisplayWidth = lifeSprite.w + livesText.width();
+
+		int livesX = (midX - livesDisplayWidth / 2);
+		int livesY = bottomY + (gemsReadOut.height() - livesDisplayHeight) / 2;
+
+		int diff = lifeSprite.h - livesText.height();
+		int textSticksOutBy = Math.max(0, diff);
+		int spriteSticksOutBy = Math.max(0, -diff);
+
+		lifeSprite.draw(livesX + lifeSprite.handleX, livesY + lifeSprite.handleY + (spriteSticksOutBy / 2), false);
+		livesX += lifeSprite.w;
+		livesText.draw(livesX, livesY + (textSticksOutBy / 2));
 	}
 
 }

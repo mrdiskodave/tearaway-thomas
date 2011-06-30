@@ -153,6 +153,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int gemsCollected;
 
+	private int lives;
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
@@ -680,7 +682,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 					if (isExitOpen()) {
 						showGems = gemsTotal - gemsCollected;
 					}
-					hud.update(score, timeRemaining / Const.FPS, showGems, isExitOpen());
+					hud.update(score, timeRemaining, showGems, isExitOpen(), lives);
 				}
 			}
 
@@ -726,7 +728,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
-		hud = new HeadUpDisplay(gc, font);
+		
+		Anims lifeAnims = animsPool.load("0life");
+		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).frames[0]);
 
 		gemsTotal = countGems();
 		gemsNeeded = pm.gemsNeeded;
