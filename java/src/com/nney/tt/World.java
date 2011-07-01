@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.lwjgl.opengl.GL11;
+
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.json.IndentedJsonFormatter;
@@ -21,6 +23,7 @@ import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
+import com.nney.tt.aliens.LifeAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PortraitAlien;
@@ -50,6 +53,7 @@ import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.lwjgl.GlTools;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
@@ -62,6 +66,7 @@ import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
@@ -153,7 +158,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int gemsCollected;
 
-	private int lives;
+	private int lives = 3;
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -170,6 +175,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
 		aim.add(new AlienInfo(7, "0clok", ClockAlien.class));
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
+		aim.add(new AlienInfo(22, "0life", LifeAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
 		// aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
 		// for w6.map
@@ -177,7 +183,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
 		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
-		aim.add(new AlienInfo(45, "gtrch", SpriteAlien.class));
 		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
 		aim.add(new AlienInfo(63, "wabee", BeeAlien.class));
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
@@ -316,10 +321,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private GemStatus getGemStatus() {
-		if (gemsCollected==gemsTotal) return GemStatus.PERFECT;
+		if (gemsCollected == gemsTotal) return GemStatus.PERFECT;
 		return isExitOpen() ? GemStatus.DONE : GemStatus.COLLECTING;
 	}
-	
+
 	@Override
 	public boolean isExitOpen() {
 		return gemsCollected >= gemsNeeded;
@@ -338,7 +343,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
-		s.draw(x, y, drawWhite);
+		s.drawByHandle(x, y, drawWhite);
 	}
 
 	@Override
@@ -678,6 +683,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 					drawTheMap();
 					updateAliens(false);
 
+					// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
+					// 0xff000000);
+					// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
+					// 0xff000000);
+
+					int radius = frameNumber+10;
+					int cx = player.c.x - scr.position().x;
+					int cy = player.c.y - scr.position().y;
+					antiCircle(radius, cx, cy, 0xff000000);
+
 					int showGems = gemsNeeded - gemsCollected;
 					if (isExitOpen()) {
 						showGems = gemsTotal - gemsCollected;
@@ -698,6 +713,56 @@ public class World implements AlienServices, WorldServicesToMapper {
 				gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 			}
 		}
+	}
+
+	private void antiCircle(int radius, int cx, int cy, int c) {
+		int w = gc.screenWidth();
+		int h = gc.screenHeight();
+		int steps = Math.max(10, radius / 15);
+		GlTools.configureFor2dRect(c);
+
+		int[] v = new int[steps * 2 + 4];
+		int p = 0;
+		v[p++] = radius;
+		v[p++] = radius;
+		for (int a = 0; a < steps + 1; a++) {
+			double angle = ((Math.PI / 2.0) * a) / steps;
+			v[p++] = (int) (Math.cos(angle) * radius);
+			v[p++] = (int) (Math.sin(angle) * radius);
+		}
+
+//		GlTools.configureFor2dRect(0xffff0000);
+		drawCirc(v, cx, cy, 1, 1);
+//		GlTools.configureFor2dRect(0xff00ff00);
+		drawCirc(v, cx, cy, -1, 1);
+//		GlTools.configureFor2dRect(0xff0000ff);
+		drawCirc(v, cx, cy, 1, -1);
+//		GlTools.configureFor2dRect(0xffff00ff);
+		drawCirc(v, cx, cy, -1, -1);
+//		GlTools.configureFor2dRect(0x80ff0000);
+		boxFill(0, 0, w, cy - radius);
+//		GlTools.configureFor2dRect(0x8000ff00);
+		boxFill(0, cy + radius, w, h);
+//		GlTools.configureFor2dRect(0x800000ff);
+		boxFill(0, cy - radius, cx - radius, cy + radius);
+//		GlTools.configureFor2dRect(0x80ff00ff);
+		boxFill(cx + radius, cy - radius, w, cy + radius);
+
+		GlTools.configureFor2dBobs();
+	}
+
+	private void boxFill(int t, int l, int b, int r) {
+		// gc.fillRectangle(t, l, b - t, r - l, c);
+		if (b <= t || r <= l) return;
+		GL11.glRecti(t, l, b, r);
+	}
+
+	private void drawCirc(int[] v, int cx, int cy, int ix, int iy) {
+		GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+		for (int p = 0; p < v.length; p += 2) {
+			GL11.glVertex2i(cx + v[p] * ix, cy + v[p + 1] * iy);
+		}
+		GL11.glEnd();
 	}
 
 	private void init() {
@@ -728,7 +793,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
-		
+
 		Anims lifeAnims = animsPool.load("0life");
 		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).frames[0]);
 
@@ -877,14 +942,24 @@ public class World implements AlienServices, WorldServicesToMapper {
 		System.out.println("Gems:" + answer);
 		return answer;
 	}
+
+	@Override
+	public void extraLife() {
+		if (lives != 9) {
+			lives++;
+		}
+	}
 }
 
 // 64: worm - forget it
-// 74: ybrd - write it
 // 78: scrh ....
 // change it to something that prohibits horizontal scrolling, since that is the
 // intent .... BUT what do we do about screen width??
 
 // Unknown Alien Type:101
 // Unknown Alien Type:102
+
+// new life every 50,000 points
+// 10,000 points for perfect level
+// 10 points for every spare second
 

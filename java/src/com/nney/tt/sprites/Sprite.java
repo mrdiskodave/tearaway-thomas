@@ -3,18 +3,20 @@ package com.nney.tt.sprites;
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.Component;
 import com.nney.tt.gfx.ShowBoundsSip;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.WhiteOutSip;
 
-public class Sprite {
+public class Sprite implements Component {
 	public final int handleX;
 	public final int handleY;
 	public final int w;
 	public final int h;
+	public final byte[] lineInfo;
+
 	private final Blitable texture;
 	private final Blitable whiteVersion;
-	public byte[] lineInfo;
 
 	static final boolean CTC_SEE_SPRITE_BOX = false;
 
@@ -65,7 +67,7 @@ public class Sprite {
 	 *            location).
 	 * @param dy
 	 */
-	public void draw(int dx, int dy, boolean drawWhite) {
+	public void drawByHandle(int dx, int dy, boolean drawWhite) {
 		dx -= handleX;
 		dy -= handleY;
 		if (!drawWhite) {
@@ -94,5 +96,22 @@ public class Sprite {
 		int b = lineInfo[indx + 1];
 		assert handleX == a;
 		return b;
+	}
+
+	@Override
+	public int width() {
+		return w;
+	}
+
+	@Override
+	public int height() {
+		return h;
+	}
+
+	@Override
+	public void draw(int dx, int dy) {
+		dx += handleX;
+		dy += handleY;
+		drawByHandle(dx, dy, false);
 	}
 }

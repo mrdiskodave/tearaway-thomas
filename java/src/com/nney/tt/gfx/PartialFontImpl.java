@@ -102,5 +102,5 @@ public abstract class PartialFontImpl implements Font {
 	abstract protected void startDrawing(int fg);
 
 	@Override
-	abstract public PrerenderedText preDraw(int fg, int kern, String text);
+	abstract public PrerenderedText preRender(int fg, int kern, String text);
 }

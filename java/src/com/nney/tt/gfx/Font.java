@@ -20,7 +20,7 @@ public interface Font {
 
 	int computeWidth(int kern, String text);
 
-	PrerenderedText preDraw(int fg, int kern, String text);
+	PrerenderedText preRender(int fg, int kern, String text);
 
 	/**
 	 * Release any resources associated with this object.

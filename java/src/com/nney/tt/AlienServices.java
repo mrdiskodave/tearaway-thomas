@@ -115,4 +115,6 @@ public interface AlienServices {
 	boolean collideBoxWithPlayerHandle(Box box);
 
 	void extraTime(int seconds);
+
+	void extraLife();
 }

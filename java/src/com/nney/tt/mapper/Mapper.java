@@ -378,7 +378,7 @@ public class Mapper implements MapperServicesToPens {
 				Anim anim = anims.find(0);
 				animPlayers[x].changeAnimation(anim);
 				Sprite sprite = animPlayers[x].nextFrame();
-				sprite.draw(sx, sy, false);
+				sprite.drawByHandle(sx, sy, false);
 			}
 
 			String s = ai.alienClass.getSimpleName();

@@ -1,8 +1,11 @@
 package com.nney.tt;
 
+import com.nney.tt.gfx.Component;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.PrerenderedText;
+import com.nney.tt.gfx.RowComponent;
+import com.nney.tt.gfx.SpacerComponent;
 import com.nney.tt.sprites.Sprite;
 
 public class HeadUpDisplay {
@@ -24,7 +27,7 @@ public class HeadUpDisplay {
 
 	private final Font font;
 
-	class SmartText {
+	class SmartText implements Component {
 		private PrerenderedText content;
 
 		private String slast = "";
@@ -39,7 +42,7 @@ public class HeadUpDisplay {
 		void set(int col, String next) {
 			String snext = String.format("%x-%s", col, next);
 			if (!slast.equals(snext)) {
-				content = font.preDraw(col, 0, next);
+				content = font.preRender(col, 0, next);
 				slast = snext;
 			}
 		}
@@ -48,14 +51,20 @@ public class HeadUpDisplay {
 			draw(x - width() / 2, y);
 		}
 
+		@Override
+		public
 		void draw(int x, int y) {
 			content.draw(x, y);
 		}
 
+		@Override
+		public
 		int width() {
 			return content.width();
 		}
 
+		@Override
+		public
 		int height() {
 			return content.height();
 		}
@@ -96,25 +105,30 @@ public class HeadUpDisplay {
 	private ReadOut gemsReadOut;
 	private ReadOut timeReadOut;
 
-	private SmartText exitOpen;
-
-	private SmartText hurryUp;
+	private SmartText exitOpenText;
+	private SmartText hurryUpText;
 	private SmartText livesText;
 
-	private final Sprite lifeSprite;
+	private RowComponent livesRow;
 
 	public HeadUpDisplay(GraphicsContext gc, Font font, Sprite lifeSprite) {
 		this.gc = gc;
 		this.font = font;
-		this.lifeSprite = lifeSprite;
+
 		scoreReadOut = new ReadOut("score");
 		gemsReadOut = new ReadOut("gems");
 		timeReadOut = new ReadOut("time");
 
 		livesText = new SmartText();
-		exitOpen = new SmartText(COL_EXIT_OPEN, "exit open");
-		hurryUp = new SmartText(COL_HURRY_UP, "hurry up");
+		exitOpenText = new SmartText(COL_EXIT_OPEN, "exit open");
+		hurryUpText = new SmartText(COL_HURRY_UP, "hurry up");
 
+		livesRow = new RowComponent();
+		livesRow.add(lifeSprite);
+		livesRow.add(new SpacerComponent(4, 1));
+		livesRow.add(font.preRender(COL_HEADING, 0, "x")); // TODO: undisposed!
+		livesRow.add(new SpacerComponent(4, 1));
+		livesRow.add(livesText);
 	}
 
 	public void update(int score, int time, int gems, boolean isExitOpen, int lives) {
@@ -147,38 +161,26 @@ public class HeadUpDisplay {
 		//
 		
 		if (isExitOpen) {
-			exitOpen.centredDraw(midX, gc.screenHeight() * 7 / 20);
+			exitOpenText.centredDraw(midX, gc.screenHeight() * 7 / 20);
 		}
 
 		//
 		// hurry up
 		//
 		
-		int mod = 20;
-
-		if (hurryUp2 && (time % mod) < (mod / 2)) {
-			hurryUp.centredDraw(midX, gc.screenHeight() * 16 / 20);
+		int flashRate = 20;
+		if (hurryUp2 && (time % flashRate) < (flashRate / 2)) {
+			hurryUpText.centredDraw(midX, gc.screenHeight() * 16 / 20);
 		}
 
 		//
 		// lives
 		//
 		
-		livesText.set(COL_HEADING, String.format("x%d", lives));
-
-		int livesDisplayHeight = Math.max(livesText.height(), lifeSprite.h);
-		int livesDisplayWidth = lifeSprite.w + livesText.width();
-
-		int livesX = (midX - livesDisplayWidth / 2);
-		int livesY = bottomY + (gemsReadOut.height() - livesDisplayHeight) / 2;
-
-		int diff = lifeSprite.h - livesText.height();
-		int textSticksOutBy = Math.max(0, diff);
-		int spriteSticksOutBy = Math.max(0, -diff);
-
-		lifeSprite.draw(livesX + lifeSprite.handleX, livesY + lifeSprite.handleY + (spriteSticksOutBy / 2), false);
-		livesX += lifeSprite.w;
-		livesText.draw(livesX, livesY + (textSticksOutBy / 2));
+		livesText.set(COL_HEADING, String.format("%d", lives));
+		int livesX = (midX - livesRow.width() / 2);
+		int livesY = bottomY + (gemsReadOut.height() - livesRow.height()) / 2;
+		livesRow.draw(livesX, livesY);
 	}
 
 }

@@ -42,7 +42,7 @@ public class GlFont extends PartialFontImpl {
 	}
 
 	@Override
-	public PrerenderedText preDraw(int fg, int kern, String text) {
+	public PrerenderedText preRender(int fg, int kern, String text) {
 		int id = GL11.glGenLists(1);
 		GL11.glNewList(id, GL11.GL_COMPILE);
 		int width = draw(0, 0, fg, kern, text) - kern;
