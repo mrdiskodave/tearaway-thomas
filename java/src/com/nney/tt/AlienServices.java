@@ -2,6 +2,8 @@ package com.nney.tt;
 
 import java.util.Random;
 
+import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Joystick;
@@ -118,5 +120,7 @@ public interface AlienServices {
 
 	void extraLife();
 
-	boolean isHeadBounce(Coord c, Sprite s);
+	void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightName);
+
+	boolean isOffTheBottom(Coord c);
 }

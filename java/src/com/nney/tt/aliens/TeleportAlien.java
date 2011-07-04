@@ -11,7 +11,7 @@ public class TeleportAlien extends AlienWithLocation {
 	public Coord destination;
 	
 	@AlienProp(name = "Hidden", doc = "Are we hidden from view?", label = "hidden")
-	private boolean hidden;
+	public boolean hidden;
 	
 	@Override
 	public void loadFromLegacyData() {
@@ -22,7 +22,7 @@ public class TeleportAlien extends AlienWithLocation {
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
-		destination = p.copyAndAdd(0, -100);
+		destination = p.copyAndAdd(0, -40);
 	}
 
 	@Override

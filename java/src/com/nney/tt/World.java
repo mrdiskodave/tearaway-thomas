@@ -8,6 +8,7 @@ import java.util.Random;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BattAlien;
 import com.nney.tt.aliens.BearAlien;
@@ -15,6 +16,7 @@ import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.ExitAlien;
+import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
@@ -429,26 +431,39 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public boolean isHeadBounce(Coord alienPos, Sprite alienSprite) {
+	public void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightName) {
+		Coord alienPos = alien.c;
 		int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
 		if (dy < ttSprite.h && dy > 0) {
 			int consideredInTearaway = ttSprite.h - 1 - dy;
 			if (player.isHeadBouncePossible(consideredInTearaway)) {
 				int diffX = Math.abs(alienPos.x - player.c.x);
-				int w = Math.abs(alienSprite.w-5)/2;
+				int w = Math.abs(alienSprite.w-2)/2;
 				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
 				if (diffX <= w) {
+					// head bounce :)
 					player.headBounce();
-					giveScore(100, new Coord(alienPos.x, alienPos.y-alienSprite.handleY-10));
-					return true;
+
+					int raiseScoreNoticeBy = alienSprite.handleY+10;
+					int headScore = 100;
+					if (frightName!=null) {
+						alien.done();
+						FallingAlien fa = new FallingAlien(alien, headScore, raiseScoreNoticeBy, frightName);
+						loadAlienIntoWorld(fa);
+					}
+					else {
+						giveScore(headScore, new Coord(alienPos.x, alienPos.y-raiseScoreNoticeBy));
+					}
+					return;
 				}
 				else {
 					System.out.println("NHB: diffX");
 				}
 			}
 		}
+		
+		// no head bounce :(
 		player.stun();
-		return false;
 	}
 
 	// TODO: unused
@@ -923,6 +938,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
+	@Override
+	public boolean isOffTheBottom(Coord c) {
+		// *2 to be generous
+		int offY = scr.position().y + gc.screenHeight()*2;
+		return c.y>offY;
+	}
 }
 
 // 64: worm - forget it

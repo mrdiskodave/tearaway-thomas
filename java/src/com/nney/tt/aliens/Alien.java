@@ -10,7 +10,7 @@ import com.nney.tt.sprites.Sprite;
 
 public abstract class Alien {
 	protected AnimPlayer animPlayer = new AnimPlayer();
-	protected Anims anims;
+	public Anims anims;
 	public AlienInfo alienInfo;
 	public byte[] legacyData;
 	public boolean remove;
@@ -93,8 +93,6 @@ public abstract class Alien {
 	public void loadFromLegacyData() {
 
 	}
-
-
 
 	public void done() {
 		remove = true;

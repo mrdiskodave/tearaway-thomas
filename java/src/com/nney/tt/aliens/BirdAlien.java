@@ -9,7 +9,7 @@ public class BirdAlien extends LeftRightAlien {
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-			srv.getThePlayer().stun();
+			srv.headBounce(this, s, null);
 		}
 	}
 }

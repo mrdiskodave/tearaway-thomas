@@ -6,7 +6,7 @@ import com.nney.tt.geom.XRange;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class LeftRightAlien extends AlienWithLocation {
-	@AlienProp(name = "Range", doc = "The horizontal span in which we walk.", label = "range")
+	@AlienProp(name = "Range", doc = "The horizontal span in which we move.", label = "range")
 	public XRange range;
 
 	@AlienProp(name = "Facing", xtraDef = "leftright", label = "goLeft")

@@ -7,7 +7,7 @@ import com.nney.tt.sprites.Sprite;
 @AlienInfoAnns({ @AlienInfoAnn(type = 8, gfx = "0arru"), @AlienInfoAnn(type = 9, gfx = "0arrd"),
 		@AlienInfoAnn(type = 10, gfx = "0arrl"), @AlienInfoAnn(type = 11, gfx = "0arrr") })
 public class ArrowAlien extends AlienWithLocation {
-	private int repeat;
+	private int repeatCounter;
 
 	@AlienProp(name = "AdviceBox", doc = "Player's location for us to blink at him?", label = "adviceBox")
 	public Box box = new Box(0, 0, 0, 0);
@@ -33,17 +33,17 @@ public class ArrowAlien extends AlienWithLocation {
 	public void update() {
 		boolean collide = box.inside(srv.getPlayerPosition());
 		if (collide) {
-			repeat = 8;
+			repeatCounter = 8;
 		}
 
 		boolean on = false;
-		if (repeat != 0) {
+		if (repeatCounter != 0) {
 			int frm = srv.getFrameNumber() & 31;
 			if (frm < 22) {
 				on = true;
 			}
 			else if (frm == 31) {
-				repeat--;
+				repeatCounter--;
 			}
 		}
 
