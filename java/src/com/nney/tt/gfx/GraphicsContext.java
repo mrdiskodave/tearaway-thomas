@@ -19,4 +19,6 @@ public interface GraphicsContext {
 
 	int screenHeight();
 
+	void antiCircle(int radius, int x, int y, int c);
+
 }

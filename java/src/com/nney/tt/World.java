@@ -7,11 +7,6 @@ import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
-import com.nney.json.IndentedJsonFormatter;
-import com.nney.json.JsonDataDestination;
-import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BattAlien;
@@ -49,7 +44,6 @@ import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
-import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
@@ -57,7 +51,6 @@ import com.nney.tt.lwjgl.GlTools;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
-import com.nney.tt.mapper.APS;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.resources.TTResource;
@@ -66,7 +59,6 @@ import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
-import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
@@ -117,8 +109,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int frameNumber;
 
+	/**
+	 * Player sprite.
+	 */
 	private Sprite ttSprite;
-	private Coord ttPos;
+	
+	/**
+	 * Player sprite top level (i.e. incorporates handle subtraction).
+	 */
+	private Coord ttSpriteTopLeft;
 
 	private int score = 0;
 
@@ -348,9 +347,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
-		ttPos = c.copy();
-		ttPos.x -= s.handleX;
-		ttPos.y -= s.handleY;
+		ttSpriteTopLeft = c.copy();
+		ttSpriteTopLeft.x -= s.handleX;
+		ttSpriteTopLeft.y -= s.handleY;
 		ttSprite = s;
 	}
 
@@ -429,12 +428,35 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return false;
 	}
 
+	@Override
+	public boolean isHeadBounce(Coord alienPos, Sprite alienSprite) {
+		int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
+		if (dy < ttSprite.h && dy > 0) {
+			int consideredInTearaway = ttSprite.h - 1 - dy;
+			if (player.isHeadBouncePossible(consideredInTearaway)) {
+				int diffX = Math.abs(alienPos.x - player.c.x);
+				int w = Math.abs(alienSprite.w-5)/2;
+				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
+				if (diffX <= w) {
+					player.headBounce();
+					giveScore(100, new Coord(alienPos.x, alienPos.y-alienSprite.handleY-10));
+					return true;
+				}
+				else {
+					System.out.println("NHB: diffX");
+				}
+			}
+		}
+		player.stun();
+		return false;
+	}
+
 	// TODO: unused
 	@Override
 	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
-		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
+		int dx = alienPos.x - alienSprite.handleX - ttSpriteTopLeft.x;
 		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
-			int dy = alienPos.y - alienSprite.handleY - ttPos.y;
+			int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
 			return dy < ttSprite.h && dy > (-alienSprite.h);
 		}
 		return false;
@@ -442,9 +464,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
-		int dx = alienPos.x - alienSprite.handleX - ttPos.x;
+		int dx = alienPos.x - alienSprite.handleX - ttSpriteTopLeft.x;
 		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
-			int dy = alienPos.y - alienSprite.handleY - ttPos.y;
+			int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
 			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
 				if (dy < 0) {
 					return LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, -dy, dx);
@@ -668,9 +690,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 				}
 				else {
-					ttPos = null;
+					ttSpriteTopLeft = null;
 					player.move();
-					assert ttPos != null;
+					assert ttSpriteTopLeft != null;
 
 					if (CTC_HARD_SCROLLING) {
 						scr.snapTo(player.c);
@@ -688,10 +710,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 					// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
 					// 0xff000000);
 
-					int radius = frameNumber+10;
-					int cx = player.c.x - scr.position().x;
-					int cy = player.c.y - scr.position().y;
-					antiCircle(radius, cx, cy, 0xff000000);
+//					int radius = 160;
+//					int cx = player.c.x - scr.position().x;
+//					int cy = player.c.y - scr.position().y;
+//					gc.antiCircle(radius, cx, cy, 0xff000000);
 
 					int showGems = gemsNeeded - gemsCollected;
 					if (isExitOpen()) {
@@ -715,55 +737,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	private void antiCircle(int radius, int cx, int cy, int c) {
-		int w = gc.screenWidth();
-		int h = gc.screenHeight();
-		int steps = Math.max(10, radius / 15);
-		GlTools.configureFor2dRect(c);
-
-		int[] v = new int[steps * 2 + 4];
-		int p = 0;
-		v[p++] = radius;
-		v[p++] = radius;
-		for (int a = 0; a < steps + 1; a++) {
-			double angle = ((Math.PI / 2.0) * a) / steps;
-			v[p++] = (int) (Math.cos(angle) * radius);
-			v[p++] = (int) (Math.sin(angle) * radius);
-		}
-
-//		GlTools.configureFor2dRect(0xffff0000);
-		drawCirc(v, cx, cy, 1, 1);
-//		GlTools.configureFor2dRect(0xff00ff00);
-		drawCirc(v, cx, cy, -1, 1);
-//		GlTools.configureFor2dRect(0xff0000ff);
-		drawCirc(v, cx, cy, 1, -1);
-//		GlTools.configureFor2dRect(0xffff00ff);
-		drawCirc(v, cx, cy, -1, -1);
-//		GlTools.configureFor2dRect(0x80ff0000);
-		boxFill(0, 0, w, cy - radius);
-//		GlTools.configureFor2dRect(0x8000ff00);
-		boxFill(0, cy + radius, w, h);
-//		GlTools.configureFor2dRect(0x800000ff);
-		boxFill(0, cy - radius, cx - radius, cy + radius);
-//		GlTools.configureFor2dRect(0x80ff00ff);
-		boxFill(cx + radius, cy - radius, w, cy + radius);
-
-		GlTools.configureFor2dBobs();
-	}
-
-	private void boxFill(int t, int l, int b, int r) {
-		// gc.fillRectangle(t, l, b - t, r - l, c);
-		if (b <= t || r <= l) return;
-		GL11.glRecti(t, l, b, r);
-	}
-
-	private void drawCirc(int[] v, int cx, int cy, int ix, int iy) {
-		GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-		for (int p = 0; p < v.length; p += 2) {
-			GL11.glVertex2i(cx + v[p] * ix, cy + v[p + 1] * iy);
-		}
-		GL11.glEnd();
-	}
 
 	private void init() {
 		Openable ho = TTResource.horizon(1);
@@ -949,6 +922,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			lives++;
 		}
 	}
+
 }
 
 // 64: worm - forget it
@@ -962,4 +936,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 // new life every 50,000 points
 // 10,000 points for perfect level
 // 10 points for every spare second
+//
+// 500 for the big gem
+// 2500 for the huge gem
+// 50, 100 for the yellow and purple gem 
 

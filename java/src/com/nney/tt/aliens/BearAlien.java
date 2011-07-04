@@ -12,6 +12,12 @@ public class BearAlien extends LeftRightAlien {
 		if (!turned && srv.blockInfoIs(c, "stop")) {
 			goLeft = !goLeft;
 		}
-		animateDrawAndStun(c);
+		Sprite s = nextFrame();
+		srv.drawSprite(c, s);
+		if (srv.collideAlienWithPlayerHiRes(c, s)) {
+			if (srv.isHeadBounce(c, s)) {
+				System.out.println("HEAD BOUNCE");
+			}
+		}
 	}
 }

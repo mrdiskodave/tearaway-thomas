@@ -74,4 +74,52 @@ public class GlGraphicsContext implements GraphicsContext {
 	public int screenHeight() {
 		return Main.SCREEN_HEIGHT;
 	}
+	
+	@Override
+	public void antiCircle(int radius, int x, int y, int c) {
+		int w = screenWidth();
+		int h = screenHeight();
+		int steps = Math.max(10, radius / 15);
+		GlTools.configureFor2dRect(c);
+
+		int[] v = new int[(steps + 2) * 2];
+		int p = 0;
+		v[p++] = radius;
+		v[p++] = radius;
+		for (int a = 0; a < steps + 1; a++) {
+			double angle = ((Math.PI / 2.0) * a) / steps;
+			v[p++] = (int) (Math.cos(angle) * radius);
+			v[p++] = (int) (Math.sin(angle) * radius);
+		}
+
+		drawFan(v, x, y, 1, 1);
+		drawFan(v, x, y, -1, 1);
+		drawFan(v, x, y, 1, -1);
+		drawFan(v, x, y, -1, -1);
+
+		// everything above
+		boxFill(0, 0, w, y - radius);
+		// everything below
+		boxFill(0, y + radius, w, h);
+		// bit to the left
+		boxFill(0, y - radius, x - radius, y + radius);
+		// bit to the right
+		boxFill(x + radius, y - radius, w, y + radius);
+
+		GlTools.configureFor2dBobs();
+	}
+
+	private void boxFill(int t, int l, int b, int r) {
+		// gc.fillRectangle(t, l, b - t, r - l, c);
+		if (b <= t || r <= l) return;
+		GL11.glRecti(t, l, b, r);
+	}
+
+	private void drawFan(int[] v, int x, int y, int ix, int iy) {
+		GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+		for (int p = 0; p < v.length; p += 2) {
+			GL11.glVertex2i(x + v[p] * ix, y + v[p + 1] * iy);
+		}
+		GL11.glEnd();
+	}
 }

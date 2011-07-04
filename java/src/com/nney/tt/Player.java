@@ -15,6 +15,7 @@ public class Player {
 		this.playersAnimations = playerAnims;
 		this.c = playerStart.copy();
 		this.goLeft = goLeft;
+		this.lc = playerStart.copy();
 	}
 
 	private boolean testStick(int s) {
@@ -623,7 +624,7 @@ public class Player {
 					moving = true;
 				}
 			}
-			
+
 			// leave the ladder?
 			boolean wantToWalkOffLadder = testStick(Joystick.LEFT | Joystick.RIGHT);
 			if (wantToWalkOffLadder && canWalkOffLadder()) {
@@ -634,7 +635,7 @@ public class Player {
 				jump();
 				ladderLatch = true;
 			}
-			
+
 			setAnim("climb", moving);
 		}
 	}
@@ -1019,6 +1020,25 @@ public class Player {
 
 	public void boost(int i) {
 		jumpV(i);
+	}
+
+	public boolean isHeadBouncePossible(int consideredInTearaway) {
+		if (mode == Mode.AIR) {
+			if (vely > 6) {
+				if (wantsToJump()) {
+					System.out.println("SpareY:" + consideredInTearaway + " <= "+vely+"+4");
+					if (consideredInTearaway <= vely+4) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public void headBounce() {
+		proofTimer = 1;
+		jump();
 	}
 }
 

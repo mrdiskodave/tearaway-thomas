@@ -117,4 +117,6 @@ public interface AlienServices {
 	void extraTime(int seconds);
 
 	void extraLife();
+
+	boolean isHeadBounce(Coord c, Sprite s);
 }

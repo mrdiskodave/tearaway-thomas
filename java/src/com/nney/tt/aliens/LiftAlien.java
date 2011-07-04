@@ -7,11 +7,6 @@ import com.nney.tt.sprites.Sprite;
 public abstract class LiftAlien extends Alien {
 	private static final int EXTRA_WIDTH = 5;
 
-	/**
-	 * Our generated location.
-	 * 
-	 * @see Alien#c
-	 */
 	private Coord ourPlace = new Coord();
 	private Coord lastPlace = new Coord();
 
