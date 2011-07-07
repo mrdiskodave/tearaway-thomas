@@ -1,4 +1,4 @@
-package sandbox.lwjgl.demos;
+package sandbox.lwjgl.demos.openal;
 
 /*
  * Copyright (c) 2002-2010 LWJGL Project

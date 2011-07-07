@@ -1,5 +1,6 @@
-package sandbox.lwjgl.demos;
+package sandbox.lwjgl.demos.openal;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Scanner;
@@ -10,6 +11,7 @@ import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 import org.lwjgl.util.WaveData;
 
+import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
@@ -56,13 +58,31 @@ public class Lesson1 {
 	 * created to play that buffer.
 	 */
 	void loadALData() {
+		
+		{
+			Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\Test.wav");
+			WaveData waveFile = WaveData.create(OpenableTools.mustLoad(o));
+			System.out.println("Sample rate "+waveFile.samplerate);
+			waveFile.dispose();
+			// 44100
+
+		}
 		// Load wav data into a buffer.
 		buffer = alCheckName(AL10.alGenBuffers());
 
-		byte[] data = OpenableTools.mustLoad(new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\Test.wav"));
-		WaveData waveFile = WaveData.create(data);
-		AL10.alBufferData(buffer, waveFile.format, waveFile.data, waveFile.samplerate);
-		waveFile.dispose();
+		Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, "samp3.bin");
+		byte[] sample = OpenableTools.mustLoad(sampleOpenable);
+		
+		byte[] processedSample = new byte[sample.length];
+		for (int x=0; x<sample.length; x++) {
+			processedSample[x] = (byte) (sample[x]+0x80);
+		}
+
+		ByteBuffer data = BufferUtils.createByteBuffer(processedSample.length);
+		data.put(processedSample).rewind();
+		
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO8, data, 12000);
+//		waveFile.dispose();
 
 		// Bind the buffer with the source.
 		source = alCheckName(AL10.alGenSources());
