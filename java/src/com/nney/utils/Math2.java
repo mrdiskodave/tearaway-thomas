@@ -6,17 +6,9 @@ public final class Math2 {
 	}
 
 	public static final int limit(int min, int max, int value) {
-		return atMost(max, atLeast(min, value));
+		return Math.min(max, Math.max(min, value));
 	}
 
-	private static final int atMost(int max, int value) {
-		return Math.min(max, value);
-	}
-
-	public static final int atLeast(int min, int value) {
-		return Math.max(min, value);
-	}
-	
 	public static final boolean maskTest(int x, int mask) {
 		return (x&mask)!=0;
 	}

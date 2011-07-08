@@ -75,7 +75,7 @@ public class PersistedMap {
 
 		// also vertical levels were strangely less than 18 wide
 		// (when 18 was there actual width)
-		maxx = Math2.atLeast(minx + (18 - 1), maxx);
+		maxx = Math.max(minx + (18 - 1), maxx);
 
 		assert maxx <= GameMap.MAP_WIDTH;
 		assert maxy <= GameMap.MAP_HEIGHT;

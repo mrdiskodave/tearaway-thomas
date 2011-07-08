@@ -78,28 +78,33 @@ public class Lesson1 {
 			i[x] = new Instr(new DataSrc(iblk, x*94, 94));
 		}
 		
-		System.exit(1);
+		Song song = new Song(new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "intro.song"))));
+		
+		System.out.println(DebugTools.showBin(song.getSequence()));
+		
 		
 		
 		
 		
 
-		Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, "samp3.bin");
-		byte[] sample = OpenableTools.mustLoad(sampleOpenable);
+//		Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, "samp3.bin");
+//		byte[] sample = OpenableTools.mustLoad(sampleOpenable);
 		
 		int d = 4;
-		ByteBuffer bb = BufferUtils.createByteBuffer(sample.length*d);
+		int len = 20*1024;
+		ByteBuffer bb = BufferUtils.createByteBuffer(len*d);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
-		for (int x=0; x<sample.length; x++) {
-			int s = sample[x];
+		for (int x=0; x<len; x++) {
+			boolean e = (x&1)!=0;
+			int s = e? 120 : -120;
 			s*=256;
 			int l = s;
-			int r = 0;
+			int r = s;
 			sb.put((short) l);
 			sb.put((short) r);
 		}
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, 12000);
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, 440000);
 		
 
 		// Bind the buffer with the source.

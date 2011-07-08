@@ -431,14 +431,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightName) {
+	public void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightAnimationName) {
 		Coord alienPos = alien.c;
 		int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
 		if (dy < ttSprite.h && dy > 0) {
 			int consideredInTearaway = ttSprite.h - 1 - dy;
 			if (player.isHeadBouncePossible(consideredInTearaway)) {
 				int diffX = Math.abs(alienPos.x - player.c.x);
-				int w = Math.abs(alienSprite.w-2)/2;
+				int w = Math.abs(alienSprite.w)/2+4;
 				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
 				if (diffX <= w) {
 					// head bounce :)
@@ -446,9 +446,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 					int raiseScoreNoticeBy = alienSprite.handleY+10;
 					int headScore = 100;
-					if (frightName!=null) {
+					if (frightAnimationName!=null) {
 						alien.done();
-						FallingAlien fa = new FallingAlien(alien, headScore, raiseScoreNoticeBy, frightName);
+						FallingAlien fa = new FallingAlien(alien, headScore, raiseScoreNoticeBy, frightAnimationName);
 						loadAlienIntoWorld(fa);
 					}
 					else {
