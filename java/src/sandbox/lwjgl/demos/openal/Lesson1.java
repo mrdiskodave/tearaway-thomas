@@ -1,8 +1,10 @@
 package sandbox.lwjgl.demos.openal;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.Scanner;
 
 import org.lwjgl.BufferUtils;
@@ -70,19 +72,35 @@ public class Lesson1 {
 		// Load wav data into a buffer.
 		buffer = alCheckName(AL10.alGenBuffers());
 
+		byte[] iblk = OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "iblk"));
+		Instr[] i = new Instr[16];
+		for (int x=0; x<16; x++) {
+			i[x] = new Instr(new DataSrc(iblk, x*94, 94));
+		}
+		
+		System.exit(1);
+		
+		
+		
+		
+
 		Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, "samp3.bin");
 		byte[] sample = OpenableTools.mustLoad(sampleOpenable);
 		
-		byte[] processedSample = new byte[sample.length];
+		int d = 4;
+		ByteBuffer bb = BufferUtils.createByteBuffer(sample.length*d);
+		bb.order(ByteOrder.nativeOrder());
+		ShortBuffer sb = bb.asShortBuffer();
 		for (int x=0; x<sample.length; x++) {
-			processedSample[x] = (byte) (sample[x]+0x80);
+			int s = sample[x];
+			s*=256;
+			int l = s;
+			int r = 0;
+			sb.put((short) l);
+			sb.put((short) r);
 		}
-
-		ByteBuffer data = BufferUtils.createByteBuffer(processedSample.length);
-		data.put(processedSample).rewind();
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, 12000);
 		
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO8, data, 12000);
-//		waveFile.dispose();
 
 		// Bind the buffer with the source.
 		source = alCheckName(AL10.alGenSources());
