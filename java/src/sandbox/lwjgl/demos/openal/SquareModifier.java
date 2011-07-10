@@ -12,7 +12,8 @@ public class SquareModifier {
 	public SquareModifier(byte[] loop, int sqrBegin, int sqrEnd) {
 		localLoop = loop.clone();
 		for (int x = sqrBegin; x <= sqrEnd; x++) {
-			localLoop[x] = LEFT_SQUARE;
+			byte v = LEFT_SQUARE;
+			wll(x, v);
 		}
 
 		this.sqrPos = sqrBegin;
@@ -22,9 +23,13 @@ public class SquareModifier {
 
 	}
 
+	private void wll(int x, byte v) {
+		if (x<localLoop.length) localLoop[x] = v;
+	}
+
 	void modify() {
 		if (sqrRight) {
-			localLoop[sqrPos] = RIGHT_SQUARE;
+			wll(sqrPos, RIGHT_SQUARE);
 			if (sqrPos == sqrEnd) {
 				sqrRight = false;
 			}
@@ -33,7 +38,7 @@ public class SquareModifier {
 			}
 		}
 		else {
-			localLoop[sqrPos] = LEFT_SQUARE;
+			wll(sqrPos, LEFT_SQUARE);
 			if (sqrPos == sqrBegin) {
 				sqrRight = true;
 			}

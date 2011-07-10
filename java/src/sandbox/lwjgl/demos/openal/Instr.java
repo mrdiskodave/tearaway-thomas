@@ -21,7 +21,7 @@ public class Instr {
 	private static final int Iloop_size = 72;
 	private static final int Itone_size = 73;
 	
-	public int sample;
+	private int sample;
 
 	public byte[] loop;
 	public byte[] tone;
@@ -52,7 +52,11 @@ public class Instr {
 			if (sqrBegin>=loop.length) {
 				sqrRate = 0;
 			}
-			
+		}
+	}
+
+	void dump() {
+		if (sample==0) {
 			String morph = "";
 			if (sqrRate!=0) {
 				morph = String.format(",b%s,e%s,r%s", sqrBegin, sqrEnd, sqrRate);
@@ -64,6 +68,16 @@ public class Instr {
 		}
 		else {
 			System.out.println("Sample:"+sample);
+		}
+	}
+	
+	boolean isSynthasized() {
+		return sample==0;
+	}
+
+	public void bind(byte[][] waves) {
+		if (sample!=0) {
+			loop = waves[sample-1];
 		}
 	}
 }

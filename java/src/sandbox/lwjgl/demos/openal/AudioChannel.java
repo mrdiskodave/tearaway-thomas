@@ -69,7 +69,9 @@ public class AudioChannel {
 		}
 		acc -= MAGIC_RATIO;
 
-		return (wave[p]*volume)/0x40;
+		byte wp = wave[p];
+//		System.out.println("Sample "+wp+" at "+volume);
+		return (wp*volume)/0x40;
 	}
 	
 	void period(int p) {

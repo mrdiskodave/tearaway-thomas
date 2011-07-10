@@ -31,9 +31,7 @@ public class Lesson1 {
 
 	/** Sources are points emitting sound. */
 	int source;
-	
-	
-	
+
 	/** Position of the source sound. */
 	FloatBuffer sourcePos = createFloatBuffer(0.0f, 0.0f, 0.0f);
 
@@ -52,92 +50,153 @@ public class Lesson1 {
 	 */
 	FloatBuffer listenerOri = createFloatBuffer(0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
 
-	/**
-	 * boolean LoadALData()
-	 * 
-	 * This function will load our sample data from the disk using the Alut
-	 * utility and send the data into OpenAL as a buffer. A source is then also
-	 * created to play that buffer.
-	 */
-	void loadALData() {
-		
-		{
-			Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\newdata\\Test.wav");
-			WaveData waveFile = WaveData.create(OpenableTools.mustLoad(o));
-			System.out.println("Sample rate "+waveFile.samplerate);
-			waveFile.dispose();
-			// 44100
+	private Instr[] instrs;
 
-		}
-		// Load wav data into a buffer.
-		buffer = alCheckName(AL10.alGenBuffers());
-
+	private void properDemo() {
+		int rate = 44100;
 
 		//
 		// load the samples
 		//
 		byte[][] sample = new byte[3][];
-		for (int s=0; s<3; s++) {
-			Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, String.format("samp%s.bin", s+1));
+		for (int s = 0; s < 3; s++) {
+			Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, String.format("samp%s.bin", s + 1));
 			sample[s] = OpenableTools.mustLoad(sampleOpenable);
 		}
 
 		//
 		// load the instruments
-		
+
 		byte[] iblk = OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "iblk"));
-		Instr[] instrs = new Instr[16];
-		for (int x=0; x<16; x++) {
-			instrs[x] = new Instr(new DataSrc(iblk, x*94, 94));
+		instrs = new Instr[16];
+		for (int x = 0; x < 16; x++) {
+			instrs[x] = new Instr(new DataSrc(iblk, x * 94, 94));
 		}
 
 		//
 		// bind the samples
 		//
-		for (Instr i: instrs) {
-			if (i.sample>0) {
-				i.loop = sample[i.sample-1];
-			}
+		for (Instr i : instrs) {
+			i.bind(sample);
 		}
-		
+
 		//
 		// load a song
 		//
-		Song song = new Song(new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "intro.song"))));
-		
+		Song song = new Song(
+				new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "intro.song"))));
 
-		
 		AudioChannel c = new AudioChannel();
-		ChannelController cc = new ChannelController(c);
-		cc.startNote(33, instrs[6]);
 
-		
-//		c.sample(sample, false);
-//		c.freq(0x03f8);
-//		c.vol(0x40);
-		
-		int len = 44100*5;
+		ChannelController cc = new ChannelController(c);
+		ChannelPlayer cp = new ChannelPlayer(cc, this);
+		cc.startNote(instrs[6], 33);
+
+		Timer clickTime = new Timer();
+		clickTime.init(song.clickLength() * 10);
+
+		int len = rate * 30;
 		int[] z = new int[len];
-		for (int t=0; t<len; t++) {
-			if (t%(44100/100)==0) {
-				cc.nextTick();
+		byte[] sequence = song.getSequence();
+
+		SongPosition sp = new SongPosition();
+
+		for (int t = 0; t < len; t++) {
+			if (t % (rate / 100) == 0) {
+				if (clickTime.action()) {
+					byte[] blk = song.block(sequence[sp.seq]);
+					assert blk.length % 12 == 0;
+					int lines = blk.length / 12;
+
+					int index = sp.line * 12 + 6;
+					System.out.println("Reading" + index);
+
+					int n = blk[index++];
+					int i = blk[index++];
+					int ap = blk[index++];
+					cp.play(n, i, ap);
+
+					sp.line++;
+					if (sp.line >= lines) {
+						sp.line = 0;
+						sp.seq++;
+						if (sp.seq >= sequence.length) {
+							sp.seq = 0;
+						}
+					}
+				}
+				cc.update();
 			}
 			z[t] = c.sample();
 		}
-		
-		ByteBuffer bb = BufferUtils.createByteBuffer(len*4);
+
+		play(z, rate);
+	}
+
+	private void amiga440Demo() {
+		int rate = 44100;
+		AudioChannel c = new AudioChannel();
+
+		byte[] test = new byte[] { 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f,
+				-0x3f, -0x3f, -0x3f };
+		byte[] test2 = new byte[] { 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f,
+				0x3f, 0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f,
+				-0x3f, -0x3f, -0x3f };
+		test = test;
+		c.wave(test, true);
+		c.period(0x03f8);
+		c.volume(0x3f);
+
+		int len = rate * 5;
+		int[] z = new int[len];
+
+		for (int t = 0; t < len; t++) {
+			z[t] = c.sample();
+		}
+		for (int x = 0; x < 10; x++) {
+			System.out.println(z[x]);
+		}
+		play(z, rate);
+	}
+
+	private void demo() {
+		int frequency = 440;
+		int waveLength = 2;
+		int timeInSeconds = 2;
+
+		byte[] waveForm = genWave(waveLength);
+		frequency *= waveLength;
+
+		int[] sample = new int[frequency * timeInSeconds];
+		for (int x = 0; x < sample.length; x++) {
+			sample[x] = waveForm[x % waveForm.length];
+		}
+		play(sample, frequency);
+	}
+
+	private byte[] genWave(int waveLength) {
+		byte[] answer = new byte[waveLength];
+		for (int x = 0; x < waveLength; x++) {
+			answer[x] = (byte) (x < (waveLength / 2) ? 0x3f : -0x3f);
+		}
+		return answer;
+	}
+
+	private void play(int[] z, int rate) {
+		ByteBuffer bb = BufferUtils.createByteBuffer(z.length * 4);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
-		for (int x=0; x<len; x++) {
+		for (int x = 0; x < z.length; x++) {
 			int s = z[x];
-			s*=256;
+			s *= 256;
 			int l = s;
 			int r = s;
 			sb.put((short) l);
 			sb.put((short) r);
 		}
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, 44100);
-		
+
+		buffer = alCheckName(AL10.alGenBuffers());
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, rate);
 
 		// Bind the buffer with the source.
 		source = alCheckName(AL10.alGenSources());
@@ -147,11 +206,24 @@ public class Lesson1 {
 		AL10.alSource(source, AL10.AL_POSITION, sourcePos);
 		AL10.alSource(source, AL10.AL_VELOCITY, sourceVel);
 		alCheck();
+
+		setListenerValues();
+
+		AL10.alSourcePlay(source);
+
+		do {
+			try {
+				Thread.sleep(5);
+			}
+			catch (InterruptedException e) {
+				// ignore
+			}
+		} while (AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING);
 	}
 
 	private int alCheckName(int name) {
-		if (name<=0) {
-			throw new RuntimeException("Bad OpenAL name returned: "+name);
+		if (name <= 0) {
+			throw new RuntimeException("Bad OpenAL name returned: " + name);
 		}
 		alCheck();
 		return name;
@@ -200,48 +272,16 @@ public class Lesson1 {
 			throw new RuntimeException(le);
 		}
 
-		
-		loadALData();
+		// properDemo();
+		demo();
+		// amiga440Demo();
 
-		setListenerValues();
-
-		// Loop.
-		System.out.println("OpenAL Tutorial 1 - Single Static Source");
-		System.out.println("[Menu]");
-		System.out.println("p - Play the sample.");
-		System.out.println("s - Stop the sample.");
-		System.out.println("h - Pause the sample.");
-		System.out.println("q - Quit the program.");
-		char c = ' ';
-		Scanner stdin = new Scanner(System.in);
-		while (c != 'q') {
-			try {
-				System.out.print("Input: ");
-				c = (char) stdin.nextLine().charAt(0);
-			}
-			catch (Exception ex) {
-				c = 'q';
-			}
-
-			switch (c) {
-			// Pressing 'p' will begin playing the sample.
-			case 'p':
-				AL10.alSourcePlay(source);
-				break;
-
-			// Pressing 's' will stop the sample from playing.
-			case 's':
-				AL10.alSourceStop(source);
-				break;
-
-			// Pressing 'h' will pause the sample.
-			case 'h':
-				AL10.alSourcePause(source);
-				break;
-			}
-		}
 		killALData();
-		
+
 		AL.destroy();
+	}
+
+	public Instr findInstr(int b2) {
+		return instrs[b2];
 	}
 }
