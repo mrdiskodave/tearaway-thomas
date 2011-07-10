@@ -5,7 +5,9 @@ public class Timer {
 	int reset;
 	
 	boolean action() {
-		if (--value>=0) return false;
+		if (value==0) return false;
+		value--;
+		if (value!=0) return false;
 		value = reset;
 		return true;
 	}

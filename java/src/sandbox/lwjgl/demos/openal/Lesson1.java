@@ -72,39 +72,71 @@ public class Lesson1 {
 		// Load wav data into a buffer.
 		buffer = alCheckName(AL10.alGenBuffers());
 
+
+		//
+		// load the samples
+		//
+		byte[][] sample = new byte[3][];
+		for (int s=0; s<3; s++) {
+			Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, String.format("samp%s.bin", s+1));
+			sample[s] = OpenableTools.mustLoad(sampleOpenable);
+		}
+
+		//
+		// load the instruments
+		
 		byte[] iblk = OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "iblk"));
-		Instr[] i = new Instr[16];
+		Instr[] instrs = new Instr[16];
 		for (int x=0; x<16; x++) {
-			i[x] = new Instr(new DataSrc(iblk, x*94, 94));
+			instrs[x] = new Instr(new DataSrc(iblk, x*94, 94));
+		}
+
+		//
+		// bind the samples
+		//
+		for (Instr i: instrs) {
+			if (i.sample>0) {
+				i.loop = sample[i.sample-1];
+			}
 		}
 		
+		//
+		// load a song
+		//
 		Song song = new Song(new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "intro.song"))));
 		
-		System.out.println(DebugTools.showBin(song.getSequence()));
-		
-		
-		
-		
-		
 
-//		Openable sampleOpenable = new ClassResourceOpenable(Lesson1.class, "samp3.bin");
-//		byte[] sample = OpenableTools.mustLoad(sampleOpenable);
 		
-		int d = 4;
-		int len = 20*1024;
-		ByteBuffer bb = BufferUtils.createByteBuffer(len*d);
+		AudioChannel c = new AudioChannel();
+		ChannelController cc = new ChannelController(c);
+		cc.startNote(33, instrs[6]);
+
+		
+//		c.sample(sample, false);
+//		c.freq(0x03f8);
+//		c.vol(0x40);
+		
+		int len = 44100*5;
+		int[] z = new int[len];
+		for (int t=0; t<len; t++) {
+			if (t%(44100/100)==0) {
+				cc.nextTick();
+			}
+			z[t] = c.sample();
+		}
+		
+		ByteBuffer bb = BufferUtils.createByteBuffer(len*4);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
 		for (int x=0; x<len; x++) {
-			boolean e = (x&1)!=0;
-			int s = e? 120 : -120;
+			int s = z[x];
 			s*=256;
 			int l = s;
 			int r = s;
 			sb.put((short) l);
 			sb.put((short) r);
 		}
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, 440000);
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, 44100);
 		
 
 		// Bind the buffer with the source.

@@ -6,7 +6,13 @@ public class Instr {
 	private static final int Iloop = 10;
 	private static final int Itone = 42;
 	private static final int Iasdr = 58;
+	
+	/**
+	 * Always 2 if it is anything. We should just read the tone data faster
+	 * or hardwire the 2. (currently doing neither!)
+	 */
 	private static final int Itone_speed = 66;
+	
 	private static final int Itone_pause = 67;
 	private static final int Itone_mulu = 68;
 	private static final int Isqr_rate = 69;
@@ -29,7 +35,7 @@ public class Instr {
 	public Instr(DataSrc dataSrc) {
 		sample = dataSrc.uw(Isamplen);
 		if (sample == 0) {
-			loop = dataSrc.xx(Iloop, dataSrc.ub(Iloop_size));
+			loop = dataSrc.xx(Iloop, dataSrc.ub(Iloop_size)*2);
 			tone = dataSrc.xx(Itone, dataSrc.ub(Itone_size)*2);
 			asdr = dataSrc.xx(Iasdr, 8);
 
