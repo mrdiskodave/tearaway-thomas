@@ -94,16 +94,16 @@ public class ChannelController {
 			tonePause = instr.tonePause;
 			tonePosition = 0;
 
-			asdrTime.init(20);
+			asdrTime.everyAndNow(20);
 			asdrPosition = 0;
 
 			if (instr.sqrRate != 0) {
-				sqrTime.init(instr.sqrRate);
+				sqrTime.every(instr.sqrRate);
 				sqr = new SquareModifier(instr.loop, instr.sqrBegin, instr.sqrEnd);
 				audioChannel.wave(sqr.read(), true);
 			}
 			else {
-				sqrTime.init(0);
+				sqrTime.every(0);
 				audioChannel.wave(instr.loop, true);
 			}
 
@@ -113,7 +113,7 @@ public class ChannelController {
 	}
 
 	void update() {
-		if (!instr.isSynthasized()) return;
+		if (instr==null || !instr.isSynthasized()) return;
 
 		// period is wiggled /or/ ported
 		int p = period;
@@ -128,7 +128,7 @@ public class ChannelController {
 		// aprPos ++;
 		// aprPos %= 12;
 
-		if (sqrTime.action()) {
+		if (sqrTime.isTime()) {
 			sqr.modify();
 		}
 
@@ -143,8 +143,8 @@ public class ChannelController {
 			}
 		}
 
-		if (asdrTime.action()) {
-			System.out.println("Synthasizing");
+		if (asdrTime.isTime()) {
+			System.out.println(":) :) :)Synthasizing");
 			int dest = instr.asdr[asdrPosition] & 255;
 			int rate = instr.asdr[asdrPosition + 1] & 255;
 			int nvol = Math2.closer(vol, dest, rate);

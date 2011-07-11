@@ -53,7 +53,6 @@ public class Lesson1 {
 	private Instr[] instrs;
 
 	private void properDemo() {
-		int rate = 44100;
 
 		//
 		// load the samples
@@ -90,11 +89,11 @@ public class Lesson1 {
 
 		ChannelController cc = new ChannelController(c);
 		ChannelPlayer cp = new ChannelPlayer(cc, this);
-		cc.startNote(instrs[6], 33);
 
 		Timer clickTime = new Timer();
-		clickTime.init(song.clickLength() * 10);
+		clickTime.everyAndNow(song.clickLength());
 
+		int rate = 44100;
 		int len = rate * 30;
 		int[] z = new int[len];
 		byte[] sequence = song.getSequence();
@@ -102,18 +101,20 @@ public class Lesson1 {
 		SongPosition sp = new SongPosition();
 
 		for (int t = 0; t < len; t++) {
-			if (t % (rate / 100) == 0) {
-				if (clickTime.action()) {
-					byte[] blk = song.block(sequence[sp.seq]);
+			if (t % (rate/10) == 0) {
+				if (clickTime.isTime()) {
+					byte blkIdx = sequence[sp.seq];
+					byte[] blk = song.block(blkIdx);
 					assert blk.length % 12 == 0;
 					int lines = blk.length / 12;
 
 					int index = sp.line * 12 + 6;
-					System.out.println("Reading" + index);
 
 					int n = blk[index++];
 					int i = blk[index++];
 					int ap = blk[index++];
+					System.out.println(String.format("seq[%02d]=%02d,#%03d n%d,i%d,ap%d", sp.seq, blkIdx, sp.line, n, i, ap));
+
 					cp.play(n, i, ap);
 
 					sp.line++;
@@ -125,6 +126,9 @@ public class Lesson1 {
 						}
 					}
 				}
+				else {
+					System.out.println("JUST UPDATE");
+				}
 				cc.update();
 			}
 			z[t] = c.sample();
@@ -133,70 +137,18 @@ public class Lesson1 {
 		play(z, rate);
 	}
 
-	private void amiga440Demo() {
-		int rate = 44100;
-		AudioChannel c = new AudioChannel();
-
-		byte[] test = new byte[] { 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f,
-				-0x3f, -0x3f, -0x3f };
-		byte[] test2 = new byte[] { 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f,
-				0x3f, 0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f, -0x3f,
-				-0x3f, -0x3f, -0x3f };
-		test = test;
-		c.wave(test, true);
-		c.period(0x03f8);
-		c.volume(0x3f);
-
-		int len = rate * 5;
-		int[] z = new int[len];
-
-		for (int t = 0; t < len; t++) {
-			z[t] = c.sample();
-		}
-		for (int x = 0; x < 10; x++) {
-			System.out.println(z[x]);
-		}
-		play(z, rate);
-	}
-
-	private void demo() {
-		int frequency = 440;
-		int waveLength = 2;
-		int timeInSeconds = 2;
-
-		byte[] waveForm = genWave(waveLength);
-		frequency *= waveLength;
-
-		int[] sample = new int[frequency * timeInSeconds];
-		for (int x = 0; x < sample.length; x++) {
-			sample[x] = waveForm[x % waveForm.length];
-		}
-		play(sample, frequency);
-	}
-
-	private byte[] genWave(int waveLength) {
-		byte[] answer = new byte[waveLength];
-		for (int x = 0; x < waveLength; x++) {
-			answer[x] = (byte) (x < (waveLength / 2) ? 0x3f : -0x3f);
-		}
-		return answer;
-	}
-
 	private void play(int[] z, int rate) {
-		ByteBuffer bb = BufferUtils.createByteBuffer(z.length * 4);
+		ByteBuffer bb = BufferUtils.createByteBuffer(z.length * 2);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
 		for (int x = 0; x < z.length; x++) {
 			int s = z[x];
 			s *= 256;
-			int l = s;
-			int r = s;
-			sb.put((short) l);
-			sb.put((short) r);
+			sb.put((short) s);
 		}
 
 		buffer = alCheckName(AL10.alGenBuffers());
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, rate);
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, bb, rate);
 
 		// Bind the buffer with the source.
 		source = alCheckName(AL10.alGenSources());
@@ -216,7 +168,7 @@ public class Lesson1 {
 				Thread.sleep(5);
 			}
 			catch (InterruptedException e) {
-				// ignore
+				// ignored
 			}
 		} while (AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING);
 	}
@@ -272,9 +224,7 @@ public class Lesson1 {
 			throw new RuntimeException(le);
 		}
 
-		// properDemo();
-		demo();
-		// amiga440Demo();
+		properDemo();
 
 		killALData();
 
@@ -282,6 +232,10 @@ public class Lesson1 {
 	}
 
 	public Instr findInstr(int b2) {
-		return instrs[b2];
+		Instr answer = instrs[b2];
+		if (answer==null) {
+			System.out.println("Instrument "+b2+" not found!");
+		}
+		return answer;
 	}
 }

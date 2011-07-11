@@ -10,8 +10,6 @@ public class ChannelPlayer {
 	}
 	
 	void play(int n, int i, int ap) {
-		status(String.format("n%s,i%s,ap%s", n, i, ap));
-
 		Instr instr = srv.findInstr(i);
 		
 		int param = ap&15;
@@ -41,10 +39,6 @@ public class ChannelPlayer {
 		}
 	}
 	
-	void update() {
-		target.update();
-	}
-
 	private void status(String string) {
 		System.out.println(string);
 	}

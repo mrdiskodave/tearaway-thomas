@@ -46,7 +46,7 @@ public class SquareModifier {
 				sqrPos--;
 			}
 		}
-		System.out.println(DebugTools.showBin(localLoop));
+//		System.out.println(DebugTools.showBin(localLoop));
 	}
 	
 	byte[] read() {

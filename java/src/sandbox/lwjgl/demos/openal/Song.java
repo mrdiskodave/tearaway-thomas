@@ -34,7 +34,7 @@ public class Song {
 			int l = dataSrc.ul(p);
 			p += 4;
 			if (name.equals(blockName)) {
-				System.out.println(String.format("Found %s and %s it has length %s", name, p, l));
+//				System.out.println(String.format("Found %s and %s it has length %s", name, p, l));
 				return dataSrc.dsx(p, l);
 			}
 			p += l;

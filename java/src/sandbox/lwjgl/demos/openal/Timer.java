@@ -4,7 +4,7 @@ public class Timer {
 	int value;
 	int reset;
 	
-	boolean action() {
+	boolean isTime() {
 		if (value==0) return false;
 		value--;
 		if (value!=0) return false;
@@ -12,7 +12,12 @@ public class Timer {
 		return true;
 	}
 	
-	void init(int r) {
+	void every(int r) {
 		value = reset = r;
+	}
+
+	public void everyAndNow(int r) {
+		reset = r;
+		value = 1;
 	}
 }
