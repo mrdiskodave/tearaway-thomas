@@ -94,11 +94,11 @@ public class Lesson1 {
 				new ChannelConfig(20, true), // 3
 		};
 		for (int x = 0; x < cps.length; x++) {
-			cps[x] = new ChannelPlayer(this, x, w[x]);
+			cps[x] = new ChannelPlayer(this, w[x]);
 		}
 
 		Timer clickTime = new Timer();
-		clickTime.everyAndNow(song.clickLength());
+		clickTime.everyAndNextTime(song.clickLength());
 
 		int rate = 44100;
 		int len = rate * 20;
@@ -130,8 +130,8 @@ public class Lesson1 {
 						int n = blk[index++];
 						int i = blk[index++];
 						int ap = blk[index++];
-						System.out.println(String.format("seq[%02d]=%02d,#%03d n%d,i%d,ap%d", sp.seq, blkIdx, sp.line,
-								n, i, ap));
+//						System.out.println(String.format("seq[%02d]=%02d,#%03d n%d,i%d,ap%d", sp.seq, blkIdx, sp.line,
+//								n, i, ap));
 						cps[x].play(n, i, ap);
 					}
 

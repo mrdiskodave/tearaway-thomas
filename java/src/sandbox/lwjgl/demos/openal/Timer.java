@@ -5,12 +5,17 @@ public class Timer {
 	private int reset;
 	
 	boolean isTime() {
-		if (reset==0) return false;
+		if (reset==0) {
+			// never
+			return false;
+		}
 		if (value==0) {
 			value = reset;
+			// now!
 			return true;
 		}
 		value--;
+		// not yet
 		return false;
 	}
 	
@@ -18,7 +23,7 @@ public class Timer {
 		value = reset = r;
 	}
 
-	public void everyAndNow(int r) {
+	public void everyAndNextTime(int r) {
 		reset = r;
 		value = 0;
 	}

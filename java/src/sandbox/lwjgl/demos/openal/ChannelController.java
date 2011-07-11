@@ -6,8 +6,11 @@ public class ChannelController {
 
 	private final AudioChannel audioChannel;
 
-	ChannelController(AudioChannel h) {
+	private final boolean goRight;
+
+	ChannelController(AudioChannel h, boolean goRight) {
 		this.audioChannel = h;
+		this.goRight = goRight;
 	}
 
 	static int NOTES[] = { 0x1ac0, 0x1940, 0x17d0, 0x1680, 0x1530, 0x1400, // oct1
@@ -78,6 +81,7 @@ public class ChannelController {
 	}
 
 	void startNote(Instr i, int n) {
+		boolean changeOfInstrument = i!=instr;
 		instr = i;
 		assert instr != null;
 
@@ -95,12 +99,14 @@ public class ChannelController {
 			tonePause = instr.tonePause;
 			tonePosition = 0;
 
-			asdrTime.everyAndNow(2);
+			asdrTime.everyAndNextTime(2);
 			asdrPosition = 0;
 
 			if (instr.sqrRate != 0) {
 				sqrTime.every(instr.sqrRate);
-				sqr = new SquareModifier(instr.loop, instr.sqrBegin, instr.sqrEnd);
+				if (changeOfInstrument) {
+					sqr = new SquareModifier(instr.loop, instr.sqrBegin, instr.sqrEnd, goRight);
+				}
 				audioChannel.wave(sqr.read(), true);
 			}
 			else {

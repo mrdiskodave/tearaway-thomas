@@ -2,16 +2,14 @@ package sandbox.lwjgl.demos.openal;
 
 public class ChannelPlayer {
 	private final AudioChannel c = new AudioChannel();
-	private final ChannelController cc = new ChannelController(c);
-
+	private final ChannelController cc;
 	private final Lesson1 srv;
-	private final int ourNumber;
 	public final ChannelConfig config;
 
-	ChannelPlayer(Lesson1 srv, int ourNumber, ChannelConfig config) {
+	ChannelPlayer(Lesson1 srv, ChannelConfig config) {
 		this.srv = srv;
-		this.ourNumber = ourNumber;
 		this.config = config;
+		this.cc = new ChannelController(c, config.position<50);
 	}
 	
 	void play(int n, int i, int ap) {

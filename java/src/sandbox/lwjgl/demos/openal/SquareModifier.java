@@ -9,27 +9,27 @@ public class SquareModifier {
 	private int sqrPos;
 	private boolean sqrRight;
 
-	public SquareModifier(byte[] loop, int sqrBegin, int sqrEnd) {
+	public SquareModifier(byte[] loop, int sqrBegin, int sqrEnd, boolean goRight) {
 		localLoop = loop.clone();
 		for (int x = sqrBegin; x <= sqrEnd; x++) {
 			byte v = LEFT_SQUARE;
-			wll(x, v);
+			safePoke(x, v);
 		}
 
 		this.sqrPos = sqrBegin;
-		this.sqrRight = true;
+		this.sqrRight = goRight;
 		this.sqrBegin = sqrBegin;
 		this.sqrEnd = sqrEnd;
 
 	}
 
-	private void wll(int x, byte v) {
-		if (x<localLoop.length) localLoop[x] = v;
+	private void safePoke(int offset, byte value) {
+		if (offset<localLoop.length) localLoop[offset] = value;
 	}
 
 	void modify() {
 		if (sqrRight) {
-			wll(sqrPos, RIGHT_SQUARE);
+			safePoke(sqrPos, RIGHT_SQUARE);
 			if (sqrPos == sqrEnd) {
 				sqrRight = false;
 			}
@@ -38,7 +38,7 @@ public class SquareModifier {
 			}
 		}
 		else {
-			wll(sqrPos, LEFT_SQUARE);
+			safePoke(sqrPos, LEFT_SQUARE);
 			if (sqrPos == sqrBegin) {
 				sqrRight = true;
 			}
