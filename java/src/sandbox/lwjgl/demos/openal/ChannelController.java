@@ -70,6 +70,7 @@ public class ChannelController {
 	void release() {
 		if (instr.isSynthasized()) {
 			asdrPosition = 6;
+			asdrTime.nextTime();
 		}
 		else {
 			audioChannel.volume(0);
@@ -88,13 +89,13 @@ public class ChannelController {
 			audioChannel.volume(0x3f);
 		}
 		else {
-			System.out.println("START NOTE " + n);
-			instr.dump();
+//			System.out.println("START NOTE " + n);
+//			instr.dump();
 
 			tonePause = instr.tonePause;
 			tonePosition = 0;
 
-			asdrTime.everyAndNow(20);
+			asdrTime.everyAndNow(2);
 			asdrPosition = 0;
 
 			if (instr.sqrRate != 0) {
@@ -144,19 +145,23 @@ public class ChannelController {
 		}
 
 		if (asdrTime.isTime()) {
-			System.out.println(":) :) :)Synthasizing");
+//			System.out.println("yes");
 			int dest = instr.asdr[asdrPosition] & 255;
+			dest *= 4;
 			int rate = instr.asdr[asdrPosition + 1] & 255;
 			int nvol = Math2.closer(vol, dest, rate);
-			System.out.println(String
-					.format("asdrPosition%d dest%d rate%d %d->%d", asdrPosition, dest, rate, vol, nvol));
+//			System.out.println(String
+//					.format("asdrPosition%d dest%d rate%d %d->%d", asdrPosition, dest, rate, vol, nvol));
 			vol = nvol;
 			if (vol == dest && asdrPosition != 6) {
 				asdrPosition += 2;
 			}
 		}
+		else {
+//			System.out.println("no");
+		}
 
 		audioChannel.period(p);
-		audioChannel.volume(vol);
+		audioChannel.volume(vol / 4);
 	}
 }

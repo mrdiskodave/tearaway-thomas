@@ -1,15 +1,17 @@
 package sandbox.lwjgl.demos.openal;
 
 public class Timer {
-	int value;
-	int reset;
+	private int value;
+	private int reset;
 	
 	boolean isTime() {
-		if (value==0) return false;
+		if (reset==0) return false;
+		if (value==0) {
+			value = reset;
+			return true;
+		}
 		value--;
-		if (value!=0) return false;
-		value = reset;
-		return true;
+		return false;
 	}
 	
 	void every(int r) {
@@ -18,6 +20,10 @@ public class Timer {
 
 	public void everyAndNow(int r) {
 		reset = r;
-		value = 1;
+		value = 0;
+	}
+
+	public void nextTime() {
+		value = 0;
 	}
 }

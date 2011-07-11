@@ -85,37 +85,55 @@ public class Lesson1 {
 		Song song = new Song(
 				new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "intro.song"))));
 
-		AudioChannel c = new AudioChannel();
-
-		ChannelController cc = new ChannelController(c);
-		ChannelPlayer cp = new ChannelPlayer(cc, this);
+		int channelCount = 4;
+		ChannelPlayer[] cps = new ChannelPlayer[channelCount];
+		ChannelConfig[] w = new ChannelConfig[] {
+				new ChannelConfig(20, true), // 0
+				new ChannelConfig(80, true), // 1
+				new ChannelConfig(80, true), // 2
+				new ChannelConfig(20, true), // 3
+		};
+		for (int x = 0; x < cps.length; x++) {
+			cps[x] = new ChannelPlayer(this, x, w[x]);
+		}
 
 		Timer clickTime = new Timer();
 		clickTime.everyAndNow(song.clickLength());
 
 		int rate = 44100;
-		int len = rate * 30;
-		int[] z = new int[len];
+		int len = rate * 20;
+		int[] z = new int[len * 2];
 		byte[] sequence = song.getSequence();
 
 		SongPosition sp = new SongPosition();
 
 		for (int t = 0; t < len; t++) {
-			if (t % (rate/10) == 0) {
+			if (t % (rate / 52) == 0) {
 				if (clickTime.isTime()) {
 					byte blkIdx = sequence[sp.seq];
 					byte[] blk = song.block(blkIdx);
 					assert blk.length % 12 == 0;
 					int lines = blk.length / 12;
 
-					int index = sp.line * 12 + 6;
+					// 0: stuttered melody left
+					// 1: baseline right
+					// 2: main melody right
+					// 3: drums left
 
-					int n = blk[index++];
-					int i = blk[index++];
-					int ap = blk[index++];
-					System.out.println(String.format("seq[%02d]=%02d,#%03d n%d,i%d,ap%d", sp.seq, blkIdx, sp.line, n, i, ap));
+					// woodland
+					// plodbase left
+					// soundfx right
+					// chords right
+					int index = sp.line * 12 + 3 * 0;
 
-					cp.play(n, i, ap);
+					for (int x = 0; x < channelCount; x++) {
+						int n = blk[index++];
+						int i = blk[index++];
+						int ap = blk[index++];
+						System.out.println(String.format("seq[%02d]=%02d,#%03d n%d,i%d,ap%d", sp.seq, blkIdx, sp.line,
+								n, i, ap));
+						cps[x].play(n, i, ap);
+					}
 
 					sp.line++;
 					if (sp.line >= lines) {
@@ -126,12 +144,23 @@ public class Lesson1 {
 						}
 					}
 				}
-				else {
-					System.out.println("JUST UPDATE");
+				for (int x = 0; x < channelCount; x++) {
+					cps[x].update();
 				}
-				cc.update();
 			}
-			z[t] = c.sample();
+
+			int l = 0;
+			int r = 0;
+			for (ChannelPlayer cp : cps) {
+				if (cp.config.enabled) {
+					int s = cp.sample();
+					int pos = cp.config.position;
+					l += (s * (100 - pos)) / 100;
+					r += (s * pos) / 100;
+				}
+			}
+			z[t * 2] = l;
+			z[t * 2 + 1] = r;
 		}
 
 		play(z, rate);
@@ -143,12 +172,12 @@ public class Lesson1 {
 		ShortBuffer sb = bb.asShortBuffer();
 		for (int x = 0; x < z.length; x++) {
 			int s = z[x];
-			s *= 256;
+			s *= 64;
 			sb.put((short) s);
 		}
 
 		buffer = alCheckName(AL10.alGenBuffers());
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_MONO16, bb, rate);
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, rate);
 
 		// Bind the buffer with the source.
 		source = alCheckName(AL10.alGenSources());
@@ -233,8 +262,8 @@ public class Lesson1 {
 
 	public Instr findInstr(int b2) {
 		Instr answer = instrs[b2];
-		if (answer==null) {
-			System.out.println("Instrument "+b2+" not found!");
+		if (answer == null) {
+			System.out.println("Instrument " + b2 + " not found!");
 		}
 		return answer;
 	}

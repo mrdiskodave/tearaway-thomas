@@ -1,12 +1,17 @@
 package sandbox.lwjgl.demos.openal;
 
 public class ChannelPlayer {
-	private final ChannelController target;
-	private final Lesson1 srv;
+	private final AudioChannel c = new AudioChannel();
+	private final ChannelController cc = new ChannelController(c);
 
-	ChannelPlayer(ChannelController target, Lesson1 srv) {
-		this.target = target;
+	private final Lesson1 srv;
+	private final int ourNumber;
+	public final ChannelConfig config;
+
+	ChannelPlayer(Lesson1 srv, int ourNumber, ChannelConfig config) {
 		this.srv = srv;
+		this.ourNumber = ourNumber;
+		this.config = config;
 	}
 	
 	void play(int n, int i, int ap) {
@@ -15,31 +20,33 @@ public class ChannelPlayer {
 		int param = ap&15;
 		int action = ap>>4;
 		if (action!=0) {
-			
-			// 1: Portamento
-			// 2: asdr rate
-			// 3: Arpeggiation
-			// 4: double tap
-
 			status("unimplemented action: "+action+" param"+param);
 		}
 		
 		if (n==0) {
-			
+			// do nothing
 		}
 		else if (n==1) {
-			target.stop();
+			cc.stop();
 		}
 		else if (n==2) {
-			target.release();
+			cc.release();
 		}
 		else {
-			// -2? means the lowest note can't be played?
-			target.startNote(instr, n-2);
+			// -2? bug! that means the lowest note can't be played!
+			cc.startNote(instr, n-2);
 		}
 	}
 	
 	private void status(String string) {
 		System.out.println(string);
+	}
+
+	public void update() {
+		cc.update();
+	}
+
+	public int sample() {
+		return c.sample();
 	}
 }

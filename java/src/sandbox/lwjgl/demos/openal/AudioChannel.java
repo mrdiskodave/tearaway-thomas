@@ -80,6 +80,7 @@ public class AudioChannel {
 	}
 	
 	void volume(int v) {
+		assert v<0x40;
 		volume = v;
 	}
 }
