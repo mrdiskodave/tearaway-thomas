@@ -17,9 +17,14 @@ public class ChannelPlayer {
 		
 		int param = ap&15;
 		int action = ap>>4;
-		if (action!=0) {
+		
+		if (action==3) {
+			cc.chooseArp(param);
+		}
+		else if (action!=0) {
 			status("unimplemented action: "+action+" param"+param);
 		}
+		
 		
 		if (n==0) {
 			// do nothing

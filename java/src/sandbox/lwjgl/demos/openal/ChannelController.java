@@ -61,6 +61,8 @@ public class ChannelController {
 	private SquareModifier sqr;
 
 	private int aprPos;
+	
+	private int arpSelected;
 
 	private int portSpeed;
 
@@ -129,11 +131,11 @@ public class ChannelController {
 			asdrPosition = 0;
 			p = period = Math2.closer(p, portDestination, portSpeed);
 		}
-
-		// TODO: apr ever used?
-		// p = NOTES[note+ARPEGGIOS[2][aprPos]];
-		// aprPos ++;
-		// aprPos %= 12;
+		else {
+			p = NOTES[note+ARPEGGIOS[arpSelected][aprPos]];
+			aprPos ++;
+			aprPos %= 12;
+		}
 
 		if (sqrTime.isTime()) {
 			sqr.modify();
@@ -169,5 +171,12 @@ public class ChannelController {
 
 		audioChannel.period(p);
 		audioChannel.volume(vol / 4);
+	}
+
+	public void chooseArp(int param) {
+		if (param>=ARPEGGIOS.length) {
+			param = 0;
+		}
+		arpSelected = param;
 	}
 }

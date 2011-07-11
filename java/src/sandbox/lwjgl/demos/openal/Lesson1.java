@@ -83,7 +83,7 @@ public class Lesson1 {
 		// load a song
 		//
 		Song song = new Song(
-				new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "intro.song"))));
+				new DataSrc(OpenableTools.mustLoad(new ClassResourceOpenable(Lesson1.class, "wood.song"))));
 
 		int channelCount = 4;
 		ChannelPlayer[] cps = new ChannelPlayer[channelCount];
