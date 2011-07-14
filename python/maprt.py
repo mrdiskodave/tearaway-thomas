@@ -49,9 +49,13 @@ def print_rt(rt):
 	print json.dumps(rt, sort_keys=True, indent=4)	
 
 if __name__ == "__main__":
-	for rt in (woodRT, iceRT, ghostRT):
+	s = [ "wood", woodRT, "ice", iceRT, "ghost", ghostRT ]
+	while s:
+		name, rt = s[:2]
+		s = s[2:]
 		print
 		print '-' * 75
+		print name
 		print_rt(rt)
 
 
