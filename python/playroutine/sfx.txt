@@ -1,0 +1,146 @@
+*>
+	; arpy waves (all 4words long)
+	dc.w	4
+wave_tri	dc.b	-127,-90,-53,-17,19,55,92,127
+	dc.w	4
+wave_sqr	dc.b	64,64,64,64,-64,-64,-64,-64
+	dc.w	4
+wave_sharp	dc.b	127,127,94,0,-94,-127,-127,0
+	dc.w	4
+wave_fat	dc.b	100,127,127,100,-100,-127,-127,-100
+*>
+
+
+FXcollect
+	lea	wave_sharp,a0
+	bsr	start_wave
+	lea	coll_arp(pc),a0
+	bra	arp_start
+
+coll_arp	dc.b	64,6,7,0
+	dc.b	64,6,4,0
+	dc.b	64,6,0,0
+	dc.b	64,5,0,0
+	dc.b	64,5,4,0
+	dc.b	64,5,7,1
+	dc.b	64,6,7,0
+	dc.b	64,6,4,0
+	dc.b	64,6,0,0
+	dc.b	64,5,0,0
+	dc.b	64,5,4,0
+	dc.b	64,5,7,1
+	dc.b	32,6,0,0
+	dc.b	32,6,4,1
+	dc.b	32,6,7,0
+	dc.b	32,7,0,1
+	dc.b	32,7,4,1
+	dc.b	32,7,7,1
+	dc.b	-1
+	even
+
+*>
+FXbgem	lea	wave_fat,a0
+	bsr	start_wave
+	lea	bgem_arp(pc),a0
+	bra	arp_start
+
+bgem_arp	dc.b	64,6,0,0
+	dc.b	64,5,4,0
+	dc.b	64,7,7,0
+	dc.b	64,7,0,0
+	dc.b	64,6,4,0
+	dc.b	64,5,7,0
+	dc.b	64,7,0,0
+	dc.b	64,7,4,0
+	dc.b	64,6,7,0
+	dc.b	54,5,0,0
+	dc.b	54,7,4,0
+	dc.b	54,7,7,0
+	dc.b	44,6,0,0
+	dc.b	44,5,4,0
+	dc.b	44,7,0,0
+	dc.b	34,7,4,1
+	dc.b	34,7,7,1
+	dc.b	34,8,0,1
+	dc.b	-1
+	even
+*>
+FXfruit
+FXgem	lea	wave_sqr,a0
+	bsr	start_wave
+	lea	gem_arp(pc),a0
+	bra	arp_start
+
+gem_arp	dc.b	64,7,7,0
+	dc.b	64,7,0,0
+	dc.b	64,7,7,0
+	dc.b	64,7,4,1
+	dc.b	64,6,7,0
+	dc.b	64,6,0,0
+	dc.b	64,6,7,0
+	dc.b	64,6,4,1
+	dc.b	32,7,7,0
+	dc.b	32,7,0,0
+	dc.b	32,7,7,0
+	dc.b	32,7,4,1
+	dc.b	32,6,7,0
+	dc.b	32,6,0,0
+	dc.b	32,6,7,0
+	dc.b	32,6,4,1
+	dc.b	-1
+	even
+*>
+FXhead	moveq	#0,d0
+	move.w	#$13a,d1
+	move.w	#63,d2
+	bra	samp_start
+*>
+FXclang	moveq	#1,d0
+	move.w	#$13a,d1
+	move.w	#63,d2
+	bra	samp_start
+*>
+FXtele	moveq	#2,d0
+	move.w	#$13a,d1
+	move.w	#63,d2
+	bra	samp_start
+*>
+FXworm	moveq	#3,d0
+	move.w	#$14a,d1
+	move.w	#63,d2
+	bra	samp_start
+*>
+FXtramp	moveq	#4,d0
+	move.w	#$20a,d1
+	move.w	#63,d2
+	bra	samp_start
+*>
+FXtink	moveq	#5,d0
+	move.w	#$f0,d1
+	move.w	#31,d2
+	bra	samp_start
+*>
+sget_period
+	; IN	d0=octave (0-8)
+	;	d1=note
+	;	d2=ln2(wavesize)
+	; OUT	d3=period
+	; uses	d0/d1
+	subq.w	#2,d0
+	add.w	d2,d0
+	add.w	d1,d1
+	move.w	note_table(pc,d1.w),d3
+	lsr.w	d0,d3
+	rts
+
+	; shift right by octave+ln2(wavesize)-2
+	; 0123,4,5678 is middle octave
+note_table
+	dc.w	$d5c7,$c9c8,$be74	c  c# d
+	dc.w	$b3c4,$a9ad,$a027	d# e  f
+	dc.w	$972a,$8eae,$86ac	f# g  g#
+	dc.w	$7f1d,$77fa,$713f	a  a# b
+
+
+*>
+	
