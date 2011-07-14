@@ -1,21 +1,29 @@
-i = 1;
+defined = set()
 
-def q(z, i):
-	print "\tstatic final int "+z+" = "+str(i)+";";
+def q(theirs, ours, def_it):
+	global defined
+	if def_it:
+		if ours in defined: return
+		defined.add(ours)
+	i = len(defined)
+	print "\tstatic final int "+ours+" = "+str(i)+";";
 
-def q2(z, i):
-	if i: print "\tadd(org.lwjgl.input.Keyboard."+z+", "+z+");"
+def q2(theirs, ours, def_it):
+	if def_it: print "\tadd(org.lwjgl.input.Keyboard."+theirs+", "+ours+");"
 
-def p(z):
-	global i
-	q("KEY_"+z, True)
-	i += 1;
+def p(theirs, ours=None):
+	if ours is None: ours=theirs
+	theirs = "KEY_"+theirs
+	ours = "KEY_"+ours
+	q(theirs, ours, True)
 
 def pb(z):
-	q("KEYBEGIN_"+z, False)
+	z = "KEYBEGIN_"+z
+	q(z, z, False)
 
 def pe(z):
-	q("KEYEND_"+z, False)
+	z = "KEYEND_"+z
+	q(z, z, False)
 
 def pc(z):
 	print
@@ -39,14 +47,14 @@ def list_keys():
 	p("DOWN")
 
 	pc("shift keys")
-	pb("SHIFT_KEYS");
-	p("LSHIFT")
-	p("RSHIFT")
-	p("LCONTROL")
-	p("RCONTROL")
-	p("LMENU")
-	p("RMENU")
-	pe("SHIFT_KEYS");
+	pb("SHIFTS")
+	p("LSHIFT", "SHIFT")
+	p("RSHIFT", "SHIFT")
+	p("LCONTROL", "CONTROL")
+	p("RCONTROL", "CONTROL")
+	p("LMENU", "MENU")
+	p("RMENU", "MENU")
+	pe("SHIFTS")
 
 	pc("round the numeric keypad")
 	p("DIVIDE")
