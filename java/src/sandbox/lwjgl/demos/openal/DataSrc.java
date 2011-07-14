@@ -52,7 +52,7 @@ public class DataSrc {
 		return extract(b, p, l);
 	}
 	
-	DataSrc dsx(int p, int l) {
+	DataSrc dsxx(int p, int l) {
 		return new DataSrc(xx(p, l));
 	}
 	

@@ -6,7 +6,7 @@ public class Song {
 
 	public Song(DataSrc d) {
 		assert d.g4cc(0).equals("DSNG");
-		dataSrc = d.dsx(4, d.length()-4);
+		dataSrc = d.dsxx(4, d.length()-4);
 		info = findBlock("INFO");
 	}
 	
@@ -15,7 +15,8 @@ public class Song {
 	}
 	
 	int clickLength() {
-		return info.uw(4);
+		// it's stored in DBF form!
+		return info.uw(4) + 1;
 	}
 
 	byte[] block(int x) {
@@ -35,7 +36,7 @@ public class Song {
 			p += 4;
 			if (name.equals(blockName)) {
 //				System.out.println(String.format("Found %s and %s it has length %s", name, p, l));
-				return dataSrc.dsx(p, l);
+				return dataSrc.dsxx(p, l);
 			}
 			p += l;
 		}

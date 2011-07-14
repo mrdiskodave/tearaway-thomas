@@ -3,13 +3,13 @@ package sandbox.lwjgl.demos.openal;
 public class ChannelPlayer {
 	private final AudioChannel c = new AudioChannel();
 	private final ChannelController cc;
-	private final Lesson1 srv;
+	private final MusicPlayer srv;
 	public final ChannelConfig config;
 
-	ChannelPlayer(Lesson1 srv, ChannelConfig config) {
+	ChannelPlayer(MusicPlayer srv, ChannelConfig config) {
 		this.srv = srv;
 		this.config = config;
-		this.cc = new ChannelController(c, config.position<50);
+		this.cc = new ChannelController(c, config.onTheLeft());
 	}
 	
 	void play(int n, int i, int ap) {

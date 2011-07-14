@@ -10,7 +10,7 @@ public class Timer {
 			return false;
 		}
 		if (value==0) {
-			value = reset;
+			value = reset -1;
 			// now!
 			return true;
 		}
@@ -20,7 +20,8 @@ public class Timer {
 	}
 	
 	void every(int r) {
-		value = reset = r;
+		reset = r;
+		value = reset -1; 
 	}
 
 	public void everyAndNextTime(int r) {

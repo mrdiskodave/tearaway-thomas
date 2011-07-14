@@ -92,7 +92,7 @@ public class ChannelController {
 		if (!instr.isSynthasized()) {
 			audioChannel.wave(instr.loop, false);
 			audioChannel.period(NOTES[note]);
-			audioChannel.volume(0x3f);
+			audioChannel.volume(AudioChannel.MAXIMUM_VOLUME);
 		}
 		else {
 //			System.out.println("START NOTE " + n);
@@ -101,7 +101,7 @@ public class ChannelController {
 			tonePause = instr.tonePause;
 			tonePosition = 0;
 
-			asdrTime.everyAndNextTime(2);
+			asdrTime.everyAndNextTime(3);
 			asdrPosition = 0;
 
 			if (instr.sqrRate != 0) {
@@ -146,8 +146,9 @@ public class ChannelController {
 			tonePause--;
 		}
 		else {
-			p += instr.tone[tonePosition++];
-			if (tonePosition == instr.tone.length) {
+			p += instr.tone[tonePosition];
+			tonePosition += 2;
+			if (tonePosition >= instr.tone.length) {
 				tonePosition = 0;
 			}
 		}
@@ -170,7 +171,7 @@ public class ChannelController {
 		}
 
 		audioChannel.period(p);
-		audioChannel.volume(vol / 4);
+		audioChannel.volume(vol);
 	}
 
 	public void chooseArp(int param) {

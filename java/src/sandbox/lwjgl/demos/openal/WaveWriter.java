@@ -1,5 +1,6 @@
 package sandbox.lwjgl.demos.openal;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,7 +39,7 @@ public class WaveWriter {
 
 	public static void saveWave(String name, short[] waveForm, int frequencyInHz) {
 		try {
-			FileOutputStream fo = new FileOutputStream("C:\\Users\\david\\Desktop\\z\\z\\" + name);
+			OutputStream fo = new BufferedOutputStream(new FileOutputStream("C:\\Users\\david\\Desktop\\z\\z\\songs\\" + name));
 			doIt(fo, frequencyInHz, waveForm);
 			fo.close();
 		}
