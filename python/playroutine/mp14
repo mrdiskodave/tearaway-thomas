@@ -1,0 +1,943 @@
+****   Movin' 'n' Groovin'   - PLAY ROUTINE -  (C)1992 David Hanney   ****
+
+	; frame delay for recovery from a chan lock
+	; ntsc mode
+
+
+	opt	c-
+	opt	p+
+b
+
+
+	; INTERFACE
+
+PLAYinit=-4
+	; IN	a0=IBLK
+	;	d0=NTSC?
+PLAYinterrupt=-8
+
+PLAYstart=-12
+	; IN	a0=song
+PLAYstop=-16
+
+PLAYsetvol=-20
+	; IN	d0=max vol
+PLAYgetchan=-24
+	; IN	d0=chan number
+PLAYdropchan=-28
+	; IN	d0=chan number
+PLAYjingle=-32
+	; IN	a0=jingle song
+	;	d0=block number
+
+***** MUSIC PLAYER *****
+
+Isamplen=0	W
+Iname=2	B8
+Idata=10	-->
+Iloop=10	B32
+Itone=42	B16
+Iasdr=58	B8
+Itone_speed=66	B
+Itone_pause=67	B
+Itone_mulu=68	B
+Isqr_rate=69	B
+Isqr_begin=70	B
+Isqr_end=71	B
+Iloop_size=72	B
+Itone_size=73	B
+Ibase_vol=74	B
+Ixpand=75	B15
+Idisk_size=90
+
+Isqr_pos=90	B
+Isqr_dir=91	B
+Isqr_tick=92	B
+Isqr_done=93	B
+Imem_size=94
+
+
+CChard=0	L
+CCdmaon=4	W
+CCdmaoff=6	W
+CCinstr=8	L
+
+CCdouble=12	B
+CCbyte1=13	B
+CCbyte2=14	B
+CCbyte3=15	B
+CCstate=16	W
+CCswctime=18	W
+CCasdrfresh=20	B
+CCasdrtime=21	B
+CCpmindx=22	B
+CCpmcntdown=23	B
+
+CCasdrPC=24	W
+CCvol=26	W
+CCwiggle=28	B*12
+CCwiggleindx=40	W	
+
+CCnote=42	W
+CCperiod=44	W
+CCportdest=46	W
+CCportspeed=48	W
+CCours=50	B
+;
+
+CCsize=52
+
+
+
+	dc.w	vb-*
+	bra	start_jingle	-32
+	bra	dropchan	-28
+	bra	getchan		-24
+	bra	setvol		-20
+	bra	stop_music	-16
+	bra	start_music	-12
+	bra	music_player	-8
+	bra	init_player	-4
+
+vb
+song_vmap	ds.b	$40
+
+notes	dc.w	$1ac0,$1940,$17d0,$1680,$1530,$1400	oct1
+	dc.w	$12e0,$11d0,$10d0,$0fe0,$0f00,$0e20
+
+	dc.w	$0d60,$0ca0,$0be8,$0b40,$0a98,$0a00	oct2
+	dc.w	$0970,$08e8,$0868,$07f0,$0780,$0710
+
+	dc.w	$06b0,$0650,$05f4,$05a0,$054c,$0500	oct3
+	dc.w	$04b8,$0474,$0434,$03f8,$03c0,$0388
+
+	dc.w	$0358,$0328,$02fa,$02d0,$02a6,$0280	oct4
+	dc.w	$025c,$0234,$021a,$01fc,$01e0,$01c4
+
+	dc.w	$01ac,$0194,$017d,$0168,$0153,$0140	oct5
+	dc.w	$012e,$011d,$010d,$00fe,$00f0,$00e2
+
+	dc.w	$00d6,$00ca,$00be,$00b4,$00aa,$00a0	oct6
+	dc.w	$0097,$008f,$0087,$007f
+
+
+pseudo_chords:
+	dc.b	00,00,00,00,00,00,00,00,00,00,00,00
+	dc.b	06,05,04,03,02,01,01,02,03,04,05,06
+	dc.b	00,04,07,00,04,07,00,04,07,00,04,07
+	dc.b	00,05,09,00,05,09,00,05,09,00,05,09
+	dc.b	00,03,08,00,03,08,00,03,08,00,03,08
+	dc.b	12,11,10,09,08,07,06,05,04,03,02,01
+	dc.b	01,02,03,04,05,06,07,08,09,10,11,12
+	dc.b	00,00,12,12,00,00,12,12,00,00,12,12
+	dc.b	06,05,04,03,02,01,06,05,04,03,02,01
+	dc.b	01,02,03,04,05,06,01,02,03,04,05,06
+	dc.b	00,05,07,00,05,07,00,05,07,00,05,07
+	dc.b	00,05,08,00,05,08,00,05,08,00,05,08
+	dc.b	00,04,07,00,04,07,00,04,07,00,04,07
+	dc.b	00,03,07,00,03,07,00,03,07,00,03,07
+
+
+start_0f
+ntsc	dc.b	0
+play_frame	dc.b	0
+playing	dc.b	0
+blockstop	dc.b	0
+	even
+instr	dc.w	0
+x_pos	dc.w	0	\
+y_pos	dc.w	0	/
+
+song	dc.l	0
+sequence	dc.l	0
+y_pos_played	dc.w	0
+y_max	dc.w	0
+seq_pos	dc.w	0
+cur_block	dc.w	0
+clicktick	dc.w	0
+CHAN0	ds.b	CCsize
+CHAN1	ds.b	CCsize
+CHAN2	ds.b	CCsize
+CHAN3	ds.b	CCsize
+CHANlast
+iblock	dc.l	0
+
+end_0f
+clickfresh	dc.w	0
+seq_len	dc.w	0
+blk_cnt	dc.w	0
+
+instruments	ds.l	16
+
+slide	MACRO
+	sub.\0	\2,\1
+	bcs.s	C1up\@
+	sub.\0	\3,\1
+	bcc.s	Cdone\@
+	bra.s	Cok\@
+C1up\@	add.\0	\3,\1
+	bcc.s	Cdone\@
+Cok\@	moveq	#0,\1
+Cdone\@	add.\0	\2,\1
+	ENDM
+
+
+aud0	=$0A0
+aud1	=$0B0
+aud2	=$0C0
+aud3	=$0D0
+
+ac_ptr	=$00
+ac_len	=$04
+ac_per	=$06
+ac_vol	=$08
+ac_dat	=$0A
+ac_SIZE	=$10
+CB	=$dff000
+
+
+SIseqlen=0	W
+SIblk_cnt=2	W
+SIclickfresh=4	W
+SIsize=10
+
+BLKclicks=0	W	phycnt
+BLKdata=2	12s
+ClickSIZE=12
+
+Qchanadr
+	ext.w	d0
+	mulu	#CCsize,d0
+	lea	CHAN0-vb(a5),a2
+	add.l	d0,a2
+	rts
+
+getchan
+	; IN	d0=chan number
+	movem.l	d0/a2,-(a7)
+	bsr	Qchanadr
+	sf	CCours(a2)
+	move.w	CCdmaoff(a2),$dff096
+	movem.l	(a7)+,d0/a2
+	rts
+
+dropchan
+	; IN	d0=chan number
+	movem.l	d0-a6,-(a7)
+	bsr	Qchanadr
+	move.w	CCdmaoff(a2),$dff096
+	cmp.w	#8,CCstate(a2)
+	bne	cant_recover
+
+	move.l	CCinstr(a2),a4	=instrument
+	move.l	(a2),a6		=hardware
+	lea	Iloop(a4),a0
+	move.l	a0,ac_ptr(a6)
+	moveq	#0,d0
+	move.b	Iloop_size(a4),d0
+	move.w	d0,ac_len(a6)
+	move.w	#16,CCstate(a2)
+mineagain
+	st	CCours(a2)
+	movem.l	(a7)+,d0-a6
+	rts
+
+cant_recover
+	clr.w	CCstate(a2)
+	bra.s	mineagain
+
+Qblk_adr
+	; IN	d0.w=block_number
+	; OUT	a0=blk adr
+	;	d0=okay
+	ext.w	d0
+	ext.l	d0
+	add.l	#"BLK"*256,d0
+
+find_ks
+	; IN	d0=thing to find
+	;	a0=adr of it
+	;	d0=ok?
+	;	Xa1
+	move.l	song-vb(a5),a0
+nxtks	move.l	(a0)+,d1
+	beq.s	cant
+	cmp.l	d1,d0
+	beq.s	okay_ks
+	add.l	(a0)+,a0
+	bra.s	nxtks
+
+okay_ks	addq.l	#4,a0
+okay	moveq	#-1,d0
+	rts
+cant	moveq	#0,d0
+anRTS	rts
+
+clra1a2
+	clr.b	(a1)+
+	cmp.l	a1,a2
+	bne.s	clra1a2
+	rts
+
+init_player
+	lea	start_0f-vb(a5),a1
+	lea	end_0f-vb(a5),a2
+	bsr	clra1a2
+	move.l	a0,iblock-vb(a5)
+	move.b	d0,ntsc-vb(a5)
+	bra	stop_music_sure
+
+start_jingle
+	st	blockstop-vb(a5)
+	move.w	d0,-(a7)
+	addq.l	#4,a0
+	move.l	a0,song-vb(a5)
+	bsr	stop_music
+	move.w	(a7)+,d0
+	bsr	select_block
+	bra.s	start_cont
+
+start_music
+	; IN	a0=song
+	sf	blockstop-vb(a5)
+	addq.l	#4,a0
+	move.l	a0,song-vb(a5)
+	bsr	stop_music
+
+	move.l	#"SEQU",d0
+	bsr	find_ks
+	move.l	a0,sequence-vb(a5)
+	move.b	(a0),d0
+	bsr	select_block
+
+start_cont
+	move.l	#"INFO",d0
+	bsr	find_ks
+	move.w	SIseqlen(a0),seq_len-vb(a5)
+	move.w	SIblk_cnt(a0),blk_cnt-vb(a5)
+	move.w	SIclickfresh(a0),d1
+	tst.b	ntsc-vb(a5)
+	beq.s	palplay
+	; d1=round(d1*(6/5))
+	mulu	#6,d1
+	addq.l	#3,d1
+	divu	#5,d1
+palplay	move.w	d1,clickfresh-vb(a5)
+
+	clr.w	seq_pos-vb(a5)
+	clr.w	clicktick-vb(a5)
+
+	lea	instruments-vb(a5),a1
+	move.l	iblock-vb(a5),a0
+	moveq	#16-1,d7
+valinstr
+	move.l	a0,(a1)+
+	bsr	chk_instr
+	lea	Imem_size(a0),a0
+	dbf	d7,valinstr
+	st	playing-vb(a5)
+	rts
+
+stop_music
+	tst.b	playing-vb(a5)
+	beq	anRTS
+stop_music_sure
+	sf	playing-vb(a5)
+	move.w	#$f,CB+$96
+
+	moveq	#0,d0
+	lea	chan0-vb(a5),a2
+	lea	aud0+CB,a6
+initchan
+	move.w	#0,ac_vol(a6)
+	move.l	a6,CChard(a2)
+
+	moveq	#1,d1
+	lsl.w	d0,d1
+	move.w	d1,CCdmaoff(a2)
+	or.w	#$8000,d1
+	move.w	d1,CCdmaon(a2)
+
+	move.b	#2,CCasdrfresh(a2)
+
+	clr.w	CCstate(a2)
+	move.b	#2,CCasdrfresh(a2)
+	clr.l	CCwiggle(a2)
+	clr.l	CCwiggle+4(a2)
+	clr.l	CCwiggle+8(a2)
+	clr.b	CCdouble(a2)
+	st	CCours(a2)
+
+	lea	CCsize(a2),a2
+	lea	ac_size(a6),a6
+	addq.w	#1,d0
+	cmp.w	#4,d0
+	bne.s	initchan
+	rts
+
+
+select_block
+	; IN	d0=block num
+	ext.w	d0
+	ext.l	d0
+	move.w	d0,cur_block-vb(a5)
+	bsr	Qblk_adr
+	move.w	(a0),d0
+	subq.w	#1,d0
+	move.w	d0,y_max-vb(a5)
+	clr.w	y_pos-vb(a5)
+	rts
+
+**** CHECK INSTRUMENT ****
+
+chk_instr
+	; IN	a0=instrument
+	;	validate and initialise an
+	;	instrument so it doesn't crash
+	;	the player!
+	; uses	-
+
+	movem.l	d0/d7/a1,-(a7)
+
+
+	tst.w	(a0)
+	bne	validated
+
+	; validate sample lengths
+	cmp.b	#17,Iloop_size(a0)
+	bcs.s	CI1
+	move.b	#16,Iloop_size(a0)
+CI1	cmp.b	#17,Itone_size(a0)
+	bcs.s	CI2
+	move.b	#16,Itone_size(a0)
+CI2
+	; validate square sample positions
+	cmp.b	#32,Isqr_begin(a0)
+	bcs.s	CI3
+	move.b	#31,Isqr_begin(a0)
+CI3	cmp.b	#32,Isqr_end(a0)
+	bcs.s	CI4
+	move.b	#31,Isqr_end(a0)
+CI4
+	; validate ASDR
+	lea	Iasdr-2(a0),a1
+	moveq	#4-1,d7
+CIasdr	addq.l	#2,a1
+	cmp.b	#64,(a1)
+	bcs.s	CIdasdr
+	move.b	#63,(a1)
+CIdasdr	dbf	d7,CIasdr
+
+	; sort square wave start/end
+	move.b	Isqr_begin(a0),d0
+	cmp.b	Isqr_end(a0),d0
+	bls.s	CIend
+	move.b	Isqr_end(a0),Isqr_begin(a0)
+	move.b	d0,Isqr_end(a0)
+CIend
+
+	; check working vars
+	move.b	Isqr_pos(a0),d0
+	cmp.b	Isqr_begin(a0),d0
+	bcs.s	CIsbad
+	cmp.b	Isqr_end(a0),d0
+	bls.s	CIsok
+CIsbad
+	move.b	Isqr_begin(a0),Isqr_pos(a0)
+CIsok
+
+	move.b	Isqr_tick(a0),d0
+	cmp.b	Isqr_rate(a0),d0
+	bls.s	CIsrok
+	clr.b	Isqr_tick(a0)
+CIsrok
+	move.b	Isqr_dir(a0),d0
+	addq.b	#1,d0
+	beq.s	isqrok
+	subq.b	#2,d0
+	beq.s	isqrok
+	move.b	#1,Isqr_dir(a0)
+isqrok
+
+validated
+	movem.l	(a7)+,d0/d7/a1
+	rts
+
+
+
+
+**** SET VOLUME ****
+
+setvol	; IN	d0=max vol
+	move.l	a5,a1	crafty code
+	moveq	#$3f,d1
+	moveq	#$3f,d2
+	moveq	#$3f,d3
+	and.b	d3,d0
+	moveq	#0,d4
+fracl	move.b	d4,(a1)+
+	add.b	d0,d1
+	cmp.b	d3,d1
+	bcs.s	noTH
+	sub.b	d3,d1
+	addq.b	#1,d4
+noTH	dbf	d2,fracl
+	rts
+
+music_player
+	tst.b	playing-vb(a5)
+	beq	anRTS
+
+	addq.b	#1,play_frame-vb(a5)
+
+	lea	CHAN0-vb(a5),a2
+	bsr	play_chan1
+	lea	CHAN1-vb(a5),a2
+	bsr	play_chan1
+	lea	CHAN2-vb(a5),a2
+	bsr	play_chan1
+	lea	CHAN3-vb(a5),a2
+	bsr	play_chan1
+
+	subq.w	#1,clicktick-vb(a5)
+	bcc	no_read_score
+	move.w	clickfresh-vb(a5),clicktick-vb(a5)
+
+	movem.l	d0-d7/a0/a2-a6,-(a7)
+	move.w	cur_block-vb(a5),d0
+	bsr	Qblk_adr
+	move.l	a0,a1
+	move.w	y_pos-vb(a5),d0
+	mulu	#clicksize,d0
+	addq.l	#BLKdata,d0
+	add.l	d0,a1
+	movem.l	(a7)+,d0-d7/a0/a2-a6
+
+	; play line
+	move.b	(a1)+,CHAN0+CCbyte1-vb(a5)
+	move.b	(a1)+,CHAN0+CCbyte2-vb(a5)
+	move.b	(a1)+,CHAN0+CCbyte3-vb(a5)
+	move.b	(a1)+,CHAN1+CCbyte1-vb(a5)
+	move.b	(a1)+,CHAN1+CCbyte2-vb(a5)
+	move.b	(a1)+,CHAN1+CCbyte3-vb(a5)
+	move.b	(a1)+,CHAN2+CCbyte1-vb(a5)
+	move.b	(a1)+,CHAN2+CCbyte2-vb(a5)
+	move.b	(a1)+,CHAN2+CCbyte3-vb(a5)
+	move.b	(a1)+,CHAN3+CCbyte1-vb(a5)
+	move.b	(a1)+,CHAN3+CCbyte2-vb(a5)
+	move.b	(a1)+,CHAN3+CCbyte3-vb(a5)
+
+	lea	CHAN0-vb(a5),a2
+	bsr	play_chan2
+	lea	CHAN1-vb(a5),a2
+	bsr	play_chan2
+	lea	CHAN2-vb(a5),a2
+	bsr	play_chan2
+	lea	CHAN3-vb(a5),a2
+	bsr	play_chan2
+
+	; advance one line
+	move.w	y_pos-vb(a5),d0
+	cmp.w	y_max-vb(a5),d0
+	bcs.s	more_clicks
+	tst.b	blockstop-vb(a5)
+	bne	stop_music
+	move.w	seq_pos-vb(a5),d0
+	addq.w	#1,d0
+	cmp.w	seq_len-vb(a5),d0
+	bne.s	more_seq
+	moveq	#0,d0
+more_seq
+	move.w	d0,seq_pos-vb(a5)
+	bsr	seq_select
+	move.w	#-1,y_pos-vb(a5)
+more_clicks
+	addq.w	#1,y_pos-vb(a5)
+no_read_score
+	rts
+
+***** START A NOTE *****
+
+play_chan2
+	; IN	a2=chan struct
+	move.b	CCbyte1(a2),d0
+	or.b	CCbyte2(a2),d0
+	or.b	CCbyte3(a2),d0
+	beq	anRTS
+
+	clr.w	CCportspeed(a2)
+
+	moveq	#0,d0
+	move.b	CCbyte3(a2),d0	=FX byte
+	moveq	#15,d1
+	and.w	d0,d1	=FX data
+	lsr.w	#4,d0	=FX command
+	beq	doneFX
+	cmp.w	#5,d0
+	bcc	doneFX
+
+	add.w	d0,d0
+	lea	FXjmps(pc),a0
+	add.w	-2(a0,d0.w),a0
+	jmp	(a0)
+
+FXjmps	dc.w	FXport-FXjmps	1
+	dc.w	FXasdrspd-FXjmps	2
+	dc.w	FXwiggle-FXjmps	3
+	dc.w	FXdouble-FXjmps	4
+
+
+**** FX1 = PORT ****
+
+FXport	addq.w	#1,d1
+	move.w	d1,CCportspeed(a2)
+	move.b	CCbyte1(a2),d0
+	add.w	d0,d0
+	move.w	notes-vb(a5,d0.w),CCportdest(a2)
+	rts
+
+**** FX2 = ASDR ****
+
+FXasdrspd
+	move.b	d1,CCasdrfresh(a2)
+	bra	doneFX
+
+**** FX3 = WIGGLE ****
+
+FXwiggle
+	mulu	#12,d1
+	lea	pseudo_chords-vb(a5),a0
+	add.l	d1,a0
+
+	move.l	(a0)+,CCwiggle(a2)
+	move.l	(a0)+,CCwiggle+4(a2)
+	move.l	(a0),CCwiggle+8(a2)
+	bra	doneFX
+
+**** FX4 = DOUBLE CLICK ****
+
+FXdouble
+	move.w	clickfresh-vb(a5),d0
+	addq.w	#1,d0
+	lsr.w	#1,d0
+	move.b	d0,CCdouble(a2)
+	bra	doneFX
+
+doneFX	moveq	#0,d0
+	move.b	CCbyte1(a2),d0
+	beq	anRTS
+	subq.w	#1,d0
+	beq	stopchan
+	subq.w	#1,d0
+	beq	rellchan
+
+	; !! note stuff !!
+	move.w	d0,CCnote(a2)
+	add.w	d0,d0
+	move.w	notes-vb(a5,d0.w),CCperiod(a2)
+
+	; !! instrument stuff !!
+	moveq	#0,d0
+	move.b	CCbyte2(a2),d0
+	add.w	d0,d0
+	add.w	d0,d0
+	lea	instruments-vb(a5),a0
+	move.l	(a0,d0.w),d0
+	beq	stopchan	instrument slot vacant!
+	move.l	d0,a4
+	move.l	a4,CCinstr(a2)
+
+	move.l	(a2),a6
+
+	; a2=chan
+	; a4=instrument
+	; a6=hardware
+	move.w	(a4),d0
+	bne	init_sample
+
+	; init period mod
+	move.b	Itone_pause(a4),CCpmcntdown(a2)
+	clr.b	CCpmindx(a2)
+
+	; init asdr
+	clr.w	CCvol(a2)
+	clr.w	CCasdrpc(a2)
+	clr.b	CCasdrtime(a2)
+
+	; load wave to hardware
+	tst.b	CCours(a2)
+	beq.s	noack1
+	move.w	CCdmaoff(a2),$dff096
+	lea	Iloop(a4),a0
+	move.l	a0,ac_ptr(a6)
+	moveq	#0,d0
+	move.b	Iloop_size(a4),d0
+	move.w	d0,ac_len(a6)
+noack1
+	move.w	#8,CCstate(a2)
+	rts
+
+init_sample
+	; load sample to hardware
+	lea	samp1(pc),a0
+	move.w	#len1/2,d1
+	subq.w	#1,d0
+	beq.s	gotsamp
+	lea	samp2(pc),a0
+	move.w	#len2/2,d1
+	subq.w	#1,d0
+	beq.s	gotsamp
+	lea	samp3(pc),a0
+	move.w	#len3/2,d1
+gotsamp
+	; load sample to hardware
+	tst.b	CCours(a2)
+	beq.s	noack2
+
+	move.w	CCdmaoff(a2),$dff096
+	move.l	a0,ac_ptr(a6)			ptr
+	move.w	d1,ac_len(a6)			len
+	moveq	#0,d1
+	move.b	song_vmap+$3f-vb(a5),d1
+	move.w	d1,ac_vol(a6)			vol
+	move.w	CCperiod(a2),ac_per(a6)		per
+	move.w	#4,CCstate(a2)
+	rts
+noack2	clr.w	CCstate(a2)
+	rts
+
+
+
+stopchan
+	tst.b	CCours(a2)
+	beq.s	noack3
+	move.w	CCdmaoff(a2),$dff096
+noack3
+	clr.w	CCstate(a2)
+	rts
+rellchan
+	clr.b	CCasdrtime(a0)
+	move.w	#6,CCasdrPC(a0)
+	rts
+
+
+***** UPDATE A NOTE *****
+
+play_chan1
+	move.w	CCstate(a2),d0
+	jsr	states(pc,d0.w)
+
+	; common code
+	tst.b	CCdouble(a2)
+	beq.s	no_double
+	subq.b	#1,CCdouble(a2)
+	bne.s	no_double
+	clr.b	CCbyte3(a2)
+	bsr	play_chan2
+no_double
+	rts
+
+states	bra	anRTS		0
+	bra	sampdmaon	4
+	bra	dosynth		8
+	bra	anRTS		12
+	bra	synthnext	16
+
+sampdmaon
+	tst.b	CCours(a2)
+	beq.s	noack4
+	move.w	CCdmaon(a2),$dff096
+	move.l	(a2),a6
+	move.w	#1,ac_len(a6)
+noack4	clr.w	CCstate(a2)
+	rts
+
+synthnext
+	move.w	#8,CCstate(a2)
+	rts
+
+***** S Y N T H E S I Z E R ! *****
+
+dosynth
+
+	move.l	(a2),a6		=hardware
+	move.l	CCinstr(a2),a4	=instrument
+
+*** TONE CONTROL ***
+
+	move.w	CCportspeed(a2),d2
+	beq	check_wiggle
+
+	; PORT IT
+	move.w	CCperiod(a2),d0
+	move.w	CCportdest(a2),d1
+
+	cmp.w	d0,d1
+	beq	got_period
+	clr.w	CCasdrpc(a2)
+
+	slide.w	d0,d1,d2
+	move.w	d0,CCperiod(a2)
+	bra	got_period
+
+check_wiggle
+	; WIGGLE IT
+	move.w	CCwiggleindx(a2),d1
+	move.w	CCnote(a2),d0
+	add.b	CCwiggle(a2,d1.w),d0
+	add.w	d0,d0
+
+	move.w	notes-vb(a5,d0.w),d0
+	addq.w	#1,d1
+	cmp.w	#12,d1
+	bcs.s	nowigrap
+	moveq	#0,d1
+nowigrap
+	move.w	d1,CCwiggleindx(a2)
+
+got_period
+	; d0=period
+	; BEND IT
+	move.b	Itone_speed(a4),d3
+	beq	done_permod
+
+	tst.b	CCpmcntdown(a2)
+	beq.s	permod
+	subq.b	#1,CCpmcntdown(a2)
+	bra.s	done_permod
+permod
+	moveq	#0,d1
+	move.b	CCpmindx(a2),d1
+	move.b	Itone(a4,d1.w),d2
+	ext.w	d2
+	moveq	#0,d4
+	move.b	Itone_mulu(a4),d4
+	muls	d4,d2
+	add.w	d2,d0
+
+	sub.b	d3,CCpmindx(a2)
+	bcc.s	done_permod
+
+	move.b	Itone_size(a4),d2
+	add.b	d2,d2
+	add.b	d2,CCpmindx(a2)
+
+done_permod
+	tst.b	CCours(a2)
+	beq.s	noack6
+	move.w	d0,ac_per(a6)
+noack6
+
+**** VOLUME CONTROL ****
+
+	subq.b	#1,CCasdrtime(a2)
+	bcc	skip_asdr
+	move.b	CCasdrfresh(a2),CCasdrtime(a2)
+
+	move.w	CCvol(a2),d1
+	move.w	CCasdrPC(a2),d0
+
+	move.b	Iasdr(a4,d0.w),d2	dest
+	add.b	d2,d2
+	add.b	d2,d2
+	move.b	Iasdr+1(a4,d0.w),d3	rate
+
+	slide.b	d1,d2,d3
+
+	cmp.b	d1,d2
+	bne.s	done_asdr
+	subq.w	#6,d0
+	beq.s	done_asdr
+	addq.w	#8,d0
+	move.w	d0,CCasdrPC(a2)
+done_asdr
+	move.w	d1,CCvol(a2)
+
+skip_asdr
+	move.w	CCvol(a2),d1
+	lsr.w	#2,d1
+	move.b	(a5,d1.w),d1	crafty code
+	ext.w	d1
+	tst.b	CCours(a2)
+	beq.s	noack7
+	move.w	d1,ac_vol(a6)
+noack7
+
+**** SQUARE MODIFY ****
+
+	move.b	Isqr_rate(a4),d0		not needed!
+	beq	donesqr
+
+	move.b	play_frame-vb(a5),d1
+	cmp.b	Isqr_done(a4),d1
+	beq	donesqr				already done!
+	move.b	d1,Isqr_done(a4)
+
+	subq.b	#1,Isqr_tick(a4)
+	bcc	donesqr				not time!
+	subq.b	#1,d0
+	move.b	d0,Isqr_tick(a4)
+
+	moveq	#0,d0
+	move.b	Isqr_pos(a4),d0
+	tst.b	Isqr_dir(a4)
+	bpl	sqr_up
+;sqr_down
+	move.b	#63,Iloop(a4,d0.w)
+	cmp.b	Isqr_begin(a4),d0
+	beq.s	bounce
+	subq.w	#1,d0
+	move.b	d0,Isqr_pos(a4)
+	bra.s	donesqr
+
+sqr_up	move.b	#-64,Iloop(a4,d0.w)
+	cmp.b	Isqr_end(a4),d0
+	beq.s	bounce
+	addq.w	#1,d0
+	move.b	d0,Isqr_pos(a4)
+	bra.s	donesqr
+
+bounce	neg.b	Isqr_dir(a4)
+donesqr
+
+
+	tst.b	CCours(a2)
+	beq.s	noack5
+	move.w	CCdmaon(a2),$dff096	dma on
+noack5
+
+	rts
+
+
+Qline_adr
+	movem.l	d0-d7/a0/a2-a6,-(a7)
+	move.w	cur_block-vb(a5),d0
+	bsr	Qblk_adr
+	move.l	a0,a1
+	move.w	y_pos-vb(a5),d0
+	mulu	#clicksize,d0
+	addq.l	#BLKdata,d0
+	add.l	d0,a1
+	movem.l	(a7)+,d0-d7/a0/a2-a6
+	rts
+
+seq_select
+	move.l	sequence-vb(a5),a0
+	add.w	seq_pos-vb(a5),a0
+	move.b	(a0),d0
+	ext.w	d0
+	bra	select_block
+
+samp1	incbin	"inc/b"
+samp2	incbin	"inc/d"
+samp3	incbin	"inc/e"
+samp4
+
+len1=samp2-samp1
+len2=samp3-samp2
+len3=samp4-samp3
+
+e
+
+
+
