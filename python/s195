@@ -3813,6 +3813,7 @@ fadesong	bsr	beam
 
 start_jingle	; IN	d0=jingle number
 	; 0=game over 1=end level 2=start world
+	; HMMM.... actually more like: 0=game over 1=a new world 2=level complete 3=level begin
 	if	minIO
 	rts
 	endif
@@ -6342,7 +6343,7 @@ norepack
 	pea	next_alien
 	if	mapper
 	tst.b	mapper_active
-	bne	add_bobs0
+	bne	add_bobS0
 	endif
 	move.l	(a5),a5
 	jmp	(a5)
