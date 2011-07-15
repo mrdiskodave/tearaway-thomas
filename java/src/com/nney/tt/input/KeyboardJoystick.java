@@ -15,10 +15,10 @@ public class KeyboardJoystick extends PartialJoystickImpl {
 		if (keyboard.isDown(Keyboard.KEY_A)) {
 			x |= Joystick.DOWN;
 		}
-		if (keyboard.isDown(Keyboard.KEY_O)) {
+		if (keyboard.isDown(Keyboard.KEY_LBRACKET)) {
 			x |= Joystick.LEFT;
 		}
-		if (keyboard.isDown(Keyboard.KEY_P)) {
+		if (keyboard.isDown(Keyboard.KEY_RBRACKET)) {
 			x |= Joystick.RIGHT;
 		}
 		if (keyboard.isDown(Keyboard.KEY_SPACE)) {

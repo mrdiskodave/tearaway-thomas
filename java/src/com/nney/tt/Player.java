@@ -37,6 +37,8 @@ public class Player {
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
+	static final int[] FATAL_HEAD_BOUNCE_BONUSES = { 200, 500, 1000, 2500 }; 
+
 	/**
 	 * How much do we tolerate the player being misplaced for getting on a
 	 * ladder when they are standing still? They get the ideal position plus
@@ -151,6 +153,12 @@ public class Player {
 	 * Our Y velocity.
 	 */
 	private int vely;
+	
+	/**
+	 * Cleared when you touch the floor (or a lift!).
+	 * Incremented when you bounce on a head!
+	 */
+	private int headBounceCounter;
 
 	/**
 	 * Our last coordinate.
@@ -227,6 +235,15 @@ public class Player {
 		// or the player could get off a rogue jump-off-a-slide
 		// before we detect it later!
 		perhapsStartSlideMode();
+
+		onSomething();
+	}
+
+	/**
+	 * Called when you standing on something (be a lift or the floor). 
+	 */
+	private void onSomething() {
+		headBounceCounter = 0;
 	}
 
 	private void jumpV(int velocity) {
@@ -530,8 +547,9 @@ public class Player {
 					if (Math.abs(slideVel) <= pvt.max()) {
 						// right! we've slowed to running speed on a
 						// non-slippery surface
-						mode = Mode.WALK;
 						System.out.println("Slide: too slow quit");
+						startModeWalk();
+//						mode = Mode.WALK;
 						return;
 					}
 				}
@@ -957,6 +975,7 @@ public class Player {
 		mode = Mode.LIFT;
 		standingOn = lift;
 		c.y = height;
+		onSomething();
 	}
 
 	// enquires
@@ -1036,9 +1055,21 @@ public class Player {
 		return false;
 	}
 
-	public void headBounce() {
+	public int headBounce(boolean alienWillSurviveTheImpact) {
 		proofTimer = 1;
 		jump();
+		
+		if (alienWillSurviveTheImpact) {
+			// well it isn't worth much then
+			return 100;
+		}
+		
+		// ahh - it's worth compound bonus!
+		int answer = FATAL_HEAD_BOUNCE_BONUSES[headBounceCounter]; 
+		if (headBounceCounter<FATAL_HEAD_BOUNCE_BONUSES.length-1) {
+			headBounceCounter++;
+		}
+		return answer;
 	}
 }
 

@@ -108,6 +108,7 @@ public class HeadUpDisplay {
 	private SmartText exitOpenText;
 	private SmartText hurryUpText;
 	private SmartText livesText;
+	private SmartText pausedText;
 
 	private RowComponent livesRow;
 
@@ -122,6 +123,7 @@ public class HeadUpDisplay {
 		livesText = new SmartText();
 		exitOpenText = new SmartText(COL_EXIT_OPEN, "exit open");
 		hurryUpText = new SmartText(COL_HURRY_UP, "hurry up");
+		pausedText = new SmartText(COL_HURRY_UP, "paused");
 
 		livesRow = new RowComponent();
 		livesRow.add(lifeSprite);

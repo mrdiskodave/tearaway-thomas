@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import org.lwjgl.opengl.GL11;
-
+import com.nney.tt.World.SpriteRecord;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
@@ -49,7 +48,6 @@ import com.nney.tt.gfx.Horizon;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.lwjgl.GlTools;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
@@ -115,7 +113,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * Player sprite.
 	 */
 	private Sprite ttSprite;
-	
+
 	/**
 	 * Player sprite top level (i.e. incorporates handle subtraction).
 	 */
@@ -160,6 +158,53 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private int gemsCollected;
 
 	private int lives = 3;
+
+	// ---------------------------------------------------------------------------
+	// PAUSING
+
+	/**
+	 * Are we paused?
+	 */
+	private boolean paused;
+
+	/**
+	 * A record of where (and how) we've put a {@link Sprite}.
+	 */
+	class SpriteRecord {
+		private final Coord c;
+		private final Sprite s;
+		private final boolean drawInWhite;
+
+		SpriteRecord(Coord c, Sprite s, boolean drawInWhite) {
+			this.c = c.copy();
+			this.s = s;
+			this.drawInWhite = drawInWhite;
+		}
+	}
+
+	/**
+	 * <p>
+	 * Pausing it a bit complicated:
+	 * 
+	 * <p>
+	 * The aliens update their state <b>and</b> draw themselves in one method:
+	 * {@link Alien#update()}. {@link World#updateEverything()} is expected to
+	 * keep drawing but there is no method on {@link Alien} to just draw.
+	 * 
+	 * <p>
+	 * Solution: spend one frame recording where all the {@link Sprite}s are
+	 * drawn then we just play it back without call any method on the
+	 * {@link Alien}s.
+	 * 
+	 * <p>
+	 * This is where we store the recording.
+	 */
+	ArrayList<SpriteRecord> pauseRecording;
+
+	
+	boolean recordNow;
+
+	// ---------------------------------------------------------------------------
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -345,6 +390,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
 		s.drawByHandle(x, y, drawWhite);
+		if (recordNow) {
+			pauseRecording.add(new SpriteRecord(c, s, drawWhite));
+		}
 	}
 
 	@Override
@@ -438,30 +486,29 @@ public class World implements AlienServices, WorldServicesToMapper {
 			int consideredInTearaway = ttSprite.h - 1 - dy;
 			if (player.isHeadBouncePossible(consideredInTearaway)) {
 				int diffX = Math.abs(alienPos.x - player.c.x);
-				int w = Math.abs(alienSprite.w)/2+4;
+				int w = Math.abs(alienSprite.w) / 2 + 6;
 				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
 				if (diffX <= w) {
 					// head bounce :)
-					player.headBounce();
-
-					int raiseScoreNoticeBy = alienSprite.handleY+10;
-					int headScore = 100;
-					if (frightAnimationName!=null) {
+					boolean willSurvive = frightAnimationName == null;
+					int headScore = player.headBounce(willSurvive);
+					int raiseScoreNoticeBy = alienSprite.handleY + 10;
+					if (willSurvive) {
+						giveScore(headScore, new Coord(alienPos.x, alienPos.y - raiseScoreNoticeBy));
+					}
+					else {
 						alien.done();
 						FallingAlien fa = new FallingAlien(alien, headScore, raiseScoreNoticeBy, frightAnimationName);
 						loadAlienIntoWorld(fa);
 					}
-					else {
-						giveScore(headScore, new Coord(alienPos.x, alienPos.y-raiseScoreNoticeBy));
-					}
 					return;
 				}
 				else {
-					System.out.println("NHB: diffX");
+					System.out.println("NoHeadBounce: diffX");
 				}
 			}
 		}
-		
+
 		// no head bounce :(
 		player.stun();
 	}
@@ -684,7 +731,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 			mapper.run();
 		}
 		else {
-			if (keyboard.justPressed() == Mapper.MAPPER_KEY) {
+			int k = keyboard.justPressed();
+			if (k == Mapper.MAPPER_KEY) {
 				usingMapper = true;
 				computeMapBounds();
 				gameMap.applyCompress(wi.blockRandomisationTable);
@@ -695,63 +743,91 @@ public class World implements AlienServices, WorldServicesToMapper {
 				mapper.init();
 			}
 			else {
-				frameNumber++;
-
-				int timeDec = player.isStunned() ? 3 : 1;
-				timeRemaining = Math.max(timeRemaining - timeDec, 0);
-
 				if (whiteTimer != 0) {
 					whiteTimer--;
 					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 				}
 				else {
-					ttSpriteTopLeft = null;
-					player.move();
-					assert ttSpriteTopLeft != null;
+					if (paused) {
+						recordNow = false;
 
-					if (CTC_HARD_SCROLLING) {
-						scr.snapTo(player.c);
+						horizon.draw();
+						drawTheMap();
+						for (SpriteRecord sr : pauseRecording) {
+							drawSprite(sr.c, sr.s, sr.drawInWhite);
+						}
+						drawHud();
+
+						if (k == Keyboard.KEY_P) {
+							paused = false;
+							// throw away the old pause recording
+							pauseRecording = null;
+						}
 					}
 					else {
-						scr.scrollTo(player.c);
+
+						if (k == Keyboard.KEY_P) {
+							paused = recordNow = true;
+							// get ready to make a new pause-recording
+							pauseRecording = new ArrayList<World.SpriteRecord>();
+						}
+
+						frameNumber++;
+
+						int timeDec = player.isStunned() ? 3 : 1;
+						timeRemaining = Math.max(timeRemaining - timeDec, 0);
+
+						ttSpriteTopLeft = null;
+						player.move();
+						assert ttSpriteTopLeft != null;
+
+						if (CTC_HARD_SCROLLING) {
+							scr.snapTo(player.c);
+						}
+						else {
+							scr.scrollTo(player.c);
+						}
+
+						horizon.draw();
+						drawTheMap();
+						updateAliens(false);
+						drawHud();
+
+						// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
+						// 0xff000000);
+						// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
+						// 0xff000000);
+
+						// int radius = 160;
+						// int cx = player.c.x - scr.position().x;
+						// int cy = player.c.y - scr.position().y;
+						// gc.antiCircle(radius, cx, cy, 0xff000000);
+
 					}
-
-					horizon.draw();
-					drawTheMap();
-					updateAliens(false);
-
-					// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
-					// 0xff000000);
-					// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
-					// 0xff000000);
-
-//					int radius = 160;
-//					int cx = player.c.x - scr.position().x;
-//					int cy = player.c.y - scr.position().y;
-//					gc.antiCircle(radius, cx, cy, 0xff000000);
-
-					int showGems = gemsNeeded - gemsCollected;
-					if (isExitOpen()) {
-						showGems = gemsTotal - gemsCollected;
-					}
-					hud.update(score, timeRemaining, showGems, isExitOpen(), lives);
 				}
-			}
 
-			// draw borders on the playing area if the map is small
-			ScreenOrdinate lr = scr.scrOrdX;
-			if (lr.highBorderStart >= 0) {
-				gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
-				gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
-			}
-			ScreenOrdinate tb = scr.scrOrdY;
-			if (tb.highBorderStart >= 0) {
-				gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
-				gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+				// draw borders on the playing area if the map is small
+				ScreenOrdinate lr = scr.scrOrdX;
+				if (lr.highBorderStart >= 0) {
+					gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
+					gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+				}
+				ScreenOrdinate tb = scr.scrOrdY;
+				if (tb.highBorderStart >= 0) {
+					gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
+					gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+				}
 			}
 		}
 	}
 
+	private void drawHud() {
+		int showGems = gemsNeeded - gemsCollected;
+		if (isExitOpen()) {
+			showGems = gemsTotal - gemsCollected;
+		}
+		hud.update(score, timeRemaining, showGems, isExitOpen(), lives);
+	}
 
 	private void init() {
 		Openable ho = TTResource.horizon(1);
@@ -941,8 +1017,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public boolean isOffTheBottom(Coord c) {
 		// *2 to be generous
-		int offY = scr.position().y + gc.screenHeight()*2;
-		return c.y>offY;
+		int offY = scr.position().y + gc.screenHeight() * 2;
+		return c.y > offY;
 	}
 }
 
@@ -960,5 +1036,5 @@ public class World implements AlienServices, WorldServicesToMapper {
 //
 // 500 for the big gem
 // 2500 for the huge gem
-// 50, 100 for the yellow and purple gem 
+// 50, 100 for the yellow and purple gem
 
