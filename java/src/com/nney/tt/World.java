@@ -860,7 +860,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gameMap.applyShuffle(wi.blockRandomisationTable);
 
 		Anims lifeAnims = animsPool.load("0life");
-		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).frames[0]);
+		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
 
 		gemsTotal = countGems();
 		gemsNeeded = pm.gemsNeeded;

@@ -2,17 +2,19 @@ package com.nney.tt.sprites;
 
 import java.util.ArrayList;
 
-public class Anims {
-	private final ArrayList<Anim> animList;
+import com.nney.tt.gfx.Disposable;
+
+public class Anims implements Disposable {
+	private final ArrayList<Anim> anims;
 	public final String spriteName;
 
 	public Anims(String spriteName, ArrayList<Anim> animList) {
 		this.spriteName = spriteName;
-		this.animList = animList;
+		this.anims = animList;
 	}
 
 	public Anim find(String name) {
-		for (Anim anim : animList) {
+		for (Anim anim : anims) {
 			if (anim.name!=null && anim.name.equals(name)) {
 				return anim;
 			}
@@ -21,6 +23,13 @@ public class Anims {
 	}
 
 	public Anim find(int pos) {
-		return animList.get(pos);
+		return anims.get(pos);
+	}
+
+	@Override
+	public void dispose() {
+		for (Anim anim: anims) {
+			anim.dispose();
+		}
 	}
 }

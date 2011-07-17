@@ -73,7 +73,7 @@ public abstract class Alien {
 	}
 
 	protected Sprite firstFrame() {
-		return anims.find(0).frames[0];
+		return anims.find(0).sprites[0];
 	}
 
 	public void connectAnims(Anims s) {

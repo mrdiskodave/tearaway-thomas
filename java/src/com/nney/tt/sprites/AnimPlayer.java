@@ -51,7 +51,7 @@ public class AnimPlayer {
 	}
 
 	public Sprite currentFrame() {
-		return anim.frames[pos];
+		return anim.sprites[pos];
 	}
 	
 	private void advance() {
@@ -60,9 +60,9 @@ public class AnimPlayer {
 		if (acc > Anim.MAX_RATE) {
 			acc -= Anim.MAX_RATE;
 			pos += 1;
-			if (pos >= anim.frames.length) {
+			if (pos >= anim.sprites.length) {
 				if (anim.repeatPos < 0) {
-					pos = anim.frames.length - 1;
+					pos = anim.sprites.length - 1;
 				}
 				else {
 					pos = anim.repeatPos;
