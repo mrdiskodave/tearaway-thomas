@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.nney.tt.World.SpriteRecord;
@@ -206,6 +207,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	
 	boolean recordNow;
 
+	private int levelNumber;
+
 	// ---------------------------------------------------------------------------
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
@@ -255,7 +258,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		alienInfoMap = aim;
 
-		init();
+		animsPool = new AnimsPool(gc, new AnimsDefPool());
+
+		initLevel();
 	}
 
 	// ---------------------------------------------------------------------------
@@ -599,6 +604,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public Alien createAlien(AlienInfo alienInfo) {
+		// for the mapper
 		Alien alien = alienInfo.instantiate();
 		alienInfo.inject(alien, animsPool, true);
 		return alien;
@@ -832,41 +838,38 @@ public class World implements AlienServices, WorldServicesToMapper {
 		hud.update(score, timeRemaining, showGems, isExitOpen(), lives);
 	}
 
-	private void init() {
-		Openable ho = TTResource.horizon(1);
-		horizon = gc.loadHorizon(ho);
-
-		animsPool = new AnimsPool(gc, new AnimsDefPool());
-		alienInfoMap.doPreLoad(animsPool);
-
+	private void initLevel() {
 		PersistedMap pm = new PersistedMap();
-		pm.populateFromLevelInfo(this, 0);
+		pm.populateFromLevelInfo(this, levelNumber);
 		worldName = pm.worldName;
 		
+		// work out what Anims we need
+		ArrayList<Alien> aliens = pm.aliens;
+		TreeSet<String> animsNeeded = new TreeSet<String>();
+		whatAnimsDoTheyNeed(aliens, animsNeeded);
+		animsNeeded.add("0tt");
+		animsNeeded.add("0life");
+		alienInfoMap.collectPreloadNames(animsNeeded);
+		
+		// load them
+		animsPool.unloadReload(animsNeeded);
 
-		TreeSet<String> animsNeeded = new TreeSet<String>(); 
-		for (Alien alien : pm.aliens) {
-			if (alien.alienInfo!=null) {
-				String s = alien.alienInfo.animsName;
-				if (s!=null) {
-					animsNeeded.add(s);
-				}
-			}
-		}
-		System.out.println(animsNeeded);
-
-		for (Alien alien : pm.aliens) {
-			alien.alienInfo.inject(alien, animsPool, true); // TODO: more thought required!!
+		// attach them to the aliens
+		// and load the aliens into the world
+		for (Alien alien : aliens) {
+			alien.alienInfo.inject(alien, animsPool, false);
 			loadAlienIntoWorld(alien);
 		}
+
+		horizon = gc.loadHorizon(TTResource.horizon(pm.horizon));
 
 		mapBoundsInBlocks = pm.mapBounds;
 
 		wi = WorldInformation.load(worldName);
+		
 		loadBlocks();
 
-		Anims playerAnims = animsPool.load("0tt");
-		player = new Player(this, playerAnims, new Coord(pm.playerX, pm.playerY - 20), pm.playerGoLeft);
+		player = new Player(this, animsPool.expect("0tt"), new Coord(pm.playerX, pm.playerY - 20), pm.playerGoLeft);
 		gameMap = pm.gameMap;
 
 		computeMapBounds();
@@ -874,7 +877,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		gameMap.applyShuffle(wi.blockRandomisationTable);
 
-		Anims lifeAnims = animsPool.load("0life");
+		Anims lifeAnims = animsPool.expect("0life");
 		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
 
 		gemsTotal = countGems();
@@ -882,6 +885,17 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gemsCollected = 0;
 
 		timeRemaining = pm.timeGiven * Const.FPS + Const.FPS - 1;
+	}
+
+	private void whatAnimsDoTheyNeed(List<Alien> aliens, Set<String> animsNeeded) {
+		for (Alien alien : aliens) {
+			if (alien.alienInfo!=null) {
+				String s = alien.alienInfo.animsName;
+				if (s!=null) {
+					animsNeeded.add(s);
+				}
+			}
+		}
 	}
 
 	private void loadBlocks() {

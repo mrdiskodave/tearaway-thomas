@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.nney.tt.aliens.Alien;
@@ -37,13 +38,10 @@ public class AlienInfoMap {
 //		System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
 	}
 
-	public void doPreLoad(AnimsPool animsPool) {
+	public void collectPreloadNames(Set<String> names) {
 		for (AlienInfo a : aim) {
-			// if it doesn't have an id that is because it
-			// doesn't occur in any map but is instead deployed live at runtime
 			if (a.typeCode < 0) {
-				// so preload its graphics now
-				animsPool.load(a.animsName);
+				names.add(a.animsName);
 			}
 		}
 	}

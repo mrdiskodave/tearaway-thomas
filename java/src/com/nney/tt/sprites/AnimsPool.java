@@ -1,12 +1,16 @@
 package com.nney.tt.sprites;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.nney.json.DataItem;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.resources.TTResource;
 
-public class AnimsPool extends CachedLoader<String, Anims> {
+public class AnimsPool {
+	private final TreeMap<String, Anims> pool = new TreeMap<String, Anims>();
 	private final AnimsDefPool sdp;
 	private final GraphicsContext gc;
 
@@ -14,13 +18,28 @@ public class AnimsPool extends CachedLoader<String, Anims> {
 		this.sdp = sdp;
 		this.gc = gc;
 	}
-
-	@Override
-	protected Anims internalLoad(String animsName) {
-		return loadSpriteSet(animsName);
+	
+	public Anims expect(String k) {
+		return get(k, false);
+	}
+	
+	public Anims load(String k) {
+		return get(k, true);
 	}
 
-	private Anims loadSpriteSet(final String animsName) {
+	public Anims get(String k, boolean loadingPermitted) {
+		Anims answer = pool.get(k);
+		if (answer == null) {
+			assert loadingPermitted : "expected to find key in cache " + k;
+			answer = loadAnims(k);
+			pool.put(k, answer);
+		}
+		return answer;
+	}
+	
+	
+
+	private Anims loadAnims(final String animsName) {
 		ArrayList<Anim> an = new ArrayList<Anim>();
 
 		DataItem diRoot = sdp.load(animsName);
@@ -60,4 +79,22 @@ public class AnimsPool extends CachedLoader<String, Anims> {
 		return new Anims(animsName, an);
 	}
 
+	public void unloadReload(Set<String> animsNeeded) {
+		// kick out the ones we don't need
+		ArrayList<String> removes = new ArrayList<String>();
+		for (String name: pool.keySet()) {
+			if (!animsNeeded.contains(name)) {
+				removes.add(name);
+			}
+		}
+		for (String remove: removes) {
+			pool.get(remove).dispose();
+			pool.remove(remove);
+		}
+		
+		// then load the ones we do
+		for (String need: animsNeeded) {
+			load(need);
+		}
+	}
 }

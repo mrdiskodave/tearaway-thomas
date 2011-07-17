@@ -37,7 +37,7 @@ public class AlienInfo {
 	public void inject(Alien alien, AnimsPool animsPool, boolean loadingPermitted) {
 		alien.alienInfo = this;
 		if (animsName != null) {
-			alien.connectAnims(loadingPermitted ? animsPool.load(animsName) : animsPool.loadUncached(animsName));
+			alien.connectAnims(animsPool.get(animsName, loadingPermitted));
 		}
 	}
 }
