@@ -1,6 +1,7 @@
 package com.nney.tt;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;
@@ -30,6 +31,13 @@ public class AlienInfo {
 		catch (IllegalAccessException e) {
 			System.out.println(animsName);
 			throw new RuntimeException(e);
+		}
+	}
+
+	public void inject(Alien alien, AnimsPool animsPool, boolean loadingPermitted) {
+		alien.alienInfo = this;
+		if (animsName != null) {
+			alien.connectAnims(loadingPermitted ? animsPool.load(animsName) : animsPool.loadUncached(animsName));
 		}
 	}
 }

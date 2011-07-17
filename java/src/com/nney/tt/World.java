@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeSet;
 
 import com.nney.tt.World.SpriteRecord;
 import com.nney.tt.aliens.Alien;
@@ -597,7 +598,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private static final boolean CTC_ITEM_ONCE = false;
 
 	@Override
-	public Alien createAlien(int typeCode) {
+	public Alien createAlien(AlienInfo alienInfo) {
+		Alien alien = alienInfo.instantiate();
+		alienInfo.inject(alien, animsPool, true);
+		return alien;
+	}
+
+	public Alien createAlien2(int typeCode) {
 		assert typeCode >= 0;
 
 		AlienInfo alienInfo = alienInfoMap.getByType(typeCode);
@@ -606,10 +613,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 				alienInfoMap.removeByType(typeCode);
 			}
 			Alien alien = alienInfo.instantiate();
-			String animsName = alienInfo.animsName;
-			if (animsName != null) {
-				alien.connectAnims(loadAnims(animsName));
-			}
 			alien.alienInfo = alienInfo;
 			return alien;
 		}
@@ -626,10 +629,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void addNewAlien(Alien alien) {
-		alienInfoMap.giveTypeCodeAndConnectAnims(alien, animsPool);
-		alien.srv = this;
-		alien.onLoaded();
-		alienTracker.delayedAdd(alien);
+		AlienInfo ai = alienInfoMap.getByClass(alien.getClass());
+		ai.inject(alien, animsPool, false);
+		loadAlienIntoWorld(alien);
 	}
 
 	@Override
@@ -840,9 +842,22 @@ public class World implements AlienServices, WorldServicesToMapper {
 		PersistedMap pm = new PersistedMap();
 		pm.populateFromLevelInfo(this, 0);
 		worldName = pm.worldName;
+		
 
-		for (Alien a : pm.aliens) {
-			loadAlienIntoWorld(a);
+		TreeSet<String> animsNeeded = new TreeSet<String>(); 
+		for (Alien alien : pm.aliens) {
+			if (alien.alienInfo!=null) {
+				String s = alien.alienInfo.animsName;
+				if (s!=null) {
+					animsNeeded.add(s);
+				}
+			}
+		}
+		System.out.println(animsNeeded);
+
+		for (Alien alien : pm.aliens) {
+			alien.alienInfo.inject(alien, animsPool, true); // TODO: more thought required!!
+			loadAlienIntoWorld(alien);
 		}
 
 		mapBoundsInBlocks = pm.mapBounds;

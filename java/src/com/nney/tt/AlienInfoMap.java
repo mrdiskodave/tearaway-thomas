@@ -65,15 +65,6 @@ public class AlienInfoMap {
 		return classToAlienInfo.get(c);
 	}
 
-	public void giveTypeCodeAndConnectAnims(Alien c, AnimsPool animsPool) {
-		AlienInfo ai = getByClass(c.getClass());
-		c.alienInfo = ai;
-		if (ai.animsName != null) {
-			assert animsPool.isCached(ai.animsName) : "need to preload " + ai.animsName;
-			c.connectAnims(animsPool.load(ai.animsName));
-		}
-	}
-	
 	public List<Integer> getTypeCodes() {
 		Collections.sort(typeCodes);
 		return typeCodes;

@@ -27,10 +27,12 @@ public class PersistedMap {
 	public short playerY;
 	public boolean playerGoLeft;
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
+	
 	public int gemsNeeded;
 	public int horizon;
 	public int timeGiven;
 	public String worldName;
+	
 
 	public void populateFromLevelInfo(World world, int lev) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
@@ -85,7 +87,7 @@ public class PersistedMap {
 	}
 
 	private void createLegacyAlien(World world, int x, int y, int type, byte[] rest) {
-		Alien alien = world.createAlien(type);
+		Alien alien = world.createAlien2(type);
 
 		if (type == 2 || type == 3) {
 			// this is what gem_render -> bob_gem did

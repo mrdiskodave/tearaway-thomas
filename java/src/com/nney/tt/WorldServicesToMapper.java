@@ -27,7 +27,7 @@ public interface WorldServicesToMapper {
 
 	void reinstateAlien(Alien alien);
 	
-	Alien createAlien(int typeCode);
+	Alien createAlien(AlienInfo alienInfo);
 
 	void loadAlienIntoWorld(Alien alien);
 

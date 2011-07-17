@@ -3,7 +3,7 @@ package com.nney.tt.sprites;
 import java.util.TreeMap;
 
 public abstract class CachedLoader<K, V> {
-	TreeMap<K, V> pool = new TreeMap<K, V>();
+	protected TreeMap<K, V> pool = new TreeMap<K, V>();
 
 	public V load(K k) {
 		V answer = pool.get(k);
@@ -14,13 +14,14 @@ public abstract class CachedLoader<K, V> {
 		return answer;
 	}
 
-	public boolean isCached(K k) {
+	public V loadUncached(K k) {
+		assert isCached(k) : "expected to find key in cache " + k;
+		return load(k);
+	}
+	
+	private boolean isCached(K k) {
 		return pool.containsKey(k);
 	}
-
-//	public void clear() {
-//		pool.clear();
-//	}
 
 	protected abstract V internalLoad(K k);
 }

@@ -345,7 +345,7 @@ public class Mapper implements MapperServicesToPens {
 	
 	private void createAlien() {
 		AlienInfo ai = getAlienInfo(alienTabber);
-		Alien a = srv.createAlien(ai.typeCode);
+		Alien a = srv.createAlien(ai);
 		a.resetTo(computeMousePos(CoordType.WORLD_PIXELS));
 		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
@@ -661,7 +661,7 @@ public class Mapper implements MapperServicesToPens {
 	public void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
 		if (src.alienInfo.typeCode >= 0) {
-			final Alien dest = srv.createAlien(src.alienInfo.typeCode);
+			final Alien dest = srv.createAlien(src.alienInfo);
 			APS.copyProps(src, dest);
 
 			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.getLocation());
