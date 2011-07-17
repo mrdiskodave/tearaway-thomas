@@ -284,8 +284,8 @@ public class MusicPlayer {
 		//
 		// load the samples
 		//
-		byte[][] sample = new byte[3][];
-		for (int s = 0; s < 3; s++) {
+		byte[][] sample = new byte[9][];
+		for (int s = 0; s < sample.length; s++) {
 			Openable sampleOpenable = new ClassResourceOpenable(MusicPlayer.class, String.format("samp%s.bin", s + 1));
 			sample[s] = OpenableTools.mustLoad(sampleOpenable);
 		}
