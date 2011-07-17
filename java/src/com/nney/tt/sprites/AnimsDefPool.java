@@ -10,7 +10,7 @@ import com.nney.utils.StringIO;
 
 public class AnimsDefPool extends CachedLoader<String, DataItem> {
 	@Override
-	protected DataItem populatePool(String k) {
+	protected DataItem internalLoad(String k) {
 		try {
 			String text = StringIO.loadText(TTResource.spriteDef(k), null);
 			return JsonValue.parse(text);

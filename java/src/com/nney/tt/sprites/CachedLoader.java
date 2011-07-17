@@ -8,18 +8,19 @@ public abstract class CachedLoader<K, V> {
 	public V load(K k) {
 		V answer = pool.get(k);
 		if (answer == null) {
-			answer = populatePool(k);
+			answer = internalLoad(k);
+			pool.put(k, answer);
 		}
 		return answer;
 	}
 
-	public V directGet(K k) {
-		return pool.get(k);
+	public boolean isCached(K k) {
+		return pool.containsKey(k);
 	}
 
-	public void clear() {
-		pool.clear();
-	}
+//	public void clear() {
+//		pool.clear();
+//	}
 
-	protected abstract V populatePool(K k);
+	protected abstract V internalLoad(K k);
 }

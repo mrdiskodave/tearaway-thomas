@@ -1,10 +1,5 @@
 package com.nney.tt.gfx;
 
-public interface Blitable {
+public interface Blitable extends Disposable {
 	void draw(int dx, int dy);
-
-	/**
-	 * Release any resources associated with this object.
-	 */
-	void dispose();
 }

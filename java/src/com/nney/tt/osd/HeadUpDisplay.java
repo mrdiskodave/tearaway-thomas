@@ -1,14 +1,14 @@
-package com.nney.tt;
+package com.nney.tt.osd;
 
-import com.nney.tt.gfx.Component;
+import com.nney.tt.Const;
+import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.MultiDisposable;
 import com.nney.tt.gfx.PrerenderedText;
-import com.nney.tt.gfx.RowComponent;
-import com.nney.tt.gfx.SpacerComponent;
 import com.nney.tt.sprites.Sprite;
 
-public class HeadUpDisplay {
+public class HeadUpDisplay implements Disposable {
 	private static final int COL_HEADING = 0xffffffff;
 
 	private static final int COL_NORMAL = 0xffffff00;
@@ -27,77 +27,35 @@ public class HeadUpDisplay {
 
 	private final Font font;
 
-	class SmartText implements Component {
-		private PrerenderedText content;
-
-		private String slast = "";
-
-		public SmartText() {
-		}
-
-		public SmartText(int col, String string) {
-			set(col, string);
-		}
-
-		void set(int col, String next) {
-			String snext = String.format("%x-%s", col, next);
-			if (!slast.equals(snext)) {
-				content = font.preRender(col, 0, next);
-				slast = snext;
-			}
-		}
-
-		void centredDraw(int x, int y) {
-			draw(x - width() / 2, y);
-		}
-
-		@Override
-		public
-		void draw(int x, int y) {
-			content.draw(x, y);
-		}
-
-		@Override
-		public
-		int width() {
-			return content.width();
-		}
-
-		@Override
-		public
-		int height() {
-			return content.height();
-		}
-
-	}
-
-	class ReadOut {
-
-		private SmartText headingText = new SmartText();
-		private SmartText contentText = new SmartText();
-
-		private final String heading;
+	class ReadOut implements Disposable {
+		private final SmartText headingText;
+		private SmartText contentText = new SmartText(font);
 
 		ReadOut(String heading) {
-			this.heading = heading;
+			headingText = new SmartText(font, COL_HEADING, 0, heading);
 		}
 
 		void set(int col, String content) {
-			headingText.set(COL_HEADING, heading);
-			contentText.set(col, content);
+			contentText.set(col, 0, content);
 		}
 
 		void centredDraw(int x, int y) {
 			headingText.centredDraw(x, y);
-			contentText.centredDraw(x, y + headingText.height() + GAP);
+			contentText.centredDraw(x, y + GAP + headingText.height());
 		}
 
 		int width() {
-			return headingText.width();
+			return Math.max(headingText.width(), contentText.width());
 		}
 
 		int height() {
 			return contentText.height() * 2 + GAP;
+		}
+
+		@Override
+		public void dispose() {
+			headingText.dispose();
+			contentText.dispose();
 		}
 	}
 
@@ -107,10 +65,12 @@ public class HeadUpDisplay {
 
 	private SmartText exitOpenText;
 	private SmartText hurryUpText;
-	private SmartText livesText;
 	private SmartText pausedText;
+	private SmartText livesText;
 
 	private RowComponent livesRow;
+
+	private MultiDisposable md = new MultiDisposable();
 
 	public HeadUpDisplay(GraphicsContext gc, Font font, Sprite lifeSprite) {
 		this.gc = gc;
@@ -119,16 +79,19 @@ public class HeadUpDisplay {
 		scoreReadOut = new ReadOut("score");
 		gemsReadOut = new ReadOut("gems");
 		timeReadOut = new ReadOut("time");
+		livesText = new SmartText(font);
+		md.addMany(scoreReadOut, gemsReadOut, timeReadOut, livesText);
 
-		livesText = new SmartText();
-		exitOpenText = new SmartText(COL_EXIT_OPEN, "exit open");
-		hurryUpText = new SmartText(COL_HURRY_UP, "hurry up");
-		pausedText = new SmartText(COL_HURRY_UP, "paused");
+		exitOpenText = new SmartText(font, COL_EXIT_OPEN, 0, "exit open");
+		hurryUpText = new SmartText(font, COL_HURRY_UP, 0, "hurry up");
+		pausedText = new SmartText(font, COL_HURRY_UP, 0, "paused");
+		SmartText xText = new SmartText(font, COL_HEADING, 0, "x");
+		md.addMany(exitOpenText, hurryUpText, pausedText, xText);
 
 		livesRow = new RowComponent();
-		livesRow.add(lifeSprite);
+		livesRow.add(new SpriteComponent(lifeSprite));
 		livesRow.add(new SpacerComponent(4, 1));
-		livesRow.add(font.preRender(COL_HEADING, 0, "x")); // TODO: undisposed!
+		livesRow.add(xText);
 		livesRow.add(new SpacerComponent(4, 1));
 		livesRow.add(livesText);
 	}
@@ -137,7 +100,7 @@ public class HeadUpDisplay {
 		//
 		// score/gems/time
 		//
-		
+
 		int border = 6;
 
 		int midX = gc.screenWidth() / 2;
@@ -157,11 +120,10 @@ public class HeadUpDisplay {
 		gemsReadOut.centredDraw(middleFromEdgeX, bottomY);
 		timeReadOut.centredDraw(gc.screenWidth() - middleFromEdgeX, bottomY);
 
-		
 		//
 		// exit open
 		//
-		
+
 		if (isExitOpen) {
 			exitOpenText.centredDraw(midX, gc.screenHeight() * 7 / 20);
 		}
@@ -169,7 +131,7 @@ public class HeadUpDisplay {
 		//
 		// hurry up
 		//
-		
+
 		int flashRate = 20;
 		if (hurryUp2 && (time % flashRate) < (flashRate / 2)) {
 			hurryUpText.centredDraw(midX, gc.screenHeight() * 16 / 20);
@@ -178,11 +140,15 @@ public class HeadUpDisplay {
 		//
 		// lives
 		//
-		
-		livesText.set(COL_HEADING, String.format("%d", lives));
+
+		livesText.set(COL_HEADING, 0, String.format("%d", lives));
 		int livesX = (midX - livesRow.width() / 2);
 		int livesY = bottomY + (gemsReadOut.height() - livesRow.height()) / 2;
 		livesRow.draw(livesX, livesY);
 	}
 
+	@Override
+	public void dispose() {
+		md.dispose();
+	}
 }

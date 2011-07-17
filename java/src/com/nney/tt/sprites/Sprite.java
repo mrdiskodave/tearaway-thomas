@@ -2,13 +2,14 @@ package com.nney.tt.sprites;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Blitable;
+import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
-import com.nney.tt.gfx.Component;
 import com.nney.tt.gfx.ShowBoundsSip;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.WhiteOutSip;
+import com.nney.tt.osd.Component;
 
-public class Sprite implements Component {
+public class Sprite implements Disposable {
 	public final int handleX;
 	public final int handleY;
 	public final int w;
@@ -79,13 +80,14 @@ public class Sprite implements Component {
 		}
 	}
 
+	@Override
 	public void dispose() {
 		texture.dispose();
 		if (whiteVersion != null) {
 			whiteVersion.dispose();
 		}
 	}
-	
+
 	public Box box() {
 		return Box.fromTopLeftAndSize(-handleX, -handleY, w, h);
 	}
@@ -98,17 +100,14 @@ public class Sprite implements Component {
 		return b;
 	}
 
-	@Override
 	public int width() {
 		return w;
 	}
 
-	@Override
 	public int height() {
 		return h;
 	}
 
-	@Override
 	public void draw(int dx, int dy) {
 		dx += handleX;
 		dy += handleY;

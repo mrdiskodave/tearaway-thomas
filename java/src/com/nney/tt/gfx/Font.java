@@ -1,6 +1,6 @@
 package com.nney.tt.gfx;
 
-public interface Font {
+public interface Font extends Disposable {
 	/**
 	 * How wide are all the characters in this font.
 	 * 
@@ -22,8 +22,5 @@ public interface Font {
 
 	PrerenderedText preRender(int fg, int kern, String text);
 
-	/**
-	 * Release any resources associated with this object.
-	 */
-	void dispose();
+
 }

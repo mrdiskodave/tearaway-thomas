@@ -1,6 +1,7 @@
-package com.nney.tt.gfx;
+package com.nney.tt.osd;
 
 import java.util.ArrayList;
+
 
 public class RowComponent implements Component {
 	final private ArrayList<Component> items = new ArrayList<Component>();

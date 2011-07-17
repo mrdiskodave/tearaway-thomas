@@ -16,10 +16,8 @@ public class AnimsPool extends CachedLoader<String, Anims> {
 	}
 
 	@Override
-	protected Anims populatePool(String animsName) {
-		Anims answer = loadSpriteSet(animsName);
-		pool.put(animsName, answer);
-		return answer;
+	protected Anims internalLoad(String animsName) {
+		return loadSpriteSet(animsName);
 	}
 
 	private Anims loadSpriteSet(final String animsName) {
@@ -33,7 +31,7 @@ public class AnimsPool extends CachedLoader<String, Anims> {
 		// back on itself (e.g. ladder climbing) so we'll need a cache
 		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
 			@Override
-			protected Sprite populatePool(Integer k) {
+			protected Sprite internalLoad(Integer k) {
 				return LargeImageFrameLoader.load(gc, TTResource.spriteFrame(animsName, k), makeWhiteVersion);
 			}
 		};

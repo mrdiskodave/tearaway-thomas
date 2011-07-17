@@ -53,6 +53,7 @@ import com.nney.tt.map.GameMap;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.mapper.NearestAlienFinder;
+import com.nney.tt.osd.HeadUpDisplay;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsDefPool;

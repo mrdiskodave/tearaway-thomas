@@ -69,9 +69,8 @@ public class AlienInfoMap {
 		AlienInfo ai = getByClass(c.getClass());
 		c.alienInfo = ai;
 		if (ai.animsName != null) {
-			Anims anims = animsPool.directGet(ai.animsName);
-			assert anims != null : "need to preload " + ai.animsName;
-			c.connectAnims(anims);
+			assert animsPool.isCached(ai.animsName) : "need to preload " + ai.animsName;
+			c.connectAnims(animsPool.load(ai.animsName));
 		}
 	}
 	

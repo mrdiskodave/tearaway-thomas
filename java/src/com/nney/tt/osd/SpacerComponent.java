@@ -1,4 +1,5 @@
-package com.nney.tt.gfx;
+package com.nney.tt.osd;
+
 
 
 public class SpacerComponent implements Component {
