@@ -209,7 +209,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int levelNumber;
 
-	private Aperture antiCircle;
+	private Aperture aperture;
 
 	// ---------------------------------------------------------------------------
 
@@ -221,7 +221,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		this.mouse = mouse;
 
 		initFonts();
-		antiCircle = new Aperture(gc);
+		aperture = new Aperture(gc);
 
 		AlienInfoMap aim = new AlienInfoMap();
 
@@ -769,6 +769,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 							drawSprite(sr.c, sr.s, sr.drawInWhite);
 						}
 						drawHud();
+						aperture.draw();
 
 						if (k == Keyboard.KEY_P) {
 							paused = false;
@@ -804,8 +805,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 						drawTheMap();
 						updateAliens(false);
 						drawHud();
-						antiCircle.update();
-						antiCircle.draw();
+						
+						aperture.update();
+						aperture.draw();
+
+						if (aperture.isDone()) {
+							if (aperture.isOpen()) {
+								aperture.close();
+							}
+							else {
+								aperture.open();
+							}
+						}
 						
 						// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
 						// 0xff000000);

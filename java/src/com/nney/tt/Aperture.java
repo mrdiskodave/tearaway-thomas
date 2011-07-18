@@ -27,12 +27,14 @@ public class Aperture {
 
 	private long squareDistance(Coord a, Coord b) {
 		int xd = a.x - b.x;
-		int yd = b.y - b.y;
+		int yd = a.y - b.y;
 		return xd * xd + yd * yd;
 	}
 
 	public Aperture(GraphicsContext gc) {
 		this.gc = gc;
+		setCentre(new Coord(gc.screenWidth()/2, gc.screenHeight()/2));
+		open();
 	}
 
 	synchronized public void update() {
@@ -58,10 +60,8 @@ public class Aperture {
 		}
 	}
 
-	synchronized public void setJob(Coord centre, int direction) {
-		// set it
+	synchronized public void setCentre(Coord centre) {
 		this.centre = centre.copy();
-		this.direction = direction;
 
 		// work out a derived value
 		int safetyMargin = 3;
@@ -77,9 +77,26 @@ public class Aperture {
 		long largestSquareDistanceToEdge = Math.max(d1, Math.max(d2, Math.max(d3, d4)));
 
 		maxRadius = (int) Math.sqrt(largestSquareDistanceToEdge);
-		radius = direction < 0 ? maxRadius : 0;
+		radius = maxRadius;
+	}
+	
+	synchronized void setClosed() {
+		radius = maxRadius;
+	}
+	
+	synchronized void setOpen() {
+		radius = 0;
+	}
+	
+	synchronized void open() {
+		direction = 1;
 	}
 
+	synchronized void close() {
+		direction = -1;
+	}
+
+	
 	synchronized public void draw() {
 		if (radius != Integer.MAX_VALUE) {
 			if (radius == 0) {
@@ -91,7 +108,11 @@ public class Aperture {
 		}
 	}
 
-	synchronized public boolean isJobRunning() {
-		return direction != 0;
+	synchronized public boolean isDone() {
+		return direction == 0;
+	}
+	
+	synchronized public boolean isOpen() {
+		return radius>=maxRadius;
 	}
 }
