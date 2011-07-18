@@ -6,8 +6,6 @@ public interface GraphicsContext {
 
 	void fillRectangle(int x, int y, int w, int h, int col);
 
-	Horizon loadHorizon(Openable ho);
-
 	Blitable createBlitable(SimpleImage i);
 
 	BlocksHolder createBlocksHolder(BlockSource bs);
@@ -18,7 +16,9 @@ public interface GraphicsContext {
 	int screenWidth();
 
 	int screenHeight();
+	
+	
+	Horizon loadHorizon(Openable ho);
 
-	void antiCircle(int radius, int x, int y, int c);
-
+	void aperture(int radius, int x, int y, int c);
 }

@@ -209,6 +209,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int levelNumber;
 
+	private Aperture antiCircle;
+
 	// ---------------------------------------------------------------------------
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
@@ -219,6 +221,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		this.mouse = mouse;
 
 		initFonts();
+		antiCircle = new Aperture(gc);
 
 		AlienInfoMap aim = new AlienInfoMap();
 
@@ -305,10 +308,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	/**
 	 * What is there?
 	 * 
-	 * @param collisionBox
+	 * @param c
 	 *            The pixel location being queried.
 	 * @return The kind of block that is there. e.g. "magic" or "ladder" or any
-	 *         text string used in the configuration of a
+	 *         text string used in the configuration of the
 	 *         {@link BlockInformation} object.
 	 */
 	private String getBlockInfo(Coord c) {
@@ -801,16 +804,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 						drawTheMap();
 						updateAliens(false);
 						drawHud();
-
+						antiCircle.update();
+						antiCircle.draw();
+						
 						// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
 						// 0xff000000);
 						// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
 						// 0xff000000);
-
-						// int radius = 160;
-						// int cx = player.c.x - scr.position().x;
-						// int cy = player.c.y - scr.position().y;
-						// gc.antiCircle(radius, cx, cy, 0xff000000);
 
 					}
 				}

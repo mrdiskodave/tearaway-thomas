@@ -76,7 +76,7 @@ public class GlGraphicsContext implements GraphicsContext {
 	}
 	
 	@Override
-	public void antiCircle(int radius, int x, int y, int c) {
+	public void aperture(int radius, int x, int y, int c) {
 		int w = screenWidth();
 		int h = screenHeight();
 		int steps = Math.max(10, radius / 15);
