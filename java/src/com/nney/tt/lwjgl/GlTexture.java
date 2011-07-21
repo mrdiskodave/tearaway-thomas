@@ -4,8 +4,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.nney.tt.gfx.SimpleImage;
+import com.nney.utils.mbr.MustBeReleased;
 
 public class GlTexture {
+	private MustBeReleased mbr = new MustBeReleased(); 
 	private int textureId;
 	private int textureW;
 	private int textureH;
@@ -85,6 +87,7 @@ public class GlTexture {
 
 	public void dispose() {
 		GL11.glDeleteTextures(textureId);
+		mbr.release();
 	}
 
 	public int getWidth() {

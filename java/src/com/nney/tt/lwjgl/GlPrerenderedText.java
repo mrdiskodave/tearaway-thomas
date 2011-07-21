@@ -3,8 +3,10 @@ package com.nney.tt.lwjgl;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.gfx.PrerenderedText;
+import com.nney.utils.mbr.MustBeReleased;
 
 public class GlPrerenderedText implements PrerenderedText {
+	private MustBeReleased mbr = new MustBeReleased(); 
 	private final int width;
 	private final int id;
 	private final int height;
@@ -36,5 +38,6 @@ public class GlPrerenderedText implements PrerenderedText {
 	@Override
 	public void dispose() {
 		GL11.glDeleteLists(id, 1);
+		mbr.release();
 	}
 }

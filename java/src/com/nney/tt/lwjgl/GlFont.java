@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.PartialFontImpl;
 import com.nney.tt.gfx.PrerenderedText;
+import com.nney.utils.mbr.MustBeReleased;
 
 public class GlFont extends PartialFontImpl {
 	public GlFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
@@ -15,7 +16,7 @@ public class GlFont extends PartialFontImpl {
 
 	@Override
 	public void dispose() {
-		texture.dispose();
+		if (texture!=null) texture.dispose();
 	}
 
 	@Override

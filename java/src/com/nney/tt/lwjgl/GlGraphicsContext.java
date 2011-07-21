@@ -77,25 +77,41 @@ public class GlGraphicsContext implements GraphicsContext {
 	
 	@Override
 	public void aperture(int radius, int x, int y, int c) {
+		GlTools.configureFor2dRect(c);
+
 		int w = screenWidth();
 		int h = screenHeight();
-		int steps = Math.max(10, radius / 15);
-		GlTools.configureFor2dRect(c);
+		int steps = Math.max(12, radius / 15);
 
 		int[] v = new int[(steps + 2) * 2];
 		int p = 0;
 		v[p++] = radius;
 		v[p++] = radius;
-		for (int a = 0; a < steps + 1; a++) {
+		v[p++] = radius;
+		v[p++] = 0;
+		for (int a = 1; a <= steps; a++) {
 			double angle = ((Math.PI / 2.0) * a) / steps;
-			v[p++] = (int) (Math.cos(angle) * radius);
-			v[p++] = (int) (Math.sin(angle) * radius);
+			int vx = (int) (Math.round(Math.cos(angle) * radius));
+			int vy = (int) (Math.round(Math.sin(angle) * radius));
+			v[p++] = vx;
+			v[p++] = vy;
 		}
-
+		// it gets pointy at the top bottom left and right
+		// because cos and sin truncated spikes into one just at 0deg only
+		// the Math.round is there to stop that.
+		
+//		for (int a = 0; a <= steps; a++) {
+//			System.out.println(String.format("%s,%s,%s", a, v[a*2], v[a*2+1]));
+//		}
+//		System.out.println("---");
+		
+		// TODO: teach it to GL then replay it under different rotations?
 		drawFan(v, x, y, 1, 1);
 		drawFan(v, x, y, -1, 1);
 		drawFan(v, x, y, 1, -1);
 		drawFan(v, x, y, -1, -1);
+
+//		GlTools.configureFor2dRect(0xffff0000);
 
 		// everything above
 		boxFill(0, 0, w, y - radius);
