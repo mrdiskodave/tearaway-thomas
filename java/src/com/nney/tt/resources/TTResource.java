@@ -49,6 +49,10 @@ public class TTResource {
 	public static Openable spriteDef(String spriteName) {
 		return TTResource.formatted("anims/%s/def.txt", spriteName);
 	}
+	
+	public static Openable sound(String s) {
+		return TTResource.formatted("sounds/%s", s);
+	}
 
 	public static Openable horizon(int name) {
 		return TTResource.formatted("horizons/%d.png", name);
