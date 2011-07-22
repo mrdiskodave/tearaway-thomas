@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.nney.tt.World.SpriteRecord;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
@@ -209,7 +208,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int levelNumber;
 
-	private Aperture aperture;
+	private Curtain aperture;
 
 	// ---------------------------------------------------------------------------
 
@@ -221,7 +220,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		this.mouse = mouse;
 
 		initFonts();
-		aperture = new Aperture(gc);
+		aperture = new Fade(gc);
 
 		AlienInfoMap aim = new AlienInfoMap();
 
@@ -739,6 +738,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	public void updateEverything() {
+		System.gc();
 		if (usingMapper) {
 			mapper.run();
 		}
@@ -768,8 +768,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 						for (SpriteRecord sr : pauseRecording) {
 							drawSprite(sr.c, sr.s, sr.drawInWhite);
 						}
-						drawHud();
 						aperture.draw();
+						drawHud();
 
 						if (k == Keyboard.KEY_P) {
 							paused = false;
@@ -804,19 +804,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 						horizon.draw();
 						drawTheMap();
 						updateAliens(false);
-						drawHud();
 						
 						aperture.update();
 						aperture.draw();
 
-						if (aperture.isDone()) {
-							if (aperture.isOpen()) {
-								aperture.close();
-							}
-							else {
-								aperture.open();
-							}
-						}
+						bounceAperture();
+						
+						drawHud();
 						
 						// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
 						// 0xff000000);
@@ -838,6 +832,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 					gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 				}
 			}
+		}
+	}
+
+	private void bounceAperture() {
+		// bounce the aperture
+		if (aperture.isDone()) {
+			int s = aperture.target();
+			aperture.target(s^(Curtain.OPEN^Curtain.CLOSED));
 		}
 	}
 

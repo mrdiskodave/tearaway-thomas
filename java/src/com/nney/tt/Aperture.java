@@ -2,8 +2,12 @@ package com.nney.tt;
 
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.GraphicsContext;
+import com.nney.utils.Math2;
 
-public class Aperture {
+/**
+ * Hide the screen contents with an aperture that closes around the screen from the outside in.
+ */
+public class Aperture implements Curtain {
 	private final GraphicsContext gc;
 
 	private Coord centre;
@@ -14,16 +18,14 @@ public class Aperture {
 	 */
 	private int radius;
 
-	/**
-	 * <code>1</code> it is growing. <code>-1</code> it is shrinking.
-	 * <code>0</code> it is just sitting there.
-	 */
-	private int direction;
+	private int targetRadius;
 
 	/**
 	 * How big does the Aperture need to get before you cannot see it?
 	 */
 	private int maxRadius;
+
+	private int targetState;
 
 	private long squareDistance(Coord a, Coord b) {
 		int xd = a.x - b.x;
@@ -34,33 +36,17 @@ public class Aperture {
 	public Aperture(GraphicsContext gc) {
 		this.gc = gc;
 		setCentre(new Coord(gc.screenWidth()/2, gc.screenHeight()/2));
-		open();
+		current(OPEN);
+		target(OPEN);
 	}
 
-	synchronized public void update() {
+	@Override
+	public void update() {
 		radius = Math.min(radius, maxRadius);
-		if (direction != 0) {
-			if (direction > 0) {
-				// expand
-				if (radius >= maxRadius) {
-					direction = 0;
-				}
-				else {
-					radius++;
-				}
-			}
-			else {
-				if (radius == 0) {
-					direction = 0;
-				}
-				else {
-					radius--;
-				}
-			}
-		}
+		radius = Math2.closer(radius, targetRadius, 1);
 	}
 
-	synchronized public void setCentre(Coord centre) {
+	public void setCentre(Coord centre) {
 		this.centre = centre.copy();
 
 		// work out a derived value
@@ -80,24 +66,9 @@ public class Aperture {
 		radius = maxRadius;
 	}
 	
-	synchronized void setClosed() {
-		radius = maxRadius;
-	}
 	
-	synchronized void setOpen() {
-		radius = 0;
-	}
-	
-	synchronized void open() {
-		direction = 1;
-	}
-
-	synchronized void close() {
-		direction = -1;
-	}
-
-	
-	synchronized public void draw() {
+	@Override
+	public void draw() {
 		if (radius != Integer.MAX_VALUE) {
 			if (radius == 0) {
 				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xff000000);
@@ -108,11 +79,29 @@ public class Aperture {
 		}
 	}
 
-	synchronized public boolean isDone() {
-		return direction == 0;
+	@Override
+	public void current(int state) {
+		radius = stateToRadius(state);
 	}
-	
-	synchronized public boolean isOpen() {
-		return radius>=maxRadius;
+
+	private int stateToRadius(int state) {
+		if (state==OPEN) return maxRadius;
+		return 0;
+	}
+
+	@Override
+	public void target(int state) {
+		targetRadius = stateToRadius(state);
+		targetState = state;
+	}
+
+	@Override
+	public int target() {
+		return targetState;
+	}
+
+	@Override
+	public boolean isDone() {
+		return radius==targetRadius;
 	}
 }
