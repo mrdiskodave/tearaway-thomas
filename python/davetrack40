@@ -1,0 +1,3683 @@
+**** Movin' 'n' Groovin'  ©1992 David Hanney  ****
+
+	opt	c-
+
+slide	MACRO	\1==>\2  in steps of \3 (UNSIGNED)
+	sub.\0	\2,\1
+	bcs.s	C1up\@
+	sub.\0	\3,\1
+	bcc.s	Cdone\@
+	bra.s	Cok\@
+C1up\@	add.\0	\3,\1
+	bcc.s	Cdone\@
+Cok\@	moveq	#0,\1
+Cdone\@	add.\0	\2,\1
+	ENDM
+
+num_bytes=20*1024
+num_instr=60
+num_seq=256
+num_blk=100
+num_note=70
+
+;0       end chanel
+;1-79    note
+;80-139  instr
+;140-155 fx
+;156-255 pause
+
+SIseqlen=0	W
+SIblk_cnt=2	W
+SIclickfresh=4	W
+SIsize=10
+
+	bra	start
+
+title	dc.b	"Movin' 'n' Groovin'    "
+	dc.b	"©1992 David Hanney    "
+	dc.b	"Coded for ESD!",0
+	even
+
+aud0	=$0A0
+aud1	=$0B0
+aud2	=$0C0
+aud3	=$0D0
+
+ac_ptr	=$00
+ac_len	=$04
+ac_per	=$06
+ac_vol	=$08
+ac_dat	=$0A
+ac_SIZE	=$10
+
+Xctrl	=%00000011*256
+Xshift	=%00001100*256
+Xalt	=%00110000*256
+Xnumpad	=%11000000*256
+
+Kup=128
+Kdown=129
+Kleft=130
+Kright=131
+Kfunc=140
+Kesc=200
+Kbck=201
+Ktab=202
+Kdel=203
+Khelp=204
+Kret=205
+
+
+; DOS CALLS
+Open	=-30
+Read	=-42
+Write	=-48
+Close	=-36
+Seek	=-66
+DelFile	=-72
+Lock	=-84
+UnLock	=-90
+Examine	=-102
+ExNext	=-108
+IoErr	=-132
+CurDir	=-120
+delay	=-$c6
+
+;EXEC CALLS
+xopenres=-$1f2
+xopen	=-408
+xclose	=-414
+xalloc	=-198
+xfree	=-210
+
+wait_port	=-$180
+get_msg		=-$174
+reply_msg	=-$17a
+availmem	=-$d8
+forbid		=-$84
+permit		=-$8a
+
+; INTUITION CALLS
+open_screen	=-$c6
+close_screen	=-$42
+open_window	=-$cc
+close_window	=-$48
+view_port_adr	=-$12c
+setmenustrip	=-$108
+clearmenustrip	=-$36
+itemaddr	=-$90
+refreshgadgets	=-$de
+activategadget	=-$1ce
+displaybeep	=-$60
+
+;graphics base calls
+move		=-$f0
+text		=-$3c
+loadRGB4	=-$c0
+WaitTOF		=-$10e
+setApen		=-$156
+setBpen		=-$15c
+setDRmd		=-$162
+scrollraster	=-$18c
+showtitle	=-$11a
+rectfill	=-$132
+
+mode_read	=1005
+mode_write	=1006
+
+BLKclicks=0	W	phycnt
+BLKdata=2	12s
+
+ClickSIZE=12
+
+CB	=$dff000
+
+bmapbase	=192
+user_port	=86
+rport		=50
+class		=20
+code		=24
+iaddress	=28
+nextselect	=32
+
+user_code	=34
+
+gadgetdown	=$20
+gadgetup	=$40
+menupick	=$100
+closewindow	=$200
+vanillakey	=$200000
+
+xp=80
+
+view_x=4
+view_y=10
+view_ys=17
+view_yc=(view_ys-1)/2
+
+seq_x=53
+seq_y=24
+seq_ys=6
+seq_yc=(seq_ys-1)/2
+
+i_x=0
+i_y=2
+
+;is_x=61
+;is_y=2
+
+
+
+
+
+IfKey	MACRO
+	cmp.w	#\1,d0
+	beq	\2
+	ENDM
+
+start
+	lea	start_0f,a1
+	lea	end_0f,a2
+	bsr	clra1a2
+
+	lea	font,a0
+	tst.b	8*32(a0)
+	bne	NOTed_font
+
+	move.w	#2048-1,d7
+not_font
+	not.b	(a0)+
+	dbf	d7,not_font
+
+NOTed_font
+
+	bsr	reset_player
+
+	move.l	4.w,a6
+	move.l	a7,stack_store
+
+	lea	LIBint,a1
+	jsr	xopen(a6)		open intuition
+	move.l	d0,intbase
+
+	lea	LIBgra,a1
+	jsr	xopen(a6)		open graphics
+	move.l	d0,grabase
+
+	lea	LIBdos,a1
+	jsr	xopen(a6)		open dos
+	move.l	d0,dosbase
+
+	lea	LIBarp,a1
+	jsr	xopen(a6)		open ARP
+	move.l	d0,arpbase
+	; TODO: FAIL??
+
+	lea	REScia,a1
+	moveq	#0,d0
+	jsr	xopenres(a6)
+	move.l	d0,ciabase
+	move.l	ciabase,a6
+	lea	int_node,a1
+	moveq	#0,d0
+ciatst	jsr	-6(a6)
+	tst.l	d0
+;	TODO:
+;	bne	application_conflict
+	bsr	setcia
+
+	move.l	intbase,a6
+	lea	new_screen,a0
+	jsr	open_screen(a6)		open screen
+	move.l	d0,screen
+	; TODO: FAIL??
+
+	move.l	d0,a0
+	lea	44(a0),a1
+	move.l	a1,vport
+	lea	84(a0),a1
+	move.l	a1,rastport
+
+	movem.l	bmapbase(a0),a3/a4
+	lea	80*11(a3),a3
+	lea	80*11(a4),a4
+	movem.l	a3/a4,BPadr1
+
+	lea	new_window(pc),a0
+	move.l	screen,30(a0)
+	jsr	open_window(a6)		open window
+	move.l	d0,window
+	move.l	d0,arp_win
+	; TODO: FAIL??
+
+	lea	cmap0,a1
+	bsr	set_colours
+	bsr	get_picture
+
+	bsr	draw_speeds
+
+	lea	cmap1,a1
+	bsr	set_colours
+
+	lea	default_songdir,a0
+	lea	songdir,a1
+	bsr	copy0t
+
+	lea	default_instrdir,a0
+	lea	instrdir,a1
+	bsr	copy0t
+
+	move.l	#500000,d7
+time	subq.l	#1,d7
+	bne.s	time
+
+	lea	pagebuff,a1
+	lea	40*view_ys(a1),a2
+	move.w	#32+128,d0
+	bsr	filla1a2
+	moveq	#view_x,d2
+	moveq	#view_y,d3
+	moveq	#40-1,d6
+	moveq	#view_ys-1,d7
+	lea	pagebuff,a0
+	bsr	slam_box2
+
+	bsr	reset_song
+
+	st	redraw_flag
+	bsr	redraw_all
+
+	move.l	a7,error_stack
+	move.l	#after_command,error_jmp
+
+
+after_command
+	st	redraw_flag
+nextmsg
+	bsr	unlock_vars
+	move.l	window,a0
+	move.l	user_port(a0),a0
+	bsr	wait_for_message
+	bsr	lock_vars
+
+	bsr	mykeys
+	beq	nextmsg
+
+	cmp.b	#$f8,d0
+	beq	mouse_but
+	cmp.b	#$f9,d0
+	beq	mouse_but
+
+	bsr	send_to_all
+	bra	after_command
+
+mouse_but
+	; d0=key
+
+	movem.w	mouse_x,d2/d3
+	lsr.w	#3,d2
+	lsr.w	#3,d3
+
+	move.b	d0,d1
+	moveq	#-1,d0
+
+	lea	hotspots_playon-12,a0
+
+	tst.b	play_mode
+	bne.s	next_mtst
+	lea	hotspots_playoff-12,a0
+next_mtst
+	lea	12(a0),a0
+	addq.l	#1,d0
+	tst.w	(a0)
+	bmi	nextmsg
+
+	move.w	d2,d4
+	sub.w	(a0),d4
+	bcs.s	next_mtst
+	cmp.w	4(a0),d4
+	bcc.s	next_mtst
+
+	move.w	d3,d5
+	sub.w	2(a0),d5
+	bcs.s	next_mtst
+	cmp.w	6(a0),d5
+	bcc.s	next_mtst
+
+
+	; a0=hotspot adr
+	; d0=hotspot number
+	; d4=x pos
+	; d5=y pos
+	cmp.b	#$f9,d1
+	beq	jmp_rmb
+
+	move.w	8(a0),d7
+	bra.s	do_mouse
+jmp_rmb	move.w	10(a0),d7
+do_mouse
+	jsr	(a0,d7.w)
+	bra	after_command
+
+
+
+hotspots_playoff
+	dc.w	04,08,04,02,EDadd_block-*,anRTS-*
+	dc.w	08,08,04,02,EDkill_block-*,anRTS-*
+	dc.w	08,00,04,02,EDkill_instr-*,anRTS-*
+
+hotspots_playon
+	; x,y,width,hieght
+	; LMBjmp,RMBjmp
+
+HSctog	dc.w	24,08,16,02,tog_chan-*,anRTS-*
+
+	dc.w	12,08,04,02,next_blk-*,anRTS-*
+	dc.w	16,08,04,02,last_blk-*,anRTS-*
+
+	dc.w	12,00,04,02,instr_up-*,anRTS-*
+	dc.w	16,00,04,02,instr_down-*,anRTS-*
+	dc.w	44,24,04,02,seq_up-*,seq_top-*
+	dc.w	48,24,04,02,seq_insert-*,anRTS-*
+	dc.w	44,26,04,02,seq_down-*,seq_bot-*
+	dc.w	48,26,04,02,seq_delete-*,anRTS-*
+	dc.w	44,28,04,02,seq_dec-*,seq_select-*
+	dc.w	48,28,04,02,seq_inc-*,seq_select-*
+
+	dc.w	40,00,04,02,save_instr-*,anRTS-*
+	dc.w	44,00,04,02,load_instr-*,anRTS-*
+	dc.w	40,08,04,02,save_song-*,anRTS-*
+	dc.w	44,08,04,02,load_song-*,anRTS-*
+;	dc.w	74,00,04,02,quit-*,anRTS-*
+
+	dc.w	04,28,04,02,play_song-*,contplay-*
+	dc.w	08,28,04,02,play_block-*,anRTS-*
+	dc.w	12,28,04,02,play_stop-*,anRTS-*
+	dc.w	16,28,04,02,scroll_up-*,far_up-*
+	dc.w	20,28,04,02,scroll_down-*,far_down-*
+HSetog	dc.w	24,28,04,02,edit_tog-*,anRTS-*
+HSoct	dc.w	28,28,04,02,oct_up-*,oct_down-*
+	dc.w	32,28,04,02,spd1_down-*,spd1_up-*
+
+	dc.w	00,10,04,02,BO_cut-*,anRTS-*
+	dc.w	00,12,04,02,BO_paste-*,anRTS-*
+	dc.w	00,14,04,02,BO_fill-*,anRTS-*
+	dc.w	00,16,04,02,BO_clr-*,anRTS-*
+	dc.w	00,18,04,02,BO_tranup-*,anRTS-*
+	dc.w	00,20,04,02,BO_trandown-*,anRTS-*
+	dc.w	00,22,04,02,BS_none-*,anRTS-*
+	dc.w	00,24,04,02,BS_one-*,anRTS-*
+	dc.w	00,26,04,02,BS_all-*,anRTS-*
+	dc.w	-1
+
+
+***** RANGED BLOCK OPERATIONS ****
+
+get_range
+	; OUT	d2,d3=logical top left of range
+	;	d4,d5=logical size of range
+	;	d0=okay?
+	movem.w	mark_x,d4/d5
+	cmp.w	#$7fff,d5
+	beq	cant
+	movem.w	x_pos,d2/d3
+	divu	#4,d2
+
+	cmp.w	d4,d2
+	bls.s	big_d4
+	exg	d2,d4
+big_d4
+	cmp.w	d5,d3
+	bls.s	big_d5
+	exg	d5,d3
+big_d5
+	sub.w	d2,d4
+	sub.w	d3,d5
+	bra	okay
+
+
+BS_none	move.w	#$7fff,mark_y
+	rts
+
+BS_one	bsr	far_down
+	bsr	make_mark
+	bra	far_up
+
+BS_all	bsr	far_down
+	bsr	far_right
+	bsr	make_mark
+	bsr	far_up
+	bra	far_left
+
+
+BO_cut	bsr	get_range
+	beq	anRTS
+	movem.w	d4/d5,cut_xs
+	bsr	range_function
+	move.b	(a0),(a3)+
+	move.b	1(a0),(a3)+
+	move.b	2(a0),(a3)+
+	rts
+
+BO_paste
+	movem.w	x_pos,d2/d3
+	divu	#4,d2
+	add.w	cut_xs,d2
+	add.w	cut_ys,d3
+	cmp.w	#4,d2
+	bcc	ERpaste
+	cmp.w	y_max,d3
+	bhi	ERpaste
+	move.l	mark_x,-(a7)
+	movem.w	d2/d3,mark_x
+	bsr.s	BO_pastecall
+	move.l	(a7)+,mark_x
+	rts
+
+BO_pastecall
+	bsr	range_function
+	move.b	(a3)+,(a0)
+	move.b	(a3)+,1(a0)
+	move.b	(a3)+,2(a0)
+	rts
+
+BO_fill	bsr	range_function
+	move.b	(a2),(a0)
+	move.b	1(a2),1(a0)
+	move.b	2(a2),2(a0)
+	rts
+
+BO_clr	bsr	range_function
+	clr.b	(a0)
+	clr.b	1(a0)
+	clr.b	2(a0)
+	rts
+
+BO_trandown
+	bsr	range_function
+	cmp.b	#4,(a0)		0=empty 1=stop 2=rel 3=1st note
+	bcs	anRTS
+	subq.b	#1,(a0)
+	rts
+
+BO_tranup
+	bsr	range_function
+	cmp.b	#3,(a0)
+	bcs	anRTS
+	cmp.b	#num_note+2,(a0)
+	beq	anRTS
+	addq.b	#1,(a0)	
+	rts
+
+range_function
+	; IN	(a7)+=function to execute
+
+	; IN()	a0=note to operate on
+	;	a2=top left note
+	;	a3=CPS pointer
+	; uses	X d4/d5/a0
+
+	move.w	cur_block,d0
+	bsr	Qblk_adr
+
+	move.l	(a7)+,rangeSM+2
+	bsr	get_range
+	beq	anRTS
+
+	mulu	#ClickSIZE,d3
+	mulu	#3,d2
+	add.w	d2,d3
+	lea	BLKdata(a0,d3.w),a0
+	move.l	a0,a2
+	lea	CPS,a3
+
+rangeY
+	movem.l	d4/a0,-(a7)
+rangeX
+rangeSM	jsr	$deadc0de
+	addq.l	#3,a0
+	dbf	d4,rangeX
+	movem.l	(a7)+,d4/a0
+	lea	clicksize(a0),a0
+	dbf	d5,rangeY
+	rts
+
+
+
+
+
+
+
+
+
+spd1_up
+	subq.w	#1,clickfresh
+	bcc	draw_speeds
+	clr.w	clickfresh
+	rts
+
+spd1_down
+	cmp.w	#99,clickfresh
+	beq	anRTS
+	addq.w	#1,clickfresh
+draw_speeds
+	move.l	BPadr1,a1
+	lea	80*14*16+32(a1),a1
+	move.w	clickfresh,d0
+
+	lea	80*3(a1),a1
+	move.l	a1,a2
+	moveq	#10-1,d7
+clr_numstrip
+	and.b	#~%00001111,(a2)
+	and.b	#~%00111100,1(a2)
+	lea	80(a2),a2
+	dbf	d7,clr_numstrip
+
+	moveq	#99,d1
+	sub.w	d0,d1	
+	divu	#10,d1
+	move.w	d1,d0
+	swap	d1
+	mulu	#80,d0
+	mulu	#80,d1
+	or.b	#%00001111,(a1,d0.w)
+	or.b	#%00111100,1(a1,d1.w)
+	rts
+
+
+
+
+quit:	move.l	stack_store,a7
+
+	move.l	ciabase,a6
+	lea	int_node,a1
+	moveq	#0,d0
+	jsr	-12(a6)
+
+	bsr	reset_player
+	bsr	fclose
+
+	move.l	intbase,a6
+	move.l	window,a0
+	jsr	close_window(a6)
+	move.l	screen,a0
+	jsr	close_screen(a6)
+
+	move.l	4.w,a6
+	move.l	arpbase,a1
+	jsr	xclose(a6)		close ARP
+	move.l	dosbase,a1
+	jsr	xclose(a6)		close dos
+	move.l	grabase,a1
+	jsr	xclose(a6)		close graphics
+	move.l	intbase,a1
+	jsr	xclose(a6)		close intuition
+	rts
+
+
+
+set_colours
+	move.l	vport,a0
+	moveq	#4,d0
+	move.l	grabase,a6
+	jmp	loadRGB4(a6)
+
+reset_song
+	lea	ks,a0
+	move.l	#num_bytes,d0
+	bsr	ks_init
+
+	; reset sequence
+	move.l	#"SEQU",d0
+	move.l	#num_seq,d1
+	bsr	new_ks
+	move.l	a0,sequence
+	clr.b	(a0)
+	move.w	#1,seq_len
+
+	; alloc info block
+	move.l	#"INFO",d0
+	moveq	#SIsize,d1
+	bsr	new_ks
+
+	clr.w	blk_cnt
+	moveq	#64,d1
+	bsr	ABselect
+	rts
+
+
+**** ERROR HANDLER ****
+
+ERpaste
+	bsr	eh
+	dc.b	"No room to paste there!",0
+	even
+ERfile	bsr	eh
+	dc.b	"File Error!",0
+	even
+ERss	bsr	eh
+	dc.b	"Can only save synth-sounds!",0
+	even
+ERmem	bsr	eh
+	dc.b	"Out of memory!",0
+	even
+ERitype	bsr	eh
+	dc.b	"Not a valid instrument file!",0
+	even
+ERstype	bsr	eh
+	dc.b	"It's not one of my songs!",0
+	even
+ERdone	bsr	eh
+	dc.b	"NOT CODED YET!",0
+	even
+ERnothing
+	bsr	eh
+	dc.b	"Nothing to save!",0
+	even
+
+eh	move.l	(a7)+,status_overide
+	bsr	fclose
+	move.l	error_stack,a7
+	move.l	error_jmp,a0
+	jmp	(a0)
+
+
+**** KEY ==> TRACKER BYTES ****
+
+find_note
+	; IN	d0=note key
+	;	d1=note number
+	;	d0=okay?
+
+	lea	piano_keys,a0
+
+	moveq	#0,d1
+	cmp.w	#Kdel,d0
+	beq	okay
+
+	moveq	#1,d1
+	cmp.w	#Xctrl+'s',d0
+	beq	okay
+
+	moveq	#2,d1
+	cmp.w	#Xctrl+'r',d0
+	beq	okay
+
+fnloop	move.b	(a0)+,d1
+	move.b	(a0)+,d2
+	beq	cant
+	cmp.b	d0,d2
+	bne.s	fnloop
+	move.w	octave,d2
+	mulu	#clicksize,d2
+	add.w	d2,d1
+	cmp.w	#num_note,d1
+	bcc	cant
+	addq.w	#3,d1
+	bra	okay
+
+ans0	moveq	#0,d1
+	bra	okay
+
+find_hexit
+	cmp.w	#Kdel,d0
+	beq.s	ans0
+	bsr	upcase
+	moveq	#16-1,d7
+	bra.s	hexit_search
+
+find_instr
+	; IN	d0=instrument character
+	; OUT	d1=instrument number
+	;	d0=okay?
+	moveq	#num_instr-1,d7
+hexit_search
+	lea	hexits,a0
+	moveq	#-1,d1
+fi	addq.w	#1,d1
+	cmp.b	(a0)+,d0
+	dbeq	d7,fi
+	bne	cant
+	bra	okay
+
+***** SEQUENCE MANAGER *****
+
+Qseq_adr
+	move.l	sequence,a0
+	add.w	seq_pos,a0
+	rts
+
+ABselect
+	; IN	d1=clicks
+	move.w	d1,d5
+	mulu	#clicksize,d1
+	addq.l	#2,d1
+	move.l	#"BLK?",d0
+	move.b	blk_cnt+1,d0
+	bsr	new_ks
+	move.w	d5,(a0)
+	move.w	blk_cnt,d0
+	bsr	select_block
+	addq.w	#1,blk_cnt
+	bra	okay
+
+select_block
+	; IN	d0=block num
+	move.w	d0,cur_block
+	bsr	Qblk_adr
+	move.w	(a0),d0
+	subq.w	#1,d0
+	move.w	d0,y_max
+	clr.w	y_pos
+	bsr	BS_none
+	rts
+
+Qblk_adr
+	; IN	d0.w=block_number
+	; OUT	a0=blk adr
+	;	d0=okay
+	ext.l	d0
+	add.l	#"BLK"*256,d0
+	bsr	find_ks
+	rts
+
+Qinstr_adr
+	; IN	d0.w=instr number
+	;	d0=exists?
+	ext.l	d0
+	add.l	#"INS"*256,d0
+	bsr	find_ks
+	rts
+
+
+
+Qinstr_value
+	; IN	d0=pos in instrument structure
+
+	sub.w	#Idata,d0
+	move.w	d0,d1
+	cmp.w	#32,d0
+	bcs	Qiv_inloop
+	sub.w	#32,d0
+	cmp.w	#16,d0
+	bcs	Qiv_intone
+	sub.w	#16,d0
+
+	lea	instr_values,a0
+Qivfind	bsr	skip0T
+	dbf	d0,Qivfind
+	bra	copy0t
+
+Qiv_intone
+	lea	IVtone,a0
+	bra.s	got_ivstr
+Qiv_inloop
+	lea	IVloop,a0
+got_ivstr
+	move.l	a1,-(a7)
+	lea	11(a0),a1
+	ext.l	d1
+	moveq	#2-2,d7
+	bsr	dec_out
+	move.l	(a7)+,a1
+	bra	copy0t
+
+
+send_to_all
+	IfKey	Kfunc+1,oct_up
+	IfKey	Kfunc+2,oct_down
+	IfKey	Kfunc+3,edit_tog
+	IfKey	Kfunc+4,instr_up
+	IfKey	Kfunc+5,instr_down
+	IfKey	Kesc+Xalt,quit
+
+	; left and right
+	lea	left_right,a0
+	IfKey	Kleft,xpm
+	lea	16(a0),a0
+	IfKey	Kright,xpm
+	lea	16(a0),a0
+	IfKey	Kleft+Xshift,xpm
+	lea	16(a0),a0
+	IfKey	Kright+Xshift,xpm
+	lea	16(a0),a0
+;	IfKey	Kleft+Xctrl,xpm
+	lea	16(a0),a0
+;	IfKey	Kright+Xctrl,xpm
+	IfKey	Kleft+Xalt,far_left
+	IfKey	Kright+Xalt,far_right
+	IfKey	32,play_stop
+
+	; up and down
+	IfKey	Kup,scroll_up
+	IfKey	Kdown,scroll_down
+	IfKey	Kup+Xalt,far_up
+	IfKey	Kdown+Xalt,far_down
+	IfKey	Kup+Xshift,page_up
+	IfKey	Kdown+Xshift,page_dn
+
+	IfKey	Ktab,make_mark
+
+	tst.b	play_mode
+	bne	edit_key
+
+	; add block
+	IfKey	'i'+Xctrl,EDadd_block
+	IfKey	Kdel+Xctrl,EDkill_block
+	IfKey	Kfunc+6,next_blk
+	IfKey	Kfunc+7,last_blk
+	IfKey	32+Xshift,play_song
+	IfKey	32+Xalt,play_block
+
+	move.w	d0,d1
+	and.w	#$ff00,d1
+	cmp.w	#Xctrl,d1
+	beq	instr_keys
+
+edit_key
+	; IN	d0=keypress
+
+	; editting
+	tst.b	edit_mode
+	beq	make_sound
+
+	tst.b	play_mode
+	bne	real_time_edit
+
+	bsr	Qline_adr
+	move.w	x_pos,d1
+
+	bsr	do_RTedit
+	beq	anRTS
+	move.w	after_edit,d0		<<MUST NOT RECURSE!
+	bra	send_to_all
+
+real_time_edit
+	move.w	x_pos,d1
+	move.w	d1,RTedit_x_pos
+	divu	#4,d1
+	swap	d1
+	move.w	clicktick,RTedit_tick
+	move.w	d0,RTedit_key
+	tst.w	d1
+	beq	make_sound
+	rts
+
+Qline_adr
+	movem.l	d0-d7/a0/a2-a6,-(a7)
+	move.w	cur_block,d0
+	bsr	Qblk_adr
+	move.l	a0,a1
+	move.w	y_pos,d0
+	mulu	#clicksize,d0
+	addq.l	#BLKdata,d0
+	add.l	d0,a1
+	movem.l	(a7)+,d0-d7/a0/a2-a6
+	rts
+
+
+do_RTedit
+	; IN	d0=keypress
+	;	d1=xpos
+	;	a1=dest line
+	; OUT	d0=edit okay?
+
+
+	ext.l	d1
+	divu	#4,d1
+	move.l	d1,d2
+	mulu	#3,d1
+	add.w	d1,a1
+	swap	d2
+	move.w	d2,d3
+	lsl.w	#2,d3
+
+	jmp	chan_edit(pc,d3)
+
+chan_edit
+	bra	edit_note	0
+	bra	edit_instr	1
+	bra	edit_fx1	2
+	bra	edit_fx2	3
+
+edit_note
+	bsr	make_sound
+	beq	cant
+	move.b	instr+1,1(a1)
+	move.b	d1,(a1)
+	bne.s	noclrrest
+	move.b	d1,1(a1)
+	move.b	d1,2(a1)
+noclrrest
+	bra	okay
+
+edit_instr
+	bsr	find_instr
+	beq	cant
+	move.b	d1,1(a1)
+	bra	okay
+
+edit_fx1
+	bsr	find_hexit
+	beq	cant
+	lsl.w	#4,d1
+	and.b	#$0f,2(a1)
+	or.b	d1,2(a1)
+	bra	okay
+
+edit_fx2
+	bsr	find_hexit
+	beq	cant
+	and.b	#$f0,2(a1)
+	or.b	d1,2(a1)
+	bra	okay
+
+make_sound
+	; just make the noise
+	; IN	d0=keypress
+	; OUT	d1=note number
+	;	d0=okay?
+	bsr	find_note
+	beq	cant
+	tst.b	make_sound_off
+	bne	okay
+	move.b	d1,NHTbyte1
+	move.b	instr+1,NHTbyte2
+	move.w	x_pos,d2
+	divu	#4,d2
+	addq.b	#1,d2
+	move.b	d2,NHTchan
+	bra	okay
+
+
+***** BLOCK KEYS *****
+
+
+make_mark
+	move.w	x_pos,d0
+	divu	#4,d0
+	move.w	d0,mark_x
+	move.w	y_pos,mark_y
+	rts
+
+
+
+EDlonger
+	rts
+
+EDshorter
+	rts
+
+play_song
+	clr.w	seq_pos
+	bsr	seq_select
+contplay
+	st	seq_adv
+	bra.s	play
+play_block
+	sf	seq_adv
+play	clr.w	clicktick
+	st	play_start
+	st	play_mode
+	move.w	#-1,y_pos_played
+	rts
+
+play_stop
+	sf	play_mode
+	st	pr_strobe
+	rts
+
+
+EDkill_block
+	; last block?
+	cmp.w	#1,blk_cnt
+	beq	anRTS
+
+	; is it in the sequence?
+	move.l	sequence,a0
+	move.w	seq_len,d7
+	subq.w	#1,d7
+tstkb	move.b	(a0)+,d1
+	ext.w	d1
+	cmp.w	cur_block,d1
+	dbeq	d7,tstkb
+	bne.s	sequence_fine
+	sub.l	sequence,a0
+	subq.l	#1,a0
+	move.w	a0,seq_pos
+	rts
+
+sequence_fine
+	move.w	cur_block,d0
+	ext.l	d0
+	add.l	#"BLK"*256,d0
+	bsr	delete_ks
+
+renumber_blocks
+	addq.b	#1,d0
+	cmp.b	blk_cnt+1,d0
+	beq.s	renubered_blocks
+	move.l	d0,-(a7)
+	bsr	find_ks
+	move.l	(a7)+,d0
+	subq.b	#1,-5(a0)
+	bra.s	renumber_blocks
+
+renubered_blocks
+	subq.w	#1,blk_cnt
+
+	; renumber sequence
+	move.w	cur_block,d0
+	move.l	sequence,a0
+	move.w	seq_len,d7
+	subq.w	#1,d7
+upseq	move.b	(a0),d1
+	cmp.b	d0,d1
+	bcs.s	no_dec_seq
+	subq.w	#1,d1
+no_dec_seq
+	move.b	d1,(a0)+
+	dbf	d7,upseq
+
+	cmp.w	blk_cnt,d0
+	bne	select_block
+	subq.w	#1,d0
+	bra	select_block
+
+EDadd_block
+	; TODO: messages?
+	move.w	y_max,d1
+	addq.w	#1,d1
+	bsr	ABselect
+	rts
+
+last_blk
+	move.w	cur_block,d0
+	beq	anRTS
+	subq.w	#1,d0
+	bra	select_block
+
+next_blk
+	move.w	cur_block,d0
+	addq.w	#1,d0
+	cmp.w	blk_cnt,d0
+	bne	select_block
+	rts
+
+EDkill_instr
+	move.w	instr,d0
+	ext.l	d0
+	add.l	#"INS"*256,d0
+	bsr	delete_ks
+	rts
+
+**** SCROLLING ****
+
+page_up	sub.w	#8,y_pos
+	bcs	far_up
+	rts
+
+page_dn	add.w	#8,y_pos
+	move.w	y_pos,d0
+	cmp.w	y_max,d0
+	bcc	far_down
+	rts
+
+far_up	clr.w	y_pos
+	rts
+far_down
+	move.w	y_max,y_pos
+	rts
+far_left
+	clr.w	x_pos
+	rts
+far_right
+	move.w	#12,x_pos
+	rts
+
+
+scroll_up
+	subq.w	#1,y_pos
+	bcs	far_down
+	rts
+
+scroll_down
+	move.w	y_max,d0
+	cmp.w	y_pos,d0
+	beq	far_up
+	addq.w	#1,y_pos
+	rts
+
+
+
+
+***** SEQUENCE KEYS ***** (from mouse)
+
+seq_insert
+	cmp.w	#num_seq,seq_len
+	beq	anRTS
+	addq.w	#1,seq_len
+	bsr	Qseq_adr
+	move.l	sequence,a1
+	lea	num_seq-1(a1),a1
+sdoi	move.b	-(a1),1(a1)
+	cmp.l	a1,a0
+	bne.s	sdoi
+	rts
+
+seq_delete
+	move.w	seq_len,d0
+	subq.w	#1,d0
+	beq	anRTS
+	move.w	d0,seq_len
+
+	bsr	Qseq_adr
+	addq.l	#1,a0
+	move.l	sequence,a1
+	lea	num_seq(a1),a1
+	bra.s	sdodgo
+
+sdod	move.b	(a0)+,-2(a0)
+sdodgo	cmp.l	a1,a0
+	bne.s	sdod
+	cmp.w	seq_pos,d0
+	bne	anRTS
+	subq.w	#1,seq_pos
+	rts
+
+
+seq_up	tst.w	seq_pos
+	beq	seq_select
+	subq.w	#1,seq_pos
+	bra	seq_select
+
+seq_down
+	move.w	seq_pos,d0
+	addq.w	#1,d0
+	cmp.w	seq_len,d0
+	beq	seq_select
+	move.w	d0,seq_pos
+	bra	seq_select
+
+
+seq_top	clr.w	seq_pos
+	bra	seq_select
+
+seq_bot	move.w	seq_len,d0
+	subq.w	#1,d0
+	move.w	d0,seq_pos
+	bra	seq_select
+
+seq_dec
+	bsr	Qseq_adr
+	tst.b	(a0)
+	beq	anRTS
+	subq.b	#1,(a0)
+	bra.s	seq_select
+
+seq_inc	bsr	Qseq_adr
+	move.b	(a0),d0
+	addq.b	#1,d0
+	cmp.b	blk_cnt+1,d0
+	beq	anRTS
+	move.b	d0,(a0)
+
+seq_select
+	; RT!
+	bsr	Qseq_adr
+	move.b	(a0),d0
+	ext.w	d0
+	bra	select_block
+
+load_song
+	lea	LoadS,a0
+	lea	songdir,a1
+	bsr	get_filename
+	beq	anRTS
+
+	lea	filename,a0
+	bsr	Fopenin
+	bsr	Fgetlen
+	cmp.l	ks_size,d0
+	bhi	ERmem
+
+	bsr	read_header
+	cmp.l	#"DSNG",d0
+	bne	ERstype
+
+	move.l	ks_ptr,a1
+	bsr	Freadmax
+	sub.l	ks_ptr,a1
+	move.l	a1,ks_used
+
+	bsr	Fclose
+
+	move.l	#"INFO",d0
+	bsr	find_ks
+	move.w	SIseqlen(a0),seq_len
+	move.w	SIblk_cnt(a0),blk_cnt
+	move.w	SIclickfresh(a0),clickfresh
+
+	moveq	#0,d0
+	bsr	select_block
+	clr.w	seq_pos
+	clr.w	instr
+	bsr	draw_speeds
+	rts
+
+save_song
+	move.l	#"INFO",d0
+	bsr	find_ks
+	move.w	seq_len,SIseqlen(a0)
+	move.w	blk_cnt,SIblk_cnt(a0)
+	move.w	clickfresh,SIclickfresh(a0)
+
+	lea	saveS,a0
+	lea	songdir,a1
+	bsr	get_filename
+	beq	anRTS
+
+	lea	filename,a0
+	bsr	Fopenout		open it
+
+	move.l	#"DSNG",d0
+	bsr	write_header
+
+	move.l	ks_ptr,a0
+	move.l	ks_used,d0
+	bsr	Fwrite
+
+	bsr	Fclose
+	rts
+
+
+
+
+write_header
+	lea	filehead,a0
+	move.l	d0,(a0)
+	moveq	#4,d0
+	bra	Fwrite
+
+read_header
+	lea	filehead,a1
+	moveq	#4,d0
+	bsr	Fread
+	move.l	-(a1),d0
+	rts
+
+
+
+instr_keys
+	and.w	#$ff,d0
+
+	moveq	#-32,d2
+	IfKey	Kup,IWed_move
+	moveq	#32,d2
+	IfKey	Kdown,IWed_move
+	moveq	#-1,d2
+	IfKey	Kleft,IWed_move
+	moveq	#1,d2
+	IfKey	Kright,IWed_move
+	IfKey	's',IWcut
+	IfKey	'r',IWpaste
+
+	tst.b	iedit
+	beq	anRTS
+
+	bsr	find_hexit
+	beq	anRTS
+
+	st	pr_strobe
+	bsr	Qied_cursor
+
+	moveq	#1,d2
+	bsr	IWed_move
+
+	tst.b	d4
+	bne.s	right_nib
+	lsl.w	#4,d1
+	and.b	#$0f,(a1)
+	or.b	d1,(a1)
+	rts
+
+right_nib
+	and.b	#$f0,(a1)
+	or.b	d1,(a1)
+	rts
+
+Qied_cursor
+	; OUT	a0=current instrument base adr
+	;	a1=iedit cursor adr
+	;	(d3=index)
+	;	d4=right nibble?
+	movem.l	d0-d2/d5-d7/a2-a6,-(a7)
+	move.w	instr,d0
+	bsr	Qinstr_adr
+	move.w	ied_pos,d3
+	lsr.w	#1,d3
+	scs	d4
+	add.w	#Idata,d3
+	lea	(a0,d3.w),a1
+	movem.l	(a7)+,d0-d2/d5-d7/a2-a6
+	tst.b	d4
+	rts
+
+**** INSTRUMENT KEYS ****
+
+
+IWcut	bsr	Qied_cursor
+	lea	cut_instr,a1
+	move.w	#Imem_size-1,d7
+IWcl	move.b	(a0)+,(a1)+
+	dbf	d7,IWcl
+	rts
+
+IWpaste	bsr	Qied_cursor
+	lea	cut_instr,a0
+	move.b	(a0,d3.w),(a1)
+	moveq	#2,d2
+IWed_move
+	add.w	ied_pos,d2		RT!
+	bpl.s	iposok1
+	add.w	#$a0,d2
+iposok1	cmp.w	#$a0,d2
+	bcs.s	iposok2
+	sub.w	#$a0,d2
+iposok2	move.w	d2,ied_pos
+	rts
+
+***** LOAD AN INSTRUMENT *****
+
+load_instr
+	lea	LoadI,a0
+	lea	instrdir,a1
+	bsr	get_filename
+	beq	anRTS
+
+	lea	filename,a0
+	bsr	Fopenin		open it
+
+	; check length
+	bsr	Fgetlen
+	move.l	d1,filesize
+	subq.l	#4,d1
+	bls	ERitype
+
+	bsr	read_header
+	cmp.l	#"DTIF",d0
+	bne	load_raw
+	
+	; load synth
+	move.w	instr,d0
+	ext.l	d0
+	add.l	#"INS"*256,d0
+	moveq	#Imem_size,d1
+	bsr	new_ks
+	move.l	a0,a1
+
+	bsr	Freadmax	load
+	bra	i_loaded
+
+load_raw
+	moveq	#0,d0
+	bsr	Fseek
+
+	move.w	instr,d0
+	ext.l	d0
+	add.l	#"INS"*256,d0
+	move.l	filesize,d1
+	add.l	#Idata,d1
+	bsr	new_ks
+
+	move.l	filesize,d0
+	lsr.w	#1,d0
+	move.w	d0,(a0)
+	lea	Idata(a0),a1
+	bsr	Freadmax	load
+
+i_loaded
+	bsr	Fclose
+	move.w	instr,d0
+	bsr	Qinstr_adr
+
+
+;	move.w	instr,d0
+;	lsl.w	#3,d0
+;	lea	filebuff,a0		=file name (excluding path)
+
+;	TODO:	name_instr
+;	lea	instr_names,a1
+;	add.w	d0,a1
+;	lea	8(a1),a2
+;
+;	moveq	#8-1,d7
+;nameI	move.b	(a0)+,(a1)+
+;	dbeq	d7,nameI
+;	subq.l	#1,a1
+;	cmp.l	a1,a2
+;	beq	anRTS
+;	moveq	#20,d0
+;	bsr	filla1a2
+	rts
+
+
+save_instr
+	bsr	cur_instr_adr
+	beq	ERnothing
+
+	lea	saveI,a0
+	lea	instrdir,a1
+	bsr	get_filename
+	beq	anRTS
+
+	lea	filename,a0
+	bsr	Fopenout		open it
+
+	bsr	cur_instr_adr
+	move.w	(a0),d0
+	bne	saveraw
+
+	move.l	#"DTIF",d0
+	bsr	write_header
+
+	bsr	cur_instr_adr
+	moveq	#Idisk_size,d0
+	bsr	Fwrite
+	bra	i_saved
+saveraw
+	ext.l	d0
+	add.l	d0,d0
+	lea	Idata(a0),a0
+	bsr	Fwrite
+I_saved
+	bsr	Fclose
+	rts
+
+cur_instr_adr
+	move.w	instr,d0
+	bsr	Qinstr_adr
+	rts
+
+
+
+
+**** STATUS KEYS ****
+
+instr_down
+	tst.w	instr
+	beq	anRTS
+	subq.w	#1,instr
+	rts
+
+instr_up
+	cmp.w	#num_instr-1,instr
+	beq	anRTS
+	addq.w	#1,instr
+	rts
+
+oct_down
+	tst.w	octave
+	beq	anRTS
+	moveq	#-1,d0
+	bra.s	change_oct
+
+oct_up	cmp.w	#4,octave
+	beq	anRTS
+	moveq	#1,d0
+change_oct
+	add.w	octave,d0
+	move.w	d0,octave
+	addq.w	#2,d0
+	movem.w	HSoct,d2/d3
+	bra	draw_icon
+
+edit_tog
+	not.b	edit_mode
+	moveq	#1,d0
+	add.b	edit_mode,d0
+	movem.w	HSetog,d2/d3
+	bra	draw_icon
+
+tog_chan
+	lsr.w	#2,d4
+
+	lea	HSctog,a0
+	move.w	d4,d5
+	lsl.w	#2,d5
+	movem.w	HSctog,d2/d3
+	add.w	d5,d2
+
+	mulu	#CCsize,d4
+	lea	chan0,a2
+	add.w	d4,a2
+	cmp.w	#12,CCstate(a2)
+	bne.s	unlockchan
+	clr.w	CCstate(a2)
+	moveq	#7,d0
+	bra	draw_icon
+
+unlockchan
+	move.w	#12,CCstate(a2)
+	moveq	#8,d0
+	bra	draw_icon
+
+xpm	; x_pos map
+	move.w	x_pos,d0
+	move.b	(a0,d0.w),d0
+	move.w	d0,x_pos
+	rts
+
+
+
+****************************
+***** DRAWING ROUTINES *****
+****************************
+
+**** DRAW INSTR EDITOR ****
+
+draw_instr
+	lea	pagebuff,a1
+	move.w	instr,d0
+	lea	hexits,a0
+	move.b	(a0,d0.w),(a1)+
+	move.b	#":",(a1)+
+
+;	move.w	instr,d0
+;	lsl.w	#3,d0
+;	lea	instr_names,a0
+;	add.w	d0,a0
+;	moveq	#8-1,d7
+;cpyname	move.b	(a0)+,(a1)+
+;	dbf	d7,cpyname
+
+	move.b	#" ",(a1)+
+
+	move.w	instr,d0
+	bsr	Qinstr_adr
+	beq	instr_empty
+	tst.w	(a0)
+	bne	instr_samp
+
+	move.l	a0,-(a7)
+	move.w	ied_pos,d0
+	lsr.w	#1,d0
+	add.w	#Idata,d0
+	st	iedit
+	bsr	Qinstr_value
+	subq.l	#1,a1
+	lea	pagebuff+48,a2
+	moveq	#32,d0
+	bsr	filla1a2
+	move.l	(a7)+,a0
+
+	lea	hexits,a2
+	lea	Idata(a0),a0
+	moveq	#80-1,d7
+	bsr	hex_line
+
+	move.w	ied_pos,d0
+	lsr.w	#1,d0
+	scs	d2
+
+	divu	#16,d0
+	move.w	d0,d1		=ans
+	swap	d0		=remain
+	mulu	#3,d0
+	mulu	#48,d1
+	sub.b	d2,d0
+	add.w	d1,d0
+	lea	pagebuff,a0
+	add.b	#128,48(a0,d0.w)
+
+slaminstr
+	moveq	#i_x,d2
+	moveq	#i_y,d3
+	moveq	#48-1,d6
+	moveq	#6-1,d7
+	lea	pagebuff,a0
+	bsr	slam_box
+	rts
+
+instr_samp
+	lea	TXTisamp,a0
+	sf	iedit
+	bra.s	iescnt
+instr_empty
+	lea	TXTiempty,a0
+iescnt	bsr	copy0t
+	subq.l	#1,a1
+	lea	pagebuff+48*6,a2
+	moveq	#20,d0
+	bsr	filla1a2
+	sf	iedit
+	bra	slaminstr
+
+
+hex_line
+	; IN	a0=source bytes
+	;	a1=dest
+	;	a2=hexits
+	;	d7=num_bytes
+	moveq	#0,d0
+	move.b	(a0)+,d0
+	moveq	#15,d1
+	and.w	d0,d1
+	lsr.w	#4,d0
+	move.b	(a2,d0.w),(a1)+
+	move.b	(a2,d1.w),(a1)+
+	move.b	#32,(a1)+
+	dbf	d7,hex_line
+	rts
+
+
+
+***** MAKE A LINE *****
+
+; 	'n' is goes like this...
+;	0000  C-# 000  C-# 000  C-# 000  C-# 000
+
+clr_line
+	move.l	#"    ",d0
+;	cmp.w	#-1,d1
+;	beq.s	tell_block
+	moveq	#10-1,d7
+cloop	move.l	d0,(a1)+
+	dbf	d7,cloop
+	rts
+
+tell_block
+	lea	TXTtop,a4
+	moveq	#16-1,d7
+ctb	move.b	(a4)+,(a1)+
+	dbf	d7,ctb
+	moveq	#6-1,d7
+	bra.s	cloop
+
+make_line
+	; IN	a0=BLK struct
+	;	a1=dest
+	;	a2=notes
+	;	a3=hexits
+	;	d1=click
+	; OUT	a1=updated
+	;	a2=notes
+	;	a3=hexits
+	; uses	d0/d2/d7
+	;	Xd6
+
+	tst.w	d1
+	bmi.s	clr_line
+	cmp.w	BLKclicks(a0),d1
+	bcc.s	clr_line
+	move.b	#"0",(a1)+
+	move.w	d1,d0
+	moveq	#3-2,d7
+	bsr	dec_out
+	move.w	d1,d0
+	mulu	#ClickSIZE,d0
+	lea	BLKdata(a0,d0.w),a4
+
+	moveq	#4-1,d7
+nxtvoice
+	move.b	#32,(a1)+
+	move.b	#32,(a1)+
+	moveq	#0,d0
+	move.b	(a4),d0			note
+	add.w	d0,d0
+	add.b	(a4)+,d0
+	move.b	0(a2,d0.w),(a1)+
+	move.b	1(a2,d0.w),(a1)+
+	move.b	2(a2,d0.w),(a1)+
+	move.b	#32,(a1)+
+
+	move.b	(a4)+,d0		instr
+	move.b	(a3,d0.w),(a1)+
+	move.b	(a4)+,d0		FX
+	moveq	#15,d2
+	and.w	d0,d2
+	lsr.w	#4,d0
+	move.b	(a3,d0.w),(a1)+
+	move.b	(a3,d2.w),(a1)+
+	dbf	d7,nxtvoice
+
+	cmp.w	mark_y,d1
+	bne	anRTS
+	move.w	mark_x,d0
+	add.w	d0,d0
+	move.w	mark_xposes(pc,d0.w),d0
+	lea	1(a1,d0.w),a4
+;	move.b	#">"+128,(a4)+
+	or.b	#128,(a4)+
+	or.b	#128,(a4)+
+	or.b	#128,(a4)+
+;	move.b	#"<"+128,(a4)+
+
+	rts
+
+mark_xposes
+	dc.w	-35,-26,-17,-8		PC!
+
+;	          3         2         1
+;	0987654321098765432109876543210987654321
+;	0000  C-# 000  C-# 000  C-# 000  C-# 000
+
+
+	; IN	d0.w=num<$8000
+	;	a1=dest
+	;	d7=digits phy-2
+dec_out	ext.l	d0
+	add.w	d7,d7
+	divu	divby(pc,d7.w),d0
+	lsr.w	#1,d7
+	add.b	#"0",d0
+	move.b	d0,(a1)+
+	swap	d0
+	dbf	d7,dec_out
+	add.b	#"0",d0
+	move.b	d0,(a1)+
+	rts
+
+divby	dc.w	10
+	dc.w	100
+	dc.w	1000
+	dc.w	10000
+
+***** DRAW VIEW ****
+
+	; IN	a0=BLK struct
+	;	a1=dest
+	;	a2=notes
+	;	a3=hexits
+	;	d1=click
+	; OUT	a1=updated
+	; uses	d0/d2/d7
+
+draw_view
+	move.w	cur_block,d0
+	bsr	Qblk_adr
+
+	move.w	y_pos,d1
+	sub.w	#view_yc,d1
+	lea	pagebuff,a1
+	lea	notes,a2
+	lea	hexits,a3
+
+	move.w	#view_ys-1,d6
+drws	bsr	make_line
+	addq.w	#1,d1
+	dbf	d6,drws
+
+	lea	pagebuff,a0
+	moveq	#view_x,d2
+	moveq	#view_y,d3
+	moveq	#40-1,d6
+	moveq	#view_ys-1,d7
+	bsr	slam_box
+
+	move.w	x_pos,d0
+	lsl.w	#2,d0
+	movem.w	cursor_x(pc,d0.w),d2/d7
+
+	lea	pagebuff,a1
+	lea	(a1,d2.w),a3
+	lea	40(a1),a2
+	move.w	#"_"+128,d0
+	bsr	filla1a2
+
+curlp	move.b	#32,(a3)+
+	dbf	d7,curlp
+
+	lea	pagebuff,a0
+	moveq	#view_x,d2
+	moveq	#view_yc+view_y,d3
+	moveq	#40-1,d6
+	moveq	#1-1,d7
+	bsr	slam_box2
+	rts
+
+cursor_x
+	dc.w	06,2,10,0,11,0,12,0
+	dc.w	15,2,19,0,20,0,21,0
+	dc.w	24,2,28,0,29,0,30,0
+	dc.w	33,2,37,0,38,0,39,0
+
+***** MAKE A SEQ LINE ****
+
+seq_clr
+	move.b	#32,(a1)+
+	move.b	#32,(a1)+
+	rts
+
+seq_line
+	; IN	a0=sequence
+	;	a1=dest
+	;	d1=seq_pos
+	; OUT	a1=updated
+	; uses	Xd6 Xa0
+	tst.w	d1
+	bmi.s	seq_clr
+	cmp.w	seq_len,d1
+	bcc.s	seq_clr
+	move.b	(a0,d1.w),d0
+	ext.w	d0
+	moveq	#2-2,d7
+	bsr	dec_out
+	rts
+
+draw_seq
+	move.w	seq_pos,d1
+	sub.w	#seq_yc,d1
+	move.l	sequence,a0
+	lea	pagebuff,a1
+
+	move.w	#seq_ys-1,d6
+drsq	bsr	seq_line
+	addq.w	#1,d1
+	dbf	d6,drsq
+
+	lea	pagebuff,a0
+	move.l	BPadr1,a1
+	moveq	#seq_x,d2
+	moveq	#seq_y,d3
+	moveq	#2-1,d6
+	moveq	#seq_ys-1,d7
+	bsr	slam_box
+	rts
+
+
+***** DRAW STATUS *****
+
+draw_status
+
+	move.l	status_overide,d0
+	bne	stat_mess
+
+	move.w	cur_block,d0
+	moveq	#3-2,d7
+	lea	TXTblk,a1
+	bsr	dec_out
+	move.w	blk_cnt,d0
+	subq.w	#1,d0
+	moveq	#3-2,d7
+	addq.l	#1,a1
+	bsr	dec_out
+
+	lea	status_line,a0
+
+stat_slam
+	moveq	#view_x+1,d2
+	moveq	#view_y+view_ys,d3
+	moveq	#38-1,d6
+	moveq	#1-1,d7
+	bsr	slam_box
+	rts
+
+stat_mess
+	move.l	status_overide,a0
+	clr.l	status_overide
+	lea	pagebuff,a1
+	lea	80(a1),a2
+	bsr	copy0T
+	subq.l	#1,a1
+	moveq	#32,d0
+	bsr	filla1a2
+	lea	pagebuff,a0
+	bra	stat_slam
+
+***** MUSIC PLAYER *****
+
+Isamplen=0	W
+Iname=2		B8
+Idata=10	-->
+Iloop=10	B32
+Itone=42	B16
+Iasdr=58	B8
+Itone_speed=66	B
+Itone_pause=67	B
+Itone_mulu=68	B
+Isqr_rate=69	B
+Isqr_begin=70	B
+Isqr_end=71	B
+Iloop_size=72	B
+Itone_size=73	B
+Ibase_vol=74	B
+Ixpand=75	B15
+Idisk_size=90
+
+Isqr_pos=90	B
+Isqr_dir=91	B
+Isqr_tick=92	B
+Isqr_done=93	B
+Imem_size=94
+
+
+
+
+CChard=0	L
+CCdmaon=4	W
+CCdmaoff=6	W
+CCinstr=8	L
+
+CCdouble=12	B
+CCbyte1=13	B
+CCbyte2=14	B
+CCbyte3=15	B
+CCstate=16	W
+CCswctime=18	W
+CCasdrfresh=20	B
+CCasdrtime=21	B
+CCpmindx=22	B
+CCpmcntdown=23	B
+
+CCasdrPC=24	W
+CCvol=26	W
+CCwiggle=28	B*12
+CCwiggleindx=40	W	
+
+CCnote=42	W
+CCperiod=44	W
+CCportdest=46	W
+CCportspeed=48	W
+CCshutup=50	B
+;
+
+CCsize=52
+
+**** CHECK INSTRUMENT ****
+
+chk_instr
+	; IN	a0=instrument
+	;	validate and initialise an
+	;	instrument so it doesn't crash
+	;	the player!
+	; uses	a0/a1/d0/d7
+
+
+	tst.w	(a0)
+	bne	anRTS
+
+	; validate sample lengths
+
+	cmp.b	#17,Iloop_size(a0)
+	bcs.s	CI1
+	move.b	#16,Iloop_size(a0)
+CI1	cmp.b	#17,Itone_size(a0)
+	bcs.s	CI2
+	move.b	#16,Itone_size(a0)
+CI2
+	; validate square sample positions
+	cmp.b	#32,Isqr_begin(a0)
+	bcs.s	CI3
+	move.b	#31,Isqr_begin(a0)
+CI3	cmp.b	#32,Isqr_end(a0)
+	bcs.s	CI4
+	move.b	#31,Isqr_end(a0)
+CI4
+	; validate ASDR
+	lea	Iasdr-2(a0),a1
+	moveq	#4-1,d7
+CIasdr	addq.l	#2,a1
+	cmp.b	#64,(a1)
+	bcs.s	CIdasdr
+	move.b	#63,(a1)
+CIdasdr	dbf	d7,CIasdr
+
+	; sort square wave start/end
+	move.b	Isqr_begin(a0),d0
+	cmp.b	Isqr_end(a0),d0
+	bls.s	CIend
+	move.b	Isqr_end(a0),Isqr_begin(a0)
+	move.b	d0,Isqr_end(a0)
+CIend
+
+	; check working vars
+
+	move.b	Isqr_pos(a0),d0
+	cmp.b	Isqr_begin(a0),d0
+	bcs.s	CIsbad
+	cmp.b	Isqr_end(a0),d0
+	bls.s	CIsok
+CIsbad
+	move.b	Isqr_begin(a0),Isqr_pos(a0)
+CIsok
+
+	move.b	Isqr_tick(a0),d0
+	cmp.b	Isqr_rate(a0),d0
+	bls.s	CIsrok
+	clr.b	Isqr_tick(a0)
+CIsrok
+
+	move.b	Isqr_dir(a0),d0
+	addq.b	#1,d0
+	beq.s	isqrok
+	subq.b	#2,d0
+	beq.s	isqrok
+	move.b	#1,Isqr_dir(a0)
+isqrok
+	rts
+
+
+
+reset_player
+;	lea	chan0,a1
+;	lea	chanlast,a2
+;	bsr	clra1a2
+
+	move.w	#$f,CB+$96
+
+	moveq	#0,d0
+	lea	chan0,a2
+	lea	aud0+CB,a6
+initchan
+	move.w	#0,ac_vol(a6)
+	move.l	a6,CChard(a2)
+
+	moveq	#1,d1
+	lsl.w	d0,d1
+	move.w	d1,CCdmaoff(a2)
+	or.w	#$8000,d1
+	move.w	d1,CCdmaon(a2)
+
+	move.b	#2,CCasdrfresh(a2)
+
+	cmp.w	#12,CCstate(a2)
+	beq.s	tisdead
+	clr.w	CCstate(a2)
+tisdead
+	move.b	#2,CCasdrfresh(a2)
+	clr.l	CCwiggle(a2)
+	clr.l	CCwiggle+4(a2)
+	clr.l	CCwiggle+8(a2)
+	clr.b	CCdouble(a2)
+
+	lea	CCsize(a2),a2
+	lea	ac_size(a6),a6
+	addq.w	#1,d0
+	cmp.w	#4,d0
+	bne.s	initchan
+	rts
+
+**** GENERATE FRACTIONAL VOLUME MAP ****
+
+makefracmap
+	; in	a0=dest for frac map
+	;	d0=max vol
+	movem.l	d2-4,-(a7)
+	moveq	#$3f,d1
+	moveq	#$3f,d2
+	moveq	#$3f,d3
+	and.b	d3,d0
+	moveq	#0,d4
+fracl	move.b	d4,(a0)+
+	add.b	d0,d1
+	cmp.b	d3,d1
+	bcs.s	noTH
+	sub.b	d3,d1
+	addq.b	#1,d4
+noTH	dbf	d2,fracl
+	movem.l	(a7)+,d2-4
+	rts
+
+
+music_player
+	bclr.b	#0,pr_strobe
+	bne	reset_player
+
+	tst.b	var_lock
+	beq.s	music_player_notlocked
+
+	move.b	#$fe,var_lock
+	rts
+
+music_player_notlocked
+	addq.b	#1,play_frame
+
+	lea	CHAN0,a2
+	bsr	play_chan1
+	lea	CHAN1,a2
+	bsr	play_chan1
+	lea	CHAN2,a2
+	bsr	play_chan1
+	lea	CHAN3,a2
+	bsr	play_chan1
+
+	tst.b	play_mode
+	beq	no_read_score
+
+	subq.w	#1,clicktick
+	bcc	no_read_score
+	move.w	clickfresh,clicktick
+
+
+
+	bsr	Qline_adr
+	move.l	a1,RTedit_lastline
+
+	; advance one line
+	move.w	y_pos,d0
+	cmp.w	y_pos_played,d0
+	bne	no_advance
+	cmp.w	y_max,d0
+	bcs.s	more_clicks
+	tst.b	seq_adv
+	beq.s	playing_block
+	move.w	seq_pos,d0
+	addq.w	#1,d0
+	cmp.w	seq_len,d0
+	bne.s	more_seq
+	moveq	#0,d0
+more_seq
+	move.w	d0,seq_pos
+	bsr	seq_select
+playing_block
+	move.w	#-1,y_pos
+more_clicks
+	addq.w	#1,y_pos
+no_advance
+	st	redraw_flag
+	move.w	y_pos,y_pos_played
+
+	bsr	Qline_adr
+	move.l	a1,RTedit_thisline
+	; play line
+	move.b	(a1)+,CHAN0+CCbyte1	RT!
+	move.b	(a1)+,CHAN0+CCbyte2
+	move.b	(a1)+,CHAN0+CCbyte3
+	move.b	(a1)+,CHAN1+CCbyte1
+	move.b	(a1)+,CHAN1+CCbyte2
+	move.b	(a1)+,CHAN1+CCbyte3
+	move.b	(a1)+,CHAN2+CCbyte1
+	move.b	(a1)+,CHAN2+CCbyte2
+	move.b	(a1)+,CHAN2+CCbyte3
+	move.b	(a1)+,CHAN3+CCbyte1
+	move.b	(a1)+,CHAN3+CCbyte2
+	move.b	(a1)+,CHAN3+CCbyte3
+
+	lea	CHAN0,a2
+	bsr	play_chan2
+	lea	CHAN1,a2
+	bsr	play_chan2
+	lea	CHAN2,a2
+	bsr	play_chan2
+	lea	CHAN3,a2
+	bsr	play_chan2
+
+
+	; REAL TIME EDIT
+	move.w	RTedit_key,d0
+	beq	noRTedit1
+
+	move.l	RTedit_lastline,a1
+	move.l	a1,d1
+	beq	noRTedit1
+	move.w	clickfresh,d2
+	lsr.w	#1,d2
+	cmp.w	RTedit_tick,d2
+	bcs.s	edit_last
+	move.l	RTedit_thisline,a1
+edit_last
+	move.w	RTedit_x_pos,d1
+	st	make_sound_off
+
+	bsr	do_RTedit
+	sf	make_sound_off
+	clr.w	RTedit_key
+noRTedit1
+
+
+no_read_score
+	; 'now hear this!'		RT!
+	move.b	NHTchan,d0
+	beq.s	doneNHT
+	ext.w	d0
+	mulu	#CCsize,d0
+	lea	CHAN0-CCsize,a2
+	add.l	d0,a2
+	move.b	NHTbyte1,CCbyte1(a2)
+	move.b	NHTbyte2,CCbyte2(a2)
+	clr.b	CCbyte3(a2)
+	bsr	play_chan2
+	clr.b	NHTchan
+doneNHT	rts
+
+***** START A NOTE *****
+
+play_chan2
+	; IN	a2=chan struct
+
+	cmp.w	#12,CCstate(a2)
+	beq	anRTS
+
+	move.b	CCbyte1(a2),d0
+	or.b	CCbyte2(a2),d0
+	or.b	CCbyte3(a2),d0
+	beq	anRTS
+
+	clr.w	CCportspeed(a2)
+
+	moveq	#0,d0
+	move.b	CCbyte3(a2),d0		=FX byte
+	moveq	#15,d1
+	and.w	d0,d1			=FX data
+	lsr.w	#4,d0			=FX command
+	beq	doneFX
+	cmp.w	#5,d0
+	bcc	doneFX
+
+	add.w	d0,d0
+	lea	FXjmps(pc),a0
+	add.w	-2(a0,d0.w),a0
+	jmp	(a0)
+
+FXjmps	dc.w	FXport-FXjmps		1
+	dc.w	FXasdrspd-FXjmps	2
+	dc.w	FXwiggle-FXjmps		3
+	dc.w	FXdouble-FXjmps		4
+
+
+**** FX1 = PORT ****
+
+FXport	addq.w	#1,d1
+	move.w	d1,CCportspeed(a2)
+	move.b	CCbyte1(a2),d0
+	add.w	d0,d0
+	lea	tones,a0
+	move.w	(a0,d0.w),CCportdest(a2)
+	rts
+
+**** FX2 = ASDR ****
+
+FXasdrspd
+	move.b	d1,CCasdrfresh(a2)
+	bra	doneFX
+
+**** FX3 = WIGGLE ****
+
+FXwiggle
+	mulu	#12,d1
+	lea	pseudo_chords,a0
+	add.l	d1,a0
+
+	move.l	(a0)+,CCwiggle(a2)
+	move.l	(a0)+,CCwiggle+4(a2)
+	move.l	(a0),CCwiggle+8(a2)
+	bra	doneFX
+
+**** FX4 = DOUBLE CLICK ****
+
+FXdouble
+	move.w	clickfresh,d0
+	addq.w	#1,d0
+	lsr.w	#1,d0
+	move.b	d0,CCdouble(a2)
+	bra	doneFX
+
+doneFX	moveq	#0,d0
+	move.b	CCbyte1(a2),d0
+	beq	anRTS
+	subq.w	#1,d0
+	beq	stopchan
+	subq.w	#1,d0
+	beq	rellchan
+
+	; !! note stuff !!
+	move.w	d0,CCnote(a2)
+	lea	tones,a0
+	add.w	d0,d0
+	move.w	(a0,d0.w),CCperiod(a2)
+
+	; !! instrument stuff !!
+	moveq	#0,d0
+	move.b	CCbyte2(a2),d0
+	movem.l	d0-d7/a1-a6,-(a7)
+	bsr	Qinstr_adr
+	movem.l	(a7)+,d0-d7/a1-a6
+	beq	stopchan		instrument slot vacant!
+	move.l	a0,a5
+
+	bsr	chk_instr
+
+	move.l	a5,CCinstr(a2)
+
+	move.l	(a2),a6
+
+	; a2=chan
+	; a5=instrument
+	; a6=hardware
+
+	tst.w	(a5)
+	bne	init_sample
+
+	; init period mod
+	move.b	Itone_pause(a5),CCpmcntdown(a2)
+	clr.b	CCpmindx(a2)
+
+	; init asdr
+	clr.w	CCvol(a2)
+	clr.w	CCasdrpc(a2)
+	clr.b	CCasdrtime(a2)
+
+	; load wave to hardware
+	move.w	CCdmaoff(a2),$dff096
+	lea	Iloop(a5),a0
+	move.l	a0,ac_ptr(a6)
+	moveq	#0,d0
+	move.b	Iloop_size(a5),d0
+	move.w	d0,ac_len(a6)
+
+	move.w	#8,CCstate(a2)
+	rts
+
+init_sample
+	; load sample to hardware
+	move.w	CCdmaoff(a2),$dff096
+	lea	Iloop(a5),a0
+	move.l	a0,ac_ptr(a6)
+
+	move.w	(a5),ac_len(a6)
+	move.w	#$3f,ac_vol(a6)
+	move.w	#4,CCstate(a2)
+	move.w	CCperiod(a2),ac_per(a6)
+	rts
+
+stopchan
+	move.w	CCdmaoff(a2),$dff096
+	clr.w	CCstate(a2)
+	rts
+rellchan
+	clr.b	CCasdrtime(a0)
+	move.w	#6,CCasdrPC(a0)
+	rts
+
+
+***** UPDATE A NOTE *****
+
+play_chan1
+	move.w	CCstate(a2),d0
+	jsr	states(pc,d0.w)
+
+	; common code
+	tst.b	CCdouble(a2)
+	beq.s	no_double
+	subq.b	#1,CCdouble(a2)
+	bne.s	no_double
+	clr.b	CCbyte3(a2)
+	bsr	play_chan2
+no_double
+	rts
+
+states	bra	anRTS		0
+	bra	sampdmaon	4
+	bra	dosynth		8
+	bra	dead		12
+
+sampdmaon
+	move.w	CCdmaon(a2),$dff096
+	move.l	(a2),a6
+	move.w	#1,ac_len(a6)
+	clr.w	CCstate(a2)
+	rts
+
+dead	move.w	CCdmaoff(a2),$dff096
+	rts
+
+***** S Y N T H E S I Z E R ! *****
+
+dosynth
+	move.w	CCdmaon(a2),$dff096	dma on
+	move.l	(a2),a6			=hardware
+	move.l	CCinstr(a2),a5		=instrument
+
+*** TONE CONTROL ***
+
+	move.w	CCportspeed(a2),d2
+	beq	check_wiggle
+
+	; PORT IT
+	move.w	CCperiod(a2),d0
+	move.w	CCportdest(a2),d1
+
+	cmp.w	d0,d1
+	beq	got_period
+	clr.w	CCasdrpc(a2)
+
+	slide.w	d0,d1,d2
+	move.w	d0,CCperiod(a2)
+	bra	got_period
+
+check_wiggle
+	; WIGGLE IT
+	move.w	CCwiggleindx(a2),d1
+	move.w	CCnote(a2),d0
+	add.b	CCwiggle(a2,d1.w),d0
+	add.w	d0,d0
+	lea	tones,a0
+	move.w	(a0,d0.w),d0
+	addq.w	#1,d1
+	cmp.w	#12,d1
+	bcs.s	nowigrap
+	moveq	#0,d1
+nowigrap
+	move.w	d1,CCwiggleindx(a2)
+
+got_period
+	; d0=period
+	; BEND IT
+	move.b	Itone_speed(a5),d3
+	beq	done_permod
+
+	tst.b	CCpmcntdown(a2)
+	beq.s	permod
+	subq.b	#1,CCpmcntdown(a2)
+	bra.s	done_permod
+permod
+	moveq	#0,d1
+	move.b	CCpmindx(a2),d1
+	move.b	Itone(a5,d1.w),d2
+	ext.w	d2
+	moveq	#0,d4
+	move.b	Itone_mulu(a5),d4
+	muls	d4,d2
+	add.w	d2,d0
+
+	sub.b	d3,CCpmindx(a2)
+	bcc.s	done_permod
+
+	move.b	Itone_size(a5),d2
+	add.b	d2,d2
+	add.b	d2,CCpmindx(a2)
+
+done_permod
+	move.w	d0,ac_per(a6)
+
+**** VOLUME CONTROL ****
+
+	subq.b	#1,CCasdrtime(a2)
+	bcc	skip_asdr
+	move.b	CCasdrfresh(a2),CCasdrtime(a2)
+
+	move.w	CCvol(a2),d1
+	move.w	CCasdrPC(a2),d0
+
+	move.b	Iasdr(a5,d0.w),d2	dest
+	add.b	d2,d2
+	add.b	d2,d2
+	move.b	Iasdr+1(a5,d0.w),d3	rate
+
+	slide.b	d1,d2,d3
+
+	cmp.b	d1,d2
+	bne.s	done_asdr
+	subq.w	#6,d0
+	beq.s	done_asdr
+	addq.w	#8,d0
+	move.w	d0,CCasdrPC(a2)
+done_asdr
+	move.w	d1,CCvol(a2)
+	lsr.w	#2,d1
+	move.w	d1,ac_vol(a6)
+skip_asdr
+
+**** SQUARE MODIFY ****
+
+	move.b	Isqr_rate(a5),d0		not needed!
+	beq	donesqr
+
+	move.b	play_frame,d1
+	cmp.b	Isqr_done(a5),d1
+	beq	donesqr				already done!
+	move.b	d1,Isqr_done(a5)
+
+	subq.b	#1,Isqr_tick(a5)
+	bcc	donesqr				not time!
+	subq.b	#1,d0
+	move.b	d0,Isqr_tick(a5)
+
+	moveq	#0,d0
+	move.b	Isqr_pos(a5),d0
+	tst.b	Isqr_dir(a5)
+	bpl	sqr_up
+;sqr_down
+	move.b	#63,Iloop(a5,d0.w)
+	cmp.b	Isqr_begin(a5),d0
+	beq.s	bounce
+	subq.w	#1,d0
+	move.b	d0,Isqr_pos(a5)
+	bra.s	donesqr
+
+sqr_up	move.b	#-64,Iloop(a5,d0.w)
+	cmp.b	Isqr_end(a5),d0
+	beq.s	bounce
+	addq.w	#1,d0
+	move.b	d0,Isqr_pos(a5)
+	bra.s	donesqr
+
+bounce	neg.b	Isqr_dir(a5)
+donesqr
+	rts
+
+
+SetCia	movem.l	a1-a2,-(a7)
+	move.l	ciabase,a1
+	move.l	$22(a1),a1		=CIA address
+	move.b	#$81,$d00(A1)
+	move.b	#$81,$e00(A1)
+	lea	intrate,a2
+	move.b	1(A2),$400(A1)
+	move.b	0(A2),$500(A1)
+	movem.l	(a7)+,a1-a2
+	rts
+
+ciaserve
+	movem.l	d0-a6,-(a7)
+	bsr	music_player
+	movem.l	(a7)+,d0-a6
+	rts
+
+
+
+
+
+**************************
+***** STANDARD CALLS *****
+**************************
+
+
+***** ARP REQUEST *****  (hi Karl!)
+
+get_filename
+	; IN	a0=message
+	;	a1=dir ptr
+	; OUT	d0=okay?
+
+	movem.l	a0/a1,-(a7)
+	bsr	redraw_all
+	bsr	play_stop
+	movem.l	(a7)+,a0/a1
+
+	move.l	a0,arp_struct
+	move.l	a1,arp_dir
+
+	move.l	arpbase,a6
+	lea	arp_struct,a0
+	jsr	-$126(a6)
+	tst.l	d0
+	beq	cant
+	tst.b	filebuff
+	beq	cant
+
+	lea	filename,a1
+	move.l	arp_dir,a0
+	tst.b	(a0)
+	beq.s	move_name
+	bsr	copy0t
+	subq.l	#1,a1
+	move.b	-1(a1),d0
+	cmp.b	#"/",d0
+	beq.s	move_name
+	cmp.b	#":",d0
+	beq.s	move_name
+	move.b	#"/",(a1)+
+move_name
+	lea	filebuff,a0
+	bsr	copy0t
+	bra	okay
+
+redraw_all
+	bsr.s	do_redraw
+	bsr.s	do_redraw
+	bsr	do_redraw
+do_redraw
+	bclr	#0,redraw_flag
+	bne	draw_status
+	bclr	#1,redraw_flag
+	bne	draw_view
+	bclr	#2,redraw_flag
+	bne	draw_seq
+	bclr	#3,redraw_flag
+	bne	draw_instr
+	rts
+
+***** WAIT ON A MESSAGE PORT (thanks Karl!) *****
+
+waiting:
+	move.l	a0,-(a7)
+	bsr	do_redraw
+	move.l	(a7)+,a0
+
+wait_for_message:
+	; IN	a0=user_port to recieve message from
+	; OUT	a1=ptr to message
+	;	d1=class
+
+	move.l	a0,-(a7)
+	move.l	4.w,a6
+	jsr	get_msg(a6)
+	move.l	(a7)+,a0
+	tst.l	d0
+	beq.s	waiting
+
+	move.l	d0,a1
+	move.l	a1,message
+	move.l	4.w,a6
+	jsr	reply_msg(a6)
+
+	move.l	message,a1
+	move.l	class(a1),d1
+	rts
+
+lock_vars
+	st	var_lock
+	rts
+
+unlock_vars
+	cmp.b	#$fe,var_lock
+	bne	no_catchup
+	bsr	music_player_notlocked
+no_catchup
+	sf	var_lock
+	rts
+
+***** AmigaDOS beamwait ****
+
+beam:	move.l	grabase,a6
+	jsr	waitTOF(a6)
+	rts
+
+***** KillSYS Keyboard Simulator *****
+
+mykeys	; IN	a1=AmigaDOS RAWKEY message structure
+	; OUT	d0.w=my key
+
+	move.l	message,a1
+	moveq	#0,d0
+	move.b	$19(a1),d0
+	bmi	cant
+	move.w	$1a(a1),d1
+	move.l	$20(a1),mouse_x
+
+	lea	keymap,a0
+	move.b	(a0,d0.w),d0
+
+	moveq	#0,d3
+
+	lea	AmigaLock,a0
+nxt_alock
+	move.w	(a0)+,d4
+	move.w	(a0)+,d5
+	beq.s	done_alock
+	and.w	d1,d4
+	beq.s	nxt_alock
+	or.w	d5,d3
+	bra.s	nxt_alock
+done_alock
+
+	tst.w	d3
+	bne.s	no_caps
+	btst	#2,d1
+	beq	no_caps
+	bsr	upcase
+no_caps
+
+	cmp.w	#Xshift,d3
+	bne.s	outputcode
+
+	; key pressed with shift
+	; so look it up in shift translation table
+
+	move.b	d0,d4
+	bsr	upcase
+	lea	SHIFTtrans(pc),a0
+stloop	move.b	(a0)+,d1
+	move.b	(a0)+,d5
+	beq.s	done_shift
+	cmp.b	d1,d0
+	bne.s	stloop
+	move.b	d5,d0
+done_shift
+
+	cmp.b	d0,d4		has pressing shift had any effect?
+	beq	outputcode
+	clr.w	d3
+outputcode:
+	and.w	#$00ff,d0
+	or.w	d3,d0
+	rts
+
+okay	moveq	#-1,d0
+	rts
+cant	moveq	#0,d0
+anRTS	rts
+
+
+ScrAdr:	; IN	d2,d3.w=cords
+	;	a1=bit plane
+	; OUT	a1=adr
+	; uses	d0
+
+	move.w	d3,d0
+	mulu	#xp*8,d0
+	add.l	d0,a1
+	add.w	d2,a1
+	rts
+
+**** SLAM BOX! **** (the fastest yet!)
+
+slam_box2
+	move.l	BPadr2,a1
+	bsr	ScrAdr
+	lea	font,a2
+	bra.s	SBloopY
+
+slam_box_inv
+	move.l	BPadr1,a1
+	bsr	ScrAdr
+	lea	font+128*8,a2
+	bra.s	SBloopY
+
+slam_box
+	; IN	a0=box of text
+	;	(d2,d3)=scr cords (logical)
+	;	d6=width (DBF)
+	;	d7=hieght (DBF)
+
+	move.l	BPadr1,a1
+	bsr	ScrAdr
+	lea	font,a2
+
+SBloopY	move.l	a1,a3
+	move.w	d6,d5
+
+SBloopX	moveq	#0,d0
+	move.b	(a0)+,d0
+	lsl.w	#3,d0
+	lea	(a2,d0.w),a4
+	move.b	(a4)+,(a3)+
+	move.b	(a4)+,xp-1(a3)
+	move.b	(a4)+,xp*2-1(a3)
+	move.b	(a4)+,xp*3-1(a3)
+	move.b	(a4)+,xp*4-1(a3)
+	move.b	(a4)+,xp*5-1(a3)
+	move.b	(a4)+,xp*6-1(a3)
+	move.b	(a4),xp*7-1(a3)
+	dbf	d5,SBloopX
+	lea	xp*8(a1),a1
+	dbf	d7,SBloopY
+	rts
+
+upcase:	cmp.b	#"a",d0
+	bcs.s	nocase
+	cmp.b	#"z",d0
+	bhi.s	nocase
+	sub.b	#"a"-"A",d0
+nocase	rts
+
+togle_case
+	move.b	d0,-(a7)
+	bsr.s	upcase
+	cmp.b	(a7)+,d0
+	bne.s	nocase
+
+dncase:	cmp.b	#"A",d0
+	bcs.s	nocase
+	cmp.b	#"Z",d0
+	bhi.s	nocase
+	add.b	#"a"-"A",d0
+	rts
+
+clra1a2	clr.b	(a1)+
+	cmp.l	a1,a2
+	bne.s	clra1a2
+	rts
+
+filla1a2
+	move.b	d0,(a1)+
+	cmp.l	a1,a2
+	bne.s	filla1a2
+	rts
+
+safe_regs:
+	move.l	(sp)+,retadr+2
+	movem.l	d0-d7/a0-a6,-(sp)
+	pea	reg_restore(pc)
+retadr:	jmp	$deadc0de
+
+reg_restore:
+	movem.l	(sp)+,d0-d7/a0-a6
+	rts
+
+*** I/O SUBROUTINES ***
+
+Fopenin:
+	; IN	a0=file name
+	move.l	#1005,d2
+	bra.s	Fopen
+
+Fopenout:
+	; IN	a0=file name
+	tst.l	handle
+	bne	file_cant
+	move.l	#1006,d2
+Fopen	move.l	dosbase,a6
+	move.l	a0,d1
+	jsr	open(a6)
+	move.l	d0,handle
+	beq	file_cant
+	bra	file_okay
+
+
+Fseek	move.l	handle,d1
+	beq	cant
+	move.l	d0,-(a7)
+	move.l	d0,d2
+	moveq	#-1,d3
+	move.l	dosbase,a6
+	jsr	Seek(a6)
+	cmp.l	(a7)+,d0
+	beq	okay
+	bra	cant
+
+Fgetlen	move.l	handle,d4
+	beq	file_cant
+	move.l	d4,d1
+
+	moveq	#0,d2
+	moveq	#1,d3
+	move.l	dosbase,a6
+	jsr	Seek(a6)
+
+	move.l	d4,d1
+	moveq	#0,d2
+	moveq	#-1,d3
+	jsr	Seek(a6)
+	move.l	d0,d1
+	bra	file_okay
+
+Freadmax:
+	move.l	#$80000,d0
+
+Fread:	; IN	a1=dest
+	;	d0=max to read
+	; OUT	a1=end
+
+	move.l	handle,d1
+	beq	cant
+	move.l	dosbase,a6
+	move.l	d0,d3
+	move.l	a1,d2
+	move.l	a1,-(sp)
+	jsr	read(a6)
+	move.l	(sp)+,a1
+	bmi	file_cant
+	add.l	d0,a1
+	bra	file_okay
+
+Fwrite:	; IN	a0=adr
+	;	d0=bytes to write
+	move.l	handle,d1
+	beq	cant
+	move.l	dosbase,a6
+	move.l	d0,d3
+	move.l	a0,d2
+	move.l	d3,-(a7)
+	jsr	write(a6)
+	cmp.l	(a7)+,d0
+	bne	file_cant
+file_okay
+	rts
+file_cant
+	bra	ERfile
+
+
+Fclose	move.l	handle,d1
+	beq	anRTS
+	move.l	dosbase,a6
+	jsr	close(a6)
+	clr.l	handle
+	rts
+
+Length0T:
+	move.l	a0,-(a7)
+	moveq	#-1,d0
+l0t	addq.w	#1,d0
+	tst.b	(a0)+
+	bne.s	l0t
+	move.l	(a7)+,a0
+	rts
+
+Copy0T	move.b	(a0)+,(a1)+
+	bne.s	Copy0T
+	rts
+
+Skip0T	tst.b	(a0)+
+	bne.s	Skip0T
+	rts
+
+
+token_match
+	; IN	a2=token list
+	;	a1=token
+	; OUT	d0=found [f]
+	;	d3=logical number
+	; uses	d0-d2/a3
+
+	moveq	#-1,d2
+
+cmpnxtn	tst.b	(a2)
+	beq	cant
+	addq.w	#1,d2
+	move.l	a1,a3
+	st	d3
+cmpname	move.b	(a3)+,d0
+	bsr	upcase
+	cmp.b	(a2)+,d0
+	seq	d1
+	and.b	d1,d3
+	tst.b	-1(a2)
+	bne.s	cmpname
+	tst.b	d3
+	beq.s	cmpnxtn
+	bra	okay
+
+
+div32:	; IN	d4,d5=inputs
+	; OUT	d3=d4/d5
+	;	d4=rem
+	; uses	d0/d7
+
+	; thanks declan!
+
+	moveq	#0,d3
+	moveq	#31,d0
+	
+DLloop:	add.l	d3,d3
+	move.l	d4,d7
+	lsr.l	d0,d7
+	cmp.l	d5,d7
+	bcs.s	no_Set_Bit
+	lsl.l	d0,d5		
+	sub.l	d5,d4
+	lsr.l	d0,d5
+	or.w	#1,d3
+no_Set_Bit:
+	dbf	d0,DLloop
+	rts
+
+draw_icon
+	; IN	d0=icon number
+	;	d2/d3=cords
+
+	movem.l	d0-a6,-(a7)
+	move.w	d0,-(a7)
+	move.l	BPadr1,a1
+	bsr	scradr
+	move.l	a1,a2
+	move.l	BPadr2,a1
+	bsr	scradr
+	move.l	a1,a3
+	move.w	(a7)+,d0
+
+	lea	icons1,a4
+	lea	icons2,a5
+	add.w	d0,d0
+	add.w	d0,d0
+	add.w	d0,a4
+	add.w	d0,a5
+
+	moveq	#16-1,d7
+	moveq	#xp,d0
+copyicon
+	move.l	(a4),(a2)
+	move.l	(a5),(a3)
+	add.l	d0,a2
+	add.l	d0,a3
+	add.l	d0,a4
+	add.l	d0,a5
+	dbf	d7,copyicon
+	movem.l	(a7)+,d0-a6
+	rts
+
+
+
+
+
+get_picture
+	lea	picture(pc),a0
+find_body
+	addq.l	#2,a0
+	cmp.l	#"BODY",(a0)
+	bne.s	find_body
+	addq.l	#8,a0
+
+	lea	icons1,a1
+	lea	icons2,a2
+	move.w	#16*2-1,d7
+
+	bsr.s	unpack_iff
+	move.l	BPadr1,a1
+	move.l	BPadr2,a2
+	move.w	#(256-16)*2-1,d7
+
+
+unpack_iff
+	lea	80(a1),a3
+nxt_step
+	moveq	#0,d0
+	move.b	(a0)+,d0
+	bmi.s	runlength
+normdat	move.b	(a0)+,(a1)+
+	dbf	d0,normdat
+	bra.s	done_step
+runlength
+	neg.b	d0
+	move.b	(a0)+,d1
+pacdat	move.b	d1,(a1)+
+	dbf	d0,pacdat
+done_step
+	cmp.l	a3,a1
+	bcs.s	nxt_step
+	exg	a1,a2
+	dbf	d7,unpack_iff
+	rts
+
+**** KS INIT ****
+
+ks_init
+	; IN	a0=addr of ks memory
+	;	d0=length of it
+	move.l	a0,ks_ptr
+	clr.l	(a0)
+	move.l	#4,ks_used
+	move.l	d0,ks_size
+	clr.l	ks_ecount
+	rts
+
+
+**** NEW KS ****
+
+new_ks	; IN	d0=key
+	;	d1=bytes needed
+	; OUT	d0=okay	(now goes to ERmem)
+	; uses	d1/d2
+
+	bsr	delete_ks
+
+	moveq	#1,d2
+	and.w	d1,d2
+	add.w	d2,d1
+
+	move.l	ks_used,d2
+	addq.l	#8,d2
+	add.l	d1,d2
+	cmp.l	ks_size,d2
+	bhi	ERmem
+
+	movem.l	d0-d7/a1-a6,-(a7)
+
+	move.l	ks_ptr,a0
+	add.l	ks_used,a0
+	move.l	d0,-4(a0)
+	move.l	d1,(a0)+
+
+	move.l	a0,-(a7)
+	lea	4(a0,d1.w),a1
+clrks	clr.w	(a0)+
+	cmp.l	a0,a1
+	bne.s	clrks
+
+	move.l	d2,ks_used
+	move.l	(a7)+,a0
+	movem.l	(a7)+,d0-d7/a1-a6
+	bra	okay
+
+**** FIND KS ****
+
+find_ks
+	; IN	d0=ks to find
+
+	move.l	ks_ptr,a0
+	bra.s	fk2
+fk1	add.l	(a0)+,a0
+fk2	move.l	(a0)+,d1
+	beq.s	fkcant
+	cmp.l	d1,d0
+	bne.s	fk1
+	addq.l	#4,a0
+	moveq	#-1,d0
+	rts
+fkcant	moveq	#0,d0
+	rts
+
+**** DELETE KS ****
+
+delete_ks
+	; IN	d0=name to del
+
+	movem.l	d0-a6,-(a7)
+	bsr	find_ks
+	beq	done_dks
+
+	lea	-8(a0),a1
+	move.l	-4(a0),d1
+	add.l	d1,a0
+	addq.l	#8,d1
+	move.l	ks_ptr,d0
+	add.l	ks_used,d0
+	sub.l	a0,d0
+	sub.l	d1,ks_used
+	bsr	CPUcopy
+done_dks
+	movem.l	(a7)+,d0-a6
+	rts
+
+**** CPU COPY ****
+
+CPUcopy
+	; IN	d0=length
+	;	a0=source
+	;	a1=dest
+	move.w	d0,d2		=low
+	move.l	d0,d3		=high
+	swap	d3
+
+	cmp.l	a0,a1
+	beq	anRTS
+	bcc	ass_copy
+	bra.s	cgo1
+
+cl1	move.b	(a0)+,(a1)+
+cgo1	dbf	d2,cl1
+	dbf	d3,cl1
+	rts
+ass_copy
+	add.l	d0,a0
+	add.l	d0,a1
+	bra.s	cgo2
+
+cl2	move.b	-(a0),-(a1)
+cgo2	dbf	d2,cl2
+	dbf	d3,cl2
+	rts
+
+
+picture		incbin	"inc/base5d.lbm"
+font		incbin	"inc/topaz2"
+keymap		incbin	"inc/keymap9b"
+
+LIBint		dc.b	"intuition.library",0
+LIBgra		dc.b	"graphics.library",0
+LIBdos		dc.b	"dos.library",0
+LIBarp		dc.b	"arp.library",0
+REScia		dc.b	"ciab.resource",0
+intname		dc.b	"Dave's Interupt",0
+TXTisamp	dc.b	"Sample loaded",0
+TXTiempty	dc.b	"No instrument here!",0
+
+IVloop	dc.b	"Loop step (??)",0
+IVtone	dc.b	"Tone step (??)",0
+
+instr_values
+	dc.b	0
+	dc.b	"Attack volume",0
+	dc.b	"Attack rate",0
+	dc.b	"Sustain volume",0
+	dc.b	"Sustain rate",0
+	dc.b	"Decay volume",0
+	dc.b	"Decay rate",0
+	dc.b	"Release volume",0
+	dc.b	"Release rate",0
+	dc.b	"Tone speed",0
+	dc.b	"Tone pause",0
+	dc.b	"Tone multiply",0
+	dc.b	"Square rate",0
+	dc.b	"Square begin",0
+	dc.b	"Square end",0
+	dc.b	"Loop size",0
+	dc.b	"Tone size",0
+	dc.b	"RESERVED",0,"RESERVED",0,"RESERVED",0,"RESERVED",0
+	dc.b	"RESERVED",0,"RESERVED",0,"RESERVED",0,"RESERVED",0
+	dc.b	"RESERVED",0,"RESERVED",0,"RESERVED",0,"RESERVED",0
+	dc.b	"RESERVED",0,"RESERVED",0,"RESERVED",0,"RESERVED",0
+
+default_instrdir
+	dc.b	"DT_instr",0
+default_songdir
+	dc.b	"DT_songs",0
+
+
+SHIFTtrans
+	dc.b	"1!2@3#4$5%6^7&8*9(0)-_=+\|[{]};:'",34,",<.>/?`~",0,0
+
+
+status_line
+TXTtop	dc.b	"Block: "
+TXTblk	dc.b	"???/???                             "
+
+
+notes	dc.b	"---STPREL"
+	dc.b	"C-1C#1D-1D#1E-1F-1F#1G-1G#1A-1A#1B-1"
+	dc.b	"C-2C#2D-2D#2E-2F-2F#2G-2G#2A-2A#2B-2"
+	dc.b	"C-3C#3D-3D#3E-3F-3F#3G-3G#3A-3A#3B-3"
+	dc.b	"C-4C#4D-4D#4E-4F-4F#4G-4G#4A-4A#4B-4"
+	dc.b	"C-5C#5D-5D#5E-5F-5F#5G-5G#5A-5A#5B-5"
+	dc.b	"C-6C#6D-6D#6E-6F-6F#6G-6G#6A-6A#6B-6"
+
+hexits	dc.b	"0123456789"
+upchrs	dc.b	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+dnchrs	dc.b	"abcdefghijklmnopqrstuvwxyz"
+
+loadI	dc.b	"Load instrument",0
+saveI	dc.b	"Save instrument",0
+loadS	dc.b	"Load song",0
+saveS	dc.b	"Save song",0
+
+piano_keys:
+	; bottom manifold
+;	dc.b	TONE_NUM,KEY
+	dc.b	00,"z"	c
+	dc.b	01,"s"	c#
+	dc.b	02,"x"	d
+	dc.b	03,"d"	d#
+	dc.b	04,"c"	e
+	dc.b	05,"v"	f
+	dc.b	06,"g"	f#
+	dc.b	07,"b"	g
+	dc.b	08,"h"	g#
+	dc.b	09,"n"	a
+	dc.b	10,"j"	a#
+	dc.b	11,"m"	b
+	dc.b	12,","	c
+	dc.b	13,"l"	c#
+	dc.b	14,"."	d
+	dc.b	15,";"	d#
+	dc.b	16,"/"	e
+
+	; top manifold
+	dc.b	12,"q"	c
+	dc.b	13,"2"	c#
+	dc.b	14,"w"	d
+	dc.b	15,"3"	d#
+	dc.b	16,"e"	e
+	dc.b	17,"r"	f
+	dc.b	18,"5"	f#
+	dc.b	19,"t"	g
+	dc.b	20,"6"	g#
+	dc.b	21,"y"	a
+	dc.b	22,"7"	a#
+	dc.b	23,"u"	b
+	dc.b	24,"i"	c
+	dc.b	25,"9"	c#
+	dc.b	26,"o"	d
+	dc.b	27,"0"	d#
+	dc.b	28,"p"	e
+	dc.b	29,"["	f
+	dc.b	30,"="	f#
+	dc.b	31,"]"	g
+	dc.b	32,"\"	g#
+	dc.b	0,0
+
+
+start_0f
+edit_mode	dc.b	0	edit on?
+play_mode	dc.b	0	playing?
+redraw_flag	dc.b	0	redraw all?
+iedit		dc.b	0	instrument edit okay (ie is it synth)?
+seq_adv		dc.b	0	play song or just block?
+pr_strobe	dc.b	0	Player Reset?
+var_lock	dc.b	0
+make_sound_off	dc.b	0
+play_frame	dc.b	0
+NHTbyte1	dc.b	0
+NHTbyte2	dc.b	0
+NHTchan		dc.b	0
+play_start	dc.b	0
+
+	even
+
+long_word	dc.l	0
+stack_store	dc.l	0
+instr		dc.w	0
+ied_pos		dc.w	0
+RTedit_key	dc.w	0
+RTedit_tick	dc.w	0
+RTedit_x_pos	dc.w	0
+RTedit_thisline	dc.l	0
+RTedit_lastline	dc.l	0
+error_jmp	dc.l	0
+error_stack	dc.l	0
+ciabase		dc.l	0
+intbase		dc.l	0
+grabase		dc.l	0
+dosbase		dc.l	0
+arpbase		dc.l	0
+screen		dc.l	0
+vport		dc.l	0
+rastport	dc.l	0
+window		dc.l	0
+message		dc.l	0
+BPadr1		dc.l	0
+BPadr2		dc.l	0
+handle		dc.l	0
+filesize	dc.l	0
+status_overide	dc.l	0
+ks_ptr		dc.l	0
+ks_used		dc.l	0
+ks_size		dc.l	0
+ks_ecount	dc.l	0
+sequence	dc.l	0
+
+cut_xs		dc.w	0	\
+cut_ys		dc.w	0	/
+
+mark_x		dc.w	0	\
+mark_y		dc.w	0	/
+
+x_pos		dc.w	0	\
+y_pos		dc.w	0	/
+
+
+y_pos_played	dc.w	0
+y_max		dc.w	0
+mouse_x		dc.w	0
+mouse_y		dc.w	0
+seq_pos		dc.w	0
+octave		dc.w	0
+cur_block	dc.w	0
+clicktick	dc.w	0
+cur_window	dc.w	0
+filehead	ds.b	4
+filebuff	ds.b	256
+songdir		ds.b	256
+instrdir	ds.b	256
+filename	ds.b	256
+pagebuff	ds.b	80*32
+CHAN0		ds.b	CCsize
+CHAN1		ds.b	CCsize
+CHAN2		ds.b	CCsize
+CHAN3		ds.b	CCsize
+CHANlast
+
+cut_instr	ds.b	Imem_size
+end_0f
+after_edit	dc.w	Kdown
+clickfresh	dc.w	4-1
+intrate		dc.w	$38a4
+seq_len		dc.w	0
+blk_cnt		dc.w	0
+
+cmap0:	ds.w	4
+cmap1:	dc.w	$000,$eee,$44b,$88f
+
+win_titles
+	dc.w	view_x,view_y,40,view_ys
+	dc.w	seq_x,seq_y,2,seq_ys
+	dc.w	i_x,i_y,47,6
+
+	;	00,01,02,03,04,05,06,07,08,09,10,11,12,13,14,15
+	;	n           n           n           n
+
+left_right
+	dc.b	00,00,01,02,03,04,05,06,07,08,09,10,11,12,13,14 L
+	dc.b	01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,15 R
+	dc.b	00,00,00,00,00,04,04,04,04,08,08,08,08,12,12,12 Lvoice
+	dc.b	04,04,04,04,08,08,08,08,12,12,12,12,12,13,14,15 Rvoice
+	dc.b	00,01,02,03,00,01,02,03,04,05,06,07,08,09,10,11 Lsame
+	dc.b	04,05,06,07,08,09,10,11,12,13,14,15,12,13,14,15 Rsame
+
+AmigaLock
+	dc.w	%000000011,Xshift
+	dc.w	%000001000,Xctrl
+	dc.w	%000110000,Xalt
+	dc.w	%100000000,Xnumpad
+	dc.w	0,0
+
+***** NEW SCREEN *****
+
+new_screen:
+	dc.w	0	left edge
+	dc.w	0	top edge
+	dc.w	640	width
+	dc.w	256	height
+	dc.w	2	no. of bitplanes
+	dc.b	0,1	detail pen,block pen
+	dc.w	$8000	view mode ($8000=hires)
+	dc.w	15	type
+	dc.l	0	font
+	dc.l	title	pointer to name
+	dc.l	0	gadgets
+	dc.l	0	custom bitmap
+
+***** NEW WINDOW *****
+
+new_window:
+	dc.w	0	left edge
+	dc.w	11	top edge		11
+	dc.w	640	width
+	dc.w	245	height
+	dc.b	0,1	detail pen,block pen
+
+	;	IDCMP flags
+	;	MouseButtons,RawKey
+	dc.l	8+$400
+	;	ReportMouseFlag,Borderless,Activate,RMBTrap,NoCareRefresh
+	dc.l	$200+$800+$1000+$10000+$20000
+
+	dc.l	0	first gadget
+	dc.l	0	check mark
+	dc.l	0	pointer to title
+	dc.l	0	insert screen pointer here
+	dc.l	0	custom bitmap
+	dc.w	640	min width
+	dc.w	200	min height
+	dc.w	640	max width
+	dc.w	200	max height
+	dc.w	15	type
+
+
+
+int_node	dc.l	0,0		adrs for linking
+		dc.b	2,0		note type
+		dc.l	intname		note name
+		dc.l	0		interrupt data
+		dc.l	CIAserve	interrupt server
+
+arp_struct	dc.l	0		ptr to text
+		dc.l	filebuff	ptr to filename buffer
+arp_dir		dc.l	0		ptr to directory buffer
+arp_win		dc.l	0		ptr to window to attach it to
+		dc.w	0		flags
+		dc.l	0		user data
+		ds.l	3		???
+
+tones	dc.w	$1ac0,$1940,$17d0,$1680,$1530,$1400	oct1
+	dc.w	$12e0,$11d0,$10d0,$0fe0,$0f00,$0e20
+
+	dc.w	$0d60,$0ca0,$0be8,$0b40,$0a98,$0a00	oct2
+	dc.w	$0970,$08e8,$0868,$07f0,$0780,$0710
+
+	dc.w	$06b0,$0650,$05f4,$05a0,$054c,$0500	oct3
+	dc.w	$04b8,$0474,$0434,$03f8,$03c0,$0388
+
+	dc.w	$0358,$0328,$02fa,$02d0,$02a6,$0280	oct4
+	dc.w	$025c,$0234,$021a,$01fc,$01e0,$01c4
+
+	dc.w	$01ac,$0194,$017d,$0168,$0153,$0140	oct5
+	dc.w	$012e,$011d,$010d,$00fe,$00f0,$00e2
+
+	dc.w	$00d6,$00ca,$00be,$00b4,$00aa,$00a0	oct6
+	dc.w	$0097,$008f,$0087,$007f
+
+icons1:	ds.b	80*16
+icons2:	ds.b	80*16
+
+
+
+pseudo_chords:
+	dc.b	00,00,00,00,00,00,00,00,00,00,00,00
+	dc.b	06,05,04,03,02,01,01,02,03,04,05,06
+	dc.b	00,04,07,00,04,07,00,04,07,00,04,07
+	dc.b	00,05,09,00,05,09,00,05,09,00,05,09
+	dc.b	00,03,08,00,03,08,00,03,08,00,03,08
+	dc.b	12,11,10,09,08,07,06,05,04,03,02,01
+	dc.b	01,02,03,04,05,06,07,08,09,10,11,12
+	dc.b	00,00,12,12,00,00,12,12,00,00,12,12
+	dc.b	06,05,04,03,02,01,06,05,04,03,02,01
+	dc.b	01,02,03,04,05,06,01,02,03,04,05,06
+	dc.b	00,05,07,00,05,07,00,05,07,00,05,07
+	dc.b	00,05,08,00,05,08,00,05,08,00,05,08
+	dc.b	00,04,07,00,04,07,00,04,07,00,04,07
+	dc.b	00,03,07,00,03,07,00,03,07,00,03,07
+
+CPS	ds.b	clicksize*256		cut 'n' paste space
+
+;tp	dc.l	testmem
+
+;testmem
+;	ds.l	8024
+
+
+
+	section	"song_space",bss_c
+
+ks	ds.b	num_bytes
+
+
+
+; ©1991 David Hanney All right reserved worldwide
+
+	end
+
+
+
+0         1         2         3         4
+01234567890123456789012345678901234567890123456789
+0000  C-# 000  C-# 000  C-# 000  C-# 000
+
+00:12341234 Explain
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+
+
+	end
+
+
+instrument shortcut gadget
+volume FX 0-f
+cursor after edit (context or fixed)
+total RAW suport  :-)
+total IFF suport <:-(
+compression
+
+
+
+
+
+
+
+**** DISK COMMANDS ****
+
+get_lock
+	; a0=directory to lock to
+	tst.l	locksav
+	bne	ERfile
+	move.l	a0,d1
+	moveq	#-2,d2
+	move.l	dosbase,a6
+	jsr	Lock(a6)
+	move.l	d0,locksav
+	beq	ERfile
+
+	; examine it too
+	move.l	locksav,d1
+	move.l	#page_buff,d2
+	move.l	dosbase,a6
+	jsr	Examine(a6)
+	tst.l	d0
+	beq	ERfile
+	tst.l	page_buff+4		make sure its a directory
+	bmi	ERfile
+	rts
+
+
+drop_lock
+	; doesn't complain if there is not one
+	move.l	locksav,d1
+	beq	anRTS
+	move.l	dosbase,a6
+	jsr	UnLock(a6)
+	clr.l	locksav
+	rts
+
+examine_next
+	; takes standard lock and examines it's next entry
+	; OUT	d0=okay
+	move.l	locksav,d1
+	move.l	#page_buff,d2
+	move.l	dosbase,a6
+	jsr	ExNext(a6)
+	tst.l	d0
+	rts
+
+examine_done
+	move.l	dosbase,a6
+	jsr	IoErr(a6)
+	tst.l	d0
+	beq.s	no_dir_hass
+	cmp.l	#232,d0
+	bne	ERfile
+no_dir_hass
+	bra	drop_lock
+
+*------------------------------------------------------------------
+
+function_dir
+	; a4=default dir
+	; a5=function to call
+	move.w	#40,tabsize
+	move.l	a5,fdir_function
+
+	move.l	com_pram,a0
+	tst.b	(a0)
+	bne.s	no_dir_def
+	move.l	a0,-(a7)
+	move.l	a0,a1
+	move.l	a4,a0
+	bsr	Copy0T
+	move.l	(a7)+,a0
+
+no_dir_def
+	bsr	get_lock
+
+	move.l	com_pram,a0
+	bsr	Skip0T
+	move.l	a0,ti_names
+	move.b	#"/",-(a0)
+
+TIloop	bsr	examine_next
+	beq	TIdone
+	tst.l	XFtype
+	bpl	ERfile		chk its a file
+
+	; MAKE NAME
+	lea	XFname,a0
+	move.l	ti_names,a1
+	bsr	Copy0T
+
+	; CALL FUNCTION
+	move.l	fdir_function,a2
+	jsr	(a2)
+
+	bra	TIloop
+
+TIdone	bsr	examine_done
+
+saydone	bsr	easy_cli
+	dc.b	"Done!",10,0
+	even
+	rts
+
