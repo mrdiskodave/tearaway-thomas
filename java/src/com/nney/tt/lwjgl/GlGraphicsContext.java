@@ -41,18 +41,7 @@ public class GlGraphicsContext implements GraphicsContext {
 
 	@Override
 	public Blitable createBlitable(SimpleImage i) {
-		final GlTexture gt = new GlTexture(i);
-		return new Blitable() {
-			@Override
-			public void draw(int dx, int dy) {
-				gt.draw(dx, dy);
-			}
-
-			@Override
-			public void dispose() {
-				gt.dispose();
-			}
-		};
+		return new GlTexture(i);
 	}
 
 	@Override

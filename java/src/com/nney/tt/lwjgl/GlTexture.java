@@ -3,10 +3,11 @@ package com.nney.tt.lwjgl;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.mbr.MustBeReleased;
 
-public class GlTexture {
+public class GlTexture implements Blitable {
 	private MustBeReleased mbr = new MustBeReleased(); 
 	private int textureId;
 	private int textureW;
@@ -25,17 +26,22 @@ public class GlTexture {
 		// TODO: maybe don't store image dimensions here
 		imageW = si.width();
 		imageH = si.height();
+		
 
-		// TODO: do we always need to do this?
-		textureW = GlTools.pow2(imageW);
-		textureH = GlTools.pow2(imageH);
+		if (Main.GL_ARB_texture_non_power_of_two) {
+			textureW = imageW;
+			textureH = imageH;
+		}
+		else {
+			textureW = GlTools.pow2(imageW);
+			textureH = GlTools.pow2(imageH);
+		}
 
 		textureId = GL11.glGenTextures();
 		assert textureId != 0;
 		bindTexture();
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE); // gosh
-																									// GL12!
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, theirFormat, textureW, textureH, 0, GL11.GL_RGBA,
@@ -48,8 +54,26 @@ public class GlTexture {
 	 * @param screenX
 	 * @param screenY
 	 */
+	@Override
 	public void draw(int screenX, int screenY) {
-		draw(screenX, screenY, 0, 0, imageW, imageH);
+		if (Main.GL_ARB_texture_non_power_of_two) {
+			int screenRight = screenX + textureW;
+			int screenBottom = screenY + textureH;
+			bindTexture();
+			GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(0f, 0f);
+			GL11.glVertex2i(screenX, screenY);
+			GL11.glTexCoord2f(1f, 0f);
+			GL11.glVertex2i(screenRight, screenY);
+			GL11.glTexCoord2f(1f, 1f);
+			GL11.glVertex2i(screenRight, screenBottom);
+			GL11.glTexCoord2f(0f, 1f);
+			GL11.glVertex2i(screenX, screenBottom);
+			GL11.glEnd();
+		}
+		else {
+			draw(screenX, screenY, 0, 0, imageW, imageH);
+		}
 	}
 
 	public void draw(int screenX, int screenY, int textureX, int textureY, int tw, int th) {
@@ -85,6 +109,7 @@ public class GlTexture {
 		GL11.glVertex2i(screenX, screenBottom);
 	}
 
+	@Override
 	public void dispose() {
 		GL11.glDeleteTextures(textureId);
 		mbr.release();
