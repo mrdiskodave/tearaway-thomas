@@ -55,6 +55,7 @@ import com.nney.tt.map.MasksHolder;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.osd.HeadUpDisplay;
+import com.nney.tt.osd.StatusDisplay;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsDefPool;
@@ -119,7 +120,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	/**
 	 * Player sprite top level (i.e. incorporates handle subtraction).
 	 */
-	private Coord ttSpriteTopLeft;
+	private Coord playerSpriteTopLeft;
 
 	private int score = 0;
 
@@ -167,7 +168,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 	/**
 	 * Are we paused?
 	 */
-	private boolean paused;
+	enum GameMode {
+		PLAYING,
+		PAUSED, TITLE
+	}
+	private GameMode mode = GameMode.PLAYING;
 
 	/**
 	 * A record of where (and how) we've put a {@link Sprite}.
@@ -190,27 +195,32 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * 
 	 * <p>
 	 * The aliens update their state <b>and</b> draw themselves in one method:
-	 * {@link Alien#update()}. {@link World#updateEverything()} is expected to
-	 * keep drawing but there is no method on {@link Alien} to just draw.
+	 * {@link Alien#update()}. {@link World#updateEverything()} is expected just
+	 * draw the screen when the game is paused but there is no on {@link Alien}
+	 * to just draw it. This is because all the update methods are modelled on
+	 * their 68000 originals.
 	 * 
 	 * <p>
-	 * Solution: spend one frame recording where all the {@link Sprite}s are
-	 * drawn then we just play it back without call any method on the
-	 * {@link Alien}s.
+	 * Solution: we spend one frame recording where all the {@link Sprite}s are
+	 * drawn then we just play it back while we're paused without any calls any
+	 * methods on the {@link Alien}s.
 	 * 
 	 * <p>
 	 * This is where we store the recording.
 	 */
-	ArrayList<SpriteRecord> pauseRecording;
+	private ArrayList<SpriteRecord> pauseRecording;
 
-	
-	boolean recordNow;
-
-	private int levelNumber;
-
-	private Curtain aperture;
+	/**
+	 * Were we pressing the pause key last frame?
+	 */
+	private boolean wasPauseKeyPressedLastFrame;
 
 	// ---------------------------------------------------------------------------
+	private int levelNumber;
+
+	private Curtain curtain;
+
+	private StatusDisplay statusDisplay;
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -220,7 +230,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		this.mouse = mouse;
 
 		initFonts();
-		aperture = new Fade(gc);
+		curtain = new Fade(gc);
 
 		AlienInfoMap aim = new AlienInfoMap();
 
@@ -249,6 +259,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
+		aim.add(new AlienInfo(201, "wlogo", SpriteAlien.class));
 
 		aim.addAnn(FlameAlien.class);
 		aim.addAnn(WobbleGemAlien.class);
@@ -399,16 +410,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
 		s.drawByHandle(x, y, drawWhite);
-		if (recordNow) {
+		if (pauseRecording!=null && mode!=GameMode.PAUSED) {
 			pauseRecording.add(new SpriteRecord(c, s, drawWhite));
 		}
 	}
 
 	@Override
 	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
-		ttSpriteTopLeft = c.copy();
-		ttSpriteTopLeft.x -= s.handleX;
-		ttSpriteTopLeft.y -= s.handleY;
+		playerSpriteTopLeft = c.copy();
+		playerSpriteTopLeft.x -= s.handleX;
+		playerSpriteTopLeft.y -= s.handleY;
 		ttSprite = s;
 	}
 
@@ -490,7 +501,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightAnimationName) {
 		Coord alienPos = alien.c;
-		int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
+		int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 		if (dy < ttSprite.h && dy > 0) {
 			int consideredInTearaway = ttSprite.h - 1 - dy;
 			if (player.isHeadBouncePossible(consideredInTearaway)) {
@@ -525,9 +536,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// TODO: unused
 	@Override
 	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
-		int dx = alienPos.x - alienSprite.handleX - ttSpriteTopLeft.x;
+		int dx = alienPos.x - alienSprite.handleX - playerSpriteTopLeft.x;
 		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
-			int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
+			int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 			return dy < ttSprite.h && dy > (-alienSprite.h);
 		}
 		return false;
@@ -535,9 +546,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
-		int dx = alienPos.x - alienSprite.handleX - ttSpriteTopLeft.x;
+		int dx = alienPos.x - alienSprite.handleX - playerSpriteTopLeft.x;
 		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
-			int dy = alienPos.y - alienSprite.handleY - ttSpriteTopLeft.y;
+			int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
 				if (dy < 0) {
 					return LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, -dy, dx);
@@ -738,13 +749,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	public void updateEverything() {
-		System.gc();
+		// System.gc();
 		if (usingMapper) {
 			mapper.run();
 		}
 		else {
 			int k = keyboard.justPressed();
 			if (k == Mapper.MAPPER_KEY) {
+				System.out.println("STARTING MAPPER");
 				usingMapper = true;
 				computeMapBounds();
 				gameMap.applyCompress(wi.blockRandomisationTable);
@@ -758,88 +770,114 @@ public class World implements AlienServices, WorldServicesToMapper {
 				if (whiteTimer != 0) {
 					whiteTimer--;
 					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
+					drawBorders();
 				}
 				else {
-					if (paused) {
-						recordNow = false;
-
-						horizon.draw();
-						drawTheMap();
-						for (SpriteRecord sr : pauseRecording) {
-							drawSprite(sr.c, sr.s, sr.drawInWhite);
-						}
-						aperture.draw();
-						drawHud();
-
-						if (k == Keyboard.KEY_P) {
-							paused = false;
-							// throw away the old pause recording
-							pauseRecording = null;
-						}
+					if (mode==GameMode.PAUSED) {
+						modePaused();
+					}
+					else if (mode==GameMode.TITLE) {
+						
 					}
 					else {
-
-						if (k == Keyboard.KEY_P) {
-							paused = recordNow = true;
-							// get ready to make a new pause-recording
-							pauseRecording = new ArrayList<World.SpriteRecord>();
-						}
-
-						frameNumber++;
-
-						int timeDec = player.isStunned() ? 3 : 1;
-						timeRemaining = Math.max(timeRemaining - timeDec, 0);
-
-						ttSpriteTopLeft = null;
-						player.move();
-						assert ttSpriteTopLeft != null;
-
-						if (CTC_HARD_SCROLLING) {
-							scr.snapTo(player.c);
-						}
-						else {
-							scr.scrollTo(player.c);
-						}
-
-						horizon.draw();
-						drawTheMap();
-						updateAliens(false);
-						
-						aperture.update();
-						aperture.draw();
-
-						bounceAperture();
-						
-						drawHud();
-						
-						// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
-						// 0xff000000);
-						// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
-						// 0xff000000);
-
+						modeMainGame();
 					}
-				}
-
-				// draw borders on the playing area if the map is small
-				ScreenOrdinate lr = scr.scrOrdX;
-				if (lr.highBorderStart >= 0) {
-					gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
-					gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
-				}
-				ScreenOrdinate tb = scr.scrOrdY;
-				if (tb.highBorderStart >= 0) {
-					gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
-					gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 				}
 			}
 		}
 	}
 
-	private void bounceAperture() {
+	private void modePaused() {
+		horizon.draw();
+		drawTheMap();
+		for (SpriteRecord sr : pauseRecording) {
+			drawSprite(sr.c, sr.s, sr.drawInWhite);
+		}
+		if (isExitOpen()) statusDisplay.drawExitOpen();
+
+		curtain.draw();
+		statusDisplay.drawPaused();
+		drawHud();
+		drawBorders();
+
+		if (pauseAntiAutofire()) {
+			mode = GameMode.PLAYING;
+			// throw away the old pause recording
+			pauseRecording = null;
+		}
+	}
+
+	private void modeMainGame() {
+		if (pauseAntiAutofire()) {
+			// get ready to make a new pause-recording
+			pauseRecording = new ArrayList<World.SpriteRecord>();
+		}
+
+		frameNumber++;
+
+		int timeDec = player.isStunned() ? 3 : 1;
+		timeRemaining = Math.max(timeRemaining - timeDec, 0);
+
+		playerSpriteTopLeft = null;
+		player.move();
+		assert playerSpriteTopLeft != null;
+
+		if (CTC_HARD_SCROLLING) {
+			scr.snapTo(player.c);
+		}
+		else {
+			scr.scrollTo(player.c);
+		}
+
+		horizon.draw();
+		drawTheMap();
+		updateAliens(false);
+		if (isExitOpen()) statusDisplay.drawExitOpen();
+		drawHurryUp();
+
+		drawHud();
+		drawBorders();
+
+//		curtain.update();
+//		curtain.draw();
+//		bounceCurtain();
+
+		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
+		// 0xff000000);
+		// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
+		// 0xff000000);
+		
+		if (pauseRecording!=null) {
+			mode = GameMode.PAUSED;
+		}
+	}
+
+	private void drawBorders() {
+		// draw borders on the playing area if the map is small
+		ScreenOrdinate lr = scr.scrOrdX;
+		if (lr.highBorderStart >= 0) {
+			gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
+			gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+		}
+		ScreenOrdinate tb = scr.scrOrdY;
+		if (tb.highBorderStart >= 0) {
+			gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
+			gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+		}
+	}
+
+	private boolean pauseAntiAutofire() {
+		boolean k = keyboard.isDown(Keyboard.KEY_P);
+		boolean answer = k & !wasPauseKeyPressedLastFrame;
+		wasPauseKeyPressedLastFrame = k;
+		return answer;
+	}
+
+	private void bounceCurtain() {
 		// bounce the aperture
-		if (aperture.isDone()) {
-			int s = aperture.target();
-			aperture.target(s^(Curtain.OPEN^Curtain.CLOSED));
+		if (curtain.isDone()) {
+			int s = curtain.target();
+			curtain.target(s ^ (Curtain.OPEN ^ Curtain.CLOSED));
 		}
 	}
 
@@ -848,14 +886,27 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (isExitOpen()) {
 			showGems = gemsTotal - gemsCollected;
 		}
-		hud.update(score, timeRemaining, showGems, isExitOpen(), lives);
+		hud.update(score, timeRemaining, isHurryUp(), showGems, isExitOpen(), lives);
+	}
+
+	private boolean isHurryUp() {
+		return timeRemaining < 6 * Const.FPS;
+	}
+
+	private void drawHurryUp() {
+		if (isHurryUp()) {
+			int flashRate = 20;
+			if ((timeRemaining % flashRate) < (flashRate / 2)) {
+				statusDisplay.updateHurryUp(timeRemaining);
+			}
+		}
 	}
 
 	private void initLevel() {
 		PersistedMap pm = new PersistedMap();
 		pm.populateFromLevelInfo(this, levelNumber);
 		worldName = pm.worldName;
-		
+
 		// work out what Anims we need
 		ArrayList<Alien> aliens = pm.aliens;
 		TreeSet<String> animsNeeded = new TreeSet<String>();
@@ -863,7 +914,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		animsNeeded.add("0tt");
 		animsNeeded.add("0life");
 		alienInfoMap.collectPreloadNames(animsNeeded);
-		
+
 		// load them
 		animsPool.unloadReload(animsNeeded);
 
@@ -879,7 +930,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		mapBoundsInBlocks = pm.mapBounds;
 
 		wi = WorldInformation.load(worldName);
-		
+
 		loadBlocks();
 
 		player = new Player(this, animsPool.expect("0tt"), new Coord(pm.playerX, pm.playerY - 20), pm.playerGoLeft);
@@ -892,6 +943,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		Anims lifeAnims = animsPool.expect("0life");
 		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
+		statusDisplay = new StatusDisplay(gc, font);
 
 		gemsTotal = countGems();
 		gemsNeeded = pm.gemsNeeded;
@@ -902,9 +954,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void whatAnimsDoTheyNeed(List<Alien> aliens, Set<String> animsNeeded) {
 		for (Alien alien : aliens) {
-			if (alien.alienInfo!=null) {
+			if (alien.alienInfo != null) {
 				String s = alien.alienInfo.animsName;
-				if (s!=null) {
+				if (s != null) {
 					animsNeeded.add(s);
 				}
 			}
@@ -945,6 +997,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		player.resetTo(mousePos);
 		gameMap.applyShuffle(wi.blockRandomisationTable);
 
+		System.out.println("STOPPING MAPPER");
 		usingMapper = false;
 		alienTracker.reclassify();
 		computeMapBounds();

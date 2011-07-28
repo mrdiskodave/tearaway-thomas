@@ -5,7 +5,6 @@ import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.MultiDisposable;
-import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.sprites.Sprite;
 
 public class HeadUpDisplay implements Disposable {
@@ -17,21 +16,21 @@ public class HeadUpDisplay implements Disposable {
 
 	private static final int COL_GEM_HAPPY = COL_GOOD;
 
-	private static final int COL_EXIT_OPEN = COL_GOOD;
+//	private static final int COL_EXIT_OPEN = COL_GOOD;
 
-	private static final int COL_HURRY_UP = COL_BAD;
+//	private static final int COL_HURRY_UP = COL_BAD;
 
 	private static final int GAP = 3;
 
 	private final GraphicsContext gc;
 
-	private final Font font;
 
 	class ReadOut implements Disposable {
 		private final SmartText headingText;
-		private SmartText contentText = new SmartText(font);
+		private SmartText contentText;
 
-		ReadOut(String heading) {
+		ReadOut(Font font, String heading) {
+			contentText = new SmartText(font);
 			headingText = new SmartText(font, COL_HEADING, 0, heading);
 		}
 
@@ -63,30 +62,22 @@ public class HeadUpDisplay implements Disposable {
 	private ReadOut gemsReadOut;
 	private ReadOut timeReadOut;
 
-	private SmartText exitOpenText;
-	private SmartText hurryUpText;
-	private SmartText pausedText;
 	private SmartText livesText;
 
 	private RowComponent livesRow;
 
-	private MultiDisposable md = new MultiDisposable();
+	final private MultiDisposable md = new MultiDisposable();
 
 	public HeadUpDisplay(GraphicsContext gc, Font font, Sprite lifeSprite) {
 		this.gc = gc;
-		this.font = font;
 
-		scoreReadOut = new ReadOut("score");
-		gemsReadOut = new ReadOut("gems");
-		timeReadOut = new ReadOut("time");
+		scoreReadOut = new ReadOut(font, "score");
+		gemsReadOut = new ReadOut(font, "gems");
+		timeReadOut = new ReadOut(font, "time");
 		livesText = new SmartText(font);
-		md.addMany(scoreReadOut, gemsReadOut, timeReadOut, livesText);
-
-		exitOpenText = new SmartText(font, COL_EXIT_OPEN, 0, "exit open");
-		hurryUpText = new SmartText(font, COL_HURRY_UP, 0, "hurry up");
-		pausedText = new SmartText(font, COL_HURRY_UP, 0, "paused");
 		SmartText xText = new SmartText(font, COL_HEADING, 0, "x");
-		md.addMany(exitOpenText, hurryUpText, pausedText, xText);
+		md.addMany(scoreReadOut, gemsReadOut, timeReadOut, livesText, xText);
+
 
 		livesRow = new RowComponent();
 		livesRow.add(new SpriteComponent(lifeSprite));
@@ -96,7 +87,7 @@ public class HeadUpDisplay implements Disposable {
 		livesRow.add(livesText);
 	}
 
-	public void update(int score, int time, int gems, boolean isExitOpen, int lives) {
+	public void update(int score, int time, boolean showHurryUp, int gems, boolean isExitOpen, int lives) {
 		//
 		// score/gems/time
 		//
@@ -109,8 +100,7 @@ public class HeadUpDisplay implements Disposable {
 
 		gemsReadOut.set(isExitOpen ? COL_GEM_HAPPY : COL_NORMAL, String.format("%02d", gems));
 
-		boolean hurryUp2 = time < 6 * Const.FPS;
-		timeReadOut.set(hurryUp2 ? COL_BAD : COL_NORMAL, String.format("%02d", time / Const.FPS));
+		timeReadOut.set(showHurryUp ? COL_BAD : COL_NORMAL, String.format("%02d", time / Const.FPS));
 
 		scoreReadOut.centredDraw(midX, border);
 
@@ -120,22 +110,6 @@ public class HeadUpDisplay implements Disposable {
 		gemsReadOut.centredDraw(middleFromEdgeX, bottomY);
 		timeReadOut.centredDraw(gc.screenWidth() - middleFromEdgeX, bottomY);
 
-		//
-		// exit open
-		//
-
-		if (isExitOpen) {
-			exitOpenText.centredDraw(midX, gc.screenHeight() * 7 / 20);
-		}
-
-		//
-		// hurry up
-		//
-
-		int flashRate = 20;
-		if (hurryUp2 && (time % flashRate) < (flashRate / 2)) {
-			hurryUpText.centredDraw(midX, gc.screenHeight() * 16 / 20);
-		}
 
 		//
 		// lives

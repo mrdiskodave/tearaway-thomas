@@ -12,35 +12,35 @@ public class RowComponent implements Component {
 
 	@Override
 	public int width() {
-		int w = 0;
+		int answer = 0;
 		for (Component item: items) {
-			w += item.width();
+			answer += item.width();
 		}
-		return w;
+		return answer;
 	}
 
 	@Override
 	public int height() {
-		int h = 0;
+		int answer = 0;
 		for (Component item: items) {
-			h = Math.max(h, item.height());
+			answer = Math.max(answer, item.height());
 		}
-		return h;
+		return answer;
 	}
 
 	@Override
 	public void draw(int dx, int dy) {
 		int h = height();
 		for (Component item: items) {
-			int adjustment = computeAdjustment(item.height(), h);
+			int adjustment = computeVerticalAdjustment(item.height(), h);
 			item.draw(dx, dy+adjustment);
 			dx += item.width();
 		}
 	}
 
-	private int computeAdjustment(int itemSize, int totalSize) {
-		// centred!
-		// other adjustments? YAGNI
+	private int computeVerticalAdjustment(int itemSize, int totalSize) {
+		// vertically centred!
+		// the only adjustment for now.
 		return (totalSize-itemSize)/2;
 	}
 }

@@ -21,7 +21,5 @@ public interface Component {
 	 * @param x The x coordinate to draw it at.
 	 * @param y The y coordinate to draw it at.
 	 */
-	
 	void draw(int x, int y);
-
 }
