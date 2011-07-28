@@ -20,11 +20,11 @@ import org.lwjgl.opengl.GL11;
  * <li>loads an external file
  * <li>isn't pixel perfect
  * <li>doesn't mask onto an existing background but just onto a colour they
- * select(?!)
+ * select
  * </ul>
  * 
  * <p>
- * provided entirely free (MIT license) with the hope that it is useful.
+ * provided free (MIT license) with the hope that it is useful.
  */
 public class BlitExample {
 	private static final int SCREEN_HEIGHT = 200;
