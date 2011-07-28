@@ -217,7 +217,7 @@ public class Mapper implements MapperServicesToPens {
 //		System.out.println("---");
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-			srv.drawMap();
+			srv.drawTheMap();
 			srv.drawAliensForMapper();
 
 			drawMapBounds();

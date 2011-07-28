@@ -1,7 +1,6 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Coord;
-import com.nney.tt.sprites.Sprite;
 
 public class GhostAlien extends LeftRightAlien {
 	private static final int SINEWAVE_LENGTH = 64;

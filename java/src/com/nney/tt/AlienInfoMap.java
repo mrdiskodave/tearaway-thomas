@@ -6,13 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
-import com.nney.tt.sprites.Anims;
-import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfoMap {
 	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();

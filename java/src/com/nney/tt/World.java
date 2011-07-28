@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.nney.tt.World.GameMode;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
@@ -170,9 +171,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	enum GameMode {
 		PLAYING,
-		PAUSED, TITLE
+		PAUSED, TITLE, DONE
 	}
 	private GameMode mode = GameMode.PLAYING;
+
+	private GameMode postRecordingMode = GameMode.PLAYING;
 
 	/**
 	 * A record of where (and how) we've put a {@link Sprite}.
@@ -222,6 +225,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private StatusDisplay statusDisplay;
 
+
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
@@ -259,7 +263,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
-		aim.add(new AlienInfo(201, "wlogo", SpriteAlien.class));
 
 		aim.addAnn(FlameAlien.class);
 		aim.addAnn(WobbleGemAlien.class);
@@ -406,13 +409,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
+		directDrawSprite(c, s, drawWhite);
+		assert mode!=GameMode.PAUSED;
+		if (pauseRecording!=null) {
+			pauseRecording.add(new SpriteRecord(c, s, drawWhite));
+		}
+	}
+
+	private void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
 		s.drawByHandle(x, y, drawWhite);
-		if (pauseRecording!=null && mode!=GameMode.PAUSED) {
-			pauseRecording.add(new SpriteRecord(c, s, drawWhite));
-		}
 	}
 
 	@Override
@@ -719,14 +727,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		//
 	}
 
-	private void drawTheMap() {
+	@Override
+	public void drawTheMap() {
 		ScreenOrdinate ix = scr.scrOrdX;
 		ScreenOrdinate iy = scr.scrOrdY;
-		// ix.checkForOverread(mapBoundsInBlocks.xEnd(), GameMap.MAP_WIDTH);
-		// iy.checkForOverread(mapBoundsInBlocks.yEnd(), GameMap.MAP_HEIGHT);
 
 		int[] blockRow = new int[ix.blockCount];
-
 		int pixelDestY = iy.initialPixelDestination;
 		for (int loopY = 0; loopY < iy.blockCount; loopY++) {
 			for (int loopX = 0; loopX < ix.blockCount; loopX++) {
@@ -791,7 +797,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		horizon.draw();
 		drawTheMap();
 		for (SpriteRecord sr : pauseRecording) {
-			drawSprite(sr.c, sr.s, sr.drawInWhite);
+			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
 		}
 		if (isExitOpen()) statusDisplay.drawExitOpen();
 
@@ -838,8 +844,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawHud();
 		drawBorders();
 
-//		curtain.update();
-//		curtain.draw();
+		curtain.update();
+		curtain.draw();
 //		bounceCurtain();
 
 		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
@@ -874,7 +880,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void bounceCurtain() {
-		// bounce the aperture
 		if (curtain.isDone()) {
 			int s = curtain.target();
 			curtain.target(s ^ (Curtain.OPEN ^ Curtain.CLOSED));
@@ -1004,12 +1009,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void drawMap() {
-		// horizon.draw();
-		drawTheMap();
-	}
-
-	@Override
 	public Alien findNearestAlien(Coord c) {
 		NearestAlienFinder n = new NearestAlienFinder(c);
 		alienTracker.visitVisible(n);
@@ -1115,6 +1114,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// *2 to be generous
 		int offY = scr.position().y + gc.screenHeight() * 2;
 		return c.y > offY;
+	}
+
+	@Override
+	public void levelCompleted() {
+		System.out.println("Completed! :) :)");
 	}
 }
 

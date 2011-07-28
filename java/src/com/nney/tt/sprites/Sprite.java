@@ -7,7 +7,6 @@ import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.ShowBoundsSip;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.WhiteOutSip;
-import com.nney.tt.osd.Component;
 
 public class Sprite implements Disposable {
 	public final int handleX;

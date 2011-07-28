@@ -2,7 +2,6 @@ package com.nney.tt.sprites;
 
 import java.util.HashMap;
 import java.util.Set;
-import java.util.TreeMap;
 
 public abstract class Pool<V> {
 	protected HashMap<String, V> pool = new HashMap<String, V>();

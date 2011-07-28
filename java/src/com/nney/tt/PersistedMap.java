@@ -17,7 +17,6 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.resources.TTResource;
-import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 
 public class PersistedMap {

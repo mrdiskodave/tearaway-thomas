@@ -3,7 +3,6 @@ package com.nney.tt.sprites;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import com.nney.json.DataItem;
 import com.nney.tt.gfx.GraphicsContext;

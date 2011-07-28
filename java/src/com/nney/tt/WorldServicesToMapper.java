@@ -9,7 +9,7 @@ import com.nney.tt.sprites.Anims;
 public interface WorldServicesToMapper {
 	void quitMapper(Coord newPlayerPosition);
 
-	void drawMap();
+	void drawTheMap();
 
 	void drawAliensForMapper();
 
