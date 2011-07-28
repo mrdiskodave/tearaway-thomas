@@ -24,6 +24,10 @@ public class Main {
 	private boolean closing;
 
 	private FpsReporter fpsRep;
+	
+	public static boolean GL_ARB_texture_rectangle;
+	
+	public static boolean GL_ARB_texture_non_power_of_two;
 
 	private void initLwjgl() {
 		try {
@@ -33,6 +37,16 @@ public class Main {
 			Keyboard.create();
 			Keyboard.enableRepeatEvents(true);
 			Mouse.create();
+			
+			for (String ext: GL11.glGetString(GL11.GL_EXTENSIONS).split(" ")) {
+				if (ext.equals("GL_ARB_texture_rectangle")) {
+					GL_ARB_texture_rectangle = true;
+				}
+				else if (ext.equals("GL_ARB_texture_non_power_of_two")) {
+					GL_ARB_texture_non_power_of_two = true;
+				}
+			}
+
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
