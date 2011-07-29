@@ -1,10 +1,9 @@
 package com.nney.tt.osd;
 
-import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.PrerenderedText;
 
-class SmartText implements Component, Disposable {
+class SmartText extends AbstractText {
 	private PrerenderedText content;
 
 	private String slast = "";
@@ -27,10 +26,6 @@ class SmartText implements Component, Disposable {
 			content = font.preRender(col, kern, next);
 			slast = snext;
 		}
-	}
-
-	void centredDraw(int x, int y) {
-		draw(x - width() / 2, y);
 	}
 
 	@Override

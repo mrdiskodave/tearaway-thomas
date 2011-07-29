@@ -10,20 +10,20 @@ public class StatusDisplay implements Disposable {
 	private static final int COL_GOOD = 0xff00ff00;
 
 	private final GraphicsContext gc;
-	private final SmartText exitOpenText;
-	private final SmartText hurryUpText;
-	private final SmartText pausedText;
-	private final SmartText lifeLostText;
+	private final AbstractText exitOpenText;
+	private final AbstractText hurryUpText;
+	private final AbstractText pausedText;
+	private final AbstractText lifeLostText;
 
 	final private MultiDisposable md = new MultiDisposable();
 
 	public StatusDisplay(GraphicsContext gc, Font font) {
 		this.gc = gc;
 
-		exitOpenText = new SmartText(font, COL_GOOD, 0, "exit open");
-		hurryUpText = new SmartText(font, COL_BAD, 0, "hurry up");
-		pausedText = new SmartText(font, 0xff00ffff, 0, "paused");
-		lifeLostText = new SmartText(font, COL_BAD, 0, "life lost");
+		exitOpenText = new StaticText(font, COL_GOOD, 0, "exit open");
+		hurryUpText = new StaticText(font, COL_BAD, 0, "hurry up");
+		pausedText = new StaticText(font, 0xff00ffff, 0, "paused");
+		lifeLostText = new StaticText(font, COL_BAD, 0, "life lost");
 		
 		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText);
 	}
@@ -47,12 +47,12 @@ public class StatusDisplay implements Disposable {
 		drawLow(lifeLostText);
 	}
 
-	private void drawLow(SmartText t) {
+	private void drawLow(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
 		t.centredDraw(midX, gc.screenHeight() * 16 / 20);
 	}
 
-	private void drawHigh(SmartText t) {
+	private void drawHigh(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
 		t.centredDraw(midX, gc.screenHeight() * 7 / 20);
 	}

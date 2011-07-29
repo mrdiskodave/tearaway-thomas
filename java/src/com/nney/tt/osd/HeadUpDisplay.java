@@ -26,12 +26,12 @@ public class HeadUpDisplay implements Disposable {
 
 
 	class ReadOut implements Disposable {
-		private final SmartText headingText;
+		private final StaticText headingText;
 		private SmartText contentText;
 
 		ReadOut(Font font, String heading) {
+			headingText = new StaticText(font, COL_HEADING, 0, heading);
 			contentText = new SmartText(font);
-			headingText = new SmartText(font, COL_HEADING, 0, heading);
 		}
 
 		void set(int col, String content) {
