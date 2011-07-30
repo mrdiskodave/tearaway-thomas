@@ -15,6 +15,7 @@ public class GridComponent implements Component {
 	public static final int NORTHEAST = NORTH|EAST;
 	public static final int SOUTHWEST = SOUTH|WEST;
 	public static final int SOUTHEAST = SOUTH|EAST;
+	public static final int CENTRED = 0;
 	
 	class Cell {
 		int justify = NORTHWEST;
@@ -35,29 +36,33 @@ public class GridComponent implements Component {
 	}
 	
 	private int idx(int x, int y) {
-		System.out.println("X"+x+"Y"+y);
 		assert x<w;
 		assert y<h;
 		return y*w+x;
 	}
 	
-	private Cell zidx(int x, int y) {
+	private Cell cell(int x, int y) {
 		return items[idx(x, y)];
 	}
 	
-	
 	public void setJustify(int x, int y, int j) {
-		zidx(x, y).justify = j;
+		cell(x, y).justify = j;
+	}
+	
+	public void setJustify(int j) {
+		for (int x=0; x<items.length; x++) {
+			items[x].justify = j;
+		}
 	}
 	
 	public void setContent(int x, int y, Component c) {
-		zidx(x, y).content = c;
+		cell(x, y).content = c;
 	}
 
 	private int widthOfCol(int x) {
 		int r = 0;
 		for (int y=0; y<h; y++) {
-			r = Math.max(r, zidx(x, y).content.width());
+			r = Math.max(r, cell(x, y).content.width());
 		}
 		return r;
 	}
@@ -65,7 +70,7 @@ public class GridComponent implements Component {
 	private int heightOfRow(int y) {
 		int r = 0;
 		for (int x=0; x<w; x++) {
-			r = Math.max(r, zidx(x, y).content.height());
+			r = Math.max(r, cell(x, y).content.height());
 		}
 		return r;
 	}
@@ -100,7 +105,7 @@ public class GridComponent implements Component {
 			int hor = heightOfRow(y);
 			for (int x=0; x<w; x++) {
 				int woc = widths[x];
-				Cell cell = zidx(x, y); 
+				Cell cell = cell(x, y); 
 				cell.content.draw(tmpx+justify(cell.justify, cell.content.width(), woc), dy+justify(cell.justify>>4, cell.content.height(), hor));
 				tmpx += woc; 
 			}
