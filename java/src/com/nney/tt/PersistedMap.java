@@ -26,12 +26,11 @@ public class PersistedMap {
 	public short playerY;
 	public boolean playerGoLeft;
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
-	
+
 	public int gemsNeeded;
 	public int horizon;
 	public int timeGiven;
 	public String worldName;
-	
 
 	public void populateFromLevelInfo(World world, int lev) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
@@ -114,41 +113,46 @@ public class PersistedMap {
 	public void loadLegacy(World world, Openable mapOpenable) {
 		try {
 			InputStream i = mapOpenable.open();
-			DataInputStream di = new DataInputStream(i);
-			// get the game map off the front of the stream
-			gameMap = new GameMap();
-			gameMap.loadFromLegacyMap(di);
+			try {
+				DataInputStream di = new DataInputStream(i);
+				// get the game map off the front of the stream
+				gameMap = new GameMap();
+				gameMap.loadFromLegacyMap(di);
 
-			// read the other things
-			for (;;) {
-				String id = readChunkId(di);
-				if (id.equals("set2")) {
-					byte[] rawSettings = new byte[0x30];
-					di.readFully(rawSettings);
-					loadRawSettings(rawSettings);
-				}
-				else if (id.equals("obj2")) {
-					for (;;) {
-						int x = di.readShort();
-						int y = di.readShort();
-						if (x < 0) break;
-						int type = di.readByte();
-						byte[] rest = new byte[21];
-						di.readFully(rest);
+				// read the other things
+				for (;;) {
+					String id = readChunkId(di);
+					if (id.equals("set2")) {
+						byte[] rawSettings = new byte[0x30];
+						di.readFully(rawSettings);
+						loadRawSettings(rawSettings);
+					}
+					else if (id.equals("obj2")) {
+						for (;;) {
+							int x = di.readShort();
+							int y = di.readShort();
+							if (x < 0) break;
+							int type = di.readByte();
+							byte[] rest = new byte[21];
+							di.readFully(rest);
 
-						createLegacyAlien(world, x, y, type, rest);
+							createLegacyAlien(world, x, y, type, rest);
+						}
+					}
+					else if (id.equals("pal2")) {
+						while (di.readShort() != -1) {
+						}
+					}
+					else if (id.equals("end!")) {
+						break;
+					}
+					else {
+						throw new RuntimeException("Unknown chunk: " + id);
 					}
 				}
-				else if (id.equals("pal2")) {
-					while (di.readShort() != -1) {
-					}
-				}
-				else if (id.equals("end!")) {
-					break;
-				}
-				else {
-					throw new RuntimeException("Unknown chunk: " + id);
-				}
+			}
+			finally {
+				i.close();
 			}
 
 		}
@@ -156,7 +160,7 @@ public class PersistedMap {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	void save() {
 		SafeWriter sw = new SafeWriter() {
 			@Override
