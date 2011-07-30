@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.nney.utils.mbr.MustBeClosedInputStream;
+
 public class ClassResourceOpenable implements Openable {
 	private final Class<?> base;
 	private final String name;
@@ -19,7 +21,7 @@ public class ClassResourceOpenable implements Openable {
 		if (answer == null) {
 			throw new FileNotFoundException(base.toString() + " " + name + " classpath resource not found");
 		}
-		return answer;
+		return new MustBeClosedInputStream(answer);
 	}
 
 }
