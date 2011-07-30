@@ -171,11 +171,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	enum GameMode {
 		PLAYING,
-		PAUSED, TITLE, DONE
+		PAUSED
 	}
 	private GameMode mode = GameMode.PLAYING;
-
-	private GameMode postRecordingMode = GameMode.PLAYING;
 
 	/**
 	 * A record of where (and how) we've put a {@link Sprite}.
@@ -211,7 +209,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * <p>
 	 * This is where we store the recording.
 	 */
-	private ArrayList<SpriteRecord> pauseRecording;
+	private final ArrayList<SpriteRecord> recording = new ArrayList<World.SpriteRecord>();
 
 	/**
 	 * Were we pressing the pause key last frame?
@@ -224,6 +222,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private Curtain curtain;
 
 	private StatusDisplay statusDisplay;
+
+	private boolean record;
+
+	private boolean completed;
 
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
@@ -411,9 +413,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		directDrawSprite(c, s, drawWhite);
 		assert mode!=GameMode.PAUSED;
-		if (pauseRecording!=null) {
-			pauseRecording.add(new SpriteRecord(c, s, drawWhite));
-		}
+		if (record) recording.add(new SpriteRecord(c, s, drawWhite));
 	}
 
 	private void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
@@ -782,11 +782,22 @@ public class World implements AlienServices, WorldServicesToMapper {
 					if (mode==GameMode.PAUSED) {
 						modePaused();
 					}
-					else if (mode==GameMode.TITLE) {
-						
-					}
 					else {
-						modeMainGame();
+						if (pauseAntiAutofire()) {
+							record = true;
+							modeMainGame();
+							record = false;
+							mode = GameMode.PAUSED;
+						}
+						else if (completed) {
+							record = true;
+							modeMainGame();
+							record = false;
+							mode = GameMode.PAUSED;
+						}
+						else {
+							modeMainGame();
+						}
 					}
 				}
 			}
@@ -796,7 +807,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private void modePaused() {
 		horizon.draw();
 		drawTheMap();
-		for (SpriteRecord sr : pauseRecording) {
+		for (SpriteRecord sr : recording) {
 			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
 		}
 		if (isExitOpen()) statusDisplay.drawExitOpen();
@@ -808,17 +819,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		if (pauseAntiAutofire()) {
 			mode = GameMode.PLAYING;
-			// throw away the old pause recording
-			pauseRecording = null;
 		}
 	}
 
 	private void modeMainGame() {
-		if (pauseAntiAutofire()) {
-			// get ready to make a new pause-recording
-			pauseRecording = new ArrayList<World.SpriteRecord>();
-		}
-
+		recording.clear();
+		
 		frameNumber++;
 
 		int timeDec = player.isStunned() ? 3 : 1;
@@ -852,10 +858,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// 0xff000000);
 		// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
 		// 0xff000000);
-		
-		if (pauseRecording!=null) {
-			mode = GameMode.PAUSED;
-		}
 	}
 
 	private void drawBorders() {
@@ -1118,7 +1120,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void levelCompleted() {
-		System.out.println("Completed! :) :)");
+		completed = true;
 	}
 }
 
