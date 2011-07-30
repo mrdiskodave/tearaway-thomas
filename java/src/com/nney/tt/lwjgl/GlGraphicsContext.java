@@ -29,7 +29,7 @@ public class GlGraphicsContext implements GraphicsContext {
 		return new Horizon() {
 			@Override
 			public void draw() {
-				gt.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, gt.getWidth(), gt.getHieght());
+				gt.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, gt.width(), gt.height());
 			}
 
 			@Override

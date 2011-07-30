@@ -1,11 +1,14 @@
 package com.nney.tt.lwjgl;
 
+import java.util.HashSet;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
 
 import com.nney.tt.Const;
 import com.nney.tt.World;
@@ -14,7 +17,7 @@ import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdapter;
 
 public class Main {
-	private static final int ZOOM = 2;
+	static final int ZOOM = 2;
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
@@ -24,10 +27,12 @@ public class Main {
 	private boolean closing;
 
 	private FpsReporter fpsRep;
-	
+
 	public static boolean GL_ARB_texture_rectangle;
-	
+
 	public static boolean GL_ARB_texture_non_power_of_two;
+
+	public static boolean GL_EXT_framebuffer_object;
 
 	private void initLwjgl() {
 		try {
@@ -37,16 +42,24 @@ public class Main {
 			Keyboard.create();
 			Keyboard.enableRepeatEvents(true);
 			Mouse.create();
-			
-			for (String ext: GL11.glGetString(GL11.GL_EXTENSIONS).split(" ")) {
-				if (ext.equals("GL_ARB_texture_rectangle")) {
-					GL_ARB_texture_rectangle = true;
-				}
-				else if (ext.equals("GL_ARB_texture_non_power_of_two")) {
-					GL_ARB_texture_non_power_of_two = true;
-				}
+
+			HashSet<String> capabilities = new HashSet<String>();
+			for (String ext : GL11.glGetString(GL11.GL_EXTENSIONS).split(" ")) {
+				capabilities.add(ext);
 			}
 
+			if (capabilities.contains("GL_ARB_texture_rectangle")) {
+				GL_ARB_texture_rectangle = true;
+			}
+			if (capabilities.contains("GL_ARB_texture_non_power_of_two")) {
+				GL_ARB_texture_non_power_of_two = true;
+			}
+			if (capabilities.contains("GL_EXT_framebuffer_object")) {
+				GL_EXT_framebuffer_object = true;
+			}
+			assert GLContext.getCapabilities().GL_ARB_texture_rectangle == GL_ARB_texture_rectangle;
+			assert GLContext.getCapabilities().GL_ARB_texture_non_power_of_two == GL_ARB_texture_non_power_of_two;
+			assert GLContext.getCapabilities().GL_EXT_framebuffer_object == GL_EXT_framebuffer_object;
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
@@ -60,7 +73,6 @@ public class Main {
 		GL11.glClearColor(0.0f, 0.5f, 1.0f, 0.0f);
 
 		GL11.glViewport(0, 0, SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM);
-
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);

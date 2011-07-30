@@ -1,32 +1,41 @@
 package com.nney.tt.lwjgl;
 
+import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.nney.tt.gfx.Blitable;
+import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.mbr.MustBeReleased;
 
-public class GlTexture implements Blitable {
-	private MustBeReleased mbr = new MustBeReleased(); 
-	private int textureId;
-	private int textureW;
-	private int textureH;
+public class GlTexture implements Blitable, PrerenderedText {
+	final private MustBeReleased mbr = new MustBeReleased(); 
+	final private int textureId;
+	final private int textureW;
+	final private int textureH;
 
-	private int imageW;
-	private int imageH;
+	final private int imageW;
+	final private int imageH;
 
 	public GlTexture(SimpleImage si) {
 		this(si, false);
 	}
 
 	public GlTexture(SimpleImage si, boolean mono) {
+		this(si, si.width(), si.height(), mono);
+	}
+	
+	public GlTexture(int w, int h) {
+		this(null, w, h, false);
+	}
+	
+	private GlTexture(SimpleImage si, int w, int h, boolean mono) {
 		int theirFormat = mono ? GL11.GL_ALPHA : GL11.GL_RGBA8;
 
 		// TODO: maybe don't store image dimensions here
-		imageW = si.width();
-		imageH = si.height();
-		
+		imageW = w;
+		imageH = h;
 
 		if (Main.GL_ARB_texture_non_power_of_two) {
 			textureW = imageW;
@@ -37,7 +46,7 @@ public class GlTexture implements Blitable {
 			textureH = GlTools.pow2(imageH);
 		}
 
-		textureId = GL11.glGenTextures();
+		textureId = GlTools.genTextureName();
 		assert textureId != 0;
 		bindTexture();
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
@@ -115,11 +124,22 @@ public class GlTexture implements Blitable {
 		mbr.release();
 	}
 
-	public int getWidth() {
+	@Override
+	public int width() {
 		return imageW;
 	}
 
-	public int getHieght() {
+	@Override
+	public int height() {
 		return imageH;
+	}
+
+	public void attachToFBO(int myFBOId) {
+		EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, myFBOId);
+		EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT,
+				EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT, GL11.GL_TEXTURE_2D, textureId, 0);
+
+		EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, myFBOId);
+		GlTools.completeness(myFBOId);
 	}
 }

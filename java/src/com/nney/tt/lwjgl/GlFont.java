@@ -15,7 +15,7 @@ public class GlFont extends PartialFontImpl {
 
 	@Override
 	public void dispose() {
-		if (texture!=null) texture.dispose();
+		if (texture != null) texture.dispose();
 	}
 
 	@Override
@@ -43,10 +43,24 @@ public class GlFont extends PartialFontImpl {
 
 	@Override
 	public PrerenderedText preRender(int fg, int kern, String text) {
+
+		if (Main.GL_EXT_framebuffer_object) {
+			int w = computeWidth(kern, text);
+			int h = charHeight();
+			
+			GlTexture t = new GlTexture(w, h);
+			GlFrameBufferObject fbo = new GlFrameBufferObject(t);
+			draw(0, 0, fg, kern, text);
+			fbo.dispose();
+			return t;
+		}
+		
+		
 		int id = GL11.glGenLists(1);
 		GL11.glNewList(id, GL11.GL_COMPILE);
 		int width = draw(0, 0, fg, kern, text) - kern;
 		GL11.glEndList();
 		return new GlPrerenderedText(width, miniH, id);
 	}
+
 }
