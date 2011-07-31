@@ -32,7 +32,7 @@ public class StatusDisplay implements Disposable {
 		//
 		// hurry up
 		//
-			drawLow(hurryUpText);
+		drawLow(hurryUpText);
 	}
 	
 	public void drawExitOpen() {

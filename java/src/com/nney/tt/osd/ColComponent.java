@@ -31,15 +31,18 @@ public class ColComponent implements Component {
 	public void draw(int dx, int dy) {
 		int w = width();
 		for (Component item: items) {
-			int adjustment = computeHorizontalAdjustment(item.height(), w);
+			int adjustment = computeHorizontalAdjustment(item.width(), w);
 			item.draw(dx+adjustment, dy);
 			dy += item.height();
 		}
 	}
+	
 
 	private int computeHorizontalAdjustment(int itemSize, int totalSize) {
 		// vertically centred!
 		// the only adjustment for now.
 		return (totalSize-itemSize)/2;
 	}
+	
+	
 }

@@ -17,6 +17,8 @@ public class GridComponent implements Component {
 	public static final int SOUTHEAST = SOUTH|EAST;
 	public static final int CENTRED = 0;
 	
+	int padding;
+	
 	class Cell {
 		int justify = NORTHWEST;
 		Component content = NULL_COMPONENT;
@@ -25,6 +27,9 @@ public class GridComponent implements Component {
 	final private Cell[] items;
 	private final int w;
 	private final int h;
+
+	private int horizontalPadding;
+	private int verticalPadding;
 	
 	public GridComponent(int w, int h) {
 		this.w = w;
@@ -58,13 +63,13 @@ public class GridComponent implements Component {
 	public void setContent(int x, int y, Component c) {
 		cell(x, y).content = c;
 	}
-
+	
 	private int widthOfCol(int x) {
 		int r = 0;
 		for (int y=0; y<h; y++) {
 			r = Math.max(r, cell(x, y).content.width());
 		}
-		return r;
+		return horizontalPadding*2+r;
 	}
 
 	private int heightOfRow(int y) {
@@ -72,7 +77,7 @@ public class GridComponent implements Component {
 		for (int x=0; x<w; x++) {
 			r = Math.max(r, cell(x, y).content.height());
 		}
-		return r;
+		return verticalPadding*2+r;
 	}
 	
 	@Override
@@ -95,6 +100,9 @@ public class GridComponent implements Component {
 
 	@Override
 	public void draw(int dx, int dy) {
+		dx += horizontalPadding;
+		dy += verticalPadding;
+		
 		int[] widths = new int[w];
 		for (int x=0; x<w; x++) {
 			widths[x] = widthOfCol(x);
@@ -120,6 +128,11 @@ public class GridComponent implements Component {
 		return (cell-content)/2;
 	}
 	
-	
+	public void setHorizontalPadding(int horizontalPadding) {
+		this.horizontalPadding = horizontalPadding;
+	}
 
+	public void setVerticalPadding(int verticalPadding) {
+		this.verticalPadding = verticalPadding;
+	}
 }
