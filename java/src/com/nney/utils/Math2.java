@@ -1,6 +1,10 @@
 package com.nney.utils;
 
 public final class Math2 {
+	public static final int fracMult(int x, int top, int bottom) {
+		return (x*bottom)/top;
+	}
+	
 	public static final int roundUpDiv(int x, int y) {
 		return (x + y - 1) / y;
 	}

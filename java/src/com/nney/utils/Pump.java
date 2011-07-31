@@ -37,17 +37,4 @@ public class Pump {
 		}
 		return done;
 	}
-
-	// Utilities:
-	static public byte[] loadIntoByteArray(Openable openable) throws IOException {
-		InputStream in = openable.open();
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			new Pump(in, out).processToEof();
-			return out.toByteArray();
-		}
-		finally {
-			in.close();
-		}
-	}
 }

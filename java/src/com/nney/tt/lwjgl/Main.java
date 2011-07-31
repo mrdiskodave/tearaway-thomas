@@ -60,6 +60,7 @@ public class Main {
 			assert GLContext.getCapabilities().GL_ARB_texture_rectangle == GL_ARB_texture_rectangle;
 			assert GLContext.getCapabilities().GL_ARB_texture_non_power_of_two == GL_ARB_texture_non_power_of_two;
 			assert GLContext.getCapabilities().GL_EXT_framebuffer_object == GL_EXT_framebuffer_object;
+			
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);

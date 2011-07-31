@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.nney.tt.World.GameMode;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
@@ -56,7 +55,10 @@ import com.nney.tt.map.MasksHolder;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.osd.HeadUpDisplay;
+import com.nney.tt.osd.OsdParser;
+import com.nney.tt.osd.OsdParserTest;
 import com.nney.tt.osd.StatusDisplay;
+import com.nney.tt.osd.StatusScreen;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsDefPool;
@@ -170,9 +172,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * Are we paused?
 	 */
 	enum GameMode {
-		PLAYING,
-		PAUSED
+		PLAYING, PAUSED, COMPLETE
 	}
+
 	private GameMode mode = GameMode.PLAYING;
 
 	/**
@@ -207,6 +209,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * methods on the {@link Alien}s.
 	 * 
 	 * <p>
+	 * ORRR.... I was thinking about using SpriteRecords in order to have to
+	 * {@link Alien#update()} the aliens according to their {@link Alien#depth}.
+	 * Recording for one frame is awkward - it delays are intent by one frame
+	 * ... meaning we have to track that intent and also the game world moves on
+	 * by one frame. Maybe we record all the time? It need not generate garbage
+	 * if done right and then Aliens could sit in a single list. That's
+	 * something to consider.
+	 * 
+	 * 
+	 * <p>
 	 * This is where we store the recording.
 	 */
 	private final ArrayList<SpriteRecord> recording = new ArrayList<World.SpriteRecord>();
@@ -227,6 +239,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private boolean completed;
 
+	private StatusScreen src;
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -412,7 +425,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		directDrawSprite(c, s, drawWhite);
-		assert mode!=GameMode.PAUSED;
+		assert mode != GameMode.PAUSED;
 		if (record) recording.add(new SpriteRecord(c, s, drawWhite));
 	}
 
@@ -700,7 +713,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
 		updateList(alienTracker.getBackgroundList(), screenBox, mapper);
-		if (!mapper) {
+		if (!mapper && mode != GameMode.COMPLETE) {
 			player.draw();
 		}
 		updateList(alienTracker.getForegroundList(), screenBox, mapper);
@@ -779,7 +792,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 					drawBorders();
 				}
 				else {
-					if (mode==GameMode.PAUSED) {
+					if (mode == GameMode.COMPLETE) {
+						modeComplete();
+					}
+					else if (mode == GameMode.PAUSED) {
 						modePaused();
 					}
 					else {
@@ -791,9 +807,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 						}
 						else if (completed) {
 							record = true;
+							mode = GameMode.COMPLETE;
 							modeMainGame();
 							record = false;
-							mode = GameMode.PAUSED;
+							
+							src = new StatusScreen(gc, font);
+							new OsdParser(src).parse("hello[p][k7]b[c2]ell[c1]y[n][p][k]cheese");
 						}
 						else {
 							modeMainGame();
@@ -822,9 +841,22 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
+	private void modeComplete() {
+		horizon.draw();
+		drawTheMap();
+		for (SpriteRecord sr : recording) {
+			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
+		}
+		src.update();
+		curtain.draw();
+		curtain.update();
+		drawHud();
+		drawBorders();
+	}
+
 	private void modeMainGame() {
 		recording.clear();
-		
+
 		frameNumber++;
 
 		int timeDec = player.isStunned() ? 3 : 1;
@@ -852,7 +884,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		curtain.update();
 		curtain.draw();
-//		bounceCurtain();
+		// bounceCurtain();
 
 		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
 		// 0xff000000);

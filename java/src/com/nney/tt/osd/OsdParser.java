@@ -7,7 +7,7 @@ public class OsdParser {
 	private static final Pattern OSD_CONTENT_PATTERN = Pattern.compile("\\[([a-z])(\\d*)\\]");
 	private final TextDest td;
 
-	OsdParser(TextDest td) {
+	public OsdParser(TextDest td) {
 		this.td = td;
 	}
 
