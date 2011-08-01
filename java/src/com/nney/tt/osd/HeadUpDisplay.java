@@ -79,7 +79,7 @@ public class HeadUpDisplay implements Disposable {
 		md.addMany(scoreReadOut, gemsReadOut, timeReadOut, livesText, xText);
 
 
-		livesRow = new RowComponent();
+		livesRow = new RowComponent(Justify.CENTRED);
 		livesRow.add(new SpriteComponent(lifeSprite));
 		livesRow.add(new SpacerComponent(4, 1));
 		livesRow.add(xText);

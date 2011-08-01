@@ -48,4 +48,15 @@ public class MockTextDest implements TextDest {
 		am("kern:"+v);
 	}
 
+	@Override
+	public void addTable(int w, int h) {
+		am("table:"+w+","+h);
+		
+	}
+
+	@Override
+	public void endCell() {
+		am("endCell");
+	}
+
 }

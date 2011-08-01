@@ -812,7 +812,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 							record = false;
 							
 							src = new StatusScreen(gc, font);
-							new OsdParser(src).parse("hello[p][k7]b[c2]ell[c1]y[n][p][k]cheese");
+							OsdParser osdParser = new OsdParser(src);
+							osdParser.parse("hello[p][k7]b[c2]ell[c1]y[n][p][k]cheese"+
+									"[n][n][c0]more[t2,2]aaaaaaaaaaaa[n]q[e]b[e]c[e]z[e]less");
+							src.done();
+
 						}
 						else {
 							modeMainGame();

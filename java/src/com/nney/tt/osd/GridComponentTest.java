@@ -32,13 +32,13 @@ public class GridComponentTest extends TestCase {
 
 		g.draw(1, 2);
 		assertEquals("41x32", m.drawnAt());
-		g.setJustify(2, 2, GridComponent.SOUTHEAST);
+		g.setJustify(2, 2, Justify.SOUTHEAST);
 		g.draw(1, 2);
 		assertEquals("91x92", m.drawnAt());
-		g.setJustify(2, 2, GridComponent.SOUTH);
+		g.setJustify(2, 2, Justify.SOUTH);
 		g.draw(1, 2);
 		assertEquals("66x92", m.drawnAt());
-		g.setJustify(2, 2, GridComponent.EAST);
+		g.setJustify(2, 2, Justify.EAST);
 		g.draw(1, 2);
 		assertEquals("91x62", m.drawnAt());
 	}

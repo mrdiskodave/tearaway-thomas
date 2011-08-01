@@ -16,68 +16,95 @@ public class StatusScreen implements Disposable, TextDest {
 
 	private final MultiDisposable md = new MultiDisposable();
 
-	private final ColComponent message;
+	private final Font font;
 
 	private final GraphicsContext gc;
-
-	private RowComponent row;
-
-	private final Font font;
 
 	private int currentCol = Colours.WHITE;
 
 	private int currentKern;
 
+	private Component message;
+
+	private MessageWriter topMw;
+
+	private GridComponent activeGrid;
+
+	private int gridPosX;
+
+	private int gridPosY;
+
+	private MessageWriter mw;
+
+	class MessageWriter {
+		private final ColComponent message;
+
+		private RowComponent row;
+
+		MessageWriter(int j) {
+			message = new ColComponent(j);
+			addRow();
+		}
+
+		private void addRow() {
+			row = new RowComponent(Justify.SOUTH);
+			message.add(row);
+		}
+
+		public void addTable(int w, int h) {
+			GridComponent grid = new GridComponent(w, h);
+			row.add(grid);
+			gridOn(grid);
+		}
+
+		public void addText(String text) {
+			if (text.length() != 0) {
+				PreText p = new PreText(font, currentCol, currentKern, text);
+				unrendered.add(p);
+				row.add(p);
+			}
+		}
+
+		public void addCr() {
+			addAdv(0);
+		}
+
+		public void addParagraph() {
+			addAdv(100);
+		}
+
+		public void addAdv(int size) {
+			size = Math2.fracMult(font.charHeight(), size, 100);
+			addRow();
+			row.add(new SpacerComponent(0, size));
+			addRow();
+		}
+
+		public Component getMessage() {
+			return message;
+		}
+	}
+
 	public StatusScreen(GraphicsContext gc, Font font) {
 		this.gc = gc;
 		this.font = font;
-		message = new ColComponent();
-		addRow();
+		topMw = mw = new MessageWriter(Justify.CENTRED);
 	}
 
-	private void addRow() {
-		row = new RowComponent();
-		message.add(row);
-	}
-
-	@Override
-	public void addText(String text) {
-		if (text.length()!=0) { 
-			PreText p = new PreText(font, currentCol, currentKern, text);
-			unrendered.add(p);
-			row.add(p);
-		}
-	}
-	
-	@Override
-	public void addCr() {
-		addAdv(100);
-	}
-	
-	@Override
-	public void addParagraph() {
-		addAdv(200);
-	}
-
-	@Override
-	public void addAdv(int size) {
-		size = Math2.fracMult(font.charHeight(), size, 100);
-		addRow();
-		row.add(new SpacerComponent(0, size));
-		addRow();
-	}
-	
-	
 	@Override
 	public void setCol(int v) {
 		currentCol = PAL[v];
 	}
-	
+
 	@Override
 	public void setKern(int v) {
 		currentKern = v;
 	}
-	
+
+	public void done() {
+		message = mw.getMessage();
+	}
+
 	boolean isReadyToDraw() {
 		return unrendered.isEmpty();
 	}
@@ -106,5 +133,56 @@ public class StatusScreen implements Disposable, TextDest {
 	@Override
 	public void dispose() {
 		md.dispose();
+	}
+
+	void gridOn(GridComponent grid) {
+		activeGrid = grid;
+		gridPosX = 0;
+		gridPosY = 0;
+		mw = new MessageWriter(Justify.WEST);
+	}
+
+	@Override
+	public void endCell() {
+		activeGrid.setContent(gridPosX, gridPosY, mw.getMessage());
+		mw = new MessageWriter(Justify.WEST);
+		gridPosX++;
+		if (gridPosX == activeGrid.widthInCells()) {
+			gridPosX = 0;
+			gridPosY++;
+			if (gridPosY == activeGrid.heightInCells()) {
+				activeGrid = null;
+				mw = topMw;
+			}
+		}
+	}
+
+	@Override
+	public void addTable(int w, int h) {
+		getMw().addTable(w, h);
+	}
+
+	@Override
+	public void addText(String text) {
+		getMw().addText(text);
+	}
+
+	@Override
+	public void addCr() {
+		getMw().addCr();
+	}
+
+	@Override
+	public void addParagraph() {
+		getMw().addParagraph();
+	}
+
+	@Override
+	public void addAdv(int size) {
+		getMw().addAdv(size);
+	}
+
+	private MessageWriter getMw() {
+		return mw;
 	}
 }

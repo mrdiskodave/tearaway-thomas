@@ -4,11 +4,16 @@ import java.util.ArrayList;
 
 public class ColComponent implements Component {
 	final private ArrayList<Component> items = new ArrayList<Component>();
+	private int justify;
 	
 	public void add(Component n) {
 		items.add(n);
 	}
 
+	public ColComponent(int justify) {
+		this.justify = justify;
+	}
+	
 	@Override
 	public int height() {
 		int answer = 0;
@@ -22,7 +27,7 @@ public class ColComponent implements Component {
 	public int width() {
 		int answer = 0;
 		for (Component item: items) {
-			answer = Math.max(answer, item.height());
+			answer = Math.max(answer, item.width());
 		}
 		return answer;
 	}
@@ -31,18 +36,9 @@ public class ColComponent implements Component {
 	public void draw(int dx, int dy) {
 		int w = width();
 		for (Component item: items) {
-			int adjustment = computeHorizontalAdjustment(item.width(), w);
+			int adjustment = Justify.x(justify, item.width(), w);
 			item.draw(dx+adjustment, dy);
 			dy += item.height();
 		}
 	}
-	
-
-	private int computeHorizontalAdjustment(int itemSize, int totalSize) {
-		// vertically centred!
-		// the only adjustment for now.
-		return (totalSize-itemSize)/2;
-	}
-	
-	
 }

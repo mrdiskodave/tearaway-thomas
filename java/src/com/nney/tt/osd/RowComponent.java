@@ -5,6 +5,11 @@ import java.util.ArrayList;
 
 public class RowComponent implements Component {
 	final private ArrayList<Component> items = new ArrayList<Component>();
+	private final int justify;
+
+	public RowComponent(int justify) {
+		this.justify = justify;
+	}
 	
 	public void add(Component n) {
 		items.add(n);
@@ -32,15 +37,9 @@ public class RowComponent implements Component {
 	public void draw(int dx, int dy) {
 		int h = height();
 		for (Component item: items) {
-			int adjustment = computeVerticalAdjustment(item.height(), h);
+			int adjustment = Justify.y(justify, item.height(), h);
 			item.draw(dx, dy+adjustment);
 			dx += item.width();
 		}
-	}
-
-	private int computeVerticalAdjustment(int itemSize, int totalSize) {
-		// vertically centred!
-		// the only adjustment for now.
-		return (totalSize-itemSize)/2;
 	}
 }

@@ -4,23 +4,10 @@ package com.nney.tt.osd;
 public class GridComponent implements Component {
 	final static Component NULL_COMPONENT = new SpacerComponent(0, 0);
 
-	private static final int LOW = 1;
-	private static final int HIGH = 2;
-	
-	public static final int NORTH = LOW<<4;
-	public static final int SOUTH = HIGH<<4;
-	public static final int WEST  = LOW;
-	public static final int EAST  = HIGH;
-	public static final int NORTHWEST = NORTH|WEST;
-	public static final int NORTHEAST = NORTH|EAST;
-	public static final int SOUTHWEST = SOUTH|WEST;
-	public static final int SOUTHEAST = SOUTH|EAST;
-	public static final int CENTRED = 0;
-	
 	int padding;
 	
 	class Cell {
-		int justify = NORTHWEST;
+		int justify = Justify.NORTHWEST;
 		Component content = NULL_COMPONENT;
 	}
 	
@@ -114,25 +101,26 @@ public class GridComponent implements Component {
 			for (int x=0; x<w; x++) {
 				int woc = widths[x];
 				Cell cell = cell(x, y); 
-				cell.content.draw(tmpx+justify(cell.justify, cell.content.width(), woc), dy+justify(cell.justify>>4, cell.content.height(), hor));
+				cell.content.draw(tmpx+Justify.x(cell.justify, cell.content.width(), woc), dy+Justify.y(cell.justify, cell.content.height(), hor));
 				tmpx += woc; 
 			}
 			dy += hor;
 		}
 	}
 
-	private int justify(int justify, int content, int cell) {
-		justify &= 0xf;
-		if (justify==LOW) return 0;
-		if (justify==HIGH) return cell-content;
-		return (cell-content)/2;
-	}
-	
 	public void setHorizontalPadding(int horizontalPadding) {
 		this.horizontalPadding = horizontalPadding;
 	}
 
 	public void setVerticalPadding(int verticalPadding) {
 		this.verticalPadding = verticalPadding;
+	}
+
+	public int widthInCells() {
+		return w;
+	}
+
+	public int heightInCells() {
+		return h;
 	}
 }

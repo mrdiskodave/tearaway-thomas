@@ -13,4 +13,8 @@ public interface TextDest {
 
 	void addAdv(int size);
 
+	void addTable(int w, int h);
+
+	void endCell();
+
 }

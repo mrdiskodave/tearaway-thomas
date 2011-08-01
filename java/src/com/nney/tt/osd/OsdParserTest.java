@@ -15,6 +15,12 @@ public class OsdParserTest extends TestCase {
 		assertItWorks(send, expect);
 	}
 
+	public void test3() throws Exception {
+		String send = "hello[t3,7][e][e]";
+		String expect = "text:hello,table:3,7,endCell,endCell";
+		assertItWorks(send, expect);
+	}
+
 	private void assertItWorks(String send, String expect) {
 		MockTextDest td = new MockTextDest(); 
 		OsdParser p = new OsdParser(td);

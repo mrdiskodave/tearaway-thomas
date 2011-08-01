@@ -4,6 +4,7 @@ import com.nney.tt.gfx.Disposable;
 
 public abstract class AbstractText implements Component, Disposable {
 	public void centredDraw(int x, int y) {
-		draw(x - width() / 2, y);
+		int nx = x - width() / 2;
+		draw(nx, y);
 	}
 }
