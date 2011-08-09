@@ -4,6 +4,7 @@ import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.MultiDisposable;
+import com.nney.utils.Math2;
 
 public class StatusDisplay implements Disposable {
 	private static final int COL_BAD = 0xffff0000;
@@ -49,12 +50,12 @@ public class StatusDisplay implements Disposable {
 
 	private void drawLow(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
-		t.centredDraw(midX, gc.screenHeight() * 16 / 20);
+		t.centredDraw(midX, Math2.fracMult(gc.screenHeight(), 16, 20));
 	}
 
 	private void drawHigh(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
-		t.centredDraw(midX, gc.screenHeight() * 7 / 20);
+		t.centredDraw(midX, Math2.fracMult(gc.screenHeight(), 7, 20));
 	}
 
 	@Override

@@ -10,7 +10,13 @@ import com.nney.tt.gfx.MultiDisposable;
 import com.nney.utils.Math2;
 
 public class StatusScreen implements Disposable, TextDest {
-	private static final int[] PAL = { 0xffffffff, 0xffff0000, 0xff00ff00, 0xff0000ff, 0xffffff00, 0xff00ffff };
+	private static final int[] PAL = { 0xffffffff, // white
+		0xffff0000, // red
+		0xff00ff00, // green
+		0xff0000ff, // blue
+		0xffffff00, // yellow
+		0xff00ffff // cyan
+	};
 
 	private final Stack<PreText> unrendered = new Stack<PreText>();
 
@@ -53,6 +59,7 @@ public class StatusScreen implements Disposable, TextDest {
 
 		public void addTable(int w, int h) {
 			GridComponent grid = new GridComponent(w, h);
+			grid.setVerticalPadding(vScale(10));
 			row.add(grid);
 			gridOn(grid);
 		}
@@ -66,15 +73,15 @@ public class StatusScreen implements Disposable, TextDest {
 		}
 
 		public void addCr() {
-			addAdv(0);
+			addAdv(25);
 		}
 
 		public void addParagraph() {
-			addAdv(100);
+			addAdv(80);
 		}
 
 		public void addAdv(int size) {
-			size = Math2.fracMult(font.charHeight(), size, 100);
+			size = vScale(size);
 			addRow();
 			row.add(new SpacerComponent(0, size));
 			addRow();
@@ -94,6 +101,15 @@ public class StatusScreen implements Disposable, TextDest {
 	@Override
 	public void setCol(int v) {
 		currentCol = PAL[v];
+	}
+
+	private int vScale(int size) {
+		return Math2.fracMult(font.charHeight(), size, 50);
+	}
+
+	@Override
+	public void setHorizontalPadding(int hp) {
+		activeGrid.setHorizontalPadding(vScale(hp));
 	}
 
 	@Override

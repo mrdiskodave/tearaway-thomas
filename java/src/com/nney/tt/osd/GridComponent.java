@@ -11,39 +11,40 @@ public class GridComponent implements Component {
 		Component content = NULL_COMPONENT;
 	}
 	
-	final private Cell[] items;
-	private final int w;
-	private final int h;
+	final private Grid<Cell> items;
 
 	private int horizontalPadding;
 	private int verticalPadding;
 	
 	public GridComponent(int w, int h) {
-		this.w = w;
-		this.h = h;
-		items = new Cell[w*h];
-		for (int x=0; x<items.length; x++) {
-			items[x] = new Cell();
+		items = new Grid<Cell>(w, h);
+		for (int y=0; y<h; y++) {
+			for (int x=0; x<w; x++) {
+				setCell(x, y, new Cell());
+			}
 		}
 	}
 	
-	private int idx(int x, int y) {
-		assert x<w;
-		assert y<h;
-		return y*w+x;
+	private void setCell(int x, int y, Cell c) {
+		items.set(x, y, c);
 	}
 	
 	private Cell cell(int x, int y) {
-		return items[idx(x, y)];
+		return items.get(x, y);
 	}
+	
+	
+	
 	
 	public void setJustify(int x, int y, int j) {
 		cell(x, y).justify = j;
 	}
 	
 	public void setJustify(int j) {
-		for (int x=0; x<items.length; x++) {
-			items[x].justify = j;
+		for (int y=0; y<items.height(); y++) {
+			for (int x=0; x<items.width(); x++) {
+				cell(x, y).justify = j;
+			}
 		}
 	}
 	
@@ -53,7 +54,7 @@ public class GridComponent implements Component {
 	
 	private int widthOfCol(int x) {
 		int r = 0;
-		for (int y=0; y<h; y++) {
+		for (int y=0; y<items.height(); y++) {
 			r = Math.max(r, cell(x, y).content.width());
 		}
 		return horizontalPadding*2+r;
@@ -61,7 +62,7 @@ public class GridComponent implements Component {
 
 	private int heightOfRow(int y) {
 		int r = 0;
-		for (int x=0; x<w; x++) {
+		for (int x=0; x<items.width(); x++) {
 			r = Math.max(r, cell(x, y).content.height());
 		}
 		return verticalPadding*2+r;
@@ -70,7 +71,7 @@ public class GridComponent implements Component {
 	@Override
 	public int width() {
 		int r = 0;
-		for (int x=0; x<w; x++) {
+		for (int x=0; x<items.width(); x++) {
 			r += widthOfCol(x);
 		}
 		return r;
@@ -79,7 +80,7 @@ public class GridComponent implements Component {
 	@Override
 	public int height() {
 		int r = 0;
-		for (int y=0; y<h; y++) {
+		for (int y=0; y<items.height(); y++) {
 			r += heightOfRow(y);
 		}
 		return r;
@@ -90,15 +91,15 @@ public class GridComponent implements Component {
 		dx += horizontalPadding;
 		dy += verticalPadding;
 		
-		int[] widths = new int[w];
-		for (int x=0; x<w; x++) {
+		int[] widths = new int[items.width()];
+		for (int x=0; x<items.width(); x++) {
 			widths[x] = widthOfCol(x);
 		}
 		
-		for (int y=0; y<h; y++) {
+		for (int y=0; y<items.height(); y++) {
 			int tmpx = dx;
 			int hor = heightOfRow(y);
-			for (int x=0; x<w; x++) {
+			for (int x=0; x<items.width(); x++) {
 				int woc = widths[x];
 				Cell cell = cell(x, y); 
 				cell.content.draw(tmpx+Justify.x(cell.justify, cell.content.width(), woc), dy+Justify.y(cell.justify, cell.content.height(), hor));
@@ -117,10 +118,11 @@ public class GridComponent implements Component {
 	}
 
 	public int widthInCells() {
-		return w;
+		return items.width();
 	}
 
 	public int heightInCells() {
-		return h;
+		return items.height();
 	}
+	
 }

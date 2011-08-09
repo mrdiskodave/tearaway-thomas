@@ -17,4 +17,6 @@ public interface TextDest {
 
 	void endCell();
 
+	void setHorizontalPadding(int hp);
+
 }

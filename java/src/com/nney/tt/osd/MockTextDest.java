@@ -59,4 +59,8 @@ public class MockTextDest implements TextDest {
 		am("endCell");
 	}
 
+	@Override
+	public void setHorizontalPadding(int hp) {
+		am("hp:"+hp);
+	}
 }

@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OsdParser {
-	private static final Pattern OSD_CONTENT_PATTERN = Pattern.compile("\\[([a-z])(.*?)\\]");
+	private static final Pattern OSD_CONTENT_PATTERN = Pattern.compile("\\[([a-z]+)(.*?)\\]");
 	private static final Pattern OSD_TABLE_ARGS = Pattern.compile("(\\d+),(\\d+)");
 	private final TextDest td;
 
@@ -17,41 +17,52 @@ public class OsdParser {
 		Matcher m = OSD_CONTENT_PATTERN.matcher(text.substring(pos));
 		while (m.find()) {
 			td.addText(text.substring(pos, m.start()));
-			int cmd = m.group(1).charAt(0);
+			String cmd = m.group(1);
 			String param = m.group(2);
-			if (cmd == 'n') {
+			if (cmd.equals("n")) {
 				td.addCr();
 			}
-			else if (cmd == 'p') {
+			else if (cmd.equals("p")) {
 				td.addParagraph();
 			}
-			else if (cmd=='a') {
+			else if (cmd.equals("a")) {
 				td.addAdv(optN(param));
 			}
-			else if (cmd == 'c') {
+			else if (cmd.equals("c")) {
 				td.setCol(optN(param));
 			}
-			else if (cmd == 'k') {
+			else if (cmd.equals("k")) {
 				td.setKern(optN(param));
 			}
-			else if (cmd=='t') {
+			else if (cmd.equals("t")) {
 				System.out.println(param);
 				Matcher m2 = OSD_TABLE_ARGS.matcher(param);
 				if (!m2.matches()) {
 					throw new RuntimeException("Bad table param: "+param);
 				}
-				int w = Integer.parseInt(m2.group(1));
-				int h = Integer.parseInt(m2.group(2));
+				String[] z = param.split(",");
+				int w = i(z[0]);
+				int h = i(z[1]);
 				td.addTable(w, h);
 			}
-			else if (cmd=='e') {
+			else if (cmd.equals("e")) {
 				td.endCell();
+			}
+			else if (cmd.equals("hp")) {
+				td.setHorizontalPadding(i(param));
+			}
+			else {
+				assert false: "Unknown command:"+cmd;
 			}
 			pos = m.end();
 		}
 		td.addText(text.substring(pos));
 	}
 
+	private static int i(String s) {
+		return Integer.parseInt(s);
+	}
+	
 	private int optN(String param) {
 		return param.length() != 0 ? Integer.parseInt(param) : 0;
 	}
