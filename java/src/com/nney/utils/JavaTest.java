@@ -369,26 +369,47 @@ public class JavaTest extends TestCase {
 		assertEquals(1, (int) n.get(2));
 		assertEquals(0, (int) n.get(3));
 	}
-	
+
 	public void testModAndNeg() throws Exception {
 		// the sign of the modulo result is solely determined
 		// by the sign of the left operand
-		assertEquals(3, 13%10);
-		assertEquals(-3, -13%10);
-		assertEquals(3, 13%-10);
-		assertEquals(-3, -13%-10);
+		assertEquals(3, 13 % 10);
+		assertEquals(-3, -13 % 10);
+		assertEquals(3, 13 % -10);
+		assertEquals(-3, -13 % -10);
 	}
-	
+
 	public void testStringBufferInit() {
 		// initialise the string buffer
 		StringBuffer a = new StringBuffer("h");
 		a.append('i');
 		assertEquals("hi", a.toString());
-		
+
 		// set the capacity of the string buffer
 		// (gotcha: though it doesn't look like it!)
 		StringBuffer b = new StringBuffer('h');
 		b.append('i');
 		assertEquals("i", b.toString());
 	}
+
+	public void testZeroHeight2dArray() throws Exception {
+		// Surprising that this passes
+		String[][] a = new String[0][42];
+		// and that we are still here
+		// (swap that 42 for any number ... it is ignored)
+		
+		assertEquals(0, a.length);
+		// of course
+		
+		try {
+			// not surprising that it blows up on this statement
+			System.out.println(a[0].length);
+			// and we're not still here
+			fail();
+		}
+		catch (ArrayIndexOutOfBoundsException e) {
+			// ... as expected
+		}
+	}
+
 }
