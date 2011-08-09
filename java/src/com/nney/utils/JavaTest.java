@@ -88,22 +88,22 @@ public class JavaTest extends TestCase {
 	 * think this "information lost" is expressed in the resulting lower-order
 	 * byte so it works out that no information is <i>really</i> lost.
 	 * 
-	 * This fact is exploited in the hash used in my antivirus scanner. (so it
-	 * is a good thing that it <b>is</b> fact;)
+	 * This fact is exploited in the hash used in an antivirus scanner I was
+	 * toying with (so it is a good to confirm here that it <b>is</b> a fact)
 	 */
 	public void testByteShiftRegisterSigned() {
-		boolean[] seen = new boolean[0x1000000];
-		for (int t = 0; t < 0x1000000; t++) {
+		int totalLength = 1 << 24;
+		boolean[] seen = new boolean[totalLength];
+		for (int t = 0; t < totalLength; t++) {
 			byte a = (byte) t;
 			byte b = (byte) (t >> 8);
 			byte c = (byte) (t >> 16);
-			int x = 0;
-			x += a;
+			int x = a;
 			x <<= 8;
 			x += b;
 			x <<= 8;
 			x += c;
-			x &= 0xffffff;
+			x &= totalLength - 1;
 			assertFalse(seen[x]);
 			seen[x] = true;
 		}
@@ -397,10 +397,10 @@ public class JavaTest extends TestCase {
 		String[][] a = new String[0][42];
 		// and that we are still here
 		// (swap that 42 for any number ... it is ignored)
-		
+
 		assertEquals(0, a.length);
 		// of course
-		
+
 		try {
 			// not surprising that it blows up on this statement
 			System.out.println(a[0].length);
