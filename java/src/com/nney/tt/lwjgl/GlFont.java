@@ -6,6 +6,17 @@ import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.PartialFontImpl;
 import com.nney.tt.gfx.PrerenderedText;
 
+//
+// font2.png is all 255 / 136
+// e.g. red multiples out as 255,0,0 / 136,0,0
+//
+// in the original red was an exception and
+// was rendered as 255,51,51 / 136,17,17
+//
+// we can't do this with our current rendering system so
+// red text looks harsher than it did before
+//
+
 public class GlFont extends PartialFontImpl {
 	public GlFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
 		super(data, miniW, miniH, proportional, characters);
