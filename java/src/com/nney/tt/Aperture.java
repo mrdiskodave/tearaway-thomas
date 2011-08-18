@@ -7,25 +7,17 @@ import com.nney.utils.Math2;
 /**
  * Hide the screen contents with an aperture that closes around the screen from the outside in.
  */
-public class Aperture implements Curtain {
+public class Aperture extends CurtainImpl {
 	private final GraphicsContext gc;
 
 	private Coord centre;
-
-	/**
-	 * The radius of the Aperture. <code>0</code> means it is fully shut.
-	 * {@link #maxRadius} it is fully open.
-	 */
-	private int radius;
-
-	private int targetRadius;
 
 	/**
 	 * How big does the Aperture need to get before you cannot see it?
 	 */
 	private int maxRadius;
 
-	private int targetState;
+	private int rate;
 
 	private long squareDistance(Coord a, Coord b) {
 		int xd = a.x - b.x;
@@ -38,18 +30,18 @@ public class Aperture implements Curtain {
 		setCentre(new Coord(gc.screenWidth()/2, gc.screenHeight()/2));
 		current(OPEN);
 		target(OPEN);
+		rate = 2;
 	}
 
 	@Override
 	public void update() {
-		radius = Math.min(radius, maxRadius);
-		radius = Math2.closer(radius, targetRadius, 1);
+		currentValue = Math.min(currentValue, maxRadius);
+		currentValue = Math2.closer(currentValue, targetValue, rate);
 	}
 
 	public void setCentre(Coord centre) {
 		this.centre = centre.copy();
 
-		// work out a derived value
 		int safetyMargin = 3;
 		int loX = -safetyMargin;
 		int hiX = gc.screenWidth() + safetyMargin;
@@ -63,45 +55,29 @@ public class Aperture implements Curtain {
 		long largestSquareDistanceToEdge = Math.max(d1, Math.max(d2, Math.max(d3, d4)));
 
 		maxRadius = (int) Math.sqrt(largestSquareDistanceToEdge);
-		radius = maxRadius;
+		currentValue = maxRadius;
 	}
 	
 	
 	@Override
 	public void draw() {
-		if (radius != Integer.MAX_VALUE) {
-			if (radius == 0) {
+		if (currentValue < maxRadius) {
+			if (currentValue == 0) {
 				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xff000000);
 			}
 			else {
-				gc.aperture(radius, centre.x, centre.y, 0xff000000);
+				gc.aperture(currentValue, centre.x, centre.y, 0xff000000);
 			}
 		}
 	}
 
 	@Override
-	public void current(int state) {
-		radius = stateToRadius(state);
-	}
-
-	private int stateToRadius(int state) {
+	protected int stateToValue(int state) {
 		if (state==OPEN) return maxRadius;
 		return 0;
 	}
-
-	@Override
-	public void target(int state) {
-		targetRadius = stateToRadius(state);
-		targetState = state;
-	}
-
-	@Override
-	public int target() {
-		return targetState;
-	}
-
-	@Override
-	public boolean isDone() {
-		return radius==targetRadius;
+	
+	public void setRate(int pixelPerFrame) {
+		rate = pixelPerFrame;
 	}
 }

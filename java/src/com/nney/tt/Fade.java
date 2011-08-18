@@ -6,47 +6,33 @@ import com.nney.utils.Math2;
 /**
  * Hide the screen contents by fading it to black.
  */
-public class Fade implements Curtain {
+public class Fade extends CurtainImpl {
+	private static final int PADDING = 0x100;
 	private final GraphicsContext gc;
-	private int currentValue;
-	private int targetState;
-	private int targetValue;
-
-	public Fade(GraphicsContext gc) {
+	private final int darkest;
+	private final int rate;
+	
+	public Fade(GraphicsContext gc, int darkest, float time) {
 		this.gc = gc;
+		this.darkest = darkest*PADDING;
+		this.rate = (int) ((this.darkest)/(Const.FPS*time));
 		current(OPEN);
 		target(OPEN);
 	}
-
-	@Override
-	public void current(int state) {
-		currentValue = stateToOpacity(state);
+	
+	public Fade(GraphicsContext gc) {
+		this(gc, 0, 1);
 	}
-
-	private int stateToOpacity(int state) {
+	
+	@Override
+	protected int stateToValue(int state) {
 		if (state==OPEN) return 0;
-		return 0xffff;
-	}
-
-	@Override
-	public void target(int state) {
-		targetValue = stateToOpacity(state);
-		targetState = state;
-	}
-
-	@Override
-	public int target() {
-		return targetState;
-	}
-
-	@Override
-	public boolean isDone() {
-		return currentValue==targetValue;
+		return darkest;
 	}
 	
 	@Override
 	public void update() {
-		currentValue = Math2.closer(currentValue, targetValue, 0xffff/(Const.FPS));
+		currentValue = Math2.closer(currentValue, targetValue, rate);
 	}
 	
 	@Override
