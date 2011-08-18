@@ -10,12 +10,12 @@ import com.nney.tt.gfx.MultiDisposable;
 import com.nney.utils.Math2;
 
 public class StatusScreen implements Disposable, TextDest {
-	private static final int[] PAL = { 0xffffffff, // white
-		0xffff0000, // red
-		0xff00ff00, // green
-		0xff0000ff, // blue
-		0xffffff00, // yellow
-		0xff00ffff // cyan
+	private static final int[] PAL = { 0xffffffff, // 0: white
+		0xffff0000, // 1: red
+		0xff00ff00, // 2: green
+		0xff0000ff, // 3: blue
+		0xffffff00, // 4: yellow
+		0xff00ffff // 5: cyan
 	};
 
 	private final Stack<PreText> unrendered = new Stack<PreText>();
