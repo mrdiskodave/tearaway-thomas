@@ -27,6 +27,7 @@ public class Player {
 	}
 
 	private void setAnim(String name, boolean animate) {
+//		System.out.println("setAnim() "+name+" "+animate);
 		Anim anim = playersAnimations.find(name);
 		animPlayer.changeAnimation(anim);
 		Sprite s = animate ? animPlayer.nextFrame() : animPlayer.currentFrame();

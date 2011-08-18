@@ -128,6 +128,7 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		int y = d.requireElement(1).requireInt();
 		return new Coord(x, y);
 	}
+	
 
 
 }

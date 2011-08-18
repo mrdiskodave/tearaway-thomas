@@ -9,8 +9,6 @@ public abstract class AppearingAlien extends AlienWithLocation {
 	private boolean falling;
 	private int fallSpeed;
 
-	private int fizzTimer;
-
 	@Override
 	public void loadFromLegacyData() {
 		hidden = BitOp.test(loadByte(OBflags), OBFinvis);
@@ -42,26 +40,10 @@ public abstract class AppearingAlien extends AlienWithLocation {
 			else {
 				// we're hidden
 				boolean reveal = srv.getThePlayer().checkReveal(c);
-				if (srv.isMapping()) {
-					boolean fizz = fizzTimer!=0;
-					if (fizz) {
-						fizzTimer--;
-					}
-					int freq = fizz ? 8 : 64;
-					boolean show = srv.frameTest(freq, freq/2);
-					if (show) {
-						normalUpdate();
-					}
-					if (reveal) {
-						fizzTimer = 32;
-					}
-				}
-				else {
-					// reveal?
-					if (reveal) {
-						// yes - reveal!
-						falling = true;
-					}
+				// reveal?
+				if (reveal) {
+					// yes - reveal!
+					falling = true;
 				}
 			}
 		}

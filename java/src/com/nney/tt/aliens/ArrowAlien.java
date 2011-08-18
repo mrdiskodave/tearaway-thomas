@@ -38,16 +38,17 @@ public class ArrowAlien extends AlienWithLocation {
 
 		boolean on = false;
 		if (repeatCounter != 0) {
-			int frm = srv.getFrameNumber() & 31;
-			if (frm < 22) {
+			int frm = srv.getFrameNumber();
+			int frm31 = frm & 31;
+			if (frm31 < 22) {
 				on = true;
 			}
-			else if (frm == 31) {
+			else if (frm31 == 31) {
 				repeatCounter--;
 			}
 		}
 
-		if (on) {
+		if (on && srv.showText()) {
 			changeAnimation(0);
 			Sprite s = nextFrame();
 			srv.drawSprite(c, s);

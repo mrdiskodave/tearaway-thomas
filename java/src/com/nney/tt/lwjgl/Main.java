@@ -21,6 +21,9 @@ public class Main {
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
+	
+	// used to be: 290/255
+	
 
 	private World world;
 

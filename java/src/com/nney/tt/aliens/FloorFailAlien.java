@@ -21,7 +21,7 @@ public class FloorFailAlien extends AlienWithLocation {
 			srv.drawDebugText(c, "hello");
 			Player p = srv.getThePlayer();
 			if (p.getTouchDownVel()>=8) {
-				if (!srv.isMapping() && --strength<=0) {
+				if (--strength<=0) {
 					srv.applyMapEdits(c.copyAndAdd(-16, 16), MAP_EDITS);
 				}
 			}

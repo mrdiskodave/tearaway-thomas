@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
@@ -20,27 +21,39 @@ import com.nney.tt.resources.TTResource;
 import com.nney.utils.Openable;
 
 public class PersistedMap {
+	//
+	// things from the levelinfo.txt entry
+	//
+	public int gemsNeeded;
+	public int horizon;
+	public int timeGiven;
+	public int worldNum;
+	public int stageNum;
+	public String title;
+
+	//
+	// things from the dot map
+	//
 	public GameMap gameMap;
 	public Box mapBounds;
 	public short playerX;
 	public short playerY;
 	public boolean playerGoLeft;
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
+	
+	
 
-	public int gemsNeeded;
-	public int horizon;
-	public int timeGiven;
-	public String worldName;
-
-	public void populateFromLevelInfo(World world, int lev) {
+	public void populateFromLevelInfo(AlienFactory af, int lev) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
-		levelInfo = levelInfo.requireElement(0);
+		levelInfo = levelInfo.requireElement(lev);
 		gemsNeeded = levelInfo.requireField("gemsNeeded").requireInt();
 		horizon = levelInfo.requireField("horizon").requireInt();
 		timeGiven = levelInfo.requireField("timeGiven").requireInt();
+		worldNum = levelInfo.requireField("world").requireInt();
+		stageNum = levelInfo.requireField("stage").requireInt();
+		title = levelInfo.requireField("title").requireString();
 		String map = levelInfo.requireField("map").requireString();
-		worldName = map.substring(0, 1);
-		loadLegacy(world, TTResource.legacyMap(map));
+		loadLegacy(af, TTResource.legacyMap(map));
 	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
@@ -84,12 +97,12 @@ public class PersistedMap {
 		mapBounds = new Box(minx, miny, maxx, maxy);
 	}
 
-	private void createLegacyAlien(World world, int x, int y, int type, byte[] rest) {
-		Alien alien = world.createAlien2(type);
+	private void createLegacyAlien(AlienFactory af, int x, int y, int typeCode, byte[] rest) {
+		Alien alien = af.make(typeCode);
 
-		if (type == 2 || type == 3) {
+		if (typeCode == 2 || typeCode == 3) {
 			// this is what gem_render -> bob_gem did
-			// at rendering time! horrid
+			// at rendering time! let's do it early:
 			x += 8;
 		}
 
@@ -110,7 +123,7 @@ public class PersistedMap {
 	 *            Only used for {@link World#createAlien(int)}.
 	 * @param mapOpenable
 	 */
-	public void loadLegacy(World world, Openable mapOpenable) {
+	public void loadLegacy(AlienFactory af, Openable mapOpenable) {
 		try {
 			InputStream i = mapOpenable.open();
 			try {
@@ -132,11 +145,11 @@ public class PersistedMap {
 							int x = di.readShort();
 							int y = di.readShort();
 							if (x < 0) break;
-							int type = di.readByte();
+							int typeCode = di.readByte();
 							byte[] rest = new byte[21];
 							di.readFully(rest);
 
-							createLegacyAlien(world, x, y, type, rest);
+							createLegacyAlien(af, x, y, typeCode, rest);
 						}
 					}
 					else if (id.equals("pal2")) {
@@ -184,6 +197,19 @@ public class PersistedMap {
 			dd.end();
 		}
 		dd.end();
+		dd.end();
+	}
+
+	public String worldName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<Alien> getAliens() {
+		ArrayList<Alien> answer = aliens;
+		aliens = null;
+		return answer;
+		
 	}
 
 }

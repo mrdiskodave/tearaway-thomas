@@ -6,7 +6,7 @@ public class GhostAlien extends LeftRightAlien {
 	private static final int SINEWAVE_LENGTH = 64;
 	static final private SineTable SINEWAVE = new SineTable(SINEWAVE_LENGTH, 16);
 	private int sinePos;
-	
+
 	@Override
 	public void onLoaded() {
 		sinePos = srv.randomness(SINEWAVE_LENGTH);
@@ -21,11 +21,11 @@ public class GhostAlien extends LeftRightAlien {
 		if (!turned && srv.blockInfoIs(c, "stop")) {
 			goLeft = !goLeft;
 		}
-		
-		
-		Coord c2 = c.copyAndAdd(0, SINEWAVE.get(sinePos++)-16);
-		if (sinePos==SINEWAVE_LENGTH) sinePos=0;
-		
+
+		Coord c2 = c.copyAndAdd(0, SINEWAVE.get(sinePos) - 16);
+		sinePos++;
+		if (sinePos == SINEWAVE_LENGTH) sinePos = 0;
+
 		animateDrawAndStun(c2);
 	}
 }

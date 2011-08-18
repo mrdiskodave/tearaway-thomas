@@ -104,13 +104,6 @@ public interface AlienServices {
 
 	void drawDebugText(Coord c, String text);
 
-	/**
-	 * Are we creating a level?
-	 * 
-	 * @return <code>true</code> meaning "Yes we are <b>so</b> don't do anything irreversible to it".
-	 */
-	boolean isMapping();
-
 	void applyMapEdits(Coord c, int[][] mapEdits);
 
 	boolean collideBoxWithPlayerHandle(Box box);
@@ -124,4 +117,6 @@ public interface AlienServices {
 	boolean isOffTheBottom(Coord c);
 
 	void levelCompleted();
+
+	boolean showText();
 }

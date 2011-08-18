@@ -1,25 +1,49 @@
 [
     {
-        "gemsNeeded": 15, 
-        "horizon": 1, 
-        "map": "w0.map", 
-        "timeGiven": 50, 
-        "title": "fast things first"
-    }, 
+        "gemsNeeded": 15,
+        "horizon": 1,
+        "map": "w0.map",
+        "stage": 1,
+        "timeGiven": 50,
+        "title": "fast things first",
+        "world": 1
+    },
     {
-        "gemsNeeded": 40, 
-        "horizon": 2, 
-        "map": "w9.map", 
-        "timeGiven": 65, 
-        "title": "its like falling off a log"
-    }, 
+        "gemsNeeded": 40,
+        "horizon": 2,
+        "map": "w9.map",
+        "stage": 2,
+        "timeGiven": 65,
+        "title": "its like falling off a log",
+        "world": 1
+    },
     {
-        "gemsNeeded": 40, 
-        "horizon": 4, 
-        "map": "w1.map", 
-        "timeGiven": 50, 
-        "title": "number 3 - the larch"
-    }, 
+        "gemsNeeded": 40,
+        "horizon": 4,
+        "map": "w1.map",
+        "stage": 3,
+        "timeGiven": 50,
+        "title": "number 3 - the larch",
+        "world": 1
+    },
+    {
+        "gemsNeeded": 45,
+        "horizon": 1,
+        "map": "w2.map",
+        "stage": 4,
+        "timeGiven": 60,
+        "title": "the worm that turned",
+        "world": 1
+    },
+    {
+        "gemsNeeded": 45,
+        "horizon": 3,
+        "map": "w3.map",
+        "stage": 5,
+        "timeGiven": 60,
+        "title": "famous five",
+        "world": 1
+    },
     {
         "gemsNeeded": 45, 
         "horizon": 1, 

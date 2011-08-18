@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.PartialFontImpl;
 import com.nney.tt.gfx.PrerenderedText;
+import com.nney.tt.gfx.SimpleImage;
 
 //
 // font2.png is all 255 / 136
@@ -60,7 +61,11 @@ public class GlFont extends PartialFontImpl {
 			int h = charHeight();
 			System.out.println("Pre-rendering into FBO "+w+","+h);
 			
-			GlTexture t = new GlTexture(w, h);
+			SimpleImage si = SimpleImage.createEmpty(w, h);
+			si.fill(0xffff00ff);
+			GlTexture t = new GlTexture(si);
+			
+//			GlTexture t = new GlTexture(w, h);
 			GlFrameBufferObject fbo = new GlFrameBufferObject(t);
 			draw(0, 0, fg, kern, text);
 			fbo.dispose();

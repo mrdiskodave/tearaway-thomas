@@ -8,7 +8,6 @@ public class GemAlien extends ScoreCollectableAlien {
 	@Override
 	protected void giveBonus() {
 		srv.oneLessGem(ourValue(), scoreLocation());
-		srv.levelCompleted();
-
+//		srv.levelCompleted();
 	}
 }

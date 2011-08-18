@@ -17,6 +17,7 @@ public class StatusDisplay implements Disposable {
 	private final AbstractText lifeLostText;
 
 	final private MultiDisposable md = new MultiDisposable();
+	private StaticText pressJumpText;
 
 	public StatusDisplay(GraphicsContext gc, Font font) {
 		this.gc = gc;
@@ -25,19 +26,17 @@ public class StatusDisplay implements Disposable {
 		hurryUpText = new StaticText(font, COL_BAD, 0, "hurry up");
 		pausedText = new StaticText(font, 0xff00ffff, 0, "paused");
 		lifeLostText = new StaticText(font, COL_BAD, 0, "life lost");
+		pressJumpText = new StaticText(font, 0xffffff00, 0, "press jump");
 		
-		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText);
-	}
-	
-	public void updateHurryUp(int time) {
-		//
-		// hurry up
-		//
-		drawLow(hurryUpText);
+		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText, pressJumpText);
 	}
 	
 	public void drawExitOpen() {
 		drawHigh(exitOpenText);
+	}
+	
+	public void drawHurryUp() {
+		drawLow(hurryUpText);
 	}
 	
 	public void drawPaused() {
@@ -47,6 +46,9 @@ public class StatusDisplay implements Disposable {
 	public void drawLifeLost() {
 		drawLow(lifeLostText);
 	}
+	
+	
+	
 
 	private void drawLow(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
