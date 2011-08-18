@@ -78,13 +78,19 @@ public abstract class PartialFontImpl implements Font {
 
 	@Override
 	public int computeWidth(int kern, String text) {
+		boolean first = true;
 		int dx = 0;
 		for (int x = 0; x < text.length(); x++) {
 			char c = text.charAt(x);
 			int p = characters.indexOf(c);
 			if (p >= 0) {
-				Bounds z = boxes[p];
-				dx += z.width + kern;
+				if (first) {
+					first = false;
+				}
+				else {
+					dx += kern;
+				}
+				dx += boxes[p].width;
 			}
 		}
 		return dx;
