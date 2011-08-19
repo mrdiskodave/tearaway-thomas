@@ -890,6 +890,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		if (getStick().testJustPressed(Joystick.FIRE)) {
 			fastComplete = true;
+		}
+		
+		if (fastComplete) {
 			if (timeRemaining == 0) {
 				totalFade.target(Curtain.CLOSED);
 				if (totalFade.isDone()) {
@@ -980,19 +983,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return answer;
 	}
 
-	private void bounceCurtain() {
-		if (hole.isDone()) {
-			int s = hole.target();
-			hole.target(s ^ (Curtain.OPEN ^ Curtain.CLOSED));
-		}
-	}
-
-	private void drawHud(boolean hu) {
+	private void drawHud(boolean hurryUp) {
 		int showGems = gemsNeeded - gemsCollected;
 		if (isExitOpen()) {
 			showGems = gemsTotal - gemsCollected;
 		}
-		hud.update(score, timeRemaining, hu, showGems, isExitOpen(), lives);
+		hud.update(score, timeRemaining, hurryUp, showGems, isExitOpen(), lives);
 	}
 
 	private boolean isHurryUp() {
@@ -1077,7 +1073,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		dimFade.current(Curtain.CLOSED);
 		dimFade.target(Curtain.CLOSED);
 
-		totalFade = new Fade(gc, 0, 1f);
+		totalFade = new Fade(gc, 0xff, 1f);
 		totalFade.current(Curtain.OPEN);
 		totalFade.target(Curtain.OPEN);
 
