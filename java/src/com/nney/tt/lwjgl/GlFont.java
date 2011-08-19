@@ -61,11 +61,11 @@ public class GlFont extends PartialFontImpl {
 			int h = charHeight();
 			System.out.println("Pre-rendering into FBO "+w+","+h);
 			
-			SimpleImage si = SimpleImage.createEmpty(w, h);
-			si.fill(0xffff00ff);
-			GlTexture t = new GlTexture(si);
+//			SimpleImage si = SimpleImage.createEmpty(w, h);
+//			si.fill(0xffff00ff);
+//			GlTexture t = new GlTexture(si);
 			
-//			GlTexture t = new GlTexture(w, h);
+			GlTexture t = new GlTexture(w, h);
 			GlFrameBufferObject fbo = new GlFrameBufferObject(t);
 			draw(0, 0, fg, kern, text);
 			fbo.dispose();
