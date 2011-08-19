@@ -9,7 +9,7 @@ import com.nney.tt.gfx.SimpleImage.SimpleImageProcessor;
  */
 public class WhiteOutSip implements SimpleImageProcessor {
 	@Override
-	public SimpleImage process(SimpleImage input) {
+	public void process(SimpleImage input) {
 		input.changePixels(new SimpleImage.ChangePixel() {
 			@Override
 			public int change(int c) {
@@ -18,11 +18,5 @@ public class WhiteOutSip implements SimpleImageProcessor {
 				return c;
 			}
 		});
-		return input;
-	}
-
-	@Override
-	public boolean inPlace() {
-		return true;
 	}
 }

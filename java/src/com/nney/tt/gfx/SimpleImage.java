@@ -21,21 +21,11 @@ public class SimpleImage {
 	final private boolean isView;
 
 	public interface SimpleImageProcessor {
-		boolean inPlace();
-
-		SimpleImage process(SimpleImage input);
-	}
-
-	public interface MovePixel {
-		void move(Coord c);
+		void process(SimpleImage input);
 	}
 
 	public interface ChangePixel {
 		int change(int c);
-	}
-
-	public interface TestPixel {
-		boolean test(int c);
 	}
 
 	public interface VisitPixel {
@@ -193,20 +183,6 @@ public class SimpleImage {
 				put(x, y, src.get(x, y));
 			}
 		}
-	}
-
-	public SimpleImage movePixels(MovePixel pixelMovement) {
-		SimpleImage answer = SimpleImage.createEmpty(width(), height());
-		Coord c = new Coord();
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				c.x = x;
-				c.y = y;
-				pixelMovement.move(c);
-				answer.put(c.x, c.y, get(x, y));
-			}
-		}
-		return answer;
 	}
 
 	public void changePixels(ChangePixel p) {

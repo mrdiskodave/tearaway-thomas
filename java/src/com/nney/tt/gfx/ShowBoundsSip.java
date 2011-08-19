@@ -10,7 +10,7 @@ import com.nney.tt.sprites.Sprite;
  */
 public class ShowBoundsSip implements SimpleImageProcessor {
 	@Override
-	public SimpleImage process(SimpleImage input) {
+	public void process(SimpleImage input) {
 		input.changePixels(new SimpleImage.ChangePixel() {
 			@Override
 			public int change(int c) {
@@ -19,12 +19,5 @@ public class ShowBoundsSip implements SimpleImageProcessor {
 				return c;
 			}
 		});
-		return input;
 	}
-
-	@Override
-	public boolean inPlace() {
-		return true;
-	}
-
 }
