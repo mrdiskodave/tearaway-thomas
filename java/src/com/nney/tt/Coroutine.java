@@ -11,14 +11,7 @@ public abstract class Coroutine extends Thread {
 	}
 	
 	public void pause() {
-		System.out.println("PAUSING");
 		hub.pauseFor(this);
-	}
-
-	public void pause(int frames) {
-		for (int x=0; x<frames; x++) {
-			pause();
-		}
 	}
 
 	@Override
