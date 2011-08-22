@@ -11,13 +11,17 @@ public abstract class Coroutine extends Thread {
 	}
 	
 	public void pause() {
-		hub.pauseFor(this);
+		hub.stop(this);
+		hub.start(this);
 	}
 
 	@Override
 	public void run() {
+		hub.start(this);
 		go();
-		System.out.println("Complete!");
+		hub.stop(this);
+		
+		for (;;) pause();
 	}
 
 	public abstract void go();

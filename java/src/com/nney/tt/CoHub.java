@@ -4,31 +4,27 @@ import java.util.concurrent.Semaphore;
 
 
 public class CoHub {
-	Semaphore waiting = new Semaphore(0, true);
-	Semaphore permission = new Semaphore(0, true);
-	
-	public void pauseFor(Coroutine cr) {
-		System.out.println("pause");
+	final Semaphore waiting = new Semaphore(0, true);
+	final Semaphore permission = new Semaphore(0, true);
 
-		
-		// we finished the last bit
-		waiting.release();
 
+	void start(Coroutine coroutine) {
 		// get permission for the next bit
 		permission.acquireUninterruptibly();
+	}
 
-		System.out.println("pause DONE");
+	void stop(Coroutine coroutine) {
+		// we finished the last bit
+		waiting.release();
 	}
 
 	private void next() {
-		System.out.println("next ");
+		System.out.println("next");
 		
-		
-		// give it permission
+		// give it permission for the next bit
 		permission.release();
-		// wait until it has finished
+		// wait until it has finished the last bit
 		waiting.acquireUninterruptibly();
-		
 		
 		System.out.println("next DONE");
 	}
@@ -53,18 +49,12 @@ public class CoHub {
 		};
 		hub.add(main);
 		
-		try {
-			System.out.println("zz");
-			Thread.sleep(1000);
-			System.out.println("zzzz");
-		}
-		catch (InterruptedException e) {
-		}
-		
 		for (int r=0; r<10; r++) {
 			System.out.println("---------------------------------------------------------------");
 			System.out.println("real="+r);
 			hub.next();
 		}
 	}
+
+	
 }
