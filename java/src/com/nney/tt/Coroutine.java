@@ -1,25 +1,18 @@
 package com.nney.tt;
 
-public class Coroutine extends Thread {
-	public final Cohub hub;
+public abstract class Coroutine extends Thread {
+	public final CoHub hub;
 	
 	public final String name;
 
-	Coroutine(Cohub hub, String name) {
+	Coroutine(CoHub hub, String name) {
 		this.hub = hub;
 		this.name = name;
 	}
 	
-	synchronized public void pause() {
-		hub.next();
-		while (hub.current()!=Thread.currentThread()) {
-			try {
-				wait();
-			}
-			catch (InterruptedException e) {
-
-			}
-		}
+	public void pause() {
+		System.out.println("PAUSING");
+		hub.pauseFor(this);
 	}
 
 	public void pause(int frames) {
@@ -27,4 +20,13 @@ public class Coroutine extends Thread {
 			pause();
 		}
 	}
+
+	@Override
+	public void run() {
+		go();
+		System.out.println("Complete!");
+	}
+
+	public abstract void go();
+
 }

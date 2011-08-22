@@ -4,22 +4,21 @@ import junit.framework.TestCase;
 
 public class CoTest extends TestCase {
 	public void test() throws Exception {
-		Cohub hub = new Cohub();
+		CoHub hub = new CoHub();
 		Coroutine main = new Coroutine(hub, "main") {
 			@Override
-			public void run() {
-				System.out.println("I am co-routine: "+name);
-			};
-		};
-		Coroutine secondary = new Coroutine(hub, "secondary") {
-			@Override
-			public void run() {
-				System.out.println("I am co-routine: "+name);
+			public void go() {
+				for (int x=0; x<5; x++) {
+					pause();
+					System.out.println("X"+x);
+				}
 			};
 		};
 		hub.add(main);
-		hub.add(secondary);
-		hub.dispatch();
+		
+		for (int y=0; y<5; y++) {
+			System.out.println("y"+y);
+		}
 	}
 
 }
