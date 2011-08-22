@@ -1,32 +1,33 @@
 package com.nney.tt;
 
-import java.util.concurrent.Semaphore;
-
-
 public class CoHub {
-	final Semaphore waiting = new Semaphore(0, true);
-	final Semaphore permission = new Semaphore(0, true);
+	final BooleanSemaphore waiting = new BooleanSemaphore();
+	final BooleanSemaphore permission = new BooleanSemaphore();
+	private boolean finished;
 
-
-	void start(Coroutine coroutine) {
+	void start() {
 		// get permission for the next bit
 		permission.acquireUninterruptibly();
 	}
 
-	void stop(Coroutine coroutine) {
+	void stop() {
 		// we finished the last bit
 		waiting.release();
 	}
 
+	synchronized void finished() {
+		finished = true;
+	}
+	
+	synchronized public boolean isFinished() {
+		return finished;
+	}
+
 	private void next() {
-		System.out.println("next");
-		
 		// give it permission for the next bit
 		permission.release();
 		// wait until it has finished the last bit
-		waiting.acquireUninterruptibly();
-		
-		System.out.println("next DONE");
+		if (!isFinished()) waiting.acquireUninterruptibly();
 	}
 
 	public void add(Coroutine main) {
@@ -53,8 +54,11 @@ public class CoHub {
 			System.out.println("---------------------------------------------------------------");
 			System.out.println("real="+r);
 			hub.next();
+			if (hub.isFinished()) {
+				break;
+			}
 		}
+		System.out.println("---------------------------------------------------------------");
 	}
 
-	
 }
