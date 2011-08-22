@@ -872,12 +872,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
 		}
 		dimFade.update();
-		dimFade.draw();
 		hole.update();
-		hole.draw();
 		statusScreen.update();
 		totalFade.update();
-		totalFade.draw();
 		drawHud(false);
 		drawBorders();
 
@@ -909,9 +906,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
 		}
 		dimFade.update();
-		dimFade.draw();
 		statusScreen.update();
-		hole.draw();
 		hole.update();
 		drawHud(false);
 		drawBorders();
@@ -944,7 +939,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		updateAliens(false);
 
 		dimFade.update();
-		dimFade.draw();
 
 		if (isExitOpen()) statusDisplay.drawExitOpen();
 		drawHurryUp();
@@ -953,7 +947,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawBorders();
 
 		hole.update();
-		hole.draw();
 		// bounceCurtain();
 
 		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
@@ -1259,6 +1252,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public boolean showText() {
 		return !record;
 	}
+
 }
 
 // 64: worm - forget it

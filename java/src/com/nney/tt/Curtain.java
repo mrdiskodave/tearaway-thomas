@@ -49,13 +49,5 @@ public interface Curtain {
 	 */
 	void current(int state);
 
-	/**
-	 * Update the internal state of this curtain.
-	 */
 	void update();
-
-	/**
-	 * Render this curtain onto the screen.
-	 */
-	void draw();
 }

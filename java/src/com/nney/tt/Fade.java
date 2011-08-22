@@ -31,7 +31,7 @@ public class Fade extends CurtainImpl {
 	}
 	
 	@Override
-	public void update() {
+	public void move() {
 		currentValue = Math2.closer(currentValue, targetValue, rate);
 	}
 	

@@ -34,7 +34,7 @@ public class Aperture extends CurtainImpl {
 	}
 
 	@Override
-	public void update() {
+	public void move() {
 		currentValue = Math.min(currentValue, maxRadius);
 		currentValue = Math2.closer(currentValue, targetValue, rate);
 	}
