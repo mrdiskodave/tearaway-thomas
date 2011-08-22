@@ -2,11 +2,11 @@ package com.nney.tt;
 
 import java.util.ArrayList;
 
-public class CoHub {
-	final private ArrayList<CoRow> r = new ArrayList<CoRow>();
+public class CoHub2 {
+	final private ArrayList<Coroutine> r = new ArrayList<Coroutine>();
 	private int cursor;
 	
-	synchronized public void add(CoRow c) {
+	synchronized public void add(Coroutine c) {
 		r.add(c);
 		c.setName(c.name);
 		c.start();
@@ -20,10 +20,10 @@ public class CoHub {
 		cursor++;
 	}
 	
-	synchronized public CoRow current() {
+	synchronized public Coroutine current() {
 		if (cursor>=r.size()) return null;
 		
-		CoRow next = r.get(cursor);
+		Coroutine next = r.get(cursor);
 		next.notify();
 		return next;
 	}

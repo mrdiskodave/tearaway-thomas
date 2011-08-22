@@ -1,11 +1,11 @@
 package com.nney.tt;
 
-public class CoRow extends Thread {
-	public final CoHub hub;
+public class Coroutine extends Thread {
+	public final Cohub hub;
 	
 	public final String name;
 
-	CoRow(CoHub hub, String name) {
+	Coroutine(Cohub hub, String name) {
 		this.hub = hub;
 		this.name = name;
 	}
