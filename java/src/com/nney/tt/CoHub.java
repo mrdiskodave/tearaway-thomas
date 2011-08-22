@@ -3,7 +3,6 @@ package com.nney.tt;
 public class CoHub {
 	final BooleanSemaphore waiting = new BooleanSemaphore();
 	final BooleanSemaphore permission = new BooleanSemaphore();
-	private boolean finished;
 
 	void start() {
 		// get permission for the next bit
@@ -15,19 +14,18 @@ public class CoHub {
 		waiting.release();
 	}
 
-	synchronized void finished() {
-		finished = true;
+	void finished() {
+		permission.destroy();
+		waiting.destroy();
 	}
 	
-	synchronized public boolean isFinished() {
-		return finished;
-	}
-
-	private void next() {
+	public boolean run() {
 		// give it permission for the next bit
 		permission.release();
 		// wait until it has finished the last bit
-		if (!isFinished()) waiting.acquireUninterruptibly();
+		waiting.acquireUninterruptibly();
+
+		return !waiting.destroyed();
 	}
 
 	public void add(Coroutine main) {
@@ -46,6 +44,7 @@ public class CoHub {
 					System.out.println("co="+x);
 					pause();
 				}
+				System.out.println("done");
 			};
 		};
 		hub.add(main);
@@ -53,12 +52,10 @@ public class CoHub {
 		for (int r=0; r<10; r++) {
 			System.out.println("---------------------------------------------------------------");
 			System.out.println("real="+r);
-			hub.next();
-			if (hub.isFinished()) {
+			if (!hub.run()) {
 				break;
 			}
 		}
 		System.out.println("---------------------------------------------------------------");
 	}
-
 }

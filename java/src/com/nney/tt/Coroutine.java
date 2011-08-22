@@ -19,7 +19,6 @@ public abstract class Coroutine extends Thread {
 	public void run() {
 		hub.start();
 		go();
-		hub.stop();
 		hub.finished();
 	}
 
