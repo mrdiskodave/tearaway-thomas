@@ -8,18 +8,23 @@ public abstract class Coroutine implements Runnable {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				start();
-				Coroutine.this.run();
-				terminate();
+				try {
+					start();
+					Coroutine.this.run();
+					terminate();
+				}
+				catch (CoTerminated ex) {
+					// only happens if the user calls terminate() directly
+				}
 			}
 		}, name).start();
 	}
 
 	protected void start() {
 		// get permission for the next bit
-//		System.out.println("Trying Start");
+		// System.out.println("Trying Start");
 		permission.acquireUninterruptibly();
-//		System.out.println("Done Start");
+		// System.out.println("Done Start");
 	}
 
 	protected void stop() {
@@ -33,12 +38,12 @@ public abstract class Coroutine implements Runnable {
 	}
 
 	public void step() {
-//		System.out.println("Trying Step");
+		// System.out.println("Trying Step");
 		// give it permission for the next bit
 		permission.release();
 		// wait until it has finished the last bit
 		waiting.acquireUninterruptibly();
-//		System.out.println("Done Step");
+		// System.out.println("Done Step");
 	}
 
 	protected void pause() {

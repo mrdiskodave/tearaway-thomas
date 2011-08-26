@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 public class CoroutineTest extends TestCase {
 	public void test() throws Exception {
+		// StringBuffer is thread safe (unlike StringBuilder)
 		final StringBuffer sb = new StringBuffer();
 		
 		Coroutine co = new Coroutine("NameOfTheThreadThatItRunsIn") {
@@ -13,6 +14,8 @@ public class CoroutineTest extends TestCase {
 					sb.append("x"+x);
 					pause();
 				}
+				// when we return the caller of step() gets
+				// receives CoTerminated exception 
 			};
 		};
 
@@ -31,4 +34,31 @@ public class CoroutineTest extends TestCase {
 		String got = sb.toString();
 		assertEquals(expect, got);
 	}
+	
+
+	public void testEarlyQuit() throws Exception {
+		// StringBuffer is thread safe (unlike StringBuilder)
+		final StringBuffer sb = new StringBuffer();
+		
+		Coroutine co = new Coroutine("NameOfTheThreadThatItRunsIn") {
+			@Override
+			public void run() {
+				for (int x = 0; x < 5; x++) {
+					sb.append("x"+x);
+					pause();
+				}
+			};
+		};
+
+		co.step();
+		co.step();
+		
+		// needed otherwise the Coroutine's Thread hangs around
+		// cluttering up the JVM
+		co.terminate();
+		
+		assertEquals("x0x1", sb.toString());
+	}
+
+	
 }
