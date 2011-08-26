@@ -1,8 +1,8 @@
-package com.nney.tt;
+package com.nney.coroutines;
 
 public class CoHub {
-	final BooleanSemaphore waiting = new BooleanSemaphore();
-	final BooleanSemaphore permission = new BooleanSemaphore();
+	final DestructableBooleanSemaphore waiting = new DestructableBooleanSemaphore();
+	final DestructableBooleanSemaphore permission = new DestructableBooleanSemaphore();
 
 	void start() {
 		// get permission for the next bit
@@ -19,13 +19,11 @@ public class CoHub {
 		waiting.destroy();
 	}
 	
-	public boolean run() {
+	public void step() {
 		// give it permission for the next bit
 		permission.release();
 		// wait until it has finished the last bit
 		waiting.acquireUninterruptibly();
-
-		return !waiting.destroyed();
 	}
 
 	public void add(Coroutine main) {
@@ -52,9 +50,7 @@ public class CoHub {
 		for (int r=0; r<10; r++) {
 			System.out.println("---------------------------------------------------------------");
 			System.out.println("real="+r);
-			if (!hub.run()) {
-				break;
-			}
+			hub.step();
 		}
 		System.out.println("---------------------------------------------------------------");
 	}
