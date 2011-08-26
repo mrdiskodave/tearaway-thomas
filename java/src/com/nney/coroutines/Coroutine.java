@@ -1,27 +1,48 @@
 package com.nney.coroutines;
 
-public abstract class Coroutine extends Thread {
-	public final CoHub hub;
-	
-	public final String name;
+public abstract class Coroutine implements Runnable {
+	private final TerminatableBooleanSemaphore waiting = new TerminatableBooleanSemaphore();
+	private final TerminatableBooleanSemaphore permission = new TerminatableBooleanSemaphore();
 
-	Coroutine(CoHub hub, String name) {
-		this.hub = hub;
-		this.name = name;
-	}
-	
-	public void pause() {
-		hub.stop();
-		hub.start();
-	}
-
-	@Override
-	public void run() {
-		hub.start();
-		go();
-		hub.finished();
+	public Coroutine(String name) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				start();
+				Coroutine.this.run();
+				terminate();
+			}
+		}, name).start();
 	}
 
-	public abstract void go();
+	protected void start() {
+		// get permission for the next bit
+//		System.out.println("Trying Start");
+		permission.acquireUninterruptibly();
+//		System.out.println("Done Start");
+	}
 
+	protected void stop() {
+		// we finished the last bit
+		waiting.release();
+	}
+
+	public void terminate() {
+		permission.terminate();
+		waiting.terminate();
+	}
+
+	public void step() {
+//		System.out.println("Trying Step");
+		// give it permission for the next bit
+		permission.release();
+		// wait until it has finished the last bit
+		waiting.acquireUninterruptibly();
+//		System.out.println("Done Step");
+	}
+
+	protected void pause() {
+		stop();
+		start();
+	}
 }
