@@ -3,12 +3,14 @@ package com.nney.tt.sprites;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.nney.json.DataItem;
+import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.resources.TTResource;
 
-public class AnimsPool {
+public class AnimsPool implements Disposable {
 	private final TreeMap<String, Anims> pool = new TreeMap<String, Anims>();
 	private final AnimsDefPool sdp;
 	private final GraphicsContext gc;
@@ -95,5 +97,10 @@ public class AnimsPool {
 		for (String need: animsNeeded) {
 			load(need);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		unloadReload(new TreeSet<String>());
 	}
 }

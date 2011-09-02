@@ -217,10 +217,7 @@ public class Mapper implements MapperServicesToPens {
 //		System.out.println("---");
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-			srv.drawTheMap();
-			srv.drawAliensForMapper();
-
-			drawMapBounds();
+			srv.drawForMapper();
 		}
 
 		Tool t = tool;
@@ -279,22 +276,6 @@ public class Mapper implements MapperServicesToPens {
 		if (haveAlien()) {
 			getSelectedAlien().onPropUpdate();
 		}
-	}
-
-	/**
-	 * Big box. Big box tool. Four keys to set the edge of the big-box. Current
-	 * block selection shortcuts all work (arrows and RMB). [F] fill bigbox.
-	 * Function keys take a copy of the big-box (function keys in draw mode
-	 * paste that stuff).
-	 * 
-	 * [G] get map bounds [S] set map bounds
-	 * 
-	 * big box should probably look different (different color?) if it is the
-	 * map bounds
-	 * 
-	 * 
-	 */
-	private void drawMapBounds() {
 	}
 
 	private void sayIt(String s) {

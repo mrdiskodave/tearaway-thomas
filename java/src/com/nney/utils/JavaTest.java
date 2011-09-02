@@ -317,16 +317,6 @@ public class JavaTest extends TestCase {
 		}
 	}
 
-	public void testRepeatingYourself() {
-		int counter = 0;
-
-		int x = 42;
-		do {
-			counter++;
-		} while (--x > 0);
-
-		assertEquals(42, counter);
-	}
 
 	public void testShortComposition() {
 		int xz = 0;
@@ -341,13 +331,39 @@ public class JavaTest extends TestCase {
 		}
 	}
 
+	public void testRepeatingYourself() {
+		int counter = 0;
+		int x = 42;
+		do {
+			counter++;
+		} while (--x > 0);
+		assertEquals(42, counter);
+	}
+
+
 	public void testRepeatingYourself2() {
 		int counter = 0;
+		int x = 42;
+		while (x-->0) {
+			counter++;
+		}
+		assertEquals(42, counter);
+	}
 
+	public void testRepeatingYourself2b() {
+		int counter = 0;
+		int x = 42;
+		while (--x>=0) {
+			counter++;
+		}
+		assertEquals(42, counter);
+	}
+
+	public void testRepeatingYourself3() {
+		int counter = 0;
 		for (int x = 42; x-- > 0;) {
 			counter++;
 		}
-
 		assertEquals(42, counter);
 	}
 
@@ -411,5 +427,8 @@ public class JavaTest extends TestCase {
 			// ... as expected
 		}
 	}
-
+	
+	public void testNullStringComparable() throws Exception {
+		assertFalse("".equals(null));
+	}
 }

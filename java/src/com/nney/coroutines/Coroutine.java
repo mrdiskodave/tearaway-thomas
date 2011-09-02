@@ -50,4 +50,10 @@ public abstract class Coroutine implements Runnable {
 		stop();
 		start();
 	}
+	
+	protected void pause(int n) {
+		while (--n>=0) {
+			pause();
+		}
+	}
 }

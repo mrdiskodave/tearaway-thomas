@@ -7,7 +7,6 @@ import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 
-import com.nney.tt.geom.Coord;
 import com.nney.utils.MemoryIoException;
 
 public class SimpleImage {
@@ -17,8 +16,6 @@ public class SimpleImage {
 	final private int offset;
 	final private int stride;
 	final private int[] pixels; // ARGB 32bit words
-
-	final private boolean isView;
 
 	public interface SimpleImageProcessor {
 		void process(SimpleImage input);
@@ -52,7 +49,7 @@ public class SimpleImage {
 		this.offset = start;
 		this.stride = stride;
 		this.pixels = pixels;
-		this.isView = true;
+//		this.isView = true;
 	}
 
 	private SimpleImage(int width, int height, int[] pixels) {
@@ -61,7 +58,7 @@ public class SimpleImage {
 		this.pixels = new int[width * height];
 		offset = 0;
 		stride = width;
-		isView = false;
+//		isView = false;
 	}
 
 	static public SimpleImage createEmpty(int w, int h) {
@@ -88,7 +85,7 @@ public class SimpleImage {
 		this.pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
 		offset = 0;
 		stride = width;
-		isView = false;
+//		isView = false;
 
 		changePixels(IMPORTER);
 	}

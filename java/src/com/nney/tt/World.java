@@ -7,6 +7,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.nney.coroutines.CoTerminated;
+import com.nney.coroutines.Coroutine;
+import com.nney.tt.BlockSet.Name;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
@@ -41,7 +44,6 @@ import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowBirdAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
@@ -51,7 +53,6 @@ import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.map.MasksHolder;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.osd.HeadUpDisplay;
@@ -64,19 +65,74 @@ import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
-import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, WorldServicesToMapper {
-	private HeadUpDisplay hud;
-
 	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
 			* Const.BLOCK_SIZE, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE);
 
 	private static final int BORDER_COLOR = 0xff000000;
 
+
 	final private GraphicsContext gc;
 
+	private Font debugFont;
+	private Font font;
+
+	private final Joystick joystick;
+	private final Keyboard keyboard;
+
+	
+	
+	private int levelNumber = 0;
+
+	private int score = 0;
+
+	private int lives = 3;
+
+	
+	
+	// disp:
+	private HeadUpDisplay hud;
+	
+
+
+	
+	private AlienInfoMap alienInfoMap;
+	private AnimsPool animsPool;
+
+	// block set
+	private BlockSet blockSet;
+
+	
+
+
+	
+	
+	// mapper vars
+	private boolean usingMapper;
+
+	private Mapper mapper;
+
+	private Pointer mouse;
+
+	private boolean configShowInvisible;
+
+	private boolean configSeeMasks;
+
+	private String worldName;
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private ScreenPosition scr;
 
 	/**
@@ -84,13 +140,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
-	private BlocksHolder blocksHolder;
 
 	final private Random rnd = new Random(5);
-	private Font debugFont;
-	private Font font;
 
-	private MasksHolder maskHolder;
 	private Player player;
 
 	private GameMap gameMap;
@@ -111,32 +163,17 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	private Coord playerSpriteTopLeft;
 
-	private int score = 0;
-
-	private WorldInformation wi;
-
-	private AlienInfoMap alienInfoMap;
-	private AnimsPool animsPool;
+	
 	private int teleAttempt;
 
-	private final Joystick joystick;
 	private Horizon horizon;
 
-	private final Keyboard keyboard;
 
-	private String worldName;
+	
 
-	// mapper vars
-	private boolean usingMapper;
 
-	private Mapper mapper;
-
-	private Pointer mouse;
-
-	private boolean configShowInvisible;
-
-	private boolean configSeeMasks;
-
+	
+	
 	private int whiteTimer;
 
 	private int timeRemaining;
@@ -146,8 +183,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private int gemsTotal;
 
 	private int gemsCollected;
-
-	private int lives = 3;
 
 	// ---------------------------------------------------------------------------
 	// PAUSING
@@ -213,8 +248,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private boolean wasPauseKeyPressedLastFrame;
 
 	// ---------------------------------------------------------------------------
-	private int levelNumber = 0;
-
 	private StatusDisplay statusDisplay;
 
 	private boolean record;
@@ -231,7 +264,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Fade totalFade;
 
-	private boolean fastComplete;
+	private boolean firePressed;
+
+	private Coroutine cr;
 
 	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -321,7 +356,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public boolean inTheGround(Coord c) {
 		int block = getBlock(c);
-		return maskHolder.inTheGround(block, c.x & 15, c.y & 15);
+		return blockSet.maskHolder.inTheGround(block, c.x & 15, c.y & 15);
 	}
 
 	/**
@@ -335,7 +370,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	private String getBlockInfo(Coord c) {
 		int block = getBlock(c);
-		return wi.blockInformation.get(block);
+		return blockSet.wi.blockInformation.get(block);
 	}
 
 	@Override
@@ -585,7 +620,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public LadderInformation getLadderInfo() {
-		return wi.ladderInformation;
+		return blockSet.wi.ladderInformation;
 	}
 
 	@Override
@@ -694,7 +729,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	@Override
 	public void drawAliensForMapper() {
 		updateAliens(true);
 	}
@@ -733,7 +767,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		//
 	}
 
-	@Override
 	public void drawTheMap() {
 		ScreenOrdinate ix = scr.scrOrdX;
 		ScreenOrdinate iy = scr.scrOrdY;
@@ -744,7 +777,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			for (int loopX = 0; loopX < ix.blockCount; loopX++) {
 				blockRow[loopX] = gameMap.fastGetBlock(ix.mapSourceInBlocks + loopX, iy.mapSourceInBlocks + loopY);
 			}
-			blocksHolder.draw(blockRow, ix.initialPixelDestination, pixelDestY);
+			blockSet.blocksHolder.draw(blockRow, ix.initialPixelDestination, pixelDestY);
 			pixelDestY += Const.BLOCK_SIZE;
 		}
 	}
@@ -771,7 +804,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				System.out.println("STARTING MAPPER");
 				usingMapper = true;
 				computeMapBounds();
-				gameMap.applyCompress(wi.blockRandomisationTable);
+				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
@@ -792,6 +825,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void dispatchMode() {
+		if (getStick().testJustPressed(Joystick.FIRE)) {
+			firePressed = true;
+		}
+
 		if (mode == GameMode.COMPLETE) {
 			modeComplete();
 		}
@@ -817,9 +854,42 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 				String text = Messages.levelComplete(pm.worldNum, pm.stageNum, pm.title, gemsCollected, gemsTotal
 						- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
-				makeStatusScreen(text);
+				createStatusScreen(text);
+
+				cr = new Coroutine("cheese") {
+					@Override
+					public void run() {
+						//
+						// turn time into score
+						//
+						while (timeRemaining != 0) {
+							giveScore(10, null);
+							pause(firePressed ? 2 : 6);
+							timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+						}
+						
+						// a pause so you get to look at it
+						pause(25);
+						
+						//
+						// wait for fire
+						//
+						while (!firePressed) {
+							pause();
+						}
+						
+						//
+						// fade to black
+						//
+						totalFade.target(Curtain.CLOSED);
+						while (!totalFade.isDone()) {
+							pause();
+						}
+					}
+				};
 
 				mode = GameMode.COMPLETE;
+				firePressed = false;
 				frameNumber = 0;
 
 				dispatchMode();
@@ -830,20 +900,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	private void makeStatusScreen(String text) {
-		freeStatusScreen();
-		statusScreen = new StatusScreen(gc, font);
-		OsdParser osdParser = new OsdParser(statusScreen);
-		osdParser.parse(text);
-		statusScreen.done();
-	}
-
-	private void freeStatusScreen() {
-		if (statusScreen != null) {
-			statusScreen.dispose();
-			statusScreen = null;
-		}
-	}
+	
+	
+	
+	
+	
+	
+	
+	
 
 	private void modePaused() {
 		horizon.draw();
@@ -878,24 +942,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawHud(false);
 		drawBorders();
 
-		if (timeRemaining != 0) {
-			if (fastComplete || (frameNumber > Const.FPS * 2 && frameTest(16, 1))) {
-				timeRemaining = Math.max(0, timeRemaining - Const.FPS);
-				giveScore(10, null);
-			}
+		try {
+			cr.step();
 		}
-
-		if (getStick().testJustPressed(Joystick.FIRE)) {
-			fastComplete = true;
-		}
-		
-		if (fastComplete) {
-			if (timeRemaining == 0) {
-				totalFade.target(Curtain.CLOSED);
-				if (totalFade.isDone()) {
-					System.out.println("DONE!!!");
-				}
-			}
+		catch (CoTerminated ct) {
+			System.out.println("Yeah - done!");
 		}
 	}
 
@@ -1030,9 +1081,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		mapBoundsInBlocks = pm.mapBounds;
 
-		wi = WorldInformation.load(worldName);
-
-		loadBlocks();
+		createBlocksSet();
 
 		player = new Player(this, animsPool.expect("0tt"), new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
 		gameMap = pm.gameMap;
@@ -1043,7 +1092,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		scr.snapTo(player.c);
 
-		gameMap.applyShuffle(wi.blockRandomisationTable);
+		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
 
 		Anims lifeAnims = animsPool.expect("0life");
 		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
@@ -1073,7 +1122,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		mode = GameMode.START;
 
 		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
-		makeStatusScreen(text);
+		createStatusScreen(text);
 	}
 
 	private Coord getPlayerCentre() {
@@ -1097,15 +1146,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	private void loadBlocks() {
-		Openable blocksGraphics = TTResource.blocks(worldName);
-		Openable masksGraphics = TTResource.blockMask(worldName);
-
-		BlockSource bs = new BlockSource(configSeeMasks ? masksGraphics : blocksGraphics, Const.BLOCK_SIZE);
-		if (!configShowInvisible) bs.doBlockHiding(wi.invisibleBlockHiding);
-		blocksHolder = gc.createBlocksHolder(bs);
-		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGraphics);
-	}
 
 	@Override
 	public void teleportTo(Coord destination) {
@@ -1129,7 +1169,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void quitMapper(Coord mousePos) {
 		player.resetTo(mousePos);
-		gameMap.applyShuffle(wi.blockRandomisationTable);
+		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
 
 		System.out.println("STOPPING MAPPER");
 		usingMapper = false;
@@ -1147,18 +1187,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void toggleSeeMasks() {
 		configSeeMasks = !configSeeMasks;
-		loadBlocks();
+		createBlocksSet();
 	}
 
 	@Override
 	public void toggleShowInvisible() {
 		configShowInvisible = !configShowInvisible;
-		loadBlocks();
+		createBlocksSet();
 	}
 
 	@Override
 	public BlocksHolder getBlocksHolder() {
-		return blocksHolder;
+		return blockSet.blocksHolder;
 	}
 
 	@Override
@@ -1253,6 +1293,50 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return !record;
 	}
 
+	@Override
+	public void drawForMapper() {
+		drawTheMap();
+		updateAliens(true);
+	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+
+	private void createBlocksSet() {
+		Name name = new BlockSet.Name(worldName, configSeeMasks, configShowInvisible);
+		if (blockSet!=null && blockSet.name.equals(name)) return;
+		freeBlocksSet();
+		blockSet = new BlockSet(gc, name);
+	}
+
+	private void freeBlocksSet() {
+		if (blockSet!=null) {
+			blockSet.dispose();
+			blockSet = null;
+		}
+	}
+
+	
+	private void createStatusScreen(String text) {
+		freeStatusScreen();
+		statusScreen = new StatusScreen(gc, font);
+		OsdParser osdParser = new OsdParser(statusScreen);
+		osdParser.parse(text);
+		statusScreen.done();
+	}
+
+	private void freeStatusScreen() {
+		if (statusScreen != null) {
+			statusScreen.dispose();
+			statusScreen = null;
+		}
+	}
 }
 
 // 64: worm - forget it

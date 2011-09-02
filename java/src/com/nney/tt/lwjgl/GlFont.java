@@ -59,7 +59,7 @@ public class GlFont extends PartialFontImpl {
 		if (Main.GL_EXT_framebuffer_object) {
 			int w = computeWidth(kern, text);
 			int h = charHeight();
-			System.out.println("Pre-rendering into FBO "+w+","+h);
+//			System.out.println("Pre-rendering into FBO "+w+","+h);
 			
 //			SimpleImage si = SimpleImage.createEmpty(w, h);
 //			si.fill(0xffff00ff);

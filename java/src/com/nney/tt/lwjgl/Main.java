@@ -21,15 +21,10 @@ public class Main {
 
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
-	
+
 	// used to be: 290/255
-	
 
 	private World world;
-
-	private boolean closing;
-
-	private FpsReporter fpsRep;
 
 	public static boolean GL_ARB_texture_rectangle;
 
@@ -63,7 +58,7 @@ public class Main {
 			assert GLContext.getCapabilities().GL_ARB_texture_rectangle == GL_ARB_texture_rectangle;
 			assert GLContext.getCapabilities().GL_ARB_texture_non_power_of_two == GL_ARB_texture_non_power_of_two;
 			assert GLContext.getCapabilities().GL_EXT_framebuffer_object == GL_EXT_framebuffer_object;
-			
+
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
@@ -110,10 +105,10 @@ public class Main {
 
 		world = new World(gc, joystick, keys, correctMouse);
 
-		int requestedFps = Const.FPS;
-		fpsRep = new FpsReporter(200);
+		FpsReporter fpsRep = new FpsReporter(200);
+		boolean closing = false;
 		while (!closing) {
-			Display.sync(requestedFps);
+			Display.sync(Const.FPS);
 
 			keys.handleKeyboard();
 			joystick.update();
