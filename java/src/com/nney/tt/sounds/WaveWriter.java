@@ -39,7 +39,7 @@ public class WaveWriter {
 
 	public static void saveWave(String name, short[] waveForm, int frequencyInHz) {
 		try {
-			OutputStream fo = new BufferedOutputStream(new FileOutputStream("C:\\Users\\david\\Desktop\\z\\z\\" + name));
+			OutputStream fo = new BufferedOutputStream(new FileOutputStream("C:\\Users\\david\\Desktop\\z\\" + name));
 			doIt(fo, frequencyInHz, waveForm);
 			fo.close();
 		}

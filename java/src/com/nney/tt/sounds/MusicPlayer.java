@@ -1,15 +1,6 @@
 package com.nney.tt.sounds;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL10;
 
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Math2;
@@ -23,37 +14,6 @@ public class MusicPlayer {
 
 	private static final int CHANNEL_COUNT = 4;
 
-	static FloatBuffer createFloatBuffer(float... f) {
-		FloatBuffer b = BufferUtils.createFloatBuffer(f.length);
-		b.put(f);
-		b.rewind();
-		return b;
-	}
-
-	/** Buffers hold sound data. */
-	int buffer;
-
-	/** Sources are points emitting sound. */
-	int source;
-
-	/** Position of the source sound. */
-	FloatBuffer sourcePos = createFloatBuffer(0.0f, 0.0f, 0.0f);
-
-	/** Velocity of the source sound. */
-	FloatBuffer sourceVel = createFloatBuffer(0.0f, 0.0f, 0.0f);
-
-	/** Position of the listener. */
-	FloatBuffer listenerPos = createFloatBuffer(0.0f, 0.0f, 0.0f);
-
-	/** Velocity of the listener. */
-	FloatBuffer listenerVel = createFloatBuffer(0.0f, 0.0f, 0.0f);
-
-	/**
-	 * Orientation of the listener. (first 3 elements are "at", second 3 are
-	 * "up")
-	 */
-	FloatBuffer listenerOri = createFloatBuffer(0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f);
-
 	private Instr[] instrs;
 	// only using 1, 2, 3, 5, 6, 7, 8, 10 and 14!!
 
@@ -61,10 +21,15 @@ public class MusicPlayer {
 
 	private ChannelPlayer[] players;
 
+	
+	
 	private Song song;
 
 	private String songName;
 
+	
+	
+	
 	private void properDemo() {
 		saveSong("intro");
 		saveSong("wood");
@@ -81,6 +46,9 @@ public class MusicPlayer {
 		configuredSaveSong(new JingleSongSlice("levelcomplete", 2));
 		configuredSaveSong(new JingleSongSlice("levelbegin", 3));
 	}
+	
+	
+	
 
 	abstract class SongSlice {
 		abstract void getThem(ArrayList<Integer> blockNumbers, byte[] sequence);
@@ -176,13 +144,20 @@ public class MusicPlayer {
 		configuredSaveSong(new LoopSongSlice());
 	}
 
+	private void configuredSaveSong(SongSlice bn) {
+		String saveName = songName + bn.extraName() + ".wav";
+		System.out.println("=== " + saveName);
+		WaveWriter.saveWave(saveName, generateSlice(bn).collect(), FREQUENCY);
+	}
+
 	private void setUpSong(String s) {
 		loadSong(s);
 		loadInstruments();
 		generateConfigs();
 	}
+	
 
-	private void configuredSaveSong(SongSlice bn) {
+	private SampleStore generateSlice(SongSlice bn) {
 		if (!bn.isContinuing()) {
 			generatePlayers();
 		}
@@ -190,7 +165,7 @@ public class MusicPlayer {
 		ArrayList<Integer> blockNumbers = new ArrayList<Integer>();
 		bn.getThem(blockNumbers, sequence);
 
-		int leadOut = bn.leadOut() ? 32 : 0;
+		int leadOut = bn.leadOut() ? 64 : 0;
 		int steps = 0;
 		for (int b = 0; b < blockNumbers.size(); b++) {
 			steps += new Block(song, blockNumbers.get(b)).lines;
@@ -199,9 +174,6 @@ public class MusicPlayer {
 		int clickLength = song.clickLength();
 		steps *= clickLength;
 		steps *= SEGMENT_SIZE;
-
-		String saveName = songName + bn.extraName() + ".wav";
-		System.out.println("=== " + saveName);
 
 		SampleStore sampleStore = new SampleStore(steps);
 
@@ -226,11 +198,7 @@ public class MusicPlayer {
 
 		sampleStore.dumpRange();
 
-		short[] productionWave = sampleStore.collect();
-		WaveWriter.saveWave(saveName, productionWave, FREQUENCY);
-		// System.out.println("play");
-		// play(productionWave, FREQUENCY);
-		// System.out.println("stop");
+		return sampleStore;
 	}
 
 	private void loadSong(String s) {
@@ -265,15 +233,16 @@ public class MusicPlayer {
 				for (ChannelPlayer player : players) {
 					if (player.config.enabled) {
 						int s = player.sample();
+
 						float pos = player.config.position;
 						left += s * (1f - pos);
 						right += s * pos;
 					}
 				}
-				left = Math2.limit(Short.MIN_VALUE + 2, Short.MAX_VALUE - 2, (int) (left * 170));
-				right = Math2.limit(Short.MIN_VALUE + 2, Short.MAX_VALUE - 2, (int) (right * 170));
-
-				sampleStore.add((short) left, (short) right);
+				
+				int ileft = Math2.limit(Short.MIN_VALUE + 2, Short.MAX_VALUE - 2, (int) (left * 170));
+				int iright = Math2.limit(Short.MIN_VALUE + 2, Short.MAX_VALUE - 2, (int) (right * 170));
+				sampleStore.add((short) ileft, (short) iright);
 			}
 		}
 	}
@@ -305,96 +274,13 @@ public class MusicPlayer {
 		}
 	}
 
-	private void play(short[] z, int rate) {
-		ByteBuffer bb = BufferUtils.createByteBuffer(z.length * 2);
-		bb.order(ByteOrder.nativeOrder());
-		ShortBuffer sb = bb.asShortBuffer();
-		for (int x = 0; x < z.length; x++) {
-			sb.put((short) z[x]);
-		}
-
-		buffer = alCheckName(AL10.alGenBuffers());
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, rate);
-
-		// Bind the buffer with the source.
-		source = alCheckName(AL10.alGenSources());
-		AL10.alSourcei(source, AL10.AL_BUFFER, buffer);
-		AL10.alSourcef(source, AL10.AL_PITCH, 1.0f);
-		AL10.alSourcef(source, AL10.AL_GAIN, 1.0f);
-		AL10.alSource(source, AL10.AL_POSITION, sourcePos);
-		AL10.alSource(source, AL10.AL_VELOCITY, sourceVel);
-		alCheck();
-
-		setListenerValues();
-
-		AL10.alSourcePlay(source);
-
-		do {
-			try {
-				Thread.sleep(5);
-			}
-			catch (InterruptedException e) {
-				// ignored
-			}
-		} while (AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING);
-	}
-
-	private int alCheckName(int name) {
-		if (name <= 0) {
-			throw new RuntimeException("Bad OpenAL name returned: " + name);
-		}
-		alCheck();
-		return name;
-	}
-
-	private void alCheck() {
-		int e = AL10.alGetError();
-		if (e != AL10.AL_NO_ERROR) {
-			throw new RuntimeException("Unrecoverable OpenAL error code: " + e);
-		}
-	}
-
-	/**
-	 * void setListenerValues()
-	 * 
-	 * We already defined certain values for the Listener, but we need to tell
-	 * OpenAL to use that data. This function does just that.
-	 */
-	void setListenerValues() {
-		AL10.alListener(AL10.AL_POSITION, listenerPos);
-		AL10.alListener(AL10.AL_VELOCITY, listenerVel);
-		AL10.alListener(AL10.AL_ORIENTATION, listenerOri);
-	}
-
-	/**
-	 * void killALData()
-	 * 
-	 * We have allocated memory for our buffers and sources which needs to be
-	 * returned to the system. This function frees that memory.
-	 */
-	void killALData() {
-		AL10.alDeleteSources(source);
-		AL10.alDeleteBuffers(buffer);
-	}
 
 	public static void main(String[] args) {
 		new MusicPlayer().execute();
 	}
 
 	public void execute() {
-		try {
-			AL.create();
-			AL10.alGetError();
-		}
-		catch (LWJGLException le) {
-			throw new RuntimeException(le);
-		}
-
 		properDemo();
-
-		killALData();
-
-		AL.destroy();
 	}
 
 	public Instr findInstr(int b2) {
