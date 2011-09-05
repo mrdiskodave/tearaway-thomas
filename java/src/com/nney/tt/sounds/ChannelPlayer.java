@@ -22,9 +22,8 @@ public class ChannelPlayer {
 			cc.chooseArp(param);
 		}
 		else if (action!=0) {
-			status("unimplemented action: "+action+" param"+param);
+			throw new RuntimeException("unimplemented action: "+action+" param"+param);
 		}
-		
 		
 		if (n==0) {
 			// do nothing
@@ -37,14 +36,11 @@ public class ChannelPlayer {
 		}
 		else {
 			// -2? bug! that means the lowest note can't be played!
+			// but we need to reproduce bugs in the original to stay compatible
 			cc.startNote(instr, n-2);
 		}
 	}
 	
-	private void status(String string) {
-		System.out.println(string);
-	}
-
 	public void update() {
 		cc.update();
 	}

@@ -50,8 +50,8 @@ public class TTResource {
 		return TTResource.formatted("anims/%s/def.txt", spriteName);
 	}
 	
-	public static Openable sound(String s) {
-		return TTResource.formatted("sounds/%s", s);
+	public static Openable music(String s) {
+		return TTResource.formatted("sounds/music/%s", s);
 	}
 
 	public static Openable horizon(int name) {

@@ -21,7 +21,7 @@ public class AudioChannel {
 	private static final double LOWPASS_FILTER_FACTOR = 0.5f;
 
 	/**
-	 * Enables us to read Amiga samples at the right speed.
+	 * So we can read Amiga samples at the right speed.
 	 */
 	private static final int MAGIC_RATIO = (int) (((1.0 / MusicPlayer.FREQUENCY) / AMIGA_BUS_RATE) * PERIOD_BOOSTER);
 	
@@ -47,8 +47,7 @@ public class AudioChannel {
 	public int period;
 
 	/**
-	 * What is our volume currently set to? This is the same value you'd set
-	 * into the Amiga hardware.
+	 * What is our volume currently set to? Zero to {@link #MAXIMUM_VOLUME}.
 	 */
 	public int volume;
 
@@ -63,7 +62,12 @@ public class AudioChannel {
 	 */
 	private int acc;
 
+	/**
+	 * Used by the low pass filter.
+	 */
 	private double lastResult;
+	
+	
 
 	void wave(byte[] w, boolean r) {
 		wave = w;

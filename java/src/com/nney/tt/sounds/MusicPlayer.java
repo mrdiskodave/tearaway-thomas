@@ -26,20 +26,12 @@ public class MusicPlayer {
 			}
 		}
 
-		boolean leadOut() {
-			return false;
-		}
-
 		boolean isContinuing() {
 			return false;
 		}
 	}
 
 	class EntireSlice extends Slice {
-		@Override
-		boolean leadOut() {
-			return true;
-		}
 	}
 
 	static class FirstBlockSlice extends Slice {
@@ -121,10 +113,10 @@ public class MusicPlayer {
 	}
 	
 	public SampleStore generate(Slice bn) {
-		return generate(bn, bn.isContinuing(), bn.leadOut());
+		return generate(bn, bn.isContinuing());
 	}
 
-	public SampleStore generate(Slice bn, boolean isContinuing, boolean giveLeadOut) {
+	public SampleStore generate(Slice bn, boolean isContinuing) {
 		if (!isContinuing) {
 			generatePlayers();
 		}
@@ -134,12 +126,10 @@ public class MusicPlayer {
 		ArrayList<Integer> order = new ArrayList<Integer>();
 		bn.getRunningOrder(order, sequence.length);
 		
-		int leadOut = giveLeadOut ? 64 : 0;
 		int steps = 0;
 		for (int b = 0; b < order.size(); b++) {
 			steps += new Block(song, sequence[order.get(b)]).lines;
 		}
-		steps += leadOut;
 		int clickLength = song.clickLength();
 		steps *= clickLength;
 		steps *= SEGMENT_SIZE;
@@ -160,18 +150,13 @@ public class MusicPlayer {
 			}
 		}
 
-		for (int x = 0; x < leadOut; x++) {
-			saveClick(players, clickLength, sampleStore);
-		}
-		if (leadOut != 0) sampleStore.rewindOverSilence();
-
 		sampleStore.dumpRange();
 
 		return sampleStore;
 	}
 
 	void loadSong(String s) {
-		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.sound(s+ ".song"))));
+		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.music(s+ ".song"))));
 	}
 
 	private void generatePlayers() {
@@ -215,16 +200,16 @@ public class MusicPlayer {
 		//
 		// load the samples
 		//
-		byte[][] sample = new byte[9][];
+		byte[][] sample = new byte[3][];
 		for (int s = 0; s < sample.length; s++) {
-			Openable sampleOpenable = TTResource.sound(String.format("samp%s.bin", s + 1));
+			Openable sampleOpenable = TTResource.music(String.format("samp%s.bin", s + 1));
 			sample[s] = OpenableTools.mustLoad(sampleOpenable);
 		}
 
 		//
 		// load the instruments
 		//
-		byte[] iblk = OpenableTools.mustLoad(TTResource.sound("iblk"));
+		byte[] iblk = OpenableTools.mustLoad(TTResource.music("iblk"));
 		instrs = new Instr[16];
 		for (int x = 0; x < 16; x++) {
 			instrs[x] = new Instr(new DataSrc(iblk, x * 94, 94));
@@ -235,6 +220,12 @@ public class MusicPlayer {
 		//
 		for (Instr i : instrs) {
 			i.bind(sample);
+			// 4: head bounce
+			// 5: clang
+			// 6: teleport
+			// 7: worm
+			// 8: trampaleen
+			// 9: tink!
 		}
 	}
 

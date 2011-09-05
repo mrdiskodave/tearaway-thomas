@@ -46,18 +46,6 @@ public class SampleStore {
 		return pos / 2;
 	}
 
-	/**
-	 * Trim silence from the end of this object making it smaller. Changes the
-	 * position to reflect this.
-	 */
-	public void rewindOverSilence() {
-		int l = pos;
-		while (l != 0 && (data[l - 2] | data[l - 1]) == 0) {
-			l -= 2;
-		}
-		pos = l;
-	}
-
 	public void dumpRange() {
 		int vMin = Integer.MAX_VALUE;
 		int vMax = Integer.MIN_VALUE;

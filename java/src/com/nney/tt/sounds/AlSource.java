@@ -34,4 +34,16 @@ public class AlSource implements Disposable {
 		return AL10.alGetSourcei(name, AL10.AL_BUFFERS_PROCESSED);
 	}
 
+	public void queue(AlBuffer buffer) {
+		AL10.alSourceQueueBuffers(name, buffer.name);		
+	}
+
+	public void play() {
+		AL10.alSourcePlay(name);
+	}
+
+	public void unqueue() {
+		AL10.alSourceUnqueueBuffers(name);		
+	}
+
 }
