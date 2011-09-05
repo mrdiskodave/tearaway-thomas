@@ -8,6 +8,82 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 public class MusicPlayer {
+	class Loop {
+		public final SampleStore begin;
+		public final SampleStore loop;
+
+		Loop(SampleStore begin, SampleStore loop) {
+			this.begin = begin;
+			this.loop = loop;
+		}
+	}
+
+	static abstract class SongSlice {
+		int first() { return 0; }
+		int last() { return Integer.MAX_VALUE; }
+
+		boolean leadOut() {
+			return false;
+		}
+
+		boolean isContinuing() {
+			return false;
+		}
+	}
+
+	class EntireSongSlice extends SongSlice {
+		@Override
+		boolean leadOut() {
+			return true;
+		}
+	}
+
+	static class FirstBlockSongSlice extends SongSlice {
+		@Override
+		int last() {
+			return 1;
+		}
+	}
+
+	static class LoopSongSlice extends SongSlice {
+		@Override
+		int first() {
+			return 1;
+		}
+
+		@Override
+		boolean isContinuing() {
+			return true;
+		}
+	}
+
+	static class JingleSongSlice extends SongSlice {
+		private final int number;
+
+		JingleSongSlice(int number) {
+			this.number = number;
+		}
+
+		@Override
+		int first() {
+			return number;
+		}
+		
+		@Override
+		int last() {
+			return number+1;
+		}
+
+		@Override
+		boolean leadOut() {
+			return true;
+		}
+	}
+
+
+
+	
+	
 	static final int FREQUENCY = 44100;
 
 	private static final int SEGMENT_SIZE = FREQUENCY / 52;
@@ -25,147 +101,45 @@ public class MusicPlayer {
 	
 	private Song song;
 
-	private String songName;
 
 	
 	
 	
-	private void properDemo() {
-		saveSong("intro");
-		saveSong("wood");
-		saveSong("toy");
-		saveSong("ice");
-		saveSong("future");
-		// saveSong("unused");
-
-		// 0=game over 1=a new world 2=level complete 3=level begin
-
+	
+	public SampleStore getJingle(int number) {
 		setUpSong("jingle");
-		configuredSaveSong(new JingleSongSlice("gameover", 0));
-		configuredSaveSong(new JingleSongSlice("startworld", 1));
-		configuredSaveSong(new JingleSongSlice("levelcomplete", 2));
-		configuredSaveSong(new JingleSongSlice("levelbegin", 3));
+		return generate(new JingleSongSlice(number));
 	}
 	
-	
-	
-
-	abstract class SongSlice {
-		abstract void getThem(ArrayList<Integer> blockNumbers, byte[] sequence);
-
-		boolean leadOut() {
-			return false;
-		}
-
-		String extraName() {
-			return "";
-		}
-
-		boolean isContinuing() {
-			return false;
-		}
+	public Loop getSong(String song) {
+		SampleStore a = generate(new FirstBlockSongSlice());
+		SampleStore b = generate(new LoopSongSlice());
+		return new Loop(a, b);
 	}
 
-	class EntireSongSlice extends SongSlice {
-		@Override
-		public void getThem(ArrayList<Integer> blockNumbers, byte[] sequence) {
-			for (int b = 0; b < sequence.length; b++) {
-				blockNumbers.add((int) sequence[b]);
-			}
-		}
-
-		@Override
-		boolean leadOut() {
-			return true;
-		}
-	}
-
-	class FirstBlockSongSlice extends SongSlice {
-		@Override
-		public void getThem(ArrayList<Integer> blockNumbers, byte[] sequence) {
-			blockNumbers.add((int) sequence[0]);
-		}
-
-		@Override
-		String extraName() {
-			return "-begin";
-		}
-	}
-
-	class LoopSongSlice extends SongSlice {
-		@Override
-		public void getThem(ArrayList<Integer> blockNumbers, byte[] sequence) {
-			for (int b = 1; b < sequence.length; b++) {
-				blockNumbers.add((int) sequence[b]);
-			}
-			blockNumbers.add((int) sequence[0]);
-		}
-
-		@Override
-		String extraName() {
-			return "-loop";
-		}
-
-		@Override
-		boolean isContinuing() {
-			return true;
-		}
-	}
-
-	class JingleSongSlice extends SongSlice {
-		private final String name;
-		private final int number;
-
-		JingleSongSlice(String name, int number) {
-			this.name = name;
-			this.number = number;
-		}
-
-		@Override
-		void getThem(ArrayList<Integer> blockNumbers, byte[] sequence) {
-			blockNumbers.add((int) sequence[number]);
-		}
-
-		@Override
-		String extraName() {
-			return "-" + name;
-		}
-
-		@Override
-		boolean leadOut() {
-			return true;
-		}
-	}
-
-	private void saveSong(String s) {
-		setUpSong(s);
-		// configuredSaveSong(new EntireSongSlice());
-		configuredSaveSong(new FirstBlockSongSlice());
-		configuredSaveSong(new LoopSongSlice());
-	}
-
-	private void configuredSaveSong(SongSlice bn) {
-		String saveName = songName + bn.extraName() + ".wav";
-		System.out.println("=== " + saveName);
-		WaveWriter.saveWave(saveName, generateSlice(bn).collect(), FREQUENCY);
-	}
-
-	private void setUpSong(String s) {
+	public void setUpSong(String s) {
 		loadSong(s);
-		loadInstruments();
-		generateConfigs();
 	}
 	
+	public SampleStore generate(SongSlice bn) {
+		return generate(bn.isContinuing(), bn.first(), bn.last(), bn.leadOut());
+	}
 
-	private SampleStore generateSlice(SongSlice bn) {
-		if (!bn.isContinuing()) {
+	public SampleStore generate(boolean isContinuing, int first, int last, boolean giveLeadOut) {
+		if (!isContinuing) {
 			generatePlayers();
 		}
 		byte[] sequence = song.getSequence();
-		ArrayList<Integer> blockNumbers = new ArrayList<Integer>();
-		bn.getThem(blockNumbers, sequence);
 
-		int leadOut = bn.leadOut() ? 64 : 0;
+		ArrayList<Integer> blockNumbers = new ArrayList<Integer>();
+		
+		first = Math2.limit(0, sequence.length, first);
+		last = Math2.limit(0, sequence.length, last);
+		for (int b=first; b<last; b++) {
+			blockNumbers.add((int) sequence[b]);
+		}
+
+		int leadOut = giveLeadOut ? 64 : 0;
 		int steps = 0;
 		for (int b = 0; b < blockNumbers.size(); b++) {
 			steps += new Block(song, blockNumbers.get(b)).lines;
@@ -201,9 +175,8 @@ public class MusicPlayer {
 		return sampleStore;
 	}
 
-	private void loadSong(String s) {
-		songName = s;
-		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.sound(songName + ".song"))));
+	void loadSong(String s) {
+		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.sound(s+ ".song"))));
 	}
 
 	private void generatePlayers() {
@@ -214,14 +187,10 @@ public class MusicPlayer {
 		}
 	}
 
-	private void generateConfigs() {
-		configs = new ChannelConfig[] { new ChannelConfig(0.25f, true), // 0
-				new ChannelConfig(0.75f, true), // 1
-				new ChannelConfig(0.75f, true), // 2
-				new ChannelConfig(0.25f, true), // 3
-		};
-	}
 
+	
+	
+	
 	private void saveClick(ChannelPlayer[] players, int clickLength, SampleStore sampleStore) {
 		for (int click = 0; click < clickLength; click++) {
 			for (int c = 0; c < CHANNEL_COUNT; c++) {
@@ -259,7 +228,7 @@ public class MusicPlayer {
 
 		//
 		// load the instruments
-
+		//
 		byte[] iblk = OpenableTools.mustLoad(TTResource.sound("iblk"));
 		instrs = new Instr[16];
 		for (int x = 0; x < 16; x++) {
@@ -274,14 +243,20 @@ public class MusicPlayer {
 		}
 	}
 
-
-	public static void main(String[] args) {
-		new MusicPlayer().execute();
+	private void generateConfigs() {
+		configs = new ChannelConfig[] { new ChannelConfig(0.25f, true), // 0
+				new ChannelConfig(0.75f, true), // 1
+				new ChannelConfig(0.75f, true), // 2
+				new ChannelConfig(0.25f, true), // 3
+		};
 	}
 
-	public void execute() {
-		properDemo();
+
+	public MusicPlayer() {
+		loadInstruments();
+		generateConfigs();
 	}
+	
 
 	public Instr findInstr(int b2) {
 		Instr answer = instrs[b2];
