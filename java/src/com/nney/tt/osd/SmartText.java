@@ -3,6 +3,9 @@ package com.nney.tt.osd;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.PrerenderedText;
 
+/**
+ * Text that can be changed.
+ */
 class SmartText extends AbstractText {
 	private PrerenderedText content;
 
@@ -50,5 +53,4 @@ class SmartText extends AbstractText {
 			content = null;
 		}
 	}
-
 }

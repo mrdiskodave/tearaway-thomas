@@ -6,19 +6,20 @@ public class Speaker {
 	private static final int FREQ = 44100;
 
 	private void play() {
-//		MusicPlayer mp = new MusicPlayer();
-//		mp.loadSong("intro");
-//		mp.generate(new MusicPlayer.FirstBlockSongSlice()).collect();
+		MusicPlayer mp = new MusicPlayer();
+		mp.loadSong("intro");
 		
-		
-		AlBuffer buffer1 = new AlBuffer(genWave(100, 90), FREQ);
+		System.out.println("Rendering");
+		AlBuffer buffer1 = new AlBuffer(mp.generate(new MusicPlayer.FirstBlockSlice()).collect(), FREQ);
+		AlBuffer buffer2 = new AlBuffer(mp.generate(new MusicPlayer.LoopSlice()).collect(), FREQ);
+		System.out.println("Done!");
+
 		AlSource source = new AlSource();
 
 //		AL10.alSourcei(source.name, AL10.AL_BUFFER, buffer1.name);
 		
-		
 		AL10.alSourceQueueBuffers(source.name, buffer1.name);
-		AL10.alSourceQueueBuffers(source.name, buffer1.name);
+		AL10.alSourceQueueBuffers(source.name, buffer2.name);
 		
 		AL10.alSourcePlay(source.name);
 
@@ -26,7 +27,8 @@ public class Speaker {
 			pause();
 			for (int x=0; x<source.buffersProcessed(); x++) {
 				AL10.alSourceUnqueueBuffers(source.name);
-				AL10.alSourceQueueBuffers(source.name, buffer1.name);
+				System.out.println("requeue");
+				AL10.alSourceQueueBuffers(source.name, buffer2.name);
 			}
 		}
 //		source.dispose();

@@ -21,6 +21,8 @@ public class WorldInformation {
 	static public WorldInformation load(String worldName) {
 		DataItem v = TTResource.diFromText(TTResource.blockDef(worldName));
 		BlockInformation bi = new BlockInformation(v.requireField("spec"));
+		
+		// TODO: no! measure this out of the block masks :) OAOO
 		LadderInformation ladderInfo = null;
 		if (v.fieldExists("ladder")) {
 			DataItem ladderDi = v.requireField("ladder");

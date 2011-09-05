@@ -3,6 +3,10 @@ package com.nney.tt.osd;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.PrerenderedText;
 
+/**
+ * Text that never changes and that needs a call to {@link #render()} before
+ * it can be used.
+ */
 public class PreText extends AbstractText {
 	private final Font font;
 	private final int col;

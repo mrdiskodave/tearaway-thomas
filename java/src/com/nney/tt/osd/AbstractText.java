@@ -2,6 +2,9 @@ package com.nney.tt.osd;
 
 import com.nney.tt.gfx.Disposable;
 
+/**
+ * General OSD text.
+ */
 public abstract class AbstractText implements Component, Disposable {
 	public void centredDraw(int x, int y) {
 		int nx = x - width() / 2;

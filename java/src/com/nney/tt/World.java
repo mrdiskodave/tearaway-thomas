@@ -91,21 +91,24 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private int lives = 3;
 
 	
+
 	
-	// disp:
+	// Disposable:
 	private HeadUpDisplay hud;
+
 	
-
-
 	
 	private AlienInfoMap alienInfoMap;
+	// Disposable:
 	private AnimsPool animsPool;
 
 	// block set
+	// Disposable:
 	private BlockSet blockSet;
 
 	
-
+	// Disposable:
+	private Horizon horizon;
 
 	
 	
@@ -166,7 +169,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	
 	private int teleAttempt;
 
-	private Horizon horizon;
 
 
 	
@@ -450,9 +452,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
-		directDrawSprite(c, s, drawWhite);
 		assert mode != GameMode.PAUSED;
-		if (record) recording.add(new SpriteRecord(c, s, drawWhite));
+		if (record) {
+			recording.add(new SpriteRecord(c, s, drawWhite));
+		}
+		else {
+			directDrawSprite(c, s, drawWhite);
+		}
 	}
 
 	private void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
@@ -927,45 +933,50 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	private void modeComplete() {
-		frameNumber++;
-
-		horizon.draw();
-		drawTheMap();
-		for (SpriteRecord sr : recording) {
-			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
-		}
-		dimFade.update();
-		hole.update();
-		statusScreen.update();
-		totalFade.update();
-		drawHud(false);
-		drawBorders();
-
-		try {
-			cr.step();
-		}
-		catch (CoTerminated ct) {
-			System.out.println("Yeah - done!");
-		}
-	}
-
+	
 	private void modeStart() {
-		horizon.draw();
-		drawTheMap();
-		for (SpriteRecord sr : recording) {
-			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
-		}
-		dimFade.update();
-		statusScreen.update();
-		hole.update();
-		drawHud(false);
-		drawBorders();
+		drawTitles(false);
 		if (getStick().testJustPressed(Joystick.FIRE)) {
 			dimFade.target(Curtain.OPEN);
 			mode = GameMode.PLAYING;
 		}
 	}
+
+	private void drawTitles(boolean textOverHole) {
+		horizon.draw();
+		drawTheMap();
+		for (SpriteRecord sr : recording) {
+			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
+		}
+		dimFade.update();
+		if (textOverHole) {
+			hole.update();
+			statusScreen.update();
+		}
+		else {
+			statusScreen.update();
+			hole.update();
+		}
+		totalFade.update();
+		drawHud(false);
+		drawBorders();
+	}
+
+	private void modeComplete() {
+		drawTitles(true);
+
+		try {
+			cr.step();
+		}
+		catch (CoTerminated ct) {
+			System.out.println("DONNNNNNE!!");
+			//freeStatusScreen();
+			
+			// we we can't put GL stuff in the coroutine coz its another thread
+			// and GL is emphatically single threaded
+		}
+	}
+
 
 	private void modeMainGame() {
 		frameNumber++;
@@ -998,7 +1009,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawBorders();
 
 		hole.update();
-		// bounceCurtain();
 
 		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
 		// 0xff000000);
@@ -1049,6 +1059,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
+		
+		
 		pm = new PersistedMap();
 		AlienFactory af = new AlienFactory() {
 			@Override
@@ -1057,7 +1069,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 		};
 		pm.populateFromLevelInfo(af, levelNumber);
-		worldName = "wtgif".substring(pm.worldNum - 1, pm.worldNum);
+		worldName = pm.worldName;
 
 		// work out what Anims we need
 		List<Alien> aliens = pm.getAliens();
@@ -1077,7 +1089,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			loadAlienIntoWorld(alien);
 		}
 
-		horizon = gc.loadHorizon(TTResource.horizon(pm.horizon));
+		createHorizon(pm.horizon);
 
 		mapBoundsInBlocks = pm.mapBounds;
 
@@ -1124,6 +1136,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
 		createStatusScreen(text);
 	}
+
 
 	private Coord getPlayerCentre() {
 		return getPlayerPosition().sub2(getScreenPosition()).add2(new Coord(0, (ttSprite.h / 2) - ttSprite.handleY));
@@ -1306,7 +1319,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	
 	
 	
-	
 
 	private void createBlocksSet() {
 		Name name = new BlockSet.Name(worldName, configSeeMasks, configShowInvisible);
@@ -1322,7 +1334,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	
 	private void createStatusScreen(String text) {
 		freeStatusScreen();
 		statusScreen = new StatusScreen(gc, font);
@@ -1337,6 +1348,19 @@ public class World implements AlienServices, WorldServicesToMapper {
 			statusScreen = null;
 		}
 	}
+	
+	private void createHorizon(int horizon2) {
+		freeHorizon();
+		horizon = gc.loadHorizon(TTResource.horizon(pm.horizon));
+	}
+
+	private void freeHorizon() {
+		if (horizon!=null) {
+			horizon.dispose();
+			horizon=null;
+		}
+	}
+
 }
 
 // 64: worm - forget it

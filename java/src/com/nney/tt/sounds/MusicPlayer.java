@@ -1,6 +1,7 @@
 package com.nney.tt.sounds;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Math2;
@@ -18,9 +19,12 @@ public class MusicPlayer {
 		}
 	}
 
-	static abstract class SongSlice {
-		int first() { return 0; }
-		int last() { return Integer.MAX_VALUE; }
+	static abstract class Slice {
+		void getRunningOrder(List<Integer> destination, int length) {
+			for (int x=0; x<length; x++) {
+				destination.add(x);
+			}
+		}
 
 		boolean leadOut() {
 			return false;
@@ -31,53 +35,53 @@ public class MusicPlayer {
 		}
 	}
 
-	class EntireSongSlice extends SongSlice {
+	class EntireSlice extends Slice {
 		@Override
 		boolean leadOut() {
 			return true;
 		}
 	}
 
-	static class FirstBlockSongSlice extends SongSlice {
+	static class FirstBlockSlice extends Slice {
 		@Override
-		int last() {
-			return 1;
+		void getRunningOrder(List<Integer> destination, int length) {
+			destination.add(0);
 		}
 	}
 
-	static class LoopSongSlice extends SongSlice {
+	static class LoopSlice extends Slice {
 		@Override
-		int first() {
-			return 1;
-		}
-
+		void getRunningOrder(List<Integer> destination, int length) {
+			// all blocks after the first block then the first block again
+			for (int x=1; x<length; x++) {
+				destination.add(x);
+			}
+			destination.add(0);
+		}	
+			
 		@Override
 		boolean isContinuing() {
+			// we're continuing from the first block
 			return true;
 		}
 	}
 
-	static class JingleSongSlice extends SongSlice {
+	static class JingleSlice extends Slice {
 		private final int number;
 
-		JingleSongSlice(int number) {
+		JingleSlice(int number) {
 			this.number = number;
 		}
 
 		@Override
-		int first() {
-			return number;
-		}
-		
-		@Override
-		int last() {
-			return number+1;
+		void getRunningOrder(List<Integer> destination, int length) {
+			destination.add(number);
 		}
 
-		@Override
-		boolean leadOut() {
-			return true;
-		}
+//		@Override
+//		boolean leadOut() {
+//			return true;
+//		}
 	}
 
 
@@ -97,23 +101,18 @@ public class MusicPlayer {
 
 	private ChannelPlayer[] players;
 
-	
-	
 	private Song song;
-
-
-	
 	
 	
 	
 	public SampleStore getJingle(int number) {
 		setUpSong("jingle");
-		return generate(new JingleSongSlice(number));
+		return generate(new JingleSlice(number));
 	}
 	
 	public Loop getSong(String song) {
-		SampleStore a = generate(new FirstBlockSongSlice());
-		SampleStore b = generate(new LoopSongSlice());
+		SampleStore a = generate(new FirstBlockSlice());
+		SampleStore b = generate(new LoopSlice());
 		return new Loop(a, b);
 	}
 
@@ -121,28 +120,24 @@ public class MusicPlayer {
 		loadSong(s);
 	}
 	
-	public SampleStore generate(SongSlice bn) {
-		return generate(bn.isContinuing(), bn.first(), bn.last(), bn.leadOut());
+	public SampleStore generate(Slice bn) {
+		return generate(bn, bn.isContinuing(), bn.leadOut());
 	}
 
-	public SampleStore generate(boolean isContinuing, int first, int last, boolean giveLeadOut) {
+	public SampleStore generate(Slice bn, boolean isContinuing, boolean giveLeadOut) {
 		if (!isContinuing) {
 			generatePlayers();
 		}
 		byte[] sequence = song.getSequence();
+		System.out.println(DebugTools.showBin(sequence));
 
-		ArrayList<Integer> blockNumbers = new ArrayList<Integer>();
+		ArrayList<Integer> order = new ArrayList<Integer>();
+		bn.getRunningOrder(order, sequence.length);
 		
-		first = Math2.limit(0, sequence.length, first);
-		last = Math2.limit(0, sequence.length, last);
-		for (int b=first; b<last; b++) {
-			blockNumbers.add((int) sequence[b]);
-		}
-
 		int leadOut = giveLeadOut ? 64 : 0;
 		int steps = 0;
-		for (int b = 0; b < blockNumbers.size(); b++) {
-			steps += new Block(song, blockNumbers.get(b)).lines;
+		for (int b = 0; b < order.size(); b++) {
+			steps += new Block(song, sequence[order.get(b)]).lines;
 		}
 		steps += leadOut;
 		int clickLength = song.clickLength();
@@ -151,8 +146,8 @@ public class MusicPlayer {
 
 		SampleStore sampleStore = new SampleStore(steps);
 
-		for (int b = 0; b < blockNumbers.size(); b++) {
-			Block block = new Block(song, blockNumbers.get(b));
+		for (int b = 0; b < order.size(); b++) {
+			Block block = new Block(song, sequence[order.get(b)]);
 			for (int line = 0; line < block.lines; line++) {
 				int index = block.lineOffset(line);
 				for (int c = 0; c < CHANNEL_COUNT; c++) {

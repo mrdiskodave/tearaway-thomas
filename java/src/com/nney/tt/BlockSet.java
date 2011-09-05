@@ -9,10 +9,10 @@ import com.nney.tt.resources.TTResource;
 import com.nney.utils.Openable;
 
 public class BlockSet implements Disposable {
-	public Name name;
-	public BlocksHolder blocksHolder;
-	public MasksHolder maskHolder;
-	public WorldInformation wi;
+	final public Name name;
+	final public BlocksHolder blocksHolder;
+	final public MasksHolder maskHolder;
+	final public WorldInformation wi;
 
 	static class Name {
 		final String worldName;

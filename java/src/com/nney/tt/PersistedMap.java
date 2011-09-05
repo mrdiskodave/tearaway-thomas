@@ -40,19 +40,23 @@ public class PersistedMap {
 	public short playerY;
 	public boolean playerGoLeft;
 	public ArrayList<Alien> aliens = new ArrayList<Alien>();
+	public String worldName;
 	
 	
 
-	public void populateFromLevelInfo(AlienFactory af, int lev) {
+	public void populateFromLevelInfo(AlienFactory af, int levelNumber) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
-		levelInfo = levelInfo.requireElement(lev);
-		gemsNeeded = levelInfo.requireField("gemsNeeded").requireInt();
-		horizon = levelInfo.requireField("horizon").requireInt();
-		timeGiven = levelInfo.requireField("timeGiven").requireInt();
-		worldNum = levelInfo.requireField("world").requireInt();
-		stageNum = levelInfo.requireField("stage").requireInt();
-		title = levelInfo.requireField("title").requireString();
-		String map = levelInfo.requireField("map").requireString();
+
+		DataItem levels = levelInfo.requireField("levels");
+		DataItem level = levels.requireElement(levelNumber);
+		gemsNeeded = level.requireField("gemsNeeded").requireInt();
+		horizon = level.requireField("horizon").requireInt();
+		timeGiven = level.requireField("timeGiven").requireInt();
+		worldNum = level.requireField("world").requireInt();
+		worldName = levelInfo.requireField("worldNames").requireElement(worldNum-1).requireString();
+		stageNum = level.requireField("stage").requireInt();
+		title = level.requireField("title").requireString();
+		String map = level.requireField("map").requireString();
 		loadLegacy(af, TTResource.legacyMap(map));
 	}
 

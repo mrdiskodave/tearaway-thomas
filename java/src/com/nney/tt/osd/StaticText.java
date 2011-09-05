@@ -3,6 +3,9 @@ package com.nney.tt.osd;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.PrerenderedText;
 
+/**
+ * Text that never changes.
+ */
 class StaticText extends AbstractText {
 	final private PrerenderedText content;
 

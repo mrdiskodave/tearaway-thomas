@@ -1,4 +1,6 @@
-[
+{
+"worldNames": [ "w", "t", "g", "i", "f" ],
+"levels": [
     {
         "gemsNeeded": 15,
         "horizon": 1,
@@ -192,3 +194,4 @@
         "title": "strange loop"
     }
 ]
+}
