@@ -10,6 +10,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
+import com.nney.tt.sounds.WaveWriter;
+
 /**
  * This is very odd. The code below plays six 440hz tones. Each tone is played
  * using a longer wave form but also a faster frequency so the tone still comes
