@@ -111,11 +111,12 @@ public class AudioChannel {
 
 	void period(int p) {
 		period = p * PERIOD_BOOSTER;
-		assert period < MAGIC_RATIO;
+		System.out.println("Period "+period+" mr "+MAGIC_RATIO);
+		assert period > MAGIC_RATIO;
 	}
 
 	void volume(int v) {
-		assert v < 0x40;
+		assert v <= MAXIMUM_VOLUME;
 		volume = v;
 	}
 }

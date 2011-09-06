@@ -1,0 +1,38 @@
+[
+	{
+		"name":		"headbounce",
+		"vol":		1,
+		"freq":		10400,
+		"data":		"samp4.bin"
+	},
+	{
+		"name":		"teleport",
+		"vol":		1,
+		"freq":		10400,
+		"data":		"samp6.bin"
+	},
+	{
+		"name":		"worm",
+		"vol":		1,
+		"freq":		10400,
+		"data":		"samp7.bin"
+	},
+	{
+		"name":		"trampoline",
+		"vol":		1,
+		"freq":		10400,
+		"data":		"samp8.bin"
+	},
+#	{
+#		"name":		"gem",
+#		"vol":		1,
+#		"freq":		10400,
+#		"data":		"gem.wav"
+#	},
+	{
+		"name":		"tink",
+		"vol":		1,
+		"freq":		15400,
+		"data":		"samp9.bin"
+	}
+]

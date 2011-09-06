@@ -1,4 +1,4 @@
-package com.nney.tt.sounds;
+package com.nney.tt.lwjgl;
 
 import java.nio.FloatBuffer;
 

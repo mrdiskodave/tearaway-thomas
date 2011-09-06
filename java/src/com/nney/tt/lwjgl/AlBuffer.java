@@ -1,4 +1,4 @@
-package com.nney.tt.sounds;
+package com.nney.tt.lwjgl;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -8,11 +8,13 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
 
 import com.nney.tt.gfx.Disposable;
+import com.nney.tt.sounds.Sound;
 
 public class AlBuffer implements Disposable {
 	final int name;
 
-	public AlBuffer(short[] data, int rate) {
+	public AlBuffer(Sound sound, int rate) {
+		short[] data = sound.data;
 		ByteBuffer bb = BufferUtils.createByteBuffer(data.length * 2);
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
@@ -21,12 +23,15 @@ public class AlBuffer implements Disposable {
 		}
 		int buffer = AlTools.alCheckName(AL10.alGenBuffers());
 		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, rate);
-		
+		AlTools.alCheck();
 		name = buffer;
+		
+		assert name!=0;
 	}
 
 	@Override
 	public void dispose() {
 		AL10.alDeleteBuffers(name);
+		AlTools.alCheck();
 	}
 }

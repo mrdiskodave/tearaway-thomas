@@ -83,6 +83,8 @@ public class Main {
 	private void run() {
 		initLwjgl();
 		initOpenGL();
+		
+		AlAudioContext ac = new AlAudioContext();
 
 		LwjglKeyboard keys = new LwjglKeyboard();
 		KeyboardJoystick joystick = new KeyboardJoystick(keys);
@@ -103,7 +105,7 @@ public class Main {
 			}
 		};
 
-		world = new World(gc, joystick, keys, correctMouse);
+		world = new World(gc, ac, joystick, keys, correctMouse);
 
 		FpsReporter fpsRep = new FpsReporter(200);
 		boolean closing = false;
@@ -113,6 +115,7 @@ public class Main {
 			keys.handleKeyboard();
 			joystick.update();
 			wonkyMouse.update();
+			ac.update();
 
 			GlTools.configureFor2dBobs();
 			world.updateEverything();
@@ -125,6 +128,9 @@ public class Main {
 			fpsRep.reportFps();
 			Thread.yield();
 		}
+		
+		ac.dispose();
+		
 		Display.destroy();
 	}
 

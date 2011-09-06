@@ -51,6 +51,7 @@ import com.nney.tt.gfx.Horizon;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.lwjgl.AlAudioContext;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.Mapper;
@@ -60,6 +61,8 @@ import com.nney.tt.osd.OsdParser;
 import com.nney.tt.osd.StatusDisplay;
 import com.nney.tt.osd.StatusScreen;
 import com.nney.tt.resources.TTResource;
+import com.nney.tt.sounds.AudioContext;
+import com.nney.tt.sounds.AudioHub;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
@@ -270,8 +273,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Coroutine cr;
 
-	public World(GraphicsContext gc, Joystick joystick, Keyboard keyboard, Pointer mouse) {
+	private AudioHub ah;
+
+	public World(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
+		this.ah = new AudioHub(ac);
 		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
 		this.joystick = joystick;
 		this.keyboard = keyboard;
@@ -430,6 +436,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		gemsCollected++;
 		giveScore(score, noticeLocation);
+		playEffect("tink");
 	}
 
 	private GemStatus getGemStatus() {
@@ -563,6 +570,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
 				if (diffX <= w) {
 					// head bounce :)
+					playEffect("headbounce");
 					boolean willSurvive = frightAnimationName == null;
 					int headScore = player.headBounce(willSurvive);
 					int raiseScoreNoticeBy = alienSprite.handleY + 10;
@@ -870,7 +878,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 						//
 						while (timeRemaining != 0) {
 							giveScore(10, null);
-							pause(firePressed ? 2 : 6);
+							playEffect("tink");
+							pause(firePressed ? 2 : 5);
 							timeRemaining = Math.max(0, timeRemaining - Const.FPS);
 						}
 						
@@ -1131,6 +1140,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		totalFade.current(Curtain.OPEN);
 		totalFade.target(Curtain.OPEN);
 
+		ah.startMusic("intro");
+		
 		mode = GameMode.START;
 
 		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
@@ -1166,13 +1177,19 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (teleAttempt + 1 != frameNumber) {
 			// do it
 			player.c = destination.copy();
+			playEffect("teleport");
 			scr.snapTo(destination);
 			whiteTimer = 10;
 		}
 		teleAttempt = frameNumber;
 		// (this stops us vibrating between two teleports)
 	}
-
+	
+	@Override
+	public void playEffect(String name) {
+		ah.playEffect(name);
+	}
+	
 	// ---------------------------------------------------------------------------
 	// MAPPER SERVICES
 	//

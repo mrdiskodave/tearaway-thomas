@@ -119,4 +119,6 @@ public interface AlienServices {
 	void levelCompleted();
 
 	boolean showText();
+
+	void playEffect(String name);
 }

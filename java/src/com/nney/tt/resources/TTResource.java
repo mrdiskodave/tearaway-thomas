@@ -54,6 +54,10 @@ public class TTResource {
 		return TTResource.formatted("sounds/music/%s", s);
 	}
 
+	public static Openable fx(String s) {
+		return TTResource.formatted("sounds/fx/%s", s);
+	}
+
 	public static Openable horizon(int name) {
 		return TTResource.formatted("horizons/%d.png", name);
 	}

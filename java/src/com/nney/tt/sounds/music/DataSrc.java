@@ -55,5 +55,4 @@ public class DataSrc {
 	DataSrc subDataSrc(int p, int l) {
 		return new DataSrc(rawData(p, l));
 	}
-	
 }

@@ -5,7 +5,9 @@ public class Song {
 	private DataSrc info;
 
 	public Song(DataSrc d) {
-		assert d.fourCharacterCode(0).equals("DSNG");
+		if (!d.fourCharacterCode(0).equals("DSNG")) {
+			throw new RuntimeException("Doesn't look a song file to me");
+		}
 		dataSrc = d.subDataSrc(4, d.length()-4);
 		info = findBlock("INFO");
 	}
