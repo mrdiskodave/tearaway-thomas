@@ -1,4 +1,4 @@
-package com.nney.tt.sounds;
+package com.nney.tt.sounds.wav;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

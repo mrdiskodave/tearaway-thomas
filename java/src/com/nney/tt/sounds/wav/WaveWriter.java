@@ -1,9 +1,11 @@
-package com.nney.tt.sounds;
+package com.nney.tt.sounds.wav;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import com.nney.tt.sounds.Sound;
 
 public class WaveWriter {
 	// http://www-mmsp.ece.mcgill.ca/Documents/AudioFormats/WAVE/WAVE.html
@@ -37,10 +39,10 @@ public class WaveWriter {
 		}
 	}
 
-	public static void saveWave(String name, short[] waveForm, int frequencyInHz) {
+	public static void saveWave(String name, Sound sound) {
 		try {
 			OutputStream fo = new BufferedOutputStream(new FileOutputStream("C:\\Users\\david\\Desktop\\z\\" + name));
-			doIt(fo, frequencyInHz, waveForm);
+			doIt(fo, sound.freq(), sound.data);
 			fo.close();
 		}
 		catch (IOException e) {

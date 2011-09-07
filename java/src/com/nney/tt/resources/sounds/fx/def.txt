@@ -3,36 +3,35 @@
 		"name":		"headbounce",
 		"vol":		1,
 		"freq":		10400,
-		"data":		"samp4.bin"
+		"data":		"samp4.wav"
 	},
 	{
 		"name":		"teleport",
 		"vol":		1,
 		"freq":		10400,
-		"data":		"samp6.bin"
+		"data":		"samp6.wav"
 	},
 	{
 		"name":		"worm",
 		"vol":		1,
 		"freq":		10400,
-		"data":		"samp7.bin"
+		"data":		"samp7.wav"
 	},
 	{
 		"name":		"trampoline",
 		"vol":		1,
 		"freq":		10400,
-		"data":		"samp8.bin"
+		"data":		"samp8.wav"
 	},
-#	{
-#		"name":		"gem",
-#		"vol":		1,
-#		"freq":		10400,
-#		"data":		"gem.wav"
-#	},
+	{
+		"name":		"gem",
+		"vol":		1,
+		"data":		"gem.wav"
+	},
 	{
 		"name":		"tink",
 		"vol":		1,
 		"freq":		15400,
-		"data":		"samp9.bin"
+		"data":		"samp9.wav"
 	}
 ]

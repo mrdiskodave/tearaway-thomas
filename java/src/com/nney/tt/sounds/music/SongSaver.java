@@ -1,9 +1,9 @@
 package com.nney.tt.sounds.music;
 
-import com.nney.tt.sounds.WaveWriter;
 import com.nney.tt.sounds.music.MusicPlayer.JingleSlice;
 import com.nney.tt.sounds.music.MusicPlayer.LoopSlice;
 import com.nney.tt.sounds.music.MusicPlayer.Slice;
+import com.nney.tt.sounds.wav.WaveWriter;
 
 public class SongSaver {
 	private final MusicPlayer mp;
@@ -22,7 +22,7 @@ public class SongSaver {
 	private void saveSongSlice(Slice slice, String xtra) {
 		String saveName = songName + xtra + ".wav";
 		System.out.println("=== " + saveName);
-		WaveWriter.saveWave(saveName, mp.generate(slice).collect(), MusicPlayer.FREQUENCY);
+		WaveWriter.saveWave(saveName, mp.generate(slice));
 	}
 	
 	private void saveSong(String s) {

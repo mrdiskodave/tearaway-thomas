@@ -6,6 +6,7 @@ import com.nney.json.DataItem;
 import com.nney.tt.lwjgl.AlAudioContext;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sounds.music.MusicPlayer;
+import com.nney.tt.sounds.wav.WavTools;
 import com.nney.utils.OpenableTools;
 
 public class AudioHub {
@@ -21,11 +22,15 @@ public class AudioHub {
 		for (DataItem i : TTResource.diFromText(TTResource.fx("def.txt")).requireList()) {
 			String name = i.requireField("name").requireString();
 			String data = i.requireField("data").requireString();
+			
 			byte[] d = OpenableTools.mustLoad(TTResource.fx(data));
-			Sound sound = Sound.fromSam(d);
+			Sound sound = WavTools.read(d);
+			
 			float vol = (float) i.requireField("vol").requireDouble();
-			int freq = i.requireField("freq").requireInt();
-			ac.loadEffect(vol, freq, sound);
+			if (i.fieldExists("freq")) {
+				sound.freq(i.requireField("freq").requireInt());
+			}
+			ac.loadEffect(vol, sound);
 			fxMap.put(name, indx++);
 			System.out.println("added");
 		}
@@ -36,12 +41,20 @@ public class AudioHub {
 		if (n == null) throw new RuntimeException("Unknown sound effect: " + name);
 		ac.playEffect(n);
 	}
-
+	
 	public void startMusic(String name) {
-		System.out.println("Rendering");
+		ac.startMusic(1f, renderMusic(name));
+	}
+
+	public void startMusic(Loop rendered) {
+		ac.startMusic(1f, rendered);
+	}
+
+	public Loop renderMusic(String name) {
+		System.out.println("Rendering "+name);
 		Loop loop = mp.getSong(name);
 		System.out.println("Done!");
-		ac.startMusic(1f, FREQ, loop);
+		return loop;
 	}
 
 	//

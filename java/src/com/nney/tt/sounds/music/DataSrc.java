@@ -1,24 +1,30 @@
 package com.nney.tt.sounds.music;
 
 public class DataSrc {
-	private byte[] b;
+	public static class Broken extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		public Broken(String string) {
+			super(string);
+		}
+	}
+	
+	private void check(int p, int l) {
+		if (p<0 || l<0 || p+l>data.length) {
+			throw new Broken("Illegal access - the file we are reading is corrupt?");
+		}
+	}
+	
+	private byte[] data;
 
 	public DataSrc(byte[] b) {
-		this.b = b;
+		this.data = b;
 	}
 	
 	public int length() {
-		return b.length;
+		return data.length;
 	}
 	
-	public DataSrc(byte[] b, int p, int l) {
-		this.b = extract(b, p, l);
-	}
-
 	private static byte[] extract(byte[] b, int p, int l) {
-		assert p>=0;
-		assert l>=0;
-		assert p+l <= b.length;
 		byte[] z = new byte[l];
 		for (int x=0; x<l; x++) {
 			z[x] = b[x+p];
@@ -26,33 +32,48 @@ public class DataSrc {
 		return z;
 	}
 	
-	int unsignedByte(int p) {
-		return b[p]&0xff; 
+	public int unsignedByte(int p) {
+		check(p, 1);
+		return data[p]&0xff; 
 	}
 	
-	int signedByte(int p) {
-		return b[p];
+	public int signedByte(int p) {
+		check(p, 1);
+		return data[p];
 	}
 	
-	int unsignedWord(int p) {
+	public int unsignedWordBE(int p) {
 		return (unsignedByte(p)<<8)+unsignedByte(p+1);
 	}
-	
-	int unsignedLong(int p) {
-		return (unsignedWord(p)<<16)+unsignedWord(p+2);
+
+	public int unsignedWordLE(int p) {
+		return (unsignedByte(p+1)<<8)+unsignedByte(p);
 	}
-	
-	String fourCharacterCode(int p) {
+
+	public int unsignedLongBE(int p) {
+		return (unsignedWordBE(p)<<16)+unsignedWordBE(p+2);
+	}
+
+	public int unsignedLongLE(int p) {
+		return (unsignedWordLE(p+2)<<16)+unsignedWordLE(p);
+	}
+
+	public String fourCharacterCode(int p) {
 		StringBuilder sb = new StringBuilder();
 		for (int x=0; x<4; x++) sb.append((char)unsignedByte(p++));
 		return sb.toString();
 	}
-	
-	byte[] rawData(int p, int l) {
-		return extract(b, p, l);
+
+	public byte[] rawData(int p, int l) {
+		check(p, l);
+		return extract(data, p, l);
 	}
-	
-	DataSrc subDataSrc(int p, int l) {
+
+	public DataSrc subDataSrc(int p) {
+		return subDataSrc(p, data.length-p);
+	}
+
+	public DataSrc subDataSrc(int p, int l) {
 		return new DataSrc(rawData(p, l));
 	}
 }

@@ -76,7 +76,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private static final int BORDER_COLOR = 0xff000000;
 
-
 	final private GraphicsContext gc;
 
 	private Font debugFont;
@@ -85,22 +84,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	
-	
 	private int levelNumber = 0;
 
 	private int score = 0;
 
 	private int lives = 3;
 
-	
-
-	
 	// Disposable:
 	private HeadUpDisplay hud;
 
-	
-	
 	private AlienInfoMap alienInfoMap;
 	// Disposable:
 	private AnimsPool animsPool;
@@ -109,12 +101,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// Disposable:
 	private BlockSet blockSet;
 
-	
 	// Disposable:
 	private Horizon horizon;
 
-	
-	
 	// mapper vars
 	private boolean usingMapper;
 
@@ -127,25 +116,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private boolean configSeeMasks;
 
 	private String worldName;
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	private ScreenPosition scr;
 
 	/**
 	 * Compile time configuration: the screen follows the player <b>exactly</b>.
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
-
 
 	final private Random rnd = new Random(5);
 
@@ -169,16 +146,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	private Coord playerSpriteTopLeft;
 
-	
 	private int teleAttempt;
 
-
-
-	
-
-
-	
-	
 	private int whiteTimer;
 
 	private int timeRemaining;
@@ -436,7 +405,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		gemsCollected++;
 		giveScore(score, noticeLocation);
-		playEffect("tink");
+		playEffect("gem");
 	}
 
 	private GemStatus getGemStatus() {
@@ -873,14 +842,23 @@ public class World implements AlienServices, WorldServicesToMapper {
 				cr = new Coroutine("cheese") {
 					@Override
 					public void run() {
+//						int lf = 0;
 						//
 						// turn time into score
 						//
 						while (timeRemaining != 0) {
 							giveScore(10, null);
 							playEffect("tink");
-							pause(firePressed ? 2 : 5);
-							timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+							pause(firePressed ? 2 : 6);
+							
+							if (timeRemaining<Const.FPS*5) {
+								timeRemaining += Const.FPS;
+							}
+							else {
+								timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+							}
+//							System.out.println(frameNumber-lf);
+//							lf = frameNumber;
 						}
 						
 						// a pause so you get to look at it
@@ -915,15 +893,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-
 	private void modePaused() {
 		horizon.draw();
 		drawTheMap();
@@ -942,12 +911,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	
 	private void modeStart() {
 		drawTitles(false);
 		if (getStick().testJustPressed(Joystick.FIRE)) {
 			dimFade.target(Curtain.OPEN);
 			mode = GameMode.PLAYING;
+			ah.startMusic("wood");
 		}
 	}
 
@@ -972,6 +941,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void modeComplete() {
+		frameNumber++;
+		
 		drawTitles(true);
 
 		try {
@@ -979,13 +950,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		catch (CoTerminated ct) {
 			System.out.println("DONNNNNNE!!");
-			//freeStatusScreen();
-			
+			// freeStatusScreen();
+
 			// we we can't put GL stuff in the coroutine coz its another thread
 			// and GL is emphatically single threaded
 		}
 	}
-
 
 	private void modeMainGame() {
 		frameNumber++;
@@ -1068,8 +1038,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-		
-		
+
 		pm = new PersistedMap();
 		AlienFactory af = new AlienFactory() {
 			@Override
@@ -1140,14 +1109,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		totalFade.current(Curtain.OPEN);
 		totalFade.target(Curtain.OPEN);
 
-		ah.startMusic("intro");
-		
+		ah.startMusic("levelbegin");
+
 		mode = GameMode.START;
 
 		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
 		createStatusScreen(text);
 	}
-
 
 	private Coord getPlayerCentre() {
 		return getPlayerPosition().sub2(getScreenPosition()).add2(new Coord(0, (ttSprite.h / 2) - ttSprite.handleY));
@@ -1170,7 +1138,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-
 	@Override
 	public void teleportTo(Coord destination) {
 		// if we didn't try teleporting last frame
@@ -1184,12 +1151,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		teleAttempt = frameNumber;
 		// (this stops us vibrating between two teleports)
 	}
-	
+
 	@Override
 	public void playEffect(String name) {
 		ah.playEffect(name);
 	}
-	
+
 	// ---------------------------------------------------------------------------
 	// MAPPER SERVICES
 	//
@@ -1328,24 +1295,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 		drawTheMap();
 		updateAliens(true);
 	}
-	
-
-	
-	
-	
-	
-	
-	
 
 	private void createBlocksSet() {
 		Name name = new BlockSet.Name(worldName, configSeeMasks, configShowInvisible);
-		if (blockSet!=null && blockSet.name.equals(name)) return;
+		if (blockSet != null && blockSet.name.equals(name)) return;
 		freeBlocksSet();
 		blockSet = new BlockSet(gc, name);
 	}
 
 	private void freeBlocksSet() {
-		if (blockSet!=null) {
+		if (blockSet != null) {
 			blockSet.dispose();
 			blockSet = null;
 		}
@@ -1365,16 +1324,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 			statusScreen = null;
 		}
 	}
-	
+
 	private void createHorizon(int horizon2) {
 		freeHorizon();
 		horizon = gc.loadHorizon(TTResource.horizon(pm.horizon));
 	}
 
 	private void freeHorizon() {
-		if (horizon!=null) {
+		if (horizon != null) {
 			horizon.dispose();
-			horizon=null;
+			horizon = null;
 		}
 	}
 

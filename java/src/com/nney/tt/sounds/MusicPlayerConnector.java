@@ -5,7 +5,8 @@ import com.nney.tt.sounds.music.MusicPlayer;
 /**
  * {@link MusicPlayer} has a broader interface than we need. This narrows class
  * it down to the one method. It does this by hiding extra features (e.g.
- * slicing modes) and things that need tidying up (e.g. "jingles").
+ * slicing modes) and TODOs (things that need tidying up like so-called
+ * "jingles").
  */
 public class MusicPlayerConnector {
 	private final MusicPlayer mp;
@@ -28,14 +29,14 @@ public class MusicPlayerConnector {
 			return jing(3);
 		}
 		mp.setUpSong(song);
-		Sound a = new Sound(mp.generate(new MusicPlayer.FirstBlockSlice()).collect());
-		Sound b = new Sound(mp.generate(new MusicPlayer.LoopSlice()).collect());
+		Sound a = mp.generate(new MusicPlayer.FirstBlockSlice());
+		Sound b = mp.generate(new MusicPlayer.LoopSlice());
 		return new Loop(a, b);
 	}
 
 	private Loop jing(int number) {
 		mp.setUpSong("jingle");
-		Sound a = new Sound(mp.generate(new MusicPlayer.JingleSlice(number)).collect());
+		Sound a = mp.generate(new MusicPlayer.JingleSlice(number));
 		return new Loop(a, null);
 	}
 }

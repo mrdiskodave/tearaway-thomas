@@ -10,7 +10,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
-import com.nney.tt.sounds.WaveWriter;
+import com.nney.tt.sounds.Sound;
+import com.nney.tt.sounds.wav.WaveWriter;
 
 /**
  * This is very odd. The code below plays six 440hz tones. Each tone is played
@@ -107,7 +108,7 @@ public class AlStrange {
 			sample[x] = waveForm[x % waveForm.length];
 		}
 		playWave(sample, frequencyInHz);
-		WaveWriter.saveWave(name, sample, frequencyInHz);
+		WaveWriter.saveWave(name, new Sound(sample, frequencyInHz));
 	}
 
 	class SquareWave implements WaveCreator {

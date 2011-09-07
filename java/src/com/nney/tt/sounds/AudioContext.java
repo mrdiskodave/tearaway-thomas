@@ -1,9 +1,13 @@
 package com.nney.tt.sounds;
 
 public interface AudioContext {
-	void startMusic(float vol, int freq, Loop music);
+	
+	Sound createStereoSound(short[] data);
+	Sound createMonoSound(byte[] data);
+	
+	void startMusic(float vol, Loop music);
 	void setMusicVolume(float vol);
 	
-	void loadEffect(float vol, int freq, Sound sound);
+	void loadEffect(float vol, Sound sound);
 	void playEffect(int x);
 }

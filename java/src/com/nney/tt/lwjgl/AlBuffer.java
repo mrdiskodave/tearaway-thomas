@@ -13,7 +13,7 @@ import com.nney.tt.sounds.Sound;
 public class AlBuffer implements Disposable {
 	final int name;
 
-	public AlBuffer(Sound sound, int rate) {
+	public AlBuffer(Sound sound) {
 		short[] data = sound.data;
 		ByteBuffer bb = BufferUtils.createByteBuffer(data.length * 2);
 		bb.order(ByteOrder.nativeOrder());
@@ -22,7 +22,7 @@ public class AlBuffer implements Disposable {
 			sb.put((short) data[x]);
 		}
 		int buffer = AlTools.alCheckName(AL10.alGenBuffers());
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, rate);
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, sound.freq());
 		AlTools.alCheck();
 		name = buffer;
 		

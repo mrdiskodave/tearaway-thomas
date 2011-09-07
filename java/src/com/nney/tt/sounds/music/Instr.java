@@ -34,7 +34,7 @@ public class Instr {
 
 	
 	public Instr(DataSrc dataSrc) {
-		sample = dataSrc.unsignedWord(Isamplen);
+		sample = dataSrc.unsignedWordBE(Isamplen);
 		if (sample == 0) {
 			loop = dataSrc.rawData(Iloop, dataSrc.unsignedByte(Iloop_size)*2);
 			tone = dataSrc.rawData(Itone, dataSrc.unsignedByte(Itone_size)*2);

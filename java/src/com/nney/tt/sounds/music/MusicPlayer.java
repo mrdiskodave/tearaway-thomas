@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nney.tt.resources.TTResource;
+import com.nney.tt.sounds.Sound;
 import com.nney.utils.Math2;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
@@ -84,7 +85,7 @@ public class MusicPlayer {
 		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.music(s+ ".song"))));
 	}
 	
-	public SampleStore generate(Slice bn) {
+	public Sound generate(Slice bn) {
 		if (!bn.isContinuing()) {
 			generatePlayers();
 		}
@@ -119,7 +120,7 @@ public class MusicPlayer {
 
 		sampleStore.dumpRange();
 
-		return sampleStore;
+		return new Sound(sampleStore.collect(), FREQUENCY);
 	}
 
 	private void generatePlayers() {
@@ -168,10 +169,10 @@ public class MusicPlayer {
 		//
 		// load the instruments
 		//
-		byte[] iblk = OpenableTools.mustLoad(TTResource.music("iblk"));
+		DataSrc iblk = new DataSrc(OpenableTools.mustLoad(TTResource.music("iblk")));
 		instrs = new Instr[16];
 		for (int x = 0; x < 16; x++) {
-			instrs[x] = new Instr(new DataSrc(iblk, x * 94, 94));
+			instrs[x] = new Instr(iblk.subDataSrc(x * 94, 94));
 		}
 
 		//

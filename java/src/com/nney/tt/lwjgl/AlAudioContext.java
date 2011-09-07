@@ -8,7 +8,7 @@ import com.nney.tt.sounds.Loop;
 import com.nney.tt.sounds.Sound;
 
 public class AlAudioContext implements AudioContext, Disposable {
-	private static final int SIMULTANEOUS_FX = 5;
+	private static final int SIMULTANEOUS_FX = 1;
 
 	class FX {
 		final AlBuffer buffer;
@@ -26,21 +26,21 @@ public class AlAudioContext implements AudioContext, Disposable {
 	
 	private ArrayList<FX> fxs = new ArrayList<FX>();
 	
-	private ArrayList<AlSource> playing = new ArrayList<AlSource>();
+	private ArrayList<AlSource> fxPlaying = new ArrayList<AlSource>();
 
 	public AlAudioContext() {
 		AlTools.alInit();
 	}
 	
 	@Override
-	public void startMusic(float vol, int freq, Loop music) {
+	public void startMusic(float vol, Loop music) {
 		stopMusic();
 		
 		musicSource = new AlSource();
 		musicSource.setVol(vol);
-		musicStart = new AlBuffer(music.begin, freq);
+		musicStart = new AlBuffer(music.begin);
 		if (music.loop!=null) {
-			musicLoop = new AlBuffer(music.loop, freq);
+			musicLoop = new AlBuffer(music.loop);
 			musicSource.queue(musicStart);
 			musicSource.queue(musicLoop);
 		}
@@ -74,8 +74,8 @@ public class AlAudioContext implements AudioContext, Disposable {
 	}
 	
 	@Override
-	public void loadEffect(float vol, int freq, Sound sound) {
-		fxs.add(new FX(new AlBuffer(sound, freq), vol));
+	public void loadEffect(float vol, Sound sound) {
+		fxs.add(new FX(new AlBuffer(sound), vol));
 	}
 
 	@Override
@@ -87,14 +87,14 @@ public class AlAudioContext implements AudioContext, Disposable {
 		s.attach(f.buffer);
 		s.play();
 		
-		playing.add(s);
-		while (playing.size()>SIMULTANEOUS_FX) {
+		fxPlaying.add(s);
+		while (fxPlaying.size()>SIMULTANEOUS_FX) {
 			stripFx();
 		}
 	}
 
 	private void stripFx() {
-		playing.remove(0).dispose();
+		fxPlaying.remove(0).dispose();
 	}
 
 	public void update() {
@@ -109,12 +109,24 @@ public class AlAudioContext implements AudioContext, Disposable {
 	@Override
 	public void dispose() {
 		stopMusic();
-		while (playing.size()!=0) {
+		while (fxPlaying.size()!=0) {
 			stripFx();
 		}
 		for (FX fx: fxs) {
 			fx.buffer.dispose();
 		}
 		AlTools.alShutdown();
+	}
+
+	@Override
+	public Sound createStereoSound(short[] data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Sound createMonoSound(byte[] data) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
