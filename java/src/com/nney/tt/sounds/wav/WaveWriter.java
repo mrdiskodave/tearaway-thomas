@@ -42,7 +42,7 @@ public class WaveWriter {
 	public static void saveWave(String name, Sound sound) {
 		try {
 			OutputStream fo = new BufferedOutputStream(new FileOutputStream("C:\\Users\\david\\Desktop\\z\\" + name));
-			doIt(fo, sound.freq(), sound.data);
+			doIt(fo, sound.freq, sound.data);
 			fo.close();
 		}
 		catch (IOException e) {

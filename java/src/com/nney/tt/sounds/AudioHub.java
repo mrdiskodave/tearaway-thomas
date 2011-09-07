@@ -10,10 +10,10 @@ import com.nney.tt.sounds.wav.WavTools;
 import com.nney.utils.OpenableTools;
 
 public class AudioHub {
-	private static final int FREQ = 44100;
 	private MusicPlayerConnector mp = new MusicPlayerConnector(new MusicPlayer());
 	private HashMap<String, Integer> fxMap = new HashMap<String, Integer>();
 	private final AudioContext ac;
+	private String[] slotContents = { "", "", "" };
 
 	public AudioHub(AudioContext ac) {
 		this.ac = ac;
@@ -28,7 +28,7 @@ public class AudioHub {
 			
 			float vol = (float) i.requireField("vol").requireDouble();
 			if (i.fieldExists("freq")) {
-				sound.freq(i.requireField("freq").requireInt());
+				sound = new Sound(sound.data, i.requireField("freq").requireInt());
 			}
 			ac.loadEffect(vol, sound);
 			fxMap.put(name, indx++);
@@ -42,15 +42,17 @@ public class AudioHub {
 		ac.playEffect(n);
 	}
 	
-	public void startMusic(String name) {
-		ac.startMusic(1f, renderMusic(name));
+	public void loadMusic(int slot, String name) {
+		if (name.equals(slotContents[slot])) return;
+		ac.loadMusic(slot, renderMusic(name));
+		slotContents[slot] = name;
 	}
 
-	public void startMusic(Loop rendered) {
-		ac.startMusic(1f, rendered);
+	public void startMusic(int slot) {
+		ac.startMusic(slot);
 	}
 
-	public Loop renderMusic(String name) {
+	private Loop renderMusic(String name) {
 		System.out.println("Rendering "+name);
 		Loop loop = mp.getSong(name);
 		System.out.println("Done!");
@@ -73,11 +75,12 @@ public class AudioHub {
 	public static void main(String[] args) {
 		AlAudioContext ac = new AlAudioContext();
 		AudioHub z = new AudioHub(ac);
-		z.startMusic("intro");
+		z.loadMusic(0, "intro");
+		z.startMusic(0);
 		for (;;) {
 			pause();
 			ac.update();
-			z.playEffect("tink");
+//			z.playEffect("tink");
 		}
 	}
 }

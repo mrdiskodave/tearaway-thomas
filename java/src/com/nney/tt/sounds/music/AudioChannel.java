@@ -68,8 +68,6 @@ public class AudioChannel {
 	 */
 	private double lastResult;
 	
-	
-
 	void wave(byte[] w, boolean r) {
 		wave = w;
 		repeat = r;
@@ -81,8 +79,27 @@ public class AudioChannel {
 	int sample() {
 		if (wave == null) return 0;
 
-		int p = pos;
+		int rawSample = wave[pos];
 
+		//
+		// volume
+		//
+		
+		int volumeAdjustedSample = (rawSample * volume) / MAXIMUM_VOLUME;
+
+		//
+		// low pass filter
+		//
+		double currentResult = volumeAdjustedSample;
+
+		// lastResult = FILTER_FACTOR * currentResult + (1 - FILTER_FACTOR) *
+		// lastResult;
+		// i.e.
+		lastResult = lastResult + LOWPASS_FILTER_FACTOR * (currentResult - lastResult);
+		
+		//
+		// advance our position for next time
+		//
 		if (acc <= 0) {
 			acc += period;
 			pos++;
@@ -92,26 +109,17 @@ public class AudioChannel {
 				}
 				else {
 					wave = null;
-					return 0;
 				}
 			}
 		}
 		acc -= MAGIC_RATIO;
-
-		int rawSample = wave[p];
-		int volumeAdjustedSample = (rawSample * volume) / MAXIMUM_VOLUME;
-
-		double currentResult = volumeAdjustedSample;
-		// lastResult = FILTER_FACTOR * currentResult + (1 - FILTER_FACTOR) *
-		// lastResult;
-		// i.e.
-		lastResult = lastResult + LOWPASS_FILTER_FACTOR * (currentResult - lastResult);
+		
+		
 		return (int) lastResult;
 	}
 
 	void period(int p) {
 		period = p * PERIOD_BOOSTER;
-		System.out.println("Period "+period+" mr "+MAGIC_RATIO);
 		assert period > MAGIC_RATIO;
 	}
 

@@ -51,7 +51,6 @@ import com.nney.tt.gfx.Horizon;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.lwjgl.AlAudioContext;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.Mapper;
@@ -842,24 +841,25 @@ public class World implements AlienServices, WorldServicesToMapper {
 				cr = new Coroutine("cheese") {
 					@Override
 					public void run() {
-//						int lf = 0;
+						// wait around a bit
+						pause(60);
+
 						//
 						// turn time into score
 						//
+						int fastScore = 0;
 						while (timeRemaining != 0) {
-							giveScore(10, null);
-							playEffect("tink");
-							pause(firePressed ? 2 : 6);
-							
-							if (timeRemaining<Const.FPS*5) {
-								timeRemaining += Const.FPS;
+							if (firePressed) {
+								fastScore += 10;
 							}
 							else {
-								timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+								giveScore(10, null);
+								playEffect("tink");
+								pause(4);
 							}
-//							System.out.println(frameNumber-lf);
-//							lf = frameNumber;
+							timeRemaining = Math.max(0, timeRemaining - Const.FPS);
 						}
+						giveScore(fastScore, null);
 						
 						// a pause so you get to look at it
 						pause(25);
@@ -881,6 +881,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 					}
 				};
 
+				ah.startMusic(2);
+				
 				mode = GameMode.COMPLETE;
 				firePressed = false;
 				frameNumber = 0;
@@ -916,7 +918,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (getStick().testJustPressed(Joystick.FIRE)) {
 			dimFade.target(Curtain.OPEN);
 			mode = GameMode.PLAYING;
-			ah.startMusic("wood");
+			ah.startMusic(1);
 		}
 	}
 
@@ -1109,7 +1111,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		totalFade.current(Curtain.OPEN);
 		totalFade.target(Curtain.OPEN);
 
-		ah.startMusic("levelbegin");
+		ah.loadMusic(2, "levelcomplete");
+
+		ah.loadMusic(1, worldName);
+
+		ah.loadMusic(0, "levelbegin");
+		ah.startMusic(0);
 
 		mode = GameMode.START;
 

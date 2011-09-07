@@ -30,7 +30,7 @@
 	},
 	{
 		"name":		"tink",
-		"vol":		1,
+		"vol":		0.8,
 		"freq":		15400,
 		"data":		"samp9.wav"
 	}

@@ -57,5 +57,4 @@ public class AlSource implements Disposable {
 	public void setVol(float vol) {
 		AL10.alSourcef(name, AL10.AL_GAIN, vol);
 	}
-
 }

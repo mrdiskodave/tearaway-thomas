@@ -8,45 +8,91 @@ import com.nney.tt.sounds.Loop;
 import com.nney.tt.sounds.Sound;
 
 public class AlAudioContext implements AudioContext, Disposable {
+	private static final int SLOTS = 3;
+
 	private static final int SIMULTANEOUS_FX = 1;
 
-	class FX {
+	class Effect implements Disposable {
 		final AlBuffer buffer;
 		final float vol;
 
-		public FX(AlBuffer buffer, float vol) {
+		public Effect(AlBuffer buffer, float vol) {
 			this.buffer = buffer;
 			this.vol = vol;
+		}
+
+		@Override
+		public void dispose() {
+			buffer.dispose();
+		}
+	}
+	
+	class Music implements Disposable {
+		public AlBuffer begin;
+		public AlBuffer loop;
+		
+		Music(Loop content) {
+			System.out.println("has begin");
+			begin = new AlBuffer(content.begin);
+			if (content.hasLoop()) {
+				System.out.println("has loop");
+				loop = new AlBuffer(content.loop);
+			}
+		}
+		
+		boolean hasLoop() {
+			return loop!=null;
+		}
+
+		@Override
+		public void dispose() {
+			begin.dispose();
+			if (hasLoop()) {
+				loop.dispose();
+			}
 		}
 	}
 
 	private AlSource musicSource;
-	private AlBuffer musicStart;
-	private AlBuffer musicLoop;
 	
-	private ArrayList<FX> fxs = new ArrayList<FX>();
+	private float musicVol = 1;
 	
-	private ArrayList<AlSource> fxPlaying = new ArrayList<AlSource>();
+	
+	
+	private Music[] musics = new Music[SLOTS];
+	
+	private ArrayList<Effect> effects = new ArrayList<Effect>();
+	
+	private ArrayList<AlSource> effectPlaying = new ArrayList<AlSource>();
+
+	private Music playing;
 
 	public AlAudioContext() {
 		AlTools.alInit();
 	}
 	
 	@Override
-	public void startMusic(float vol, Loop music) {
+	public void loadMusic(int slot, Loop loop) {
+		stopMusic();
+		if (musics[slot]!=null) {
+			musics[slot].dispose();
+		}
+		musics[slot] = new Music(loop);
+	}
+
+	@Override
+	public void startMusic(int slot) {
 		stopMusic();
 		
+		playing = musics[slot];
+		if (playing==null) {
+			throw new IllegalStateException("Slot "+slot+" is empty");
+		}
+		System.out.println("starting begin "+musicVol);
 		musicSource = new AlSource();
-		musicSource.setVol(vol);
-		musicStart = new AlBuffer(music.begin);
-		if (music.loop!=null) {
-			musicLoop = new AlBuffer(music.loop);
-			musicSource.queue(musicStart);
-			musicSource.queue(musicLoop);
-		}
-		else {
-			musicSource.attach(musicStart);
-		}
+		musicSource.setVol(musicVol);
+		musicSource.queue(playing.begin);
+		if (playing.hasLoop()) musicSource.queue(playing.loop);
 		musicSource.play();
 	}
 
@@ -55,16 +101,12 @@ public class AlAudioContext implements AudioContext, Disposable {
 		musicSource.setVol(0);
 		musicSource.dispose();
 		musicSource = null;
-		musicStart.dispose();
-		musicStart = null;
-		if (musicLoop!=null) {
-			musicLoop.dispose();
-			musicLoop= null;
-		}
+		playing = null;
 	}
 
 	@Override
 	public void setMusicVolume(float vol) {
+		musicVol = vol;
 		if (vol==0) {
 			stopMusic();
 		}
@@ -75,33 +117,34 @@ public class AlAudioContext implements AudioContext, Disposable {
 	
 	@Override
 	public void loadEffect(float vol, Sound sound) {
-		fxs.add(new FX(new AlBuffer(sound), vol));
+		effects.add(new Effect(new AlBuffer(sound), vol));
 	}
 
 	@Override
-	synchronized public void playEffect(int x) {
-		FX f = fxs.get(x);
+	public void playEffect(int n) {
+		Effect f = effects.get(n);
 		
 		AlSource s = new AlSource();
 		s.setVol(f.vol);
 		s.attach(f.buffer);
 		s.play();
 		
-		fxPlaying.add(s);
-		while (fxPlaying.size()>SIMULTANEOUS_FX) {
-			stripFx();
+		effectPlaying.add(s);
+		while (effectPlaying.size()>SIMULTANEOUS_FX) {
+			stopEffect();
 		}
 	}
 
-	private void stripFx() {
-		fxPlaying.remove(0).dispose();
+	private void stopEffect() {
+		effectPlaying.remove(0).dispose();
 	}
 
 	public void update() {
-		if (musicLoop!=null) {
+		if (playing!=null && playing.hasLoop()) {
 			for (int x=0; x<musicSource.buffersProcessed(); x++) {
 				musicSource.unqueue();
-				musicSource.queue(musicLoop);
+				System.out.println("Q");
+				musicSource.queue(playing.loop);
 			}
 		}
 	}
@@ -109,24 +152,20 @@ public class AlAudioContext implements AudioContext, Disposable {
 	@Override
 	public void dispose() {
 		stopMusic();
-		while (fxPlaying.size()!=0) {
-			stripFx();
+		// dispose of musics
+		for (Music music: musics) {
+			music.dispose();
 		}
-		for (FX fx: fxs) {
-			fx.buffer.dispose();
+
+		// stop effects
+		while (effectPlaying.size()!=0) {
+			stopEffect();
 		}
+		// dispose of effects
+		for (Effect effect: effects) {
+			effect.dispose();
+		}
+
 		AlTools.alShutdown();
-	}
-
-	@Override
-	public Sound createStereoSound(short[] data) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Sound createMonoSound(byte[] data) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

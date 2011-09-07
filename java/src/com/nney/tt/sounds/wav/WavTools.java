@@ -2,6 +2,7 @@ package com.nney.tt.sounds.wav;
 
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sounds.Sound;
+import com.nney.tt.sounds.SoundTools;
 import com.nney.tt.sounds.music.DataSrc;
 import com.nney.utils.OpenableTools;
 
@@ -59,7 +60,7 @@ public class WavTools {
 						}
 						
 						byte[] raw = content.rawData(0, content.length());
-						short[] answer = Sound.upscaleMono(Sound.upscaleUnsigned8(raw));
+						short[] answer = SoundTools.upscaleMono(SoundTools.upscaleUnsigned8(raw));
 						return new Sound(answer, sampleRate);
 					}
 					f = f.subDataSrc(8+length + (length&1));

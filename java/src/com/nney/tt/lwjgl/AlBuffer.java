@@ -22,7 +22,7 @@ public class AlBuffer implements Disposable {
 			sb.put((short) data[x]);
 		}
 		int buffer = AlTools.alCheckName(AL10.alGenBuffers());
-		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, sound.freq());
+		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, sound.freq);
 		AlTools.alCheck();
 		name = buffer;
 		
