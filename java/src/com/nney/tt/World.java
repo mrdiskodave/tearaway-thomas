@@ -83,7 +83,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 0;
+	private int levelNumber = 3;
 
 	private int score = 0;
 
@@ -131,7 +131,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Box mapBoundsInBlocks;
 
-	private AlienTracker alienTracker = new AlienTracker();
+	private AlienTracker alienTracker;
 
 	private int frameNumber;
 
@@ -776,7 +776,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	public void updateEverything() {
-		// System.gc();
+//		System.gc();
 		if (usingMapper) {
 			mapper.run();
 		}
@@ -951,11 +951,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 			cr.step();
 		}
 		catch (CoTerminated ct) {
-			System.out.println("DONNNNNNE!!");
-			// freeStatusScreen();
+			levelNumber++;
+			initLevel();
 
 			// we we can't put GL stuff in the coroutine coz its another thread
 			// and GL is emphatically single threaded
+			// freeStatusScreen();
 		}
 	}
 
@@ -1040,6 +1041,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
+		mode = GameMode.START;
+
+		completed = false;
+		alienTracker = new AlienTracker();
 
 		pm = new PersistedMap();
 		AlienFactory af = new AlienFactory() {
@@ -1059,13 +1064,22 @@ public class World implements AlienServices, WorldServicesToMapper {
 		animsNeeded.add("0life");
 		alienInfoMap.collectPreloadNames(animsNeeded);
 
-		// load them
+		// unload what we no longer need
+		// load what we do need
 		animsPool.unloadReload(animsNeeded);
 
+		if (hud==null) {
+			Anims lifeAnims = animsPool.expect("0life");
+			hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
+			statusDisplay = new StatusDisplay(gc, font);
+		}
+		
 		// inject them into the aliens
 		// and load the aliens into the world
 		for (Alien alien : aliens) {
-			alien.alienInfo.inject(alien, animsPool, false);
+			if (alien.alienInfo!=null) {
+				alien.alienInfo.inject(alien, animsPool, false);
+			}
 			loadAlienIntoWorld(alien);
 		}
 
@@ -1086,9 +1100,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
 
-		Anims lifeAnims = animsPool.expect("0life");
-		hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
-		statusDisplay = new StatusDisplay(gc, font);
 
 		gemsTotal = countGems();
 		gemsNeeded = pm.gemsNeeded;
@@ -1117,8 +1128,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
-
-		mode = GameMode.START;
 
 		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
 		createStatusScreen(text);
