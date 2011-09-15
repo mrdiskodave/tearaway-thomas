@@ -80,21 +80,25 @@ public class AnimsPool implements Disposable {
 		return new Anims(animsName, an);
 	}
 
-	public void unloadReload(Set<String> animsNeeded) {
+	public void unloadReload(Set<String> needs) {
 		// kick out the ones we don't need
-		ArrayList<String> removes = new ArrayList<String>();
-		for (String name: pool.keySet()) {
-			if (!animsNeeded.contains(name)) {
-				removes.add(name);
+		Set<String> removes = new TreeSet<String>();
+
+		Set<String> haves = pool.keySet();
+		for (String have: haves) {
+			if (!needs.contains(have)) {
+				removes.add(have);
 			}
 		}
 		for (String remove: removes) {
 			pool.get(remove).dispose();
 			pool.remove(remove);
 		}
+		// ^ done in two passes to avoid changing a structure
+		// while we read it (keySet just returns a live view)
 		
 		// then load the ones we do
-		for (String need: animsNeeded) {
+		for (String need: needs) {
 			load(need);
 		}
 	}
