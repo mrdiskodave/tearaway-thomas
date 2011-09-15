@@ -211,26 +211,25 @@ public class Player {
 	// ---------------------------------------------------------------------------
 	// PRIVATE SUBROUTINES
 
-	private void reset() {
+	private void reset(Mode n) {
 		vely = 0;
 		airJumpTimer = 0;
 		stunTimer = 0;
 		standingOn = null;
 		airSpin = false;
 		flying = false;
+		mode = n;
 	}
 
 	private void fallOff() {
-		reset();
+		reset(Mode.AIR);
 
-		mode = Mode.AIR;
 		airJumpTimer = AIRJUMP_TIME;
 		standingOn = null;
 	}
 
 	private void startModeWalk() {
-		reset();
-		mode = Mode.WALK;
+		reset(Mode.WALK);
 
 		// it is important that we immediately check for slides
 		// or the player could get off a rogue jump-off-a-slide
@@ -251,9 +250,8 @@ public class Player {
 		if (mode == Mode.LIFT) {
 			velocity += standingOn.getPlayerJumpBoost();
 		}
-		reset();
+		reset(Mode.AIR);
 		vely = velocity;
-		mode = Mode.AIR;
 		airSpin = true;
 	}
 
@@ -610,8 +608,7 @@ public class Player {
 			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)) {
 				if (!ladderLatch) {
 					if (testLadder(snap, getStickUpDownDelta())) {
-						reset();
-						mode = Mode.LADDER;
+						reset(Mode.LADDER);
 						c.x += snap;
 						System.out.println("Ladder: on board!");
 					}
@@ -682,8 +679,7 @@ public class Player {
 					// block align:
 					c.x &= -Const.BLOCK_SIZE;
 					c.x += (Const.BLOCK_SIZE / 2);
-					reset();
-					mode = Mode.ROPE;
+					reset(Mode.ROPE);
 				}
 			}
 			else {
@@ -727,7 +723,8 @@ public class Player {
 				// though if you are holding down ...
 				if (testStick(Joystick.DOWN)) {
 					// .. then you just drop
-					reset();
+					reset(Mode.AIR);
+
 					vely = -4;
 				}
 				else {
@@ -763,8 +760,7 @@ public class Player {
 					c.y -= 2;
 					c.y &= -Const.BLOCK_SIZE;
 					c.y += 2;
-					reset();
-					mode = Mode.MONKEY;
+					reset(Mode.MONKEY);
 					System.out.println("Monkey: Start");
 				}
 			}
@@ -806,10 +802,9 @@ public class Player {
 			}
 			// exit the mode by pressing down ..
 			if (testStickJustPressed(Joystick.DOWN)) {
-				reset();
+				reset(Mode.AIR);
 				System.out.println("Monkey: end .. drop");
 				monkeyLatch = true;
-				c.y -= 4;
 				vely = 4;
 			}
 			// or jumping off
@@ -959,7 +954,7 @@ public class Player {
 	//
 
 	public void resetTo(Coord coord) {
-		reset();
+		reset(Mode.AIR);
 		c = coord;
 	}
 
@@ -972,8 +967,7 @@ public class Player {
 	}
 
 	public void startLiftMode(LiftAlien lift, int height) {
-		reset();
-		mode = Mode.LIFT;
+		reset(Mode.LIFT);
 		standingOn = lift;
 		c.y = height;
 		onSomething();
