@@ -25,10 +25,10 @@ public class Messages {
 			t += "[p]";
 		}
 		if (gemsRemaining==0) {
-			t += "[c5][k5]perfect![k0][n]";
+			t += "[c5][k4]perfect gem collection![k0][n]";
 		}
 		if (starSkip) {
-			t += "[c5][k5]star skip collected![k0][n]";
+			t += "[c5][k4]star skip collected![k0][n]";
 		}
 		
 		t += "[p][c4]press jump";

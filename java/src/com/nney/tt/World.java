@@ -83,7 +83,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 3;
+	// 7 you cant see the scores
+	private int levelNumber = 8;
+	// 8 explodes
 
 	private int score = 0;
 
