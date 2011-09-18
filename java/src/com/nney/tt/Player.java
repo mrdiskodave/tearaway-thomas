@@ -27,7 +27,7 @@ public class Player {
 	}
 
 	private void setAnim(String name, boolean animate) {
-//		System.out.println("setAnim() "+name+" "+animate);
+		// System.out.println("setAnim() "+name+" "+animate);
 		Anim anim = playersAnimations.find(name);
 		animPlayer.changeAnimation(anim);
 		Sprite s = animate ? animPlayer.nextFrame() : animPlayer.currentFrame();
@@ -38,7 +38,7 @@ public class Player {
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
-	static final int[] FATAL_HEAD_BOUNCE_BONUSES = { 200, 500, 1000, 2500 }; 
+	static final int[] FATAL_HEAD_BOUNCE_BONUSES = { 200, 500, 1000, 2500 };
 
 	/**
 	 * How much do we tolerate the player being misplaced for getting on a
@@ -154,10 +154,10 @@ public class Player {
 	 * Our Y velocity.
 	 */
 	private int vely;
-	
+
 	/**
-	 * Cleared when you touch the floor (or a lift!).
-	 * Incremented when you bounce on a head!
+	 * Cleared when you touch the floor (or a lift!). Incremented when you
+	 * bounce on a head!
 	 */
 	private int headBounceCounter;
 
@@ -231,6 +231,11 @@ public class Player {
 	private void startModeWalk() {
 		reset(Mode.WALK);
 
+		// if you jump off a ladding holding up (meaning: grip ladder)
+		// you won't grip (because of the latch) but this shouldn't go on
+		// forever so we should clear the latch when you hit the ground.
+		ladderLatch = false;
+
 		// it is important that we immediately check for slides
 		// or the player could get off a rogue jump-off-a-slide
 		// before we detect it later!
@@ -240,7 +245,7 @@ public class Player {
 	}
 
 	/**
-	 * Called when you standing on something (be a lift or the floor). 
+	 * Called when you standing on something (be a lift or the floor).
 	 */
 	private void onSomething() {
 		headBounceCounter = 0;
@@ -548,7 +553,7 @@ public class Player {
 						// non-slippery surface
 						System.out.println("Slide: too slow quit");
 						startModeWalk();
-//						mode = Mode.WALK;
+						// mode = Mode.WALK;
 						return;
 					}
 				}
@@ -648,7 +653,7 @@ public class Player {
 				ladderLatch = true;
 			}
 			else if (wantsToExitModeByJumping()) {
-				jump();
+				jumpOrDrop();
 				ladderLatch = true;
 			}
 
@@ -675,7 +680,10 @@ public class Player {
 			// start rope?
 			if (testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
 				if (!ropeLatch) {
-					goLeft = !goLeft;
+					// The original flipped goLeft here and not on mode exit.
+					// We don't flip it here but do flip it on mode exit.
+					// i.e. goLeft means the opposite to us (in this mode)
+
 					// block align:
 					c.x &= -Const.BLOCK_SIZE;
 					c.x += (Const.BLOCK_SIZE / 2);
@@ -712,38 +720,38 @@ public class Player {
 			}
 
 			int delta = getStickUpDownDelta() * 2;
-			boolean nonTwistMoving = false;
+			boolean moving = false;
 			if (delta != 0 && testForVerticalRope(delta)) {
 				c.y += delta;
-				nonTwistMoving = true;
+				moving = true;
 			}
 
 			// jump off the rope
 			if (wantsToExitModeByJumping()) {
-				// though if you are holding down ...
-				if (testStick(Joystick.DOWN)) {
-					// .. then you just drop
-					reset(Mode.AIR);
-
-					vely = -4;
-				}
-				else {
-					jump();
-				}
+				jumpOrDrop();
 				ropeLatch = true;
-				// the original didn't do this so must have
-				// come out of rope mode facing the wrong way
 				goLeft = !goLeft;
 			}
 
 			if (mode == Mode.ROPE) {
-				setAnim(directionalAnimName("rope"), nonTwistMoving);
+				setAnim(directionalAnimName("rope"), moving);
 			}
 			else {
-				// always moving ...
+				// always animating when twisting
 				setAnim(directionalAnimName("ropetwist"), true);
 			}
+		}
+	}
 
+	private void jumpOrDrop() {
+		// though if you are holding down ...
+		if (testStick(Joystick.DOWN)) {
+			// .. then you just drop
+			reset(Mode.AIR);
+			vely = -4;
+		}
+		else {
+			jump();
 		}
 	}
 
@@ -803,9 +811,9 @@ public class Player {
 			// exit the mode by pressing down ..
 			if (testStickJustPressed(Joystick.DOWN)) {
 				reset(Mode.AIR);
+				vely = 4;
 				System.out.println("Monkey: end .. drop");
 				monkeyLatch = true;
-				vely = 4;
 			}
 			// or jumping off
 			if (wantsToExitModeByJumping()) {
@@ -1040,8 +1048,8 @@ public class Player {
 		if (mode == Mode.AIR) {
 			if (vely > 6) {
 				if (wantsToJump()) {
-					System.out.println("SpareY:" + consideredInTearaway + " <= "+vely+"+4");
-					if (consideredInTearaway <= vely+4) {
+					System.out.println("SpareY:" + consideredInTearaway + " <= " + vely + "+4");
+					if (consideredInTearaway <= vely + 4) {
 						return true;
 					}
 				}
@@ -1053,15 +1061,15 @@ public class Player {
 	public int headBounce(boolean alienWillSurviveTheImpact) {
 		proofTimer = 1;
 		jump();
-		
+
 		if (alienWillSurviveTheImpact) {
 			// well it isn't worth much then
 			return 100;
 		}
-		
+
 		// ahh - it's worth compound bonus!
-		int answer = FATAL_HEAD_BOUNCE_BONUSES[headBounceCounter]; 
-		if (headBounceCounter<FATAL_HEAD_BOUNCE_BONUSES.length-1) {
+		int answer = FATAL_HEAD_BOUNCE_BONUSES[headBounceCounter];
+		if (headBounceCounter < FATAL_HEAD_BOUNCE_BONUSES.length - 1) {
 			headBounceCounter++;
 		}
 		return answer;
