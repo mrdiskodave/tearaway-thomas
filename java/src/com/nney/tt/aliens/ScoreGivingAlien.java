@@ -25,6 +25,6 @@ public class ScoreGivingAlien extends AlienWithLocation {
 	
 	@Override
 	public void mapperUpdate() {
-		srv.drawDebugText(c, "Hidden Score:"+count*SCORE_GIVEN);
+		srv.drawDebugText(c, "Hidden Score");
 	}
 }

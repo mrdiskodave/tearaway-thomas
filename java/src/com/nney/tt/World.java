@@ -30,6 +30,7 @@ import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
+import com.nney.tt.aliens.ScreenLimiterAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
 import com.nney.tt.aliens.SpikeAlien;
@@ -83,9 +84,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	// 7 you cant see the scores
-	private int levelNumber = 8;
-	// 8 explodes
+	private int levelNumber = 3;
+	// 8 map+code: needs lift 0
+	// 9 map+code: needs lift 0
+	// 10 ok
+	// 11 map+code: needs lift 101
+	// 12 map: secret area visible
+	// TODO: re-init player
+	// 13 map|code: fall through??
+	// 14 ok
+	// 15 the gallery:
+	// -- map: wall priority
+	
+	// TODO: gems look odd in front of passing monsters
+	// TODO: secret areas should be bounded by those things
 
 	private int score = 0;
 
@@ -276,6 +288,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
+		aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
@@ -767,14 +780,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	public void computeMapBounds() {
-		if (usingMapper) {
-			scr.setWorldBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
-		}
-		else {
-			Box tmp = mapBoundsInBlocks.copy();
-			tmp.mult(Const.BLOCK_SIZE);
-			scr.setWorldBoundsInPixels(tmp);
-		}
+		Box tmp = mapBoundsInBlocks.copy();
+		tmp.mult(Const.BLOCK_SIZE);
+		scr.setWorldBoundsInPixels(tmp);
 	}
 
 	public void updateEverything() {
@@ -787,7 +795,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 			if (k == Mapper.MAPPER_KEY) {
 				System.out.println("STARTING MAPPER");
 				usingMapper = true;
-				computeMapBounds();
+				scr.setWorldBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
+
 				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
@@ -799,7 +808,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				if (whiteTimer != 0) {
 					whiteTimer--;
 					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
-					drawBorders();
+					drawHudAndBorders(false);
 				}
 				else {
 					dispatchMode();
@@ -907,8 +916,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		hole.draw();
 		statusDisplay.drawPaused();
-		drawHud(isHurryUp());
-		drawBorders();
+		drawHudAndBorders(false);
 
 		if (pauseAntiAutofire()) {
 			mode = GameMode.PLAYING;
@@ -940,8 +948,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			hole.update();
 		}
 		totalFade.update();
-		drawHud(false);
-		drawBorders();
+		drawHudAndBorders(true);
 	}
 
 	private void modeComplete() {
@@ -989,8 +996,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (isExitOpen()) statusDisplay.drawExitOpen();
 		drawHurryUp();
 
-		drawHud(isHurryUp());
-		drawBorders();
+		drawHudAndBorders(false);
 
 		hole.update();
 
@@ -1020,13 +1026,19 @@ public class World implements AlienServices, WorldServicesToMapper {
 		wasPauseKeyPressedLastFrame = k;
 		return answer;
 	}
+	
+	
+	void drawHudAndBorders(boolean supressHurryUp) {
+		drawBorders();
+		drawHud(supressHurryUp);
+	}
 
-	private void drawHud(boolean hurryUp) {
+	private void drawHud(boolean supressHurryUp) {
 		int showGems = gemsNeeded - gemsCollected;
 		if (isExitOpen()) {
 			showGems = gemsTotal - gemsCollected;
 		}
-		hud.update(score, timeRemaining, hurryUp, showGems, isExitOpen(), lives);
+		hud.update(score, timeRemaining, supressHurryUp ? false : isHurryUp(), showGems, isExitOpen(), lives);
 	}
 
 	private boolean isHurryUp() {
