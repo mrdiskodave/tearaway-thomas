@@ -85,17 +85,19 @@ public class PersistedMap {
 		int miny = dis.readByte() & 0xff;
 		int maxy = dis.readByte() & 0xff;
 
+		// horizontally, at least, it
 		// seemed like we saved an exclusive box
 		// where as we need an inclusive one
+		// (maybe that was related to have the screen an extra block wide for scrolling reasons)
 		maxx++;
-		maxy++;
+		// maxy++;
 
 		// also vertical levels were strangely less than 18 wide
 		// (when 18 was there actual width)
 		maxx = Math.max(minx + (18 - 1), maxx);
 
-		assert maxx <= GameMap.MAP_WIDTH;
-		assert maxy <= GameMap.MAP_HEIGHT;
+		assert maxx < GameMap.MAP_WIDTH;
+		assert maxy < GameMap.MAP_HEIGHT;
 		assert minx < maxx;
 		assert miny < maxy;
 		mapBounds = new Box(minx, miny, maxx, maxy);
