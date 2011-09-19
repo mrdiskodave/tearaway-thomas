@@ -30,12 +30,11 @@ public class GameMap {
 			map[x++] = (short) di.readUnsignedShort();
 		}
 		map[0] = (short) di.readUnsignedShort();
-		MapRle.unpack(map, length);
+		BinaryMapRle.unpack(map, length);
 	}
-
-
+	
 	public int fastGetBlock(int x, int y) {
-		assert validPosition(x, y);
+		assert isInMap(x, y);
 		return map[y * MAP_WIDTH + x];
 	}
 
@@ -44,20 +43,27 @@ public class GameMap {
 	}
 
 	public int getBlock(Coord c) {
-		assert validPosition(c.x, c.y);
+		validPosition(c.x, c.y);
 		short answer = map[mapOffset(c)];
 //		System.out.println("Get " + c + " is " + answer);
 		return answer;
 	}
 
 	public void setBlock(Coord c, int b) {
-		assert validPosition(c.x, c.y);
+		validPosition(c.x, c.y);
 //		System.out.println("Set " + c + " to " + b);
 		map[mapOffset(c)] = (short) b;
 	}
 
-	private boolean validPosition(int x, int y) {
-		return x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT;
+	private void validPosition(int x, int y) {
+		if (!isInMap(x, y)) {
+			throw new RuntimeException(x+"x"+y+" is outside the map");
+		}
+	}
+
+
+	private boolean isInMap(int x, int y) {
+		return (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT);
 	}
 
 	public void applyShuffle(BlockAliasTable bat) {
