@@ -1152,6 +1152,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
 		createStatusScreen(text);
+		
+		pm.aliens = alienTracker.getAliens();
+		pm.save();
 	}
 
 	private Coord getPlayerCentre() {

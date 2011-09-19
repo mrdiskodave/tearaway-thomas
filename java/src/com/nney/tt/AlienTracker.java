@@ -127,4 +127,9 @@ public class AlienTracker {
 		clearAll2();
 	}
 	
+	public List<Alien> getAliens() {
+		reclassify();
+		return delayedAdditions;
+	}
+	
 }

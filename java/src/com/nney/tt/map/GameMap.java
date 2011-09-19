@@ -3,6 +3,7 @@ package com.nney.tt.map;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import com.nney.json.DataDestination;
 import com.nney.tt.geom.Coord;
 
 public class GameMap {
@@ -75,6 +76,12 @@ public class GameMap {
 	public void applyCompress(BlockAliasTable bat) {
 		for (int x = 0; x < map.length; x++) {
 			map[x] = (short) bat.compress(map[x]);
+		}
+	}
+
+	public void saveMap(DataDestination dd) {
+		for (int y=0; y<MAP_HEIGHT; y++) {
+			dd.write(TextMapRle.pack(map, y*MAP_WIDTH, MAP_WIDTH));
 		}
 	}
 }

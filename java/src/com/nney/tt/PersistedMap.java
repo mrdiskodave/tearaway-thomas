@@ -2,6 +2,7 @@ package com.nney.tt;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -39,10 +40,8 @@ public class PersistedMap {
 	public short playerX;
 	public short playerY;
 	public boolean playerGoLeft;
-	public ArrayList<Alien> aliens = new ArrayList<Alien>();
+	public List<Alien> aliens = new ArrayList<Alien>();
 	public String worldName;
-	
-	
 
 	public void populateFromLevelInfo(AlienFactory af, int levelNumber) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
@@ -53,7 +52,7 @@ public class PersistedMap {
 		horizon = level.requireField("horizon").requireInt();
 		timeGiven = level.requireField("timeGiven").requireInt();
 		worldNum = level.requireField("world").requireInt();
-		worldName = levelInfo.requireField("worldNames").requireElement(worldNum-1).requireString();
+		worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
 		stageNum = level.requireField("stage").requireInt();
 		title = level.requireField("title").requireString();
 		String map = level.requireField("map").requireString();
@@ -88,7 +87,8 @@ public class PersistedMap {
 		// horizontally, at least, it
 		// seemed like we saved an exclusive box
 		// where as we need an inclusive one
-		// (maybe that was related to have the screen an extra block wide for scrolling reasons)
+		// (maybe that was related to have the screen an extra block wide for
+		// scrolling reasons)
 		maxx++;
 		// maxy++;
 
@@ -181,10 +181,12 @@ public class PersistedMap {
 	}
 
 	void save() {
+		final StringBuffer sb = new StringBuffer();
+
 		SafeWriter sw = new SafeWriter() {
 			@Override
 			public void write(String text) {
-				System.out.print(text);
+				sb.append(text);
 			}
 		};
 
@@ -196,26 +198,38 @@ public class PersistedMap {
 		dd.write("objects");
 		dd.beginArray();
 		for (Alien a : aliens) {
-			dd.beginDict();
-			dd.write("type");
-			dd.write(a.alienInfo.typeCode);
-			APS.saveProps(a, dd);
-			dd.end();
+			if (a.alienInfo!=null) {
+				int tc = a.alienInfo.typeCode;
+				if (tc > 0) {
+					dd.beginDict();
+					dd.write("type");
+					dd.write(a.alienInfo.typeCode);
+					APS.saveProps(a, dd);
+					dd.end();
+				}
+			}
 		}
 		dd.end();
+		dd.write("blocks");
+		dd.beginArray();
+		gameMap.saveMap(dd);
 		dd.end();
-	}
+		dd.end();
 
-	public String worldName() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\test.txt");
+			w.write(sb.toString());
+			w.close();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public List<Alien> getAliens() {
-		ArrayList<Alien> answer = aliens;
+		List<Alien> answer = aliens;
 		aliens = null;
 		return answer;
-		
 	}
 
 }
