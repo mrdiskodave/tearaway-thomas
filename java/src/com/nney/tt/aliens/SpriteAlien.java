@@ -24,7 +24,7 @@ public class SpriteAlien extends AlienWithLocation {
 
 	@Override
 	public void onPropUpdate() {
-		depth = foreground ? DEPTH_FOREGROUND : DEPTH_BACKGROUND;
+		depth = foreground ? DEPTH_FG_SCENARY : DEPTH_BG_SCENARY;
 	}
 
 	@Override

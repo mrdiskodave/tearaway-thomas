@@ -22,7 +22,7 @@ public class FallingAlien extends AlienWithLocation {
 			vely = Math.min(vely + 1, 8);
 			
 			if (vely==0 && delayedScore!=0) {
-				srv.giveScore(delayedScore, new Coord(c.x, c.y-upBy));
+				srv.awardScore(delayedScore, new Coord(c.x, c.y-upBy));
 				delayedScore = 0;
 			}
 		}

@@ -135,6 +135,12 @@ public class Box implements Copyable<Box>, Cloneable {
 		return a;
 	}
 
+	public Box mult2(int z) {
+		Box a = copy();
+		a.mult(z);
+		return a;
+	}
+
 	public Coord topLeft() {
 		return new Coord(left, top);
 	}

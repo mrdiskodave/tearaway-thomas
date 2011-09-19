@@ -14,11 +14,10 @@ public class ScreenLimiterAlien extends AlienWithLocation {
 
 	@Override
 	public void update() {
-		Box b = boxAroundUs(30);
+		Box b = boxAroundUs(60);
 		freezeBounds = b;
 		boolean left = c.x<inwards.x;
-		
-		
+		srv.screenLimit(c, left);
 	}
 	
 	@Override

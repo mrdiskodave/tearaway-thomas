@@ -5,6 +5,12 @@ import com.nney.tt.sprites.Sprite;
 
 public abstract class CollectableAlien extends AppearingAlien {
 	@Override
+	public void onLoaded() {
+		super.onLoaded();
+		depth = DEPTH_LIFTS_AND_COLLECTABLES;
+	}
+	
+	@Override
 	protected void normalUpdate() {
 		Sprite s = sameFrame();
 		srv.drawSprite(c, s);

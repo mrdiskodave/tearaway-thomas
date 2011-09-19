@@ -6,7 +6,7 @@ import com.nney.tt.sprites.Sprite;
 public class ExitAlien extends AlienWithLocation {
 	@Override
 	public void onLoaded() {
-		depth = DEPTH_FOREGROUND;
+		depth = DEPTH_ALIENS;
 	}
 	
 	@Override

@@ -95,7 +95,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// 14 ok
 	// 15 the gallery:
 	// -- map: wall priority
-	
+
 	// TODO: gems look odd in front of passing monsters
 	// TODO: secret areas should be bounded by those things
 
@@ -256,6 +256,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private Coroutine cr;
 
 	private AudioHub ah;
+
+	private Box liveMapBoundsInBlocks;
 
 	public World(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -418,8 +420,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 			score *= 2;
 		}
 		gemsCollected++;
-		giveScore(score, noticeLocation);
-		playEffect("gem");
+		awardScore(score, noticeLocation);
+		playSoundEffect("gem");
 	}
 
 	private GemStatus getGemStatus() {
@@ -473,7 +475,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
-		scr.keepPlayerInView(c);
+		scr.keepPlayerInMap(c);
 	}
 
 	@Override
@@ -553,12 +555,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
 				if (diffX <= w) {
 					// head bounce :)
-					playEffect("headbounce");
+					playSoundEffect("headbounce");
 					boolean willSurvive = frightAnimationName == null;
 					int headScore = player.headBounce(willSurvive);
 					int raiseScoreNoticeBy = alienSprite.handleY + 10;
 					if (willSurvive) {
-						giveScore(headScore, new Coord(alienPos.x, alienPos.y - raiseScoreNoticeBy));
+						awardScore(headScore, new Coord(alienPos.x, alienPos.y - raiseScoreNoticeBy));
 					}
 					else {
 						alien.done();
@@ -638,7 +640,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void giveScore(int amount, Coord location) {
+	public void awardScore(int amount, Coord location) {
 		score += amount;
 		if (location != null) {
 			addNewAlien(new ScoreNoticeAlien(amount, location.copy()));
@@ -736,11 +738,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// add fresh aliens
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
-		updateList(alienTracker.getBackgroundList(), screenBox, mapper);
+		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox, mapper);
+		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox, mapper);
 		if (!mapper && mode != GameMode.COMPLETE) {
 			player.draw();
 		}
-		updateList(alienTracker.getForegroundList(), screenBox, mapper);
+		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox, mapper);
+		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox, mapper);
 
 		//
 		// Caveat1: only background Aliens get to move the player around.
@@ -779,14 +783,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	public void computeMapBounds() {
-		Box tmp = mapBoundsInBlocks.copy();
-		tmp.mult(Const.BLOCK_SIZE);
-		scr.setWorldBoundsInPixels(tmp);
+	public void setMapBounds() {
+		scr.setWorldBoundsInBlocks(mapBoundsInBlocks);
 	}
 
 	public void updateEverything() {
-//		System.gc();
+		// System.gc();
 		if (usingMapper) {
 			mapper.run();
 		}
@@ -805,14 +807,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				mapper.init();
 			}
 			else {
-				if (whiteTimer != 0) {
-					whiteTimer--;
-					gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
-					drawHudAndBorders(false);
-				}
-				else {
-					dispatchMode();
-				}
+				dispatchMode();
 			}
 		}
 	}
@@ -832,76 +827,86 @@ public class World implements AlienServices, WorldServicesToMapper {
 			modePaused();
 		}
 		else {
-			if (pauseAntiAutofire()) {
-				captureRecording();
-				mode = GameMode.PAUSED;
-				dispatchMode();
-			}
-			else if (completed) {
-				captureRecording();
-				dimFade.target(Curtain.CLOSED);
-
-				hole.setCentre(getPlayerCentre());
-				hole.target(Curtain.CLOSED);
-				hole.setRate(4);
-
-				String text = Messages.levelComplete(pm.worldNum, pm.stageNum, pm.title, gemsCollected, gemsTotal
-						- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
-				createStatusScreen(text);
-
-				cr = new Coroutine("cheese") {
-					@Override
-					public void run() {
-						// wait around a bit
-						pause(60);
-
-						//
-						// turn time into score
-						//
-						int fastScore = 0;
-						while (timeRemaining != 0) {
-							if (firePressed) {
-								fastScore += 10;
-							}
-							else {
-								giveScore(10, null);
-								playEffect("tink");
-								pause(4);
-							}
-							timeRemaining = Math.max(0, timeRemaining - Const.FPS);
-						}
-						giveScore(fastScore, null);
-						
-						// a pause so you get to look at it
-						pause(25);
-						
-						//
-						// wait for fire
-						//
-						while (!firePressed) {
-							pause();
-						}
-						
-						//
-						// fade to black
-						//
-						totalFade.target(Curtain.CLOSED);
-						while (!totalFade.isDone()) {
-							pause();
-						}
-					}
-				};
-
-				ah.startMusic(2);
-				
-				mode = GameMode.COMPLETE;
-				firePressed = false;
-				frameNumber = 0;
-
-				dispatchMode();
+			if (whiteTimer != 0) {
+				if (whiteTimer == 5) {
+					modeMainGame();
+				}
+				whiteTimer--;
+				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
+				drawHudAndBorders(false);
 			}
 			else {
-				modeMainGame();
+				if (pauseAntiAutofire()) {
+					captureRecording();
+					mode = GameMode.PAUSED;
+					dispatchMode();
+				}
+				else if (completed) {
+					captureRecording();
+					dimFade.target(Curtain.CLOSED);
+
+					hole.setCentre(getPlayerCentre());
+					hole.target(Curtain.CLOSED);
+					hole.setRate(4);
+
+					String text = Messages.levelComplete(pm.worldNum, pm.stageNum, pm.title, gemsCollected, gemsTotal
+							- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
+					createStatusScreen(text);
+
+					cr = new Coroutine("cheese") {
+						@Override
+						public void run() {
+							// wait around a bit
+							pause(60);
+
+							//
+							// turn time into score
+							//
+							int fastScore = 0;
+							while (timeRemaining != 0) {
+								if (firePressed) {
+									fastScore += 10;
+								}
+								else {
+									awardScore(10, null);
+									playSoundEffect("tink");
+									pause(4);
+								}
+								timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+							}
+							awardScore(fastScore, null);
+
+							// a pause so you get to look at it
+							pause(25);
+
+							//
+							// wait for fire
+							//
+							while (!firePressed) {
+								pause();
+							}
+
+							//
+							// fade to black
+							//
+							totalFade.target(Curtain.CLOSED);
+							while (!totalFade.isDone()) {
+								pause();
+							}
+						}
+					};
+
+					ah.startMusic(2);
+
+					mode = GameMode.COMPLETE;
+					firePressed = false;
+					frameNumber = 0;
+
+					dispatchMode();
+				}
+				else {
+					modeMainGame();
+				}
 			}
 		}
 	}
@@ -953,7 +958,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void modeComplete() {
 		frameNumber++;
-		
+
 		drawTitles(true);
 
 		try {
@@ -971,6 +976,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void modeMainGame() {
 		frameNumber++;
+		
+		liveMapBoundsInBlocks = mapBoundsInBlocks.copy();
 
 		int timeDec = player.isStunned() ? 3 : 1;
 		timeRemaining = Math.max(timeRemaining - timeDec, 0);
@@ -991,6 +998,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		updateAliens(false);
 
+		scr.setWorldBoundsInBlocks(liveMapBoundsInBlocks);
+		
 		dimFade.update();
 
 		if (isExitOpen()) statusDisplay.drawExitOpen();
@@ -1026,8 +1035,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		wasPauseKeyPressedLastFrame = k;
 		return answer;
 	}
-	
-	
+
 	void drawHudAndBorders(boolean supressHurryUp) {
 		drawBorders();
 		drawHud(supressHurryUp);
@@ -1082,16 +1090,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// load what we do need
 		animsPool.unloadReload(animsNeeded);
 
-		if (hud==null) {
+		if (hud == null) {
 			Anims lifeAnims = animsPool.expect("0life");
 			hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
 			statusDisplay = new StatusDisplay(gc, font);
 		}
-		
+
 		// inject them into the aliens
 		// and load the aliens into the world
 		for (Alien alien : aliens) {
-			if (alien.alienInfo!=null) {
+			if (alien.alienInfo != null) {
 				alien.alienInfo.inject(alien, animsPool, false);
 			}
 			loadAlienIntoWorld(alien);
@@ -1106,14 +1114,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		player = new Player(this, animsPool.expect("0tt"), new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
 		gameMap = pm.gameMap;
 
-		computeMapBounds();
+		setMapBounds();
 		player.move();
 		player.move();
 
 		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
-
 
 		gemsTotal = countGems();
 		gemsNeeded = pm.gemsNeeded;
@@ -1174,7 +1181,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (teleAttempt + 1 != frameNumber) {
 			// do it
 			player.c = destination.copy();
-			playEffect("teleport");
+			playSoundEffect("teleport");
 			scr.snapTo(destination);
 			whiteTimer = 10;
 		}
@@ -1183,7 +1190,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void playEffect(String name) {
+	public void playSoundEffect(String name) {
 		ah.playEffect(name);
 	}
 
@@ -1201,7 +1208,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		System.out.println("STOPPING MAPPER");
 		usingMapper = false;
 		alienTracker.reclassify();
-		computeMapBounds();
+		setMapBounds();
 	}
 
 	@Override
@@ -1273,7 +1280,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void extraTime(int seconds) {
+	public void awardExtraTime(int seconds) {
 		timeRemaining /= Const.FPS;
 		timeRemaining = Math.min(timeRemaining + seconds, 99);
 		timeRemaining *= Const.FPS;
@@ -1297,7 +1304,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void extraLife() {
+	public void awardExtraLife() {
 		if (lives != 9) {
 			lives++;
 		}
@@ -1365,6 +1372,27 @@ public class World implements AlienServices, WorldServicesToMapper {
 			horizon.dispose();
 			horizon = null;
 		}
+	}
+
+	@Override
+	public void screenLimit(Coord c, boolean left) {
+		System.out.println("Limit?");
+		c = c.copy();
+		c.x &= ~Const.BLOCK_MASK;
+		if (left) {
+			c.x += Const.BLOCK_SIZE-1;
+		}
+		if (scr.box().inside(c)) {
+			int z = c.x/Const.BLOCK_SIZE;
+			System.out.println("Limit "+c.x);
+			if (left) {
+				liveMapBoundsInBlocks.left = z;
+			}
+			else {
+				liveMapBoundsInBlocks.right = z;
+			}
+		}
+		// that should do it!!
 	}
 
 }

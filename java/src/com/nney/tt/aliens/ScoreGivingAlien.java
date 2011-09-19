@@ -18,7 +18,7 @@ public class ScoreGivingAlien extends AlienWithLocation {
 		Box b = boxAroundUs(7);
 		freezeBounds = b;
 		if (count>0 && srv.collideBoxWithPlayer(b)) {
-			srv.giveScore(SCORE_GIVEN, null);
+			srv.awardScore(SCORE_GIVEN, null);
 			count--;
 		}
 	}

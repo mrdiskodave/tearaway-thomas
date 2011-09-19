@@ -24,7 +24,7 @@ public class TrampolineAlien extends AlienWithLocation {
 				// but that could break compatibility on w6.map
 				int takeOffSpeed = 20;
 				srv.getThePlayer().boost(-takeOffSpeed);
-				srv.playEffect("trampoline");
+				srv.playSoundEffect("trampoline");
 			}
 		}
 		freezeBounds = ourBox;

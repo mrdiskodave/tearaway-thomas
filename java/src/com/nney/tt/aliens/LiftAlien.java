@@ -19,6 +19,7 @@ public abstract class LiftAlien extends Alien {
 	public void onLoaded() {
 		ourSprite = firstFrame();
 		width = ourSprite.liftWidth() + EXTRA_WIDTH * 2;
+		depth = DEPTH_LIFTS_AND_COLLECTABLES;
 	}
 
 	abstract protected Coord setPosition();

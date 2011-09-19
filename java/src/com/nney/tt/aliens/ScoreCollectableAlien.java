@@ -14,7 +14,7 @@ import com.nney.tt.geom.Coord;
 public class ScoreCollectableAlien extends CollectableAlien {
 	@Override
 	protected void giveBonus() {
-		srv.giveScore(ourValue(), scoreLocation());
+		srv.awardScore(ourValue(), scoreLocation());
 	}
 
 	protected Coord scoreLocation() {

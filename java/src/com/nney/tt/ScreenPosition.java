@@ -28,6 +28,10 @@ public class ScreenPosition {
 	public void setWorldBoundsInPixels(Box b) {
 		liveScrollBoundsInPixels = b;
 	}
+	
+	public void setWorldBoundsInBlocks(Box b) {
+		liveScrollBoundsInPixels = b.mult2(Const.BLOCK_SIZE);
+	}
 
 	public void setPosition(Coord c) {
 		Box b = liveScrollBoundsInPixels;
@@ -76,7 +80,7 @@ public class ScreenPosition {
 		setPosition(screenDest(c));
 	}
 
-	public void keepPlayerInView(Coord c) {
+	public void keepPlayerInMap(Coord c) {
 		Box m = liveScrollBoundsInPixels.copy();
 		m.shrink(6);
 		m.constrain(c);

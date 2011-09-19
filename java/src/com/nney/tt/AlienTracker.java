@@ -78,12 +78,8 @@ public class AlienTracker {
 		return true;
 	}
 
-	public List<Alien> getForegroundList() {
-		return alienLists.get(Alien.DEPTH_FOREGROUND);
-	}
-
-	public List<Alien> getBackgroundList() {
-		return alienLists.get(Alien.DEPTH_BACKGROUND);
+	public List<Alien> get(int x) {
+		return alienLists.get(x);
 	}
 
 	static private void visitIt(Visitor<Alien> v, List<Alien> l) {

@@ -14,12 +14,14 @@ public abstract class Alien {
 	public AlienInfo alienInfo;
 	public byte[] legacyData;
 	public boolean remove;
-	public int depth = DEPTH_BACKGROUND;
+	public int depth = DEPTH_ALIENS;
 
-	public static final int DEPTH_MAP = 0;
-	public static final int DEPTH_BACKGROUND = 1;
-	public static final int DEPTH_FOREGROUND = 2;
-	public static final int DEPTH_MAX = 3;
+	public static final int DEPTH_BG_SCENARY = 0;
+	public static final int DEPTH_LIFTS_AND_COLLECTABLES = 1;
+	public static final int DEPTH_ALIENS = 2;
+	// <-- player!
+	public static final int DEPTH_FG_SCENARY = 3;
+	public static final int DEPTH_MAX = 4;
 
 
 	public Box freezeBounds;

@@ -21,7 +21,7 @@ public class ArrowAlien extends AlienWithLocation {
 
 	@Override
 	public void onLoaded() {
-		depth = DEPTH_FOREGROUND;
+		depth = DEPTH_ALIENS;
 	}
 
 	@Override

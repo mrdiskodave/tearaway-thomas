@@ -86,12 +86,12 @@ public interface AlienServices {
 	 *            500, 600, 700, 800, 900, 1000, 2500 and 5000 as that is all
 	 *            that we have notice-graphics for!
 	 */
-	void giveScore(int score, Coord noticeLocation);
+	void awardScore(int score, Coord noticeLocation);
 
 	void magicDust(Coord where);
 
 	/**
-	 * Like {@link #giveScore(int, Coord)} but for gems. Also decrements the
+	 * Like {@link #awardScore(int, Coord)} but for gems. Also decrements the
 	 * remaining gem counter and doubles the score if the exit is already open.
 	 */
 	void oneLessGem(int score, Coord notice);
@@ -108,9 +108,9 @@ public interface AlienServices {
 
 	boolean collideBoxWithPlayerHandle(Box box);
 
-	void extraTime(int seconds);
+	void awardExtraTime(int seconds);
 
-	void extraLife();
+	void awardExtraLife();
 
 	void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightName);
 
@@ -120,5 +120,7 @@ public interface AlienServices {
 
 	boolean showText();
 
-	void playEffect(String name);
+	void playSoundEffect(String name);
+	
+	void screenLimit(Coord c, boolean left);
 }
