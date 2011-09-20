@@ -15,7 +15,7 @@ public class PlainLiftAlien extends LiftAlien {
 	}
 
 	@Override
-	protected Coord setPosition() {
+	protected Coord currentPosition() {
 		int frm = srv.getFrameNumber();
 
 		int w = box.width();

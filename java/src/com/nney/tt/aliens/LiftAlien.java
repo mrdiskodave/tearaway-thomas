@@ -22,7 +22,7 @@ public abstract class LiftAlien extends Alien {
 		depth = DEPTH_LIFTS_AND_COLLECTABLES;
 	}
 
-	abstract protected Coord setPosition();
+	abstract protected Coord currentPosition();
 
 	/**
 	 * This lift moves itself but when the player is on it then the player (who
@@ -36,7 +36,7 @@ public abstract class LiftAlien extends Alien {
 		if (frmNum != lastMoveFrmNum) {
 			lastMoveFrmNum = frmNum;
 			lastPlace = ourPlace.copy();
-			ourPlace = setPosition();
+			ourPlace = currentPosition();
 		}
 	}
 
@@ -49,7 +49,7 @@ public abstract class LiftAlien extends Alien {
 
 	@Override
 	public void onPropUpdate() {
-		setPosition();
+		currentPosition();
 	}
 
 	@Override
@@ -88,6 +88,6 @@ public abstract class LiftAlien extends Alien {
 	
 	@Override
 	public Coord getLocation() {
-		return setPosition();
+		return currentPosition();
 	}
 }

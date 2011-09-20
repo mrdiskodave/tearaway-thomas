@@ -15,13 +15,15 @@ import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
+import com.nney.tt.aliens.PlayerPositionAlien;
 import com.nney.tt.geom.Box;
+import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Openable;
 
-public class PersistedMap {
+public class PersistedLevel {
 	//
 	// things from the levelinfo.txt entry
 	//
@@ -37,9 +39,6 @@ public class PersistedMap {
 	//
 	public GameMap gameMap;
 	public Box mapBounds;
-	public short playerX;
-	public short playerY;
-	public boolean playerGoLeft;
 	public List<Alien> aliens = new ArrayList<Alien>();
 	public String worldName;
 
@@ -69,11 +68,20 @@ public class PersistedMap {
 		return id;
 	}
 
-	private void loadRawSettings(byte[] rawSettings) throws IOException {
+	private void loadRawSettings(AlienFactory af, byte[] rawSettings) throws IOException {
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
-		playerX = dis.readShort();
-		playerY = dis.readShort();
-		playerGoLeft = dis.readByte() != 0;
+		{
+			// read the legacy player position information
+			int playerX = dis.readShort();
+			int playerY = dis.readShort();
+			boolean playerGoLeft = dis.readByte() != 0;
+
+			// and stuff that into the game the modern way with a PlayerPositionAlien
+			PlayerPositionAlien alien = (PlayerPositionAlien) af.make(201);
+			alien.c = new Coord(playerX, playerY);
+			alien.goLeft = playerGoLeft;
+			aliens.add(alien);
+		}
 
 		dis.readByte(); // blkset
 		dis.readByte(); // specjsr1
@@ -144,7 +152,7 @@ public class PersistedMap {
 					if (id.equals("set2")) {
 						byte[] rawSettings = new byte[0x30];
 						di.readFully(rawSettings);
-						loadRawSettings(rawSettings);
+						loadRawSettings(af, rawSettings);
 					}
 					else if (id.equals("obj2")) {
 						for (;;) {
@@ -198,7 +206,7 @@ public class PersistedMap {
 		dd.write("objects");
 		dd.beginArray();
 		for (Alien a : aliens) {
-			if (a.alienInfo!=null) {
+			if (a.alienInfo != null) {
 				int tc = a.alienInfo.typeCode;
 				if (tc > 0) {
 					dd.beginDict();

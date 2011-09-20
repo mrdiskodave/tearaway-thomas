@@ -30,6 +30,7 @@ public class AlienInfoMap {
 		classUseCount.put(a.alienClass, useCount);
 		if (a.typeCode>=0) {
 			typeCodes.add(a.typeCode);
+			Collections.sort(typeCodes);
 		}
 		
 //		System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
@@ -61,7 +62,6 @@ public class AlienInfoMap {
 	}
 
 	public List<Integer> getTypeCodes() {
-		Collections.sort(typeCodes);
 		return typeCodes;
 	}
 
@@ -84,5 +84,14 @@ public class AlienInfoMap {
 
 	private void addAnn(Class<? extends Alien> c, AlienInfoAnn a) {
 		add(new AlienInfo(a.type(), a.gfx(), a.score(), c));
+	}
+
+	public void dump() {
+		StringBuffer sb = new StringBuffer();
+		for (int tc: typeCodes) {
+			if (sb.length()!=0) sb.append(',');
+			sb.append(tc);
+		}
+		System.out.println(sb);
 	}
 }

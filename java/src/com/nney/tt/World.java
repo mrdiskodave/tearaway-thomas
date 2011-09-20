@@ -26,6 +26,7 @@ import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.LifeAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
+import com.nney.tt.aliens.PlayerPositionAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreGivingAlien;
@@ -243,7 +244,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private StatusScreen statusScreen;
 
-	private PersistedMap pm;
+	private PersistedLevel pl;
 
 	private Aperture hole;
 
@@ -294,7 +295,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
-
+		aim.add(new AlienInfo(201, "0tt", PlayerPositionAlien.class));
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 
@@ -305,6 +306,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.addAnn(PortraitAlien.class);
 		aim.addAnn(SpriteAlien.class);
 		aim.addAnn(ScoreCollectableAlien.class);
+		
+		aim.dump();
 
 		alienInfoMap = aim;
 
@@ -849,7 +852,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 					hole.target(Curtain.CLOSED);
 					hole.setRate(4);
 
-					String text = Messages.levelComplete(pm.worldNum, pm.stageNum, pm.title, gemsCollected, gemsTotal
+					String text = Messages.levelComplete(pl.worldNum, pl.stageNum, pl.title, gemsCollected, gemsTotal
 							- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
 					createStatusScreen(text);
 
@@ -1068,18 +1071,27 @@ public class World implements AlienServices, WorldServicesToMapper {
 		completed = false;
 		alienTracker = new AlienTracker();
 
-		pm = new PersistedMap();
+		pl = new PersistedLevel();
 		AlienFactory af = new AlienFactory() {
 			@Override
 			public Alien make(int typeCode) {
 				return createAlien2(typeCode);
 			}
 		};
-		pm.populateFromLevelInfo(af, levelNumber);
-		worldName = pm.worldName;
+		pl.populateFromLevelInfo(af, levelNumber);
+		worldName = pl.worldName;
 
 		// work out what Anims we need
-		List<Alien> aliens = pm.getAliens();
+		List<Alien> aliens = pl.getAliens();
+		
+		PlayerPositionAlien playerPos = null;
+		for (Alien alien: aliens) {
+			if (alien instanceof PlayerPositionAlien) {
+				playerPos = (PlayerPositionAlien) alien;
+			}
+		}
+		
+		
 		TreeSet<String> animsNeeded = new TreeSet<String>();
 		whatAnimsDoTheyNeed(aliens, animsNeeded);
 		animsNeeded.add("0tt");
@@ -1105,14 +1117,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 			loadAlienIntoWorld(alien);
 		}
 
-		createHorizon(pm.horizon);
+		createHorizon(pl.horizon);
 
-		mapBoundsInBlocks = pm.mapBounds;
+		mapBoundsInBlocks = pl.mapBounds;
 
 		createBlocksSet();
 
-		player = new Player(this, animsPool.expect("0tt"), new Coord(pm.playerX, pm.playerY), pm.playerGoLeft);
-		gameMap = pm.gameMap;
+		player = new Player(this, animsPool.expect("0tt"), playerPos.c, playerPos.goLeft);
+		gameMap = pl.gameMap;
 
 		setMapBounds();
 		player.move();
@@ -1123,10 +1135,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
 
 		gemsTotal = countGems();
-		gemsNeeded = pm.gemsNeeded;
+		gemsNeeded = pl.gemsNeeded;
 		gemsCollected = 0;
 
-		timeRemaining = pm.timeGiven * Const.FPS + Const.FPS - 1;
+		timeRemaining = pl.timeGiven * Const.FPS + Const.FPS - 1;
 
 		captureRecording();
 
@@ -1150,11 +1162,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
 
-		String text = Messages.levelStart(pm.worldNum, pm.stageNum, pm.title, pm.gemsNeeded, gemsTotal, pm.timeGiven);
+		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
 		createStatusScreen(text);
 		
-		pm.aliens = alienTracker.getAliens();
-		pm.save();
+		pl.aliens = alienTracker.getAliens();
+		pl.save();
 	}
 
 	private Coord getPlayerCentre() {
@@ -1367,7 +1379,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void createHorizon(int horizon2) {
 		freeHorizon();
-		horizon = gc.loadHorizon(TTResource.horizon(pm.horizon));
+		horizon = gc.loadHorizon(TTResource.horizon(pl.horizon));
 	}
 
 	private void freeHorizon() {
