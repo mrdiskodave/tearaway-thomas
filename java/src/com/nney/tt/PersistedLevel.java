@@ -15,7 +15,7 @@ import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
-import com.nney.tt.aliens.PlayerPositionAlien;
+import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
@@ -72,14 +72,14 @@ public class PersistedLevel {
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
 		{
 			// read the legacy player position information
-			int playerX = dis.readShort();
-			int playerY = dis.readShort();
-			boolean playerGoLeft = dis.readByte() != 0;
+			int x = dis.readShort();
+			int y = dis.readShort();
+			boolean goLeft = dis.readByte() != 0;
 
 			// and stuff that into the game the modern way with a PlayerPositionAlien
-			PlayerPositionAlien alien = (PlayerPositionAlien) af.make(201);
-			alien.c = new Coord(playerX, playerY);
-			alien.goLeft = playerGoLeft;
+			PlayerAlien alien = (PlayerAlien) af.make(201);
+			alien.c = new Coord(x, y);
+			alien.goLeft = goLeft;
 			aliens.add(alien);
 		}
 

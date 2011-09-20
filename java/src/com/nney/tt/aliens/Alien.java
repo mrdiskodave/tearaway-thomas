@@ -8,6 +8,10 @@ import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
+/**
+ * All the non-player things in the game are called "aliens" for legacy reasons.
+ * It's because the first game we wrote was set in space and the name stuck.
+ */
 public abstract class Alien {
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	public Anims anims;
@@ -22,7 +26,6 @@ public abstract class Alien {
 	// <-- player!
 	public static final int DEPTH_FG_SCENARY = 3;
 	public static final int DEPTH_MAX = 4;
-
 
 	public Box freezeBounds;
 	public AlienServices srv;
@@ -44,7 +47,7 @@ public abstract class Alien {
 	protected static final int OBstatus5 = 27 - OBbase; // B
 	protected static final int OBstatus6 = 28 - OBbase; // B
 	protected static final int OBstatus7 = 29 - OBbase; // B
-	
+
 	protected static final int OBFinvis = 5;
 
 	protected int loadShort(int x) {
@@ -100,12 +103,11 @@ public abstract class Alien {
 		remove = true;
 	}
 
-
 	public void mapperUpdate() {
 		Coord c = getLocation();
 		srv.drawSprite(c, firstFrame());
 	}
-	
+
 	abstract public void update();
 
 	abstract public void resetTo(Coord p);
@@ -114,7 +116,7 @@ public abstract class Alien {
 
 	public void onPropUpdate() {
 	}
-	
+
 	protected void animateDrawAndStun(Coord c2) {
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);

@@ -26,7 +26,7 @@ import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.LifeAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
-import com.nney.tt.aliens.PlayerPositionAlien;
+import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreGivingAlien;
@@ -295,7 +295,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
-		aim.add(new AlienInfo(201, "0tt", PlayerPositionAlien.class));
+		aim.add(new AlienInfo(201, "0tt", PlayerAlien.class));
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 
@@ -1084,10 +1084,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// work out what Anims we need
 		List<Alien> aliens = pl.getAliens();
 		
-		PlayerPositionAlien playerPos = null;
+		PlayerAlien playerPos = null;
 		for (Alien alien: aliens) {
-			if (alien instanceof PlayerPositionAlien) {
-				playerPos = (PlayerPositionAlien) alien;
+			if (alien instanceof PlayerAlien) {
+				playerPos = (PlayerAlien) alien;
 			}
 		}
 		
