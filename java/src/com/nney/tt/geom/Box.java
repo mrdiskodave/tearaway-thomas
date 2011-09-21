@@ -292,4 +292,25 @@ public class Box implements Copyable<Box>, Cloneable {
 		int bottom = d.requireElement(3).requireInt();
 		return new Box(left, top, right, bottom);
 	}
+
+	/**
+	 * Snap to some grid. We snap outwards: only ever getting bigger, never smaller.
+	 * 
+	 * @param gridSize Grid size which must be a power of two.
+	 */
+	public void snapOutTo(int gridSize) {
+		left &= -gridSize;
+		top &= -gridSize;
+		
+		right &= -gridSize;
+		right += gridSize - 1;
+		bottom &= -gridSize;
+		bottom += gridSize - 1;
+	}
+	
+	public long area() {
+		long a = width();
+		a *= height();
+		return a;
+	}
 }

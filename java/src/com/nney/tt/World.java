@@ -25,13 +25,13 @@ import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.LifeAlien;
 import com.nney.tt.aliens.MagicDustAlien;
+import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreGivingAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
-import com.nney.tt.aliens.ScreenLimiterAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
 import com.nney.tt.aliens.SpikeAlien;
@@ -258,8 +258,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private AudioHub ah;
 
-	private Box liveMapBoundsInBlocks;
-
 	public World(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.ah = new AudioHub(ac);
@@ -291,11 +289,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
-		aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
+		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
 		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
 		aim.add(new AlienInfo(201, "0tt", PlayerAlien.class));
+		aim.add(new AlienInfo(202, null, MapBoundsAlien.class));
+
 		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
 
@@ -306,7 +306,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.addAnn(PortraitAlien.class);
 		aim.addAnn(SpriteAlien.class);
 		aim.addAnn(ScoreCollectableAlien.class);
-		
+
 		aim.dump();
 
 		alienInfoMap = aim;
@@ -786,8 +786,27 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	public void setMapBounds() {
-		scr.setWorldBoundsInBlocks(mapBoundsInBlocks);
+	public void drawGrid() {
+		ScreenOrdinate ix = scr.scrOrdX;
+		ScreenOrdinate iy = scr.scrOrdY;
+
+		int col = 0x40ffffff;
+		for (int q = 0; q < iy.blockCount; q++) {
+			int dx = ix.initialPixelDestination;
+			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int s = ix.blockCount * Const.BLOCK_SIZE;
+			gc.fillRectangle(dx, dy, s, 1, col);
+			gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
+		}
+
+		for (int q = 0; q < ix.blockCount; q++) {
+			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int dy = iy.initialPixelDestination;
+			int s = iy.blockCount * Const.BLOCK_SIZE;
+			gc.fillRectangle(dx, dy, 1, s, col);
+			gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
+		}
+
 	}
 
 	public void updateEverything() {
@@ -800,7 +819,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			if (k == Mapper.MAPPER_KEY) {
 				System.out.println("STARTING MAPPER");
 				usingMapper = true;
-				scr.setWorldBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
+				scr.setMapBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
 
 				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 				if (mapper == null) {
@@ -831,9 +850,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 		else {
 			if (whiteTimer != 0) {
-				if (whiteTimer == 5) {
-					modeMainGame();
-				}
 				whiteTimer--;
 				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 				drawHudAndBorders(false);
@@ -979,8 +995,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void modeMainGame() {
 		frameNumber++;
-		
-		liveMapBoundsInBlocks = mapBoundsInBlocks.copy();
 
 		int timeDec = player.isStunned() ? 3 : 1;
 		timeRemaining = Math.max(timeRemaining - timeDec, 0);
@@ -1001,8 +1015,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		updateAliens(false);
 
-		scr.setWorldBoundsInBlocks(liveMapBoundsInBlocks);
-		
 		dimFade.update();
 
 		if (isExitOpen()) statusDisplay.drawExitOpen();
@@ -1077,21 +1089,21 @@ public class World implements AlienServices, WorldServicesToMapper {
 			public Alien make(int typeCode) {
 				return createAlien2(typeCode);
 			}
+			// TODO: by Class as well?
 		};
 		pl.populateFromLevelInfo(af, levelNumber);
 		worldName = pl.worldName;
 
 		// work out what Anims we need
 		List<Alien> aliens = pl.getAliens();
-		
+
 		PlayerAlien playerPos = null;
-		for (Alien alien: aliens) {
+		for (Alien alien : aliens) {
 			if (alien instanceof PlayerAlien) {
 				playerPos = (PlayerAlien) alien;
 			}
 		}
-		
-		
+
 		TreeSet<String> animsNeeded = new TreeSet<String>();
 		whatAnimsDoTheyNeed(aliens, animsNeeded);
 		animsNeeded.add("0tt");
@@ -1118,15 +1130,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 
 		createHorizon(pl.horizon);
-
-		mapBoundsInBlocks = pl.mapBounds;
-
 		createBlocksSet();
 
 		player = new Player(this, animsPool.expect("0tt"), playerPos.c, playerPos.goLeft);
 		gameMap = pl.gameMap;
 
-		setMapBounds();
+		pickTheBestBounds();
+
 		player.move();
 		player.move();
 
@@ -1164,9 +1174,40 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
 		createStatusScreen(text);
-		
+
 		pl.aliens = alienTracker.getAliens();
 		pl.save();
+	}
+
+	/**
+	 * The best map bounds are the smallest (i.e. the most specific) bounds that
+	 * the player is inside. This allows the map designer to fence of small
+	 * areas in a larger map. The player can then teleport such a small area
+	 * and the {@link MapBoundsAlien} will keep him from seeing the larger
+	 * map.
+	 */
+	private void pickTheBestBounds() {
+		final ArrayList<Box> boxes = new ArrayList<Box>();
+		alienTracker.visitAll(new Visitor<Alien>() {
+			@Override
+			public void visit(Alien a) {
+				if (a instanceof MapBoundsAlien) {
+					Box b = ((MapBoundsAlien) a).bounds;
+					b = b.copy();
+					b.snapOutTo(Const.BLOCK_SIZE);
+					boxes.add(b);
+				}
+			}
+		});
+		Box bounds = WHOLE_MAP_BOUNDS_IN_PIXELS;
+		long bestArea = Long.MAX_VALUE;
+		for (Box box : boxes) {
+			if (box.inside(player.c) && box.area() < bestArea) {
+				bounds = box;
+				bestArea = box.area();
+			}
+		}
+		scr.setMapBoundsInPixels(bounds);
 	}
 
 	private Coord getPlayerCentre() {
@@ -1195,9 +1236,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// if we didn't try teleporting last frame
 		if (teleAttempt + 1 != frameNumber) {
 			// do it
-			player.c = destination.copy();
 			playSoundEffect("teleport");
+
+			// TODO: we might try and delay these actions so screen shape
+			// changes
+			// happen in the middle of the teleport
+			player.c = destination.copy();
+			pickTheBestBounds();
 			scr.snapTo(destination);
+
 			whiteTimer = 10;
 		}
 		teleAttempt = frameNumber;
@@ -1223,7 +1270,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		System.out.println("STOPPING MAPPER");
 		usingMapper = false;
 		alienTracker.reclassify();
-		setMapBounds();
+		pickTheBestBounds();
 	}
 
 	@Override
@@ -1248,16 +1295,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public BlocksHolder getBlocksHolder() {
 		return blockSet.blocksHolder;
-	}
-
-	@Override
-	public Box getMapBoundsInBlocks() {
-		return mapBoundsInBlocks.copy();
-	}
-
-	@Override
-	public void setMapBoundsInBlocks(Box mapBoundsInBlocks) {
-		this.mapBoundsInBlocks = mapBoundsInBlocks.copy();
 	}
 
 	@Override
@@ -1344,6 +1381,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void drawForMapper() {
+		drawGrid();
 		drawTheMap();
 		updateAliens(true);
 	}
@@ -1388,28 +1426,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 			horizon = null;
 		}
 	}
-
-	@Override
-	public void screenLimit(Coord c, boolean left) {
-		System.out.println("Limit?");
-		c = c.copy();
-		c.x &= ~Const.BLOCK_MASK;
-		if (left) {
-			c.x += Const.BLOCK_SIZE-1;
-		}
-		if (scr.box().inside(c)) {
-			int z = c.x/Const.BLOCK_SIZE;
-			System.out.println("Limit "+c.x);
-			if (left) {
-				liveMapBoundsInBlocks.left = z;
-			}
-			else {
-				liveMapBoundsInBlocks.right = z;
-			}
-		}
-		// that should do it!!
-	}
-
 }
 
 // 64: worm - forget it

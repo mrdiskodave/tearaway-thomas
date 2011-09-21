@@ -14,31 +14,27 @@ public class ScreenPosition {
 			16 };
 
 	private final Coord screen = new Coord();
-	public final ScreenOrdinate scrOrdX = new ScreenOrdinate();
-	public final ScreenOrdinate scrOrdY = new ScreenOrdinate();
 	private final int screenWidth;
 	private final int screenHeight;
-	private Box liveScrollBoundsInPixels;
+	private Box scrollBoundsInPixels;
+
+	public final ScreenOrdinate scrOrdX = new ScreenOrdinate();
+	public final ScreenOrdinate scrOrdY = new ScreenOrdinate();
 
 	public ScreenPosition(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 	}
 
-	public void setWorldBoundsInPixels(Box b) {
-		liveScrollBoundsInPixels = b;
+	public void setMapBoundsInPixels(Box b) {
+		scrollBoundsInPixels = b;
 	}
 	
-	public void setWorldBoundsInBlocks(Box b) {
-		liveScrollBoundsInPixels = b.mult2(Const.BLOCK_SIZE);
-	}
-
 	public void setPosition(Coord c) {
-		Box b = liveScrollBoundsInPixels;
+		Box b = scrollBoundsInPixels;
 		screen.x = scrOrdX.generate(c.x, screenWidth, b.left, b.width(), "X");
 		screen.y = scrOrdY.generate(c.y, screenHeight, b.top, b.height(), "Y");
 	}
-
 
 	private static int shrinkDelta(int delta) {
 		boolean neg = false;
@@ -81,18 +77,14 @@ public class ScreenPosition {
 	}
 
 	public void keepPlayerInMap(Coord c) {
-		Box m = liveScrollBoundsInPixels.copy();
+		Box m = scrollBoundsInPixels.copy();
 		m.shrink(6);
 		m.constrain(c);
 	}
 
-	// everyone:
-
 	public Coord position() {
 		return screen;
 	}
-
-	// fridge:
 
 	public Box box() {
 		return Box.fromTopLeftAndSize(screen, screenWidth, screenHeight);

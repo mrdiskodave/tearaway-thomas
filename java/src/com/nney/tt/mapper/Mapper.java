@@ -364,6 +364,7 @@ public class Mapper implements MapperServicesToPens {
 
 			String s = ai.alienClass.getSimpleName();
 			s = s.replace("Alien", "");
+			s += "("+ai.typeCode+")";
 			mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + ALIENS_TAB_BOX_RADIUS - 5 - mgc.charHeight(), 0x80ffff, s);
 			sy += ALIENS_TAB_BOX_DIAMETER;
 			at.next();
@@ -702,14 +703,6 @@ public class Mapper implements MapperServicesToPens {
 	
 	public Coord getScreenPosition() {
 		return srv.getScreenPosition();
-	}
-
-	public Box getMapBoundsInBlocks() {
-		return srv.getMapBoundsInBlocks();
-	}
-
-	public void setMapBoundsInBlocks(Box mapBoundsInBlocks) {
-		srv.setMapBoundsInBlocks(mapBoundsInBlocks);
 	}
 
 	int justPressed() {

@@ -15,6 +15,7 @@ import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
+import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -34,13 +35,13 @@ public class PersistedLevel {
 	public int stageNum;
 	public String title;
 
+	public String worldName;
+
 	//
 	// things from the dot map
 	//
 	public GameMap gameMap;
-	public Box mapBounds;
 	public List<Alien> aliens = new ArrayList<Alien>();
-	public String worldName;
 
 	public void populateFromLevelInfo(AlienFactory af, int levelNumber) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
@@ -72,6 +73,7 @@ public class PersistedLevel {
 		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
 		{
 			// read the legacy player position information
+			// as a PlayerAlien
 			int x = dis.readShort();
 			int y = dis.readShort();
 			boolean goLeft = dis.readByte() != 0;
@@ -83,32 +85,40 @@ public class PersistedLevel {
 			aliens.add(alien);
 		}
 
-		dis.readByte(); // blkset
-		dis.readByte(); // specjsr1
-		dis.readByte(); // specjsr2
-		dis.readByte(); // specjsr3
-		int minx = dis.readByte() & 0xff;
-		int maxx = dis.readByte() & 0xff;
-		int miny = dis.readByte() & 0xff;
-		int maxy = dis.readByte() & 0xff;
-
-		// horizontally, at least, it
-		// seemed like we saved an exclusive box
-		// where as we need an inclusive one
-		// (maybe that was related to have the screen an extra block wide for
-		// scrolling reasons)
-		maxx++;
-		// maxy++;
-
-		// also vertical levels were strangely less than 18 wide
-		// (when 18 was there actual width)
-		maxx = Math.max(minx + (18 - 1), maxx);
-
-		assert maxx < GameMap.MAP_WIDTH;
-		assert maxy < GameMap.MAP_HEIGHT;
-		assert minx < maxx;
-		assert miny < maxy;
-		mapBounds = new Box(minx, miny, maxx, maxy);
+		{
+			// read legacy map size
+			// as a MapBoundsAlien
+			dis.readByte(); // blkset
+			dis.readByte(); // specjsr1
+			dis.readByte(); // specjsr2
+			dis.readByte(); // specjsr3
+			int minx = dis.readByte() & 0xff;
+			int maxx = dis.readByte() & 0xff;
+			int miny = dis.readByte() & 0xff;
+			int maxy = dis.readByte() & 0xff;
+	
+			// horizontally, at least, it
+			// seemed like we saved an exclusive box
+			// where as we need an inclusive one
+			// (maybe that was related to have the screen an extra block wide for
+			// scrolling reasons)
+			maxx++;
+			// maxy++;
+	
+			// also vertical levels were strangely less than 18 wide
+			// (when 18 was there actual width)
+			maxx = Math.max(minx + (18 - 1), maxx);
+	
+			assert maxx < GameMap.MAP_WIDTH;
+			assert maxy < GameMap.MAP_HEIGHT;
+			assert minx < maxx;
+			assert miny < maxy;
+			
+			MapBoundsAlien alien = (MapBoundsAlien) af.make(202);
+			alien.bounds = new Box(minx, miny, maxx, maxy).mult2(Const.BLOCK_SIZE);
+			System.out.println("Bounds:"+alien.bounds);
+			aliens.add(alien);
+		}
 	}
 
 	private void createLegacyAlien(AlienFactory af, int x, int y, int typeCode, byte[] rest) {

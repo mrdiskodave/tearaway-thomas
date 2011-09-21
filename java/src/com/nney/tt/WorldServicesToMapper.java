@@ -30,8 +30,4 @@ public interface WorldServicesToMapper {
 	void loadAlienIntoWorld(Alien alien);
 
 	Anims loadAnims(String animsName);
-
-	Box getMapBoundsInBlocks();
-
-	void setMapBoundsInBlocks(Box mapBoundsInBlocks);
 }

@@ -121,6 +121,4 @@ public interface AlienServices {
 	boolean showText();
 
 	void playSoundEffect(String name);
-	
-	void screenLimit(Coord c, boolean left);
 }

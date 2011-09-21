@@ -35,8 +35,9 @@ public class ScreenOrdinate {
 
 	/**
 	 * Make sure given current position is valid and also generate the other
-	 * field data in this object. There will be two instances of this class - one
-	 * for X and one for Y. All parameters are in pixels.
+	 * field data in this object. There will be two instances of this class -
+	 * one for the X ordinate and one for the Y ordinate. All parameters are in
+	 * pixels.
 	 * 
 	 * @param current
 	 *            The current position (a map ordinate).

@@ -5,10 +5,10 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.sprites.Sprite;
 
 /**
- * The starting position of the {@link Player} in the map is marked by a
+ * The starting position of the {@link Player} in the level is marked by a
  * {@link PlayerAlien}. Being an {@link Alien}, it can participate in loading
- * and saving and map editing and stuff. The {@link Player} is created from the
- * information this object contains.
+ * and saving and level editing and stuff. The {@link Player} is created from
+ * the information that this object contains.
  */
 public class PlayerAlien extends AlienWithLocation {
 	@AlienProp(name = "Facing", xtraDef = "leftright", label = "goLeft")

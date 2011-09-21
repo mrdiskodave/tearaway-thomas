@@ -43,14 +43,6 @@ public class RectangleTool extends Tool {
 		rectangle.validate();
 		
 		int k = srv.justPressed();
-		if (k==Keyboard.KEY_G) {
-			rectangle = srv.getMapBoundsInBlocks();
-		}
-		if (k==Keyboard.KEY_S) {
-			srv.setMapBoundsInBlocks(rectangle);
-		}
-		
-		
 		if (k>=Keyboard.KEY_F1 && k<=Keyboard.KEY_F12) {
 			int slotNumber = k-Keyboard.KEY_F1;
 			srv.copyRect(slotNumber, rectangle);
