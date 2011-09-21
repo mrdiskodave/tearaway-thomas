@@ -317,7 +317,6 @@ public class JavaTest extends TestCase {
 		}
 	}
 
-
 	public void testShortComposition() {
 		int xz = 0;
 		for (int h = 0; h < 256; h++) {
@@ -340,11 +339,10 @@ public class JavaTest extends TestCase {
 		assertEquals(42, counter);
 	}
 
-
 	public void testRepeatingYourself2() {
 		int counter = 0;
 		int x = 42;
-		while (x-->0) {
+		while (x-- > 0) {
 			counter++;
 		}
 		assertEquals(42, counter);
@@ -353,7 +351,7 @@ public class JavaTest extends TestCase {
 	public void testRepeatingYourself2b() {
 		int counter = 0;
 		int x = 42;
-		while (--x>=0) {
+		while (--x >= 0) {
 			counter++;
 		}
 		assertEquals(42, counter);
@@ -402,7 +400,7 @@ public class JavaTest extends TestCase {
 		assertEquals("hi", a.toString());
 
 		// set the capacity of the string buffer
-		// (gotcha: though it doesn't look like it!)
+		// (gotcha: it doesn't look like it!)
 		StringBuffer b = new StringBuffer('h');
 		b.append('i');
 		assertEquals("i", b.toString());
@@ -412,7 +410,7 @@ public class JavaTest extends TestCase {
 		// Surprising that this passes
 		String[][] a = new String[0][42];
 		// and that we are still here
-		// (swap that 42 for any number ... it is ignored)
+		// (swap that 42 for any number ... it is ignored and not stored anywhere)
 
 		assertEquals(0, a.length);
 		// of course
@@ -427,8 +425,26 @@ public class JavaTest extends TestCase {
 			// ... as expected
 		}
 	}
-	
+
 	public void testNullStringComparable() throws Exception {
 		assertFalse("".equals(null));
+		// ^yep, coz that is the contract for Object.equals()
+	}
+
+	public void testBigIntSquared() {
+		int bigInt = 0x7fffffff;
+		
+		// wrong!
+		long a = bigInt * bigInt;
+		assertEquals(1, a);
+		// right!
+		long b = ((long) bigInt) * bigInt;
+		assertEquals(0x3fffffff00000001L, b);
+		//
+		// ^yeah.. I thought so
+		// though my bug was more subtle: "area = width()*height()"
+		// The methods return ints and area is long.
+		// The obvious way of writing it silently fails on int overflow.
+		//
 	}
 }
