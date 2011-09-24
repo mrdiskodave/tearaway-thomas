@@ -91,13 +91,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// 10 ok
 	// 11 map+code: needs lift 101
 	// 12 map: secret area visible
-	// TODO: re-init player
 	// 13 map|code: fall through??
 	// 14 ok
 	// 15 the gallery:
 	// -- map: wall priority
 
-	// TODO: gems look odd in front of passing monsters
 	// TODO: secret areas should be bounded by those things
 
 	private int score = 0;
@@ -160,7 +158,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 */
 	private Coord playerSpriteTopLeft;
 
-	private int teleAttempt;
+	private Latch teleportLatch = new Latch();
 
 	private int whiteTimer;
 
@@ -743,10 +741,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 		alienTracker.begin(screenBox);
 		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox, mapper);
 		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox, mapper);
+		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox, mapper);
 		if (!mapper && mode != GameMode.COMPLETE) {
 			player.draw();
 		}
-		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox, mapper);
 		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox, mapper);
 
 		//
@@ -1138,8 +1136,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		pickTheBestBounds();
 
 		player.move();
-		player.move();
-
 		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
@@ -1233,8 +1229,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void teleportTo(Coord destination) {
-		// if we didn't try teleporting last frame
-		if (teleAttempt + 1 != frameNumber) {
+		if (teleportLatch.can(frameNumber)) {
 			// do it
 			playSoundEffect("teleport");
 
@@ -1247,8 +1242,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 			whiteTimer = 10;
 		}
-		teleAttempt = frameNumber;
-		// (this stops us vibrating between two teleports)
 	}
 
 	@Override

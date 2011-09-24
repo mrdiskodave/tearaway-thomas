@@ -171,18 +171,9 @@ public class Player {
 	 */
 	private Mode mode = Mode.AIR;
 
-	/**
-	 * A flag that tells us not to go right back into {@link Mode#MONKEY}
-	 * directly after leaving it.
-	 */
-	private boolean monkeyLatch;
-
-	/**
-	 * A flag that tells us not to go right back into {@link Mode#ROPE} directly
-	 * after leaving it.
-	 */
-	private boolean ropeLatch;
-	private boolean ladderLatch;
+	private Latch monkeyLatch = new Latch();
+	private Latch ropeLatch = new Latch();
+	private Latch ladderLatch = new Latch();
 
 	private int slideVel;
 
@@ -199,6 +190,8 @@ public class Player {
 	private boolean inTheGroundBefore;
 
 	private int touchDownVel;
+
+	private boolean flyingFlap;
 
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
@@ -234,7 +227,7 @@ public class Player {
 		// if you jump off a ladding holding up (meaning: grip ladder)
 		// you won't grip (because of the latch) but this shouldn't go on
 		// forever so we should clear the latch when you hit the ground.
-		ladderLatch = false;
+		ladderLatch.clear();
 
 		// it is important that we immediately check for slides
 		// or the player could get off a rogue jump-off-a-slide
@@ -305,20 +298,10 @@ public class Player {
 	}
 
 	private int getXDelta() {
-		int xdelta = 0;
-		if (testStick(Joystick.LEFT)) {
-			xdelta = -pvt.next();
-			goLeft = true;
-		}
-		else if (testStick(Joystick.RIGHT)) {
-			xdelta = pvt.next();
-			goLeft = false;
-		}
-		else {
-			pvt.reset();
-		}
-
-		// keep it on screen
+		int d = getStickLeftRightDelta();
+		if (d < 0) goLeft = true;
+		if (d > 0) goLeft = false;
+		int xdelta = pvt.next(d);
 		return keepXDeltaOnScreen(xdelta);
 	}
 
@@ -328,15 +311,6 @@ public class Player {
 		srv.validatePlayerPosition(tp);
 		xdelta = tp.x - c.x;
 		return xdelta;
-	}
-
-	private void setStandingAnim() {
-		if (moveStick()) {
-			setAnim(directionalAnimName(""), true);
-		}
-		else {
-			setAnim(directionalAnimName("stood"), true);
-		}
 	}
 
 	private boolean normalVerticalMovement() {
@@ -391,23 +365,43 @@ public class Player {
 			// in the ground
 			if (!inTheGroundBefore) {
 				// for the first time!
-				// ... what is above?
+				// so we move up
 				c.y--;
+				// and then either ...
 				if (srv.inTheGround(c)) {
-					inTheGroundBefore = true;
-					// ground ... so we are entering the ground
-					c.y++;
 					// System.out.println("LL: entering ground");
+					// ... we're still in the ground unfortunately
+					inTheGroundBefore = true;
+
+					//
+					// Surely, this should be an increment because
+					// the speculative decrement above
+					// didn't work out on this code-path and we want
+					// to reverse it.
+					//
+					// But, in the original, it is a decrement effectively
+					// giving the player a two pixel vertical kick
+					// up the screen when they enter the ground.
+					//
+					// I'm going to code it bug-for-bug identical because
+					// there are jumps that the player can't make otherwise.
+					// (e.g. the left of the first horizontal rope
+					// on the "the worm that turned" up to the branch
+					// above)
+					//
+					c.y--; // ++ surely!!!
+
 					return false;
 				}
 				else {
-					// sky! ... so we are touching down
+					// ... or that move got us up into the sky
+					// so this is a great spot to touch down!
 					inTheGroundBefore = false;
 					// System.out.println("LL: touching down");
 					return true;
 				}
 			}
-			// in the ground AGAIN
+			// in the ground AGAIN ... boring
 			return false;
 		}
 		else {
@@ -426,33 +420,17 @@ public class Player {
 	}
 
 	private void doAirModeY() {
-		boolean flap = false;
 		if (airJumpTimer != 0) {
 			jumpOnFire();
 		}
 		else if (canFly && testStickJustPressed(Joystick.FIRE)) {
 			flying = true;
 			vely = 0;
-			flap = true;
+			flyingFlap = true;
 		}
 		if (normalVerticalMovement()) {
 			if (wantsToJump()) touchDownVel = vely;
 			startModeWalk();
-		}
-
-		if (flying) {
-			setAnim(directionalAnimName("fly"), true);
-			if (flap) {
-				animPlayer.rewind();
-			}
-		}
-		else {
-			if (airSpin) {
-				setAnim(directionalAnimName("jump"), true);
-			}
-			else {
-				setAnim(directionalAnimName(""), false);
-			}
 		}
 	}
 
@@ -610,20 +588,16 @@ public class Player {
 			snap = maxSnap - snap;
 
 			// System.out.println("SNAP" + snap + "max" + maxSnap);
-			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)) {
-				if (!ladderLatch) {
-					if (testLadder(snap, getStickUpDownDelta())) {
-						reset(Mode.LADDER);
-						c.x += snap;
-						System.out.println("Ladder: on board!");
-					}
-					else {
-						System.out.println("Ladder: run straight past");
-					}
+			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)
+					&& ladderLatch.can(srv.getFrameNumber())) {
+				if (testLadder(snap, getStickUpDownDelta())) {
+					reset(Mode.LADDER);
+					c.x += snap;
+					System.out.println("Ladder: on board!");
 				}
-			}
-			else {
-				ladderLatch = false;
+				else {
+					System.out.println("Ladder: run straight past");
+				}
 			}
 		}
 	}
@@ -634,6 +608,8 @@ public class Player {
 
 	private void doLadderMode() {
 		if (mode == Mode.LADDER) {
+			ladderLatch.set(srv.getFrameNumber());
+
 			// do ladder!
 			boolean moving = false;
 			int delta = getStickUpDownDelta() * 2;
@@ -650,11 +626,9 @@ public class Player {
 			boolean wantToWalkOffLadder = testStick(Joystick.LEFT | Joystick.RIGHT);
 			if (wantToWalkOffLadder && canWalkOffLadder()) {
 				startModeWalk();
-				ladderLatch = true;
 			}
 			else if (wantsToExitModeByJumping()) {
 				jumpOrDrop();
-				ladderLatch = true;
 			}
 
 			setAnim("climb", moving);
@@ -678,20 +652,15 @@ public class Player {
 	private void perhapsStartRopeMode() {
 		if (mode == Mode.AIR) {
 			// start rope?
-			if (testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0)) {
-				if (!ropeLatch) {
-					// The original flipped goLeft here and not on mode exit.
-					// We don't flip it here but do flip it on mode exit.
-					// i.e. goLeft means the opposite to us (in this mode)
+			if (testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
+				// The original flipped goLeft here and not on mode exit.
+				// We don't flip it here but do flip it on mode exit.
+				// i.e. goLeft means the opposite to us (in this mode)
 
-					// block align:
-					c.x &= -Const.BLOCK_SIZE;
-					c.x += (Const.BLOCK_SIZE / 2);
-					reset(Mode.ROPE);
-				}
-			}
-			else {
-				ropeLatch = false;
+				// block align:
+				c.x &= -Const.BLOCK_SIZE;
+				c.x += (Const.BLOCK_SIZE / 2);
+				reset(Mode.ROPE);
 			}
 		}
 	}
@@ -703,6 +672,8 @@ public class Player {
 
 	private void doRopeMode() {
 		if (mode == Mode.ROPE_TWIST || mode == Mode.ROPE) {
+			ropeLatch.set(srv.getFrameNumber());
+
 			// do rope!
 			// SCC7
 			if (mode == Mode.ROPE) {
@@ -729,7 +700,6 @@ public class Player {
 			// jump off the rope
 			if (wantsToExitModeByJumping()) {
 				jumpOrDrop();
-				ropeLatch = true;
 				goLeft = !goLeft;
 			}
 
@@ -762,19 +732,14 @@ public class Player {
 		if (mode == Mode.AIR) {
 			// start monkey?
 			// SCC5
-			if (testForHorizontalRope(0)) {
-				if (vely >= 0 && !testStick(Joystick.DOWN) && !monkeyLatch) {
-					// block align:
-					c.y -= 2;
-					c.y &= -Const.BLOCK_SIZE;
-					c.y += 2;
-					reset(Mode.MONKEY);
-					System.out.println("Monkey: Start");
-				}
-			}
-			else {
-				if (monkeyLatch) System.out.println("Monkey: clear");
-				monkeyLatch = false;
+			if (testForHorizontalRope(0) && vely >= 0 && !testStick(Joystick.DOWN)
+					&& monkeyLatch.can(srv.getFrameNumber())) {
+				// block align:
+				c.y -= 2;
+				c.y &= -Const.BLOCK_SIZE;
+				c.y += 2;
+				reset(Mode.MONKEY);
+				System.out.println("Monkey: Start");
 			}
 		}
 	}
@@ -796,6 +761,8 @@ public class Player {
 
 	private void doMonkeyMode() {
 		if (mode == Mode.MONKEY) {
+			monkeyLatch.set(srv.getFrameNumber());
+
 			// do monkey!
 			// SCC6
 			boolean moving = false;
@@ -813,13 +780,98 @@ public class Player {
 				reset(Mode.AIR);
 				vely = 4;
 				System.out.println("Monkey: end .. drop");
-				monkeyLatch = true;
 			}
 			// or jumping off
 			if (wantsToExitModeByJumping()) {
 				System.out.println("Monkey: end .. jump");
 				jump();
-				monkeyLatch = true;
+			}
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// WALK, LIFT AND AIR MODES
+
+	private void doWalkLiftAndAirModes() {
+		//
+		// X
+		//
+
+		if (mode == Mode.LIFT) {
+			assert standingOn != null;
+			standingOn.movePlayer(this);
+		}
+
+		// These all run off the same MovementSlicer.
+		// e.g. if we're running along the ground at 5 pix per frame
+		// and after 1 pixel we run off the edge we still
+		// have 4 pixels to go in the air.
+		int xmovement = getXDelta();
+		MovementSlicer xslicer = new MovementSlicer(xmovement);
+		while (xslicer.more()) {
+			if (mode == Mode.WALK) {
+				doWalkModeX(xslicer);
+			}
+			else if (mode == Mode.LIFT) {
+				doLiftModeX(xslicer);
+			}
+			else if (mode == Mode.AIR) {
+				doAirModeX(xslicer);
+			}
+			else {
+				break;
+			}
+		}
+
+		if (mode == Mode.WALK || mode == Mode.LIFT) {
+			// The floor to air transition is done between X and Y movement.
+			// Floor X, Air Y. This gives us a clean take off!
+			// SCC9
+			jumpOnFire();
+		}
+
+		//
+		// Y movement
+		//
+
+		if (mode == Mode.WALK) {
+			vacuumFloor();
+			// might change to Mode.AIR
+		}
+		if (mode == Mode.AIR) {
+			doAirModeY();
+			// might change to Mode.WALK
+		}
+		// Mode.LIFT isn't mentioned here because the LiftAlien moves us
+		// directly
+
+		//
+		// WALK LIFT AIR animations
+		//
+
+		// every path *must* call setAnim()
+		if (mode == Mode.AIR) {
+			if (flying) {
+				setAnim(directionalAnimName("fly"), true);
+				if (flyingFlap) {
+					animPlayer.rewind();
+				}
+			}
+			else {
+				if (airSpin) {
+					setAnim(directionalAnimName("jump"), true);
+				}
+				else {
+					setAnim(directionalAnimName(""), false);
+				}
+			}
+		}
+		else {
+			if (moveStick()) {
+				setAnim(directionalAnimName(""), true);
+			}
+			else {
+				setAnim(directionalAnimName("stood"), true);
 			}
 		}
 	}
@@ -829,6 +881,7 @@ public class Player {
 
 	private void move2() {
 		touchDownVel = 0;
+		flyingFlap = false;
 
 		// remember our initial coordinate
 		ic = c.copy();
@@ -851,57 +904,7 @@ public class Player {
 		}
 
 		if (mode == Mode.WALK || mode == Mode.LIFT || mode == Mode.AIR) {
-			//
-			// X
-			//
-
-			if (mode == Mode.LIFT) {
-				assert standingOn != null;
-				standingOn.movePlayer(this);
-			}
-
-			// These all run off the same MovementSlicer.
-			// e.g. if we're running along the ground at 5 pix per frame
-			// and after 1 pixel we run off the edge we still
-			// have 4 pixels to go in the air.
-			int xmovement = getXDelta();
-			MovementSlicer xslicer = new MovementSlicer(xmovement);
-			while (xslicer.more()) {
-				if (mode == Mode.WALK) {
-					doWalkModeX(xslicer);
-				}
-				else if (mode == Mode.LIFT) {
-					doLiftModeX(xslicer);
-				}
-				else if (mode == Mode.AIR) {
-					doAirModeX(xslicer);
-				}
-				else {
-					break;
-				}
-			}
-
-			if (mode == Mode.WALK || mode == Mode.LIFT) {
-				// The floor to air transition is done between X and Y movement.
-				// Floor X, Air Y. This gives us a clean take off!
-				// SCC9
-				jumpOnFire();
-			}
-
-			//
-			// Y
-			//
-
-			if (mode == Mode.WALK) {
-				vacuumFloor();
-				setStandingAnim();
-			}
-			if (mode == Mode.LIFT) {
-				setStandingAnim();
-			}
-			if (mode == Mode.AIR) {
-				doAirModeY();
-			}
+			doWalkLiftAndAirModes();
 		}
 		else {
 			doStunMode();
@@ -990,10 +993,11 @@ public class Player {
 	 * <p>
 	 * The result is for <b>this frame only</b> so you have to keep asking if
 	 * you don't want to miss it. The requirement is not just that the player
-	 * hits the ground but that they intend (next frame) to jump up again.
+	 * hits the ground but that they intend (next frame) to jump up again. i.e.
+	 * that the play is "bouncing" off the ground.
 	 * 
-	 * @return The velocity in pixels per frame with which we bounced (or zero
-	 *         if we didn't).
+	 * @return The velocity in pixels per frame or zero if didn't happen this
+	 *         frame.
 	 */
 	public int getTouchDownVel() {
 		return touchDownVel;
