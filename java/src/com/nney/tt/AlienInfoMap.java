@@ -26,7 +26,8 @@ public class AlienInfoMap {
 	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
-	private final ArrayList<Integer> typeCodes = new ArrayList<Integer>();
+	private final List<Integer> typeCodes = new ArrayList<Integer>();
+	private final List<String> animList = new ArrayList<String>(); 
 
 	void add(AlienInfo a) {
 		aim.add(a);
@@ -59,6 +60,7 @@ public class AlienInfoMap {
 		classToAlienInfo.clear();
 		classUseCount.clear();
 		typeCodes.clear();
+		animList.clear();
 		for (AlienInfo ai : aim) {
 			String am = ai.animsName();
 			if (am==null || TTResource.spriteExists(am)) {
@@ -71,11 +73,17 @@ public class AlienInfoMap {
 				classUseCount.put(ai.alienClass, useCount);
 	
 				if (ai.typeCode >= 0) {
+					assert !typeCodes.contains(ai.typeCode);
 					typeCodes.add(ai.typeCode);
+				}
+				
+				if (am!=null) {
+					animList.add(am);
 				}
 			}
 		}
 		Collections.sort(typeCodes);
+		Collections.sort(animList);
 	}
 
 	public void setWorld(String worldName) {
@@ -102,8 +110,18 @@ public class AlienInfoMap {
 		return classToAlienInfo.get(c);
 	}
 
+	/**
+	 * @return A read only list of all the typeCodes available.
+	 */
 	public List<Integer> getTypeCodes() {
 		return typeCodes;
+	}
+
+	/**
+	 * @return A read only list of all the anims we'll ever need.
+	 */
+	public List<String> getAnimList() {
+		return animList;
 	}
 
 	public void dump() {

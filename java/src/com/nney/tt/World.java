@@ -668,10 +668,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private static final boolean CTC_ITEM_ONCE = false;
 
 	@Override
-	public Alien createAlien(AlienInfo alienInfo) {
+	public Alien mapperCreateAlien(AlienInfo alienInfo) {
 		// for the mapper
 		Alien alien = alienInfo.instantiate();
-		alienInfo.inject(alien, animsPool, true);
+		alienInfo.connectAnims(alien, animsPool);
 		return alien;
 	}
 
@@ -696,7 +696,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public Anims loadAnims(String animsName) {
-		return animsPool.load(animsName);
+		return animsPool.expect(animsName);
 	}
 
 	/**
@@ -709,7 +709,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private void addNewAlien(Alien alien) {
 		AlienInfo ai = alienInfoMap.getByClass(alien.getClass());
 		alien.alienInfo = ai;
-		ai.inject(alien, animsPool, false);
+		ai.connectAnims(alien, animsPool);
 		loadAlienIntoWorld(alien);
 	}
 
@@ -835,6 +835,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
+				}
+				for (String a: alienInfoMap.getAnimList()) {
+					animsPool.load(a);
 				}
 				setScreenPosition(getScreenPosition());
 				mapper.init();
@@ -1152,7 +1155,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// and load the aliens into the world
 		for (Alien alien : aliens) {
 			if (alien.alienInfo != null) {
-				alien.alienInfo.inject(alien, animsPool, false);
+				alien.alienInfo.connectAnims(alien, animsPool);
 			}
 			loadAlienIntoWorld(alien);
 		}

@@ -154,7 +154,7 @@ public class PersistedLevel {
 	/**
 	 * 
 	 * @param world
-	 *            Only used for {@link World#createAlien(int)}.
+	 *            Only used for {@link World#mapperCreateAlien(int)}.
 	 * @param mapOpenable
 	 */
 	public void loadLegacy(AlienFactory af, Openable mapOpenable) {

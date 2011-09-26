@@ -24,12 +24,11 @@ public class AnimsPool implements Disposable {
 		return get(k, false);
 	}
 	
-	public Anims load(String k) {
-		return get(k, true);
+	public void load(String k) {
+		get(k, true);
 	}
 
-	// TODO: get rid of public use of loadingPermitted?
-	public Anims get(String k, boolean loadingPermitted) {
+	private Anims get(String k, boolean loadingPermitted) {
 		Anims answer = pool.get(k);
 		if (answer == null) {
 			if (!loadingPermitted) {

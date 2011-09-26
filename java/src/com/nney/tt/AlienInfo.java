@@ -48,9 +48,9 @@ public class AlienInfo {
 		}
 	}
 
-	public void inject(Alien alien, AnimsPool animsPool, boolean loadingPermitted) {
+	public void connectAnims(Alien alien, AnimsPool animsPool) {
 		if (animsName != null) {
-			alien.connectAnims(animsPool.get(animsName, loadingPermitted));
+			alien.connectAnims(animsPool.expect(animsName));
 		}
 	}
 }
