@@ -9,6 +9,10 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.Math2;
 
+/**
+ * Player movement.
+ * 
+ */
 public class Player {
 	public Player(AlienServices srv, Anims playerAnims, Coord playerStart, boolean goLeft) {
 		this.srv = srv;
@@ -353,8 +357,8 @@ public class Player {
 	/**
 	 * Have we touched down?
 	 * 
-	 * A touch down happens on a sky-to-ground edge and with a pixel of sky
-	 * above the aforementioned pixel of ground.
+	 * A touch down happens on a sky-to-ground edge. The player touches down on/in/at
+	 * the sky pixel which has a ground pixel directly below.
 	 * 
 	 * @return <code>true</code> (meaning "we've touched down") on
 	 *         <code>false</code> meaning ("we are still in the air").
@@ -380,8 +384,8 @@ public class Player {
 					// to reverse it.
 					//
 					// But, in the original, it is a decrement effectively
-					// giving the player a two pixel vertical kick
-					// up the screen when they enter the ground.
+					// giving the player a two pixel upward kick when they
+					// enter the ground.
 					//
 					// I'm going to code it bug-for-bug identical because
 					// there are jumps that the player can't make otherwise.
@@ -389,7 +393,7 @@ public class Player {
 					// on the "the worm that turned" up to the branch
 					// above)
 					//
-					c.y--; // ++ surely!!!
+					c.y--;
 
 					return false;
 				}
