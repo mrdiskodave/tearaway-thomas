@@ -10,74 +10,42 @@ import java.util.Set;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
+import com.nney.tt.resources.TTResource;
 
 public class AlienInfoMap {
+	/**
+	 * Full list of {@link AlienInfo}s.
+	 */
+	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
+
+
+	/**
+	 * Various indexes that all ignore aliens that are not available according to
+	 * {@link TTResource#spriteExists(String)}. 
+	 */
 	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
 	private final ArrayList<Integer> typeCodes = new ArrayList<Integer>();
-	
-	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
 
 	void add(AlienInfo a) {
-		typeToAlienInfo.put(a.typeCode, a);
-		classToAlienInfo.put(a.alienClass, a);
 		aim.add(a);
-
-		Integer useCount = classUseCount.get(a.alienClass);
-		if (useCount == null) useCount = 0;
-		useCount++;
-		classUseCount.put(a.alienClass, useCount);
-		if (a.typeCode>=0) {
-			typeCodes.add(a.typeCode);
-			Collections.sort(typeCodes);
-		}
-		
-//		System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
-	}
-
-	public void collectPreloadNames(Set<String> names) {
-		for (AlienInfo a : aim) {
-			if (a.typeCode < 0) {
-				names.add(a.animsName());
-			}
-		}
-	}
-
-	public AlienInfo getByType(int type) {
-		return typeToAlienInfo.get(type);
-	}
-
-	void removeByType(int type) {
-		typeToAlienInfo.remove(type);
-	}
-
-	public AlienInfo getByClass(Class<? extends Alien> c) {
-		// it's a problem if we cannot give an unambiguous answer
-		Integer cuc = classUseCount.get(c);
-		if (cuc==null || cuc!=1) {
-			throw new RuntimeException("Class count is "+cuc+" for "+c);
-		}
-		return classToAlienInfo.get(c);
-	}
-
-	public List<Integer> getTypeCodes() {
-		return typeCodes;
+		// System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
 	}
 
 	public void addAnn(Class<? extends Alien> c) {
 		AlienInfoAnns a = c.getAnnotation(AlienInfoAnns.class);
-		if (a!=null) {
+		if (a != null) {
 			addAnn(c, a);
 		}
 		AlienInfoAnn b = c.getAnnotation(AlienInfoAnn.class);
-		if (b!=null) {
+		if (b != null) {
 			addAnn(c, b);
 		}
 	}
 
 	private void addAnn(Class<? extends Alien> c, AlienInfoAnns a) {
-		for (AlienInfoAnn v: a.value()) {
+		for (AlienInfoAnn v : a.value()) {
 			addAnn(c, v);
 		}
 	}
@@ -86,12 +54,74 @@ public class AlienInfoMap {
 		add(new AlienInfo(a.type(), a.gfx(), a.score(), c));
 	}
 
+	private void generateIndex() {
+		typeToAlienInfo.clear();
+		classToAlienInfo.clear();
+		classUseCount.clear();
+		typeCodes.clear();
+		for (AlienInfo ai : aim) {
+			String am = ai.animsName();
+			if (am==null || TTResource.spriteExists(am)) {
+				typeToAlienInfo.put(ai.typeCode, ai);
+				classToAlienInfo.put(ai.alienClass, ai);
+	
+				Integer useCount = classUseCount.get(ai.alienClass);
+				if (useCount == null) useCount = 0;
+				useCount++;
+				classUseCount.put(ai.alienClass, useCount);
+	
+				if (ai.typeCode >= 0) {
+					typeCodes.add(ai.typeCode);
+				}
+			}
+		}
+		Collections.sort(typeCodes);
+	}
+
+	public void setWorld(String worldName) {
+		for (AlienInfo ai : aim) {
+			ai.setWorld(worldName);
+		}
+		generateIndex();
+	}
+	
+	public void collectPreloadNames(Set<String> names) {
+		for (AlienInfo ai : aim) {
+			if (ai.typeCode < 0) {
+				names.add(ai.animsName());
+			}
+		}
+	}
+
+	public AlienInfo getByClass(Class<? extends Alien> c) {
+		// it's a problem if we cannot give an unambiguous answer
+		Integer cuc = classUseCount.get(c);
+		if (cuc == null || cuc != 1) {
+			throw new RuntimeException("Class count is " + cuc + " for " + c);
+		}
+		return classToAlienInfo.get(c);
+	}
+
+	public List<Integer> getTypeCodes() {
+		return typeCodes;
+	}
+
 	public void dump() {
 		StringBuffer sb = new StringBuffer();
-		for (int tc: typeCodes) {
-			if (sb.length()!=0) sb.append(',');
+		for (int tc : typeCodes) {
+			if (sb.length() != 0) sb.append(',');
 			sb.append(tc);
 		}
 		System.out.println(sb);
 	}
+	
+	public AlienInfo getByType(int type) {
+		return typeToAlienInfo.get(type);
+	}
+
+	void hideByType(int type) {
+		// we just unindex it
+		typeToAlienInfo.remove(type);
+	}
+
 }

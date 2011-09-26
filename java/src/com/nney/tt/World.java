@@ -144,8 +144,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private GameMap gameMap;
 
-	private Box mapBoundsInBlocks;
-
 	private AlienTracker alienTracker;
 
 	private int frameNumber;
@@ -279,7 +277,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
 		// for w6.map
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
-		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
+		aim.add(new AlienInfo(36, "?bear", BearAlien.class));
 		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
 		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
 		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
@@ -287,11 +285,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
 		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
 		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
-		aim.add(new AlienInfo(55, "ibird", BirdAlien.class));		// poly
-		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
+		aim.add(new AlienInfo(55, "?bird", BirdAlien.class)); // poly
+		aim.add(new AlienInfo(75, "?bird", BirdAlien.class));
 		aim.add(new AlienInfo(57, "ipeng", BearAlien.class));
-		aim.add(new AlienInfo(61, "ibear", BearAlien.class));		// poly
-		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
+		aim.add(new AlienInfo(61, "?bear", BearAlien.class)); // poly
+		aim.add(new AlienInfo(76, "?bear", BearAlien.class));
 		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
@@ -310,7 +308,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.addAnn(SpriteAlien.class);
 		aim.addAnn(ScoreCollectableAlien.class);
 
-		aim.dump();
+		// aim.generateIndex();
+		// aim.dump();
 
 		alienInfoMap = aim;
 
@@ -682,13 +681,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		AlienInfo alienInfo = alienInfoMap.getByType(typeCode);
 		if (alienInfo != null) {
 			if (CTC_ITEM_ONCE) {
-				alienInfoMap.removeByType(typeCode);
+				alienInfoMap.hideByType(typeCode);
 			}
 			Alien alien = alienInfo.instantiate();
-			alien.alienInfo = alienInfo;
 			return alien;
 		}
 
+		// TODO: eventually this path&possibility will be removed
 		System.out.println("Unknown Alien Type:" + typeCode);
 		TextAlien alien = new TextAlien();
 		alien.setText(String.format("%d", typeCode));
@@ -700,8 +699,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return animsPool.load(animsName);
 	}
 
+	/**
+	 * We've just <code>new</code>ed the given alien rather than creating it
+	 * from a typeCode. Fill in all it's bits and pieces.
+	 * 
+	 * @param alien
+	 *            The {@link Alien} to complete.
+	 */
 	private void addNewAlien(Alien alien) {
 		AlienInfo ai = alienInfoMap.getByClass(alien.getClass());
+		alien.alienInfo = ai;
 		ai.inject(alien, animsPool, false);
 		loadAlienIntoWorld(alien);
 	}
@@ -1082,33 +1089,38 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-		int a = 1;
-		while (a==1) {
+		// int a = 1;
+		// while (a==1) {
 
-			System.out.println("Loading level " + levelNumber);
+		System.out.println("Loading level " + levelNumber);
 
-			pl = new PersistedLevel();
-			AlienFactory af = new AlienFactory() {
-				@Override
-				public Alien make(int typeCode) {
-					return createAlien2(typeCode);
-				}
-				// TODO: by Class as well?
-			};
-			pl.populateFromLevelInfo(af, levelNumber);
+		pl = new PersistedLevel();
 
-//			pl.aliens = alienTracker.getAliens();
-			pl.save();
-			levelNumber++;
+		AlienFactory af = new AlienFactory() {
+			@Override
+			public Alien make(int typeCode) {
+				return createAlien2(typeCode);
+			}
+			// TODO: by Class as well?
 
-		}
+			@Override
+			public void selectWorld(String name) {
+				World.this.selectWorld(name);
+			}
+		};
+		pl.populateFromLevelInfo(af, levelNumber);
+
+		// pl.aliens = alienTracker.getAliens();
+		pl.save();
+		levelNumber++;
+
+		// }
 
 		mode = GameMode.START;
 
 		completed = false;
 		alienTracker = new AlienTracker();
 
-		worldName = pl.worldName;
 
 		// work out what Anims we need
 		List<Alien> aliens = pl.getAliens();
@@ -1189,6 +1201,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
 		createStatusScreen(text);
 
+	}
+
+	protected void selectWorld(String name) {
+		worldName = pl.worldName;
+		alienInfoMap.setWorld(worldName);
 	}
 
 	/**

@@ -5,17 +5,18 @@ import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;
-	private final String animsName;
+	private final String baseName;
+	private String animsName;
 	public final Class<? extends Alien> alienClass;
 	public final int score;
-	
+
 	public String animsName() {
 		return animsName;
 	}
 
-	AlienInfo(int id, String animsName, int score, Class<? extends Alien> alienClass) {
+	AlienInfo(int id, String baseName, int score, Class<? extends Alien> alienClass) {
 		this.typeCode = id;
-		this.animsName = animsName;
+		this.baseName = baseName;
 		this.score = score;
 		this.alienClass = alienClass;
 	}
@@ -26,7 +27,9 @@ public class AlienInfo {
 
 	Alien instantiate() {
 		try {
-			return alienClass.newInstance();
+			Alien answer = alienClass.newInstance();
+			answer.alienInfo = this;
+			return answer;
 		}
 		catch (InstantiationException e) {
 			System.out.println(animsName);
@@ -38,8 +41,14 @@ public class AlienInfo {
 		}
 	}
 
+	public void setWorld(String worldName) {
+		animsName = baseName;
+		if (baseName != null && baseName.charAt(0) == '?') {
+			animsName = worldName + baseName.substring(1);
+		}
+	}
+
 	public void inject(Alien alien, AnimsPool animsPool, boolean loadingPermitted) {
-		alien.alienInfo = this;
 		if (animsName != null) {
 			alien.connectAnims(animsPool.get(animsName, loadingPermitted));
 		}

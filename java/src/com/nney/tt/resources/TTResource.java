@@ -1,5 +1,8 @@
 package com.nney.tt.resources;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.nney.json.DataItem;
 import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
@@ -46,6 +49,16 @@ public class TTResource {
 		return TTResource.formatted("anims/%s/%03d.png", spriteName, frameNumber);
 	}
 
+	public static boolean spriteExists(String spriteName) {
+		try {
+			spriteDef(spriteName).open().close();
+			return true;
+		}
+		catch (IOException e) {
+			return false;
+		}
+	}
+	
 	public static Openable spriteDef(String spriteName) {
 		return TTResource.formatted("anims/%s/def.txt", spriteName);
 	}

@@ -57,6 +57,7 @@ public class PersistedLevel {
 		stageNum = level.requireField("stage").requireInt();
 		title = level.requireField("title").requireString();
 		mapName = level.requireField("map").requireString();
+		af.selectWorld(worldName);
 		loadLegacy(af, TTResource.legacyMap(mapName));
 	}
 
@@ -129,6 +130,14 @@ public class PersistedLevel {
 			// this is what gem_render -> bob_gem did
 			// at rendering time! let's do it early:
 			x += 8;
+		}
+		// polymorphic bird
+		else if (typeCode == 75) {
+			typeCode = 55;
+		}
+		// polymorphic bear
+		else if (typeCode == 61 || typeCode == 76) {
+			typeCode = 36;
 		}
 
 		if (alien instanceof AlienWithLocation) {
