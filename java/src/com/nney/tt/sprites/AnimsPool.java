@@ -77,7 +77,7 @@ public class AnimsPool implements Disposable {
 			}
 			an.add(new Anim(rate, frames, repeatPos, name));
 		}
-		return new Anims(animsName, an);
+		return new Anims(an);
 	}
 
 	public void unloadReload(Set<String> needs) {
