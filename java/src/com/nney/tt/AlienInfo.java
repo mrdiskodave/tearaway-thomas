@@ -5,9 +5,13 @@ import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;
-	public final String animsName;
+	private final String animsName;
 	public final Class<? extends Alien> alienClass;
 	public final int score;
+	
+	public String animsName() {
+		return animsName;
+	}
 
 	AlienInfo(int id, String animsName, int score, Class<? extends Alien> alienClass) {
 		this.typeCode = id;

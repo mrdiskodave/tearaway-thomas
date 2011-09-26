@@ -21,6 +21,7 @@ import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.FlameAlien;
+import com.nney.tt.aliens.FloorFailAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.LifeAlien;
@@ -64,6 +65,7 @@ import com.nney.tt.osd.StatusScreen;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sounds.AudioContext;
 import com.nney.tt.sounds.AudioHub;
+import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
@@ -85,7 +87,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 3;
+	private int levelNumber = 0;
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -274,7 +276,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
 		aim.add(new AlienInfo(22, "0life", LifeAlien.class));
 		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-		// aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
+		aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
 		// for w6.map
 		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
 		aim.add(new AlienInfo(36, "gfran", BearAlien.class));
@@ -285,7 +287,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
 		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
 		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
+		aim.add(new AlienInfo(55, "ibird", BirdAlien.class));		// poly
 		aim.add(new AlienInfo(75, "wbird", BirdAlien.class));
+		aim.add(new AlienInfo(57, "ipeng", BearAlien.class));
+		aim.add(new AlienInfo(61, "ibear", BearAlien.class));		// poly
 		aim.add(new AlienInfo(76, "wbear", BearAlien.class));
 		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		aim.add(new AlienInfo(95, "0star", StarAlien.class));
@@ -545,7 +550,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightAnimationName) {
+	public void headBounce(AlienWithLocation alien, Sprite alienSprite) {
 		Coord alienPos = alien.c;
 		int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 		if (dy < ttSprite.h && dy > 0) {
@@ -557,7 +562,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 				if (diffX <= w) {
 					// head bounce :)
 					playSoundEffect("headbounce");
-					boolean willSurvive = frightAnimationName == null;
+					Anim frightAnim = alien.anims.mightFind("fright");
+					boolean willSurvive = frightAnim == null;
 					int headScore = player.headBounce(willSurvive);
 					int raiseScoreNoticeBy = alienSprite.handleY + 10;
 					if (willSurvive) {
@@ -565,7 +571,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 					}
 					else {
 						alien.done();
-						FallingAlien fa = new FallingAlien(alien, headScore, raiseScoreNoticeBy, frightAnimationName);
+						FallingAlien fa = new FallingAlien(alien.c, headScore, raiseScoreNoticeBy, frightAnim);
 						loadAlienIntoWorld(fa);
 					}
 					return;
@@ -1076,20 +1082,32 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
+		int a = 1;
+		while (a==1) {
+
+			System.out.println("Loading level " + levelNumber);
+
+			pl = new PersistedLevel();
+			AlienFactory af = new AlienFactory() {
+				@Override
+				public Alien make(int typeCode) {
+					return createAlien2(typeCode);
+				}
+				// TODO: by Class as well?
+			};
+			pl.populateFromLevelInfo(af, levelNumber);
+
+//			pl.aliens = alienTracker.getAliens();
+			pl.save();
+			levelNumber++;
+
+		}
+
 		mode = GameMode.START;
 
 		completed = false;
 		alienTracker = new AlienTracker();
 
-		pl = new PersistedLevel();
-		AlienFactory af = new AlienFactory() {
-			@Override
-			public Alien make(int typeCode) {
-				return createAlien2(typeCode);
-			}
-			// TODO: by Class as well?
-		};
-		pl.populateFromLevelInfo(af, levelNumber);
 		worldName = pl.worldName;
 
 		// work out what Anims we need
@@ -1171,16 +1189,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
 		createStatusScreen(text);
 
-		pl.aliens = alienTracker.getAliens();
-		pl.save();
 	}
 
 	/**
 	 * The best map bounds are the smallest (i.e. the most specific) bounds that
 	 * the player is inside. This allows the map designer to fence of small
-	 * areas in a larger map. The player can then teleport such a small area
-	 * and the {@link MapBoundsAlien} will keep him from seeing the larger
-	 * map.
+	 * areas in a larger map. The player can then teleport such a small area and
+	 * the {@link MapBoundsAlien} will keep him from seeing the larger map.
 	 */
 	private void pickTheBestBounds() {
 		final ArrayList<Box> boxes = new ArrayList<Box>();
@@ -1219,7 +1234,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private void whatAnimsDoTheyNeed(List<Alien> aliens, Set<String> animsNeeded) {
 		for (Alien alien : aliens) {
 			if (alien.alienInfo != null) {
-				String s = alien.alienInfo.animsName;
+				String s = alien.alienInfo.animsName();
 				if (s != null) {
 					animsNeeded.add(s);
 				}
@@ -1246,7 +1261,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void playSoundEffect(String name) {
-		ah.playEffect(name);
+		// ah.playEffect(name);
 	}
 
 	// ---------------------------------------------------------------------------

@@ -112,7 +112,7 @@ public interface AlienServices {
 
 	void awardExtraLife();
 
-	void headBounce(AlienWithLocation alien, Sprite alienSprite, String frightName);
+	void headBounce(AlienWithLocation alien, Sprite alienSprite);
 
 	boolean isOffTheBottom(Coord c);
 

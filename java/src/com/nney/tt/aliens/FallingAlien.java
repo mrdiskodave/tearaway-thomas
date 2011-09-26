@@ -1,6 +1,7 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Coord;
+import com.nney.tt.sprites.Anim;
 
 
 public class FallingAlien extends AlienWithLocation {
@@ -8,11 +9,11 @@ public class FallingAlien extends AlienWithLocation {
 	private int delayedScore;
 	private int upBy;
 	
-	public FallingAlien(AlienWithLocation weReplace, int delayedScore, int upBy, String frightName) {
+	public FallingAlien(Coord start, int delayedScore, int upBy, Anim frightAnim) {
 		this.delayedScore = delayedScore;
 		this.upBy = upBy;
-		c = weReplace.c.copy();
-		animPlayer.changeAnimation(weReplace.anims.find(frightName));
+		c = start.copy();
+		animPlayer.changeAnimation(frightAnim);
 	}
 	
 	@Override

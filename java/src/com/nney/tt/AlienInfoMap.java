@@ -39,7 +39,7 @@ public class AlienInfoMap {
 	public void collectPreloadNames(Set<String> names) {
 		for (AlienInfo a : aim) {
 			if (a.typeCode < 0) {
-				names.add(a.animsName);
+				names.add(a.animsName());
 			}
 		}
 	}

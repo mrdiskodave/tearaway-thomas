@@ -42,6 +42,7 @@ public class PersistedLevel {
 	//
 	public GameMap gameMap;
 	public List<Alien> aliens = new ArrayList<Alien>();
+	public String mapName;
 
 	public void populateFromLevelInfo(AlienFactory af, int levelNumber) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
@@ -55,8 +56,8 @@ public class PersistedLevel {
 		worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
 		stageNum = level.requireField("stage").requireInt();
 		title = level.requireField("title").requireString();
-		String map = level.requireField("map").requireString();
-		loadLegacy(af, TTResource.legacyMap(map));
+		mapName = level.requireField("map").requireString();
+		loadLegacy(af, TTResource.legacyMap(mapName));
 	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
@@ -65,7 +66,7 @@ public class PersistedLevel {
 			sb.append((char) di.readByte());
 		}
 		String id = sb.toString();
-		System.out.println("Got chunk: >" + id + "<");
+//		System.out.println("Got chunk: >" + id + "<");
 		return id;
 	}
 
@@ -116,7 +117,7 @@ public class PersistedLevel {
 			
 			MapBoundsAlien alien = (MapBoundsAlien) af.make(202);
 			alien.bounds = new Box(minx, miny, maxx, maxy).mult2(Const.BLOCK_SIZE);
-			System.out.println("Bounds:"+alien.bounds);
+//			System.out.println("Bounds:"+alien.bounds);
 			aliens.add(alien);
 		}
 	}
@@ -235,7 +236,7 @@ public class PersistedLevel {
 		dd.end();
 
 		try {
-			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\test.txt");
+			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\"+mapName+".txt");
 			w.write(sb.toString());
 			w.close();
 		}
