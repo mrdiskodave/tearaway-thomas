@@ -52,7 +52,7 @@ public class PreText extends AbstractText {
 	}
 	
 	public void render() {
-		System.out.println("RENDERING:"+text+"k"+kern);
+//		System.out.println("RENDERING:"+text+"k"+kern);
 		content = font.preRender(col, kern, text);
 	}
 }

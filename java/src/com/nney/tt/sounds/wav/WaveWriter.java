@@ -49,17 +49,4 @@ public class WaveWriter {
 			throw new RuntimeException(e);
 		}
 	}
-
-	// byte[] wave = new byte[] { 'R','I','F','F',
-	// l1 & 255,(l1 >> 8) & 255,(l1 >> 16) & 255,(l1 >> 24) & 255,
-	// 'W','A','V','E','f','m','t',' ',16,0,0,0,
-	// 1,0, // format code
-	// 2,0, // number of channels
-	// 68,172,0,0, // sampling rate (blocks per second) 44100
-	// 16,177,2,0, // data rate 176400
-	// 4,0, // data block size
-	// 16,0, // bits per sample
-	// 'd','a','t','a',
-	// l2 & 255,(l2 >> 8) & 255,(l2 >> 16) & 255,(l2 >> 24) & 255 };
-
 }

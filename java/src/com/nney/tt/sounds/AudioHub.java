@@ -32,7 +32,6 @@ public class AudioHub {
 			}
 			ac.loadEffect(vol, sound);
 			fxMap.put(name, indx++);
-			System.out.println("added");
 		}
 	}
 
@@ -49,13 +48,13 @@ public class AudioHub {
 	}
 
 	public void startMusic(int slot) {
-		ac.startMusic(slot);
+//		ac.startMusic(slot);
 	}
 
 	private Loop renderMusic(String name) {
-		System.out.println("Rendering "+name);
+//		System.out.println("Rendering "+name);
 		Loop loop = mp.getSong(name);
-		System.out.println("Done!");
+//		System.out.println("Done!");
 		return loop;
 	}
 

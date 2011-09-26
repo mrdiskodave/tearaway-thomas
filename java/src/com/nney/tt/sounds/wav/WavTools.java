@@ -38,7 +38,6 @@ public class WavTools {
 				while (f.length()!=0) {
 					String name = f.fourCharacterCode(0);
 					int length = f.unsignedLongLE(4);
-					System.out.println("YEAH! "+name+" "+length);
 					DataSrc content = f.subDataSrc(8, length);
 					if (name.equals("fmt ")) {
 						int format = content.unsignedWordLE(0);

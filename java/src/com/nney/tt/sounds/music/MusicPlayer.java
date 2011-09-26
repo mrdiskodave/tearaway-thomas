@@ -118,7 +118,7 @@ public class MusicPlayer {
 			}
 		}
 
-		sampleStore.dumpRange();
+//		sampleStore.dumpRange();
 
 		return new Sound(sampleStore.collect(), FREQUENCY);
 	}

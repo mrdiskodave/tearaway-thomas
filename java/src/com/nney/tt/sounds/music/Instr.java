@@ -78,7 +78,7 @@ public class Instr {
 
 	public void bind(byte[][] waves) {
 		if (sample!=0) {
-			System.out.println("SAMPLE:"+sample);
+//			System.out.println("Binding sample "+sample);
 			loop = waves[sample-1];
 		}
 	}
