@@ -353,7 +353,7 @@ public class Mapper implements MapperServicesToPens {
 			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy - ALIENS_TAB_BOX_RADIUS, ALIENS_TAB_BOX_DIAMETER,
 					ALIENS_TAB_BOX_DIAMETER, mgc.process(0xff00ff00), 0xb00020ff);
 
-			String animsName = ai.animsName;
+			String animsName = ai.animsName();
 			if (animsName!=null) {
 				Anims anims = srv.loadAnims(animsName);
 				Anim anim = anims.find(0);
