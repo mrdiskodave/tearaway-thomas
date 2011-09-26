@@ -28,24 +28,25 @@ public class AnimsPool implements Disposable {
 		return get(k, true);
 	}
 
+	// TODO: get rid of public use of loadingPermitted?
 	public Anims get(String k, boolean loadingPermitted) {
 		Anims answer = pool.get(k);
 		if (answer == null) {
-			assert loadingPermitted : "expected to find key in cache " + k;
+			if (!loadingPermitted) {
+				throw new RuntimeException("Graphic "+k+" should have been loaded already");
+			}
 			answer = loadAnims(k);
 			pool.put(k, answer);
 		}
 		return answer;
 	}
-	
-	
 
 	private Anims loadAnims(final String animsName) {
 		ArrayList<Anim> an = new ArrayList<Anim>();
 
 		DataItem diRoot = sdp.load(animsName);
 		final boolean makeWhiteVersion = animsName == "0tt";
-		// TODO: fix ^this^ hack
+		// TODO: fix ^this^ hack?
 
 		// we'll be loading the same frame twice if the animation goes
 		// back on itself (e.g. ladder climbing) so we'll need a cache
