@@ -55,15 +55,15 @@ public class AlienInfoMap {
 		add(new AlienInfo(a.type(), a.gfx(), a.score(), c));
 	}
 
-	private void generateIndex() {
+	public void setWorld(String worldName) {
 		typeToAlienInfo.clear();
 		classToAlienInfo.clear();
 		classUseCount.clear();
 		typeCodes.clear();
 		animList.clear();
+
 		for (AlienInfo ai : aim) {
-			String am = ai.animsName();
-			if (am==null || TTResource.spriteExists(am)) {
+			if (ai.setWorld(worldName)) {
 				typeToAlienInfo.put(ai.typeCode, ai);
 				classToAlienInfo.put(ai.alienClass, ai);
 	
@@ -77,20 +77,14 @@ public class AlienInfoMap {
 					typeCodes.add(ai.typeCode);
 				}
 				
-				if (am!=null) {
-					animList.add(am);
+				String name = ai.animsName();
+				if (name!=null) {
+					animList.add(name);
 				}
 			}
 		}
 		Collections.sort(typeCodes);
 		Collections.sort(animList);
-	}
-
-	public void setWorld(String worldName) {
-		for (AlienInfo ai : aim) {
-			ai.setWorld(worldName);
-		}
-		generateIndex();
 	}
 	
 	public void collectPreloadNames(Set<String> names) {

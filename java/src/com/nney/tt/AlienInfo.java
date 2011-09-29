@@ -1,14 +1,15 @@
 package com.nney.tt;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;
 	private final String baseName;
-	private String animsName;
 	public final Class<? extends Alien> alienClass;
 	public final int score;
+	private String animsName;
 
 	public String animsName() {
 		return animsName;
@@ -41,11 +42,25 @@ public class AlienInfo {
 		}
 	}
 
-	public void setWorld(String worldName) {
+	/**
+	 * Set this object into the named world.
+	 * 
+	 * @param worldName
+	 * @return Did we find graphics in that world? <code>true</code> meaning
+	 *         that we did or <code>false</code> meaning that we did not.
+	 */
+	public boolean setWorld(String worldName) {
 		animsName = baseName;
-		if (baseName != null && baseName.charAt(0) == '?') {
-			animsName = worldName + baseName.substring(1);
+		if (animsName == null) return true;
+		if (baseName.charAt(0) == '?') {
+			String rest = baseName.substring(1);
+			animsName = worldName + rest;
+			if (TTResource.spriteExists(animsName)) return true;
+			animsName = '0' + rest;
+			return TTResource.spriteExists(animsName);
 		}
+		// just assume it exists!
+		return true; 
 	}
 
 	public void connectAnims(Alien alien, AnimsPool animsPool) {

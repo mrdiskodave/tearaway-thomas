@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
+import com.nney.tt.BlockSet;
+import com.nney.tt.BlockSet.Config;
 import com.nney.tt.Const;
 import com.nney.tt.WorldServicesToMapper;
 import com.nney.tt.aliens.Alien;
@@ -59,6 +61,9 @@ public class Mapper implements MapperServicesToPens {
 
 	private static final int COL_BACKGROUND = 0xff0080ff;
 
+	private boolean masksVis;
+	private boolean hiddenVis;
+	
 	//
 	// stuff to do with the currentBlock
 	//
@@ -77,6 +82,12 @@ public class Mapper implements MapperServicesToPens {
 	private final AnimPlayer animPlayers[] = new AnimPlayer[TABBING_ALIENS_TOTAL];
 	private static final int ALIENS_TAB_BOX_RADIUS = 70;
 	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
+	
+	//
+	// stuff to do with the message
+	//
+//	private final String message;
+//	private int showMessageTimer;
 
 	final MapperGC mgc;
 	final private Pointer mouse;
@@ -396,11 +407,12 @@ public class Mapper implements MapperServicesToPens {
 			changeCurrentBlock(1, 0);
 			break;
 		case Keyboard.KEY_M:
-			System.out.println("TOGGLE MASKS");
-			srv.toggleSeeMasks();
+			masksVis = !masksVis;
+			srv.setBlockConfig(new BlockSet.Config(masksVis, hiddenVis));
 			break;
 		case Keyboard.KEY_V:
-			srv.toggleShowInvisible();
+			hiddenVis = !hiddenVis;
+			srv.setBlockConfig(new BlockSet.Config(masksVis, hiddenVis));
 			break;
 		}
 	}

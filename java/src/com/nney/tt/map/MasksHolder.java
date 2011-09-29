@@ -2,15 +2,15 @@ package com.nney.tt.map;
 
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.utils.Openable;
+import com.nney.utils.Math2;
 
 public class MasksHolder {
 	final private int blockSize;
 	final private int blockArea;
 	final private BitArray maskSettings;
 
-	public MasksHolder(int blockSize, Openable openable) {
-		BlockSource t = new BlockSource(openable, blockSize);
+	public MasksHolder(int blockSize, SimpleImage bsi) {
+		BlockSource t = new BlockSource(bsi, blockSize);
 		this.blockSize = blockSize;
 		this.blockArea = blockSize * blockSize;
 		maskSettings = new BitArray(blockArea * t.getBlockCount());
@@ -19,7 +19,7 @@ public class MasksHolder {
 			SimpleImage si = t.getBlock(block);
 			for (int y = 0; y < blockSize; y++) {
 				for (int x = 0; x < blockSize; x++) {
-					if ((si.get(x, y) & 1) == 0) {
+					if (si.get(x, y)==0xff000000) {
 						maskSettings.set(blockArea * block + y * blockSize + x);
 					}
 				}

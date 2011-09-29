@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 import com.nney.coroutines.CoTerminated;
 import com.nney.coroutines.Coroutine;
-import com.nney.tt.BlockSet.Name;
+import com.nney.tt.BlockSet.Config;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
@@ -125,12 +125,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Pointer mouse;
 
-	private boolean configShowInvisible;
-
-	private boolean configSeeMasks;
-
 	private String worldName;
-
+	
 	private ScreenPosition scr;
 
 	/**
@@ -255,6 +251,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private Coroutine cr;
 
 	private AudioHub ah;
+
+	private Config blocksetConfig = new BlockSet.Config(false, false);
 
 	public World(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
@@ -836,7 +834,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
-				for (String a: alienInfoMap.getAnimList()) {
+				for (String a : alienInfoMap.getAnimList()) {
 					animsPool.load(a);
 				}
 				setScreenPosition(getScreenPosition());
@@ -1092,38 +1090,38 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-		// int a = 1;
-		// while (a==1) {
+//		int a = 1;
+//		while (a == 1) {
 
-		System.out.println("Loading level " + levelNumber);
+			System.out.println("Loading level " + levelNumber);
 
-		pl = new PersistedLevel();
+			pl = new PersistedLevel();
 
-		AlienFactory af = new AlienFactory() {
-			@Override
-			public Alien make(int typeCode) {
-				return createAlien2(typeCode);
-			}
-			// TODO: by Class as well?
+			AlienFactory af = new AlienFactory() {
+				@Override
+				public Alien make(int typeCode) {
+					return createAlien2(typeCode);
+				}
 
-			@Override
-			public void selectWorld(String name) {
-				World.this.selectWorld(name);
-			}
-		};
-		pl.populateFromLevelInfo(af, levelNumber);
+				// TODO: by Class as well?
 
-		// pl.aliens = alienTracker.getAliens();
-		pl.save();
-		levelNumber++;
+				@Override
+				public void selectWorld(String name) {
+					World.this.selectWorld(name);
+				}
+			};
+			pl.populateFromLevelInfo(af, levelNumber);
 
-		// }
+			// pl.aliens = alienTracker.getAliens();
+//			pl.save();
+//			levelNumber++;
+
+//		}
 
 		mode = GameMode.START;
 
 		completed = false;
 		alienTracker = new AlienTracker();
-
 
 		// work out what Anims we need
 		List<Alien> aliens = pl.getAliens();
@@ -1161,7 +1159,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 
 		createHorizon(pl.horizon);
-		createBlocksSet();
+		if (blockSet==null || !worldName.equals(blockSet.worldName)) {
+			reloadBlockSet();
+		}
 
 		player = new Player(this, animsPool.expect("0tt"), playerPos.c, playerPos.goLeft);
 		gameMap = pl.gameMap;
@@ -1309,15 +1309,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	@Override
-	public void toggleSeeMasks() {
-		configSeeMasks = !configSeeMasks;
-		createBlocksSet();
-	}
-
-	@Override
-	public void toggleShowInvisible() {
-		configShowInvisible = !configShowInvisible;
-		createBlocksSet();
+	public void setBlockConfig(BlockSet.Config c) {
+		blocksetConfig = c;
+		reloadBlockSet();
 	}
 
 	@Override
@@ -1414,11 +1408,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		updateAliens(true);
 	}
 
-	private void createBlocksSet() {
-		Name name = new BlockSet.Name(worldName, configSeeMasks, configShowInvisible);
-		if (blockSet != null && blockSet.name.equals(name)) return;
+	private void reloadBlockSet() {
 		freeBlocksSet();
-		blockSet = new BlockSet(gc, name);
+		blockSet = new BlockSet(gc, worldName, blocksetConfig);
 	}
 
 	private void freeBlocksSet() {

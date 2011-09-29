@@ -4,51 +4,60 @@ import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.gfx.SimpleImage.ChangePixel;
 import com.nney.tt.map.MasksHolder;
 import com.nney.tt.resources.TTResource;
-import com.nney.utils.Openable;
+import com.nney.utils.OpenableTools;
 
 public class BlockSet implements Disposable {
-	final public Name name;
+	final public String worldName;
 	final public BlocksHolder blocksHolder;
 	final public MasksHolder maskHolder;
 	final public WorldInformation wi;
 
-	static class Name {
-		final String worldName;
-		final boolean configSeeMasks;
-		final boolean configShowInvisible;
+	public static class Config {
+		final private boolean seeMasks;
+		final private boolean showHidden;
 
-		Name(String worldName, boolean configSeeMasks, boolean configShowInvisible) {
-			this.worldName = worldName;
-			this.configSeeMasks = configSeeMasks;
-			this.configShowInvisible = configShowInvisible;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("%s-%s-%s", worldName, configSeeMasks, configShowInvisible);
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			Name that = (Name) obj;
-			return toString().equals(that.toString());
+		public Config(boolean seeMasks, boolean showHidden) {
+			this.seeMasks = seeMasks;
+			this.showHidden = showHidden;
 		}
 	}
 	
-	public BlockSet(GraphicsContext gc, Name name) {
-		wi = WorldInformation.load(name.worldName);
+	
+	public BlockSet(GraphicsContext gc, String worldName, Config config) {
+		wi = WorldInformation.load(worldName);
 
-		Openable blocksGraphics = TTResource.blocks(name.worldName);
-		Openable masksGraphics = TTResource.blockMask(name.worldName);
+		SimpleImage msi = new SimpleImage(OpenableTools.mustLoad(TTResource.blockMask(worldName)));
+		
+		SimpleImage bsi;
+		if (config.seeMasks) {
+			bsi = msi.copy();
+			bsi.changePixels(new ChangePixel() {
+				@Override
+				public int change(int col) {
+					// the same test that is in MasksHolder:
+					if (col==0xff000000) { 
+						// how we want to display ground?
+						return 0xff000000; 
+					}
+					// how we want to display sky?
+					return 0; 
+				}
+			});
+		}
+		else {
+			bsi = new SimpleImage(OpenableTools.mustLoad(TTResource.blocks(worldName)));
+		}
 
-		BlockSource bs = new BlockSource(name.configSeeMasks ? masksGraphics : blocksGraphics, Const.BLOCK_SIZE);
-		if (!name.configShowInvisible) bs.doBlockHiding(wi.invisibleBlockHiding);
+		BlockSource bs = new BlockSource(bsi, Const.BLOCK_SIZE);
+		if (!config.showHidden) bs.doBlockHiding(wi.invisibleBlockHiding);
 		blocksHolder = gc.createBlocksHolder(bs);
-		maskHolder = new MasksHolder(Const.BLOCK_SIZE, masksGraphics);
+		maskHolder = new MasksHolder(Const.BLOCK_SIZE, msi);
 
-		this.name = name;
+		this.worldName = worldName;
 	}
 
 

@@ -32,8 +32,8 @@ public class BlockSource {
 		blockCount = bc;
 	}
 
-	public BlockSource(Openable blocksOpenable, int blockSize) {
-		this(new SimpleImage(OpenableTools.mustLoad(blocksOpenable)), blockSize, blockSize);
+	public BlockSource(SimpleImage si, int blockSize) {
+		this(si, blockSize, blockSize);
 	}
 
 	public void hideBlock(int src, int dest) {
