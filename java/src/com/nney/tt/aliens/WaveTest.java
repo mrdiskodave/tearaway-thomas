@@ -2,31 +2,13 @@ package com.nney.tt.aliens;
 
 import junit.framework.TestCase;
 
-public class TestSawToothWave extends TestCase {
-	
-	public static int sawToothWave(int x, int max, int pause) {
-		int cycleLength = 2*(max + pause);
-		x %= cycleLength;
-		if (x<pause) {
-			return 0;
-		}
-		x-=pause;
-		if (x<max) {
-			return x;
-		}
-		x-=max;
-		if (x<=pause) {
-			return max;
-		}
-		x-=pause;
-		return max-x;
-	}
+public class WaveTest extends TestCase {
 
 	private String generate(int length, int max, int pause) {
 		StringBuffer sb = new StringBuffer(); 
 		for (int x = 0; x < length; x++) {
 			if (x!=0) sb.append(',');
-			sb.append(sawToothWave(x, max, pause));
+			sb.append(Wave.sawToothWaveWithPause(x, max, pause));
 		}
 		String actual = sb.toString();
 		System.out.println(actual);

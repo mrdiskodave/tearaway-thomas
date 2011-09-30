@@ -1,43 +1,56 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.utils.Math2;
 
 public class PlainLiftAlien extends LiftAlien {
-	// TODO: signal generators? :O
+	@AlienProp(name = "Start", label = "start")
+	public Coord start;
 
-	@AlienProp(name = "Box", doc = "The area we move within.", label = "box")
-	public Box box;
+	@AlienProp(name = "End", label = "end")
+	public Coord end;
+
+	@AlienProp(name = "Phase", doc = "Our movement in relation to other identical lifts (0-99)", label = "phase")
+	private int phase;
+
+	@AlienProp(name = "Pause", doc = "How long do we wait at either end?", label = "pause")
+	private int pause;
 
 	@Override
 	public void resetTo(Coord c) {
-		box = Box.around(c, 100, 20);
+		start = c.copyAndAdd(50, 0);
+		end = c.copyAndAdd(-50, 0);
+		phase = 0;
+		pause = 50;
 	}
 
 	@Override
 	protected Coord currentPosition() {
-		int frm = srv.getFrameNumber();
+		Coord delta = end.sub2(start);
+		Coord absDelta = new Coord(Math.abs(delta.x), Math.abs(delta.y));
+		
+		boolean majorX = absDelta.x>absDelta.y;
+		int big = majorX ? absDelta.x : absDelta.y;
+		
+		int len = Wave.sawToothWaveWithPauseCycleLength(big, pause);
+		int fphase = (phase*len)/100;
+		// ^ those could be fields (assuming onPropChange() was called consistently)
+		
+		
+		int pos = Wave.sawToothWaveWithPause(srv.getFrameNumber()+fphase, big, pause);
 
-		int w = box.width();
-		int h = box.height();
-		boolean horizontalLift = w > h;
-		if (horizontalLift) {
-			int x = box.left + sawToothWave(frm, w - 1);
-			int y = (box.top + box.bottom) / 2;
-			return new Coord(x, y);
+		float frac = pos;
+		frac /= big;
+		if (majorX) {
+			delta.x = pos*Math2.signOf(delta.x);
+			delta.y = Math.round(delta.y*frac);
 		}
 		else {
-			int x = (box.left + box.right) / 2;
-			int y = box.top + sawToothWave(frm, h - 1);
-			return new Coord(x, y);
+			delta.x = Math.round(delta.x*frac);
+			delta.y = pos*Math2.signOf(delta.y);
 		}
-	}
-
-	private int sawToothWave(int pos, int size) {
-		pos %= size * 2;
-		if (pos >= size) {
-			pos = size * 2 - pos;
-		}
-		return pos;
+		
+		delta.add(start);
+		return delta;
 	}
 }

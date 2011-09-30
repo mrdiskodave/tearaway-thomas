@@ -5,7 +5,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class LiftAlien extends Alien {
-	private static final int EXTRA_WIDTH = 5;
+	private static final int EXTRA_WIDTH = 4;
 
 	private Coord ourPlace = new Coord();
 	private Coord lastPlace = new Coord();
@@ -47,6 +47,12 @@ public abstract class LiftAlien extends Alien {
 		return delta;
 	}
 
+	private boolean horizontalOverlap(Player p) {
+		int s = ourPlace.x - EXTRA_WIDTH;
+		int e = s + width;
+		return p.c.x >= s && p.c.x < e;
+	}
+
 	@Override
 	public void onPropUpdate() {
 		currentPosition();
@@ -68,26 +74,25 @@ public abstract class LiftAlien extends Alien {
 		}
 	}
 
-	public boolean amIStillOnThisLift(Player player) {
-		return horizontalOverlap(player);
-	}
-
-	private boolean horizontalOverlap(Player p) {
-		int s = ourPlace.x - EXTRA_WIDTH;
-		int e = s + width;
-		return p.c.x >= s && p.c.x < e;
-	}
-
-	public void movePlayer(Player player) {
-		player.c.add(lastFrameDelta());
-	}
-
-	public int getPlayerJumpBoost() {
-		return lastFrameDelta().y;
-	}
-	
 	@Override
 	public Coord getLocation() {
 		return currentPosition();
 	}
+
+	
+	// called from Player
+	public void movePlayer(Player player) {
+		player.c.add(lastFrameDelta());
+	}
+
+	// called from Player
+	public int getPlayerJumpBoost() {
+		return lastFrameDelta().y;
+	}
+	
+	// called from Player
+	public boolean amIStillOnThisLift(Player player) {
+		return horizontalOverlap(player);
+	}
+	
 }
