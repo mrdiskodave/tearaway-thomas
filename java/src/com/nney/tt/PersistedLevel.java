@@ -180,8 +180,9 @@ public class PersistedLevel {
 							int y = di.readShort();
 							if (x < 0) break;
 							int typeCode = di.readByte();
-							byte[] rest = new byte[21];
-							di.readFully(rest);
+							byte[] rest = new byte[22];
+							rest[0] = (byte) typeCode;
+							di.readFully(rest, 1, 21);
 
 							createLegacyAlien(af, x, y, typeCode, rest);
 						}

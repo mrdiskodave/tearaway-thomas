@@ -30,7 +30,9 @@ public abstract class Alien {
 	public Box freezeBounds;
 	public AlienServices srv;
 
-	protected static final int OBbase = 9;
+	protected static final int OBbase = 8;
+	
+	protected static final int OBtype = 0; // B
 	protected static final int OBflags = 9 - OBbase; // B
 	protected static final int OBleft = 10 - OBbase; // W
 	protected static final int OBtop = 12 - OBbase; // W
