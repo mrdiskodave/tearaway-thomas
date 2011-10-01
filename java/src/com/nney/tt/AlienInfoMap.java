@@ -10,6 +10,7 @@ import java.util.Set;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
+import com.nney.tt.mapper.TypeCodeTabber;
 import com.nney.tt.resources.TTResource;
 
 public class AlienInfoMap {
@@ -27,7 +28,7 @@ public class AlienInfoMap {
 	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
-	private final List<Integer> typeCodes = new ArrayList<Integer>();
+	private final List<String> names = new ArrayList<String>();
 	private final List<String> animList = new ArrayList<String>(); 
 
 	void add(AlienInfo a) {
@@ -60,7 +61,7 @@ public class AlienInfoMap {
 		typeToAlienInfo.clear();
 		classToAlienInfo.clear();
 		classUseCount.clear();
-		typeCodes.clear();
+		names.clear();
 		animList.clear();
 
 		for (AlienInfo ai : aim) {
@@ -75,19 +76,22 @@ public class AlienInfoMap {
 				if (ai.typeCode >= 0) {
 					assert !typeToAlienInfo.containsKey(ai.typeCode);
 					typeToAlienInfo.put(ai.typeCode, ai);
-					typeCodes.add(ai.typeCode);
 
 					assert !nameToAlienInfo.containsKey(ai.name);
 					nameToAlienInfo.put(ai.name, ai);
+
+					assert !names.contains(ai.name);
+					names.add(ai.name);
 				}
 				
 				String name = ai.animsName();
 				if (name!=null) {
+					assert !animList.contains(name);
 					animList.add(name);
 				}
 			}
 		}
-		Collections.sort(typeCodes);
+		Collections.sort(names);
 		Collections.sort(animList);
 	}
 	
@@ -109,10 +113,10 @@ public class AlienInfoMap {
 	}
 
 	/**
-	 * @return A read only list of all the typeCodes available.
+	 * @return A read only list of all the alien names available.
 	 */
-	public List<Integer> getTypeCodes() {
-		return typeCodes;
+	public List<String> getNames() {
+		return names;
 	}
 
 	/**
@@ -122,18 +126,29 @@ public class AlienInfoMap {
 		return animList;
 	}
 
-	public void dump() {
-		StringBuffer sb = new StringBuffer();
-		for (int tc : typeCodes) {
-			if (sb.length() != 0) sb.append(',');
-			sb.append(tc);
-		}
-		System.out.println(sb);
-	}
-	
+//	public void dump() {
+//		StringBuffer sb = new StringBuffer();
+//		for (int tc : typeCodes) {
+//			if (sb.length() != 0) sb.append(',');
+//			sb.append(tc);
+//		}
+//		System.out.println(sb);
+//	}
+
 	public AlienInfo getByType(int type) {
 		return typeToAlienInfo.get(type);
 	}
+
+	public AlienInfo getByName(String name) {
+		return nameToAlienInfo.get(name);
+	}
+	
+	public AlienInfo mustGetByName(String name) {
+		AlienInfo answer = getByName(name);
+		if (answer==null) throw new RuntimeException("Alien name "+name+" not present");
+		return answer;
+	}
+
 
 	void hideByType(int type) {
 		// we just unindex it

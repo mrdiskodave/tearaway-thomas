@@ -27,10 +27,4 @@ public class FloorFailureAlien extends AlienWithLocation {
 			}
 		}
 	}
-	
-	@Override
-	public void mapperUpdate() {
-		srv.drawDebugText(c, "Floor Fail");
-	}
-
 }

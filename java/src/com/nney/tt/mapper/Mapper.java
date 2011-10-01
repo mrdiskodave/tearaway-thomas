@@ -74,7 +74,7 @@ public class Mapper implements MapperServicesToPens {
 	// stuff to do with the current alien
 	//
 	private final AlienInfoMap alienInfoMap;
-	private TypeCodeTabber<Integer> alienTabber;
+	private TypeCodeTabber<String> alienTabber;
 	private int showAlienPaletteTimer;
 	private final static int TABBING_ALIENS_OUTSIDE = 1;
 	private final static int TABBING_ALIENS_TOTAL = TABBING_ALIENS_OUTSIDE * 2 + 1;
@@ -167,7 +167,7 @@ public class Mapper implements MapperServicesToPens {
 	public Mapper(AlienInfoMap alienInfoMap, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
 			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
 		this.alienInfoMap = alienInfoMap;
-		this.alienTabber = new TypeCodeTabber<Integer>(alienInfoMap.getTypeCodes());
+		this.alienTabber = new TypeCodeTabber<String>(alienInfoMap.getNames());
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -322,7 +322,7 @@ public class Mapper implements MapperServicesToPens {
 		else if (k==Keyboard.KEY_END) {
 			alienTabber.end();
 		}
-		else if (k==Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().alienInfo.typeCode)) {
+		else if (k==Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().alienInfo.name)) {
 			
 		}
 		else {
@@ -342,17 +342,15 @@ public class Mapper implements MapperServicesToPens {
 		createAlienWithUndoRedo(a);
 	}
 
-	private AlienInfo getAlienInfo(TypeCodeTabber<Integer> tabber) {
-		AlienInfo answer = alienInfoMap.getByType(tabber.get());
-		assert answer != null;
-		return answer;
+	private AlienInfo getAlienInfo(TypeCodeTabber<String> tabber) {
+		return alienInfoMap.mustGetByName(tabber.get());
 	}
 
 	private void showAlienPalette() {
 		int sx = mgc.screenWidth() / 2;
 		int sy = mgc.screenHeight() / 2;
 
-		TypeCodeTabber<Integer> at = alienTabber.copy();
+		TypeCodeTabber<String> at = alienTabber.copy();
 		for (int x = 0; x < TABBING_ALIENS_OUTSIDE; x++) {
 			at.prev();
 			sy -= ALIENS_TAB_BOX_DIAMETER;
@@ -372,8 +370,7 @@ public class Mapper implements MapperServicesToPens {
 				sprite.drawByHandle(sx, sy, false);
 			}
 
-			String s = ai.alienClass.getSimpleName();
-			s = s.replace("Alien", "");
+			String s = ai.name;
 			s += "("+ai.typeCode+")";
 			mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + ALIENS_TAB_BOX_RADIUS - 5 - mgc.charHeight(), 0x80ffff, s);
 			sy += ALIENS_TAB_BOX_DIAMETER;

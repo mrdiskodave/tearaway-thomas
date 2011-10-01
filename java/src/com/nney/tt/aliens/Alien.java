@@ -107,7 +107,12 @@ public abstract class Alien {
 
 	public void mapperUpdate() {
 		Coord c = getLocation();
-		srv.drawSprite(c, firstFrame());
+		if (anims!=null) {
+			srv.drawSprite(c, firstFrame());
+		}
+		else {
+			srv.drawDebugText(c, alienInfo.name);
+		}
 	}
 
 	abstract public void update();

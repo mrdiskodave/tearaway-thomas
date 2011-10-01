@@ -6,13 +6,8 @@ public class HiddenScoreGiftAlien extends AlienWithLocation {
 	private static final int SCORE_GIVEN = 100;
 	private static final int NUMER_OF_TIMES = 50;
 
-	int count;
-	
-	@Override
-	public void onLoaded() {
-		count = NUMER_OF_TIMES;
-	}
-	
+	int count = NUMER_OF_TIMES;
+
 	@Override
 	public void update() {
 		Box b = boxAroundUs(7);
@@ -21,10 +16,5 @@ public class HiddenScoreGiftAlien extends AlienWithLocation {
 			srv.awardScore(SCORE_GIVEN, null);
 			count--;
 		}
-	}
-	
-	@Override
-	public void mapperUpdate() {
-		srv.drawDebugText(c, "Hidden Score");
 	}
 }
