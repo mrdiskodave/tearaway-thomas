@@ -32,10 +32,8 @@ public class AlAudioContext implements AudioContext, Disposable {
 		public AlBuffer loop;
 		
 		Music(Loop content) {
-			System.out.println("has begin");
 			begin = new AlBuffer(content.begin);
 			if (content.hasLoop()) {
-				System.out.println("has loop");
 				loop = new AlBuffer(content.loop);
 			}
 		}
