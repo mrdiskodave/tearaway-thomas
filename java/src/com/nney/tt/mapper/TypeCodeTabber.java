@@ -2,21 +2,21 @@ package com.nney.tt.mapper;
 
 import java.util.List;
 
-public class TypeCodeTabber {
-	private final List<Integer> list;
+public class TypeCodeTabber<T> {
+	private final List<T> list;
 	private int pos;
 
-	TypeCodeTabber(List<Integer> list) {
+	TypeCodeTabber(List<T> list) {
 		this.list = list;
 		home();
 	}
 	
-	private TypeCodeTabber(List<Integer> list2, int pos2) {
+	private TypeCodeTabber(List<T> list2, int pos2) {
 		list = list2;
 		pos = pos2;
 	}
 
-	int get() {
+	T get() {
 		return list.get(pos);
 	}
 	
@@ -42,11 +42,11 @@ public class TypeCodeTabber {
 		pos = list.size()-1;
 	}
 	
-	public TypeCodeTabber copy() {
-		return new TypeCodeTabber(list, pos);
+	public TypeCodeTabber<T> copy() {
+		return new TypeCodeTabber<T>(list, pos);
 	}
 
-	public boolean find(int typeCode) {
+	public boolean find(T typeCode) {
 		int where = list.indexOf(typeCode);
 		if (where<0) return false;
 		pos = where;

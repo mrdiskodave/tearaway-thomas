@@ -5,7 +5,6 @@ import java.util.List;
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
 import com.nney.tt.BlockSet;
-import com.nney.tt.BlockSet.Config;
 import com.nney.tt.Const;
 import com.nney.tt.WorldServicesToMapper;
 import com.nney.tt.aliens.Alien;
@@ -75,7 +74,7 @@ public class Mapper implements MapperServicesToPens {
 	// stuff to do with the current alien
 	//
 	private final AlienInfoMap alienInfoMap;
-	private TypeCodeTabber alienTabber;
+	private TypeCodeTabber<Integer> alienTabber;
 	private int showAlienPaletteTimer;
 	private final static int TABBING_ALIENS_OUTSIDE = 1;
 	private final static int TABBING_ALIENS_TOTAL = TABBING_ALIENS_OUTSIDE * 2 + 1;
@@ -168,7 +167,7 @@ public class Mapper implements MapperServicesToPens {
 	public Mapper(AlienInfoMap alienInfoMap, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
 			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
 		this.alienInfoMap = alienInfoMap;
-		this.alienTabber = new TypeCodeTabber(alienInfoMap.getTypeCodes());
+		this.alienTabber = new TypeCodeTabber<Integer>(alienInfoMap.getTypeCodes());
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -220,10 +219,10 @@ public class Mapper implements MapperServicesToPens {
 		mgc.nextFrame();
 		ukt2.nextFrame();
 		
-		int k = justPressed();
-		if (k!=0) {
-			System.out.println("JustPressed:"+k);
-		}
+//		int k = justPressed();
+//		if (k!=0) {
+//			System.out.println("JustPressed:"+k);
+//		}
 
 //		System.out.println("---");
 		if (!tool.ownScreen()) {
@@ -343,7 +342,7 @@ public class Mapper implements MapperServicesToPens {
 		createAlienWithUndoRedo(a);
 	}
 
-	private AlienInfo getAlienInfo(TypeCodeTabber tabber) {
+	private AlienInfo getAlienInfo(TypeCodeTabber<Integer> tabber) {
 		AlienInfo answer = alienInfoMap.getByType(tabber.get());
 		assert answer != null;
 		return answer;
@@ -353,7 +352,7 @@ public class Mapper implements MapperServicesToPens {
 		int sx = mgc.screenWidth() / 2;
 		int sy = mgc.screenHeight() / 2;
 
-		TypeCodeTabber at = alienTabber.copy();
+		TypeCodeTabber<Integer> at = alienTabber.copy();
 		for (int x = 0; x < TABBING_ALIENS_OUTSIDE; x++) {
 			at.prev();
 			sy -= ALIENS_TAB_BOX_DIAMETER;
