@@ -6,24 +6,26 @@ import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;
-	private final String baseName;
+	private final String animBaseName;
 	public final Class<? extends Alien> alienClass;
 	public final int score;
+	public final String name;
 	private String animsName;
 
 	public String animsName() {
 		return animsName;
 	}
 
-	AlienInfo(int id, String baseName, int score, Class<? extends Alien> alienClass) {
+	AlienInfo(int id, String name, String animBaseName, int score, Class<? extends Alien> alienClass) {
 		this.typeCode = id;
-		this.baseName = baseName;
+		this.animBaseName = animBaseName;
 		this.score = score;
 		this.alienClass = alienClass;
+		this.name = name;
 	}
 
-	AlienInfo(int id, String animsName, Class<? extends Alien> alienClass) {
-		this(id, animsName, -1, alienClass);
+	AlienInfo(int id, String name, String animBaseName, Class<? extends Alien> alienClass) {
+		this(id, name, animBaseName, -1, alienClass);
 	}
 
 	Alien instantiate() {
@@ -50,10 +52,10 @@ public class AlienInfo {
 	 *         that we did or <code>false</code> meaning that we did not.
 	 */
 	public boolean setWorld(String worldName) {
-		animsName = baseName;
+		animsName = animBaseName;
 		if (animsName == null) return true;
-		if (baseName.charAt(0) == '?') {
-			String rest = baseName.substring(1);
+		if (animBaseName.charAt(0) == '?') {
+			String rest = animBaseName.substring(1);
 			animsName = worldName + rest;
 			if (TTResource.spriteExists(animsName)) return true;
 			animsName = '0' + rest;

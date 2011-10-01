@@ -7,6 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 public @interface AlienInfoAnn {
 	int type();
 
+	String name();
+
 	String gfx();
 	
 	int score() default 0;

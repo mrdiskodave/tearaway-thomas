@@ -4,7 +4,7 @@ import com.nney.tt.Player;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
-public class FloorFailAlien extends AlienWithLocation {
+public class FloorFailureAlien extends AlienWithLocation {
 	static final private int MAP_EDITS[][] = { { 143, 0, 142 }, { 14, 0, 15 } };
 
 	private int strength = 3;

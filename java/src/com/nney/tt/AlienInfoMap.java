@@ -24,6 +24,7 @@ public class AlienInfoMap {
 	 * {@link TTResource#spriteExists(String)}. 
 	 */
 	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
+	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
 	private final List<Integer> typeCodes = new ArrayList<Integer>();
@@ -52,7 +53,7 @@ public class AlienInfoMap {
 	}
 
 	private void addAnn(Class<? extends Alien> c, AlienInfoAnn a) {
-		add(new AlienInfo(a.type(), a.gfx(), a.score(), c));
+		add(new AlienInfo(a.type(), a.name(), a.gfx(), a.score(), c));
 	}
 
 	public void setWorld(String worldName) {
@@ -64,7 +65,6 @@ public class AlienInfoMap {
 
 		for (AlienInfo ai : aim) {
 			if (ai.setWorld(worldName)) {
-				typeToAlienInfo.put(ai.typeCode, ai);
 				classToAlienInfo.put(ai.alienClass, ai);
 	
 				Integer useCount = classUseCount.get(ai.alienClass);
@@ -73,8 +73,12 @@ public class AlienInfoMap {
 				classUseCount.put(ai.alienClass, useCount);
 	
 				if (ai.typeCode >= 0) {
-					assert !typeCodes.contains(ai.typeCode);
+					assert !typeToAlienInfo.containsKey(ai.typeCode);
+					typeToAlienInfo.put(ai.typeCode, ai);
 					typeCodes.add(ai.typeCode);
+
+					assert !nameToAlienInfo.containsKey(ai.name);
+					nameToAlienInfo.put(ai.name, ai);
 				}
 				
 				String name = ai.animsName();

@@ -2,7 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Box;
 
-public class ScoreGivingAlien extends AlienWithLocation {
+public class HiddenScoreGiftAlien extends AlienWithLocation {
 	private static final int SCORE_GIVEN = 100;
 	private static final int NUMER_OF_TIMES = 50;
 

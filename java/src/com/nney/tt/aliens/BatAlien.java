@@ -1,7 +1,7 @@
 package com.nney.tt.aliens;
 
 
-public class BattAlien extends BumbleAlien {
+public class BatAlien extends BumbleAlien {
 	@Override
 	public void nextDestination() {
 		d.x += srv.randomness(129)-64;

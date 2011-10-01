@@ -5,8 +5,8 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-@AlienInfoAnns({ @AlienInfoAnn(type = 2, gfx = "0ygem", score=50),
-	@AlienInfoAnn(type = 3, gfx = "0pgem", score=100)
+@AlienInfoAnns({ @AlienInfoAnn(type = 2, gfx = "0ygem", score=50, name="yellowGem"),
+	@AlienInfoAnn(type = 3, gfx = "0pgem", score=100, name="purpleGem")
 })
 public class WobbleGemAlien extends GemAlien {
 	private static final int FLAG_NO_WOBBLE = 3;

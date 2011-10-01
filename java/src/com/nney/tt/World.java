@@ -13,7 +13,7 @@ import com.nney.tt.BlockSet.Config;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.ArrowAlien;
-import com.nney.tt.aliens.BattAlien;
+import com.nney.tt.aliens.BatAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
@@ -21,17 +21,17 @@ import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.FlameAlien;
-import com.nney.tt.aliens.FloorFailAlien;
+import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
-import com.nney.tt.aliens.LifeAlien;
+import com.nney.tt.aliens.ExtraLifeAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
-import com.nney.tt.aliens.ScoreGivingAlien;
+import com.nney.tt.aliens.HiddenScoreGiftAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
@@ -42,7 +42,7 @@ import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.TextAlien;
 import com.nney.tt.aliens.TrampolineAlien;
-import com.nney.tt.aliens.WingAlien;
+import com.nney.tt.aliens.WingsAlien;
 import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowBirdAlien;
 import com.nney.tt.geom.Box;
@@ -87,7 +87,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 0;
+	private int levelNumber = 1;
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -126,7 +126,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private Pointer mouse;
 
 	private String worldName;
-	
+
 	private ScreenPosition scr;
 
 	/**
@@ -266,37 +266,34 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		AlienInfoMap aim = new AlienInfoMap();
 
-		aim.add(new AlienInfo(4, "0exit", ExitAlien.class));
-		aim.add(new AlienInfo(5, "0shld", ShieldAlien.class));
-		aim.add(new AlienInfo(7, "0clok", ClockAlien.class));
-		aim.add(new AlienInfo(12, "0tele", TeleportAlien.class));
-		aim.add(new AlienInfo(22, "0life", LifeAlien.class));
-		aim.add(new AlienInfo(14, "0wing", WingAlien.class));
-		aim.add(new AlienInfo(15, null, FloorFailAlien.class)); // special1
+		aim.add(new AlienInfo(4, "exit", "0exit", ExitAlien.class));
+		aim.add(new AlienInfo(5, "shield", "0shld", ShieldAlien.class));
+		aim.add(new AlienInfo(7, "clock", "0clok", ClockAlien.class));
+		aim.add(new AlienInfo(12, "teleport", "0tele", TeleportAlien.class));
+		aim.add(new AlienInfo(22, "extraLife", "0life", ExtraLifeAlien.class));
+		aim.add(new AlienInfo(14, "wings", "0wing", WingsAlien.class));
+		aim.add(new AlienInfo(15, "floorFailure", null, FloorFailureAlien.class)); // special1
 		// for w6.map
-		aim.add(new AlienInfo(34, null, ScoreGivingAlien.class));
-		aim.add(new AlienInfo(36, "?bear", BearAlien.class));
-		aim.add(new AlienInfo(37, "gbatt", BattAlien.class));
-		aim.add(new AlienInfo(39, "gspik", SpikeAlien.class));
-		aim.add(new AlienInfo(48, "gghst", GhostAlien.class));
-		aim.add(new AlienInfo(63, "wabee", BeeAlien.class));
-		aim.add(new AlienInfo(72, "wlog0", SineLiftAlien.class));
-		aim.add(new AlienInfo(73, "wtrmp", TrampolineAlien.class));
-		aim.add(new AlienInfo(74, "wybrd", YellowBirdAlien.class));
-		aim.add(new AlienInfo(55, "?bird", BirdAlien.class)); // poly
-		aim.add(new AlienInfo(75, "?bird", BirdAlien.class));
-		aim.add(new AlienInfo(57, "ipeng", BearAlien.class));
-		aim.add(new AlienInfo(61, "?bear", BearAlien.class)); // poly
-		aim.add(new AlienInfo(76, "?bear", BearAlien.class));
+		aim.add(new AlienInfo(34, "hiddenScoreGift", null, HiddenScoreGiftAlien.class));
+		aim.add(new AlienInfo(36, "bear", "?bear", BearAlien.class));
+		aim.add(new AlienInfo(37, "bat", "gbatt", BatAlien.class));
+		aim.add(new AlienInfo(39, "spike", "gspik", SpikeAlien.class));
+		aim.add(new AlienInfo(48, "ghost", "gghst", GhostAlien.class));
+		aim.add(new AlienInfo(63, "bee", "wabee", BeeAlien.class));
+		aim.add(new AlienInfo(72, "sineLift", "wlog0", SineLiftAlien.class));
+		aim.add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
+		aim.add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
+		aim.add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
+		aim.add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
 		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
-		aim.add(new AlienInfo(95, "0star", StarAlien.class));
-		aim.add(new AlienInfo(13, "0stop", StopAlien.class));
-		aim.add(new AlienInfo(200, "glift", PlainLiftAlien.class));
-		aim.add(new AlienInfo(201, "0tt", PlayerAlien.class));
-		aim.add(new AlienInfo(202, null, MapBoundsAlien.class));
+		aim.add(new AlienInfo(95, "star", "0star", StarAlien.class));
+		aim.add(new AlienInfo(13, "stop", "0stop", StopAlien.class));
+		aim.add(new AlienInfo(200, "plainLift", "?lift", PlainLiftAlien.class));
+		aim.add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
+		aim.add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
 
-		aim.add(new AlienInfo(-1, "0scor", ScoreNoticeAlien.class));
-		aim.add(new AlienInfo(-1, "0magc", MagicDustAlien.class));
+		aim.add(new AlienInfo(-1, "_", "0scor", ScoreNoticeAlien.class));
+		aim.add(new AlienInfo(-1, "_", "0magc", MagicDustAlien.class));
 
 		aim.addAnn(FlameAlien.class);
 		aim.addAnn(WobbleGemAlien.class);
@@ -1111,11 +1108,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 				}
 			};
 			pl.populateFromLevelInfo(af, levelNumber);
-
-			// pl.aliens = alienTracker.getAliens();
 //			pl.save();
 //			levelNumber++;
-
 //		}
 
 		mode = GameMode.START;
@@ -1159,7 +1153,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 
 		createHorizon(pl.horizon);
-		if (blockSet==null || !worldName.equals(blockSet.worldName)) {
+		if (blockSet == null || !worldName.equals(blockSet.worldName)) {
 			reloadBlockSet();
 		}
 
