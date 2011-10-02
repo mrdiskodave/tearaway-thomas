@@ -29,10 +29,10 @@ public class AlienInfo {
 		this(id, name, animBaseName, -1, alienClass);
 	}
 
-	Alien instantiate() {
+	Alien instantiateAttach() {
 		try {
 			Alien answer = alienClass.newInstance();
-			answer.alienInfo = this;
+			answer.attach(this);
 			return answer;
 		}
 		catch (InstantiationException e) {
@@ -64,12 +64,6 @@ public class AlienInfo {
 		}
 		// just assume it exists!
 		return true; 
-	}
-
-	public void connectAnims(Alien alien, AnimsPool animsPool) {
-		if (animsName != null) {
-			alien.connectAnims(animsPool.expect(animsName));
-		}
 	}
 
 	static String makeInternalName(String s) {

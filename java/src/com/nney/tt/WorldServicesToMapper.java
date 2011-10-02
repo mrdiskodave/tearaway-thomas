@@ -19,13 +19,13 @@ public interface WorldServicesToMapper {
 
 	BlocksHolder getBlocksHolder();
 
-	void reinstateAlien(Alien alien);
+	void reinstate(Alien alien);
 	
-	Alien mapperCreateAlien(AlienInfo alienInfo);
+	Alien instantiateAttachConnect(AlienInfo alienInfo);
 
-	void loadAlienIntoWorld(Alien alien);
+	void load(Alien alien);
 
-	Anim loadAnim(String animsName);
+	Anim mapperLoadAnim(String animsName);
 
 	void setBlockConfig(Config c);
 }

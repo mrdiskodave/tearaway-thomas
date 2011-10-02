@@ -6,6 +6,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
+import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
 
 /**
@@ -14,6 +15,16 @@ import com.nney.tt.sprites.Sprite;
  * the name stuck.
  */
 public abstract class Alien {
+	enum LifeCycle {
+		INSTANTIATED,
+		ATTACH,
+		CONNECT,
+		LOAD,
+		REMOVE
+	}
+	
+	private LifeCycle lc = LifeCycle.INSTANTIATED;
+	
 	public AlienInfo alienInfo;
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	public Anims anims;
@@ -84,10 +95,6 @@ public abstract class Alien {
 		return anims.find(0).sprites[0];
 	}
 
-	public void connectAnims(Anims s) {
-		anims = s;
-	}
-
 	protected void draw(Coord c2) {
 		Sprite s = nextFrame();
 		if (s != null) {
@@ -131,6 +138,29 @@ public abstract class Alien {
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 			srv.getThePlayer().stun();
 		}
+	}
+
+
+	public void attach(AlienInfo alienInfo2) {
+		assert lc == LifeCycle.INSTANTIATED;
+		alienInfo = alienInfo2;
+		lc = LifeCycle.ATTACH;
+	}
+	
+	public void connect(AnimsPool ap) {
+		assert lc == LifeCycle.ATTACH;
+		String a = alienInfo.animsName();
+		if (a!=null) {
+			anims = ap.expect(a);
+		}
+		lc = LifeCycle.CONNECT;
+	}
+
+	public void load(AlienServices world) {
+		assert lc == LifeCycle.CONNECT;
+		srv = world;
+		onLoaded();
+		lc = LifeCycle.LOAD;
 	}
 
 }

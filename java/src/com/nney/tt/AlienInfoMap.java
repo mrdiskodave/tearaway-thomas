@@ -11,6 +11,7 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
 import com.nney.tt.resources.TTResource;
+import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfoMap {
 	/**
@@ -96,7 +97,7 @@ public class AlienInfoMap {
 
 	public void collectPreloadNames(Set<String> names) {
 		for (AlienInfo ai : aim) {
-			if (ai.internal() && ai.animsName()!=null) {
+			if (ai.internal() && ai.animsName() != null) {
 				names.add(ai.animsName());
 			}
 		}
@@ -105,19 +106,25 @@ public class AlienInfoMap {
 	private AlienInfo getByClass(Class<? extends Alien> c) {
 		// it's a problem if we cannot give an unambiguous answer
 		Integer cuc = classUseCount.get(c);
-		int icuc = cuc==null ? 0 : cuc;
+		int icuc = cuc == null ? 0 : cuc;
 		if (icuc != 1) {
 			throw new RuntimeException("Class count is " + icuc + " for " + c);
 		}
 		return classToAlienInfo.get(c);
 	}
-	
+
+	/**
+	 * There are two ways to make a correctly wired up {@link Alien}. 1) use
+	 * {@link AlienInfo#instantiateAttach()} 2) Construct it with <code>new</code>
+	 * then pass it here.
+	 * 
+	 * @param alien
+	 *            The {@link Alien} that you just constructed.
+	 */
 	public void attach(Alien alien) {
-		AlienInfo ai = getByClass(alien.getClass());
-		alien.alienInfo = ai;
+		alien.attach(getByClass(alien.getClass()));
 	}
-	
-	
+
 	/**
 	 * @return A read only list of all the alien names available.
 	 */
@@ -152,6 +159,6 @@ public class AlienInfoMap {
 	}
 
 	static String typeCodeToName(int typeCode) {
-		return AlienInfo.makeInternalName("tc"+typeCode);
+		return AlienInfo.makeInternalName("tc" + typeCode);
 	}
 }

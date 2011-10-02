@@ -189,12 +189,12 @@ public class Mapper implements MapperServicesToPens {
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
-		srv.loadAlienIntoWorld(alien);
+		srv.load(alien);
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
 			@Override
 			public void redo() {
-				srv.reinstateAlien(alien);
+				srv.reinstate(alien);
 				setSelectedAlien(alien);
 			}
 
@@ -335,7 +335,7 @@ public class Mapper implements MapperServicesToPens {
 	
 	private void createAlien() {
 		AlienInfo ai = getAlienInfo(alienTabber);
-		Alien a = srv.mapperCreateAlien(ai);
+		Alien a = srv.instantiateAttachConnect(ai);
 		a.resetTo(computeMousePos(CoordType.WORLD_PIXELS));
 		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
@@ -362,7 +362,7 @@ public class Mapper implements MapperServicesToPens {
 
 			String animsName = ai.animsName();
 			if (animsName!=null) {
-				Anim anim = srv.loadAnim(animsName);
+				Anim anim = srv.mapperLoadAnim(animsName);
 				animPlayers[x].changeAnimation(anim);
 				Sprite sprite = animPlayers[x].nextFrame();
 				sprite.drawByHandle(sx, sy, false);
@@ -635,7 +635,7 @@ public class Mapper implements MapperServicesToPens {
 		undoControler.redoThenAdd(new UndoRedo() {
 			@Override
 			public void undo() {
-				srv.reinstateAlien(a);
+				srv.reinstate(a);
 				setSelectedAlien(a);
 			}
 
@@ -649,7 +649,7 @@ public class Mapper implements MapperServicesToPens {
 	public void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
 		if (!src.alienInfo.internal()) {
-			final Alien dest = srv.mapperCreateAlien(src.alienInfo);
+			final Alien dest = srv.instantiateAttachConnect(src.alienInfo);
 			APS.copyProps(src, dest);
 
 			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.getLocation());

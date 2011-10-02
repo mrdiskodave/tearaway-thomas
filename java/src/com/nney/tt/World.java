@@ -301,6 +301,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("text"), null, DebugTextAlien.class));
 		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("score"), "0scor", ScoreNoticeAlien.class));
 		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
+		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("fall"), null, FallingAlien.class));
 
 		aim.addAnn(FlameAlien.class);
 		aim.addAnn(WobbleGemAlien.class);
@@ -573,7 +574,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 					else {
 						alien.done();
 						FallingAlien fa = new FallingAlien(alien.c, headScore, raiseScoreNoticeBy, frightAnim);
-						loadAlienIntoWorld(fa);
+						attachConnectLoad(fa);
 					}
 					return;
 				}
@@ -651,47 +652,40 @@ public class World implements AlienServices, WorldServicesToMapper {
 	public void awardScore(int amount, Coord location) {
 		score += amount;
 		if (location != null) {
-			addNewAlien(new ScoreNoticeAlien(amount, location.copy()));
+			attachConnectLoad(new ScoreNoticeAlien(amount, location.copy()));
 		}
 	}
 
 	@Override
 	public void magicDust(Coord location) {
-		addNewAlien(new MagicDustAlien(location.copy()));
+		attachConnectLoad(new MagicDustAlien(location.copy()));
 	}
 
 	// ---------------------------------------------------------------------------
 	// UPDATING OF THINGS
 
 	@Override
-	public Alien mapperCreateAlien(AlienInfo alienInfo) {
+	public Alien instantiateAttachConnect(AlienInfo alienInfo) {
 		// for the mapper
-		Alien alien = alienInfo.instantiate();
-		alienInfo.connectAnims(alien, animsPool);
+		Alien alien = alienInfo.instantiateAttach();
+		alien.connect(animsPool);
 		return alien;
 	}
 
-	public Alien createAlienFromTypeCode(int typeCode) {
-		return createAlienFromName(AlienInfoMap.typeCodeToName(typeCode));
+	public Alien instantiateAttachByTypeCode(int typeCode) {
+		return instantiateAttachByName(AlienInfoMap.typeCodeToName(typeCode));
 	}
 
-	private Alien createAlienFromName(String name) {
+	private Alien instantiateAttachByName(String name) {
 		if (alienInfoMap.nameExists(name)) {
-			return alienInfoMap.getByName(name).instantiate();
+			return alienInfoMap.getByName(name).instantiateAttach();
 		}
 		System.out.println("Unknown Alien Name:" + name);
 		DebugTextAlien alien = new DebugTextAlien("Unknown:" + name);
 		alienInfoMap.attach(alien);
 		return alien;
 	}
-
-	@Override
-	public Anim loadAnim(String animsName) {
-		Anims anims = animsPool.expect(animsName);
-		Anim anim = anims.find(0);
-		return anim;
-	}
-
+	
 	/**
 	 * We've just <code>new</code>ed the given alien rather than creating it
 	 * from a typeCode. Fill in all it's bits and pieces.
@@ -699,24 +693,37 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * @param alien
 	 *            The {@link Alien} to complete.
 	 */
-	private void addNewAlien(Alien alien) {
+	private void attachConnectLoad(Alien alien) {
 		alienInfoMap.attach(alien);
-		alien.alienInfo.connectAnims(alien, animsPool);
-		loadAlienIntoWorld(alien);
+		alien.connect(animsPool);
+		load(alien);
 	}
 
 	@Override
-	public void loadAlienIntoWorld(Alien alien) {
-		alien.srv = this;
-		alien.onLoaded();
+	public void load(Alien alien) {
+		alien.load(this);
 		alienTracker.delayedAdd(alien);
 	}
 
 	@Override
-	public void reinstateAlien(Alien alien) {
+	public void reinstate(Alien alien) {
 		alien.remove = false;
 		alienTracker.delayedAdd(alien);
 	}
+
+
+	
+	
+	
+	
+
+	@Override
+	public Anim mapperLoadAnim(String animsName) {
+		Anims anims = animsPool.expect(animsName);
+		Anim anim = anims.find(0);
+		return anim;
+	}
+
 
 	private void updateList(List<Alien> alienList, Box screenBox, boolean mapper) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
@@ -1094,7 +1101,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		AlienFactory af = new AlienFactory() {
 			@Override
 			public Alien make(int typeCode) {
-				return createAlienFromTypeCode(typeCode);
+				return instantiateAttachByTypeCode(typeCode);
 			}
 
 			// TODO: by Class as well?
@@ -1115,7 +1122,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		alienTracker = new AlienTracker();
 
-		// work out what Anims we need
 		List<Alien> aliens = pl.getAliens();
 
 		PlayerAlien playerPos = null;
@@ -1125,6 +1131,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 		}
 
+		// work out what Anims we need
 		TreeSet<String> animsNeeded = new TreeSet<String>();
 		whatAnimsDoTheyNeed(aliens, animsNeeded);
 		animsNeeded.add("0tt");
@@ -1136,11 +1143,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 		animsPool.unloadReload(animsNeeded);
 
 
-		// inject them into the aliens
+		// connect the anims to the aliens
 		// and load the aliens into the world
 		for (Alien alien : aliens) {
-			alien.alienInfo.connectAnims(alien, animsPool); // TODO: WTF
-			loadAlienIntoWorld(alien);
+			alien.connect(animsPool);
+			load(alien);
 		}
 
 		
