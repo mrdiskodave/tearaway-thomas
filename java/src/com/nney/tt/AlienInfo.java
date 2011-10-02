@@ -6,10 +6,11 @@ import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;
-	private final String animBaseName;
-	public final Class<? extends Alien> alienClass;
-	public final int score;
 	public final String name;
+	private final String animBaseName;
+	public final int score;
+	public final Class<? extends Alien> alienClass;
+	
 	private String animsName;
 
 	public String animsName() {
@@ -69,5 +70,9 @@ public class AlienInfo {
 		if (animsName != null) {
 			alien.connectAnims(animsPool.expect(animsName));
 		}
+	}
+	
+	public boolean internal() {
+		return name.charAt(0)=='_';
 	}
 }

@@ -167,7 +167,7 @@ public class Mapper implements MapperServicesToPens {
 	public Mapper(AlienInfoMap alienInfoMap, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
 			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
 		this.alienInfoMap = alienInfoMap;
-		this.alienTabber = new TypeCodeTabber<String>(alienInfoMap.getNames());
+		this.alienTabber = new TypeCodeTabber<String>(alienInfoMap.queryNames());
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -343,7 +343,7 @@ public class Mapper implements MapperServicesToPens {
 	}
 
 	private AlienInfo getAlienInfo(TypeCodeTabber<String> tabber) {
-		return alienInfoMap.mustGetByName(tabber.get());
+		return alienInfoMap.getByName(tabber.get());
 	}
 
 	private void showAlienPalette() {
@@ -650,7 +650,7 @@ public class Mapper implements MapperServicesToPens {
 
 	public void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
-		if (src.alienInfo.typeCode >= 0) {
+		if (!src.alienInfo.internal()) {
 			final Alien dest = srv.mapperCreateAlien(src.alienInfo);
 			APS.copyProps(src, dest);
 

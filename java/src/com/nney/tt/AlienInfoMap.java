@@ -10,7 +10,6 @@ import java.util.Set;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
-import com.nney.tt.mapper.TypeCodeTabber;
 import com.nney.tt.resources.TTResource;
 
 public class AlienInfoMap {
@@ -19,17 +18,15 @@ public class AlienInfoMap {
 	 */
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
 
-
 	/**
-	 * Various indexes that all ignore aliens that are not available according to
-	 * {@link TTResource#spriteExists(String)}. 
+	 * Various indexes that all ignore aliens that are not available according
+	 * to {@link TTResource#spriteExists(String)}.
 	 */
-	private final Map<Integer, AlienInfo> typeToAlienInfo = new HashMap<Integer, AlienInfo>();
 	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
 	private final List<String> names = new ArrayList<String>();
-	private final List<String> animList = new ArrayList<String>(); 
+	private final List<String> animList = new ArrayList<String>();
 
 	void add(AlienInfo a) {
 		aim.add(a);
@@ -58,7 +55,7 @@ public class AlienInfoMap {
 	}
 
 	public void setWorld(String worldName) {
-		typeToAlienInfo.clear();
+		nameToAlienInfo.clear();
 		classToAlienInfo.clear();
 		classUseCount.clear();
 		names.clear();
@@ -67,25 +64,22 @@ public class AlienInfoMap {
 		for (AlienInfo ai : aim) {
 			if (ai.setWorld(worldName)) {
 				classToAlienInfo.put(ai.alienClass, ai);
-	
+
 				Integer useCount = classUseCount.get(ai.alienClass);
 				if (useCount == null) useCount = 0;
 				useCount++;
 				classUseCount.put(ai.alienClass, useCount);
-	
-				if (ai.typeCode >= 0) {
-					assert !typeToAlienInfo.containsKey(ai.typeCode);
-					typeToAlienInfo.put(ai.typeCode, ai);
 
-					assert !nameToAlienInfo.containsKey(ai.name);
-					nameToAlienInfo.put(ai.name, ai);
+				if (!ai.internal()) {
+					addToIndex(ai, ai.name);
+					addToIndex(ai, typeCodeToName(ai.typeCode));
 
 					assert !names.contains(ai.name);
 					names.add(ai.name);
 				}
-				
+
 				String name = ai.animsName();
-				if (name!=null) {
+				if (name != null) {
 					assert !animList.contains(name);
 					animList.add(name);
 				}
@@ -94,10 +88,15 @@ public class AlienInfoMap {
 		Collections.sort(names);
 		Collections.sort(animList);
 	}
-	
+
+	private void addToIndex(AlienInfo ai, String k) {
+		assert !nameToAlienInfo.containsKey(k);
+		nameToAlienInfo.put(k, ai);
+	}
+
 	public void collectPreloadNames(Set<String> names) {
 		for (AlienInfo ai : aim) {
-			if (ai.typeCode < 0) {
+			if (ai.internal() && ai.animsName()!=null) {
 				names.add(ai.animsName());
 			}
 		}
@@ -106,8 +105,9 @@ public class AlienInfoMap {
 	public AlienInfo getByClass(Class<? extends Alien> c) {
 		// it's a problem if we cannot give an unambiguous answer
 		Integer cuc = classUseCount.get(c);
-		if (cuc == null || cuc != 1) {
-			throw new RuntimeException("Class count is " + cuc + " for " + c);
+		int icuc = cuc==null ? 0 : cuc;
+		if (icuc != 1) {
+			throw new RuntimeException("Class count is " + icuc + " for " + c);
 		}
 		return classToAlienInfo.get(c);
 	}
@@ -115,44 +115,37 @@ public class AlienInfoMap {
 	/**
 	 * @return A read only list of all the alien names available.
 	 */
-	public List<String> getNames() {
+	public List<String> queryNames() {
 		return names;
 	}
 
 	/**
 	 * @return A read only list of all the anims we'll ever need.
 	 */
-	public List<String> getAnimList() {
+	public List<String> queryAnimList() {
 		return animList;
 	}
 
-//	public void dump() {
-//		StringBuffer sb = new StringBuffer();
-//		for (int tc : typeCodes) {
-//			if (sb.length() != 0) sb.append(',');
-//			sb.append(tc);
-//		}
-//		System.out.println(sb);
-//	}
+	// public void dump() {
+	// StringBuffer sb = new StringBuffer();
+	// for (int tc : typeCodes) {
+	// if (sb.length() != 0) sb.append(',');
+	// sb.append(tc);
+	// }
+	// System.out.println(sb);
+	// }
 
-	public AlienInfo getByType(int type) {
-		return typeToAlienInfo.get(type);
+	public boolean nameExists(String name) {
+		return nameToAlienInfo.containsKey(name);
 	}
 
 	public AlienInfo getByName(String name) {
-		return nameToAlienInfo.get(name);
-	}
-	
-	public AlienInfo mustGetByName(String name) {
-		AlienInfo answer = getByName(name);
-		if (answer==null) throw new RuntimeException("Alien name "+name+" not present");
+		AlienInfo answer = nameToAlienInfo.get(name);
+		if (answer == null) throw new RuntimeException("Alien name " + name + " not present");
 		return answer;
 	}
 
-
-	void hideByType(int type) {
-		// we just unindex it
-		typeToAlienInfo.remove(type);
+	static String typeCodeToName(int typeCode) {
+		return "_#"+typeCode+"_";
 	}
-
 }

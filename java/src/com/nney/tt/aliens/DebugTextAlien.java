@@ -1,6 +1,6 @@
 package com.nney.tt.aliens;
 
-public class TextAlien extends AlienWithLocation {
+public class DebugTextAlien extends AlienWithLocation {
 	private String text;
 
 	public void setText(String text0) {
@@ -14,8 +14,6 @@ public class TextAlien extends AlienWithLocation {
 
 	@Override
 	public void mapperUpdate() {
-		// we don't have a first animation
-		// so need to override this method
 		update();
 	}
 }

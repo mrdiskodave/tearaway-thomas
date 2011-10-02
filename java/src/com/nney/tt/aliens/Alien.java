@@ -10,12 +10,13 @@ import com.nney.tt.sprites.Sprite;
 
 /**
  * All the non-player things in the game are called "aliens" for legacy reasons.
- * It's because the first game we wrote was set in space and the name stuck.
+ * It's because the first game we wrote was set in space - it had "aliens" - and
+ * the name stuck.
  */
 public abstract class Alien {
+	public AlienInfo alienInfo;
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	public Anims anims;
-	public AlienInfo alienInfo;
 	public byte[] legacyData;
 	public boolean remove;
 	public int depth = DEPTH_ALIENS;
@@ -31,7 +32,7 @@ public abstract class Alien {
 	public AlienServices srv;
 
 	protected static final int OBbase = 8;
-	
+
 	protected static final int OBtype = 0; // B
 	protected static final int OBflags = 9 - OBbase; // B
 	protected static final int OBleft = 10 - OBbase; // W
@@ -107,7 +108,7 @@ public abstract class Alien {
 
 	public void mapperUpdate() {
 		Coord c = getLocation();
-		if (anims!=null) {
+		if (anims != null) {
 			srv.drawSprite(c, firstFrame());
 		}
 		else {

@@ -124,8 +124,10 @@ public class PersistedLevel {
 	}
 
 	private void createLegacyAlien(AlienFactory af, int x, int y, int typeCode, byte[] rest) {
-		Alien alien = af.make(typeCode);
 
+		//
+		// adjustments
+		//
 		if (typeCode == 2 || typeCode == 3) {
 			// this is what gem_render -> bob_gem did
 			// at rendering time! let's do it early:
@@ -140,6 +142,10 @@ public class PersistedLevel {
 			typeCode = 36;
 		}
 
+		//
+		// creation
+		//
+		Alien alien = af.make(typeCode);
 		if (alien instanceof AlienWithLocation) {
 			AlienWithLocation awl = (AlienWithLocation) alien;
 			awl.c.x = x;
@@ -228,11 +234,10 @@ public class PersistedLevel {
 		dd.beginArray();
 		for (Alien a : aliens) {
 			if (a.alienInfo != null) {
-				int tc = a.alienInfo.typeCode;
-				if (tc > 0) {
+				if (!a.alienInfo.internal()) {
 					dd.beginDict();
 					dd.write("type");
-					dd.write(a.alienInfo.typeCode);
+					dd.write(a.alienInfo.name);
 					APS.saveProps(a, dd);
 					dd.end();
 				}

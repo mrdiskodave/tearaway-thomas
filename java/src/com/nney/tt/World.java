@@ -40,7 +40,7 @@ import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TeleportAlien;
-import com.nney.tt.aliens.TextAlien;
+import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.TrampolineAlien;
 import com.nney.tt.aliens.WingsAlien;
 import com.nney.tt.aliens.WobbleGemAlien;
@@ -292,8 +292,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
 		aim.add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
 
-		aim.add(new AlienInfo(-1, "_", "0scor", ScoreNoticeAlien.class));
-		aim.add(new AlienInfo(-1, "_", "0magc", MagicDustAlien.class));
+		// internal things
+		// * no typeCode
+		// * a name that cannot be used to look it up
+		// * only one instance
+		// * can only be looked up by className
+		// * do not appear in load and save images
+		aim.add(new AlienInfo(-1, "_text_", null, DebugTextAlien.class));
+		aim.add(new AlienInfo(-1, "_score_", "0scor", ScoreNoticeAlien.class));
+		aim.add(new AlienInfo(-1, "_magic_", "0magc", MagicDustAlien.class));
 
 		aim.addAnn(FlameAlien.class);
 		aim.addAnn(WobbleGemAlien.class);
@@ -656,12 +663,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// ---------------------------------------------------------------------------
 	// UPDATING OF THINGS
 
-	/**
-	 * Compile time configuration: Only have instantiate once instance of each
-	 * alien type that is present on a level (the others are ignored).
-	 */
-	private static final boolean CTC_ITEM_ONCE = false;
-
 	@Override
 	public Alien mapperCreateAlien(AlienInfo alienInfo) {
 		// for the mapper
@@ -670,22 +671,17 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return alien;
 	}
 
-	public Alien createAlien2(int typeCode) {
-		assert typeCode >= 0;
+	public Alien createAlienFromTypeCode(int typeCode) {
+		return createAlienFromName(AlienInfoMap.typeCodeToName(typeCode));
+	}
 
-		AlienInfo alienInfo = alienInfoMap.getByType(typeCode);
-		if (alienInfo != null) {
-			if (CTC_ITEM_ONCE) {
-				alienInfoMap.hideByType(typeCode);
-			}
-			Alien alien = alienInfo.instantiate();
-			return alien;
+	private Alien createAlienFromName(String name) {
+		if (alienInfoMap.nameExists(name)) {
+			return alienInfoMap.getByName(name).instantiate();
 		}
-
-		// TODO: eventually this path&possibility will be removed
-		System.out.println("Unknown Alien Type:" + typeCode);
-		TextAlien alien = new TextAlien();
-		alien.setText(String.format("%d", typeCode));
+		System.out.println("Unknown Alien Name:" + name);
+		DebugTextAlien alien = (DebugTextAlien) alienInfoMap.getByClass(DebugTextAlien.class).instantiate();
+		alien.setText("Unknown:" + name);
 		return alien;
 	}
 
@@ -831,7 +827,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				if (mapper == null) {
 					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
-				for (String a : alienInfoMap.getAnimList()) {
+				for (String a : alienInfoMap.queryAnimList()) {
 					animsPool.load(a);
 				}
 				setScreenPosition(getScreenPosition());
@@ -1087,30 +1083,30 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-//		int a = 1;
-//		while (a == 1) {
+		// int a = 1;
+		// while (a == 1) {
 
-			System.out.println("Loading level " + levelNumber);
+		System.out.println("Loading level " + levelNumber);
 
-			pl = new PersistedLevel();
+		pl = new PersistedLevel();
 
-			AlienFactory af = new AlienFactory() {
-				@Override
-				public Alien make(int typeCode) {
-					return createAlien2(typeCode);
-				}
+		AlienFactory af = new AlienFactory() {
+			@Override
+			public Alien make(int typeCode) {
+				return createAlienFromTypeCode(typeCode);
+			}
 
-				// TODO: by Class as well?
+			// TODO: by Class as well?
 
-				@Override
-				public void selectWorld(String name) {
-					World.this.selectWorld(name);
-				}
-			};
-			pl.populateFromLevelInfo(af, levelNumber);
-//			pl.save();
-//			levelNumber++;
-//		}
+			@Override
+			public void selectWorld(String name) {
+				World.this.selectWorld(name);
+			}
+		};
+		pl.populateFromLevelInfo(af, levelNumber);
+		// pl.save();
+		// levelNumber++;
+		// }
 
 		mode = GameMode.START;
 
