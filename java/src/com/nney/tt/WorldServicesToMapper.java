@@ -4,7 +4,7 @@ import com.nney.tt.BlockSet.Config;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
-import com.nney.tt.sprites.Anims;
+import com.nney.tt.sprites.Anim;
 
 public interface WorldServicesToMapper {
 	void quitMapper(Coord newPlayerPosition);
@@ -25,7 +25,7 @@ public interface WorldServicesToMapper {
 
 	void loadAlienIntoWorld(Alien alien);
 
-	Anims loadAnims(String animsName);
+	Anim loadAnim(String animsName);
 
 	void setBlockConfig(Config c);
 }

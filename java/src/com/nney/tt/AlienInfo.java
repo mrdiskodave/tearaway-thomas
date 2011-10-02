@@ -71,8 +71,12 @@ public class AlienInfo {
 			alien.connectAnims(animsPool.expect(animsName));
 		}
 	}
+
+	static String makeInternalName(String s) {
+		return "#"+s;
+	}
 	
 	public boolean internal() {
-		return name.charAt(0)=='_';
+		return name.charAt(0)=='#';
 	}
 }

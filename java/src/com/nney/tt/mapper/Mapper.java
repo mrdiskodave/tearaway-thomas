@@ -18,7 +18,6 @@ import com.nney.tt.input.UnifiedKeyTester;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
-import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 
 /**
@@ -363,8 +362,7 @@ public class Mapper implements MapperServicesToPens {
 
 			String animsName = ai.animsName();
 			if (animsName!=null) {
-				Anims anims = srv.loadAnims(animsName);
-				Anim anim = anims.find(0);
+				Anim anim = srv.loadAnim(animsName);
 				animPlayers[x].changeAnimation(anim);
 				Sprite sprite = animPlayers[x].nextFrame();
 				sprite.drawByHandle(sx, sy, false);

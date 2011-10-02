@@ -3,8 +3,8 @@ package com.nney.tt.aliens;
 public class DebugTextAlien extends AlienWithLocation {
 	private String text;
 
-	public void setText(String text0) {
-		text = text0;
+	public DebugTextAlien(String string) {
+		text = string;
 	}
 
 	@Override

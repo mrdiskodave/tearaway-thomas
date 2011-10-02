@@ -18,20 +18,21 @@ import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.ClockAlien;
+import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.ExitAlien;
+import com.nney.tt.aliens.ExtraLifeAlien;
 import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
-import com.nney.tt.aliens.ExtraLifeAlien;
+import com.nney.tt.aliens.HiddenScoreGiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
-import com.nney.tt.aliens.HiddenScoreGiftAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
@@ -40,7 +41,6 @@ import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TeleportAlien;
-import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.TrampolineAlien;
 import com.nney.tt.aliens.WingsAlien;
 import com.nney.tt.aliens.WobbleGemAlien;
@@ -298,9 +298,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// * only one instance
 		// * can only be looked up by className
 		// * do not appear in load and save images
-		aim.add(new AlienInfo(-1, "_text_", null, DebugTextAlien.class));
-		aim.add(new AlienInfo(-1, "_score_", "0scor", ScoreNoticeAlien.class));
-		aim.add(new AlienInfo(-1, "_magic_", "0magc", MagicDustAlien.class));
+		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("text"), null, DebugTextAlien.class));
+		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("score"), "0scor", ScoreNoticeAlien.class));
+		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
 
 		aim.addAnn(FlameAlien.class);
 		aim.addAnn(WobbleGemAlien.class);
@@ -680,14 +680,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 			return alienInfoMap.getByName(name).instantiate();
 		}
 		System.out.println("Unknown Alien Name:" + name);
-		DebugTextAlien alien = (DebugTextAlien) alienInfoMap.getByClass(DebugTextAlien.class).instantiate();
-		alien.setText("Unknown:" + name);
+		DebugTextAlien alien = new DebugTextAlien("Unknown:" + name);
+		alienInfoMap.attach(alien);
 		return alien;
 	}
 
 	@Override
-	public Anims loadAnims(String animsName) {
-		return animsPool.expect(animsName);
+	public Anim loadAnim(String animsName) {
+		Anims anims = animsPool.expect(animsName);
+		Anim anim = anims.find(0);
+		return anim;
 	}
 
 	/**
@@ -698,9 +700,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 *            The {@link Alien} to complete.
 	 */
 	private void addNewAlien(Alien alien) {
-		AlienInfo ai = alienInfoMap.getByClass(alien.getClass());
-		alien.alienInfo = ai;
-		ai.connectAnims(alien, animsPool);
+		alienInfoMap.attach(alien);
+		alien.alienInfo.connectAnims(alien, animsPool);
 		loadAlienIntoWorld(alien);
 	}
 
@@ -1108,9 +1109,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// levelNumber++;
 		// }
 
-		mode = GameMode.START;
 
-		completed = false;
+		
+		
+
 		alienTracker = new AlienTracker();
 
 		// work out what Anims we need
@@ -1133,21 +1135,16 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// load what we do need
 		animsPool.unloadReload(animsNeeded);
 
-		if (hud == null) {
-			Anims lifeAnims = animsPool.expect("0life");
-			hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
-			statusDisplay = new StatusDisplay(gc, font);
-		}
 
 		// inject them into the aliens
 		// and load the aliens into the world
 		for (Alien alien : aliens) {
-			if (alien.alienInfo != null) {
-				alien.alienInfo.connectAnims(alien, animsPool);
-			}
+			alien.alienInfo.connectAnims(alien, animsPool); // TODO: WTF
 			loadAlienIntoWorld(alien);
 		}
 
+		
+		
 		createHorizon(pl.horizon);
 		if (blockSet == null || !worldName.equals(blockSet.worldName)) {
 			reloadBlockSet();
@@ -1168,6 +1165,19 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gemsCollected = 0;
 
 		timeRemaining = pl.timeGiven * Const.FPS + Const.FPS - 1;
+
+		if (hud == null) {
+			Anims lifeAnims = animsPool.expect("0life");
+			hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
+			statusDisplay = new StatusDisplay(gc, font);
+		}
+
+		
+		
+		
+		
+		completed = false;
+		mode = GameMode.START;
 
 		captureRecording();
 
@@ -1193,7 +1203,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
 		createStatusScreen(text);
-
 	}
 
 	protected void selectWorld(String name) {
@@ -1213,13 +1222,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 			@Override
 			public void visit(Alien a) {
 				if (a instanceof MapBoundsAlien) {
-					Box b = ((MapBoundsAlien) a).bounds;
-					b = b.copy();
+					Box b = ((MapBoundsAlien) a).bounds.copy();
 					b.snapOutTo(Const.BLOCK_SIZE);
 					boxes.add(b);
 				}
 			}
 		});
+		// what is the smallest one that has the player in it?
 		Box bounds = WHOLE_MAP_BOUNDS_IN_PIXELS;
 		long bestArea = Long.MAX_VALUE;
 		for (Box box : boxes) {
@@ -1228,6 +1237,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 				bestArea = box.area();
 			}
 		}
+		// that is the one for us!
 		scr.setMapBoundsInPixels(bounds);
 	}
 
@@ -1243,11 +1253,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void whatAnimsDoTheyNeed(List<Alien> aliens, Set<String> animsNeeded) {
 		for (Alien alien : aliens) {
-			if (alien.alienInfo != null) {
-				String s = alien.alienInfo.animsName();
-				if (s != null) {
-					animsNeeded.add(s);
-				}
+			String s = alien.alienInfo.animsName();
+			if (s != null) {
+				animsNeeded.add(s);
 			}
 		}
 	}

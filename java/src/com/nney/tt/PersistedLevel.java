@@ -67,7 +67,7 @@ public class PersistedLevel {
 			sb.append((char) di.readByte());
 		}
 		String id = sb.toString();
-//		System.out.println("Got chunk: >" + id + "<");
+		// System.out.println("Got chunk: >" + id + "<");
 		return id;
 	}
 
@@ -80,7 +80,8 @@ public class PersistedLevel {
 			int y = dis.readShort();
 			boolean goLeft = dis.readByte() != 0;
 
-			// and stuff that into the game the modern way with a PlayerPositionAlien
+			// and stuff that into the game the modern way with a
+			// PlayerPositionAlien
 			PlayerAlien alien = (PlayerAlien) af.make(201);
 			alien.c = new Coord(x, y);
 			alien.goLeft = goLeft;
@@ -98,27 +99,28 @@ public class PersistedLevel {
 			int maxx = dis.readByte() & 0xff;
 			int miny = dis.readByte() & 0xff;
 			int maxy = dis.readByte() & 0xff;
-	
+
 			// horizontally, at least, it
 			// seemed like we saved an exclusive box
 			// where as we need an inclusive one
-			// (maybe that was related to have the screen an extra block wide for
+			// (maybe that was related to have the screen an extra block wide
+			// for
 			// scrolling reasons)
 			maxx++;
 			// maxy++;
-	
+
 			// also vertical levels were strangely less than 18 wide
 			// (when 18 was there actual width)
 			maxx = Math.max(minx + (18 - 1), maxx);
-	
+
 			assert maxx < GameMap.MAP_WIDTH;
 			assert maxy < GameMap.MAP_HEIGHT;
 			assert minx < maxx;
 			assert miny < maxy;
-			
+
 			MapBoundsAlien alien = (MapBoundsAlien) af.make(202);
 			alien.bounds = new Box(minx, miny, maxx, maxy).mult2(Const.BLOCK_SIZE);
-//			System.out.println("Bounds:"+alien.bounds);
+			// System.out.println("Bounds:"+alien.bounds);
 			aliens.add(alien);
 		}
 	}
@@ -233,14 +235,12 @@ public class PersistedLevel {
 		dd.write("objects");
 		dd.beginArray();
 		for (Alien a : aliens) {
-			if (a.alienInfo != null) {
-				if (!a.alienInfo.internal()) {
-					dd.beginDict();
-					dd.write("type");
-					dd.write(a.alienInfo.name);
-					APS.saveProps(a, dd);
-					dd.end();
-				}
+			if (!a.alienInfo.internal()) {
+				dd.beginDict();
+				dd.write("type");
+				dd.write(a.alienInfo.name);
+				APS.saveProps(a, dd);
+				dd.end();
 			}
 		}
 		dd.end();
@@ -251,7 +251,7 @@ public class PersistedLevel {
 		dd.end();
 
 		try {
-			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\"+mapName+".txt");
+			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + mapName + ".txt");
 			w.write(sb.toString());
 			w.close();
 		}

@@ -102,7 +102,7 @@ public class AlienInfoMap {
 		}
 	}
 
-	public AlienInfo getByClass(Class<? extends Alien> c) {
+	private AlienInfo getByClass(Class<? extends Alien> c) {
 		// it's a problem if we cannot give an unambiguous answer
 		Integer cuc = classUseCount.get(c);
 		int icuc = cuc==null ? 0 : cuc;
@@ -111,7 +111,13 @@ public class AlienInfoMap {
 		}
 		return classToAlienInfo.get(c);
 	}
-
+	
+	public void attach(Alien alien) {
+		AlienInfo ai = getByClass(alien.getClass());
+		alien.alienInfo = ai;
+	}
+	
+	
 	/**
 	 * @return A read only list of all the alien names available.
 	 */
@@ -146,6 +152,6 @@ public class AlienInfoMap {
 	}
 
 	static String typeCodeToName(int typeCode) {
-		return "_#"+typeCode+"_";
+		return AlienInfo.makeInternalName("tc"+typeCode);
 	}
 }
