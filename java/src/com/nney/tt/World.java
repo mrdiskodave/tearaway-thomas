@@ -662,7 +662,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	// ---------------------------------------------------------------------------
-	// UPDATING OF THINGS
+	// ALIEN LIFECYCLE
 
 	@Override
 	public Alien instantiateAttachConnect(AlienInfo alienInfo) {
@@ -717,12 +717,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 		alienTracker.delayedAdd(alien);
 	}
 
-	
-	
-	
-	
-	
-	
+	// ---------------------------------------------------------------------------
+
 	
 	
 	
@@ -749,10 +745,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 				alienIterator.remove();
 			}
 		}
-	}
-
-	public void drawAliensForMapper() {
-		updateAliens(true);
 	}
 
 	private void updateAliens(boolean mapper) {
@@ -1113,12 +1105,21 @@ public class World implements AlienServices, WorldServicesToMapper {
 			public Alien make(int typeCode) {
 				return instantiateAttachByTypeCode(typeCode);
 			}
-
-			// TODO: by Class as well?
-
+			
 			@Override
 			public void selectWorld(String name) {
 				World.this.selectWorld(name);
+			}
+
+			@Override
+			public Alien make(String name) {
+				return instantiateAttachByName(name);
+			}
+
+
+			@Override
+			public void wrapExisting(Alien alien) {
+				alienInfoMap.attach(alien);
 			}
 		};
 		pl.populateFromLevelInfo(af, levelNumber);
@@ -1160,6 +1161,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 			load(alien);
 		}
 
+		
+		
+		
+		
+		
+		
 		
 		
 		createHorizon(pl.horizon);

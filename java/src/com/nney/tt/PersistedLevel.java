@@ -82,7 +82,8 @@ public class PersistedLevel {
 
 			// and stuff that into the game the modern way with a
 			// PlayerPositionAlien
-			PlayerAlien alien = (PlayerAlien) af.make(201);
+			PlayerAlien alien = new PlayerAlien();
+			af.wrapExisting(alien);
 			alien.c = new Coord(x, y);
 			alien.goLeft = goLeft;
 			aliens.add(alien);
@@ -118,7 +119,8 @@ public class PersistedLevel {
 			assert minx < maxx;
 			assert miny < maxy;
 
-			MapBoundsAlien alien = (MapBoundsAlien) af.make(202);
+			MapBoundsAlien alien = new MapBoundsAlien();
+			af.wrapExisting(alien);
 			alien.bounds = new Box(minx, miny, maxx, maxy).mult2(Const.BLOCK_SIZE);
 			// System.out.println("Bounds:"+alien.bounds);
 			aliens.add(alien);

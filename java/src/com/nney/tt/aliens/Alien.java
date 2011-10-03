@@ -132,6 +132,8 @@ public abstract class Alien {
 		}
 	}
 
+	
+	
 	public void attach(AlienInfo alienInfo2) {
 		fromTo(LifeCycle.INSTANTIATED, LifeCycle.ATTACH);
 		alienInfo = alienInfo2;
