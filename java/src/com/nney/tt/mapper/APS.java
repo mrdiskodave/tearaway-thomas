@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Box;
@@ -79,6 +80,13 @@ public class APS {
 		for (Prop prop : props) {
 			dd.write(prop.label());
 			prop.save(dd);
+		}
+	}
+
+	public static void loadProps(Alien a, DataItem di) {
+		List<Prop> props = APS.propsForAlien(a);
+		for (Prop prop : props) {
+			prop.load(di.requireField(prop.label()));
 		}
 	}
 

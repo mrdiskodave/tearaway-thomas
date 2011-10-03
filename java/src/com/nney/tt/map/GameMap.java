@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 import com.nney.json.DataDestination;
+import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
 
 public class GameMap {
@@ -82,6 +83,12 @@ public class GameMap {
 	public void saveMap(DataDestination dd) {
 		for (int y=0; y<MAP_HEIGHT; y++) {
 			dd.write(TextMapRle.pack(map, y*MAP_WIDTH, MAP_WIDTH));
+		}
+	}
+	
+	public void loadMap(DataItem di) {
+		for (int y=0; y<MAP_HEIGHT; y++) {
+			TextMapRle.unpack(map, y*MAP_WIDTH, MAP_WIDTH, di.requireElement(y).requireString());
 		}
 	}
 }

@@ -22,6 +22,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.resources.TTResource;
+import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 
 public class PersistedLevel {
@@ -58,7 +59,9 @@ public class PersistedLevel {
 		title = level.requireField("title").requireString();
 		mapName = level.requireField("map").requireString();
 		af.selectWorld(worldName);
-		loadLegacy(af, TTResource.legacyMap(mapName));
+		
+//		loadLegacy(af, TTResource.legacyMap(mapName));
+		loadNew(af, mapName);
 	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
@@ -216,6 +219,19 @@ public class PersistedLevel {
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+	
+	void loadNew(AlienFactory af, String mapName) {
+		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\maps\\" + mapName + ".txt");
+		DataItem level = TTResource.diFromText(o);
+		gameMap = new GameMap();
+		gameMap.loadMap(level.requireField("blocks"));
+		for (DataItem di: level.requireField("objects").requireList()) {
+			String type = di.requireField("type").requireString();
+			Alien alien = af.make(type);
+			APS.loadProps(alien, di);
+			aliens.add(alien);
 		}
 	}
 

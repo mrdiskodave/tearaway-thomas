@@ -87,7 +87,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 1;
+	private int levelNumber = 0;
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -1084,8 +1084,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-		// int a = 1;
-		// while (a == 1) {
+//		 int a = 1;
+//		 while (a == 1) {
 
 		System.out.println("Loading level " + levelNumber);
 
@@ -1114,9 +1114,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 		};
 		pl.populateFromLevelInfo(af, levelNumber);
-		// pl.save();
-		// levelNumber++;
-		// }
+//		 pl.save();
+//		 levelNumber++;
+//		 }
 
 
 		
