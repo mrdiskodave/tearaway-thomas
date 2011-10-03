@@ -51,8 +51,7 @@ public abstract class Prop {
 	// ---------------------------------------------------------------------------
 	// GRAPHICAL UI 
 
-	public Coord[] getBats() {
-		return null;
+	public void getBats(List<Bat> bats) {
 	}
 	
 	/**
@@ -63,22 +62,6 @@ public abstract class Prop {
 	 */
 	void drawAuxBatStuff(BatGC bt) {}
 
-	/**
-	 * Respond to a bat movement.
-	 * 
-	 * @param what
-	 *            A bat number where <code>0</code> is the first bat sent to the
-	 *            {@link BatGC} by {@link #drawAuxBatStuff(BatGC)} and
-	 *            they number upward from there.
-	 * @param where
-	 *            Where the user is trying to move the bat to (in world
-	 *            coordinates).
-	 */
-	void onBatMovement(int what, Coord where) {
-		// shouldn't be called on things that don't know how to respond to it
-		assert false;
-	}
-	
 	public void moveBy(Coord delta) {
 	}
 

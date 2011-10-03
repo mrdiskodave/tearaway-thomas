@@ -1,7 +1,6 @@
 package com.nney.tt.mapper;
 
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class SuperBatRecord implements BatRecord {
@@ -15,7 +14,7 @@ public class SuperBatRecord implements BatRecord {
 
 	@Override
 	public boolean inside(Coord c) {
-		return Box.around(where, 10).inside(c);
+		return BatGCImpl.boxForSuperBat(where).inside(c);
 	}
 
 	@Override

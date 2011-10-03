@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import java.util.List;
+
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.tt.World;
@@ -12,45 +14,86 @@ public class BoxVisualProp extends VisualProp<Box> {
 	BoxVisualProp(PropPack pp) {
 		super(pp);
 	}
-	
+
 	@Override
-	public Coord[] getBats() {
-		Box t = read();
-		return new Coord[] { location(), t.topLeft(), t.bottomRight(), t.topRight(), t.bottomLeft() };
+	public void getBats(List<Bat> bats) {
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				return location();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				onBring(where);
+			}
+		});
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				Box t = read();
+				return t.topLeft();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				Box t = read();
+				t.setLeft(where.x, BORDER);
+				t.setTop(where.y, BORDER);
+			}
+		});
+
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				Box t = read();
+				return t.bottomRight();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				Box t = read();
+				t.setRight(where.x, BORDER);
+				t.setBottom(where.y, BORDER);
+			}
+		});
+
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				Box t = read();
+				return t.topRight();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				Box t = read();
+				t.setRight(where.x, BORDER);
+				t.setTop(where.y, BORDER);
+			}
+		});
+
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				Box t = read();
+				return t.bottomLeft();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				Box t = read();
+				t.setLeft(where.x, BORDER);
+				t.setBottom(where.y, BORDER);
+			}
+		});
+
 	}
-	
+
 	@Override
 	public void drawAuxBatStuff(BatGC rt) {
 		Box t = read();
 		rt.drawBox(t);
-	}
-
-	@Override
-	void onBatMovement(int what, Coord where) {
-		Box t = read();
-		switch (what) {
-		case 0:
-			onBring(where);
-			break;
-		case 1:
-			t.setLeft(where.x, BORDER);
-			t.setTop(where.y, BORDER);
-			break;
-		case 2:
-			t.setRight(where.x, BORDER);
-			t.setBottom(where.y, BORDER);
-			break;
-		case 3:
-			t.setRight(where.x, BORDER);
-			t.setTop(where.y, BORDER);
-			break;
-		case 4:
-			t.setLeft(where.x, BORDER);
-			t.setBottom(where.y, BORDER);
-			break;
-		default:
-			assert false;
-		}
 	}
 
 	@Override
@@ -67,32 +110,30 @@ public class BoxVisualProp extends VisualProp<Box> {
 		validate();
 	}
 
-
 	@Override
 	public void validate() {
 		Box t = read();
 		t.resideInside(World.WHOLE_MAP_BOUNDS_IN_PIXELS);
 	}
-	
+
 	@Override
 	public void moveBy(Coord delta) {
 		Box t = read();
 		t.add(delta);
 	}
 
-
 	@Override
 	Coord location() {
 		Box t = read();
 		return t.middle();
 	}
-	
+
 	@Override
 	void save(DataDestination d) {
 		Box t = read();
 		t.save(d);
 	}
-	
+
 	@Override
 	void load(DataItem d) {
 		write(Box.load(d));

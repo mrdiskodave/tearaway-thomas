@@ -4,13 +4,12 @@ import com.nney.tt.geom.Coord;
 
 public class CommonBatRecord implements BatRecord {
 	private final Coord where;
-	private final Prop who;
-	private final int what;
+	private Bat bat;
 
-	CommonBatRecord(Prop who, int what, Coord where) {
-		this.who = who;
-		this.what = what;
-		this.where = where;
+	public CommonBatRecord(Bat bat2) {
+		where = bat2.where();
+		bat = bat2;
+		
 	}
 
 	@Override
@@ -24,7 +23,7 @@ public class CommonBatRecord implements BatRecord {
 		// because the BatMovingPen has a reference to us.
 		// We track the cumulative movement here:
 		where.add(delta);
-		
-		who.onBatMovement(what, where);
+
+		bat.onMove(where);
 	}
 }

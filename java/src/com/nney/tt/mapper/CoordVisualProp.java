@@ -11,17 +11,21 @@ public class CoordVisualProp extends VisualProp<Coord> {
 		super(pp);
 	}
 
-	@Override
-	public Coord[] getBats() {
-		return new Coord[] { location() };
-	}
-
-	@Override
-	void onBatMovement(int what, Coord where) {
-		assert what == 0;
-		onBring(where);
-	}
 	
+	@Override
+	public void getBats(List<Bat> bats) {
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				return location();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				onBring(where);
+			}
+		});
+	}
 
 	@Override
 	void onBring(Coord c) {

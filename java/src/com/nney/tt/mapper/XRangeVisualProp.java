@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import java.util.List;
+
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.tt.World;
@@ -14,36 +16,58 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 		super(pp);
 	}
 
-	@Override
-	public Coord[] getBats() {
-		XRange t = read();
-		int apy = alienPos().y;
-		return new Coord[] { location(), new Coord(t.left, apy), new Coord(t.right, apy) };
-	}
 	
+	@Override
+	public void getBats(List<Bat> bats) {
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				return location();
+			}
+
+			@Override
+			void onMove(Coord where) {
+				onBring(where);
+			}
+		});
+
+
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				XRange t = read();
+				int apy = alienPos().y;
+				return new Coord(t.left, apy);
+			}
+
+			@Override
+			void onMove(Coord where) {
+				XRange t = read();
+				t.setLeft(where.x, BORDER);
+			}
+		});
+
+		bats.add(new Bat() {
+			@Override
+			Coord where() {
+				XRange t = read();
+				int apy = alienPos().y;
+				return new Coord(t.right, apy);
+			}
+
+			@Override
+			void onMove(Coord where) {
+				XRange t = read();
+				t.setRight(where.x, BORDER);
+			}
+		});
+	}
+		
 	@Override
 	public void drawAuxBatStuff(BatGC rt) {
 		XRange t = read();
 		Box box = new Box(t.left, Integer.MIN_VALUE / 4, t.right, Integer.MAX_VALUE / 4);
 		rt.drawBox(box);
-	}
-
-	@Override
-	void onBatMovement(int what, Coord where) {
-		XRange t = read();
-		switch (what) {
-		case 0:
-			onBring(where);
-			break;
-		case 1:
-			t.setLeft(where.x, BORDER);
-			break;
-		case 2:
-			t.setRight(where.x, BORDER);
-			break;
-		default:
-			assert false;
-		}
 	}
 
 	@Override

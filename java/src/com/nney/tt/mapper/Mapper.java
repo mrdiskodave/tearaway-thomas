@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.nney.tt.AlienInfo;
@@ -524,16 +525,13 @@ public class Mapper implements MapperServicesToPens {
 				BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 				p.drawAuxBatStuff(batGc);
 
-				Coord[] bps = p.getBats();
-				if (bps != null) {
-					for (int x = 0; x < bps.length; x++) {
-						bats.add(new CommonBatRecord(p, x, bps[x]));
-					}
-
-					for (Coord c : bps) {
-						batGc.drawBat(c);
-					}
+				ArrayList<Bat> lbats = new ArrayList<Bat>();
+				p.getBats(lbats);
+				for (Bat lbat: lbats) {
+					bats.add(new CommonBatRecord(lbat));
+					batGc.drawBat(lbat.where());
 				}
+
 			}
 			bats.add(new SuperBatRecord(getSelectedAlien()));
 
