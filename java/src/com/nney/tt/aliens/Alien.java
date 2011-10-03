@@ -16,15 +16,11 @@ import com.nney.tt.sprites.Sprite;
  */
 public abstract class Alien {
 	enum LifeCycle {
-		INSTANTIATED,
-		ATTACH,
-		CONNECT,
-		LOAD,
-		REMOVE
+		INSTANTIATED, ATTACH, CONNECT, LOAD, UNLOAD
 	}
-	
-	private LifeCycle lc = LifeCycle.INSTANTIATED;
-	
+
+	private LifeCycle lifeCycle = LifeCycle.INSTANTIATED;
+
 	public AlienInfo alienInfo;
 	protected AnimPlayer animPlayer = new AnimPlayer();
 	public Anims anims;
@@ -109,10 +105,6 @@ public abstract class Alien {
 
 	}
 
-	public void done() {
-		remove = true;
-	}
-
 	public void mapperUpdate() {
 		Coord c = getLocation();
 		if (anims != null) {
@@ -140,27 +132,37 @@ public abstract class Alien {
 		}
 	}
 
-
 	public void attach(AlienInfo alienInfo2) {
-		assert lc == LifeCycle.INSTANTIATED;
+		fromTo(LifeCycle.INSTANTIATED, LifeCycle.ATTACH);
 		alienInfo = alienInfo2;
-		lc = LifeCycle.ATTACH;
 	}
-	
+
 	public void connect(AnimsPool ap) {
-		assert lc == LifeCycle.ATTACH;
+		fromTo(LifeCycle.ATTACH, LifeCycle.CONNECT);
 		String a = alienInfo.animsName();
-		if (a!=null) {
+		if (a != null) {
 			anims = ap.expect(a);
 		}
-		lc = LifeCycle.CONNECT;
 	}
 
 	public void load(AlienServices world) {
-		assert lc == LifeCycle.CONNECT;
+		fromTo(LifeCycle.CONNECT, LifeCycle.LOAD);
 		srv = world;
 		onLoaded();
-		lc = LifeCycle.LOAD;
 	}
 
+	public void done() {
+		fromTo(LifeCycle.LOAD, LifeCycle.UNLOAD);
+		remove = true;
+	}
+
+	public void reinstate() {
+		fromTo(LifeCycle.UNLOAD, LifeCycle.LOAD);
+		remove = false;
+	}
+
+	private void fromTo(LifeCycle pre, LifeCycle post) {
+		assert lifeCycle == pre;
+		lifeCycle = post;
+	}
 }

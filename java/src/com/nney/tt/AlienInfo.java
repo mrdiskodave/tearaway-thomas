@@ -29,10 +29,9 @@ public class AlienInfo {
 		this(id, name, animBaseName, -1, alienClass);
 	}
 
-	Alien instantiateAttach() {
+	Alien instantiate() {
 		try {
 			Alien answer = alienClass.newInstance();
-			answer.attach(this);
 			return answer;
 		}
 		catch (InstantiationException e) {

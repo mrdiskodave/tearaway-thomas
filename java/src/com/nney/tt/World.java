@@ -667,7 +667,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public Alien instantiateAttachConnect(AlienInfo alienInfo) {
 		// for the mapper
-		Alien alien = alienInfo.instantiateAttach();
+		Alien alien = alienInfo.instantiate();
+		alien.attach(alienInfo);
 		alien.connect(animsPool);
 		return alien;
 	}
@@ -677,13 +678,18 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private Alien instantiateAttachByName(String name) {
+		Alien answer;
 		if (alienInfoMap.nameExists(name)) {
-			return alienInfoMap.getByName(name).instantiateAttach();
+			AlienInfo alienInfo = alienInfoMap.getByName(name);
+			answer = alienInfo.instantiate();
+			answer.attach(alienInfo);
 		}
-		System.out.println("Unknown Alien Name:" + name);
-		DebugTextAlien alien = new DebugTextAlien("Unknown:" + name);
-		alienInfoMap.attach(alien);
-		return alien;
+		else {
+			System.out.println("Unknown Alien Name:" + name);
+			answer = new DebugTextAlien("Unknown:" + name);
+			alienInfoMap.attach(answer);
+		}
+		return answer;
 	}
 	
 	/**
@@ -707,16 +713,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void reinstate(Alien alien) {
-		alien.remove = false;
+		alien.reinstate();
 		alienTracker.delayedAdd(alien);
 	}
 
-
 	
 	
 	
 	
-
+	
+	
+	
+	
+	
+	
 	@Override
 	public Anim mapperLoadAnim(String animsName) {
 		Anims anims = animsPool.expect(animsName);
