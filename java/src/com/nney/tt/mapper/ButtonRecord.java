@@ -4,15 +4,12 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class ButtonRecord implements Collidable {
-	private final int what;
-	private final Prop who;
-	private final ButtonPressServices bps;
+	private final Button who;
 	private final Box collisionBox;
 
-	public ButtonRecord(int what, Prop who, ButtonPressServices bps, Box collisionBox) {
-		this.what = what;
+
+	public ButtonRecord(Button who, Box collisionBox) {
 		this.who = who;
-		this.bps = bps;
 		this.collisionBox = collisionBox;
 	}
 
@@ -22,7 +19,7 @@ public class ButtonRecord implements Collidable {
 	}
 
 	public void press() {
-		who.onButtonPress(what, bps);
+		who.press();
 	}
 
 	public String getUniqueName() {

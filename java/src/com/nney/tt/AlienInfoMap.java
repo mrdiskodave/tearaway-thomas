@@ -26,8 +26,10 @@ public class AlienInfoMap {
 	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
+
 	private final List<String> names = new ArrayList<String>();
 	private final List<String> animList = new ArrayList<String>();
+	
 
 	void add(AlienInfo a) {
 		aim.add(a);

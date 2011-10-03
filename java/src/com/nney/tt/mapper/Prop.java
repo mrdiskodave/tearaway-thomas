@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import java.util.List;
+
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
@@ -43,13 +45,7 @@ public abstract class Prop {
 	// ---------------------------------------------------------------------------
 	// TEXT UI 
 	
-	String[] getButtons() {
-		return null;
-	}
-
-	void onButtonPress(int what, ButtonPressServices bps) {
-		// shouldn't be called on things that don't know how to respond to it
-		assert false;
+	void getButtons(List<Button> buttons, ButtonPressServices bps) {
 	}
 
 	// ---------------------------------------------------------------------------

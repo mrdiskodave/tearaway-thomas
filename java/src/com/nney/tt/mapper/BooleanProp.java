@@ -1,8 +1,9 @@
 package com.nney.tt.mapper;
 
+import java.util.List;
+
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
-
 
 public class BooleanProp extends SpecificProp<Boolean> {
 	private final String textTrue;
@@ -26,15 +27,19 @@ public class BooleanProp extends SpecificProp<Boolean> {
 	}
 
 	@Override
-	String[] getButtons() {
-		return new String[] { "change" };
-	}
+	void getButtons(List<Button> buttons, ButtonPressServices bps) {
+		buttons.add(new Button() {
+			@Override
+			String name() {
+				return "change";
+			}
 
-	@Override
-	void onButtonPress(int what, ButtonPressServices bps) {
-		write(!read());
+			@Override
+			void press() {
+				write(!read());
+			}
+		});
 	}
-
 
 	@Override
 	void save(DataDestination d) {

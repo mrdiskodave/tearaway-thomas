@@ -722,4 +722,9 @@ public class Mapper implements MapperServicesToPens {
 	MapperGC getMGC() {
 		return mgc;
 	}
+
+	@Override
+	public boolean playerFall(Coord where, int fallMax) {
+		return srv.playerFall(where, fallMax);
+	}
 }

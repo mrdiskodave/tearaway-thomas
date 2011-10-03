@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import java.util.ArrayList;
 
 public class PropDrawer {
 	private int y;
@@ -8,7 +9,8 @@ public class PropDrawer {
 	private final HoverStatus hs;
 	private final ButtonPressServices bps;
 
-	public PropDrawer(ButtonPressServices bps, HoverStatus hs, StatusLayer statusLayer, CollidableList<ButtonRecord> buttons) {
+	public PropDrawer(ButtonPressServices bps, HoverStatus hs, StatusLayer statusLayer,
+			CollidableList<ButtonRecord> buttons) {
 		this.bps = bps;
 		this.hs = hs;
 		this.statusLayer = statusLayer;
@@ -19,17 +21,15 @@ public class PropDrawer {
 		statusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
 		statusLayer.draw(10, y, ButtonState.PASSIVE, clip(p.text(), 20));
 
-		String[] buttons = p.getButtons();
-		if (buttons != null) {
-			int x = 30;
-			for (int b = 0; b < buttons.length; b++) {
-				String buttonText = "[" + buttons[b] + "]";
-				final int bb = b;
-				ButtonRecord br = new ButtonRecord(bb, p, bps, statusLayer.getBox(x, y, buttonText));
-				buttonRecords.add(br);
-				statusLayer.draw(x, y, hs.status(br.getUniqueName()), buttonText);
-				x += buttonText.length() + 1;
-			}
+		ArrayList<Button> buttons = new ArrayList<Button>();
+		p.getButtons(buttons, bps);
+		int x = 30;
+		for (Button button: buttons) {
+			String buttonText = "[" + button.name() + "]";
+			ButtonRecord br = new ButtonRecord(button, statusLayer.getBox(x, y, buttonText));
+			buttonRecords.add(br);
+			statusLayer.draw(x, y, hs.status(br.getUniqueName()), buttonText);
+			x += buttonText.length() + 1;
 		}
 		y++;
 	}

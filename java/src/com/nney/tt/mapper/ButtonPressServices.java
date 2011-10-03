@@ -6,4 +6,6 @@ public interface ButtonPressServices {
 	Coord screenCentre();
 	
 	void setScreenCentre(Coord c);
+	
+	boolean playerFall(Coord where, int fallMax);
 }

@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import java.util.List;
+
 import com.nney.tt.geom.Coord;
 
 /**
@@ -14,23 +16,31 @@ public abstract class VisualProp<T> extends SpecificProp<T> {
 	
 	abstract Coord location();
 	
-	@Override
-	String[] getButtons() {
-		return new String[] { "find", "bring" };
-	}
 	
 	@Override
-	void onButtonPress(int what, ButtonPressServices bps) {
-		switch (what) {
-		case 0:
-			// find
-			bps.setScreenCentre(location());
-			break;
-		case 1:
-			// bring
-			onBring(bps.screenCentre());
-			break;
-		}
+	void getButtons(List<Button> buttons, final ButtonPressServices bps) {
+		buttons.add(new Button() {
+			@Override
+			String name() {
+				return "find";
+			}
+
+			@Override
+			void press() {
+				bps.setScreenCentre(location());
+			}
+		});
+		buttons.add(new Button() {
+			@Override
+			String name() {
+				return "bring";
+			}
+
+			@Override
+			void press() {
+				onBring(bps.screenCentre());
+			}
+		});
 	}
 
 	abstract void onBring(Coord c);

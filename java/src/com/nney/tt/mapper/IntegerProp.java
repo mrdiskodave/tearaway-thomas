@@ -1,5 +1,7 @@
 package com.nney.tt.mapper;
 
+import java.util.List;
+
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 
@@ -14,18 +16,29 @@ public class IntegerProp extends SpecificProp<Integer> {
 	}
 	
 	@Override
-	String[] getButtons() {
-		return new String[] { "more", "less" };
-	}
+	void getButtons(List<Button> buttons, ButtonPressServices bps) {
+		buttons.add(new Button() {
+			@Override
+			String name() {
+				return "more";
+			}
 
-	@Override
-	void onButtonPress(int what, ButtonPressServices bps) {
-		if (what==0) {
-			write(read()+1);
-		}
-		else {
-			write(read()-1);
-		}
+			@Override
+			void press() {
+				write(read()+1);
+			}
+		});
+		buttons.add(new Button() {
+			@Override
+			String name() {
+				return "less";
+			}
+
+			@Override
+			void press() {
+				write(read()-1);
+			}
+		});
 	}
 	
 	@Override

@@ -719,10 +719,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// ---------------------------------------------------------------------------
 
-	
-	
-	
-	
 	@Override
 	public Anim mapperLoadAnim(String animsName) {
 		Anims anims = animsPool.expect(animsName);

@@ -28,4 +28,6 @@ public interface WorldServicesToMapper {
 	Anim mapperLoadAnim(String animsName);
 
 	void setBlockConfig(Config c);
+
+	boolean playerFall(Coord where, int fallMax);
 }
