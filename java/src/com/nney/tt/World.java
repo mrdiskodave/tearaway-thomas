@@ -100,6 +100,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	// TODO: secret areas should be bounded by those things
 
+	// TODO: code ballon man
+	// TODO: code lives--
+	// TODO: mapper: reset on enter?
+	
 	private int score = 0;
 
 	private int lives = 3;
@@ -166,12 +170,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private int gemsCollected;
 
-	// ---------------------------------------------------------------------------
-	// PAUSING
-
-	/**
-	 * Are we paused?
-	 */
 	enum GameMode {
 		PLAYING, PAUSED, COMPLETE, START
 	}
@@ -212,7 +210,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * <p>
 	 * ORRR.... I was thinking about using SpriteRecords in order to have to
 	 * {@link Alien#update()} the aliens according to their {@link Alien#depth}.
-	 * Recording for one frame is awkward - it delays are intent by one frame
+	 * Recording for one frame is awkward - it delays our intent by one frame
 	 * ... meaning we have to track that intent and also the game world moves on
 	 * by one frame. Maybe we record all the time? It need not generate garbage
 	 * if done right and then Aliens could sit in a single list. That's
@@ -310,9 +308,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		aim.addAnn(PortraitAlien.class);
 		aim.addAnn(SpriteAlien.class);
 		aim.addAnn(ScoreCollectableAlien.class);
-
-		// aim.generateIndex();
-		// aim.dump();
 
 		alienInfoMap = aim;
 
@@ -1098,13 +1093,13 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		AlienFactory af = new AlienFactory() {
 			@Override
-			public Alien make(int typeCode) {
-				return instantiateAttachByTypeCode(typeCode);
-			}
-			
-			@Override
 			public void selectWorld(String name) {
 				World.this.selectWorld(name);
+			}
+
+			@Override
+			public Alien make(int typeCode) {
+				return instantiateAttachByTypeCode(typeCode);
 			}
 
 			@Override
@@ -1157,14 +1152,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 			load(alien);
 		}
 
-		
-		
-		
-		
-		
-		
-		
-		
 		createHorizon(pl.horizon);
 		if (blockSet == null || !worldName.equals(blockSet.worldName)) {
 			reloadBlockSet();

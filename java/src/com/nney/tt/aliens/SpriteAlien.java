@@ -19,11 +19,11 @@ public class SpriteAlien extends AlienWithLocation {
 	@Override
 	public void loadFromLegacyData() {
 		foreground = BitOp.test(loadByte(OBflags), FLAG_BEHIND);
-		onPropUpdate();
 	}
 
 	@Override
 	public void onPropUpdate() {
+		super.onPropUpdate();
 		depth = foreground ? DEPTH_FG_SCENARY : DEPTH_BG_SCENARY;
 	}
 

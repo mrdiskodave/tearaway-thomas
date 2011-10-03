@@ -60,12 +60,11 @@ public class APS {
 		}
 	}
 
-	public static void moveProps(Alien dest, Coord diff) {
+	public static void moveProps(Alien dest, Coord delta) {
 		List<Prop> props = APS.propsForAlien(dest);
 		for (Prop prop : props) {
-			prop.moveBy(diff);
+			prop.moveBy(delta);
 		}
-		dest.onPropUpdate();
 	}
 
 	public static void validateAlien(Alien a) {

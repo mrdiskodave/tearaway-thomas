@@ -19,8 +19,6 @@ public class SuperBatRecord implements BatRecord {
 
 	@Override
 	public void press(Coord delta) {
-		for (Prop p: APS.propsForAlien(alien)) {
-			p.moveBy(delta);
-		}
+		APS.moveProps(alien, delta);
 	}
 }

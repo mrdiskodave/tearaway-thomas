@@ -33,10 +33,13 @@ import com.nney.tt.sprites.Sprite;
  * 		LMB - change alien properties by clicking on the panel at the bottom of the screen
  * 		Cursor Keys - nudge a control point by one pixel
  *      [C] - Copy alien to the mouse
+ *      [pageup/down] - Choose alien
+ *      [N] - New Alien
  * [D] Draw Tool - for changing blocks
  * 		Hold RMB - temporary use of the Block Chooser Tool from the Drawing Tool
- * 		Hold CTRL - block choice follows mouse movements
+ * 		Hold ALT - block choice follows mouse movements
  *                  (useful for drawing multi-block things from the block palette)
+ *      Ctrl+CursorKeys change block
  * [B] Block Chooser Tool - full screen current-block choosing tool
  * 		LMB - select block
  * 		Cursor Keys - change block
@@ -176,8 +179,8 @@ public class Mapper implements MapperServicesToPens {
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
+		
 		tool = drawTool;
-
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
 		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
@@ -283,9 +286,9 @@ public class Mapper implements MapperServicesToPens {
 			}
 		}
 
-		if (haveAlien()) {
-			getSelectedAlien().onPropUpdate();
-		}
+//		if (haveAlien()) {
+//			getSelectedAlien().onPropUpdate();
+//		}
 	}
 
 	private void sayIt(String s) {
@@ -598,17 +601,16 @@ public class Mapper implements MapperServicesToPens {
 
 	@Override
 	public void startAlienEdit() {
-		alienEdit = new AlienEdit(APS.propsForAlien(getSelectedAlien()));
+		Alien a = getSelectedAlien();
+		alienEdit = new AlienEdit(a);
 	}
 
 	@Override
 	public void endAlienEdit() {
 		int size = alienEdit.size();
-		System.out.println(size + " fields changed!");
 		if (size != 0) {
 			undoControler.add(alienEdit);
 		}
-		getSelectedAlien().onPropUpdate();
 	}
 
 	@Override

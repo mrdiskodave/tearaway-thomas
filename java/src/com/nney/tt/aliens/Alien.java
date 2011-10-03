@@ -151,6 +151,7 @@ public abstract class Alien {
 		fromTo(LifeCycle.CONNECT, LifeCycle.LOAD);
 		srv = world;
 		onLoaded();
+		onPropUpdate();
 	}
 
 	public void done() {

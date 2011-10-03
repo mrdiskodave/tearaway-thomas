@@ -36,10 +36,12 @@ class AlienEdit extends SymmetricalUndoRedo {
 		}
 	}
 
-	List<Content> cs = new ArrayList<Content>();
+	private final List<Content> cs = new ArrayList<Content>();
+	private final Alien alien;
 
-	AlienEdit(List<Prop> props) {
-		for (Prop p : props) {
+	AlienEdit(Alien alien) {
+		this.alien = alien;
+		for (Prop p : APS.propsForAlien(alien)) {
 			FieldAccessor fa = p.getFieldAccessor();
 			Object o = fa.getCopy();
 			cs.add(new Content(fa, o));
@@ -68,5 +70,6 @@ class AlienEdit extends SymmetricalUndoRedo {
 		for (Content c : cs) {
 			c.swap();
 		}
+		alien.onPropUpdate();
 	}
 }
