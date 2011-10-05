@@ -8,6 +8,7 @@ public class PartialPointerImpl implements Pointer {
 	private int x;
 	private int y;
 	private int w;
+	private int period;
 
 	protected void setNext(int x0, int y0, int w0, int b0) {
 		lastPosition = currentPosition;
@@ -15,6 +16,7 @@ public class PartialPointerImpl implements Pointer {
 		x = x0;
 		y = y0;
 		w = w0;
+		period++;
 	}
 
 	@Override
@@ -47,5 +49,10 @@ public class PartialPointerImpl implements Pointer {
 		if (Math2.bitTest(pressed, 1)) return Pointer.KEY_RIGHT;
 		if (Math2.bitTest(pressed, 2)) return Pointer.KEY_MIDDLE;
 		return 0;
+	}
+
+	@Override
+	public int periodNumber() {
+		return period;
 	}
 }

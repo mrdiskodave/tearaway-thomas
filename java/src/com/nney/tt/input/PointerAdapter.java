@@ -31,4 +31,9 @@ public class PointerAdapter implements Pointer {
 	public int justPressed() {
 		return target.justPressed();
 	}
+
+	@Override
+	public int periodNumber() {
+		return target.periodNumber();
+	}
 }

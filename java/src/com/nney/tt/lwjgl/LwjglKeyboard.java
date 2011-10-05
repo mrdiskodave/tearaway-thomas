@@ -9,6 +9,7 @@ public class LwjglKeyboard implements Keyboard {
 	private MultiCountingSet<Integer, Integer> keys = new MultiCountingSet<Integer, Integer>();
 
 	private int justPressed;
+	private int period;
 
 	void add(int theirKey, int ourKey) {
 		fromThem.put(theirKey, ourKey);
@@ -135,6 +136,7 @@ public class LwjglKeyboard implements Keyboard {
 	}
 
 	public void handleKeyboard() {
+		period ++;
 		justPressed = 0;
 		while (org.lwjgl.input.Keyboard.next()) {
 			Integer theirKey = org.lwjgl.input.Keyboard.getEventKey();
@@ -153,6 +155,11 @@ public class LwjglKeyboard implements Keyboard {
 				}
 			}
 		}
+	}
+
+	@Override
+	public int periodNumber() {
+		return period;
 	}
 
 }

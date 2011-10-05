@@ -1,35 +1,26 @@
 package com.nney.tt.input;             
 
-public class UnifiedKeyTester implements HasKeys {
+public class UnifiedKeyTester extends SubKeys {
 	private final HasKeys mouse;
 	private final HasKeys keyboard;
-	private int justPressed;
 
 	public UnifiedKeyTester(HasKeys mouse, HasKeys keyboard) {
+		super(keyboard);
 		this.mouse = mouse;
 		this.keyboard = keyboard;
 	}
 	
-	public void nextFrame() {
-		justPressed = getNext();
-	}
-
-	private int getNext() {
-		int x = mouse.justPressed();
-		if (x!=0) {
-			return x;
-		}
-		return keyboard.justPressed();
-	}
-
 	@Override
 	public boolean isDown(int key) {
 		return mouse.isDown(key) || keyboard.isDown(key);
 	}
-	
-	@Override
-	public int justPressed() {
-		return justPressed;
-	}
 
+	@Override
+	protected int getNext() {
+		int k = mouse.justPressed();
+		if (k==0) {
+			k =keyboard.justPressed(); 
+		}
+		return k;
+	}
 }

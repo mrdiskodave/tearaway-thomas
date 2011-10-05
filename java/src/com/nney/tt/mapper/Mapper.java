@@ -96,7 +96,6 @@ public class Mapper implements MapperServicesToPens {
 	final WorldServicesToMapper srv;
 	private final GameMap gameMap;
 
-	private final UnifiedKeyTester ukt2;
 	private final SaveMapBlock[] slots = new SaveMapBlock[12];
 
 	private final Tool blockChooserTool = new BlockChooserTool(this);
@@ -174,8 +173,9 @@ public class Mapper implements MapperServicesToPens {
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
-		this.ukt2 = new UnifiedKeyTester(mouse, keyboard);
-		this.keyboard = ukt2;
+		this.keyboard = new UnifiedKeyTester(mouse, keyboard);
+		
+		
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
@@ -220,7 +220,6 @@ public class Mapper implements MapperServicesToPens {
 
 	public void run() {
 		mgc.nextFrame();
-		ukt2.nextFrame();
 		
 //		int k = justPressed();
 //		if (k!=0) {
