@@ -565,16 +565,6 @@ public class Mapper implements MapperServicesToPens {
 		}
 	}
 
-	String padTo(String s, int x) {
-		int l = s.length();
-		StringBuffer b = new StringBuffer(s.substring(0, Math.min(x, l)));
-		while (l < x) {
-			b.append(' ');
-			l++;
-		}
-		return b.toString();
-	}
-
 	@Override
 	public BatRecord findBat(Coord c) {
 		return bats.find(c);
