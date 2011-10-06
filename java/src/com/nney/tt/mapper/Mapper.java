@@ -13,9 +13,13 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.input.HasKeys;
 import com.nney.tt.input.Keyboard;
+import com.nney.tt.input.Locks;
+import com.nney.tt.input.LocksKeyAdaptor;
+import com.nney.tt.input.NullKeyAdaptor;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.input.UnifiedKeyTester;
+import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
@@ -65,7 +69,7 @@ public class Mapper implements MapperServicesToPens {
 
 	private boolean masksVis;
 	private boolean hiddenVis;
-	
+
 	//
 	// stuff to do with the currentBlock
 	//
@@ -84,12 +88,12 @@ public class Mapper implements MapperServicesToPens {
 	private final AnimPlayer animPlayers[] = new AnimPlayer[TABBING_ALIENS_TOTAL];
 	private static final int ALIENS_TAB_BOX_RADIUS = 70;
 	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
-	
+
 	//
 	// stuff to do with the message
 	//
-//	private final String message;
-//	private int showMessageTimer;
+	// private final String message;
+	// private int showMessageTimer;
 
 	final MapperGC mgc;
 	final private Pointer mouse;
@@ -100,7 +104,8 @@ public class Mapper implements MapperServicesToPens {
 
 	private final Tool blockChooserTool = new BlockChooserTool(this);
 	private final Tool rectangleTool = new RectangleTool(this);
-	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(), new EyeDropperPen(), new DrawingPen()) {
+	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(),
+			new EyeDropperPen(), new DrawingPen()) {
 		@Override
 		void run() {
 			super.run();
@@ -117,20 +122,20 @@ public class Mapper implements MapperServicesToPens {
 			if (isFree()) {
 				int k = srv.justPressed();
 				if (srv.haveAlien()) {
-					if (k==Keyboard.KEY_DELETE) {
+					if (k == Keyboard.KEY_DELETE) {
 						srv.deleteSelectedAlien();
 					}
-					else if (k==Keyboard.KEY_C) {
+					else if (k == Keyboard.KEY_C) {
 						srv.copySelectedAlien();
 					}
 				}
-				if (k==Keyboard.KEY_N){
+				if (k == Keyboard.KEY_N) {
 					srv.createAlien();
 				}
 				srv.keyboardAlienChoice();
 			}
 		}
-		
+
 		@Override
 		void presentation() {
 			srv.showSelectedAlienProps();
@@ -160,7 +165,7 @@ public class Mapper implements MapperServicesToPens {
 
 	private UndoControler undoControler;
 
-	private UnifiedKeyTester keyboard;
+	private HasKeys keyboard;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -173,13 +178,12 @@ public class Mapper implements MapperServicesToPens {
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
-		this.keyboard = new UnifiedKeyTester(mouse, keyboard);
-		
-		
+		this.keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(mouse, keyboard));
+
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
-		
+
 		tool = drawTool;
 		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
 		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
@@ -220,13 +224,13 @@ public class Mapper implements MapperServicesToPens {
 
 	public void run() {
 		mgc.nextFrame();
-		
-//		int k = justPressed();
-//		if (k!=0) {
-//			System.out.println("JustPressed:"+k);
-//		}
 
-//		System.out.println("---");
+		// int k = justPressed();
+		// if (k!=0) {
+		// System.out.println("JustPressed:"+k);
+		// }
+
+		// System.out.println("---");
 		if (!tool.ownScreen()) {
 			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 			srv.drawForMapper();
@@ -285,9 +289,9 @@ public class Mapper implements MapperServicesToPens {
 			}
 		}
 
-//		if (haveAlien()) {
-//			getSelectedAlien().onPropUpdate();
-//		}
+		// if (haveAlien()) {
+		// getSelectedAlien().onPropUpdate();
+		// }
 	}
 
 	private void sayIt(String s) {
@@ -297,45 +301,43 @@ public class Mapper implements MapperServicesToPens {
 	}
 
 	private void undoRedo() {
-		if (keyboard.isDown(Keyboard.KEY_CONTROL)) {
-			switch (keyboard.justPressed()) {
-			case Keyboard.KEY_Z:
-				undoControler.undo();
-				break;
-			case Keyboard.KEY_Y:
-				undoControler.redo();
-				break;
-			}
+		switch (keyboard.justPressed()) {
+		case Locks.LOCK_CONTROL + Keyboard.KEY_Z:
+			undoControler.undo();
+			break;
+		case Locks.LOCK_CONTROL + Keyboard.KEY_Y:
+			undoControler.redo();
+			break;
 		}
 	}
 
 	public void keyboardAlienChoice() {
 		boolean somethingHappened = true;
 		int k = keyboard.justPressed();
-		if (k==Keyboard.KEY_NEXT) {
+		if (k == Keyboard.KEY_NEXT) {
 			alienTabber.next();
 		}
-		else if (k==Keyboard.KEY_PRIOR) {
+		else if (k == Keyboard.KEY_PRIOR) {
 			alienTabber.prev();
 		}
-		else if (k==Keyboard.KEY_HOME) {
+		else if (k == Keyboard.KEY_HOME) {
 			alienTabber.home();
 		}
-		else if (k==Keyboard.KEY_END) {
+		else if (k == Keyboard.KEY_END) {
 			alienTabber.end();
 		}
-		else if (k==Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().alienInfo.name)) {
-			
+		else if (k == Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().alienInfo.name)) {
+
 		}
 		else {
 			somethingHappened = false;
 		}
-		
+
 		if (somethingHappened) {
 			showAlienPaletteTimer = 100;
 		}
 	}
-	
+
 	private void createAlien() {
 		AlienInfo ai = getAlienInfo(alienTabber);
 		Alien a = srv.instantiateAttachConnect(ai);
@@ -364,7 +366,7 @@ public class Mapper implements MapperServicesToPens {
 					ALIENS_TAB_BOX_DIAMETER, mgc.process(0xff00ff00), 0xb00020ff);
 
 			String animsName = ai.animsName();
-			if (animsName!=null) {
+			if (animsName != null) {
 				Anim anim = srv.mapperLoadAnim(animsName);
 				animPlayers[x].changeAnimation(anim);
 				Sprite sprite = animPlayers[x].nextFrame();
@@ -372,7 +374,7 @@ public class Mapper implements MapperServicesToPens {
 			}
 
 			String s = ai.name;
-			s += "("+ai.typeCode+")";
+			s += "(" + ai.typeCode + ")";
 			mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + ALIENS_TAB_BOX_RADIUS - 5 - mgc.charHeight(), 0x80ffff, s);
 			sy += ALIENS_TAB_BOX_DIAMETER;
 			at.next();
@@ -529,7 +531,7 @@ public class Mapper implements MapperServicesToPens {
 
 				ArrayList<Bat> lbats = new ArrayList<Bat>();
 				p.getBats(lbats);
-				for (Bat lbat: lbats) {
+				for (Bat lbat : lbats) {
 					bats.add(new CommonBatRecord(lbat));
 					batGc.drawBat(lbat.where());
 				}
@@ -699,13 +701,11 @@ public class Mapper implements MapperServicesToPens {
 		this.currentBlock = currentBlock;
 		showSmallPaletteTimer = 100;
 	}
-	
-	
 
 	//
 	// Delegates:
 	//
-	
+
 	public Coord getScreenPosition() {
 		return srv.getScreenPosition();
 	}
