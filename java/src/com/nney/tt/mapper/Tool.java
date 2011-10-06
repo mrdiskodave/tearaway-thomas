@@ -31,13 +31,13 @@ abstract class Tool {
 
 	protected void moreBusy() {
 		level++;
-		System.out.println("MORE BUSY" + level);
+//		System.out.println("MORE BUSY" + level);
 	}
 
 	protected void lessBusy() {
 		assert level != 0;
 		level--;
-		System.out.println("LESS BUSY" + level);
+//		System.out.println("LESS BUSY" + level);
 	}
 
 	public boolean isFree() {
