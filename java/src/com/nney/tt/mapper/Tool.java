@@ -8,26 +8,22 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.mapper.Mapper.CoordType;
 
 abstract class Tool {
-	/**
-	 * The colour we use to highlight the current block.
-	 */
-	private static final int COL_CURRENT_BLOCK = 0xffff0000;
 
 	private int level;
 	private HashMap<Integer, Tool> nest = new HashMap<Integer, Tool>();
 
 	protected Mapper srv;
 
+	void drawBlockCursor() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	public Tool(Mapper srv) {
 		this.srv = srv;
 	}
 
-	void drawBlockCursor() {
-		Coord box = srv.computeMousePos(CoordType.WORLD_BLOCKS);
-		box.mul(Const.BLOCK_SIZE);
-		box.sub(srv.getScreenPosition());
-		srv.getMGC().drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, srv.getMGC().process(COL_CURRENT_BLOCK));
-	}
 
 	protected void moreBusy() {
 		level++;
@@ -63,13 +59,6 @@ abstract class Tool {
 	abstract void run();
 
 	void checkPushTool() {
-		if (isFree()) {
-			for (Entry<Integer, Tool> e : nest.entrySet()) {
-				if (srv.justPressed() == e.getKey()) {
-					srv.pushTool(e.getKey(), e.getValue());
-				}
-			}
-		}
 	}
 
 }

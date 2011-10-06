@@ -17,7 +17,6 @@ import com.nney.tt.input.HasKeys;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
 import com.nney.tt.input.LocksKeyAdaptor;
-import com.nney.tt.input.NullKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
@@ -63,6 +62,12 @@ import com.nney.tt.sprites.Sprite;
  * Mini
  */
 public class Mapper implements MapperServicesToPens {
+	private static final int COPY_LOCK = Locks.LOCK_SHIFT;
+
+	private static final int PASTE_BUFFER_END = Keyboard.KEY_F12;
+
+	private static final int PASTE_BUFFER_START = Keyboard.KEY_F1;
+
 	final static public int MAPPER_KEY = Keyboard.KEY_TAB;
 
 	private static final int COL_BACKGROUND = 0xff0080ff;
@@ -102,50 +107,34 @@ public class Mapper implements MapperServicesToPens {
 
 	private final SaveMapBlock[] slots = new SaveMapBlock[12];
 
-	private final Tool blockChooserTool = new BlockChooserTool(this);
-	private final Tool rectangleTool = new RectangleTool(this);
-	private final Tool drawTool = new GeneralTool(this, Cursor.BLOCK, "draw", new BlockTrackingPen(),
-			new EyeDropperPen(), new DrawingPen()) {
-		@Override
-		void run() {
-			super.run();
-			srv.keyboardBlockChoice(false);
-			srv.perhapsPaste();
-		};
-	};
-	private final Tool handTool = new GeneralTool(this, Cursor.NONE, "hand", new HandPen());
-	private final Tool alienTool = new GeneralTool(this, Cursor.NONE, "alien", new AlienButtonPressingPen(),
-			new AlienBatMovingPen(), new AlienSelectionPen()) {
-		@Override
-		void run() {
-			super.run();
-			if (isFree()) {
-				int k = srv.justPressed();
-				if (srv.haveAlien()) {
-					if (k == Keyboard.KEY_DELETE) {
-						srv.deleteSelectedAlien();
-					}
-					else if (k == Keyboard.KEY_C) {
-						srv.copySelectedAlien();
-					}
-				}
-				if (k == Keyboard.KEY_N) {
-					srv.createAlien();
-				}
-				srv.keyboardAlienChoice();
-			}
-		}
-
-		@Override
-		void presentation() {
-			srv.showSelectedAlienProps();
-		};
-	};
-
-	private Tool tool;
-	private Tool otherTool;
-
-	private int keyThatSustainsTheOtherTool;
+	// private final Tool alienTool = new GeneralTool(this, Cursor.NONE,
+	// "alien", new AlienButtonPressingPen(),
+	// new AlienBatMovingPen(), new AlienSelectionPen()) {
+	// @Override
+	// void run() {
+	// super.run();
+	// if (isFree()) {
+	// int k = srv.justPressed();
+	// if (srv.haveAlien()) {
+	// if (k == Keyboard.KEY_DELETE) {
+	// srv.deleteSelectedAlien();
+	// }
+	// else if (k == Keyboard.KEY_C) {
+	// srv.copySelectedAlien();
+	// }
+	// }
+	// if (k == Keyboard.KEY_N) {
+	// srv.createAlien();
+	// }
+	// srv.keyboardAlienChoice();
+	// }
+	// }
+	//
+	// @Override
+	// void presentation() {
+	// srv.showSelectedAlienProps();
+	// };
+	// };
 
 	private EditConsolidator edit;
 
@@ -157,6 +146,8 @@ public class Mapper implements MapperServicesToPens {
 	private HoverStatus hs = new HoverStatus();
 	private Alien selectedAlien;
 
+	private MapperMousePosition mmp = new MapperMousePosition();
+
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	// -
 	// Things that need to be reset on
@@ -166,6 +157,10 @@ public class Mapper implements MapperServicesToPens {
 	private UndoControler undoControler;
 
 	private HasKeys keyboard;
+
+	private Runnable pen;
+
+	private Coord marker;
 
 	// ---------------------------------------------------------------------------
 	// MAPPER
@@ -183,13 +178,6 @@ public class Mapper implements MapperServicesToPens {
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
-
-		tool = drawTool;
-		drawTool.addNested(Keyboard.KEY_SPACE, handTool);
-		drawTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
-		alienTool.addNested(Keyboard.KEY_SPACE, handTool);
-		rectangleTool.addNested(Keyboard.KEY_SPACE, handTool);
-		rectangleTool.addNested(Pointer.KEY_RIGHT, blockChooserTool);
 
 		for (int x = 0; x < TABBING_ALIENS_TOTAL; x++) {
 			animPlayers[x] = new AnimPlayer();
@@ -222,92 +210,172 @@ public class Mapper implements MapperServicesToPens {
 		undoControler = new UndoControler();
 	}
 
+	/**
+	 * The colour we use to highlight the current block.
+	 */
+	private static final int COL_CURRENT_BLOCK = 0xffff0000;
+
+	void drawBlockCursor() {
+		Coord box = mmp.worldBlocks();
+		box.mul(Const.BLOCK_SIZE);
+		box.sub(srv.getScreenPosition());
+		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
+	}
+
+	class DrawPen implements Pen2 {
+		@Override
+		public void down() {
+			startBlockEdit();
+		}
+
+		@Override
+		public void stroke() {
+			edit.setBlock(mmp.worldBlocks(), getCurrentBlock());
+		}
+
+		@Override
+		public void up() {
+			endBlockEdit();
+		}
+	}
+
 	public void run() {
 		mgc.nextFrame();
 
-		// int k = justPressed();
-		// if (k!=0) {
-		// System.out.println("JustPressed:"+k);
-		// }
+		mmp.update(mouse, getScreenPosition());
 
-		// System.out.println("---");
-		if (!tool.ownScreen()) {
-			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-			srv.drawForMapper();
+		boolean palettes = true;
+		int k = keyboard.justPressed();
+
+		if (pen != null) {
+			pen.run();
+			drawLevel();
 		}
-
-		Tool t = tool;
-		if (otherTool != null) {
-			if (otherTool.isFree() && !keyboard.isDown(keyThatSustainsTheOtherTool)) {
-				otherTool = null;
-				System.out.println("POP TOOL");
+		else if (keyboard.isDown(Keyboard.KEY_SPACE)) {
+			if (keyboard.isDown(Pointer.KEY_LEFT)) {
+				scroll(mmp.pixelsDelta());
 			}
-			else {
-				t = otherTool;
-			}
+			drawLevel();
 		}
-
-		t.presentation();
-		if (t == otherTool) {
-			tool.presentation();
+		else if (keyboard.isDown(Pointer.KEY_RIGHT)) {
+			blockSelectionKeys(k);
+			blockChoosingMode();
+			palettes = false;
 		}
-		t.run();
-
-		if (!t.ownScreen()) {
-			sayIt(t.name());
-			if (showSmallPaletteTimer != 0) {
-				showSmallPaletteTimer--;
-				makeBP().showSmallPalette(getCurrentBlock());
-			}
-			if (showAlienPaletteTimer != 0) {
-				showAlienPaletteTimer--;
-				showAlienPalette();
-			}
+		else if (k == MAPPER_KEY) {
+			srv.quitMapper(mmp.worldPixels());
+			drawLevel();
 		}
-
-		if (t.isFree()) {
-			undoRedo();
-			switch (keyboard.justPressed()) {
-			case MAPPER_KEY:
-				srv.quitMapper(computeMousePos(CoordType.WORLD_PIXELS));
-				return;
-			case Keyboard.KEY_H:
-				tool = handTool;
-				break;
-			case Keyboard.KEY_D:
-				tool = drawTool;
-				break;
-			case Keyboard.KEY_B:
-				tool = blockChooserTool;
-				break;
-			case Keyboard.KEY_R:
-				tool = rectangleTool;
-				break;
-			case Keyboard.KEY_A:
-				tool = alienTool;
-				break;
+		else {
+			if (k == Pointer.KEY_MIDDLE) {
+				selectNearestAlien(mmp.worldPixels());
 			}
-		}
+			if (k == Pointer.KEY_LEFT) {
+				startPen(new DrawPen());
+			}
+			if (k == Keyboard.KEY_I) {
+				setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
+			}
+			if (k == Keyboard.KEY_M) {
+				if (marker == null) {
+					marker = mmp.worldBlocks();
+				}
+				else {
+					marker = null;
+				}
+			}
+			if (k == Keyboard.KEY_F) {
+				fillRect();
+			}
+			if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
+				int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
+				copyRect(slotNumber);
+				marker = null;
+			}
+			if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
+				int slotNumber = k - PASTE_BUFFER_START;
+				pasteRect(slotNumber);
+				marker = null;
+			}
+			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
+			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Y) undoControler.redo();
+			if (keyboard.isDown(Keyboard.KEY_T)) {
+				Coord c = mmp.worldBlocksDelta();
+				changeCurrentBlock(c.x, c.y);
+			}
+			blockSelectionKeys(k);
 
-		// if (haveAlien()) {
-		// getSelectedAlien().onPropUpdate();
-		// }
+			drawLevel();
+		}
+		if (palettes) {
+			drawPalettes();
+			showSelectedAlienProps();
+		}
+	}
+
+	private void startPen(final Pen2 p) {
+		if (pen == null) {
+			p.down();
+			pen = new Runnable() {
+				@Override
+				public void run() {
+					if (keyboard.isDown(Pointer.KEY_LEFT)) {
+						p.stroke();
+					}
+					else {
+						p.up();
+						pen = null;
+					}
+				}
+			};
+		}
+	}
+
+	private void drawPalettes() {
+		if (showSmallPaletteTimer != 0) {
+			showSmallPaletteTimer--;
+			makeBP().showSmallPalette(getCurrentBlock());
+		}
+		if (showAlienPaletteTimer != 0) {
+			showAlienPaletteTimer--;
+			showAlienPalette();
+		}
+	}
+
+	private void drawLevel() {
+		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
+		srv.drawForMapper();
+
+		drawRect();
+		drawBlockCursor();
+	}
+
+	private void drawRect() {
+		Box box = getRect();
+		if (box != null) {
+			box.mult(Const.BLOCK_SIZE);
+			box.shrink(1);
+			box.sub(srv.getScreenPosition());
+			mgc.drawBox(box.left, box.top, box.width(), box.height(), mgc.process(0xff00ffff));
+		}
+	}
+
+	private Box getRect() {
+		if (marker == null) return null;
+		Coord corner1 = mmp.worldBlocks();
+		Coord corner2 = marker;
+
+		int smallX = Math.min(corner1.x, corner2.x);
+		int bigX = Math.max(corner1.x, corner2.x);
+		int smallY = Math.min(corner1.y, corner2.y);
+		int bigY = Math.max(corner1.y, corner2.y);
+		return new Box(smallX, smallY, bigX, bigY);
+
 	}
 
 	private void sayIt(String s) {
 		if (s != null) {
 			mgc.drawText(mgc.screenWidth() - 8 * s.length(), 0, 0xffffff, s);
-		}
-	}
-
-	private void undoRedo() {
-		switch (keyboard.justPressed()) {
-		case Locks.LOCK_CONTROL + Keyboard.KEY_Z:
-			undoControler.undo();
-			break;
-		case Locks.LOCK_CONTROL + Keyboard.KEY_Y:
-			undoControler.redo();
-			break;
 		}
 	}
 
@@ -381,45 +449,27 @@ public class Mapper implements MapperServicesToPens {
 		}
 	}
 
-	@Override
-	public void keyboardBlockChoice(boolean fullScreen) {
-		if (!fullScreen && !keyboard.isDown(Keyboard.KEY_CONTROL)) {
-			return;
-		}
-
-		int jp = keyboard.justPressed();
-		if (jp == 0) return;
-		switch (jp) {
-		case Keyboard.KEY_0:
-			setCurrentBlock(0);
-			break;
-		case Keyboard.KEY_UP:
-			changeCurrentBlock(0, -1);
-			break;
-		case Keyboard.KEY_DOWN:
-			changeCurrentBlock(0, 1);
-			break;
-		case Keyboard.KEY_LEFT:
-			changeCurrentBlock(-1, 0);
-			break;
-		case Keyboard.KEY_RIGHT:
-			changeCurrentBlock(1, 0);
-			break;
-		case Keyboard.KEY_M:
+	void blockSelectionKeys(int k) {
+		if (k == Keyboard.KEY_UP) changeCurrentBlock(0, -1);
+		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
+		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
+		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) {
 			masksVis = !masksVis;
 			srv.setBlockConfig(new BlockSet.Config(masksVis, hiddenVis));
-			break;
-		case Keyboard.KEY_V:
+		}
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_V) {
 			hiddenVis = !hiddenVis;
 			srv.setBlockConfig(new BlockSet.Config(masksVis, hiddenVis));
-			break;
 		}
 	}
 
+	// DIE!
 	enum CoordType {
-		WORLD_PIXELS, SCREEN_PIXELS, WORLD_BLOCKS
+		WORLD_PIXELS, SCREEN_PIXELS, WORLD_BLOCKS, DELTA_PIXELS, DELTA_BLOCKS
 	}
 
+	// DIE!
 	Coord computeMousePos(CoordType ct) {
 		Coord mp = new Coord(mouse.getX(), mouse.getY());
 		if (ct == CoordType.SCREEN_PIXELS) return mp;
@@ -430,15 +480,13 @@ public class Mapper implements MapperServicesToPens {
 	}
 
 	void blockChoosingMode() {
-		keyboardBlockChoice(true);
-		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), computeMousePos(CoordType.SCREEN_PIXELS));
+		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), mmp.screenPixels());
 		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
 			setCurrentBlock(hoverBlock);
 		}
 	}
 
-	@Override
-	public void changeCurrentBlock(int dx, int dy) {
+	private void changeCurrentBlock(int dx, int dy) {
 		int delta = BlockPalette.getPaletteDelta(dx, dy);
 		int b = delta + getCurrentBlock();
 		if (b < 0) {
@@ -450,16 +498,13 @@ public class Mapper implements MapperServicesToPens {
 		setCurrentBlock(b);
 	}
 
-	@Override
-	public EditDestination startBlockEdit() {
+	private void startBlockEdit() {
 		System.out.println("Start edit");
 		assert edit == null;
 		edit = new EditConsolidator(gameMap);
-		return edit;
 	}
 
-	@Override
-	public void endBlockEdit() {
+	private void endBlockEdit() {
 		System.out.println("Submit edit");
 		assert edit != null;
 		MapSymmetricalUndoRedo u = edit.endEdit();
@@ -467,28 +512,11 @@ public class Mapper implements MapperServicesToPens {
 		edit = null;
 	}
 
-	@Override
-	public int getCurrentBlock() {
-		return currentBlock;
-	}
-
-	@Override
-	public void setCurrentBlockFromMap(Coord c) {
-		setCurrentBlock(gameMap.getBlock(c));
-	}
-
-	@Override
-	public void scroll(Coord delta) {
+	private void scroll(Coord delta) {
 		if (keyboard.isDown(Keyboard.KEY_SHIFT)) {
 			delta.mul(4);
 		}
-		srv.setScreenPosition(srv.getScreenPosition().add2(delta));
-	}
-
-	void pushTool(int key, Tool tool) {
-		System.out.println("PUSH TOOL");
-		keyThatSustainsTheOtherTool = key;
-		otherTool = tool;
+		srv.setScreenPosition(srv.getScreenPosition().sub2(delta));
 	}
 
 	// --------------------------------------------------
@@ -649,7 +677,27 @@ public class Mapper implements MapperServicesToPens {
 		}
 	}
 
-	public void copyRect(int slotNumber, Box rectangle) {
+	private void submitEdit(MapSymmetricalUndoRedo u) {
+		if (!u.changesNothing()) undoControler.redoThenAdd(u);
+	}
+	
+	private void pasteRect(int slotNumber) {
+		SaveMapBlock slot = slots[slotNumber];
+		if (slot != null) {
+			Coord c = mmp.worldBlocks();
+			// does it fit?
+			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
+			if (itFits) {
+				// paste it!
+				MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot);
+				submitEdit(u);
+			}
+		}
+	}
+
+	private void copyRect(int slotNumber) {
+		Box rectangle = getRect();
+		if (rectangle == null) return;
 		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
 		s.read(rectangle.left, rectangle.top, gameMap);
 		slots[slotNumber] = s;
@@ -657,34 +705,17 @@ public class Mapper implements MapperServicesToPens {
 		// slots[slotNumber].dump();
 	}
 
-	@Override
-	public void perhapsPaste() {
-		int k = keyboard.justPressed();
-		if (k >= Keyboard.KEY_F1 && k <= Keyboard.KEY_F12) {
-			int slotNumber = k - Keyboard.KEY_F1;
-			SaveMapBlock slot = slots[slotNumber];
-			if (slot != null) {
-				Coord c = computeMousePos(CoordType.WORLD_BLOCKS);
-				// does it fit?
-				boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
-				if (itFits) {
-					// paste it!
-					MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot);
-					submitEdit(u);
-				}
-			}
-		}
-	}
-
-	private void submitEdit(MapSymmetricalUndoRedo u) {
-		if (!u.changesNothing()) undoControler.redoThenAdd(u);
-	}
-
-	public void fillRect(Box rectangle) {
+	private void fillRect() {
+		Box rectangle = getRect();
+		if (rectangle == null) return;
 		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
 		s.fill(getCurrentBlock());
 		MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, rectangle.left, rectangle.top, s);
 		submitEdit(u);
+	}
+
+	private int getCurrentBlock() {
+		return currentBlock;
 	}
 
 	private void setCurrentBlock(int currentBlock) {

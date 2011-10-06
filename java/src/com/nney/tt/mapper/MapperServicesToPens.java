@@ -3,18 +3,6 @@ package com.nney.tt.mapper;
 import com.nney.tt.geom.Coord;
 
 public interface MapperServicesToPens extends ButtonPressServices {
-	void changeCurrentBlock(int x, int y);
-
-	int getCurrentBlock();
-
-	void setCurrentBlockFromMap(Coord c);
-
-	void scroll(Coord delta);
-
-	EditDestination startBlockEdit();
-
-	void endBlockEdit();
-
 	void selectNearestAlien(Coord c);
 
 	void showSelectedAlienProps();
@@ -30,8 +18,4 @@ public interface MapperServicesToPens extends ButtonPressServices {
 	ButtonRecord findButton(Coord c);
 	
 	HoverStatus getHoverStatus();
-
-	void perhapsPaste();
-
-	void keyboardBlockChoice(boolean theMainThing);
 }
