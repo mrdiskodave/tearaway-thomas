@@ -62,12 +62,12 @@ public class AnimPlayer {
 			pos += 1;
 			if (pos >= anim.sprites.length) {
 				if (anim.repeatPos < 0) {
+					animEnded = true;
 					pos = anim.sprites.length - 1;
 				}
 				else {
 					pos = anim.repeatPos;
 				}
-				animEnded = true;
 			}
 		}
 	}

@@ -11,8 +11,7 @@
                 6, 
                 7
             ], 
-            "rate": 100, 
-            "repeatPos": 0
+            "rate": 100
         }
     ], 
     "comment": "GFXmagc"
