@@ -7,10 +7,6 @@ public interface MapperServicesToPens extends ButtonPressServices {
 
 	void showSelectedAlienProps();
 
-	BatRecord findBat(Coord c);
-
-	Coord getNudge();
-
 	void startAlienEdit();
 
 	void endAlienEdit();

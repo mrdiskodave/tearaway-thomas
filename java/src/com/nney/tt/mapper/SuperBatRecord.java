@@ -4,21 +4,25 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 
 public class SuperBatRecord implements BatRecord {
-	private final Coord where;
 	private final Alien alien;
 
 	public SuperBatRecord(Alien selectedAlien) {
 		this.alien = selectedAlien;
-		this.where = alien.getLocation().copy();
 	}
 
 	@Override
 	public boolean inside(Coord c) {
-		return BatGCImpl.boxForSuperBat(where).inside(c);
+		return BatGCImpl.boxForSuperBat(getPosition()).inside(c);
 	}
 
 	@Override
-	public void press(Coord delta) {
+	public void setPosition(Coord pos) {
+		Coord delta = pos.sub2(getPosition());
 		APS.moveProps(alien, delta);
+	}
+
+	@Override
+	public Coord getPosition() {
+		return alien.getLocation();
 	}
 }

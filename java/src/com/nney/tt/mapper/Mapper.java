@@ -162,6 +162,8 @@ public class Mapper implements MapperServicesToPens {
 
 	private Coord marker;
 
+	private boolean alienMode;
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
@@ -267,46 +269,92 @@ public class Mapper implements MapperServicesToPens {
 			drawLevel();
 		}
 		else {
-			if (k == Pointer.KEY_MIDDLE) {
-				selectNearestAlien(mmp.worldPixels());
-			}
-			if (k == Pointer.KEY_LEFT) {
-				startPen(new DrawPen());
-			}
-			if (k == Keyboard.KEY_I) {
-				setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
-			}
-			if (k == Keyboard.KEY_M) {
-				if (marker == null) {
-					marker = mmp.worldBlocks();
+			if (alienMode) {
+				final BatRecord bat = bats.find(mmp.worldPixels());
+				if (k == Pointer.KEY_LEFT) {
+					if (bat==null) {
+						selectNearestAlien(mmp.worldPixels());
+					}
+					else {
+						final Coord batGrip = mmp.worldPixels().sub2(bat.getPosition());
+						startPen(new Pen2() {
+							@Override
+							public void down() {
+								startAlienEdit();
+							}
+	
+							@Override
+							public void stroke() {
+								Coord c = mmp.worldPixels();
+								bat.setPosition(c.sub2(batGrip));
+							}
+	
+							@Override
+							public void up() {
+								endAlienEdit();
+							}
+						});
+					}
 				}
 				else {
-					marker = null;
+					Coord nudge = getNudge(k);
+					if (nudge!=null) {
+						bat.setPosition(nudge);
+					}
 				}
 			}
-			if (k == Keyboard.KEY_F) {
-				fillRect();
+			else {
+				if (k==Pointer.KEY_LEFT) {
+					startPen(new DrawPen());
+				}
+				if (k == Keyboard.KEY_I) {
+					setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
+				}
+				if (k == Keyboard.KEY_M) {
+					marker = mmp.worldBlocks();
+				}
+				if (k == Keyboard.KEY_F) {
+					fillRect();
+				}
+				if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
+					int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
+					copyRect(slotNumber);
+					marker = null;
+				}
+				if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
+					int slotNumber = k - PASTE_BUFFER_START;
+					pasteRect(slotNumber);
+					marker = null;
+				}
+				if (keyboard.isDown(Keyboard.KEY_T)) {
+					Coord c = mmp.worldBlocksDelta();
+					changeCurrentBlock(c.x, c.y);
+				}
+				blockSelectionKeys(k);
 			}
-			if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
-				int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
-				copyRect(slotNumber);
+			
+			if (k==Keyboard.KEY_A) {
+				selectNearestAlien(mmp.worldPixels());
+				alienMode = true;
+			}
+			
+			if (k== Keyboard.KEY_ESCAPE) {
 				marker = null;
+				setSelectedAlien(null);
+				alienMode = false;
+				showSmallPaletteTimer = 0;
+				showAlienPaletteTimer = 0;
 			}
-			if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
-				int slotNumber = k - PASTE_BUFFER_START;
-				pasteRect(slotNumber);
-				marker = null;
-			}
+			
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Y) undoControler.redo();
-			if (keyboard.isDown(Keyboard.KEY_T)) {
-				Coord c = mmp.worldBlocksDelta();
-				changeCurrentBlock(c.x, c.y);
-			}
-			blockSelectionKeys(k);
 
 			drawLevel();
+			if (!alienMode) {
+				drawBlockCursor();
+			}
 		}
+		
 		if (palettes) {
 			drawPalettes();
 			showSelectedAlienProps();
@@ -347,7 +395,6 @@ public class Mapper implements MapperServicesToPens {
 		srv.drawForMapper();
 
 		drawRect();
-		drawBlockCursor();
 	}
 
 	private void drawRect() {
@@ -588,14 +635,7 @@ public class Mapper implements MapperServicesToPens {
 
 	private void deleteAlien(Alien a) {
 		a.done();
-		if (a == getSelectedAlien()) {
-			setSelectedAlien(null);
-		}
-	}
-
-	@Override
-	public BatRecord findBat(Coord c) {
-		return bats.find(c);
+		setSelectedAlien(null);
 	}
 
 	@Override
@@ -603,9 +643,8 @@ public class Mapper implements MapperServicesToPens {
 		return buttons.find(c);
 	}
 
-	@Override
-	public Coord getNudge() {
-		switch (keyboard.justPressed()) {
+	public Coord getNudge(int k) {
+		switch (k) {
 		case Keyboard.KEY_UP:
 			return new Coord(0, -1);
 		case Keyboard.KEY_DOWN:
@@ -680,7 +719,7 @@ public class Mapper implements MapperServicesToPens {
 	private void submitEdit(MapSymmetricalUndoRedo u) {
 		if (!u.changesNothing()) undoControler.redoThenAdd(u);
 	}
-	
+
 	private void pasteRect(int slotNumber) {
 		SaveMapBlock slot = slots[slotNumber];
 		if (slot != null) {
