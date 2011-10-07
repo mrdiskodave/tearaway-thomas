@@ -60,9 +60,11 @@ class AlienEdit extends SymmetricalUndoRedo {
 	/**
 	 * How many properties have changed?
 	 */
-	public int size() {
+	public boolean containsAnything() {
 		removeMatching();
-		return cs.size();
+		boolean answer = cs.size()!=0;
+		if (answer) alien.onPropUpdate();
+		return answer;
 	}
 
 	@Override

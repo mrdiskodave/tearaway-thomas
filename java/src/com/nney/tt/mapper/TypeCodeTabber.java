@@ -16,29 +16,29 @@ public class TypeCodeTabber<T> {
 		pos = pos2;
 	}
 
-	T get() {
+	public T get() {
 		return list.get(pos);
 	}
 	
-	void next() {
+	public void next() {
 		pos++;
 		if (pos>=list.size()) {
 			home();
 		}
 	}
 
-	void home() {
+	public void home() {
 		pos = 0;
 	}
 	
-	void prev() {
+	public void prev() {
 		pos--;
 		if (pos<0) {
 			end();
 		}
 	}
 
-	void end() {
+	public void end() {
 		pos = list.size()-1;
 	}
 	

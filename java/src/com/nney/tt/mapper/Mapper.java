@@ -1,7 +1,6 @@
 package com.nney.tt.mapper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.nney.tt.AlienInfo;
@@ -21,10 +20,7 @@ import com.nney.tt.input.LocksKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.sprites.Anim;
-import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.AnimsPool;
-import com.nney.tt.sprites.Sprite;
 
 /**
  * A level editor.
@@ -84,29 +80,6 @@ public class Mapper implements ButtonPressServices {
 	final private int blockCount;
 	private int paletteTimer;
 
-	//
-	// stuff to do with the current alien
-	//
-	private TypeCodeTabber<AlienInfo> alienTabber;
-	
-	class AnimAndPlayer {
-		public final AnimPlayer ap;
-		public final Box box;
-
-		public AnimAndPlayer(Anim anim) {
-			this.ap = new AnimPlayer();
-			ap.changeAnimation(anim);
-			box = anim.box();
-		}
-	}
-	
-	private final HashMap<AlienInfo, AnimAndPlayer> animPlayers = new HashMap<AlienInfo, AnimAndPlayer>(); 
-	
-	private static final int ALIENS_TAB_BOX_RADIUS = 90;
-	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
-	private static final int ALIENS_TAB_BOX_TEXT_GAP = -2;
-	private static final int ALIENS_TAB_BOX_MARGIN = 5;
-
 
 	//
 	// stuff to do with the message
@@ -149,24 +122,14 @@ public class Mapper implements ButtonPressServices {
 
 	private boolean alienMode;
 
+	private AlienPalette alienPalette;
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
 	public Mapper(AlienInfoMap alienInfoMap, AnimsPool animsPool, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
 			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
-		
-		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
-		for (String name: alienInfoMap.queryNames()) {
-			AlienInfo ai = alienInfoMap.getByName(name);
-			ais.add(ai);
-			
-			if (ai.animsName()!=null) {
-				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(ai.animsName()).find(0)));
-			}
-		}
-		
-		this.alienTabber = new TypeCodeTabber<AlienInfo>(ais);
 		
 		this.srv = srv;
 		this.gameMap = gameMap;
@@ -176,6 +139,13 @@ public class Mapper implements ButtonPressServices {
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
+		
+		
+		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
+		for (String name: alienInfoMap.queryNames()) {
+			ais.add(alienInfoMap.getByName(name));
+		}
+		alienPalette = new AlienPalette(ais, mgc, animsPool);
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -393,9 +363,9 @@ public class Mapper implements ButtonPressServices {
 
 	private void drawPalettes() {
 		if (paletteTimer != 0) {
-//			paletteTimer--;
+			paletteTimer--;
 			if (alienMode) {
-				showAlienPalette();
+				alienPalette.showAlienPalette();
 			}
 			else {
 				makeBP().showSmallPalette(getCurrentBlock());
@@ -432,105 +402,22 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void keyboardAlienChoice(int k) {
-		AlienInfo current = alienTabber.get();
-		if (k == Keyboard.KEY_NEXT) alienTabber.next();
-		if (k == Keyboard.KEY_PRIOR) alienTabber.prev();
-		if (k == Keyboard.KEY_HOME) alienTabber.home();
-		if (k == Keyboard.KEY_END) alienTabber.end();
-		if (k == Keyboard.KEY_I && haveAlien()) alienTabber.find(getSelectedAlien().alienInfo);
-		if (alienTabber.get()!=current) {
+		
+		AlienInfo current = alienPalette.get();
+		if (k == Keyboard.KEY_NEXT) alienPalette.next();
+		if (k == Keyboard.KEY_PRIOR) alienPalette.prev();
+		if (k == Keyboard.KEY_I && haveAlien()) alienPalette.find(getSelectedAlien().alienInfo);
+		if (alienPalette.get()!=current) {
 			paletteTimer = 100;
 		}
 	}
 
 	private void createAlien() {
-		AlienInfo ai = getAlienInfo(alienTabber);
+		AlienInfo ai = alienPalette.get();
 		Alien a = srv.instantiateAttachConnect(ai);
 		a.resetTo(mmp.worldPixels());
 		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
-	}
-
-	private AlienInfo getAlienInfo(TypeCodeTabber<AlienInfo> tabber) {
-		return tabber.get();
-	}
-
-	private void showAlienPalette() {
-		int sx = mgc.screenWidth() / 2;
-		int osy = mgc.screenHeight() / 2;
-
-		TypeCodeTabber<AlienInfo> at = alienTabber.copy();
-		osy -= alienTabHeight(at.get())/2;
-
-		int sy = osy;
-		while (sy<mgc.screenHeight()) {
-			AlienInfo ai = at.get();
-			int h = alienTabHeight(ai);
-			drawAlienTab(sx, sy, ai, sy==osy);
-			sy += h;
-			at.next();
-		}
-		
-		sy = osy;
-		at = alienTabber.copy();
-
-		while (sy>0) {
-			at.prev();
-			AlienInfo ai = at.get();
-			int h = alienTabHeight(ai);
-			sy -= h;
-			drawAlienTab(sx, sy, ai, false);
-		}
-	}
-	
-	private int alienTabHeight(AlienInfo ai) {
-		return more()+graphicHeight(ai);
-	}
-
-	private int more() {
-		return ALIENS_TAB_BOX_MARGIN*2  + ALIENS_TAB_BOX_TEXT_GAP + mgc.charHeight();
-	}
-
-	private int graphicHeight(AlienInfo ai) {
-		int y = 20;
-		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer!=null) {
-			y = animAndPlayer.box.height();
-		}
-		return y;
-	}
-	
-	private void drawAlienTab(int sx, int sy, AlienInfo ai, boolean live) {
-		if (live) {
-			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
-				alienTabHeight(ai), mgc.process(0xff00ff00), 0xff0020ff);
-		}
-
-		int sp = graphicHeight(ai);
-		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer!=null) {
-			Sprite sprite = animAndPlayer.ap.nextFrame();
-			
-
-			Box b = animAndPlayer.box;
-			int cex = sx;
-			int cey = sy + (sp+ALIENS_TAB_BOX_MARGIN)/2;
-			cex -= b.left;
-			cey -= b.top;
-			cex -= b.width()/2;
-			cey -= b.height()/2;
-			// mgc.fillRectangle(cex+b.left, cey+b.top, b.width(), b.height(), 0xffff0000);
-			sprite.drawByHandle(cex, cey, false);
-		}
-
-		String s = ai.name;
-		s += "(" + ai.typeCode + ")";
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, s);
-		
-		if (!live) {
-			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
-				alienTabHeight(ai), 0xff000000, 0xb00020ff);
-		}
 	}
 
 	
@@ -696,8 +583,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void endAlienEdit() {
-		int size = alienEdit.size();
-		if (size != 0) {
+		if (alienEdit.containsAnything()) {
 			undoControler.add(alienEdit);
 		}
 		alienEdit = null;

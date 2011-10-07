@@ -29,7 +29,7 @@ public class PropDrawer {
 		for (Button button: buttons) {
 			String buttonText = "[" + button.name() + "]";
 			Box buttonBox = statusLayer.getBox(x, y, buttonText);
-			System.out.println(buttonText+" "+buttonBox);
+//			System.out.println(buttonText+" "+buttonBox);
 			ButtonRecord br = new ButtonRecord(button, buttonBox);
 			buttonRecords.add(br);
 			statusLayer.draw(x, y, hs.status(br.getUniqueName()), buttonText);
