@@ -4,7 +4,7 @@
             "frames": [
                 0
             ]
-        } 
+        }
     ], 
     "comment": "GFXbgem"
 }

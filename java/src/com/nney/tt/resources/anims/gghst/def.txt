@@ -13,7 +13,7 @@
                 2, 
                 1
             ], 
-            "name": "right",
+            "name": "right", 
             "rate": 64, 
             "repeatPos": 5
         }, 
@@ -30,7 +30,7 @@
                 10, 
                 9
             ], 
-            "name": "left",
+            "name": "left", 
             "rate": 64, 
             "repeatPos": 5
         }

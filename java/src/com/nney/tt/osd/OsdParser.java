@@ -35,7 +35,6 @@ public class OsdParser {
 				td.setKern(optN(param));
 			}
 			else if (cmd.equals("t")) {
-				System.out.println(param);
 				Matcher m2 = OSD_TABLE_ARGS.matcher(param);
 				if (!m2.matches()) {
 					throw new RuntimeException("Bad table param: "+param);
