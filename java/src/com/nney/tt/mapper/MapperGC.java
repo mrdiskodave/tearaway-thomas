@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 
@@ -80,5 +81,9 @@ public class MapperGC {
 	
 	public void nextFrame() {
 		cycler.advance();
+	}
+
+	public Coord centreDisplacement() {
+		return new Coord(screenWidth() / 2, screenHeight() / 2);
 	}
 }

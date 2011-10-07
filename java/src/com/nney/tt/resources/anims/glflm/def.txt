@@ -13,7 +13,8 @@
                 8, 
                 9
             ], 
-            "rate": 80
+            "rate": 80,
+            "repeatPos": 0
         }
     ], 
     "comment": "GFXglflm"

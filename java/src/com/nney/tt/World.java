@@ -826,11 +826,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 				if (mapper == null) {
-					mapper = new Mapper(alienInfoMap, gameMap, this, mouse, keyboard, gc, debugFont);
+					
+					for (String a : alienInfoMap.queryAnimList()) {
+						animsPool.load(a);
+					}
+
+					mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
-				for (String a : alienInfoMap.queryAnimList()) {
-					animsPool.load(a);
-				}
+				
 				setScreenPosition(getScreenPosition());
 				mapper.init();
 			}

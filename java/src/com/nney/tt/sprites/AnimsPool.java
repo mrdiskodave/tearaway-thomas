@@ -24,8 +24,8 @@ public class AnimsPool implements Disposable {
 		return get(k, false);
 	}
 	
-	public void load(String k) {
-		get(k, true);
+	public Anims load(String k) {
+		return get(k, true);
 	}
 
 	private Anims get(String k, boolean loadingPermitted) {
@@ -74,6 +74,9 @@ public class AnimsPool implements Disposable {
 			int repeatPos = -1;
 			if (diAnim.fieldExists("repeatPos")) {
 				repeatPos = diAnim.requireField("repeatPos").requireInt();
+			}
+			if (repeatPos<0 && frames.length>1) {
+				System.out.println("ODD: "+name+" has "+frames.length+"frames but doesn't repeat");
 			}
 			an.add(new Anim(rate, frames, repeatPos, name));
 		}
