@@ -64,10 +64,6 @@ import com.nney.tt.sprites.Sprite;
  * Mini
  */
 public class Mapper implements ButtonPressServices {
-	private static final int TEXT_GAP = 3;
-
-	private static final int MARGIN = 5;
-
 	private static final int COPY_LOCK = Locks.LOCK_SHIFT;
 
 	private static final int PASTE_BUFFER_END = Keyboard.KEY_F12;
@@ -104,10 +100,13 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 	
-	private final HashMap<String, AnimAndPlayer> animPlayers = new HashMap<String, AnimAndPlayer>(); 
+	private final HashMap<AlienInfo, AnimAndPlayer> animPlayers = new HashMap<AlienInfo, AnimAndPlayer>(); 
 	
-	private static final int ALIENS_TAB_BOX_RADIUS = 70;
+	private static final int ALIENS_TAB_BOX_RADIUS = 90;
 	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
+	private static final int ALIENS_TAB_BOX_TEXT_GAP = -2;
+	private static final int ALIENS_TAB_BOX_MARGIN = 5;
+
 
 	//
 	// stuff to do with the message
@@ -163,7 +162,7 @@ public class Mapper implements ButtonPressServices {
 			ais.add(ai);
 			
 			if (ai.animsName()!=null) {
-				animPlayers.put(ai.animsName(), new AnimAndPlayer(animsPool.load(ai.animsName()).find(0)));
+				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(ai.animsName()).find(0)));
 			}
 		}
 		
@@ -459,7 +458,6 @@ public class Mapper implements ButtonPressServices {
 	private void showAlienPalette() {
 		int sx = mgc.screenWidth() / 2;
 		int osy = mgc.screenHeight() / 2;
-		
 
 		TypeCodeTabber<AlienInfo> at = alienTabber.copy();
 		osy -= alienTabHeight(at.get())/2;
@@ -483,39 +481,40 @@ public class Mapper implements ButtonPressServices {
 			sy -= h;
 			drawAlienTab(sx, sy, ai, false);
 		}
-		
-		
 	}
 	
 	private int alienTabHeight(AlienInfo ai) {
-		int y = spHeight(ai);
-		y += MARGIN + TEXT_GAP + MARGIN; // 5 sprite text 5
-		y += mgc.charHeight();
-		return y;
+		return more()+graphicHeight(ai);
 	}
 
-	private int spHeight(AlienInfo ai) {
+	private int more() {
+		return ALIENS_TAB_BOX_MARGIN*2  + ALIENS_TAB_BOX_TEXT_GAP + mgc.charHeight();
+	}
+
+	private int graphicHeight(AlienInfo ai) {
 		int y = 20;
-		if (ai.animsName()!=null) {
-			AnimAndPlayer ap = animPlayers.get(ai.animsName());
-			y = ap.box.height();
+		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
+		if (animAndPlayer!=null) {
+			y = animAndPlayer.box.height();
 		}
 		return y;
 	}
 	
 	private void drawAlienTab(int sx, int sy, AlienInfo ai, boolean live) {
-		mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
-				alienTabHeight(ai), live ? mgc.process(0xff00ff00) : 0xff000000, live ? 0xff0020ff : 0xb00020ff);
+		if (live) {
+			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
+				alienTabHeight(ai), mgc.process(0xff00ff00), 0xff0020ff);
+		}
 
-		int sp = spHeight(ai);
-		if (ai.animsName()!=null) {
-			AnimAndPlayer ap = animPlayers.get(ai.animsName());
-			Sprite sprite = ap.ap.nextFrame();
+		int sp = graphicHeight(ai);
+		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
+		if (animAndPlayer!=null) {
+			Sprite sprite = animAndPlayer.ap.nextFrame();
 			
 
-			Box b = ap.box;
+			Box b = animAndPlayer.box;
 			int cex = sx;
-			int cey = sy + (sp+MARGIN)/2;
+			int cey = sy + (sp+ALIENS_TAB_BOX_MARGIN)/2;
 			cex -= b.left;
 			cey -= b.top;
 			cex -= b.width()/2;
@@ -526,9 +525,16 @@ public class Mapper implements ButtonPressServices {
 
 		String s = ai.name;
 		s += "(" + ai.typeCode + ")";
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+MARGIN+TEXT_GAP), 0x80ffff, s);
+		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, s);
+		
+		if (!live) {
+			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
+				alienTabHeight(ai), 0xff000000, 0xb00020ff);
+		}
 	}
 
+	
+	
 	void blockSelectionKeys(int k) {
 		if (k == Keyboard.KEY_UP) changeCurrentBlock(0, -1);
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
