@@ -13,13 +13,19 @@ import com.nney.tt.sprites.Sprite;
 public class AlienPalette {
 	
 	class AnimAndPlayer {
-		public final AnimPlayer ap;
+		public final AnimPlayer animPlayer;
 		public final Box box;
 
 		public AnimAndPlayer(Anim anim) {
-			this.ap = new AnimPlayer();
-			ap.changeAnimation(anim);
+			this.animPlayer = new AnimPlayer();
+			animPlayer.changeAnimation(anim);
 			box = anim.box();
+		}
+
+		public Sprite nextFrame() {
+			Sprite answer = animPlayer.nextFrame();
+			if (animPlayer.hasAnimEnded()) animPlayer.rewind();
+			return answer;
 		}
 	}
 
@@ -98,7 +104,8 @@ public class AlienPalette {
 		int sp = graphicHeight(ai);
 		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
 		if (animAndPlayer!=null) {
-			Sprite sprite = animAndPlayer.ap.nextFrame();
+			AnimPlayer animPlayer = animAndPlayer.animPlayer;
+			Sprite sprite = animAndPlayer.nextFrame();
 			
 
 			Box b = animAndPlayer.box;
