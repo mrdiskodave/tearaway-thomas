@@ -19,8 +19,7 @@
                 12, 
                 13
             ], 
-            "rate": 80, 
-            "repeatPos": 0
+            "rate": 80 
         }
     ], 
     "comment": "GFXspik"
