@@ -61,7 +61,7 @@ import com.nney.tt.sprites.Sprite;
  * 
  * Mini
  */
-public class Mapper implements MapperServicesToPens {
+public class Mapper implements ButtonPressServices {
 	private static final int COPY_LOCK = Locks.LOCK_SHIFT;
 
 	private static final int PASTE_BUFFER_END = Keyboard.KEY_F12;
@@ -80,14 +80,13 @@ public class Mapper implements MapperServicesToPens {
 	//
 	private int currentBlock;
 	final private int blockCount;
-	private int showSmallPaletteTimer;
+	private int paletteTimer;
 
 	//
 	// stuff to do with the current alien
 	//
 	private final AlienInfoMap alienInfoMap;
 	private TypeCodeTabber<String> alienTabber;
-	private int showAlienPaletteTimer;
 	private final static int TABBING_ALIENS_OUTSIDE = 1;
 	private final static int TABBING_ALIENS_TOTAL = TABBING_ALIENS_OUTSIDE * 2 + 1;
 	private final AnimPlayer animPlayers[] = new AnimPlayer[TABBING_ALIENS_TOTAL];
@@ -107,35 +106,6 @@ public class Mapper implements MapperServicesToPens {
 
 	private final SaveMapBlock[] slots = new SaveMapBlock[12];
 
-	// private final Tool alienTool = new GeneralTool(this, Cursor.NONE,
-	// "alien", new AlienButtonPressingPen(),
-	// new AlienBatMovingPen(), new AlienSelectionPen()) {
-	// @Override
-	// void run() {
-	// super.run();
-	// if (isFree()) {
-	// int k = srv.justPressed();
-	// if (srv.haveAlien()) {
-	// if (k == Keyboard.KEY_DELETE) {
-	// srv.deleteSelectedAlien();
-	// }
-	// else if (k == Keyboard.KEY_C) {
-	// srv.copySelectedAlien();
-	// }
-	// }
-	// if (k == Keyboard.KEY_N) {
-	// srv.createAlien();
-	// }
-	// srv.keyboardAlienChoice();
-	// }
-	// }
-	//
-	// @Override
-	// void presentation() {
-	// srv.showSelectedAlienProps();
-	// };
-	// };
-
 	private EditConsolidator edit;
 
 	private CollidableList<BatRecord> bats = new CollidableList<BatRecord>();
@@ -143,7 +113,7 @@ public class Mapper implements MapperServicesToPens {
 
 	private AlienEdit alienEdit;
 
-	private HoverStatus hs = new HoverStatus();
+	private HoverStatus hoverStatus = new HoverStatus();
 	private Alien selectedAlien;
 
 	private MapperMousePosition mmp = new MapperMousePosition();
@@ -224,21 +194,9 @@ public class Mapper implements MapperServicesToPens {
 		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 	}
 
-	class DrawPen implements Pen2 {
-		@Override
-		public void down() {
-			startBlockEdit();
-		}
-
-		@Override
-		public void stroke() {
-			edit.setBlock(mmp.worldBlocks(), getCurrentBlock());
-		}
-
-		@Override
-		public void up() {
-			endBlockEdit();
-		}
+	private static String buttonRecordToString(ButtonRecord br) {
+		if (br == null) return "";
+		return br.getUniqueName();
 	}
 
 	public void run() {
@@ -271,23 +229,42 @@ public class Mapper implements MapperServicesToPens {
 		else {
 			if (alienMode) {
 				final BatRecord bat = bats.find(mmp.worldPixels());
+				final ButtonRecord button = buttons.find(mmp.screenPixels());
+
+				hoverStatus.move(buttonRecordToString(button));
+
 				if (k == Pointer.KEY_LEFT) {
-					if (bat==null) {
-						selectNearestAlien(mmp.worldPixels());
+					if (button != null) {
+						hoverStatus.down(buttonRecordToString(button));
+						startPen(new Pen2() {
+							@Override
+							public void up() {
+								final ButtonRecord selected = buttons.find(mmp.screenPixels());
+								if (hoverStatus.up(buttonRecordToString(selected))) {
+									startAlienEdit();
+									selected.press();
+									endAlienEdit();
+								}
+							}
+						});
+					}
+					else if (bat == null) {
+						startPen(new Pen2() {
+							@Override
+							void stroke() {
+								selectNearestAlien(mmp.worldPixels());
+							}
+						});
 					}
 					else {
 						final Coord batGrip = mmp.worldPixels().sub2(bat.getPosition());
+						startAlienEdit();
 						startPen(new Pen2() {
-							@Override
-							public void down() {
-								startAlienEdit();
-							}
-	
 							@Override
 							public void stroke() {
 								bat.setPosition(mmp.worldPixels().sub2(batGrip));
 							}
-	
+
 							@Override
 							public void up() {
 								endAlienEdit();
@@ -297,14 +274,32 @@ public class Mapper implements MapperServicesToPens {
 				}
 				else {
 					Coord nudge = getNudge(k);
-					if (nudge!=null) {
+					if (nudge != null) {
 						bat.setPosition(nudge);
 					}
 				}
+
+				if (haveAlien()) {
+					if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
+					if (k == Keyboard.KEY_C) copySelectedAlien();
+				}
+				if (k == Keyboard.KEY_N) createAlien();
+				keyboardAlienChoice(k);
 			}
 			else {
-				if (k==Pointer.KEY_LEFT) {
-					startPen(new DrawPen());
+				if (k == Pointer.KEY_LEFT) {
+					startBlockEdit();
+					startPen(new Pen2() {
+						@Override
+						public void stroke() {
+							edit.setBlock(mmp.worldBlocks(), getCurrentBlock());
+						}
+
+						@Override
+						public void up() {
+							endBlockEdit();
+						}
+					});
 				}
 				if (k == Keyboard.KEY_I) {
 					setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
@@ -331,61 +326,58 @@ public class Mapper implements MapperServicesToPens {
 				}
 				blockSelectionKeys(k);
 			}
-			
-			if (k==Keyboard.KEY_A) {
-				selectNearestAlien(mmp.worldPixels());
+
+			if (k == Keyboard.KEY_A) {
 				alienMode = true;
+				paletteTimer = 0;
 			}
-			
-			if (k== Keyboard.KEY_ESCAPE) {
-				marker = null;
-				setSelectedAlien(null);
+			if (k == Keyboard.KEY_D) {
 				alienMode = false;
-				showSmallPaletteTimer = 0;
-				showAlienPaletteTimer = 0;
+				marker = null;
+				paletteTimer = 0;
 			}
-			
+
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Y) undoControler.redo();
+			if (k == Keyboard.KEY_ESCAPE) paletteTimer = 0;
 
 			drawLevel();
 			if (!alienMode) {
 				drawBlockCursor();
 			}
 		}
-		
+
 		if (palettes) {
+			if (alienMode) showSelectedAlienProps();
 			drawPalettes();
-			showSelectedAlienProps();
 		}
 	}
 
 	private void startPen(final Pen2 p) {
-		if (pen == null) {
-			p.down();
-			pen = new Runnable() {
-				@Override
-				public void run() {
-					if (keyboard.isDown(Pointer.KEY_LEFT)) {
-						p.stroke();
-					}
-					else {
-						p.up();
-						pen = null;
-					}
+		p.stroke();
+		pen = new Runnable() {
+			@Override
+			public void run() {
+				if (keyboard.isDown(Pointer.KEY_LEFT)) {
+					p.stroke();
 				}
-			};
-		}
+				else {
+					p.up();
+					pen = null;
+				}
+			}
+		};
 	}
 
 	private void drawPalettes() {
-		if (showSmallPaletteTimer != 0) {
-			showSmallPaletteTimer--;
-			makeBP().showSmallPalette(getCurrentBlock());
-		}
-		if (showAlienPaletteTimer != 0) {
-			showAlienPaletteTimer--;
-			showAlienPalette();
+		if (paletteTimer != 0) {
+			paletteTimer--;
+			if (alienMode) {
+				showAlienPalette();
+			}
+			else {
+				makeBP().showSmallPalette(getCurrentBlock());
+			}
 		}
 	}
 
@@ -417,37 +409,22 @@ public class Mapper implements MapperServicesToPens {
 		}
 	}
 
-	public void keyboardAlienChoice() {
-		boolean somethingHappened = true;
-		int k = keyboard.justPressed();
-		if (k == Keyboard.KEY_NEXT) {
-			alienTabber.next();
-		}
-		else if (k == Keyboard.KEY_PRIOR) {
-			alienTabber.prev();
-		}
-		else if (k == Keyboard.KEY_HOME) {
-			alienTabber.home();
-		}
-		else if (k == Keyboard.KEY_END) {
-			alienTabber.end();
-		}
-		else if (k == Keyboard.KEY_I && haveAlien() && alienTabber.find(getSelectedAlien().alienInfo.name)) {
-
-		}
-		else {
-			somethingHappened = false;
-		}
-
-		if (somethingHappened) {
-			showAlienPaletteTimer = 100;
+	private void keyboardAlienChoice(int k) {
+		String current = alienTabber.get();
+		if (k == Keyboard.KEY_NEXT) alienTabber.next();
+		if (k == Keyboard.KEY_PRIOR) alienTabber.prev();
+		if (k == Keyboard.KEY_HOME) alienTabber.home();
+		if (k == Keyboard.KEY_END) alienTabber.end();
+		if (k == Keyboard.KEY_I && haveAlien()) alienTabber.find(getSelectedAlien().alienInfo.name);
+		if (!alienTabber.get().equals(current)) {
+			paletteTimer = 100;
 		}
 	}
 
 	private void createAlien() {
 		AlienInfo ai = getAlienInfo(alienTabber);
 		Alien a = srv.instantiateAttachConnect(ai);
-		a.resetTo(computeMousePos(CoordType.WORLD_PIXELS));
+		a.resetTo(mmp.worldPixels());
 		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
 	}
@@ -502,21 +479,6 @@ public class Mapper implements MapperServicesToPens {
 		}
 	}
 
-	// DIE!
-	enum CoordType {
-		WORLD_PIXELS, SCREEN_PIXELS, WORLD_BLOCKS, DELTA_PIXELS, DELTA_BLOCKS
-	}
-
-	// DIE!
-	Coord computeMousePos(CoordType ct) {
-		Coord mp = new Coord(mouse.getX(), mouse.getY());
-		if (ct == CoordType.SCREEN_PIXELS) return mp;
-		mp.add(getScreenPosition());
-		if (ct == CoordType.WORLD_PIXELS) return mp;
-		mp.div(Const.BLOCK_SIZE);
-		return mp;
-	}
-
 	void blockChoosingMode() {
 		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), mmp.screenPixels());
 		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
@@ -559,40 +521,35 @@ public class Mapper implements MapperServicesToPens {
 
 	// --------------------------------------------------
 
-	@Override
-	public void selectNearestAlien(Coord c) {
-		System.out.println("nearest...");
+	private void selectNearestAlien(Coord c) {
 		setSelectedAlien(srv.findNearestAlien(c));
 	}
 
-	public boolean haveAlien() {
+	private boolean haveAlien() {
 		return getSelectedAlien() != null;
 	}
 
-	public Alien getSelectedAlien() {
+	private Alien getSelectedAlien() {
 		if (selectedAlien != null && selectedAlien.remove) {
 			selectedAlien = null;
 		}
 		return selectedAlien;
 	}
 
-	public void setSelectedAlien(Alien s) {
+	private void setSelectedAlien(Alien s) {
 		this.selectedAlien = s;
 	}
 
-	@Override
-	public void showSelectedAlienProps() {
+	private void showSelectedAlienProps() {
 		if (haveAlien()) {
-			Coord sac = getSelectedAlien().getLocation().copy();
-			sac.sub(getScreenPosition());
-			mgc.drawSight2(sac.x, sac.y, 25, mgc.process(0xff00ffff), BatGCImpl.SUPERBAT_SIZE, 0x40000000);
+			BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
+			batGc.drawSuperBat(getSelectedAlien().getLocation());
 
 			List<Prop> props = APS.propsForAlien(getSelectedAlien());
 
 			// bats
 			bats.clear();
 			for (Prop p : props) {
-				BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 				p.drawAuxBatStuff(batGc);
 
 				ArrayList<Bat> lbats = new ArrayList<Bat>();
@@ -603,12 +560,30 @@ public class Mapper implements MapperServicesToPens {
 				}
 
 			}
-			bats.add(new SuperBatRecord(getSelectedAlien()));
+
+			final Alien alien = getSelectedAlien();
+			BatRecord superBat = new BatRecord() {
+				@Override
+				public boolean inside(Coord c) {
+					return BatGCImpl.boxForSuperBat(getPosition()).inside(c);
+				}
+
+				@Override
+				public void setPosition(Coord c) {
+					APS.movePropsAbsolute(alien, c);
+				}
+
+				@Override
+				public Coord getPosition() {
+					return alien.getLocation();
+				}
+			};
+			bats.add(superBat);
 
 			// property descriptions and buttons
 			buttons.clear();
 			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
-			PropDrawer pd = new PropDrawer(this, hs, statusLayer, buttons);
+			PropDrawer pd = new PropDrawer(this, hoverStatus, statusLayer, buttons);
 			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
 			for (Prop p : props) {
 				pd.draw(p);
@@ -629,11 +604,6 @@ public class Mapper implements MapperServicesToPens {
 		setSelectedAlien(null);
 	}
 
-	@Override
-	public ButtonRecord findButton(Coord c) {
-		return buttons.find(c);
-	}
-
 	public Coord getNudge(int k) {
 		switch (k) {
 		case Keyboard.KEY_UP:
@@ -648,23 +618,18 @@ public class Mapper implements MapperServicesToPens {
 		return null;
 	}
 
-	@Override
-	public void startAlienEdit() {
+	private void startAlienEdit() {
+		assert alienEdit == null;
 		Alien a = getSelectedAlien();
 		alienEdit = new AlienEdit(a);
 	}
 
-	@Override
-	public void endAlienEdit() {
+	private void endAlienEdit() {
 		int size = alienEdit.size();
 		if (size != 0) {
 			undoControler.add(alienEdit);
 		}
-	}
-
-	@Override
-	public HoverStatus getHoverStatus() {
-		return hs;
+		alienEdit = null;
 	}
 
 	@Override
@@ -700,9 +665,7 @@ public class Mapper implements MapperServicesToPens {
 		if (!src.alienInfo.internal()) {
 			final Alien dest = srv.instantiateAttachConnect(src.alienInfo);
 			APS.copyProps(src, dest);
-
-			Coord diff = computeMousePos(CoordType.WORLD_PIXELS).sub2(src.getLocation());
-			APS.moveProps(dest, diff);
+			APS.movePropsAbsolute(dest, mmp.worldPixels());
 			createAlienWithUndoRedo(dest);
 		}
 	}
@@ -750,7 +713,7 @@ public class Mapper implements MapperServicesToPens {
 
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
-		showSmallPaletteTimer = 100;
+		paletteTimer = 100;
 	}
 
 	//

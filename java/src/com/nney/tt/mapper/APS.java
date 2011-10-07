@@ -60,9 +60,14 @@ public class APS {
 			destProps.get(x).copyFrom(srcProps.get(x));
 		}
 	}
+	
+	public static void movePropsAbsolute(Alien a, Coord pos) {
+		Coord diff = pos.sub2(a.getLocation());
+		movePropsRelative(a, diff);
+	}
 
-	public static void moveProps(Alien dest, Coord delta) {
-		List<Prop> props = APS.propsForAlien(dest);
+	public static void movePropsRelative(Alien a, Coord delta) {
+		List<Prop> props = APS.propsForAlien(a);
 		for (Prop prop : props) {
 			prop.moveBy(delta);
 		}

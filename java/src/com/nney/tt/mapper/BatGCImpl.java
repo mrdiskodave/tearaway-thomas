@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class BatGCImpl implements BatGC {
-	public static final int SUPERBAT_SIZE = 10;
+	private static final int SUPERBAT_SIZE = 10;
 	private final Coord scr;
 	private final MapperGC mgc;
 
@@ -14,12 +14,13 @@ public class BatGCImpl implements BatGC {
 	}
 
 	public void drawBat(Coord c) {
-		Box b = boxForBat(c);
-		int x = b.left - scr.x;
-		int y = b.top - scr.y;
-		int w = b.width();
-		int h = b.height();
-		mgc.fillRectangle(x, y, w, h, 0xffffff00);
+		Box b = boxForBat(c).sub2(scr);
+		mgc.fillRectangle(b.left, b.top, b.width(), b.height(), 0xffffff00);
+	}
+	
+	public void drawSuperBat(Coord c) {
+		c = c.sub2(scr);
+		mgc.drawSight2(c.x, c.y, 25, mgc.process(0xff00ffff), SUPERBAT_SIZE, 0x40000000);
 	}
 
 	public static Box boxForBat(Coord c) {
@@ -32,10 +33,7 @@ public class BatGCImpl implements BatGC {
 
 	@Override
 	public void drawBox(Box box) {
-		int x = box.left;
-		int y = box.top;
-		x -= scr.x;
-		y -= scr.y;
-		mgc.drawTransBox(x, y, box.width(), box.height(), 0xff000000, 0x60000000);
+		box = box.sub2(scr);
+		mgc.drawTransBox(box.left, box.top, box.width(), box.height(), 0xff000000, 0x60000000);
 	}
 }

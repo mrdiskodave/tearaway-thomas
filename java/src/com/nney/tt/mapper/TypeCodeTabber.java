@@ -46,10 +46,8 @@ public class TypeCodeTabber<T> {
 		return new TypeCodeTabber<T>(list, pos);
 	}
 
-	public boolean find(T typeCode) {
+	public void find(T typeCode) {
 		int where = list.indexOf(typeCode);
-		if (where<0) return false;
-		pos = where;
-		return true;
+		if (where>0) pos = where;
 	}
 }

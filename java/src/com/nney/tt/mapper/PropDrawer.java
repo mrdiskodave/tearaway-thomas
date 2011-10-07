@@ -2,6 +2,8 @@ package com.nney.tt.mapper;
 
 import java.util.ArrayList;
 
+import com.nney.tt.geom.Box;
+
 public class PropDrawer {
 	private int y;
 	private final StatusLayer statusLayer;
@@ -26,7 +28,9 @@ public class PropDrawer {
 		int x = 30;
 		for (Button button: buttons) {
 			String buttonText = "[" + button.name() + "]";
-			ButtonRecord br = new ButtonRecord(button, statusLayer.getBox(x, y, buttonText));
+			Box buttonBox = statusLayer.getBox(x, y, buttonText);
+			System.out.println(buttonText+" "+buttonBox);
+			ButtonRecord br = new ButtonRecord(button, buttonBox);
 			buttonRecords.add(br);
 			statusLayer.draw(x, y, hs.status(br.getUniqueName()), buttonText);
 			x += buttonText.length() + 1;

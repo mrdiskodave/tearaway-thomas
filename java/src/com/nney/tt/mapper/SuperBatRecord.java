@@ -17,8 +17,7 @@ public class SuperBatRecord implements BatRecord {
 
 	@Override
 	public void setPosition(Coord pos) {
-		Coord delta = pos.sub2(getPosition());
-		APS.moveProps(alien, delta);
+		APS.movePropsAbsolute(alien, pos);
 	}
 
 	@Override

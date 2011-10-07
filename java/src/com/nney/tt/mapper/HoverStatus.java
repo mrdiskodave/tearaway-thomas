@@ -4,32 +4,28 @@ public class HoverStatus {
 	private String hover = "";
 	private String pressed = "";
 
-	void move(String name) {
+	public void move(String name) {
 		assert name!=null;
 		hover = name;
 	}
 	
-	void down(String name) {
-		System.out.println("DOWN:"+name);
+	public void down(String name) {
 		assert name!=null;
 		pressed = name;
 	}
 	
-	boolean up(String name) {
-		System.out.println("UP:"+name);
+	public boolean up(String name) {
 		assert name!=null;
 		boolean activation = status(name)==ButtonState.PRESSED;
 		pressed = "";
 		return activation && name.length()>0;
 	}
 
-	ButtonState status(String name) {
-		ButtonState answer = status0(name);
-//		System.out.println("Status "+name+" is "+answer);
-		return answer;
+	public ButtonState status(String name) {
+		return status0(name);
 	}
 
-	ButtonState status0(String name) {
+	private ButtonState status0(String name) {
 		assert name!=null;
 		boolean isHoveringOverUs = name.equals(hover);
 		boolean isPressedOnUs = name.equals(pressed);

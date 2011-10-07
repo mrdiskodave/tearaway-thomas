@@ -3,7 +3,6 @@ package com.nney.tt.mapper;
 import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.mapper.Mapper.CoordType;
 
 public class MapperMousePosition {
 	private Coord pos;
