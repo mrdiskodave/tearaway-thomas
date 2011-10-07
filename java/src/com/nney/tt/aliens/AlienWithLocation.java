@@ -19,9 +19,7 @@ public abstract class AlienWithLocation extends Alien {
 	}
 	
 	protected Box boxAroundUs(int size) {
-		Box b = Box.fromSquare(size);
-		b.add(c);
-		return b;
+		return Box.around(c, size);
 	}
 
 	@Override

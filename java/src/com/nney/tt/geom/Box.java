@@ -30,22 +30,29 @@ public class Box implements Copyable<Box>, Cloneable {
 	public static Box fromTopLeftAndSize(Coord c, int width, int height) {
 		return Box.fromTopLeftAndSize(c.x, c.y, width, height);
 	}
-
-	public static Box fromSquare(int radius) {
-		return new Box(-radius, -radius, radius, radius);
-	}
 	
+	public static Box fromTwoCorners(Coord corner1, Coord corner2) {
+		int smallX = Math.min(corner1.x, corner2.x);
+		int bigX = Math.max(corner1.x, corner2.x);
+		int smallY = Math.min(corner1.y, corner2.y);
+		int bigY = Math.max(corner1.y, corner2.y);
+		return new Box(smallX, smallY, bigX, bigY);
+	}
+
+	public static Box around(Coord c, int l, int t, int r, int b) {
+		return new Box(c.x + l, c.y + t, c.x + r, c.y + b);
+	}
 
 	public static Box around(Coord c, int width, int height) {
 		return around(c, -width, -height, width, height);
 	}
 
-	private static Box around(Coord c, int l, int t, int r, int b) {
-		return new Box(c.x + l, c.y + t, c.x + r, c.y + b);
+	public static Box around(Coord c, int i) {
+		return around(c, i, i);
 	}
-
+	
 	public static Box around(Coord c) {
-		return around(c, 0, 0, 0, 0);
+		return around(c, 0);
 	}
 
 	
@@ -177,9 +184,6 @@ public class Box implements Copyable<Box>, Cloneable {
 		bottom = Math.max(top + border, i);
 	}
 
-	public static Box around(Coord c, int i) {
-		return around(c, i, i);
-	}
 
 	@Override
 	public Box copy() {
@@ -210,17 +214,7 @@ public class Box implements Copyable<Box>, Cloneable {
 		return bottom + 1;
 	}
 
-	// public void mul(int z) {
-	// left *= z;
-	// top *= z;
-	// right *= z;
-	// bottom *= z;
-	// }
-	// not very useful as the size doesn't scale too! grrr
-
-	public void validate() {
-		// right = Math.max(left, right);
-		// bottom = Math.max(top, bottom);
+	private void validate() {
 		if (right < left) {
 			int t = right;
 			right = left;

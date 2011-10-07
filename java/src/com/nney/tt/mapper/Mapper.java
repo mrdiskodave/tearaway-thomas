@@ -285,8 +285,7 @@ public class Mapper implements MapperServicesToPens {
 	
 							@Override
 							public void stroke() {
-								Coord c = mmp.worldPixels();
-								bat.setPosition(c.sub2(batGrip));
+								bat.setPosition(mmp.worldPixels().sub2(batGrip));
 							}
 	
 							@Override
@@ -409,15 +408,7 @@ public class Mapper implements MapperServicesToPens {
 
 	private Box getRect() {
 		if (marker == null) return null;
-		Coord corner1 = mmp.worldBlocks();
-		Coord corner2 = marker;
-
-		int smallX = Math.min(corner1.x, corner2.x);
-		int bigX = Math.max(corner1.x, corner2.x);
-		int smallY = Math.min(corner1.y, corner2.y);
-		int bigY = Math.max(corner1.y, corner2.y);
-		return new Box(smallX, smallY, bigX, bigY);
-
+		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
 	}
 
 	private void sayIt(String s) {
