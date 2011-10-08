@@ -8,11 +8,12 @@ import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
+import com.nney.tt.gfx.RawFont;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
-public class GlGraphicsContext implements GraphicsContext {
+public final class GlGraphicsContext implements GraphicsContext {
 	@Override
 	public void fillRectangle(int x, int y, int w, int h, int col) {
 		GlTools.configureFor2dRect(col);
@@ -50,8 +51,8 @@ public class GlGraphicsContext implements GraphicsContext {
 	}
 
 	@Override
-	public Font createFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
-		return new GlFont(data, miniW, miniH, proportional, characters);
+	public Font createFont(RawFont rf) {
+		return new GlFont(rf);
 	}
 
 	@Override

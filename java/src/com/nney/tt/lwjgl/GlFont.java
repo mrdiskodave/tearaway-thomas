@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.PartialFontImpl;
 import com.nney.tt.gfx.PrerenderedText;
+import com.nney.tt.gfx.RawFont;
 import com.nney.tt.gfx.SimpleImage;
 
 //
@@ -18,9 +19,9 @@ import com.nney.tt.gfx.SimpleImage;
 // red text looks harsher than it did before
 //
 
-public class GlFont extends PartialFontImpl {
-	public GlFont(byte[] data, int miniW, int miniH, boolean proportional, String characters) {
-		super(data, miniW, miniH, proportional, characters);
+public final class GlFont extends PartialFontImpl {
+	public GlFont(RawFont rf) {
+		super(rf);
 	}
 
 	private GlTexture texture;
@@ -31,7 +32,7 @@ public class GlFont extends PartialFontImpl {
 	}
 
 	@Override
-	protected void renderContent() {
+	protected void renderContent(SimpleImage content) {
 		this.texture = new GlTexture(content, mono);
 	}
 
@@ -43,7 +44,7 @@ public class GlFont extends PartialFontImpl {
 
 	@Override
 	protected void drawChar(int dx, int dy, Bounds z) {
-		texture.drawQuad(dx, dy, z.width, z.height, z.left, z.top, z.width, z.height);
+		texture.drawQuad(dx, dy, z.width/scaleDown, z.height/scaleDown, z.left, z.top, z.width, z.height);
 	}
 
 	@Override

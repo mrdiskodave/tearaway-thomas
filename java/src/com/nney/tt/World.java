@@ -51,6 +51,7 @@ import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
+import com.nney.tt.gfx.RawFont;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
@@ -328,11 +329,11 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initFonts() {
-		debugFont = gc.createFont(OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
-				characterRangeHelper(0, 128));
+		debugFont = gc.createFont(new RawFont(2, OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
+				characterRangeHelper(0, 128), '?'));
 
-		font = gc.createFont(OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
-				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ");
+		font = gc.createFont(new RawFont(1, OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
+				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ", '?'));
 	}
 
 	// ---------------------------------------------------------------------------

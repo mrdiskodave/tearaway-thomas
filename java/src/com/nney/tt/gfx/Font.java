@@ -21,6 +21,4 @@ public interface Font extends Disposable {
 	int computeWidth(int kern, String text);
 
 	PrerenderedText preRender(int fg, int kern, String text);
-
-
 }
