@@ -60,8 +60,8 @@ public class PersistedLevel {
 		mapName = level.requireField("map").requireString();
 		af.selectWorld(worldName);
 		
-//		loadLegacy(af, TTResource.legacyMap(mapName));
-		loadNew(af, mapName);
+		loadLegacy(af, TTResource.legacyMap(mapName));
+//		loadNew(af, mapName);
 	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
@@ -149,18 +149,12 @@ public class PersistedLevel {
 			typeCode = 36;
 		}
 
+		rest[0] = (byte) typeCode;
+
 		//
 		// creation
 		//
-		Alien alien = af.make(typeCode);
-		if (alien instanceof AlienWithLocation) {
-			AlienWithLocation awl = (AlienWithLocation) alien;
-			awl.c.x = x;
-			awl.c.y = y;
-		}
-
-		alien.legacyData = rest;
-		alien.loadFromLegacyData();
+		Alien alien = af.make(typeCode, x, y, rest);
 		aliens.add(alien);
 	}
 
@@ -194,7 +188,6 @@ public class PersistedLevel {
 							if (x < 0) break;
 							int typeCode = di.readByte();
 							byte[] rest = new byte[22];
-							rest[0] = (byte) typeCode;
 							di.readFully(rest, 1, 21);
 
 							createLegacyAlien(af, x, y, typeCode, rest);
@@ -235,7 +228,7 @@ public class PersistedLevel {
 		}
 	}
 
-	void save() {
+	void saveNew() {
 		final StringBuffer sb = new StringBuffer();
 
 		SafeWriter sw = new SafeWriter() {

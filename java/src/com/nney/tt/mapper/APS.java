@@ -41,6 +41,9 @@ public class APS {
 				else if (ft == int.class) {
 					prop = new IntegerProp(pp);
 				}
+				else if (ft == String.class) {
+					prop = new StringProp(pp);
+				}
 				else {
 					assert false: ft;
 				}

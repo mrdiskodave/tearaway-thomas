@@ -27,6 +27,7 @@ import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HiddenScoreGiftAlien;
+import com.nney.tt.aliens.LegacyAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
@@ -88,7 +89,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 0;
+	private int levelNumber = 3;
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -287,9 +288,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		aim.add(new AlienInfo(95, "star", "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "stop", "0stop", StopAlien.class));
+		
+		
 		aim.add(new AlienInfo(200, "plainLift", "?lift", PlainLiftAlien.class));
 		aim.add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
 		aim.add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
+		aim.add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
 
 		// internal things
 		// * no typeCode
@@ -670,21 +674,24 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	public Alien instantiateAttachByTypeCode(int typeCode) {
-		return instantiateAttachByName(AlienInfoMap.typeCodeToName(typeCode));
+		return instantiateAttachByName2(AlienInfoMap.typeCodeToName(typeCode));
 	}
 
 	private Alien instantiateAttachByName(String name) {
-		Alien answer;
-		if (alienInfoMap.nameExists(name)) {
-			AlienInfo alienInfo = alienInfoMap.getByName(name);
-			answer = alienInfo.instantiate();
-			answer.attach(alienInfo);
-		}
-		else {
+		Alien answer = instantiateAttachByName2(name);
+		if (answer==null) {
 			System.out.println("Unknown Alien Name:" + name);
-			answer = new DebugTextAlien("Unknown:" + name);
+			answer = new DebugTextAlien("UnknownName:" + name);
 			alienInfoMap.attach(answer);
 		}
+		return answer;
+	}
+
+	private Alien instantiateAttachByName2(String name) {
+		if (!alienInfoMap.nameExists(name)) return null;
+		AlienInfo alienInfo = alienInfoMap.getByName(name);
+		Alien answer = alienInfo.instantiate();
+		answer.attach(alienInfo);
 		return answer;
 	}
 	
@@ -1102,8 +1109,21 @@ public class World implements AlienServices, WorldServicesToMapper {
 			}
 
 			@Override
-			public Alien make(int typeCode) {
-				return instantiateAttachByTypeCode(typeCode);
+			public Alien make(int typeCode, int x, int y, byte[] rest) {
+				Alien alien = instantiateAttachByTypeCode(typeCode);
+				if (alien==null) {
+					System.out.println("LEGACY ALIEN "+typeCode);
+					alien = new LegacyAlien();
+					alienInfoMap.attach(alien);
+				}
+				if (alien instanceof AlienWithLocation) {
+					AlienWithLocation awl = (AlienWithLocation) alien;
+					awl.c.x = x;
+					awl.c.y = y;
+				}
+				alien.legacyData = rest;
+				alien.loadFromLegacyData();
+				return alien;
 			}
 
 			@Override
