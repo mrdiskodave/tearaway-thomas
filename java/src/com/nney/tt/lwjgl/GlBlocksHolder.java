@@ -11,7 +11,7 @@ import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.SimpleImage;
 
-public class GlBlocksHolder implements BlocksHolder {
+public final class GlBlocksHolder implements BlocksHolder {
 	final private int blockSize;
 
 	static final private int GRID_SIZE = 8;

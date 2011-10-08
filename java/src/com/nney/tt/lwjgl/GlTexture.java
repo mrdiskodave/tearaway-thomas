@@ -9,7 +9,7 @@ import com.nney.tt.gfx.PrerenderedText;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.mbr.MustBeReleased;
 
-public class GlTexture implements Blitable, PrerenderedText {
+public final class GlTexture implements Blitable, PrerenderedText {
 	final private MustBeReleased mbr = new MustBeReleased(); 
 	final private int textureId;
 	final private int textureW;

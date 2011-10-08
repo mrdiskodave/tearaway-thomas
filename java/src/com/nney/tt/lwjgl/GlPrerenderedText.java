@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL11;
 import com.nney.tt.gfx.PrerenderedText;
 import com.nney.utils.mbr.MustBeReleased;
 
-public class GlPrerenderedText implements PrerenderedText {
+public final class GlPrerenderedText implements PrerenderedText {
 	private MustBeReleased mbr = new MustBeReleased(); 
 	private final int width;
 	private final int id;

@@ -11,7 +11,7 @@ import com.nney.utils.mbr.MustBeReleased;
  * until {@link #dispose()} is called). Rendering is redirected into the given
  * texture.
  */
-public class GlFrameBufferObject implements Disposable {
+public final class GlFrameBufferObject implements Disposable {
 	private final MustBeReleased mbr = new MustBeReleased();
 	private final int myFBOId;
 
