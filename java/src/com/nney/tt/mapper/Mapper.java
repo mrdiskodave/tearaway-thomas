@@ -221,14 +221,19 @@ public class Mapper implements ButtonPressServices {
 		else {
 			if (alienMode) {
 				final BatRecord bat = bats.find(mmp.worldPixels());
-				final ButtonRecord button = buttons.find(mmp.screenPixels());
 
+				final ButtonRecord button = buttons.find(mmp.screenPixels());
 				hoverStatus.move(buttonRecordToString(button));
 
 				if (k == Pointer.KEY_LEFT) {
 					if (button != null) {
 						hoverStatus.down(buttonRecordToString(button));
 						startPen(new Pen2() {
+							@Override
+							void stroke() {
+								final ButtonRecord selected = buttons.find(mmp.screenPixels());
+								hoverStatus.move(buttonRecordToString(selected));
+							};
 							@Override
 							public void up() {
 								final ButtonRecord selected = buttons.find(mmp.screenPixels());

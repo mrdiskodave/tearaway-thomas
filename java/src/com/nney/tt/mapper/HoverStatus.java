@@ -5,28 +5,41 @@ public class HoverStatus {
 	private String pressed = "";
 
 	public void move(String name) {
-		assert name!=null;
+		maybeNone(name);
 		hover = name;
 	}
 	
 	public void down(String name) {
-		assert name!=null;
+		neverNone(name);
 		pressed = name;
 	}
 	
 	public boolean up(String name) {
-		assert name!=null;
+		maybeNone(name);
 		boolean activation = status(name)==ButtonState.PRESSED;
 		pressed = "";
-		return activation && name.length()>0;
+		return activation && isNotNone(name);
 	}
 
 	public ButtonState status(String name) {
+		maybeNone(name);
 		return status0(name);
 	}
 
-	private ButtonState status0(String name) {
+	private void maybeNone(String name) {
 		assert name!=null;
+	}
+
+	private void neverNone(String name) {
+		assert name!=null;
+		assert isNotNone(name);
+	}
+
+	private boolean isNotNone(String name) {
+		return name.length()>0;
+	}
+
+	private ButtonState status0(String name) {
 		boolean isHoveringOverUs = name.equals(hover);
 		boolean isPressedOnUs = name.equals(pressed);
 
@@ -35,7 +48,7 @@ public class HoverStatus {
 				return ButtonState.PRESSED;
 			}
 			else {
-				boolean isPressedOnSomethingElse = pressed.length()>0;
+				boolean isPressedOnSomethingElse = isNotNone(pressed);
 				if (isPressedOnSomethingElse) {
 					return ButtonState.PASSIVE;
 				}
