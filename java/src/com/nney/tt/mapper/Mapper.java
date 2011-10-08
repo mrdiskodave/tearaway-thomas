@@ -187,7 +187,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private static String buttonRecordToString(ButtonRecord br) {
-		if (br == null) return "";
+		if (br == null) return null;
 		return br.getUniqueName();
 	}
 
@@ -222,7 +222,7 @@ public class Mapper implements ButtonPressServices {
 			if (alienMode) {
 				final BatRecord bat = bats.find(mmp.worldPixels());
 
-				final ButtonRecord button = buttons.find(mmp.screenPixels());
+				ButtonRecord button = buttons.find(mmp.screenPixels());
 				hoverStatus.move(buttonRecordToString(button));
 
 				if (k == Pointer.KEY_LEFT) {
@@ -231,15 +231,15 @@ public class Mapper implements ButtonPressServices {
 						startPen(new Pen2() {
 							@Override
 							void stroke() {
-								final ButtonRecord selected = buttons.find(mmp.screenPixels());
-								hoverStatus.move(buttonRecordToString(selected));
+								ButtonRecord b = buttons.find(mmp.screenPixels());
+								hoverStatus.move(buttonRecordToString(b));
 							};
 							@Override
 							public void up() {
-								final ButtonRecord selected = buttons.find(mmp.screenPixels());
-								if (hoverStatus.up(buttonRecordToString(selected))) {
+								ButtonRecord b = buttons.find(mmp.screenPixels());
+								if (hoverStatus.up(buttonRecordToString(b))) {
 									startAlienEdit();
-									selected.press();
+									b.press();
 									endAlienEdit();
 								}
 							}

@@ -1,9 +1,19 @@
 package com.nney.tt.mapper;
 
 public class HoverStatus {
-	private String hover = "";
-	private String pressed = "";
+	private String hover;
+	private String pressed;
 
+	
+	private void maybeNone(String name) {
+		assert name==null || name.length()>0;
+	}
+
+	private void neverNone(String name) {
+		assert name!=null && name.length()>0;
+	}
+
+	
 	public void move(String name) {
 		maybeNone(name);
 		hover = name;
@@ -16,27 +26,14 @@ public class HoverStatus {
 	
 	public boolean up(String name) {
 		maybeNone(name);
-		boolean activation = status(name)==ButtonState.PRESSED;
-		pressed = "";
-		return activation && isNotNone(name);
+		boolean activation = name!=null && status(name)==ButtonState.PRESSED;
+		pressed = null;
+		return activation;
 	}
 
 	public ButtonState status(String name) {
-		maybeNone(name);
+		neverNone(name);
 		return status0(name);
-	}
-
-	private void maybeNone(String name) {
-		assert name!=null;
-	}
-
-	private void neverNone(String name) {
-		assert name!=null;
-		assert isNotNone(name);
-	}
-
-	private boolean isNotNone(String name) {
-		return name.length()>0;
 	}
 
 	private ButtonState status0(String name) {
@@ -48,7 +45,7 @@ public class HoverStatus {
 				return ButtonState.PRESSED;
 			}
 			else {
-				boolean isPressedOnSomethingElse = isNotNone(pressed);
+				boolean isPressedOnSomethingElse = pressed!=null;
 				if (isPressedOnSomethingElse) {
 					return ButtonState.PASSIVE;
 				}
