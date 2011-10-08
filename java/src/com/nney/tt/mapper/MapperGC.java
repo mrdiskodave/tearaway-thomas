@@ -4,7 +4,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 
-public class MapperGC {
+public final class MapperGC {
 	private GraphicsContext gc;
 	private final Font debugFont;
 	private final ColorCycler cycler;
@@ -58,10 +58,6 @@ public class MapperGC {
 		drawTransBox(x-j, y-j, j2, j2, col, col2);
 	}
 
-	public void drawText(int x, int y, int fg, String text) {
-		debugFont.draw(x, y, fg, 0, text);
-	}
-
 	public int charWidth() {
 		return debugFont.charWidth();
 	}
@@ -70,8 +66,12 @@ public class MapperGC {
 		return debugFont.charWidth();
 	}
 
+	public void drawText(int x, int y, int fg, String text) {
+		debugFont.draw(x, y, fg, 0, text);
+	}
+	
 	public void drawText(int x, int y, int fg, int bg, String text) {
-		gc.fillRectangle(x, y, 8 * text.length(), 8, bg);
+		gc.fillRectangle(x, y, charWidth() * text.length(), charHeight(), bg);
 		debugFont.draw(x, y, fg, 0, text);
 	}
 	
