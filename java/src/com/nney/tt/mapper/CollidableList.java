@@ -7,6 +7,10 @@ import com.nney.tt.geom.Coord;
 public class CollidableList<T extends Collidable> {
 	private ArrayList<T> content = new ArrayList<T>();
 	
+	public T get(int x) {
+		return content.get(x);
+	}
+	
 	public void add(T t) {
 		content.add(t);
 	}

@@ -21,10 +21,4 @@ public class ButtonRecord implements Collidable {
 	public void press() {
 		who.press();
 	}
-
-	public String getUniqueName() {
-		// no buttons entirely overlap so this'll do
-		return collisionBox.toString();
-	}
-	
 }

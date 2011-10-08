@@ -21,12 +21,12 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				return location();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				onBring(where);
 			}
 		});
@@ -34,14 +34,14 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				XRange t = read();
 				int apy = alienPos().y;
 				return new Coord(t.left, apy);
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				XRange t = read();
 				t.setLeft(where.x, BORDER);
 			}
@@ -49,14 +49,14 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				XRange t = read();
 				int apy = alienPos().y;
 				return new Coord(t.right, apy);
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				XRange t = read();
 				t.setRight(where.x, BORDER);
 			}

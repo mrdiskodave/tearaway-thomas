@@ -19,24 +19,24 @@ public class BoxVisualProp extends VisualProp<Box> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				return location();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				onBring(where);
 			}
 		});
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				Box t = read();
 				return t.topLeft();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				Box t = read();
 				t.setLeft(where.x, BORDER);
 				t.setTop(where.y, BORDER);
@@ -45,13 +45,13 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				Box t = read();
 				return t.bottomRight();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				Box t = read();
 				t.setRight(where.x, BORDER);
 				t.setBottom(where.y, BORDER);
@@ -60,13 +60,13 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				Box t = read();
 				return t.topRight();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				Box t = read();
 				t.setRight(where.x, BORDER);
 				t.setTop(where.y, BORDER);
@@ -75,13 +75,13 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				Box t = read();
 				return t.bottomLeft();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				Box t = read();
 				t.setLeft(where.x, BORDER);
 				t.setBottom(where.y, BORDER);

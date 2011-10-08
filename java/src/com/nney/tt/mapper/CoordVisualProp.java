@@ -16,12 +16,12 @@ public class CoordVisualProp extends VisualProp<Coord> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new Bat() {
 			@Override
-			Coord where() {
+			public Coord where() {
 				return location();
 			}
 
 			@Override
-			void onMove(Coord where) {
+			public void onMove(Coord where) {
 				onBring(where);
 			}
 		});

@@ -1,42 +1,34 @@
 package com.nney.tt.mapper;
 
-public class HoverStatus {
-	private String hover;
-	private String pressed;
+public class HoverStatus<T> {
+	private T hover;
+	private T pressed;
 
-	
-	private void maybeNone(String name) {
-		assert name==null || name.length()>0;
+	private void neverNone(T name) {
+		assert name!=null;
 	}
-
-	private void neverNone(String name) {
-		assert name!=null && name.length()>0;
-	}
-
 	
-	public void move(String name) {
-		maybeNone(name);
+	public void move(T name) {
 		hover = name;
 	}
 	
-	public void down(String name) {
+	public void down(T name) {
 		neverNone(name);
 		pressed = name;
 	}
 	
-	public boolean up(String name) {
-		maybeNone(name);
+	public boolean up(T name) {
 		boolean activation = name!=null && status(name)==ButtonState.PRESSED;
 		pressed = null;
 		return activation;
 	}
 
-	public ButtonState status(String name) {
+	public ButtonState status(T name) {
 		neverNone(name);
 		return status0(name);
 	}
 
-	private ButtonState status0(String name) {
+	private ButtonState status0(T name) {
 		boolean isHoveringOverUs = name.equals(hover);
 		boolean isPressedOnUs = name.equals(pressed);
 

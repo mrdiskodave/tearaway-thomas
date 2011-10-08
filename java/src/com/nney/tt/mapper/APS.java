@@ -42,8 +42,7 @@ public class APS {
 					prop = new IntegerProp(pp);
 				}
 				else {
-					System.out.println(ft);
-					assert false;
+					assert false: ft;
 				}
 				assert prop != null;
 				props.add(0, prop);

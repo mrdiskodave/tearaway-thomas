@@ -45,12 +45,9 @@ public abstract class StatusLayer {
 	}
 
 	public void draw(int x, int y, ButtonState status, String text) {
+		touch(y);
 		int sx = cx(x);
 		int sy = cy(y);
-		if (!seenRow.contains(y)) {
-			seenRow.add(y);
-			mgc.fillRectangle(0, sy, swp, chp, 0x80000000);
-		}
 		switch (status) {
 		case PASSIVE:
 			mgc.drawText(sx, sy, 0xffffffff, text);
@@ -63,11 +60,26 @@ public abstract class StatusLayer {
 			break;
 		}
 	}
+
+	public void touch(int y) {
+		if (!seenRow.contains(y)) {
+			seenRow.add(y);
+			int sy = cy(y);
+			mgc.fillRectangle(0, sy, swp, chp, 0x80000000);
+		}
+	}
 	
-	public Box getBox(int x, int y, String text) {
+	public Box getBox(int x, int y, int w, int h) {
 		int sx = cx(x);
 		int sy = cy(y);
-		return Box.fromTopLeftAndSize(sx, sy, cwp * text.length(), chp);
+		if (w<0) w = swc;
+		if (h<0) h = shc;
+		return Box.fromTopLeftAndSize(sx, sy, cwp * w, chp * h);
+	}
+	
+	
+	public Box getBox(int x, int y, String text) {
+		return getBox(x, y, text.length(), 1);
 	}
 
 }

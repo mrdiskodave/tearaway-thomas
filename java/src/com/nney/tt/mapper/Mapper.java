@@ -96,12 +96,12 @@ public class Mapper implements ButtonPressServices {
 
 	private EditConsolidator edit;
 
-	private CollidableList<BatRecord> bats = new CollidableList<BatRecord>();
-	private CollidableList<ButtonRecord> buttons = new CollidableList<ButtonRecord>();
+	private CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
+	private CollidableList<ButtonRecord> buttonRecords;
 
 	private AlienEdit alienEdit;
 
-	private HoverStatus hoverStatus = new HoverStatus();
+	private HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
 	private Alien selectedAlien;
 
 	private MapperMousePosition mmp = new MapperMousePosition();
@@ -186,11 +186,6 @@ public class Mapper implements ButtonPressServices {
 		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 	}
 
-	private static String buttonRecordToString(ButtonRecord br) {
-		if (br == null) return null;
-		return br.getUniqueName();
-	}
-
 	public void run() {
 		mgc.nextFrame();
 
@@ -220,24 +215,23 @@ public class Mapper implements ButtonPressServices {
 		}
 		else {
 			if (alienMode) {
-				final BatRecord bat = bats.find(mmp.worldPixels());
+				final BatRecord bat = batRecords.find(mmp.worldPixels());
 
-				ButtonRecord button = buttons.find(mmp.screenPixels());
-				hoverStatus.move(buttonRecordToString(button));
+				ButtonRecord button = findButton();
+				hoverStatus.move(button);
 
 				if (k == Pointer.KEY_LEFT) {
 					if (button != null) {
-						hoverStatus.down(buttonRecordToString(button));
+						hoverStatus.down(button);
 						startPen(new Pen2() {
 							@Override
 							void stroke() {
-								ButtonRecord b = buttons.find(mmp.screenPixels());
-								hoverStatus.move(buttonRecordToString(b));
+								hoverStatus.move(findButton());
 							};
 							@Override
 							public void up() {
-								ButtonRecord b = buttons.find(mmp.screenPixels());
-								if (hoverStatus.up(buttonRecordToString(b))) {
+								ButtonRecord b = findButton();
+								if (hoverStatus.up(b)) {
 									startAlienEdit();
 									b.press();
 									endAlienEdit();
@@ -254,12 +248,12 @@ public class Mapper implements ButtonPressServices {
 						});
 					}
 					else {
-						final Coord batGrip = mmp.worldPixels().sub2(bat.getPosition());
+						final Coord batGrip = mmp.worldPixels().sub2(bat.where());
 						startAlienEdit();
 						startPen(new Pen2() {
 							@Override
 							public void stroke() {
-								bat.setPosition(mmp.worldPixels().sub2(batGrip));
+								bat.onMove(mmp.worldPixels().sub2(batGrip));
 							}
 
 							@Override
@@ -272,7 +266,9 @@ public class Mapper implements ButtonPressServices {
 				else {
 					Coord nudge = getNudge(k);
 					if (nudge != null) {
-						bat.setPosition(nudge);
+						startAlienEdit();
+						bat.onMove(nudge);
+						endAlienEdit();
 					}
 				}
 
@@ -348,6 +344,11 @@ public class Mapper implements ButtonPressServices {
 			if (alienMode) showSelectedAlienProps();
 			drawPalettes();
 		}
+	}
+
+	private ButtonRecord findButton() {
+		if (buttonRecords==null) return null;
+		return buttonRecords.find(mmp.screenPixels());
 	}
 
 	private void startPen(final Pen2 p) {
@@ -500,67 +501,110 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void setSelectedAlien(Alien s) {
-		this.selectedAlien = s;
+		selectedAlien = s;
+		buttonRecords = null;
+		
 	}
 
 	private void showSelectedAlienProps() {
 		if (haveAlien()) {
+			//
+			// bats
+			//
+			
 			BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 			batGc.drawSuperBat(getSelectedAlien().getLocation());
 
 			List<Prop> props = APS.propsForAlien(getSelectedAlien());
 
 			// bats
-			bats.clear();
+			batRecords.clear();
 			for (Prop p : props) {
 				p.drawAuxBatStuff(batGc);
 
 				ArrayList<Bat> lbats = new ArrayList<Bat>();
 				p.getBats(lbats);
 				for (Bat lbat : lbats) {
-					bats.add(new CommonBatRecord(lbat));
+					batRecords.add(new CommonBatRecord(lbat));
 					batGc.drawBat(lbat.where());
 				}
 
 			}
 
+			// a super-bat that moves all the alien's visual
+			// properties in one go
 			final Alien alien = getSelectedAlien();
 			BatRecord superBat = new BatRecord() {
 				@Override
 				public boolean inside(Coord c) {
-					return BatGCImpl.boxForSuperBat(getPosition()).inside(c);
+					return BatGCImpl.boxForSuperBat(where()).inside(c);
 				}
 
 				@Override
-				public void setPosition(Coord c) {
+				public void onMove(Coord c) {
 					APS.movePropsAbsolute(alien, c);
 				}
 
 				@Override
-				public Coord getPosition() {
+				public Coord where() {
 					return alien.getLocation();
 				}
 			};
-			bats.add(superBat);
+			batRecords.add(superBat);
 
+			//
 			// property descriptions and buttons
-			buttons.clear();
-			StatusLayer statusLayer = new TopDownStatusLayer(mgc);
-			PropDrawer pd = new PropDrawer(this, hoverStatus, statusLayer, buttons);
-			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
-			for (Prop p : props) {
-				pd.draw(p);
+			//
+			
+			// are we reading buttonRecords?
+			int cursor = 0;
+			if (buttonRecords==null) {
+				// no we're building them!
+				buttonRecords = new CollidableList<ButtonRecord>();
+				cursor = -1;
 			}
+			// TODO: ^^^ugly! ideally then generation and drawing
+			// phases would be entirely separate 
+			
+			StatusLayer statusLayer = new TopDownStatusLayer(mgc);
+			int y = 0;
+			statusLayer.touch(y++);
+			statusLayer.touch(y++);
+			String docs = "";
+			for (Prop p : props) {
+				if (statusLayer.getBox(0, y, -1, 1).inside(mmp.screenPixels())) {
+					docs = p.doc();
+				}
+				statusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
+				statusLayer.draw(15, y, ButtonState.PASSIVE, clip(p.text(), 20));
+				int x = 35;
 
-			// TODO: prop drawer work ...
-
-			// TODO: alien: copy
-			// TODO: alien: new (via resetTo())
-
-			// TODO: block editor box select: copy & paste & fill
-			// TODO: serialise and deserialise
+				ArrayList<Button> buttons = new ArrayList<Button>();
+				p.getButtons(buttons, this);
+				for (Button button: buttons) {
+					String buttonText = "[" + button.name() + "]";
+					ButtonRecord buttonRecord;
+					if (cursor<0) {
+						Box buttonBox = statusLayer.getBox(x, y, buttonText);
+						buttonRecord = new ButtonRecord(button, buttonBox);
+						buttonRecords.add(buttonRecord);
+					}
+					else {
+						buttonRecord = buttonRecords.get(cursor++); 
+					}
+					statusLayer.draw(x, y, hoverStatus.status(buttonRecord), buttonText);
+					x += buttonText.length() + 1;
+				}
+				y++;
+			}
+			statusLayer.draw(0, 0, ButtonState.PASSIVE, docs);
 		}
 	}
+	
+	private static String clip(String s, int x) {
+		return s.substring(0, Math.min(x, s.length()));
+	}
+
 
 	private void deleteAlien(Alien a) {
 		a.done();
