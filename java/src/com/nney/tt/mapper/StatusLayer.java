@@ -49,7 +49,7 @@ public abstract class StatusLayer {
 		int sy = cy(y);
 		if (!seenRow.contains(y)) {
 			seenRow.add(y);
-			mgc.fillRectangle(0, sy, swp, chp, 0x60000000);
+			mgc.fillRectangle(0, sy, swp, chp, 0x80000000);
 		}
 		switch (status) {
 		case PASSIVE:

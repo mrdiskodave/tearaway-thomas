@@ -540,7 +540,7 @@ public class Mapper implements ButtonPressServices {
 
 			// property descriptions and buttons
 			buttons.clear();
-			StatusLayer statusLayer = new BottomUpStatusLayer(mgc);
+			StatusLayer statusLayer = new TopDownStatusLayer(mgc);
 			PropDrawer pd = new PropDrawer(this, hoverStatus, statusLayer, buttons);
 			// pd.draw("Type", selectedAlien.getClass().getSimpleName());
 			for (Prop p : props) {

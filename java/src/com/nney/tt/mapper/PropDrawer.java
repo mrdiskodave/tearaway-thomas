@@ -25,7 +25,7 @@ public class PropDrawer {
 
 		ArrayList<Button> buttons = new ArrayList<Button>();
 		p.getButtons(buttons, bps);
-		int x = 30;
+		int x = 35;
 		for (Button button: buttons) {
 			String buttonText = "[" + button.name() + "]";
 			Box buttonBox = statusLayer.getBox(x, y, buttonText);
