@@ -81,5 +81,9 @@ public abstract class StatusLayer {
 	public Box getBox(int x, int y, String text) {
 		return getBox(x, y, text.length(), 1);
 	}
+	
+	public int width() {
+		return swc;
+	}
 
 }

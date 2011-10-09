@@ -80,13 +80,6 @@ public class Mapper implements ButtonPressServices {
 	final private int blockCount;
 	private int paletteTimer;
 
-
-	//
-	// stuff to do with the message
-	//
-	// private final String message;
-	// private int showMessageTimer;
-
 	final MapperGC mgc;
 	final private Pointer mouse;
 	final WorldServicesToMapper srv;
@@ -106,11 +99,7 @@ public class Mapper implements ButtonPressServices {
 
 	private MapperMousePosition mmp = new MapperMousePosition();
 
-	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	// -
-	// Things that need to be reset on
-	// (because playing the game will have
-	// messed with the assumptions they hold)
+	private StatusLayer statusLayer;
 
 	private UndoControler undoControler;
 
@@ -124,13 +113,20 @@ public class Mapper implements ButtonPressServices {
 
 	private AlienPalette alienPalette;
 
+	//
+	// stuff to do with the message
+	//
+	private int messTimer;
+
+	private String messText;
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
-	public Mapper(AlienInfoMap alienInfoMap, AnimsPool animsPool, GameMap gameMap, WorldServicesToMapper srv, Pointer mouse,
-			Keyboard keyboard, GraphicsContext gc, Font debugFont) {
-		
+	public Mapper(AlienInfoMap alienInfoMap, AnimsPool animsPool, GameMap gameMap, WorldServicesToMapper srv,
+			Pointer mouse, Keyboard keyboard, GraphicsContext gc, Font debugFont) {
+
 		this.srv = srv;
 		this.gameMap = gameMap;
 		this.mouse = mouse;
@@ -139,10 +135,9 @@ public class Mapper implements ButtonPressServices {
 		blockCount = srv.getBlocksHolder().getBlockCount();
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(gc, debugFont, colorCycler);
-		
-		
+
 		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
-		for (String name: alienInfoMap.queryNames()) {
+		for (String name : alienInfoMap.queryNames()) {
 			ais.add(alienInfoMap.getByName(name));
 		}
 		alienPalette = new AlienPalette(ais, mgc, animsPool);
@@ -188,8 +183,9 @@ public class Mapper implements ButtonPressServices {
 
 	public void run() {
 		mgc.nextFrame();
-
 		mmp.update(mouse, getScreenPosition());
+
+		statusLayer = new TopDownStatusLayer(mgc);
 
 		boolean palettes = true;
 		int k = keyboard.justPressed();
@@ -204,7 +200,7 @@ public class Mapper implements ButtonPressServices {
 			}
 			drawLevel();
 		}
-		else if (keyboard.isDown(Pointer.KEY_RIGHT)) {
+		else if (!alienMode && keyboard.isDown(Pointer.KEY_RIGHT)) {
 			blockSelectionKeys(k);
 			blockChoosingMode();
 			palettes = false;
@@ -228,6 +224,7 @@ public class Mapper implements ButtonPressServices {
 							void stroke() {
 								hoverStatus.move(findButton());
 							};
+
 							@Override
 							public void up() {
 								ButtonRecord b = findButton();
@@ -278,6 +275,13 @@ public class Mapper implements ButtonPressServices {
 				}
 				if (k == Keyboard.KEY_N) createAlien();
 				keyboardAlienChoice(k);
+
+				if (k == Keyboard.KEY_D) {
+					alienMode = false;
+					marker = null;
+					paletteTimer = 0;
+					say("Drawing mode");
+				}
 			}
 			else {
 				if (k == Pointer.KEY_LEFT) {
@@ -307,32 +311,37 @@ public class Mapper implements ButtonPressServices {
 					int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
 					copyRect(slotNumber);
 					marker = null;
+					say("Copied into slot " + slotNumber);
 				}
 				if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
 					int slotNumber = k - PASTE_BUFFER_START;
 					pasteRect(slotNumber);
 					marker = null;
+					say("Pasted from slot " + slotNumber);
 				}
 				if (keyboard.isDown(Keyboard.KEY_T)) {
 					Coord c = mmp.worldBlocksDelta();
 					changeCurrentBlock(c.x, c.y);
 				}
 				blockSelectionKeys(k);
-			}
 
-			if (k == Keyboard.KEY_A) {
-				alienMode = true;
-				paletteTimer = 0;
-			}
-			if (k == Keyboard.KEY_D) {
-				alienMode = false;
-				marker = null;
-				paletteTimer = 0;
+				if (k == Keyboard.KEY_A) {
+					alienMode = true;
+					paletteTimer = 0;
+					say("Alien mode");
+				}
 			}
 
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Y) undoControler.redo();
-			if (k == Keyboard.KEY_ESCAPE) paletteTimer = 0;
+			if (k == Keyboard.KEY_ESCAPE) {
+				paletteTimer = 0;
+				messTimer = 0;
+			}
+			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
+				
+				say("Saved");
+			}
 
 			drawLevel();
 			if (!alienMode) {
@@ -344,10 +353,15 @@ public class Mapper implements ButtonPressServices {
 			if (alienMode) showSelectedAlienProps();
 			drawPalettes();
 		}
+
+		if (messTimer != 0) {
+			messTimer--;
+			statusLayer.draw(statusLayer.width() - messText.length(), 0, ButtonState.PASSIVE, messText);
+		}
 	}
 
 	private ButtonRecord findButton() {
-		if (buttonRecords==null) return null;
+		if (buttonRecords == null) return null;
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
@@ -401,19 +415,18 @@ public class Mapper implements ButtonPressServices {
 		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
 	}
 
-	private void sayIt(String s) {
-		if (s != null) {
-			mgc.drawText(mgc.screenWidth() - 8 * s.length(), 0, 0xffffff, s);
-		}
+	private void say(String s) {
+		messTimer = 100;
+		messText = s;
 	}
 
 	private void keyboardAlienChoice(int k) {
-		
+
 		AlienInfo current = alienPalette.get();
 		if (k == Keyboard.KEY_NEXT) alienPalette.next();
 		if (k == Keyboard.KEY_PRIOR) alienPalette.prev();
 		if (k == Keyboard.KEY_I && haveAlien()) alienPalette.find(getSelectedAlien().alienInfo);
-		if (alienPalette.get()!=current) {
+		if (alienPalette.get() != current) {
 			paletteTimer = 100;
 		}
 	}
@@ -426,8 +439,6 @@ public class Mapper implements ButtonPressServices {
 		createAlienWithUndoRedo(a);
 	}
 
-	
-	
 	void blockSelectionKeys(int k) {
 		if (k == Keyboard.KEY_UP) changeCurrentBlock(0, -1);
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
@@ -503,7 +514,7 @@ public class Mapper implements ButtonPressServices {
 	private void setSelectedAlien(Alien s) {
 		selectedAlien = s;
 		buttonRecords = null;
-		
+
 	}
 
 	private void showSelectedAlienProps() {
@@ -511,7 +522,7 @@ public class Mapper implements ButtonPressServices {
 			//
 			// bats
 			//
-			
+
 			BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 			batGc.drawSuperBat(getSelectedAlien().getLocation());
 
@@ -555,18 +566,17 @@ public class Mapper implements ButtonPressServices {
 			//
 			// property descriptions and buttons
 			//
-			
+
 			// are we reading buttonRecords?
 			int cursor = 0;
-			if (buttonRecords==null) {
+			if (buttonRecords == null) {
 				// no we're building them!
 				buttonRecords = new CollidableList<ButtonRecord>();
 				cursor = -1;
 			}
 			// TODO: ^^^ugly! ideally then generation and drawing
-			// phases would be entirely separate 
-			
-			StatusLayer statusLayer = new TopDownStatusLayer(mgc);
+			// phases would be entirely separate
+
 			int y = 0;
 			statusLayer.touch(y++);
 			statusLayer.touch(y++);
@@ -581,16 +591,16 @@ public class Mapper implements ButtonPressServices {
 
 				ArrayList<Button> buttons = new ArrayList<Button>();
 				p.getButtons(buttons, this);
-				for (Button button: buttons) {
+				for (Button button : buttons) {
 					String buttonText = "[" + button.name() + "]";
 					ButtonRecord buttonRecord;
-					if (cursor<0) {
+					if (cursor < 0) {
 						Box buttonBox = statusLayer.getBox(x, y, buttonText);
 						buttonRecord = new ButtonRecord(button, buttonBox);
 						buttonRecords.add(buttonRecord);
 					}
 					else {
-						buttonRecord = buttonRecords.get(cursor++); 
+						buttonRecord = buttonRecords.get(cursor++);
 					}
 					statusLayer.draw(x, y, hoverStatus.status(buttonRecord), buttonText);
 					x += buttonText.length() + 1;
@@ -600,11 +610,10 @@ public class Mapper implements ButtonPressServices {
 			statusLayer.draw(0, 0, ButtonState.PASSIVE, docs);
 		}
 	}
-	
+
 	private static String clip(String s, int x) {
 		return s.substring(0, Math.min(x, s.length()));
 	}
-
 
 	private void deleteAlien(Alien a) {
 		a.done();
