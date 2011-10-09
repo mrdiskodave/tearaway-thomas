@@ -107,7 +107,7 @@ public class Main {
 
 		world = new World(gc, ac, joystick, keys, correctMouse);
 
-		FpsReporter fpsRep = new FpsReporter(200);
+		FpsReporter fpsRep = new FpsReporter(50);
 		boolean closing = false;
 		while (!closing) {
 			Display.sync(Const.FPS);
