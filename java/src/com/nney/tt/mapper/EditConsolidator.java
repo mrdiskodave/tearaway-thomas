@@ -7,6 +7,10 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
+/**
+ * Collects up a number of {@link #setBlock(Coord, int)} events to make a
+ * single {@link MapSymmetricalUndoRedo} object.
+ */
 public class EditConsolidator {
 	private final HashMap<Coord, Integer> originalBlocks = new HashMap<Coord, Integer>();
 	private final GameMap gameMap;
