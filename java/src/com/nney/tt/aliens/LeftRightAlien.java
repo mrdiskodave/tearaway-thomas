@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.BitOp;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
-import com.nney.tt.sprites.Sprite;
+import com.nney.tt.sprites.Anim;
 
 public abstract class LeftRightAlien extends AlienWithLocation {
 	@AlienProp(name = "Range", doc = "The horizontal span in which we move.", label = "range")
@@ -20,10 +20,8 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 	}
 
 	@Override
-	public void mapperUpdate() {
-		changeAnimation(goLeft ? "left" : "right");
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
+	public Anim mapperAnim() {
+		return anims.find(goLeft ? "left" : "right");
 	}
 
 	boolean moveLeftRight(int speed) {

@@ -86,7 +86,7 @@ public class Coord implements Copyable<Coord>, Cloneable {
 	public String toString() {
 		return String.format("%sx%s", x, y);
 	}
-	
+
 	public Coord add2(Coord c) {
 		Coord a = copy();
 		a.add(c);
@@ -128,7 +128,18 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		int y = d.requireElement(1).requireInt();
 		return new Coord(x, y);
 	}
-	
 
-
+	public int slowHash(int rounds) {
+		int x = this.x;
+		int y = this.y;
+		while (rounds-- > 0) {
+			x ^= y;
+			x = Integer.rotateLeft(x, y);
+			x += 0xb7e15160 + rounds;
+			int t = x;
+			x = y;
+			y = t;
+		}
+		return y & Integer.MAX_VALUE;
+	}
 }

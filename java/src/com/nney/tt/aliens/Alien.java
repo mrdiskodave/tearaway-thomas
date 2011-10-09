@@ -4,6 +4,7 @@ import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
@@ -105,10 +106,17 @@ public abstract class Alien {
 
 	}
 
+	
+	public Anim mapperAnim() {
+		return anims.find(0);
+	}
+
 	public void mapperUpdate() {
 		Coord c = getLocation();
 		if (anims != null) {
-			srv.drawSprite(c, firstFrame());
+			Sprite s = mapperAnim().sprites[0];
+			srv.drawSprite(c, s);
+			freezeBounds = s.box().add2(c);
 		}
 		else {
 			srv.drawDebugText(c, alienInfo.name);

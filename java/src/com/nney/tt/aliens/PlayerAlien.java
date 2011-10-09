@@ -2,7 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.Player;
 import com.nney.tt.geom.Box;
-import com.nney.tt.sprites.Sprite;
+import com.nney.tt.sprites.Anim;
 
 /**
  * The starting position of the {@link Player} in the level is marked by a
@@ -15,11 +15,8 @@ public class PlayerAlien extends AlienWithLocation {
 	public boolean goLeft;
 
 	@Override
-	public void mapperUpdate() {
-		changeAnimation(goLeft ? "stoodleft" : "stoodright");
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
-		freezeBounds = Box.around(c, 40);
+	public Anim mapperAnim() {
+		return anims.find(goLeft ? "stoodleft" : "stoodright");
 	}
 
 	@Override

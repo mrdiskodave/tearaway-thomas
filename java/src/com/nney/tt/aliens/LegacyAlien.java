@@ -15,4 +15,9 @@ public class LegacyAlien extends AlienWithLocation {
 	public void update() {
 		srv.drawDebugText(c, data);
 	}
+	
+	@Override
+	public void mapperUpdate() {
+		update();
+	}
 }
