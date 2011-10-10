@@ -5,7 +5,7 @@ import com.nney.json.DataItem;
 import com.nney.utils.Copyable;
 import com.nney.utils.Math2;
 
-public class Coord implements Copyable<Coord>, Cloneable {
+public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 	public int x;
 	public int y;
 
@@ -61,32 +61,7 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		return answer;
 	}
 
-	@Override
-	public Coord copy() {
-		return new Coord(this);
-	}
-
-	@Override
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		Coord that = (Coord) obj;
-		return that.x == x && that.y == y;
-	}
-
-	@Override
-	public int hashCode() {
-		return x ^ y;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("%sx%s", x, y);
-	}
-
+	
 	public Coord add2(Coord c) {
 		Coord a = copy();
 		a.add(c);
@@ -151,5 +126,43 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		}
 		y = y & Integer.MAX_VALUE;
 		return y % max;
+	}
+	
+	
+	//
+	// stock methods from Object
+	//
+	
+
+	@Override
+	public Coord copy() {
+		return new Coord(this);
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Coord that = (Coord) obj;
+		return that.x == x && that.y == y;
+	}
+
+	@Override
+	public int hashCode() {
+		return x ^ y;
+	}
+	@Override
+	public String toString() {
+		return String.format("%sx%s", x, y);
+	}
+
+	@Override
+	public int compareTo(Coord other) {
+		int answer = Integer.signum(y-other.y);
+		if (answer!=0) return answer;
+		return Integer.signum(x-other.x);
 	}
 }
