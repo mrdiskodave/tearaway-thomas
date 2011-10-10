@@ -120,12 +120,16 @@ public class Mapper implements ButtonPressServices {
 
 	private String messText;
 
+	private final AnimsPool animsPool;
+
 	// ---------------------------------------------------------------------------
 	// MAPPER
 	// ---------------------------------------------------------------------------
 
 	public Mapper(AlienInfoMap alienInfoMap, AnimsPool animsPool, GameMap gameMap, WorldServicesToMapper srv,
 			Pointer mouse, Keyboard keyboard, GraphicsContext gc, Font debugFont) {
+
+		this.animsPool = animsPool;
 
 		this.srv = srv;
 		this.gameMap = gameMap;
@@ -430,10 +434,16 @@ public class Mapper implements ButtonPressServices {
 			paletteTimer = 100;
 		}
 	}
+	
+	private Alien makeAlien(AlienInfo ai) {
+		Alien a = ai.instantiateAttach();
+		a.connect(animsPool);
+		return a;
+	}
 
 	private void createAlien() {
 		AlienInfo ai = alienPalette.get();
-		Alien a = srv.instantiateAttachConnect(ai);
+		Alien a = makeAlien(ai);
 		a.resetTo(mmp.worldPixels());
 		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
@@ -676,7 +686,7 @@ public class Mapper implements ButtonPressServices {
 	public void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
 		if (!src.alienInfo.internal()) {
-			final Alien dest = srv.instantiateAttachConnect(src.alienInfo);
+			final Alien dest = makeAlien(src.alienInfo);
 			APS.copyProps(src, dest);
 			APS.movePropsAbsolute(dest, mmp.worldPixels());
 			createAlienWithUndoRedo(dest);
