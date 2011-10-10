@@ -62,7 +62,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 
 	public @Override
 	DataItem requireElement(int position) throws DataException {
-		if (position >= content.size()) {
+		if (position >= content.size() || position<0) {
 			throw new DataException("position " + position + " not found in array of length " + content.size());
 		}
 		return content.get(position);
