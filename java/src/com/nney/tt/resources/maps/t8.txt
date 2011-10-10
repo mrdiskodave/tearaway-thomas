@@ -1,0 +1,399 @@
+{
+	"objects": [
+		{
+			"type": "fruit0", 
+			"location": [
+				111, 
+				655
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit0", 
+			"location": [
+				304, 
+				607
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit0", 
+			"location": [
+				431, 
+				415
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit0", 
+			"location": [
+				495, 
+				559
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit0", 
+			"location": [
+				495, 
+				655
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit1", 
+			"location": [
+				175, 
+				417
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit1", 
+			"location": [
+				177, 
+				608
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit1", 
+			"location": [
+				303, 
+				513
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit1", 
+			"location": [
+				560, 
+				512
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit1", 
+			"location": [
+				623, 
+				463
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit1", 
+			"location": [
+				624, 
+				657
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit2", 
+			"location": [
+				110, 
+				559
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit2", 
+			"location": [
+				239, 
+				560
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit2", 
+			"location": [
+				367, 
+				656
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit2", 
+			"location": [
+				431, 
+				608
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit2", 
+			"location": [
+				495, 
+				464
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				175, 
+				511
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				239, 
+				465
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				239, 
+				656
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				368, 
+				559
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				431, 
+				512
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				559, 
+				608
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit3", 
+			"location": [
+				624, 
+				560
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit5", 
+			"location": [
+				111, 
+				463
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit5", 
+			"location": [
+				303, 
+				416
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit5", 
+			"location": [
+				367, 
+				464
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "fruit5", 
+			"location": [
+				559, 
+				415
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				175, 
+				337
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				560, 
+				336
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemHuge", 
+			"location": [
+				304, 
+				337
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemHuge", 
+			"location": [
+				433, 
+				337
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				0, 
+				272, 
+				735, 
+				767
+			]
+		}, 
+		{
+			"type": "player", 
+			"location": [
+				367, 
+				703
+			], 
+			"goLeft": false
+		}
+	], 
+	"blocks": [
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2,3,d0,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,a7,cf,a7,1,3,d3,a7,cf,1,2,3,d2*0", 
+		"1,2,3,d5,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,1,2,3,d2*0", 
+		"1,2,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,2,3,d2*0", 
+		"1,2,3,e9,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,1,2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"1,2c*2,3,d2*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0"
+	]
+}

@@ -1,0 +1,1166 @@
+{
+	"objects": [
+		{
+			"type": "exit", 
+			"location": [
+				2511, 
+				463
+			]
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				1872, 
+				363
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				2031, 
+				362
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				2418, 
+				660
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				2466, 
+				660
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				2511, 
+				661
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				2557, 
+				661
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				2599, 
+				660
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemHuge", 
+			"location": [
+				1951, 
+				377
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1091, 
+				532
+			], 
+			"legacyData": "4e0004000213000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1129, 
+				532
+			], 
+			"legacyData": "4e0004df021e000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1183, 
+				432
+			], 
+			"legacyData": "1909049f028904c002730106b6000000280000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1183, 
+				528
+			], 
+			"legacyData": "1909049f028904c0027300060c000000370000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1183, 
+				624
+			], 
+			"legacyData": "1909049f028904c00273010616000000230000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				148, 
+				623
+			], 
+			"legacyData": "1b01005f026801c00268030640000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1599, 
+				432
+			], 
+			"legacyData": "1909061f02660640026b0206e1000100470000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1599, 
+				528
+			], 
+			"legacyData": "1909061f02660640026b0206ac000000230000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1599, 
+				624
+			], 
+			"legacyData": "1909061f02660640026b0206ab0000002d0000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1650, 
+				539
+			], 
+			"legacyData": "4e00061b021e000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1688, 
+				539
+			], 
+			"legacyData": "4e0006ee021f000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1780, 
+				426
+			], 
+			"legacyData": "1c0506e801a8085a01b2050466000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1792, 
+				608
+			], 
+			"legacyData": "1a010000000000000000000676000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1887, 
+				608
+			], 
+			"legacyData": "1a010000000000000000000676000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				1983, 
+				608
+			], 
+			"legacyData": "1a010000000000000000000676000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				2018, 
+				490
+			], 
+			"legacyData": "1c0506e801a8085a01b203040e000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				2079, 
+				608
+			], 
+			"legacyData": "1a010000000000000000000676000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				2212, 
+				530
+			], 
+			"legacyData": "4e00084d020f000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				2249, 
+				529
+			], 
+			"legacyData": "4e00090c021c000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				358, 
+				703
+			], 
+			"legacyData": "1b01004502b601da02b8030610000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				370, 
+				543
+			], 
+			"legacyData": "1b010130021501e0021c000668000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				382, 
+				463
+			], 
+			"legacyData": "1b01005f026801c002680106e8000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				530, 
+				527
+			], 
+			"legacyData": "4e0001f40210000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				572, 
+				527
+			], 
+			"legacyData": "4e0002670219000000000002fd000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				75, 
+				543
+			], 
+			"legacyData": "1b010044021900f002190106c0000100000000000000"
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				0, 
+				272, 
+				2783, 
+				767
+			]
+		}, 
+		{
+			"type": "player", 
+			"location": [
+				2511, 
+				639
+			], 
+			"goLeft": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1032, 
+				428
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1032, 
+				556
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1271, 
+				524
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1272, 
+				620
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1273, 
+				430
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				146, 
+				541
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1511, 
+				525
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1512, 
+				429
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1512, 
+				620
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1808, 
+				420
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1808, 
+				485
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1855, 
+				452
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				1953, 
+				452
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				2048, 
+				452
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				2095, 
+				483
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				2096, 
+				421
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				271, 
+				620
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				271, 
+				701
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				272, 
+				461
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				295, 
+				541
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				455, 
+				461
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				455, 
+				620
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				487, 
+				541
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				647, 
+				427
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				649, 
+				556
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				712, 
+				492
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				712, 
+				619
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				775, 
+				426
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				841, 
+				492
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				842, 
+				620
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				87, 
+				621
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				88, 
+				460
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				904, 
+				429
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				968, 
+				619
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				969, 
+				492
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				1391, 
+				365
+			], 
+			"hidden": false, 
+			"destination": [
+				2511, 
+				618
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				1951, 
+				677
+			], 
+			"hidden": false, 
+			"destination": [
+				2511, 
+				619
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				2400, 
+				591
+			], 
+			"hidden": false, 
+			"destination": [
+				286, 
+				668
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				2463, 
+				591
+			], 
+			"hidden": false, 
+			"destination": [
+				826, 
+				363
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				2559, 
+				591
+			], 
+			"hidden": false, 
+			"destination": [
+				1952, 
+				608
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				2624, 
+				591
+			], 
+			"hidden": false, 
+			"destination": [
+				1390, 
+				658
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				271, 
+				367
+			], 
+			"hidden": false, 
+			"destination": [
+				2510, 
+				620
+			]
+		}, 
+		{
+			"type": "teleport", 
+			"location": [
+				831, 
+				687
+			], 
+			"hidden": false, 
+			"destination": [
+				2511, 
+				619
+			]
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1031, 
+				621
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1032, 
+				492
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1343, 
+				477
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1343, 
+				573
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1351, 
+				396
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1352, 
+				651
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1392, 
+				525
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1431, 
+				396
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1431, 
+				651
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1440, 
+				476
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1440, 
+				573
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				160, 
+				700
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				175, 
+				461
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				175, 
+				621
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1904, 
+				420
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1904, 
+				452
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				1904, 
+				483
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				2000, 
+				420
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				2000, 
+				484
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				2001, 
+				452
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				248, 
+				541
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				360, 
+				620
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				366, 
+				461
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				383, 
+				701
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				384, 
+				542
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				59, 
+				541
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				648, 
+				619
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				649, 
+				491
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				712, 
+				427
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				714, 
+				556
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				775, 
+				492
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				776, 
+				619
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				840, 
+				428
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				841, 
+				556
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				903, 
+				619
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				968, 
+				428
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				969, 
+				556
+			], 
+			"hidden": false, 
+			"wobble": true
+		}
+	], 
+	"blocks": [
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,2,3,c9,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,1,2,3,0,1,2,3,a1,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,1,2,3,0,1,2,3,c9,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,1,2,3,0,1,2,3,a1,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,1,2,3,0,1,2,3,c9,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,1,2,3,52*0", 
+		"1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,b4,dc,b4,dc,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,e2,a0,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,c8,b4,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,dc,a0,c8,a0,c8,b4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,2,3,cc,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,2,3,cc,1,16*2,3,a4,1,2,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,4,cc,a0,c8,a0,4,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a5,ca,a2,ca,a3,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,dd,b7,e1,b6,de,b6,de,b6,de,b6,de,b6,ca,4,dd,b6,de,b6,de,a2,de,b6,de,b6,de,b6,df,a5,1,2,3,0,1,2,3,ba,dc,a0,c8,a0,c8,b4,c8,a0,c8,a0,cd,a3,c8,a0,c8,a5,cb,a0,c8,a0,dc,a0,c8,a0,c8,b4,dc,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,d*2,3,a4,1,4*2,3,cc,1,5*2,3,cc,1,2,3,0,1,3*2,3,cc,a0,c8,a0,4,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,4,cc,a0,c8,a0,1,3*2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,a0,c8,1,2,3,0,1,2,3,c9,b6,de,b6,de,b6,de,b6,de,4,c9,b6,df,b9,de,b6,de,a2,4,a6,4,a1,de,b6,de,b6,de,b7,1,2,3,0,1,2,3,a1,ca,a3,c8,a0,c8,a5,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,cd,a3,c8,a0,c8,a5,ca,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,2*32,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,1,16*2,3,cc,a0,1,2,3,0,1,2,3,a6,1,7*2,3,a6,1,4*2,3,cc,4,ce,4,ce,1,7*2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,dc,b4,c8,a0,c8,a0,dc,b4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,2*32,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a5,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a3,c8,1,2,3,0,1,2,3,ce,4,dd,b6,de,b6,ca,4,c9,b6,df,b9,4,b5,de,b6,de,b7,4,ba,e1,b7,e1,b6,de,b6,de,a2,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,dc,b4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,1,3*2,3,a4,4,a6,1,10*2,3,cc,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,cd,a2,cb,a0,c8,a0,cd,a2,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,e2,b9,de,b6,ca,4,ce,4,e2,b9,de,a2,de,b6,4,b5,de,b6,de,a2,de,b6,de,b6,de,b6,de,b7,1,2,3,0,1,2,3,ba,dc,a0,c8,a0,c8,b4,c8,a0,c8,a0,c8,a0,dc,b4,c8,a0,c8,a0,c8,a0,dc,a0,c8,a0,c8,b4,dc,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,e1,b6,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,e2,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,a0,c8,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,1,2,3,0,1,5*2,3,a4,4,a6,1,2,2,3,cc,1,5*2,3,cc,1,9*2,3,0,1,3*2,3,cc,a0,c8,a0,4,a4,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,4,cc,a0,c8,a0,1,3*2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,e*2,3,cc,a0,1,e*2,3,0,1,2,3,c9,b6,de,b6,df,4,e2,b9,de,a2,4,ba,e1,b6,de,b6,de,b6,4,a6,4,b5,de,b6,de,b6,de,a2,1,2,3,0,1,2,3,a1,ca,a3,c8,a0,c8,a5,cb,a0,c8,a0,c8,a0,cd,a2,cb,a0,c8,a0,c8,a0,cd,a3,c8,a0,c8,a5,ca,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,e1,b6,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,c9,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a3,c8,a5,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,1,2,3,0,1,2,3,a6,1,6*2,3,cc,1,7*2,3,ce,1,5*2,3,cc,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,dc,b4,c8,a0,c8,a0,dc,b4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,e2,b9,de,b6,ca,4,c9,b6,de,b7,e1,b6,de,b6,ca,b6,de,b6,4,ba,e1,b6,de,b6,de,b6,4,a6,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,e1,b6,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,5*2,3,a4,4,a6,1,5*2,3,a4,1,a*2,3,ce,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,cd,a2,cb,a0,c8,a0,cd,a2,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,3,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,a0,c8,1,2,3,0,1,2,3,dd,b6,de,b6,df,4,e2,a5,4,a1,de,b6,de,b6,df,b9,de,b6,de,b6,de,b6,de,4,c9,b6,de,b7,1,2,3,0,1,2,3,ba,dc,a0,c8,a0,c8,b4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,dc,a0,c8,a0,c8,b4,dc,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,cd,a2,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,1,16*2,3,cc,a0,1,2,3,0,1,8*2,3,cc,4,ce,1,c*2,3,a6,1,4*2,3,0,1,3*2,3,cc,a0,c8,a0,4,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,4,cc,a0,c8,a0,1,3*2,3,0,1,2,3,a6,c8,a0,c8,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,c8,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a5,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a3,c8,1,2,3,0,1,2,3,dd,b6,de,b6,de,b6,de,b7,4,ba,e1,b6,4,a1,ca,b6,de,b6,de,b6,de,b6,de,b6,df,b9,de,b6,1,2,3,0,1,2,3,a1,ca,a3,c8,a0,c8,a5,cb,a0,c8,a0,dc,a0,c8,a0,c8,b4,c8,a0,c8,a0,cd,a3,c8,a0,c8,a5,ca,1,2,3,0,1,2,3,ce,a0,c8,a0,14*1,cc,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,1,12*2,3,a4,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,e*2,3,ce,a0,1,e*2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,4,cc,a0,c8,a0,4,a4,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a5,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a3,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,cd,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,cb,a0,c8,a0,1,2,3,52*0", 
+		"1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,c9,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a3,c8,a5,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,ca,a2,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,cd,a3,c8,a0,c8,a5,cb,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,0,1,2,3,ce,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,1,2,3,0,1,2,3,a6,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,a0,c8,1,2,3,52*0", 
+		"1,2,3,e2,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,1,2,3,0,1,2,3,ba,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,1,2,3,0,1,2,3,e2,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,1,2,3,0,1,2,3,ba,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,1,2,3,0,1,2,3,e2,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,dc,b4,1,2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,0,1,20*2,3,52*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0"
+	]
+}

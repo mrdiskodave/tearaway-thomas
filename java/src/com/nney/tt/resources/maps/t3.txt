@@ -1,0 +1,613 @@
+{
+	"objects": [
+		{
+			"type": "exit", 
+			"location": [
+				671, 
+				1087
+			]
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				392, 
+				527
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				447, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				487, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				521, 
+				527
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				530, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				575, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				616, 
+				527
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				620, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				710, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				728, 
+				527
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				760, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				806, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				824, 
+				526
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				854, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				895, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "gemBig", 
+			"location": [
+				952, 
+				527
+			], 
+			"hidden": false
+		}, 
+		{
+			"type": "gemHuge", 
+			"location": [
+				664, 
+				304
+			], 
+			"hidden": true
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				393, 
+				1167
+			], 
+			"legacyData": "1d0101800488022c0488030607000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				393, 
+				617
+			], 
+			"legacyData": "1c01018301f803be01f6040438000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				403, 
+				784
+			], 
+			"legacyData": "1901018f038402100387000651000100140000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				466, 
+				1039
+			], 
+			"legacyData": "1b050190040503af0406010c88000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				508, 
+				911
+			], 
+			"legacyData": "1d0501df03090210030903060b000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				628, 
+				911
+			], 
+			"legacyData": "1d05024f030b028003080306c3000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				700, 
+				784
+			], 
+			"legacyData": "1901024f038402f00389010663000000110000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				733, 
+				911
+			], 
+			"legacyData": "1d0502bf030902f0030803067f000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				792, 
+				455
+			], 
+			"legacyData": "1c05018201f803be01f60304a8000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				820, 
+				784
+			], 
+			"legacyData": "19010330038903b0038a0106c30000001e0000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				853, 
+				1167
+			], 
+			"legacyData": "1d010315048703c6048c010cb9000100000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				856, 
+				911
+			], 
+			"legacyData": "1d05032f030603600308010687000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				890, 
+				492
+			], 
+			"legacyData": "1c05018201f803be01f6050430000000000000000000"
+		}, 
+		{
+			"type": "legacy", 
+			"location": [
+				926, 
+				1039
+			], 
+			"legacyData": "1b040190040503af0406000cd0000000000000000000"
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				304, 
+				240, 
+				1039, 
+				1231
+			]
+		}, 
+		{
+			"type": "player", 
+			"location": [
+				668, 
+				1167
+			], 
+			"goLeft": false
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				583, 
+				781
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				624, 
+				653
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				720, 
+				653
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "purpleGem", 
+			"location": [
+				759, 
+				781
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				392, 
+				780
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				401, 
+				652
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				408, 
+				853
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				462, 
+				981
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				464, 
+				1106
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				505, 
+				854
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				512, 
+				652
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				536, 
+				780
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				617, 
+				855
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				673, 
+				984
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				727, 
+				854
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				809, 
+				780
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				831, 
+				653
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				840, 
+				855
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				879, 
+				982
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				883, 
+				1113
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				929, 
+				855
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				943, 
+				653
+			], 
+			"hidden": false, 
+			"wobble": true
+		}, 
+		{
+			"type": "yellowGem", 
+			"location": [
+				951, 
+				780
+			], 
+			"hidden": false, 
+			"wobble": true
+		}
+	], 
+	"blocks": [
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"13*0,1,3,d0,a9,d1,a9,1,3,d0,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,1,3,d0,a9,d1,a9,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,1,3,bf,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,1,3,ab,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,a7,1,20*2,3,d5,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,1,20*2,3,ad,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,a7,1,3,d0,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,1,3,d5,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,bb,cf,a7,cf,a7,cf,a7,cf,bb,cf,a7,cf,a7,cf,bb,cf,a7,cf,a7,cf,a7,e3,a7,cf,a7,cf,a7,e3,a7,cf,a7,cf,a7,cf,a7,e3,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,4,ab,cf,a7,cf,a7,cf,a7,4,ab,cf,a7,cf,a7,4,ab,cf,a7,cf,a7,cf,4,d3,a7,cf,a7,cf,4,d3,a7,cf,a7,cf,a7,cf,4,d3,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,ac,d2,a7,cf,a7,cf,a7,cf,ac,d2,a7,cf,a7,cf,ac,d2,a7,cf,a7,cf,a7,d4,aa,cf,a7,cf,a7,d4,aa,cf,a7,cf,a7,cf,a7,d4,aa,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,e9,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,bb,1,3,bf*0", 
+		"13*0,1,2,3,d3,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,2,3,bf*0", 
+		"13*0,1,3,d0,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,bb,e3,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,bb,e3,a7,cf,a7,cf,a7,e3,bb,cf,a7,cf,a7,cf,bb,e3,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,1,3,d3,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,1,3,d3,a7,cf,a7,1,3,d3,a7,cf,a7,cf,1,3,ab,cf,a7,cf,a7,1,3,d3,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,ac,d1,aa,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,ac,d1,aa,cf,a7,cf,ac,d1,aa,cf,a7,cf,a7,d4,a9,d2,a7,cf,a7,cf,ac,d1,aa,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,e9,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,bb,1,3,bf*0", 
+		"13*0,1,2,3,d3,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,2,3,bf*0", 
+		"13*0,1,3,d0,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,a7,cf,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,a7,cf,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,1,8*2,3,d3,a7,1,a*2,3,d3,a7,1,8*2,3,d3,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,ac,d1,a9,d1,a9,d1,a9,d1,a9,d1,aa,cf,ac,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,aa,cf,ac,d1,a9,d1,a9,d1,a9,d1,a9,d1,aa,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,e9,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,bb,1,3,bf*0", 
+		"13*0,1,2,3,d3,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,2,3,bf*0", 
+		"13*0,1,3,d0,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,bb,e3,bb,cf,a7,e3,bb,e3,bb,e3,a7,cf,bb,e3,bb,e3,bb,cf,a7,e3,bb,e3,bb,e3,a7,cf,bb,e3,bb,e3,bb,cf,bb,e3,bb,e3,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,1,2,3,ab,cf,1,3*2,3,d3,a7,1,3*2,3,ab,cf,1,3*2,3,d3,a7,1,3*2,3,ab,1,2,2,3,d3,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,ac,d1,a9,d2,a7,d4,a9,d1,a9,d1,aa,cf,ac,d1,a9,d1,a9,d2,a7,d4,a9,d1,a9,d1,aa,cf,ac,d1,a9,d1,a9,d2,ac,d1,a9,d1,aa,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,e9,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,bb,1,3,bf*0", 
+		"13*0,1,2,3,d3,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,2,3,bf*0", 
+		"13*0,1,3,d0,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,a7,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,1,22*2,3,d3,a7,cf,1,3,bf*0", 
+		"13*0,1,3,d5,a7,cf,ac,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,1,3,a8,d1,a9,d1,1,3,a8,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,a9,d1,aa,cf,a7,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,3,d5,36,37,a7,1,3,d5,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,e9,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,ad,4a,4b,cf,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,bb,1,3,bf*0", 
+		"13*0,1,2,3,d3,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,e8,bd,e6,bb,e3,bb,e8,bd,d2,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,1,2,3,bf*0", 
+		"13*0,1,3,d0,aa,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,e3,1,6*2,3,bf,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,ac,1,3,bf*0", 
+		"13*0,1,3,ad,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,e3,1,2,3,d0,a9,d1,a9,1,2,3,bf,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,a7,cf,1,3,bf*0", 
+		"13*0,1,3,e9,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,1,2,2,3,c1,e3,bb,e3,1,2,2,3,bf,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,e3,bb,1,3,bf*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"13*0,1,2c*2,3,bf*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0", 
+		"100*0"
+	]
+}
