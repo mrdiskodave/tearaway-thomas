@@ -11,7 +11,6 @@ import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
 
 public class AlienPalette {
-	
 	class AnimAndPlayer {
 		public final AnimPlayer animPlayer;
 		public final Box box;
@@ -45,7 +44,9 @@ public class AlienPalette {
 		this.mgc = mgc;
 
 		for (AlienInfo ai: ais) {
-			learnAbout(ai, animsPool);
+			if (ai.animsName()!=null) {
+				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(ai.animsName()).find(0)));
+			}
 		}
 		this.alienTabber = new TypeCodeTabber<AlienInfo>(ais);
 	}
@@ -87,12 +88,9 @@ public class AlienPalette {
 	}
 
 	private int graphicHeight(AlienInfo ai) {
-		int y = 20;
 		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer!=null) {
-			y = animAndPlayer.box.height();
-		}
-		return y;
+		if (animAndPlayer==null) return 20;
+		return animAndPlayer.box.height();
 	}
 	
 	private void drawAlienTab(int sx, int sy, AlienInfo ai, boolean live) {
@@ -104,9 +102,7 @@ public class AlienPalette {
 		int sp = graphicHeight(ai);
 		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
 		if (animAndPlayer!=null) {
-			AnimPlayer animPlayer = animAndPlayer.animPlayer;
 			Sprite sprite = animAndPlayer.nextFrame();
-			
 
 			Box b = animAndPlayer.box;
 			int cex = sx;
@@ -119,19 +115,11 @@ public class AlienPalette {
 			sprite.drawByHandle(cex, cey, false);
 		}
 
-		String s = ai.name;
-//		s += "(" + ai.typeCode + ")";
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, s);
+		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, ai.name);
 		
 		if (!live) {
 			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
 				alienTabHeight(ai), 0xff000000, 0xb00020ff);
-		}
-	}
-
-	public void learnAbout(AlienInfo ai, AnimsPool animsPool) {
-		if (ai.animsName()!=null) {
-			animPlayers.put(ai, new AnimAndPlayer(animsPool.load(ai.animsName()).find(0)));
 		}
 	}
 
@@ -150,6 +138,4 @@ public class AlienPalette {
 	public void find(AlienInfo typeCode) {
 		alienTabber.find(typeCode);
 	}
-
-
 }

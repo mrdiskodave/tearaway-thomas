@@ -1079,19 +1079,19 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void initLevel() {
 		AlienFactory af = new AlienFactory(alienInfoMap);
-		int a = 1;
-		while (a == 1) {
+//		int a = 1;
+//		while (a == 1) {
 
 			System.out.println("Loading level " + levelNumber);
 
 			pl = new PersistedLevel();
 
 			pl.populateFromLevelInfo(af, levelNumber);
-			pl.saveNew();
-			levelNumber++;
-		}
+//			pl.saveNew();
+//			levelNumber++;
+//		}
 
-		worldName = alienInfoMap.getWorld();
+		worldName = alienInfoMap.getWorldName();
 
 		alienTracker = new AlienTracker();
 

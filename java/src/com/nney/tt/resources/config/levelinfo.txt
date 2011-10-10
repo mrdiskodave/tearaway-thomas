@@ -4,7 +4,7 @@
     {
         "gemsNeeded": 15, 
         "horizon": 1, 
-        "map": "w0.map", 
+        "map": "w0", 
         "stage": 1, 
         "timeGiven": 50, 
         "title": "fast things first", 
@@ -13,7 +13,7 @@
     {
         "gemsNeeded": 40, 
         "horizon": 2, 
-        "map": "w9.map", 
+        "map": "w9", 
         "stage": 2, 
         "timeGiven": 65, 
         "title": "its like falling off a log", 
@@ -22,7 +22,7 @@
     {
         "gemsNeeded": 40, 
         "horizon": 4, 
-        "map": "w1.map", 
+        "map": "w1", 
         "stage": 3, 
         "timeGiven": 50, 
         "title": "number 3 - the larch", 
@@ -31,7 +31,7 @@
     {
         "gemsNeeded": 45, 
         "horizon": 1, 
-        "map": "w2.map", 
+        "map": "w2", 
         "stage": 4, 
         "timeGiven": 60, 
         "title": "the worm that turned", 
@@ -40,7 +40,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 5, 
-        "map": "w8.map", 
+        "map": "w8", 
         "stage": 9, 
         "timeGiven": 30, 
         "title": "challenge", 
@@ -49,7 +49,7 @@
     {
         "gemsNeeded": 45, 
         "horizon": 3, 
-        "map": "w3.map", 
+        "map": "w3", 
         "stage": 5, 
         "timeGiven": 60, 
         "title": "famous five", 
@@ -58,7 +58,7 @@
     {
         "gemsNeeded": 50, 
         "horizon": 7, 
-        "map": "w5.map", 
+        "map": "w5", 
         "stage": 6, 
         "timeGiven": 65, 
         "title": "rope and glory", 
@@ -67,7 +67,7 @@
     {
         "gemsNeeded": 60, 
         "horizon": 6, 
-        "map": "w6.map", 
+        "map": "w6", 
         "stage": 7, 
         "timeGiven": 75, 
         "title": "wood bee honey thief", 
@@ -76,7 +76,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 3, 
-        "map": "w7.map", 
+        "map": "w7", 
         "stage": 8, 
         "timeGiven": 45, 
         "title": "number 9 - the larch", 
@@ -85,7 +85,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 6, 
-        "map": "w4.map", 
+        "map": "w4", 
         "stage": 9, 
         "timeGiven": 20, 
         "title": "challenge", 
@@ -94,7 +94,7 @@
     {
         "gemsNeeded": 25, 
         "horizon": 0, 
-        "map": "t5.map", 
+        "map": "t5", 
         "stage": 1, 
         "timeGiven": 75, 
         "title": "the car ferry", 
@@ -103,7 +103,7 @@
     {
         "gemsNeeded": 60, 
         "horizon": 0, 
-        "map": "t1.map", 
+        "map": "t1", 
         "stage": 2, 
         "timeGiven": 95, 
         "title": "the choice is yours", 
@@ -112,7 +112,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 0, 
-        "map": "t2.map", 
+        "map": "t2", 
         "stage": 3, 
         "timeGiven": 70, 
         "title": "this way up", 
@@ -121,7 +121,7 @@
     {
         "gemsNeeded": 15, 
         "horizon": 0, 
-        "map": "t10.map", 
+        "map": "t10", 
         "stage": 4, 
         "timeGiven": 60, 
         "title": "the big wheel", 
@@ -130,7 +130,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 0, 
-        "map": "t8.map", 
+        "map": "t8", 
         "stage": 9, 
         "timeGiven": 30, 
         "title": "challenge", 
@@ -139,7 +139,7 @@
     {
         "gemsNeeded": 35, 
         "horizon": 0, 
-        "map": "t4.map", 
+        "map": "t4", 
         "stage": 5, 
         "timeGiven": 90, 
         "title": "the crazy maze", 
@@ -148,7 +148,7 @@
     {
         "gemsNeeded": 60, 
         "horizon": 0, 
-        "map": "t7.map", 
+        "map": "t7", 
         "stage": 6, 
         "timeGiven": 95, 
         "title": "the choice is still yours", 
@@ -157,7 +157,7 @@
     {
         "gemsNeeded": 65, 
         "horizon": 0, 
-        "map": "t6.map", 
+        "map": "t6", 
         "stage": 7, 
         "timeGiven": 75, 
         "title": "up, up and (tear)away", 
@@ -166,7 +166,7 @@
     {
         "gemsNeeded": 25, 
         "horizon": 0, 
-        "map": "t3.map", 
+        "map": "t3", 
         "stage": 8, 
         "timeGiven": 70, 
         "title": "gems in high places", 
@@ -175,7 +175,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 0, 
-        "map": "t9.map", 
+        "map": "t9", 
         "stage": 9, 
         "timeGiven": 20, 
         "title": "challenge", 
@@ -184,7 +184,7 @@
     {
         "gemsNeeded": 50, 
         "horizon": 0, 
-        "map": "g0.map", 
+        "map": "g0", 
         "stage": 1, 
         "timeGiven": 75, 
         "title": "tangled teleports", 
@@ -193,7 +193,7 @@
     {
         "gemsNeeded": 70, 
         "horizon": 1, 
-        "map": "g2.map", 
+        "map": "g2", 
         "stage": 2, 
         "timeGiven": 85, 
         "title": "haunted house", 
@@ -202,7 +202,7 @@
     {
         "gemsNeeded": 60, 
         "horizon": 2, 
-        "map": "g4.map", 
+        "map": "g4", 
         "stage": 3, 
         "timeGiven": 60, 
         "title": "the clock tower", 
@@ -211,7 +211,7 @@
     {
         "gemsNeeded": 45, 
         "horizon": 3, 
-        "map": "g5.map", 
+        "map": "g5", 
         "stage": 4, 
         "timeGiven": 65, 
         "title": "haunted hijinx", 
@@ -220,7 +220,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 0, 
-        "map": "g9.map", 
+        "map": "g9", 
         "stage": 9, 
         "timeGiven": 25, 
         "title": "challenge", 
@@ -229,7 +229,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 4, 
-        "map": "g3.map", 
+        "map": "g3", 
         "stage": 5, 
         "timeGiven": 55, 
         "title": "ghosted then roasted", 
@@ -238,7 +238,7 @@
     {
         "gemsNeeded": 76, 
         "horizon": 5, 
-        "map": "g6.map", 
+        "map": "g6", 
         "stage": 6, 
         "timeGiven": 80, 
         "title": "house 2", 
@@ -247,7 +247,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 6, 
-        "map": "g1.map", 
+        "map": "g1", 
         "stage": 7, 
         "timeGiven": 50, 
         "title": "the ghost with the most", 
@@ -256,7 +256,7 @@
     {
         "gemsNeeded": 66, 
         "horizon": 7, 
-        "map": "g7.map", 
+        "map": "g7", 
         "stage": 8, 
         "timeGiven": 99, 
         "title": "the gallery", 
@@ -265,7 +265,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 0, 
-        "map": "g8.map", 
+        "map": "g8", 
         "stage": 9, 
         "timeGiven": 99, 
         "title": "challenge", 
@@ -274,7 +274,7 @@
     {
         "gemsNeeded": 60, 
         "horizon": 3, 
-        "map": "i3.map", 
+        "map": "i3", 
         "stage": 1, 
         "timeGiven": 60, 
         "title": "cool commotion", 
@@ -283,7 +283,7 @@
     {
         "gemsNeeded": 90, 
         "horizon": 1, 
-        "map": "i0.map", 
+        "map": "i0", 
         "stage": 2, 
         "timeGiven": 80, 
         "title": "frozen frenzy", 
@@ -292,7 +292,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 4, 
-        "map": "i4.map", 
+        "map": "i4", 
         "stage": 3, 
         "timeGiven": 60, 
         "title": "polar panic", 
@@ -301,7 +301,7 @@
     {
         "gemsNeeded": 90, 
         "horizon": 2, 
-        "map": "i1.map", 
+        "map": "i1", 
         "stage": 4, 
         "timeGiven": 85, 
         "title": "ice is nice !not!", 
@@ -310,7 +310,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 5, 
-        "map": "i9.map", 
+        "map": "i9", 
         "stage": 9, 
         "timeGiven": 25, 
         "title": "challenge", 
@@ -319,7 +319,7 @@
     {
         "gemsNeeded": 40, 
         "horizon": 7, 
-        "map": "i6.map", 
+        "map": "i6", 
         "stage": 5, 
         "timeGiven": 25, 
         "title": "wheel of fortune", 
@@ -328,7 +328,7 @@
     {
         "gemsNeeded": 85, 
         "horizon": 0, 
-        "map": "i7.map", 
+        "map": "i7", 
         "stage": 6, 
         "timeGiven": 90, 
         "title": "super slide", 
@@ -337,7 +337,7 @@
     {
         "gemsNeeded": 80, 
         "horizon": 1, 
-        "map": "i8.map", 
+        "map": "i8", 
         "stage": 7, 
         "timeGiven": 95, 
         "title": "the polar ponds", 
@@ -346,7 +346,7 @@
     {
         "gemsNeeded": 80, 
         "horizon": 6, 
-        "map": "i5.map", 
+        "map": "i5", 
         "stage": 8, 
         "timeGiven": 99, 
         "title": "strange loop", 
@@ -355,7 +355,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 2, 
-        "map": "i2.map", 
+        "map": "i2", 
         "stage": 9, 
         "timeGiven": 30, 
         "title": "challenge", 
@@ -364,7 +364,7 @@
     {
         "gemsNeeded": 33, 
         "horizon": 6, 
-        "map": "f8.map", 
+        "map": "f8", 
         "stage": 1, 
         "timeGiven": 80, 
         "title": "back to the future", 
@@ -373,7 +373,7 @@
     {
         "gemsNeeded": 45, 
         "horizon": 4, 
-        "map": "f9.map", 
+        "map": "f9", 
         "stage": 2, 
         "timeGiven": 99, 
         "title": "lift city", 
@@ -382,7 +382,7 @@
     {
         "gemsNeeded": 80, 
         "horizon": 3, 
-        "map": "f1.map", 
+        "map": "f1", 
         "stage": 3, 
         "timeGiven": 95, 
         "title": "pipe-nightmare", 
@@ -391,7 +391,7 @@
     {
         "gemsNeeded": 70, 
         "horizon": 4, 
-        "map": "f6.map", 
+        "map": "f6", 
         "stage": 4, 
         "timeGiven": 50, 
         "title": "teleport city", 
@@ -400,7 +400,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 7, 
-        "map": "f2.map", 
+        "map": "f2", 
         "stage": 9, 
         "timeGiven": 20, 
         "title": "challenge", 
@@ -409,7 +409,7 @@
     {
         "gemsNeeded": 55, 
         "horizon": 0, 
-        "map": "f7.map", 
+        "map": "f7", 
         "stage": 5, 
         "timeGiven": 99, 
         "title": "laser blazer", 
@@ -418,7 +418,7 @@
     {
         "gemsNeeded": 95, 
         "horizon": 1, 
-        "map": "f0.map", 
+        "map": "f0", 
         "stage": 6, 
         "timeGiven": 35, 
         "title": "i feel the need...", 
@@ -427,7 +427,7 @@
     {
         "gemsNeeded": 45, 
         "horizon": 5, 
-        "map": "f3.map", 
+        "map": "f3", 
         "stage": 7, 
         "timeGiven": 70, 
         "title": "the long hard shaft", 
@@ -436,7 +436,7 @@
     {
         "gemsNeeded": 70, 
         "horizon": 2, 
-        "map": "f5.map", 
+        "map": "f5", 
         "stage": 8, 
         "timeGiven": 99, 
         "title": "save the bast 'til last", 
@@ -445,7 +445,7 @@
     {
         "gemsNeeded": 0, 
         "horizon": 3, 
-        "map": "f4.map", 
+        "map": "f4", 
         "stage": 9, 
         "timeGiven": 60, 
         "title": "challenge", 

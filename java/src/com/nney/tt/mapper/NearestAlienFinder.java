@@ -11,7 +11,6 @@ public class NearestAlienFinder implements Visitor<Alien> {
 
 	public NearestAlienFinder(Coord o) {
 		this.o = o;
-
 	}
 
 	@Override

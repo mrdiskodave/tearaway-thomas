@@ -59,8 +59,8 @@ public class PersistedLevel {
 		mapName = level.requireField("map").requireString();
 		af.selectWorld(worldName);
 		
-		loadLegacy(af, TTResource.legacyMap(mapName));
-//		loadNew(af, mapName);
+//		loadLegacy(af, TTResource.legacyMap(mapName));
+		loadNew(af, mapName);
 	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
@@ -215,8 +215,7 @@ public class PersistedLevel {
 	}
 	
 	void loadNew(AlienFactory af, String mapName) {
-		Openable o = new FileOpenable("C:\\Users\\david\\Desktop\\maps\\" + mapName + ".txt");
-		DataItem level = TTResource.diFromText(o);
+		DataItem level = TTResource.diFromText(TTResource.map(mapName));
 		gameMap = new GameMap();
 		gameMap.loadMap(level.requireField("blocks"));
 		for (DataItem di: level.requireField("objects").requireList()) {

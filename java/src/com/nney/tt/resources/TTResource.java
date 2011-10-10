@@ -39,9 +39,13 @@ public class TTResource {
 		return TTResource.formatted("config/%s", name);
 	}
 
-	public static Openable legacyMap(String fn) {
-		String filename = String.format("C:/Users/david/Desktop/newdata/maps/%s", fn);
+	public static Openable legacyMap(String name) {
+		String filename = String.format("C:/Users/david/Desktop/newdata/maps/%s.map", name);
 		return new FileOpenable(filename);
+	}
+	
+	public static Openable map(String name) {
+		return TTResource.formatted("maps/%s.txt", name);
 	}
 
 	public static Openable spriteFrame(String spriteName, int frameNumber) {
