@@ -17,7 +17,7 @@ import com.nney.tt.sprites.Sprite;
  */
 public abstract class Alien {
 	enum LifeCycle {
-		INSTANTIATED, ATTACH, CONNECT, LOAD, UNLOAD
+		INSTANTIATED, ATTACH, CONNECT, READY, UNLOAD
 	}
 
 	private LifeCycle lifeCycle = LifeCycle.INSTANTIATED;
@@ -156,19 +156,19 @@ public abstract class Alien {
 	}
 
 	public void load(AlienServices world) {
-		fromTo(LifeCycle.CONNECT, LifeCycle.LOAD);
+		fromTo(LifeCycle.CONNECT, LifeCycle.READY);
 		srv = world;
 		onLoaded();
 		onPropUpdate();
 	}
 
 	public void done() {
-		fromTo(LifeCycle.LOAD, LifeCycle.UNLOAD);
+		fromTo(LifeCycle.READY, LifeCycle.UNLOAD);
 		remove = true;
 	}
 
 	public void reinstate() {
-		fromTo(LifeCycle.UNLOAD, LifeCycle.LOAD);
+		fromTo(LifeCycle.UNLOAD, LifeCycle.READY);
 		remove = false;
 	}
 
