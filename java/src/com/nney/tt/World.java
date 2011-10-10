@@ -12,40 +12,12 @@ import com.nney.coroutines.Coroutine;
 import com.nney.tt.BlockSet.Config;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
-import com.nney.tt.aliens.ArrowAlien;
-import com.nney.tt.aliens.BatAlien;
-import com.nney.tt.aliens.BearAlien;
-import com.nney.tt.aliens.BeeAlien;
-import com.nney.tt.aliens.BirdAlien;
-import com.nney.tt.aliens.ClockAlien;
-import com.nney.tt.aliens.DebugTextAlien;
-import com.nney.tt.aliens.ExitAlien;
-import com.nney.tt.aliens.ExtraLifeAlien;
 import com.nney.tt.aliens.FallingAlien;
-import com.nney.tt.aliens.FlameAlien;
-import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
-import com.nney.tt.aliens.GhostAlien;
-import com.nney.tt.aliens.HiddenScoreGiftAlien;
-import com.nney.tt.aliens.LegacyAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
-import com.nney.tt.aliens.PlainLiftAlien;
 import com.nney.tt.aliens.PlayerAlien;
-import com.nney.tt.aliens.PortraitAlien;
-import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
-import com.nney.tt.aliens.ShieldAlien;
-import com.nney.tt.aliens.SineLiftAlien;
-import com.nney.tt.aliens.SpikeAlien;
-import com.nney.tt.aliens.SpriteAlien;
-import com.nney.tt.aliens.StarAlien;
-import com.nney.tt.aliens.StopAlien;
-import com.nney.tt.aliens.TeleportAlien;
-import com.nney.tt.aliens.TrampolineAlien;
-import com.nney.tt.aliens.WingsAlien;
-import com.nney.tt.aliens.WobbleGemAlien;
-import com.nney.tt.aliens.YellowBirdAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
@@ -250,6 +222,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Config blocksetConfig = new BlockSet.Config(false, false);
 
+	
 	private static final int TELEPORT_TIME = 50;
 
 	private int teleportTimer;
@@ -268,57 +241,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		initFonts();
 
-		AlienInfoMap aim = new AlienInfoMap();
-
-		aim.add(new AlienInfo(4, "exit", "0exit", ExitAlien.class));
-		aim.add(new AlienInfo(5, "shield", "0shld", ShieldAlien.class));
-		aim.add(new AlienInfo(7, "clock", "0clok", ClockAlien.class));
-		aim.add(new AlienInfo(12, "teleport", "0tele", TeleportAlien.class));
-		aim.add(new AlienInfo(22, "extraLife", "0life", ExtraLifeAlien.class));
-		aim.add(new AlienInfo(14, "wings", "0wing", WingsAlien.class));
-		aim.add(new AlienInfo(15, "floorFailure", null, FloorFailureAlien.class)); // special1
-		// for w6.map
-		aim.add(new AlienInfo(34, "hiddenScoreGift", null, HiddenScoreGiftAlien.class));
-		aim.add(new AlienInfo(36, "bear", "?bear", BearAlien.class));
-		aim.add(new AlienInfo(37, "bat", "gbatt", BatAlien.class));
-		aim.add(new AlienInfo(39, "spike", "gspik", SpikeAlien.class));
-		aim.add(new AlienInfo(48, "ghost", "gghst", GhostAlien.class));
-		aim.add(new AlienInfo(63, "bee", "wabee", BeeAlien.class));
-		aim.add(new AlienInfo(72, "sineLift", "wlog0", SineLiftAlien.class));
-		aim.add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
-		aim.add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
-		aim.add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
-		aim.add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
-		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
-		aim.add(new AlienInfo(95, "star", "0star", StarAlien.class));
-		aim.add(new AlienInfo(13, "stop", "0stop", StopAlien.class));
-
-		aim.add(new AlienInfo(200, "plainLift", "?lift", PlainLiftAlien.class));
-		aim.add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
-		aim.add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
-		aim.add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
-
-		// internal things
-		// * no typeCode
-		// * a name that cannot be used to look it up
-		// * only one instance
-		// * can only be looked up by className
-		// * do not appear in load and save images
-		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("text"), null, DebugTextAlien.class));
-		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("score"), "0scor", ScoreNoticeAlien.class));
-		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
-		aim.add(new AlienInfo(-1, AlienInfo.makeInternalName("fall"), null, FallingAlien.class));
-
-		aim.addAnn(FlameAlien.class);
-		aim.addAnn(WobbleGemAlien.class);
-		aim.addAnn(GemAlien.class);
-		aim.addAnn(ArrowAlien.class);
-		aim.addAnn(PortraitAlien.class);
-		aim.addAnn(SpriteAlien.class);
-		aim.addAnn(ScoreCollectableAlien.class);
-
-		alienInfoMap = aim;
-
+		alienInfoMap = new AlienInfoMap();
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 
 		initLevel();
@@ -435,11 +358,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		playSoundEffect("gem");
 	}
 
-	private GemStatus getGemStatus() {
-		if (gemsCollected == gemsTotal) return GemStatus.PERFECT;
-		return isExitOpen() ? GemStatus.DONE : GemStatus.COLLECTING;
-	}
-
 	@Override
 	public boolean isExitOpen() {
 		return gemsCollected >= gemsNeeded;
@@ -449,12 +367,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// DRAWING
 
 	@Override
-	public void drawSprite(final Coord c, final Sprite s) {
+	final public void drawSprite(Coord c, Sprite s) {
 		drawSprite(c, s, false);
 	}
 
 	@Override
-	public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
+	final public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		assert mode != GameMode.PAUSED;
 		if (record) {
 			recording.add(new SpriteRecord(c, s, drawWhite));
@@ -492,26 +410,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public int getFrameNumber() {
 		return frameNumber;
-	}
-
-	// TODO: unused
-	@Override
-	public boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox) {
-		int diffX = player.c.x - alienPos.x;
-		int diffY = player.c.y - alienPos.y;
-
-		int deluxePaintX = 160 + diffX;
-		int deluxePaintY = 128 - diffY;
-		if (deluxePaintX + 8 >= deluxePaintBox.left) {
-			if (deluxePaintX - 8 <= deluxePaintBox.right) {
-				if (deluxePaintY <= deluxePaintBox.top) {
-					if (deluxePaintY + 30 >= deluxePaintBox.bottom) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -686,20 +584,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		alienTracker.delayedAdd(alien);
 	}
 
-	@Override
-	public void reinstate(Alien alien) {
-		alien.reinstate();
-		alienTracker.delayedAdd(alien);
-	}
-
 	// ---------------------------------------------------------------------------
-
-	@Override
-	public Anim mapperLoadAnim(String animsName) {
-		Anims anims = animsPool.expect(animsName);
-		Anim anim = anims.find(0);
-		return anim;
-	}
 
 	private void updateList(List<Alien> alienList, Box screenBox, boolean mapper) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
@@ -768,29 +653,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		}
 	}
 
-	public void drawGrid() {
-		ScreenOrdinate ix = scr.scrOrdX;
-		ScreenOrdinate iy = scr.scrOrdY;
-
-		int col = 0x40ffffff;
-		for (int q = 0; q < iy.blockCount; q++) {
-			int dx = ix.initialPixelDestination;
-			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int s = ix.blockCount * Const.BLOCK_SIZE;
-			gc.fillRectangle(dx, dy, s, 1, col);
-			gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
-		}
-
-		for (int q = 0; q < ix.blockCount; q++) {
-			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int dy = iy.initialPixelDestination;
-			int s = iy.blockCount * Const.BLOCK_SIZE;
-			gc.fillRectangle(dx, dy, 1, s, col);
-			gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
-		}
-
-	}
-
 	public void updateEverything() {
 		// System.gc();
 		if (usingMapper) {
@@ -812,7 +674,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 					mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
-
 				setScreenPosition(getScreenPosition());
 				mapper.init();
 			}
@@ -1138,6 +999,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
 
 		gemsTotal = countGems();
+		System.out.println("Gems:" + gemsTotal);
 		gemsNeeded = pl.gemsNeeded;
 		gemsCollected = 0;
 
@@ -1240,43 +1102,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	@Override
 	public void playSoundEffect(String name) {
-		System.out.println("SFX:" + name);
-		// ah.playEffect(name);
-	}
-
-	// ---------------------------------------------------------------------------
-	// MAPPER SERVICES
-	//
-	// It's how the Mapper attaches to the World
-	//
-
-	@Override
-	public void quitMapper(Coord mousePos) {
-		player.resetTo(mousePos);
-		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
-
-		System.out.println("STOPPING MAPPER");
-		usingMapper = false;
-		// alienTracker.reclassify();
-		pickTheBestBounds();
-	}
-
-	@Override
-	public Alien findNearestAlien(Coord c) {
-		NearestAlienFinder n = new NearestAlienFinder(c);
-		alienTracker.visitAll(n);
-		return n.getAnswer();
-	}
-
-	@Override
-	public void setBlockConfig(BlockSet.Config c) {
-		blocksetConfig = c;
-		reloadBlockSet();
-	}
-
-	@Override
-	public BlocksHolder getBlocksHolder() {
-		return blockSet.blocksHolder;
+		ah.playEffect(name);
 	}
 
 	@Override
@@ -1291,18 +1117,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 			c.y++;
 		}
 	}
-
-	@Override
-	public Coord getScreenPosition() {
-		return scr.position();
-	}
-
-	@Override
-	public void setScreenPosition(Coord c) {
-		scr.setPosition(c);
-	}
-
-	// ---------------------------------------------------------------------------
 
 	@Override
 	public void drawDebugText(Coord c, String text) {
@@ -1322,19 +1136,9 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private int countGems() {
-		final ArrayList<Integer> n = new ArrayList<Integer>();
-		n.add(0);
-		alienTracker.visitAll(new Visitor<Alien>() {
-			@Override
-			public void visit(Alien a) {
-				if (a instanceof GemAlien) {
-					n.set(0, n.get(0) + 1);
-				}
-			}
-		});
-		int answer = n.get(0);
-		System.out.println("Gems:" + answer);
-		return answer;
+		AlienCounter ac = new AlienCounter(GemAlien.class);
+		alienTracker.visitAll(ac);
+		return ac.count();
 	}
 
 	@Override
@@ -1361,6 +1165,58 @@ public class World implements AlienServices, WorldServicesToMapper {
 		return !record;
 	}
 
+	
+	// ---------------------------------------------------------------------------
+	// MAPPER SPECIFICS
+	// ---------------------------------------------------------------------------
+
+	@Override
+	public void quitMapper(Coord mousePos) {
+		player.resetTo(mousePos);
+		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
+
+		System.out.println("STOPPING MAPPER");
+		usingMapper = false;
+		// alienTracker.reclassify();
+		pickTheBestBounds();
+	}
+
+
+
+
+	@Override
+	public Coord getScreenPosition() {
+		return scr.position();
+	}
+
+	@Override
+	public void setScreenPosition(Coord c) {
+		scr.setPosition(c);
+	}
+
+	private void drawGrid() {
+		ScreenOrdinate ix = scr.scrOrdX;
+		ScreenOrdinate iy = scr.scrOrdY;
+
+		int col = 0x40ffffff;
+		for (int q = 0; q < iy.blockCount; q++) {
+			int dx = ix.initialPixelDestination;
+			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int s = ix.blockCount * Const.BLOCK_SIZE;
+			gc.fillRectangle(dx, dy, s, 1, col);
+			gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
+		}
+
+		for (int q = 0; q < ix.blockCount; q++) {
+			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int dy = iy.initialPixelDestination;
+			int s = iy.blockCount * Const.BLOCK_SIZE;
+			gc.fillRectangle(dx, dy, 1, s, col);
+			gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
+		}
+	}
+
+
 	@Override
 	public void drawForMapper() {
 		drawGrid();
@@ -1368,6 +1224,41 @@ public class World implements AlienServices, WorldServicesToMapper {
 		updateAliens(true);
 	}
 
+	@Override
+	public Anim mapperLoadAnim(String animsName) {
+		Anims anims = animsPool.expect(animsName);
+		Anim anim = anims.find(0);
+		return anim;
+	}
+
+	@Override
+	public Alien findNearestAlien(Coord c) {
+		NearestAlienFinder n = new NearestAlienFinder(c);
+		alienTracker.visitAll(n);
+		return n.getAnswer();
+	}
+
+	@Override
+	public void setBlockConfig(BlockSet.Config c) {
+		blocksetConfig = c;
+		reloadBlockSet();
+	}
+
+	@Override
+	public BlocksHolder getBlocksHolder() {
+		return blockSet.blocksHolder;
+	}
+
+	@Override
+	public void reinstate(Alien alien) {
+		alien.reinstate();
+		alienTracker.delayedAdd(alien);
+	}
+
+	// ---------------------------------------------------------------------------
+	// (RE)LOAD AND FREE
+	// ---------------------------------------------------------------------------
+	
 	private void reloadBlockSet() {
 		freeBlocksSet();
 		blockSet = new BlockSet(gc, worldName, blocksetConfig);

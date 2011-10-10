@@ -28,8 +28,6 @@ public interface AlienServices {
 
 	void drawSprite(Coord c, Sprite s, boolean drawWhite);
 
-	boolean collideAlienDeluxePaintBoxWithPlayer(Coord alienPos, Box deluxePaintBox);
-
 	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
 
 	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);

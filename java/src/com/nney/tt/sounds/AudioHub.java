@@ -10,6 +10,7 @@ import com.nney.tt.sounds.wav.WavTools;
 import com.nney.utils.OpenableTools;
 
 public class AudioHub {
+	private static final boolean SFX_ENABLED = false;
 	private MusicPlayerConnector mp = new MusicPlayerConnector(new MusicPlayer());
 	private HashMap<String, Integer> fxMap = new HashMap<String, Integer>();
 	private final AudioContext ac;
@@ -36,9 +37,14 @@ public class AudioHub {
 	}
 
 	public void playEffect(String name) {
-		Integer n = fxMap.get(name);
-		if (n == null) throw new RuntimeException("Unknown sound effect: " + name);
-		ac.playEffect(n);
+		if (SFX_ENABLED) {
+			Integer n = fxMap.get(name);
+			if (n == null) throw new RuntimeException("Unknown sound effect: " + name);
+			ac.playEffect(n);
+		}
+		else {
+			System.out.println("SFX:" + name);
+		}
 	}
 	
 	public void loadMusic(int slot, String name) {
@@ -48,7 +54,9 @@ public class AudioHub {
 	}
 
 	public void startMusic(int slot) {
-//		ac.startMusic(slot);
+		if (SFX_ENABLED) {
+			ac.startMusic(slot);
+		}
 	}
 
 	private Loop renderMusic(String name) {

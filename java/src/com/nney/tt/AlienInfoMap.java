@@ -10,6 +10,40 @@ import java.util.Set;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
+import com.nney.tt.aliens.ArrowAlien;
+import com.nney.tt.aliens.BatAlien;
+import com.nney.tt.aliens.BearAlien;
+import com.nney.tt.aliens.BeeAlien;
+import com.nney.tt.aliens.BirdAlien;
+import com.nney.tt.aliens.ClockAlien;
+import com.nney.tt.aliens.DebugTextAlien;
+import com.nney.tt.aliens.ExitAlien;
+import com.nney.tt.aliens.ExtraLifeAlien;
+import com.nney.tt.aliens.FallingAlien;
+import com.nney.tt.aliens.FlameAlien;
+import com.nney.tt.aliens.FloorFailureAlien;
+import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.GhostAlien;
+import com.nney.tt.aliens.HiddenScoreGiftAlien;
+import com.nney.tt.aliens.LegacyAlien;
+import com.nney.tt.aliens.MagicDustAlien;
+import com.nney.tt.aliens.MapBoundsAlien;
+import com.nney.tt.aliens.PlainLiftAlien;
+import com.nney.tt.aliens.PlayerAlien;
+import com.nney.tt.aliens.PortraitAlien;
+import com.nney.tt.aliens.ScoreCollectableAlien;
+import com.nney.tt.aliens.ScoreNoticeAlien;
+import com.nney.tt.aliens.ShieldAlien;
+import com.nney.tt.aliens.SineLiftAlien;
+import com.nney.tt.aliens.SpikeAlien;
+import com.nney.tt.aliens.SpriteAlien;
+import com.nney.tt.aliens.StarAlien;
+import com.nney.tt.aliens.StopAlien;
+import com.nney.tt.aliens.TeleportAlien;
+import com.nney.tt.aliens.TrampolineAlien;
+import com.nney.tt.aliens.WingsAlien;
+import com.nney.tt.aliens.WobbleGemAlien;
+import com.nney.tt.aliens.YellowBirdAlien;
 import com.nney.tt.resources.TTResource;
 
 public class AlienInfoMap {
@@ -31,30 +65,79 @@ public class AlienInfoMap {
 
 	private String worldName;
 	
+	public AlienInfoMap() {
+		add(new AlienInfo(4, "exit", "0exit", ExitAlien.class));
+		add(new AlienInfo(5, "shield", "0shld", ShieldAlien.class));
+		add(new AlienInfo(7, "clock", "0clok", ClockAlien.class));
+		add(new AlienInfo(12, "teleport", "0tele", TeleportAlien.class));
+		add(new AlienInfo(22, "extraLife", "0life", ExtraLifeAlien.class));
+		add(new AlienInfo(14, "wings", "0wing", WingsAlien.class));
+		add(new AlienInfo(15, "floorFailure", null, FloorFailureAlien.class)); // special1
+		// for w6.map
+		add(new AlienInfo(34, "hiddenScoreGift", null, HiddenScoreGiftAlien.class));
+		add(new AlienInfo(36, "bear", "?bear", BearAlien.class));
+		add(new AlienInfo(37, "bat", "gbatt", BatAlien.class));
+		add(new AlienInfo(39, "spike", "gspik", SpikeAlien.class));
+		add(new AlienInfo(48, "ghost", "gghst", GhostAlien.class));
+		add(new AlienInfo(63, "bee", "wabee", BeeAlien.class));
+		add(new AlienInfo(72, "sineLift", "wlog0", SineLiftAlien.class));
+		add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
+		add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
+		add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
+		add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
+		// add(new AlienInfo(78, null, ScreenLimiterAlien.class));
+		add(new AlienInfo(95, "star", "0star", StarAlien.class));
+		add(new AlienInfo(13, "stop", "0stop", StopAlien.class));
 
-	void add(AlienInfo a) {
-		aim.add(a);
-		// System.out.println("Adding "+a.alienClass+" new use count is "+useCount);
+		add(new AlienInfo(200, "plainLift", "?lift", PlainLiftAlien.class));
+		add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
+		add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
+		add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
+
+		// use of annotations to make this easier
+		addFromAnnotation(FlameAlien.class);
+		addFromAnnotation(WobbleGemAlien.class);
+		addFromAnnotation(GemAlien.class);
+		addFromAnnotation(ArrowAlien.class);
+		addFromAnnotation(PortraitAlien.class);
+		addFromAnnotation(SpriteAlien.class);
+		addFromAnnotation(ScoreCollectableAlien.class);
+
+		// internal things
+		// * no typeCode
+		// * a name that cannot be used to look it up
+		// * only one instance
+		// * can only be looked up by className
+		// * do not appear in load and save images
+		add(new AlienInfo(-1, AlienInfo.makeInternalName("text"), null, DebugTextAlien.class));
+		add(new AlienInfo(-1, AlienInfo.makeInternalName("score"), "0scor", ScoreNoticeAlien.class));
+		add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
+		add(new AlienInfo(-1, AlienInfo.makeInternalName("fall"), null, FallingAlien.class));
+
 	}
 
-	public void addAnn(Class<? extends Alien> c) {
+	private void add(AlienInfo a) {
+		aim.add(a);
+	}
+
+	private void addFromAnnotation(Class<? extends Alien> c) {
 		AlienInfoAnns a = c.getAnnotation(AlienInfoAnns.class);
 		if (a != null) {
-			addAnn(c, a);
+			addFromAnnotation(c, a);
 		}
 		AlienInfoAnn b = c.getAnnotation(AlienInfoAnn.class);
 		if (b != null) {
-			addAnn(c, b);
+			addFromAnnotation(c, b);
 		}
 	}
 
-	private void addAnn(Class<? extends Alien> c, AlienInfoAnns a) {
+	private void addFromAnnotation(Class<? extends Alien> c, AlienInfoAnns a) {
 		for (AlienInfoAnn v : a.value()) {
-			addAnn(c, v);
+			addFromAnnotation(c, v);
 		}
 	}
 
-	private void addAnn(Class<? extends Alien> c, AlienInfoAnn a) {
+	private void addFromAnnotation(Class<? extends Alien> c, AlienInfoAnn a) {
 		add(new AlienInfo(a.type(), a.name(), a.gfx(), a.score(), c));
 	}
 
