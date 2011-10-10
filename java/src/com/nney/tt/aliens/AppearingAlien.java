@@ -1,6 +1,6 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.BitOp;
+import com.nney.utils.Math2;
 
 public abstract class AppearingAlien extends AlienWithLocation {
 	@AlienProp(name = "Hidden", doc = "Will we suddenly appear when the player runs past?", label = "hidden")
@@ -11,7 +11,7 @@ public abstract class AppearingAlien extends AlienWithLocation {
 
 	@Override
 	public void loadFromLegacyData() {
-		hidden = BitOp.test(loadByte(OBflags), OBFinvis);
+		hidden = Math2.bitTest(loadByte(OBflags), OBFinvis);
 	}
 
 	@Override

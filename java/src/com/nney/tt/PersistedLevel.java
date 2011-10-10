@@ -14,7 +14,6 @@ import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
@@ -262,6 +261,7 @@ public class PersistedLevel {
 		dd.end();
 
 		try {
+			System.out.println("Saving "+mapName);
 			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + mapName + ".txt");
 			w.write(sb.toString());
 			w.close();

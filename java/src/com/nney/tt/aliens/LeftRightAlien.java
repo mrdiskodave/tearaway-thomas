@@ -1,9 +1,9 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.BitOp;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 import com.nney.tt.sprites.Anim;
+import com.nney.utils.Math2;
 
 public abstract class LeftRightAlien extends AlienWithLocation {
 	@AlienProp(name = "Range", doc = "The horizontal span in which we move.", label = "range")
@@ -47,6 +47,6 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 	@Override
 	public void loadFromLegacyData() {
 		range = new XRange(loadShort(OBleft), loadShort(OBright));
-		goLeft = !BitOp.test(loadByte(OBflags), 0);
+		goLeft = !Math2.bitTest(loadByte(OBflags), 0);
 	}
 }

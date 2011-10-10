@@ -7,7 +7,6 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
-import com.nney.utils.Math2;
 
 /**
  * Player movement.

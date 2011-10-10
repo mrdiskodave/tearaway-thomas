@@ -1,9 +1,9 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.BitOp;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 
 public class TeleportAlien extends AlienWithLocation {
 
@@ -16,7 +16,7 @@ public class TeleportAlien extends AlienWithLocation {
 	@Override
 	public void loadFromLegacyData() {
 		destination = new Coord(loadShort(OBleft), loadShort(OBtop));
-		hidden = BitOp.test(loadByte(OBflags), OBFinvis);
+		hidden = Math2.bitTest(loadByte(OBflags), OBFinvis);
 	}
 
 	@Override

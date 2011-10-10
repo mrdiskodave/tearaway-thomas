@@ -1,7 +1,6 @@
 package com.nney.tt.resources;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.nney.json.DataItem;
 import com.nney.json.JsonException;

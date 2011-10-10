@@ -8,6 +8,8 @@ import com.nney.tt.sprites.Anim;
 
 public interface WorldServicesToMapper {
 	void quitMapper(Coord newPlayerPosition);
+	
+	
 
 	void drawForMapper();
 
@@ -17,15 +19,15 @@ public interface WorldServicesToMapper {
 
 	Alien findNearestAlien(Coord c);
 
-	BlocksHolder getBlocksHolder();
-
 	void reinstate(Alien alien);
-	
+
 	Alien instantiateAttachConnect(AlienInfo alienInfo);
 
 	void load(Alien alien);
-
+	
 	Anim mapperLoadAnim(String animsName);
+
+	BlocksHolder getBlocksHolder();
 
 	void setBlockConfig(Config c);
 

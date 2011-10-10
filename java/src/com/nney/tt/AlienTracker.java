@@ -22,7 +22,6 @@ public class AlienTracker {
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
 			alienLists.add(new LinkedList<Alien>());
 		}
-
 	}
 
 	private void defrostAnyFrom(Fridge<Alien> fridge, int restore) {
@@ -43,10 +42,7 @@ public class AlienTracker {
 
 	public void begin(Box screenBox) {
 		// delayed
-		for (Alien alien : delayedAdditions) {
-			add(alien);
-		}
-		delayedAdditions.clear();
+		doDelayedAdditions();
 
 		// defrosted
 		defrostAnyFrom(freezeLeft, -screenBox.left);
@@ -55,27 +51,34 @@ public class AlienTracker {
 		defrostAnyFrom(freezeBottom, screenBox.bottom);
 	}
 
+	private void doDelayedAdditions() {
+		for (Alien alien : delayedAdditions) {
+			add(alien);
+		}
+		delayedAdditions.clear();
+	}
+
 	public boolean perhapsFreeze(Alien alien, Box screenBox) {
 		Box fb = alien.freezeBounds;
-		if (fb == null) {
-			return false;
+		if (fb != null) {
+			if (fb.right < screenBox.left) {
+				freezeLeft.add(alien, -fb.right);
+				return true;
+			}
+			else if (fb.bottom < screenBox.top) {
+				freezeTop.add(alien, -fb.bottom);
+				return true;
+			}
+			else if (fb.left > screenBox.right) {
+				freezeRight.add(alien, fb.left);
+				return true;
+			}
+			else if (fb.top > screenBox.bottom) {
+				freezeBottom.add(alien, fb.top);
+				return true;
+			}
 		}
-		if (fb.right < screenBox.left) {
-			freezeLeft.add(alien, (-fb.right));
-		}
-		else if (fb.bottom < screenBox.top) {
-			freezeTop.add(alien, (-fb.bottom));
-		}
-		else if (fb.left > screenBox.right) {
-			freezeRight.add(alien, fb.left);
-		}
-		else if (fb.top > screenBox.bottom) {
-			freezeBottom.add(alien, fb.top);
-		}
-		else {
-			return false;
-		}
-		return true;
+		return false;
 	}
 
 	public List<Alien> get(int x) {
@@ -88,13 +91,14 @@ public class AlienTracker {
 		}
 	}
 
-	public void visitVisible(Visitor<Alien> v) {
+	private void visitVisible(Visitor<Alien> v) {
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
 			visitIt(v, alienLists.get(x));
 		}
 	}
 
-	private void visitAll2(Visitor<Alien> v) {
+	public void visitAll(Visitor<Alien> v) {
+		doDelayedAdditions();
 		visitVisible(v);
 		freezeBottom.visit(v);
 		freezeTop.visit(v);
@@ -102,7 +106,8 @@ public class AlienTracker {
 		freezeRight.visit(v);
 	}
 
-	private void clearAll2() {
+	public void clearAll() {
+		delayedAdditions.clear();
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
 			alienLists.get(x).clear();
 		}
@@ -111,25 +116,16 @@ public class AlienTracker {
 		freezeLeft.clear();
 		freezeRight.clear();
 	}
-	
-	public void visitAll(Visitor<Alien> v) {
-		visitAll2(v);
-		visitIt(v, delayedAdditions);
-	}
 
-	public void reclassify() {
-		visitAll2(new Visitor<Alien>() {
+	public List<Alien> getAliens() {
+		final List<Alien> answer = new ArrayList<Alien>(); 
+		visitAll(new Visitor<Alien>() {
 			@Override
 			public void visit(Alien a) {
-				delayedAdditions.add(a);
+				answer.add(a);
 			}
 		});
-		clearAll2();
+		clearAll();
+		return answer;
 	}
-	
-	public List<Alien> getAliens() {
-		reclassify();
-		return delayedAdditions;
-	}
-	
 }

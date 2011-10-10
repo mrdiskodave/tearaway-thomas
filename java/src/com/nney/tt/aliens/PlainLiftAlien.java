@@ -1,7 +1,6 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Coord;
-import com.nney.utils.Math2;
 
 public class PlainLiftAlien extends LiftAlien {
 	@AlienProp(name = "Start", label = "start")

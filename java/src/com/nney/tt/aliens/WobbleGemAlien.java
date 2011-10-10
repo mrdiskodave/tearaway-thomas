@@ -1,9 +1,9 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.BitOp;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 
 @AlienInfoAnns({ @AlienInfoAnn(type = 2, gfx = "0ygem", score=50, name="yellowGem"),
 	@AlienInfoAnn(type = 3, gfx = "0pgem", score=100, name="purpleGem")
@@ -21,7 +21,7 @@ public class WobbleGemAlien extends GemAlien {
 	@Override
 	public void loadFromLegacyData() {
 		super.loadFromLegacyData();
-		wobble = !BitOp.test(loadByte(OBflags), FLAG_NO_WOBBLE);
+		wobble = !Math2.bitTest(loadByte(OBflags), FLAG_NO_WOBBLE);
 	}
 
 	@Override

@@ -89,7 +89,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private final Joystick joystick;
 	private final Keyboard keyboard;
 
-	private int levelNumber = 3;
+	private int levelNumber = 0;
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -105,7 +105,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// TODO: code ballon man
 	// TODO: code lives--
 	// TODO: mapper: reset on enter?
-	
+
 	private int score = 0;
 
 	private int lives = 3;
@@ -159,10 +159,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	 * Player sprite top level (i.e. incorporates handle subtraction).
 	 */
 	private Coord playerSpriteTopLeft;
-
-	private Latch teleportLatch = new Latch();
-
-	private int whiteTimer;
 
 	private int timeRemaining;
 
@@ -254,6 +250,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Config blocksetConfig = new BlockSet.Config(false, false);
 
+	private static final int TELEPORT_TIME = 50;
+
+	private int teleportTimer;
+
+	private final Latch teleportLatch = new Latch();
+
+	private Coord teleportDestination;
+
 	public World(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.ah = new AudioHub(ac);
@@ -288,8 +292,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// aim.add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		aim.add(new AlienInfo(95, "star", "0star", StarAlien.class));
 		aim.add(new AlienInfo(13, "stop", "0stop", StopAlien.class));
-		
-		
+
 		aim.add(new AlienInfo(200, "plainLift", "?lift", PlainLiftAlien.class));
 		aim.add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
 		aim.add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
@@ -679,7 +682,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Alien instantiateAttachByName(String name) {
 		Alien answer = instantiateAttachByName2(name);
-		if (answer==null) {
+		if (answer == null) {
 			System.out.println("Unknown Alien Name:" + name);
 			answer = new DebugTextAlien("UnknownName:" + name);
 			alienInfoMap.attach(answer);
@@ -694,7 +697,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 		answer.attach(alienInfo);
 		return answer;
 	}
-	
+
 	/**
 	 * We've just <code>new</code>ed the given alien rather than creating it
 	 * from a typeCode. Fill in all it's bits and pieces.
@@ -728,7 +731,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		Anim anim = anims.find(0);
 		return anim;
 	}
-
 
 	private void updateList(List<Alien> alienList, Box screenBox, boolean mapper) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
@@ -834,14 +836,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 				if (mapper == null) {
-					
+
 					for (String a : alienInfoMap.queryAnimList()) {
 						animsPool.load(a);
 					}
 
 					mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, debugFont);
 				}
-				
+
 				setScreenPosition(getScreenPosition());
 				mapper.init();
 			}
@@ -866,10 +868,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 			modePaused();
 		}
 		else {
-			if (whiteTimer != 0) {
-				whiteTimer--;
-				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
+			if (teleportTimer != 0) {
+				teleportTimer--;
+				drawTeleportEffect();
 				drawHudAndBorders(false);
+				if (teleportTimer == TELEPORT_TIME / 2) {
+					player.c = teleportDestination.copy();
+					pickTheBestBounds();
+					scr.snapTo(player.c);
+				}
 			}
 			else {
 				if (pauseAntiAutofire()) {
@@ -945,6 +952,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 				}
 			}
 		}
+	}
+
+	private void drawTeleportEffect() {
+		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 	}
 
 	private void modePaused() {
@@ -1037,9 +1048,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (isExitOpen()) statusDisplay.drawExitOpen();
 		drawHurryUp();
 
-		drawHudAndBorders(false);
+		if (teleportTimer != 0) {
+			drawTeleportEffect();
+		}
 
 		hole.update();
+		drawHudAndBorders(false);
 
 		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
 		// 0xff000000);
@@ -1095,8 +1109,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-//		 int a = 1;
-//		 while (a == 1) {
+		// int a = 1;
+		// while (a == 1) {
 
 		System.out.println("Loading level " + levelNumber);
 
@@ -1111,8 +1125,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 			@Override
 			public Alien make(int typeCode, int x, int y, byte[] rest) {
 				Alien alien = instantiateAttachByTypeCode(typeCode);
-				if (alien==null) {
-					System.out.println("LEGACY ALIEN "+typeCode);
+				if (alien == null) {
+					System.out.println("LEGACY ALIEN " + typeCode);
 					alien = new LegacyAlien();
 					alienInfoMap.attach(alien);
 				}
@@ -1131,20 +1145,15 @@ public class World implements AlienServices, WorldServicesToMapper {
 				return instantiateAttachByName(name);
 			}
 
-
 			@Override
 			public void wrapExisting(Alien alien) {
 				alienInfoMap.attach(alien);
 			}
 		};
 		pl.populateFromLevelInfo(af, levelNumber);
-//		 pl.save();
-//		 levelNumber++;
-//		 }
-
-
-		
-		
+		// pl.saveNew();
+		// levelNumber++;
+		// }
 
 		alienTracker = new AlienTracker();
 
@@ -1167,7 +1176,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		// unload what we no longer need
 		// load what we do need
 		animsPool.unloadReload(animsNeeded);
-
 
 		// connect the anims to the aliens
 		// and load the aliens into the world
@@ -1203,10 +1211,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 			statusDisplay = new StatusDisplay(gc, font);
 		}
 
-		
-		
-		
-		
 		completed = false;
 		mode = GameMode.START;
 
@@ -1296,20 +1300,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 		if (teleportLatch.can(frameNumber)) {
 			// do it
 			playSoundEffect("teleport");
-
-			// TODO: we might try and delay these actions so screen shape
-			// changes
-			// happen in the middle of the teleport
-			player.c = destination.copy();
-			pickTheBestBounds();
-			scr.snapTo(destination);
-
-			whiteTimer = 10;
+			teleportTimer = TELEPORT_TIME;
+			teleportDestination = destination.copy();
 		}
 	}
 
 	@Override
 	public void playSoundEffect(String name) {
+		System.out.println("SFX:" + name);
 		// ah.playEffect(name);
 	}
 
@@ -1326,14 +1324,14 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		System.out.println("STOPPING MAPPER");
 		usingMapper = false;
-		alienTracker.reclassify();
+//		alienTracker.reclassify();
 		pickTheBestBounds();
 	}
 
 	@Override
 	public Alien findNearestAlien(Coord c) {
 		NearestAlienFinder n = new NearestAlienFinder(c);
-		alienTracker.visitVisible(n);
+		alienTracker.visitAll(n);
 		return n.getAnswer();
 	}
 

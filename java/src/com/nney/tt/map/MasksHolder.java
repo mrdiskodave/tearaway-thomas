@@ -2,7 +2,6 @@ package com.nney.tt.map;
 
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.utils.Math2;
 
 public class MasksHolder {
 	final private int blockSize;

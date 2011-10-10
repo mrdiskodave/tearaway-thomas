@@ -1,7 +1,7 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.BitOp;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 
 @AlienInfoAnns({ @AlienInfoAnn(type = 18, gfx = "0cld0", name = "cloud0"), @AlienInfoAnn(type = 19, gfx = "0cld1", name = "cloud1"),
 		@AlienInfoAnn(type = 20, gfx = "0cld2", name = "cloud2"), @AlienInfoAnn(type = 31, gfx = "gwall", name = "magicwall"), @AlienInfoAnn(type = 45, gfx = "gtrch", name = "torch"),
@@ -18,7 +18,7 @@ public class SpriteAlien extends AlienWithLocation {
 
 	@Override
 	public void loadFromLegacyData() {
-		foreground = BitOp.test(loadByte(OBflags), FLAG_BEHIND);
+		foreground = Math2.bitTest(loadByte(OBflags), FLAG_BEHIND);
 	}
 
 	@Override

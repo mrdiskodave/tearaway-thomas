@@ -1,8 +1,6 @@
 package com.nney.tt.gfx;
 
 import com.nney.tt.map.BlockAliasTable;
-import com.nney.utils.Openable;
-import com.nney.utils.OpenableTools;
 
 public class BlockSource {
 	private final int blockWidth;

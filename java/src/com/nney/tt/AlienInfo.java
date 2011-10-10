@@ -2,7 +2,6 @@ package com.nney.tt;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.resources.TTResource;
-import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfo {
 	public final int typeCode;

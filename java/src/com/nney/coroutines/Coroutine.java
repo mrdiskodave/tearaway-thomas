@@ -38,14 +38,12 @@ public abstract class Coroutine implements Runnable {
 	}
 
 	public void step() {
-		// System.out.println("Trying Step");
 		// give it permission for the next bit
 		permission.release();
 		// wait until it has finished the last bit
 		waiting.acquireUninterruptibly();
-		// System.out.println("Done Step");
 	}
-
+	
 	protected void pause() {
 		stop();
 		start();

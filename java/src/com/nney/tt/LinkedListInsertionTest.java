@@ -6,7 +6,7 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-public class TestLinkedListInsertion extends TestCase {
+public class LinkedListInsertionTest extends TestCase {
 	LinkedList<Integer> fixture = new LinkedList<Integer>();
 
 	void insert(Integer x) {

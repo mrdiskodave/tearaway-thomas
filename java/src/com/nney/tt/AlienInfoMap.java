@@ -11,7 +11,6 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienInfoAnn;
 import com.nney.tt.aliens.AlienInfoAnns;
 import com.nney.tt.resources.TTResource;
-import com.nney.tt.sprites.AnimsPool;
 
 public class AlienInfoMap {
 	/**
