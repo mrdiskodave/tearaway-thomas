@@ -9,7 +9,7 @@ public class GhostAlien extends LeftRightAlien {
 
 	@Override
 	public void onLoaded() {
-		sinePos = srv.randomness(c.slowHash(1000) % SINEWAVE_LENGTH);
+		sinePos = c.pseudorandom(SINEWAVE_LENGTH, 500);
 	}
 
 	@Override

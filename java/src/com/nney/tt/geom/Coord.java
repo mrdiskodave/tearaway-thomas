@@ -129,7 +129,16 @@ public class Coord implements Copyable<Coord>, Cloneable {
 		return new Coord(x, y);
 	}
 
-	public int slowHash(int rounds) {
+	/**
+	 * Generate a pseudorandom value from this coordinate.
+	 * 
+	 * @param max
+	 * @param rounds
+	 *            How many iterations to do (more takes longer but may give
+	 *            better quality output).
+	 * @return A positive number less than max.
+	 */
+	public int pseudorandom(int max, int rounds) {
 		int x = this.x;
 		int y = this.y;
 		while (rounds-- > 0) {
@@ -140,6 +149,7 @@ public class Coord implements Copyable<Coord>, Cloneable {
 			x = y;
 			y = t;
 		}
-		return y & Integer.MAX_VALUE;
+		y = y & Integer.MAX_VALUE;
+		return y % max;
 	}
 }

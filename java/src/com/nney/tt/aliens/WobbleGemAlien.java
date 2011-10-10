@@ -27,7 +27,7 @@ public class WobbleGemAlien extends GemAlien {
 	@Override
 	public void onLoaded() {
 		super.onLoaded();
-		wobblePhase = c.slowHash(100)%WOBBLE.length;
+		wobblePhase = c.pseudorandom(WOBBLE.length, 100);
 	}
 
 	@Override
