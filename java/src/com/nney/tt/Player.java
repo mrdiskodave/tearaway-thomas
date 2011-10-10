@@ -529,7 +529,7 @@ public class Player {
 				// not on something slippery
 				// so slowly slow down
 				if ((frm & 3) == 0) {
-					slideVel -= Math2.signOf(slideVel);
+					slideVel -= Integer.signum(slideVel);
 					if (Math.abs(slideVel) <= pvt.max()) {
 						// right! we've slowed to running speed on a
 						// non-slippery surface
@@ -551,7 +551,7 @@ public class Player {
 			}
 			// make sure we're not going to fast
 			if (Math.abs(slideVel) > 16) {
-				slideVel = Math2.signOf(slideVel) * 16;
+				slideVel = Integer.signum(slideVel) * 16;
 			}
 
 		}
@@ -1036,7 +1036,7 @@ public class Player {
 		if (diff.y > 0 && diff.y < 100) {
 			// must be moving towards
 			int d = getStickLeftRightDelta();
-			if (d != 0 && d != Math2.signOf(diff.x)) {
+			if (d != 0 && d != Integer.signum(diff.x)) {
 				// and must be the correct distance in front
 				int dx = Math.abs(diff.x);
 				if (dx > 75 && dx < 100) {

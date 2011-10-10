@@ -21,12 +21,6 @@ public final class Math2 {
 		return maskTest(x, 1<<bit);
 	}
 	
-	public static final int signOf(int x) {
-		if (x < 0) return -1;
-		if (x > 0) return 1;
-		return 0;
-	}
-
 	public static final int closer(int x, int target, int amount) {
 		if (x<target) {
 			x += amount;

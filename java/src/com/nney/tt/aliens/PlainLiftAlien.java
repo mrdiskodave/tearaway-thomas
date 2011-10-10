@@ -42,12 +42,12 @@ public class PlainLiftAlien extends LiftAlien {
 		float frac = pos;
 		frac /= big;
 		if (majorX) {
-			delta.x = pos*Math2.signOf(delta.x);
+			delta.x = pos*Integer.signum(delta.x);
 			delta.y = Math.round(delta.y*frac);
 		}
 		else {
 			delta.x = Math.round(delta.x*frac);
-			delta.y = pos*Math2.signOf(delta.y);
+			delta.y = pos*Integer.signum(delta.y);
 		}
 		
 		delta.add(start);
