@@ -667,37 +667,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	// ---------------------------------------------------------------------------
 	// ALIEN LIFECYCLE
 
-	@Override
-	public Alien instantiateAttachConnect(AlienInfo alienInfo) {
-		// for the mapper
-		Alien alien = alienInfo.instantiate();
-		alien.attach(alienInfo);
-		alien.connect(animsPool);
-		return alien;
-	}
-
-	public Alien instantiateAttachByTypeCode(int typeCode) {
-		return instantiateAttachByName2(AlienInfoMap.typeCodeToName(typeCode));
-	}
-
-	private Alien instantiateAttachByName(String name) {
-		Alien answer = instantiateAttachByName2(name);
-		if (answer == null) {
-			System.out.println("Unknown Alien Name:" + name);
-			answer = new DebugTextAlien("UnknownName:" + name);
-			alienInfoMap.attach(answer);
-		}
-		return answer;
-	}
-
-	private Alien instantiateAttachByName2(String name) {
-		if (!alienInfoMap.nameExists(name)) return null;
-		AlienInfo alienInfo = alienInfoMap.getByName(name);
-		Alien answer = alienInfo.instantiate();
-		answer.attach(alienInfo);
-		return answer;
-	}
-
 	/**
 	 * We've just <code>new</code>ed the given alien rather than creating it
 	 * from a typeCode. Fill in all it's bits and pieces.
@@ -1109,51 +1078,20 @@ public class World implements AlienServices, WorldServicesToMapper {
 	}
 
 	private void initLevel() {
-		// int a = 1;
-		// while (a == 1) {
+		AlienFactory af = new AlienFactory(alienInfoMap);
+		int a = 1;
+		while (a == 1) {
 
-		System.out.println("Loading level " + levelNumber);
+			System.out.println("Loading level " + levelNumber);
 
-		pl = new PersistedLevel();
+			pl = new PersistedLevel();
 
-		AlienFactory af = new AlienFactory() {
-			@Override
-			public void selectWorld(String name) {
-				World.this.selectWorld(name);
-			}
+			pl.populateFromLevelInfo(af, levelNumber);
+			pl.saveNew();
+			levelNumber++;
+		}
 
-			@Override
-			public Alien make(int typeCode, int x, int y, byte[] rest) {
-				Alien alien = instantiateAttachByTypeCode(typeCode);
-				if (alien == null) {
-					System.out.println("LEGACY ALIEN " + typeCode);
-					alien = new LegacyAlien();
-					alienInfoMap.attach(alien);
-				}
-				if (alien instanceof AlienWithLocation) {
-					AlienWithLocation awl = (AlienWithLocation) alien;
-					awl.c.x = x;
-					awl.c.y = y;
-				}
-				alien.legacyData = rest;
-				alien.loadFromLegacyData();
-				return alien;
-			}
-
-			@Override
-			public Alien make(String name) {
-				return instantiateAttachByName(name);
-			}
-
-			@Override
-			public void wrapExisting(Alien alien) {
-				alienInfoMap.attach(alien);
-			}
-		};
-		pl.populateFromLevelInfo(af, levelNumber);
-		// pl.saveNew();
-		// levelNumber++;
-		// }
+		worldName = alienInfoMap.getWorld();
 
 		alienTracker = new AlienTracker();
 
@@ -1240,11 +1178,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 		createStatusScreen(text);
 	}
 
-	protected void selectWorld(String name) {
-		worldName = pl.worldName;
-		alienInfoMap.setWorld(worldName);
-	}
-
 	/**
 	 * The best map bounds are the smallest (i.e. the most specific) bounds that
 	 * the player is inside. This allows the map designer to fence of small
@@ -1324,7 +1257,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		System.out.println("STOPPING MAPPER");
 		usingMapper = false;
-//		alienTracker.reclassify();
+		// alienTracker.reclassify();
 		pickTheBestBounds();
 	}
 

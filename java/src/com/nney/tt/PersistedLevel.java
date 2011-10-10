@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.nney.json.DataDestination;
@@ -13,6 +14,7 @@ import com.nney.json.DataItem;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
+import com.nney.json.SimpleDataDestination;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlayerAlien;
@@ -35,8 +37,6 @@ public class PersistedLevel {
 	public int stageNum;
 	public String title;
 
-	public String worldName;
-
 	//
 	// things from the dot map
 	//
@@ -53,7 +53,7 @@ public class PersistedLevel {
 		horizon = level.requireField("horizon").requireInt();
 		timeGiven = level.requireField("timeGiven").requireInt();
 		worldNum = level.requireField("world").requireInt();
-		worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
+		String worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
 		stageNum = level.requireField("stage").requireInt();
 		title = level.requireField("title").requireString();
 		mapName = level.requireField("map").requireString();
@@ -160,7 +160,7 @@ public class PersistedLevel {
 	/**
 	 * 
 	 * @param world
-	 *            Only used for {@link World#instantiateAttachConnect(int)}.
+	 *            Only used for {@link World#instantiateAttach(int)}.
 	 * @param mapOpenable
 	 */
 	public void loadLegacy(AlienFactory af, Openable mapOpenable) {
@@ -227,6 +227,9 @@ public class PersistedLevel {
 		}
 	}
 
+	
+	
+
 	void saveNew() {
 		final StringBuffer sb = new StringBuffer();
 
@@ -244,15 +247,24 @@ public class PersistedLevel {
 		dd.beginDict();
 		dd.write("objects");
 		dd.beginArray();
+		
+		ArrayList<Alien> toSave = new ArrayList<Alien>();
 		for (Alien a : aliens) {
 			if (!a.alienInfo.internal()) {
-				dd.beginDict();
-				dd.write("type");
-				dd.write(a.alienInfo.name);
-				APS.saveProps(a, dd);
-				dd.end();
+				toSave.add(a);
 			}
 		}
+
+		APS.orderAlienList(toSave);
+		
+		for (Alien a: toSave) {
+			dd.beginDict();
+			dd.write("type");
+			dd.write(a.alienInfo.name);
+			APS.saveProps(a, dd);
+			dd.end();
+		}
+
 		dd.end();
 		dd.write("blocks");
 		dd.beginArray();
@@ -261,8 +273,10 @@ public class PersistedLevel {
 		dd.end();
 
 		try {
-			System.out.println("Saving "+mapName);
-			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + mapName + ".txt");
+			String s = mapName;
+			s = s.replaceAll(".map", "");
+			System.out.println("Saving "+s);
+			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + s + ".txt");
 			w.write(sb.toString());
 			w.close();
 		}
@@ -276,5 +290,10 @@ public class PersistedLevel {
 		aliens = null;
 		return answer;
 	}
+
+	
+	
+
+
 
 }

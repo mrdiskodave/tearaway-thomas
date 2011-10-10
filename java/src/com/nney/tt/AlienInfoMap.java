@@ -28,6 +28,8 @@ public class AlienInfoMap {
 
 	private final List<String> names = new ArrayList<String>();
 	private final List<String> animList = new ArrayList<String>();
+
+	private String worldName;
 	
 
 	void add(AlienInfo a) {
@@ -57,6 +59,7 @@ public class AlienInfoMap {
 	}
 
 	public void setWorld(String worldName) {
+		this.worldName = worldName;
 		nameToAlienInfo.clear();
 		classToAlienInfo.clear();
 		classUseCount.clear();
@@ -89,6 +92,10 @@ public class AlienInfoMap {
 		}
 		Collections.sort(names);
 		Collections.sort(animList);
+	}
+	
+	String getWorld() {
+		return worldName;
 	}
 
 	private void addToIndex(AlienInfo ai, String k) {

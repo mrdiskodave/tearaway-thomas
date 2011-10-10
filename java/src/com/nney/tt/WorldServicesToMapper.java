@@ -21,8 +21,6 @@ public interface WorldServicesToMapper {
 
 	void reinstate(Alien alien);
 
-	Alien instantiateAttachConnect(AlienInfo alienInfo);
-
 	void load(Alien alien);
 	
 	Anim mapperLoadAnim(String animsName);
