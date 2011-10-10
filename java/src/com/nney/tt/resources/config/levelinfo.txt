@@ -38,6 +38,15 @@
         "world": 1
     }, 
     {
+        "gemsNeeded": 0, 
+        "horizon": 5, 
+        "map": "w8.map", 
+        "stage": 9, 
+        "timeGiven": 30, 
+        "title": "challenge", 
+        "world": 1
+    }, 
+    {
         "gemsNeeded": 45, 
         "horizon": 3, 
         "map": "w3.map", 
@@ -74,6 +83,105 @@
         "world": 1
     }, 
     {
+        "gemsNeeded": 0, 
+        "horizon": 6, 
+        "map": "w4.map", 
+        "stage": 9, 
+        "timeGiven": 20, 
+        "title": "challenge", 
+        "world": 1
+    }, 
+    {
+        "gemsNeeded": 25, 
+        "horizon": 0, 
+        "map": "t5.map", 
+        "stage": 1, 
+        "timeGiven": 75, 
+        "title": "the car ferry", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 60, 
+        "horizon": 0, 
+        "map": "t1.map", 
+        "stage": 2, 
+        "timeGiven": 95, 
+        "title": "the choice is yours", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 0, 
+        "map": "t2.map", 
+        "stage": 3, 
+        "timeGiven": 70, 
+        "title": "this way up", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 15, 
+        "horizon": 0, 
+        "map": "t10.map", 
+        "stage": 4, 
+        "timeGiven": 60, 
+        "title": "the big wheel", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 0, 
+        "horizon": 0, 
+        "map": "t8.map", 
+        "stage": 9, 
+        "timeGiven": 30, 
+        "title": "challenge", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 35, 
+        "horizon": 0, 
+        "map": "t4.map", 
+        "stage": 5, 
+        "timeGiven": 90, 
+        "title": "the crazy maze", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 60, 
+        "horizon": 0, 
+        "map": "t7.map", 
+        "stage": 6, 
+        "timeGiven": 95, 
+        "title": "the choice is still yours", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 65, 
+        "horizon": 0, 
+        "map": "t6.map", 
+        "stage": 7, 
+        "timeGiven": 75, 
+        "title": "up, up and (tear)away", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 25, 
+        "horizon": 0, 
+        "map": "t3.map", 
+        "stage": 8, 
+        "timeGiven": 70, 
+        "title": "gems in high places", 
+        "world": 2
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 0, 
+        "map": "t9.map", 
+        "stage": 9, 
+        "timeGiven": 20, 
+        "title": "challenge", 
+        "world": 2
+    }, 
+    {
         "gemsNeeded": 50, 
         "horizon": 0, 
         "map": "g0.map", 
@@ -107,6 +215,15 @@
         "stage": 4, 
         "timeGiven": 65, 
         "title": "haunted hijinx", 
+        "world": 3
+    }, 
+    {
+        "gemsNeeded": 0, 
+        "horizon": 0, 
+        "map": "g9.map", 
+        "stage": 9, 
+        "timeGiven": 25, 
+        "title": "challenge", 
         "world": 3
     }, 
     {
@@ -146,6 +263,15 @@
         "world": 3
     }, 
     {
+        "gemsNeeded": 0, 
+        "horizon": 0, 
+        "map": "g8.map", 
+        "stage": 9, 
+        "timeGiven": 99, 
+        "title": "challenge", 
+        "world": 3
+    }, 
+    {
         "gemsNeeded": 60, 
         "horizon": 3, 
         "map": "i3.map", 
@@ -179,6 +305,15 @@
         "stage": 4, 
         "timeGiven": 85, 
         "title": "ice is nice !not!", 
+        "world": 4
+    }, 
+    {
+        "gemsNeeded": 0, 
+        "horizon": 5, 
+        "map": "i9.map", 
+        "stage": 9, 
+        "timeGiven": 25, 
+        "title": "challenge", 
         "world": 4
     }, 
     {
@@ -216,6 +351,105 @@
         "timeGiven": 99, 
         "title": "strange loop", 
         "world": 4
+    }, 
+    {
+        "gemsNeeded": 0, 
+        "horizon": 2, 
+        "map": "i2.map", 
+        "stage": 9, 
+        "timeGiven": 30, 
+        "title": "challenge", 
+        "world": 4
+    }, 
+    {
+        "gemsNeeded": 33, 
+        "horizon": 6, 
+        "map": "f8.map", 
+        "stage": 1, 
+        "timeGiven": 80, 
+        "title": "back to the future", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 45, 
+        "horizon": 4, 
+        "map": "f9.map", 
+        "stage": 2, 
+        "timeGiven": 99, 
+        "title": "lift city", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 80, 
+        "horizon": 3, 
+        "map": "f1.map", 
+        "stage": 3, 
+        "timeGiven": 95, 
+        "title": "pipe-nightmare", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 70, 
+        "horizon": 4, 
+        "map": "f6.map", 
+        "stage": 4, 
+        "timeGiven": 50, 
+        "title": "teleport city", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 0, 
+        "horizon": 7, 
+        "map": "f2.map", 
+        "stage": 9, 
+        "timeGiven": 20, 
+        "title": "challenge", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 55, 
+        "horizon": 0, 
+        "map": "f7.map", 
+        "stage": 5, 
+        "timeGiven": 99, 
+        "title": "laser blazer", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 95, 
+        "horizon": 1, 
+        "map": "f0.map", 
+        "stage": 6, 
+        "timeGiven": 35, 
+        "title": "i feel the need...", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 45, 
+        "horizon": 5, 
+        "map": "f3.map", 
+        "stage": 7, 
+        "timeGiven": 70, 
+        "title": "the long hard shaft", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 70, 
+        "horizon": 2, 
+        "map": "f5.map", 
+        "stage": 8, 
+        "timeGiven": 99, 
+        "title": "save the bast 'til last", 
+        "world": 5
+    }, 
+    {
+        "gemsNeeded": 0, 
+        "horizon": 3, 
+        "map": "f4.map", 
+        "stage": 9, 
+        "timeGiven": 60, 
+        "title": "challenge", 
+        "world": 5
     }
 ]
 }
