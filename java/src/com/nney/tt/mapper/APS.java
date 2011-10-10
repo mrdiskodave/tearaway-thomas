@@ -2,10 +2,12 @@ package com.nney.tt.mapper;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
+import com.nney.json.SimpleDataDestination;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienProp;
 import com.nney.tt.geom.Box;
@@ -45,7 +47,7 @@ public class APS {
 					prop = new StringProp(pp);
 				}
 				else {
-					assert false: ft;
+					assert false : ft;
 				}
 				assert prop != null;
 				props.add(0, prop);
@@ -62,7 +64,7 @@ public class APS {
 			destProps.get(x).copyFrom(srcProps.get(x));
 		}
 	}
-	
+
 	public static void movePropsAbsolute(Alien a, Coord pos) {
 		Coord diff = pos.sub2(a.getLocation());
 		movePropsRelative(a, diff);
@@ -97,4 +99,43 @@ public class APS {
 		}
 	}
 
+	private static class AlienKey implements Comparable<AlienKey> {
+		public final Alien alien;
+		public final String key;
+
+		AlienKey(Alien a) {
+			this.alien = a;
+			DataDestination dd = new SimpleDataDestination();
+			dd.write(a.alienInfo.name);
+			APS.saveProps(a, dd);
+			key = dd.toString();
+		}
+
+		@Override
+		public int compareTo(AlienKey other) {
+			return key.compareTo(other.key);
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			return compareTo((AlienKey) other) == 0;
+		}
+	}
+
+	/**
+	 * Order a list of aliens in some approximately stable way. This is intended
+	 * to be used before saving the aliens to avoid thrashing the version
+	 * control system with unreadable deltas. It isn't fast.
+	 */
+	public static void orderAlienList(ArrayList<Alien> al) {
+		ArrayList<AlienKey> akl = new ArrayList<AlienKey>();
+		for (Alien a : al) {
+			akl.add(new AlienKey(a));
+		}
+		Collections.sort(akl);
+		al.clear();
+		for (AlienKey ak : akl) {
+			al.add(ak.alien);
+		}
+	}
 }
