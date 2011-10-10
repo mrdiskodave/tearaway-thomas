@@ -219,7 +219,7 @@ public class Mapper implements ButtonPressServices {
 				if (k == Pointer.KEY_LEFT) {
 					if (button != null) {
 						hoverStatus.down(button);
-						startPen(new Pen2() {
+						startPen(new Pen() {
 							@Override
 							void stroke() {
 								hoverStatus.move(findButton());
@@ -237,7 +237,7 @@ public class Mapper implements ButtonPressServices {
 						});
 					}
 					else if (bat == null) {
-						startPen(new Pen2() {
+						startPen(new Pen() {
 							@Override
 							void stroke() {
 								selectNearestAlien(mmp.worldPixels());
@@ -247,7 +247,7 @@ public class Mapper implements ButtonPressServices {
 					else {
 						final Coord batGrip = mmp.worldPixels().sub2(bat.where());
 						startAlienEdit();
-						startPen(new Pen2() {
+						startPen(new Pen() {
 							@Override
 							public void stroke() {
 								bat.onMove(mmp.worldPixels().sub2(batGrip));
@@ -286,7 +286,7 @@ public class Mapper implements ButtonPressServices {
 			else {
 				if (k == Pointer.KEY_LEFT) {
 					startBlockEdit();
-					startPen(new Pen2() {
+					startPen(new Pen() {
 						@Override
 						public void stroke() {
 							edit.setBlock(mmp.worldBlocks(), getCurrentBlock());
@@ -365,7 +365,7 @@ public class Mapper implements ButtonPressServices {
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
-	private void startPen(final Pen2 p) {
+	private void startPen(final Pen p) {
 		p.stroke();
 		pen = new Runnable() {
 			@Override
