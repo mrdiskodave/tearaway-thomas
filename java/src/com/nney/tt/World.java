@@ -21,10 +21,8 @@ import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;
-import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
-import com.nney.tt.gfx.RawFont;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
@@ -45,7 +43,6 @@ import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
-import com.nney.utils.OpenableTools;
 
 public class World implements AlienServices, WorldServicesToMapper {
 	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
@@ -54,9 +51,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private static final int BORDER_COLOR = 0xff000000;
 
 	final private GraphicsContext gc;
-
-	private Font debugFont;
-	private Font font;
 
 	private final Joystick joystick;
 	private final Keyboard keyboard;
@@ -221,7 +215,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 	private AudioHub ah;
 
 	private Config blocksetConfig = new BlockSet.Config(false, false);
-
 	
 	private static final int TELEPORT_TIME = 50;
 
@@ -231,6 +224,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private Coord teleportDestination;
 
+	private Fonts fonts;
+
 	public World(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.ah = new AudioHub(ac);
@@ -239,31 +234,12 @@ public class World implements AlienServices, WorldServicesToMapper {
 		this.keyboard = keyboard;
 		this.mouse = mouse;
 
-		initFonts();
+		this.fonts = new Fonts(gc);
 
 		alienInfoMap = new AlienInfoMap();
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 
 		initLevel();
-	}
-
-	// ---------------------------------------------------------------------------
-	// FONTS
-
-	private static String characterRangeHelper(int begin, int end) {
-		StringBuilder sb = new StringBuilder();
-		for (int x = begin; x < end; x++) {
-			sb.append((char) x);
-		}
-		return sb.toString();
-	}
-
-	private void initFonts() {
-		debugFont = gc.createFont(new RawFont(2, OpenableTools.mustLoad(TTResource.font("topaz")), 8, 8, false,
-				characterRangeHelper(0, 128), '?'));
-
-		font = gc.createFont(new RawFont(1, OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
-				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ", '?'));
 	}
 
 	// ---------------------------------------------------------------------------
@@ -672,7 +648,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 						animsPool.load(a);
 					}
 
-					mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, debugFont);
+					mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, fonts.debugFont);
 				}
 				setScreenPosition(getScreenPosition());
 				mapper.init();
@@ -726,7 +702,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 							- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
 					createStatusScreen(text);
 
-					cr = new Coroutine("cheese") {
+					cr = new Coroutine("timeBonus") {
 						@Override
 						public void run() {
 							// wait around a bit
@@ -1007,8 +983,8 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 		if (hud == null) {
 			Anims lifeAnims = animsPool.expect("0life");
-			hud = new HeadUpDisplay(gc, font, lifeAnims.find(0).sprites[0]);
-			statusDisplay = new StatusDisplay(gc, font);
+			hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).sprites[0]);
+			statusDisplay = new StatusDisplay(gc, fonts.font);
 		}
 
 		completed = false;
@@ -1121,10 +1097,10 @@ public class World implements AlienServices, WorldServicesToMapper {
 	@Override
 	public void drawDebugText(Coord c, String text) {
 		Coord a = c.sub2(scr.position());
-		int w = debugFont.charWidth() * text.length();
-		int h = debugFont.charHeight();
+		int w = fonts.debugFont.charWidth() * text.length();
+		int h = fonts.debugFont.charHeight();
 		gc.fillRectangle(a.x, a.y, w, h, 0xff000000);
-		debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
+		fonts.debugFont.draw(a.x, a.y, 0xff00ff00, 0, text);
 	}
 
 	@Override
@@ -1273,7 +1249,7 @@ public class World implements AlienServices, WorldServicesToMapper {
 
 	private void createStatusScreen(String text) {
 		freeStatusScreen();
-		statusScreen = new StatusScreen(gc, font);
+		statusScreen = new StatusScreen(gc, fonts.font);
 		OsdParser osdParser = new OsdParser(statusScreen);
 		osdParser.parse(text);
 		statusScreen.done();
@@ -1300,12 +1276,6 @@ public class World implements AlienServices, WorldServicesToMapper {
 }
 
 // 64: worm - forget it
-// 78: scrh ....
-// change it to something that prohibits horizontal scrolling, since that is the
-// intent .... BUT what do we do about screen width??
-
-// Unknown Alien Type:101
-// Unknown Alien Type:102
 
 // new life every 50,000 points
 // 10,000 points for perfect level
