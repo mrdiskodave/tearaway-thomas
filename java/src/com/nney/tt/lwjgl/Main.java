@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import com.nney.tt.Const;
-import com.nney.tt.World;
+import com.nney.tt.OuterWorld;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdapter;
@@ -23,8 +23,6 @@ public class Main {
 	public static final int SCREEN_HEIGHT = 300;
 
 	// used to be: 290/255
-
-	private World world;
 
 	public static boolean GL_ARB_texture_rectangle;
 
@@ -105,7 +103,7 @@ public class Main {
 			}
 		};
 
-		world = new World(gc, ac, joystick, keys, correctMouse);
+		OuterWorld ow = new OuterWorld(gc, ac, joystick, keys, correctMouse);
 
 		FpsReporter fpsRep = new FpsReporter(50);
 		boolean closing = false;
@@ -116,9 +114,9 @@ public class Main {
 			joystick.update();
 			wonkyMouse.update();
 			ac.update();
-
 			GlTools.configureFor2dBobs();
-			world.updateEverything();
+
+			ow.drawFrame();
 
 			Display.update();
 			if (Display.isCloseRequested()) {

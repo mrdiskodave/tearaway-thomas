@@ -11,26 +11,38 @@ import com.nney.tt.resources.TTResource;
 import com.nney.utils.OpenableTools;
 
 public class BlockSet implements Disposable {
-	final public String worldName;
-	final public BlocksHolder blocksHolder;
-	final public MasksHolder maskHolder;
-	final public WorldInformation wi;
+	public Config config;
+	public BlocksHolder blocksHolder;
+	public MasksHolder maskHolder;
+	public WorldInformation wi;
 
-	public static class Config {
-		final private boolean seeMasks;
-		final private boolean showHidden;
+	static class Config {
+		final String worldName;
+		final boolean seeMasks;
+		final boolean showHidden;
 
-		public Config(boolean seeMasks, boolean showHidden) {
+		Config(String worldName, boolean seeMasks, boolean showHidden) {
+			this.worldName = worldName;
 			this.seeMasks = seeMasks;
 			this.showHidden = showHidden;
 		}
+		
+		@Override
+		public String toString() {
+			return String.format("%s-%s-%s", worldName, seeMasks, showHidden);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			Config that = (Config) obj;
+			return toString().equals(that.toString());
+		}
 	}
 	
-	
-	public BlockSet(GraphicsContext gc, String worldName, Config config) {
-		wi = WorldInformation.load(worldName);
+	public BlockSet(GraphicsContext gc, Config config) {
+		wi = WorldInformation.load(config.worldName);
 
-		SimpleImage msi = new SimpleImage(OpenableTools.mustLoad(TTResource.blockMask(worldName)));
+		SimpleImage msi = new SimpleImage(OpenableTools.mustLoad(TTResource.blockMask(config.worldName)));
 		
 		SimpleImage bsi;
 		if (config.seeMasks) {
@@ -49,7 +61,7 @@ public class BlockSet implements Disposable {
 			});
 		}
 		else {
-			bsi = new SimpleImage(OpenableTools.mustLoad(TTResource.blocks(worldName)));
+			bsi = new SimpleImage(OpenableTools.mustLoad(TTResource.blocks(config.worldName)));
 		}
 
 		BlockSource bs = new BlockSource(bsi, Const.BLOCK_SIZE);
@@ -57,7 +69,7 @@ public class BlockSet implements Disposable {
 		blocksHolder = gc.createBlocksHolder(bs);
 		maskHolder = new MasksHolder(Const.BLOCK_SIZE, msi);
 
-		this.worldName = worldName;
+		this.config = config;
 	}
 
 

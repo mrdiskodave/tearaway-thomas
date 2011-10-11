@@ -456,11 +456,11 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) {
 			masksVis = !masksVis;
-			srv.setBlockConfig(new BlockSet.Config(masksVis, hiddenVis));
+			srv.setBlockConfig(masksVis, hiddenVis);
 		}
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_V) {
 			hiddenVis = !hiddenVis;
-			srv.setBlockConfig(new BlockSet.Config(masksVis, hiddenVis));
+			srv.setBlockConfig(masksVis, hiddenVis);
 		}
 	}
 

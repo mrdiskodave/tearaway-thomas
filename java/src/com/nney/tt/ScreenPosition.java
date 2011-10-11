@@ -2,6 +2,8 @@ package com.nney.tt;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.map.GameMap;
 
 public class ScreenPosition {
 	/**
@@ -18,8 +20,8 @@ public class ScreenPosition {
 	private final int screenHeight;
 	private Box scrollBoundsInPixels;
 
-	public final ScreenOrdinate scrOrdX = new ScreenOrdinate();
-	public final ScreenOrdinate scrOrdY = new ScreenOrdinate();
+	public final ScreenOrdinate scrOrdX = new ScreenOrdinate("X");
+	public final ScreenOrdinate scrOrdY = new ScreenOrdinate("Y");
 
 	public ScreenPosition(int screenWidth, int screenHeight) {
 		this.screenWidth = screenWidth;
@@ -28,12 +30,13 @@ public class ScreenPosition {
 
 	public void setMapBoundsInPixels(Box b) {
 		scrollBoundsInPixels = b;
+		scrOrdX.setConstraints(screenWidth, b.left, b.width(), "X");
+		scrOrdY.setConstraints(screenHeight, b.top, b.height(), "Y");
 	}
 	
 	public void setPosition(Coord c) {
-		Box b = scrollBoundsInPixels;
-		screen.x = scrOrdX.generate(c.x, screenWidth, b.left, b.width(), "X");
-		screen.y = scrOrdY.generate(c.y, screenHeight, b.top, b.height(), "Y");
+		screen.x = scrOrdX.generate(c.x);
+		screen.y = scrOrdY.generate(c.y);
 	}
 
 	private static int shrinkDelta(int delta) {
@@ -89,4 +92,48 @@ public class ScreenPosition {
 	public Box box() {
 		return Box.fromTopLeftAndSize(screen, screenWidth, screenHeight);
 	}
+	
+	
+
+	
+	
+	//
+	// not sure these two screen-drawing routines belong here
+	//
+	// the whole rest of this class is otherwise concerned with
+	// just working out where the screen and borders are located
+	//
+	
+	
+	public void drawTheMap(GameMap gameMap, BlockSet blockSet) {
+		ScreenOrdinate ix = scrOrdX;
+		ScreenOrdinate iy = scrOrdY;
+
+		int[] blockRow = new int[ix.blockCount];
+		int pixelDestY = iy.initialPixelDestination;
+		for (int loopY = 0; loopY < iy.blockCount; loopY++) {
+			for (int loopX = 0; loopX < ix.blockCount; loopX++) {
+				blockRow[loopX] = gameMap.fastGetBlock(ix.mapSourceInBlocks + loopX, iy.mapSourceInBlocks + loopY);
+			}
+			blockSet.blocksHolder.draw(blockRow, ix.initialPixelDestination, pixelDestY);
+			pixelDestY += Const.BLOCK_SIZE;
+		}
+	}
+	
+	private static final int BORDER_COLOR = 0xff000000;
+	
+	public void drawBorders(GraphicsContext gc) {
+		// draw borders on the playing area if the map is small
+		ScreenOrdinate lr = scrOrdX;
+		if (lr.highBorderStart >= 0) {
+			gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
+			gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+		}
+		ScreenOrdinate tb = scrOrdY;
+		if (tb.highBorderStart >= 0) {
+			gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
+			gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+		}
+	}
+
 }

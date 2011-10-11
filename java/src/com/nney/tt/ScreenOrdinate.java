@@ -33,6 +33,18 @@ public class ScreenOrdinate {
 	 */
 	public int highBorderStart;
 
+	private int scrSize;
+
+	private int mapStart;
+
+	private int mapSize;
+
+	private final String name;
+
+	public ScreenOrdinate(String name) {
+		this.name = name;
+	}
+	
 	/**
 	 * Make sure given current position is valid and also generate the other
 	 * field data in this object. There will be two instances of this class -
@@ -51,13 +63,14 @@ public class ScreenOrdinate {
 	 *            The name of this ordinate (for debug purposes).
 	 * @return A validated position to use in place of the first parameter.
 	 */
-	public int generate(int current, int scrSize, int mapStart, int mapSize, String name) {
+	public int generate(int current) {
 		if (mapSize < scrSize) {
 			// System.out.println(String.format("%s: less than the screen",
 			// name));
 
 			int pos = (scrSize - mapSize) / 2;
 			current = mapStart - pos;
+			
 			mapSourceInBlocks = mapStart / Const.BLOCK_SIZE;
 			initialPixelDestination = pos;
 			blockCount = mapSize / Const.BLOCK_SIZE;
@@ -88,5 +101,11 @@ public class ScreenOrdinate {
 			highBorderStart = -1;
 		}
 		return current;
+	}
+
+	public void setConstraints(int scrSize, int mapStart, int mapSize, String name) {
+		this.scrSize = scrSize;
+		this.mapStart = mapStart;
+		this.mapSize = mapSize;
 	}
 }

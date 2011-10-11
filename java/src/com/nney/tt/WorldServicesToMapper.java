@@ -25,7 +25,7 @@ public interface WorldServicesToMapper {
 
 	BlocksHolder getBlocksHolder();
 
-	void setBlockConfig(Config c);
+	void setBlockConfig(boolean seeMasks, boolean seeHidden);
 
 	boolean playerFall(Coord where, int fallMax);
 }
