@@ -26,8 +26,7 @@ public class Fade extends CurtainImpl {
 	
 	@Override
 	protected int stateToValue(int state) {
-		if (state==OPEN) return 0;
-		return darkest;
+		return Math2.fracMult(darkest, state, CLOSED);
 	}
 	
 	@Override

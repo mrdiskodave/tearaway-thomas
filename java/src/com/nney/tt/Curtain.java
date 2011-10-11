@@ -1,21 +1,21 @@
 package com.nney.tt;
 
 /**
- * Sometimes it is useful to hide the screen contents.
- * Curtains can be used for this. 
+ * Sometimes it is useful to hide the screen contents. Curtains can be used for
+ * this.
  */
 public interface Curtain {
 	/**
-	 * A state value representing an open curtain
-	 * i.e. one that does not obscure anything on the screen.
+	 * A state value representing an open curtain i.e. one that does not obscure
+	 * anything on the screen.
 	 */
-	int OPEN = 1;
-	
+	int OPEN = 0;
+
 	/**
-	 * A state value representing a closed curtain
-	 * i.e. one that obscures everything on the screen.
+	 * A state value representing a closed curtain i.e. one that obscures
+	 * everything on the screen.
 	 */
-	int CLOSED = 2;
+	int CLOSED = 100;
 
 	/**
 	 * Tell the curtain where to move to.
@@ -42,10 +42,10 @@ public interface Curtain {
 	/**
 	 * Set the current state of the curtain. If the curtain is in a visible
 	 * state of transition this may cause it to jump, before the viewers eyes,
-	 * into another state. Because of this this method should be called with
-	 * care.
+	 * into another state. That means this method should be called with care.
 	 * 
-	 * @param state Either {@link #OPEN} or {@link #CLOSED}.
+	 * @param state
+	 *            Either {@link #OPEN} or {@link #CLOSED}.
 	 */
 	void current(int state);
 
