@@ -1,18 +1,27 @@
 package com.nney.tt.mapper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import com.nney.tt.AlienFactory;
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
+import com.nney.tt.AlienServices;
+import com.nney.tt.AlienTracker;
 import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
-import com.nney.tt.WorldServicesToMapper;
+import com.nney.tt.FrameDrawer;
+import com.nney.tt.OuterWorld;
+import com.nney.tt.PersistedLevel;
+import com.nney.tt.ScreenOrdinate;
+import com.nney.tt.ScreenPosition;
+import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.gfx.Font;
-import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.input.HasKeys;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
@@ -20,7 +29,10 @@ import com.nney.tt.input.LocksKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.sprites.Anim;
+import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
+import com.nney.tt.sprites.Sprite;
 
 /**
  * A level editor.
@@ -59,19 +71,16 @@ import com.nney.tt.sprites.AnimsPool;
  * 
  * Mini
  */
-public class Mapper implements ButtonPressServices {
-	private static final int COPY_LOCK = Locks.LOCK_SHIFT;
+public class Mapper implements ButtonPressServices, FrameDrawer {
+	final private static int COPY_LOCK = Locks.LOCK_SHIFT;
 
-	private static final int PASTE_BUFFER_END = Keyboard.KEY_F12;
+	final private static int PASTE_BUFFER_END = Keyboard.KEY_F12;
 
-	private static final int PASTE_BUFFER_START = Keyboard.KEY_F1;
+	final private static int PASTE_BUFFER_START = Keyboard.KEY_F1;
 
-	final static public int MAPPER_KEY = Keyboard.KEY_TAB;
+	final private static int MAPPER_KEY = Keyboard.KEY_TAB;
 
-	private static final int COL_BACKGROUND = 0xff0080ff;
-
-	private boolean masksVis;
-	private boolean hiddenVis;
+	final private static int COL_BACKGROUND = 0xff0080ff;
 
 	//
 	// stuff to do with the currentBlock
@@ -82,28 +91,27 @@ public class Mapper implements ButtonPressServices {
 
 	final MapperGC mgc;
 	final private Pointer mouse;
-	final WorldServicesToMapper srv;
-	private final GameMap gameMap;
+	final private GameMap gameMap;
 
-	private final SaveMapBlock[] slots = new SaveMapBlock[12];
+	final private SaveMapBlock[] slots = new SaveMapBlock[12];
 
 	private EditConsolidator edit;
 
-	private CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
+	final private CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
 	private CollidableList<ButtonRecord> buttonRecords;
 
 	private AlienEdit alienEdit;
 
-	private HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
+	final private HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
 	private Alien selectedAlien;
 
-	private MapperMousePosition mmp = new MapperMousePosition();
+	final private MapperMousePosition mmp = new MapperMousePosition();
 
 	private StatusLayer statusLayer;
 
-	private UndoControler undoControler;
+	final private UndoControler undoControler = new UndoControler();
 
-	private HasKeys keyboard;
+	final private HasKeys keyboard;
 
 	private Runnable pen;
 
@@ -111,7 +119,7 @@ public class Mapper implements ButtonPressServices {
 
 	private boolean alienMode;
 
-	private AlienPalette alienPalette;
+	final private AlienPalette alienPalette;
 
 	//
 	// stuff to do with the message
@@ -119,26 +127,70 @@ public class Mapper implements ButtonPressServices {
 	private int messTimer;
 
 	private String messText;
-
+	
+	private final OuterWorld ow;
+	
 	private final AnimsPool animsPool;
 
-	// ---------------------------------------------------------------------------
-	// MAPPER
-	// ---------------------------------------------------------------------------
+	private final ScreenPosition scr;
 
-	public Mapper(AlienInfoMap alienInfoMap, AnimsPool animsPool, GameMap gameMap, WorldServicesToMapper srv,
-			Pointer mouse, Keyboard keyboard, GraphicsContext gc, Font debugFont) {
+	private final AlienInfoMap alienInfoMap = new AlienInfoMap();
 
-		this.animsPool = animsPool;
+	private boolean seeHidden;
 
-		this.srv = srv;
-		this.gameMap = gameMap;
-		this.mouse = mouse;
-		this.keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(mouse, keyboard));
+	private boolean seeMasks;
 
-		blockCount = srv.getBlocksHolder().getBlockCount();
+	final private AlienTracker alienTracker = new AlienTracker();
+
+	private String worldName;
+
+	private final AlienServices alienServices = new MapperAlienServices(this);
+
+	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
+		Coord screen = scr.position();
+		final int x = c.x - screen.x;
+		final int y = c.y - screen.y;
+		s.drawByHandle(x, y, drawWhite);
+	}
+	
+	void drawDebugText(Coord c, String text) {
+		Coord a = c.sub2(scr.position());
+		mgc.drawText(a.x, a.y, 0xff00ff00, 0xff000000, text);
+	}
+
+	public Mapper(OuterWorld ow) {
+		this.ow = ow;
 		ColorCycler colorCycler = new ColorCycler();
-		mgc = new MapperGC(gc, debugFont, colorCycler);
+		mgc = new MapperGC(ow.gc, ow.fonts.debugFont, colorCycler);
+		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight());
+		scr.setMapBoundsInPixels(World.WHOLE_MAP_BOUNDS_IN_PIXELS);
+		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
+		mouse = ow.mouse;
+		animsPool = ow.animsPool;
+		
+		AlienFactory af = new AlienFactory(alienInfoMap);
+		PersistedLevel pl = new PersistedLevel();
+		pl.populateFromLevelInfo(af, ow.levelNumber);
+		worldName = alienInfoMap.getWorldName();
+
+		for (String a : alienInfoMap.queryAnimList()) {
+			animsPool.load(a);
+		}
+		
+		gameMap = pl.gameMap;
+
+		List<Alien> aliens = pl.getAliens();
+		for (Alien alien : aliens) {
+			if (alien instanceof PlayerAlien) {
+				PlayerAlien playerPos = (PlayerAlien) alien;
+				System.out.println("SNAP TO "+playerPos.c);
+				scr.snapTo(playerPos.c);
+			}
+			alien.connect(animsPool);
+			load(alien);
+		}
+		
+		blockCount = getBlocksHolder().getBlockCount();
 
 		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
 		for (String name : alienInfoMap.queryNames()) {
@@ -148,12 +200,12 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
-		srv.load(alien);
+		load(alien);
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
 			@Override
 			public void redo() {
-				srv.reinstate(alien);
+				reinstate(alien);
 				setSelectedAlien(alien);
 			}
 
@@ -164,13 +216,14 @@ public class Mapper implements ButtonPressServices {
 		};
 		undoControler.add(u);
 	}
-
-	public BlockPalette makeBP() {
-		return new BlockPalette(mgc, srv.getBlocksHolder());
+	
+	public void load(Alien alien) {
+		alien.load(alienServices);
+		alienTracker.delayedAdd(alien);
 	}
 
-	public void init() {
-		undoControler = new UndoControler();
+	public BlockPalette makeBP() {
+		return new BlockPalette(mgc, getBlocksHolder());
 	}
 
 	/**
@@ -181,11 +234,12 @@ public class Mapper implements ButtonPressServices {
 	void drawBlockCursor() {
 		Coord box = mmp.worldBlocks();
 		box.mul(Const.BLOCK_SIZE);
-		box.sub(srv.getScreenPosition());
+		box.sub(getScreenPosition());
 		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 	}
 
-	public void run() {
+	@Override
+	public void drawFrame() {
 		mgc.nextFrame();
 		mmp.update(mouse, getScreenPosition());
 
@@ -210,7 +264,7 @@ public class Mapper implements ButtonPressServices {
 			palettes = false;
 		}
 		else if (k == MAPPER_KEY) {
-			srv.quitMapper(mmp.worldPixels());
+			quitMapper(mmp.worldPixels());
 			drawLevel();
 		}
 		else {
@@ -399,9 +453,12 @@ public class Mapper implements ButtonPressServices {
 
 	private void drawLevel() {
 		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-		srv.drawForMapper();
-
+		drawGrid();
+		scr.drawTheMap(gameMap, loadBlockSet());
+		
 		drawRect();
+		
+		updateAliens();
 	}
 
 	private void drawRect() {
@@ -409,7 +466,7 @@ public class Mapper implements ButtonPressServices {
 		if (box != null) {
 			box.mult(Const.BLOCK_SIZE);
 			box.shrink(1);
-			box.sub(srv.getScreenPosition());
+			box.sub(getScreenPosition());
 			mgc.drawBox(box.left, box.top, box.width(), box.height(), mgc.process(0xff00ffff));
 		}
 	}
@@ -425,7 +482,6 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void keyboardAlienChoice(int k) {
-
 		AlienInfo current = alienPalette.get();
 		if (k == Keyboard.KEY_NEXT) alienPalette.next();
 		if (k == Keyboard.KEY_PRIOR) alienPalette.prev();
@@ -454,14 +510,8 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) {
-			masksVis = !masksVis;
-			srv.setBlockConfig(masksVis, hiddenVis);
-		}
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_V) {
-			hiddenVis = !hiddenVis;
-			srv.setBlockConfig(masksVis, hiddenVis);
-		}
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) seeMasks = !seeMasks;
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_V) seeHidden = !seeHidden;
 	}
 
 	void blockChoosingMode() {
@@ -473,13 +523,8 @@ public class Mapper implements ButtonPressServices {
 
 	private void changeCurrentBlock(int dx, int dy) {
 		int delta = BlockPalette.getPaletteDelta(dx, dy);
-		int b = delta + getCurrentBlock();
-		if (b < 0) {
-			b += blockCount;
-		}
-		if (b >= blockCount) {
-			b -= blockCount;
-		}
+		int b = delta + getCurrentBlock() + blockCount;
+		b %= blockCount;
 		setCurrentBlock(b);
 	}
 
@@ -501,13 +546,13 @@ public class Mapper implements ButtonPressServices {
 		if (keyboard.isDown(Keyboard.KEY_SHIFT)) {
 			delta.mul(4);
 		}
-		srv.setScreenPosition(srv.getScreenPosition().sub2(delta));
+		setScreenPosition(getScreenPosition().sub2(delta));
 	}
 
 	// --------------------------------------------------
 
 	private void selectNearestAlien(Coord c) {
-		setSelectedAlien(srv.findNearestAlien(c));
+		setSelectedAlien(findNearestAlien(c));
 	}
 
 	private boolean haveAlien() {
@@ -664,7 +709,7 @@ public class Mapper implements ButtonPressServices {
 
 	@Override
 	public void setScreenCentre(Coord c) {
-		srv.setScreenPosition(c.sub2(mgc.centreDisplacement()));
+		setScreenPosition(c.sub2(mgc.centreDisplacement()));
 	}
 
 	public void deleteSelectedAlien() {
@@ -672,7 +717,7 @@ public class Mapper implements ButtonPressServices {
 		undoControler.redoThenAdd(new UndoRedo() {
 			@Override
 			public void undo() {
-				srv.reinstate(a);
+				reinstate(a);
 				setSelectedAlien(a);
 			}
 
@@ -742,13 +787,136 @@ public class Mapper implements ButtonPressServices {
 	//
 	// Delegates:
 	//
+	
+	
+	// ---------------------------------------------------------------------------
+	// MAPPER SPECIFICS
+	// ---------------------------------------------------------------------------
+
+	public void quitMapper(Coord mousePos) {
+		
+	}
+
+//	// System.gc();
+//	if (usingMapper) {
+//		mapper.run();
+//	}
+//	else {
+//		int k = keyboard.justPressed();
+//		if (k == Mapper.MAPPER_KEY) {
+//			System.out.println("STARTING MAPPER");
+//			usingMapper = true;
+//			scr.setMapBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
+//
+//			gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
+//			if (mapper == null) {
+//
+//
+//				mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, fonts.debugFont);
+//			}
+//			setScreenPosition(getScreenPosition());
+//			mapper.init();
+//		}
+//		else {
+
+
 
 	public Coord getScreenPosition() {
-		return srv.getScreenPosition();
+		return scr.position();
+	}
+
+	public void setScreenPosition(Coord c) {
+		scr.setPosition(c);
+	}
+
+	private void drawGrid() {
+		ScreenOrdinate ix = scr.scrOrdX;
+		ScreenOrdinate iy = scr.scrOrdY;
+
+		int col = 0x40ffffff;
+		for (int q = 0; q < iy.blockCount; q++) {
+			int dx = ix.initialPixelDestination;
+			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int s = ix.blockCount * Const.BLOCK_SIZE;
+			mgc.fillRectangle(dx, dy, s, 1, col);
+			mgc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
+		}
+
+		for (int q = 0; q < ix.blockCount; q++) {
+			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int dy = iy.initialPixelDestination;
+			int s = iy.blockCount * Const.BLOCK_SIZE;
+			mgc.fillRectangle(dx, dy, 1, s, col);
+			mgc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
+		}
+	}
+
+
+	private void updateAliens() {
+		Box screenBox = scr.box();
+		alienTracker.begin(screenBox);
+		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox);
+		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
+		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox);
+		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox);
+	}
+	
+	private void updateList(List<Alien> alienList, Box screenBox) {
+		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
+			Alien alien = alienIterator.next();
+			alien.freezeBounds = null;
+			alien.mapperUpdate();
+			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
+				alienIterator.remove();
+			}
+		}
+	}
+
+
+	public Anim mapperLoadAnim(String animsName) {
+		Anims anims = animsPool.expect(animsName);
+		Anim anim = anims.find(0);
+		return anim;
+	}
+
+	public Alien findNearestAlien(Coord c) {
+		NearestAlienFinder n = new NearestAlienFinder(c);
+		alienTracker.visitAll(n);
+		return n.getAnswer();
+	}
+
+	public BlockSet loadBlockSet() {
+		return ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
+	}
+
+	public BlocksHolder getBlocksHolder() {
+		return loadBlockSet().blocksHolder;
+	}
+
+	public void reinstate(Alien alien) {
+		alien.reinstate();
+		alienTracker.delayedAdd(alien);
+	}
+
+
+	public boolean inTheGround(Coord c) {
+		int block = gameMap.getBlock(c.div2(Const.BLOCK_SIZE));
+		return loadBlockSet().maskHolder.inTheGround(block, c.x & 15, c.y & 15);
 	}
 
 	@Override
-	public boolean playerFall(Coord where, int fallMax) {
-		return srv.playerFall(where, fallMax);
+	public void fall(Coord c) {
+		for (int x = 0; x < 64; x++) {
+			c.y++;
+			if (inTheGround(c)) {
+				c.y--;
+				return;
+			}
+		}
 	}
+	
+	// TODO: that wiggly thing with block randomistion
+	// TODO: only drawing with non-randomized things (for undo redo reasons)
+	// TODO: test launch from here, test launch
+	
 }

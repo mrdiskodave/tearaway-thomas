@@ -71,10 +71,8 @@ public class CoordVisualProp extends VisualProp<Coord> {
 
 			@Override
 			void press() {
-				Coord c = read().copy();
-				if (bps.playerFall(c, 64)) {
-					write(c);
-				}
+				Coord c = read();
+				bps.fall(c);
 			}
 		});
 	}

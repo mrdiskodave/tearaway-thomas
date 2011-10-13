@@ -4,6 +4,7 @@ import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.mapper.Mapper;
 import com.nney.tt.sounds.AudioContext;
 import com.nney.tt.sounds.AudioHub;
 import com.nney.tt.sprites.AnimsDefPool;
@@ -46,11 +47,12 @@ public class OuterWorld implements FrameDrawer {
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 	}
 
-	public void loadBlockSet(BlockSet.Config config) {
+	public BlockSet loadBlockSet(BlockSet.Config config) {
 		if (blockSet == null || !blockSet.config.equals(config)) {
 			freeBlocksSet();
 			blockSet = new BlockSet(gc, config);
 		}
+		return blockSet;
 	}
 	
 	private void freeBlocksSet() {
@@ -60,19 +62,19 @@ public class OuterWorld implements FrameDrawer {
 		}
 	}
 	
-	World fd;
+	Mapper fd;
 
 	@Override
 	public void drawFrame() {
 		System.gc();
 		if (fd==null) {
-			fd = new World(this);
+			fd = new Mapper(this);
 		}
 		fd.drawFrame();
-		if (fd.status) {
-			levelNumber++;
-			fd.dispose();
-			fd = null;
-		}
+//		if (fd.status) {
+//			levelNumber++;
+//			fd.dispose();
+//			fd = null;
+//		}
 	}
 }

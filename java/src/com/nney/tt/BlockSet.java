@@ -16,12 +16,12 @@ public class BlockSet implements Disposable {
 	public MasksHolder maskHolder;
 	public WorldInformation wi;
 
-	static class Config {
+	public static class Config {
 		final String worldName;
 		final boolean seeMasks;
 		final boolean showHidden;
 
-		Config(String worldName, boolean seeMasks, boolean showHidden) {
+		public Config(String worldName, boolean seeMasks, boolean showHidden) {
 			this.worldName = worldName;
 			this.seeMasks = seeMasks;
 			this.showHidden = showHidden;
@@ -40,6 +40,7 @@ public class BlockSet implements Disposable {
 	}
 	
 	public BlockSet(GraphicsContext gc, Config config) {
+		System.out.println("Creating BlockSet "+config);
 		wi = WorldInformation.load(config.worldName);
 
 		SimpleImage msi = new SimpleImage(OpenableTools.mustLoad(TTResource.blockMask(config.worldName)));

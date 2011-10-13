@@ -7,5 +7,5 @@ public interface ButtonPressServices {
 	
 	void setScreenCentre(Coord c);
 	
-	boolean playerFall(Coord where, int fallMax);
+	void fall(Coord c);
 }

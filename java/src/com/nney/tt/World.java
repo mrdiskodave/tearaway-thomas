@@ -19,17 +19,13 @@ import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
-import com.nney.tt.input.Pointer;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.mapper.Mapper;
-import com.nney.tt.mapper.NearestAlienFinder;
 import com.nney.tt.osd.HeadUpDisplay;
 import com.nney.tt.osd.OsdParser;
 import com.nney.tt.osd.StatusDisplay;
@@ -42,7 +38,7 @@ import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 
-public class World implements AlienServices, WorldServicesToMapper, FrameDrawer, Disposable {
+public class World implements AlienServices, FrameDrawer, Disposable {
 
 	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
 			* Const.BLOCK_SIZE, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE);
@@ -72,11 +68,6 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 
 	// Disposable:
 	private Horizon horizon;
-
-	// mapper vars
-	private boolean usingMapper;
-
-	private Mapper mapper;
 
 	private String worldName;
 
@@ -231,8 +222,6 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 
 	private Keyboard keyboard;
 
-	private Pointer mouse;
-
 	private Fonts fonts;
 
 	private AnimsPool animsPool;
@@ -250,10 +239,8 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
 		this.joystick = ow.joystick;
 		this.keyboard = ow.keyboard;
-		this.mouse = ow.mouse;
 		this.fonts = ow.fonts;
 		this.animsPool = ow.animsPool;
-
 		alienInfoMap = new AlienInfoMap();
 
 		initLevel();
@@ -571,7 +558,6 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 		load(alien);
 	}
 
-	@Override
 	public void load(Alien alien) {
 		alien.load(this);
 		alienTracker.delayedAdd(alien);
@@ -579,35 +565,30 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 
 	// ---------------------------------------------------------------------------
 
-	private void updateList(List<Alien> alienList, Box screenBox, boolean mapper) {
+	private void updateList(List<Alien> alienList, Box screenBox) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
-			if (mapper) {
-				alien.mapperUpdate();
-			}
-			else {
-				alien.update();
-			}
+			alien.update();
 			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
 				alienIterator.remove();
 			}
 		}
 	}
 
-	private void updateAliens(boolean mapper) {
+	private void updateAliens() {
 		recording.clear();
 
 		// add fresh aliens
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox, mapper);
-		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox, mapper);
-		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox, mapper);
-		if (!mapper && mode != GameMode.COMPLETE) {
+		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox);
+		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
+		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox);
+		if (mode != GameMode.COMPLETE) {
 			player.draw();
 		}
-		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox, mapper);
+		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox);
 
 		//
 		// Caveat1: only background Aliens get to move the player around.
@@ -634,33 +615,7 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 
 	@Override
 	public void drawFrame() {
-		// System.gc();
-		if (usingMapper) {
-			mapper.run();
-		}
-		else {
-			int k = keyboard.justPressed();
-			if (k == Mapper.MAPPER_KEY) {
-				System.out.println("STARTING MAPPER");
-				usingMapper = true;
-				scr.setMapBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
-
-				gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
-				if (mapper == null) {
-
-					for (String a : alienInfoMap.queryAnimList()) {
-						animsPool.load(a);
-					}
-
-					mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, fonts.debugFont);
-				}
-				setScreenPosition(getScreenPosition());
-				mapper.init();
-			}
-			else {
-				dispatchMode();
-			}
-		}
+		dispatchMode();
 	}
 
 	private void dispatchMode() {
@@ -850,7 +805,7 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 		horizon.draw();
 		drawTheMap();
 
-		updateAliens(false);
+		updateAliens();
 
 		dimFade.update();
 
@@ -912,7 +867,6 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 			System.out.println("Loading level " + ow.levelNumber);
 
 			pl = new PersistedLevel();
-
 			pl.populateFromLevelInfo(af, ow.levelNumber);
 //			pl.saveNew();
 //			levelNumber++;
@@ -951,8 +905,7 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 
 		horizon = gc.loadHorizon(TTResource.horizon(pl.horizon));
 
-		ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
-		blockSet = ow.blockSet;
+		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 
 		player = new Player(this, animsPool.expect("0tt"), playerPos.c, playerPos.goLeft);
 		gameMap = pl.gameMap;
@@ -1038,12 +991,12 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 	}
 
 	private Coord getPlayerCentre() {
-		return getPlayerPosition().sub2(getScreenPosition()).add2(new Coord(0, (ttSprite.h / 2) - ttSprite.handleY));
+		return getPlayerPosition().sub2(scr.position()).add2(new Coord(0, (ttSprite.h / 2) - ttSprite.handleY));
 	}
 
 	private void captureRecording() {
 		record = true;
-		updateAliens(false);
+		updateAliens();
 		record = false;
 	}
 
@@ -1130,99 +1083,7 @@ public class World implements AlienServices, WorldServicesToMapper, FrameDrawer,
 	public boolean showText() {
 		return !record;
 	}
-
 	
-	// ---------------------------------------------------------------------------
-	// MAPPER SPECIFICS
-	// ---------------------------------------------------------------------------
-
-	@Override
-	public void quitMapper(Coord mousePos) {
-		player.resetTo(mousePos);
-		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
-
-		System.out.println("STOPPING MAPPER");
-		usingMapper = false;
-		// alienTracker.reclassify();
-		pickTheBestBounds();
-	}
-
-
-
-
-	@Override
-	public Coord getScreenPosition() {
-		return scr.position();
-	}
-
-	@Override
-	public void setScreenPosition(Coord c) {
-		scr.setPosition(c);
-	}
-
-	private void drawGrid() {
-		ScreenOrdinate ix = scr.scrOrdX;
-		ScreenOrdinate iy = scr.scrOrdY;
-
-		int col = 0x40ffffff;
-		for (int q = 0; q < iy.blockCount; q++) {
-			int dx = ix.initialPixelDestination;
-			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int s = ix.blockCount * Const.BLOCK_SIZE;
-			gc.fillRectangle(dx, dy, s, 1, col);
-			gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
-		}
-
-		for (int q = 0; q < ix.blockCount; q++) {
-			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int dy = iy.initialPixelDestination;
-			int s = iy.blockCount * Const.BLOCK_SIZE;
-			gc.fillRectangle(dx, dy, 1, s, col);
-			gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
-		}
-	}
-
-
-	@Override
-	public void drawForMapper() {
-		drawGrid();
-		drawTheMap();
-		updateAliens(true);
-	}
-
-	@Override
-	public Anim mapperLoadAnim(String animsName) {
-		Anims anims = animsPool.expect(animsName);
-		Anim anim = anims.find(0);
-		return anim;
-	}
-
-	@Override
-	public Alien findNearestAlien(Coord c) {
-		NearestAlienFinder n = new NearestAlienFinder(c);
-		alienTracker.visitAll(n);
-		return n.getAnswer();
-	}
-
-	@Override
-	public void setBlockConfig(boolean seeMasks, boolean seeHidden) {
-		this.seeMasks = seeMasks;
-		this.seeHidden = seeHidden;
-		ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
-		blockSet = ow.blockSet;
-	}
-
-	@Override
-	public BlocksHolder getBlocksHolder() {
-		return blockSet.blocksHolder;
-	}
-
-	@Override
-	public void reinstate(Alien alien) {
-		alien.reinstate();
-		alienTracker.delayedAdd(alien);
-	}
-
 	// ---------------------------------------------------------------------------
 	// (RE)LOAD AND FREE
 	// ---------------------------------------------------------------------------
