@@ -72,10 +72,14 @@ public class AlAudioContext implements AudioContext, Disposable {
 	@Override
 	public void loadMusic(int slot, Loop loop) {
 		stopMusic();
+		freeMusic(slot);
+		musics[slot] = new Music(loop);
+	}
+
+	private void freeMusic(int slot) {
 		if (musics[slot]!=null) {
 			musics[slot].dispose();
 		}
-		musics[slot] = new Music(loop);
 	}
 
 	@Override
@@ -151,8 +155,8 @@ public class AlAudioContext implements AudioContext, Disposable {
 	public void dispose() {
 		stopMusic();
 		// dispose of musics
-		for (Music music: musics) {
-			music.dispose();
+		for (int x=0; x<SLOTS; x++) {
+			freeMusic(x);
 		}
 
 		// stop effects
