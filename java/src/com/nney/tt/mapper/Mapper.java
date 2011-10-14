@@ -14,7 +14,6 @@ import com.nney.tt.Const;
 import com.nney.tt.FrameDrawer;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
-import com.nney.tt.ScreenOrdinate;
 import com.nney.tt.ScreenPosition;
 import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
@@ -72,46 +71,46 @@ import com.nney.tt.sprites.Sprite;
  * Mini
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
-	final private static int COPY_LOCK = Locks.LOCK_SHIFT;
+	private final static int COPY_LOCK = Locks.LOCK_SHIFT;
 
-	final private static int PASTE_BUFFER_END = Keyboard.KEY_F12;
+	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
 
-	final private static int PASTE_BUFFER_START = Keyboard.KEY_F1;
+	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
 
-	final private static int MAPPER_KEY = Keyboard.KEY_TAB;
+	private final static int MAPPER_KEY = Keyboard.KEY_TAB;
 
-	final private static int COL_BACKGROUND = 0xff0080ff;
+	private final static int COL_BACKGROUND = 0xff0080ff;
 
 	//
 	// stuff to do with the currentBlock
 	//
 	private int currentBlock;
-	final private int blockCount;
+	private final int blockCount;
 	private int paletteTimer;
 
-	final MapperGC mgc;
-	final private Pointer mouse;
-	final private GameMap gameMap;
+	private final MapperGC mgc;
+	private final Pointer mouse;
+	private final GameMap gameMap;
 
-	final private SaveMapBlock[] slots = new SaveMapBlock[12];
+	private final SaveMapBlock[] slots = new SaveMapBlock[12];
 
 	private EditConsolidator edit;
 
-	final private CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
+	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
 	private CollidableList<ButtonRecord> buttonRecords;
 
 	private AlienEdit alienEdit;
 
-	final private HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
+	private final HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
 	private Alien selectedAlien;
 
-	final private MapperMousePosition mmp = new MapperMousePosition();
+	private final MapperMousePosition mmp = new MapperMousePosition();
 
 	private StatusLayer statusLayer;
 
-	final private UndoControler undoControler = new UndoControler();
+	private final UndoControler undoControler = new UndoControler();
 
-	final private HasKeys keyboard;
+	private final HasKeys keyboard;
 
 	private Runnable pen;
 
@@ -119,7 +118,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private boolean alienMode;
 
-	final private AlienPalette alienPalette;
+	private final AlienPalette alienPalette;
 
 	//
 	// stuff to do with the message
@@ -136,11 +135,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private final AlienInfoMap alienInfoMap = new AlienInfoMap();
 
-	private boolean seeHidden;
+	private boolean seeHidden = true;
 
 	private boolean seeMasks;
 
-	final private AlienTracker alienTracker = new AlienTracker();
+	private final AlienTracker alienTracker = new AlienTracker();
 
 	private String worldName;
 
@@ -178,6 +177,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 		
 		gameMap = pl.gameMap;
+		gameMap.applyCompress(loadBlockSet().wi.blockRandomisationTable);
 
 		List<Alien> aliens = pl.getAliens();
 		for (Alien alien : aliens) {
@@ -347,7 +347,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					startPen(new Pen() {
 						@Override
 						public void stroke() {
-							edit.setBlock(mmp.worldBlocks(), getCurrentBlock());
+							edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
 						}
 
 						@Override
@@ -453,11 +453,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void drawLevel() {
 		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-		drawGrid();
+		scr.drawGrid(mgc);
 		scr.drawTheMap(gameMap, loadBlockSet());
-		
 		drawRect();
-		
 		updateAliens();
 	}
 
@@ -511,10 +509,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) seeMasks = !seeMasks;
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_V) seeHidden = !seeHidden;
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_H) seeHidden = !seeHidden;
 	}
 
-	void blockChoosingMode() {
+	// 20,4,9,33,93
+	private void blockChoosingMode() {
 		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), mmp.screenPixels());
 		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
 			setCurrentBlock(hoverBlock);
@@ -675,7 +674,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		setSelectedAlien(null);
 	}
 
-	public Coord getNudge(int k) {
+	private Coord getNudge(int k) {
 		switch (k) {
 		case Keyboard.KEY_UP:
 			return new Coord(0, -1);
@@ -712,7 +711,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		setScreenPosition(c.sub2(mgc.centreDisplacement()));
 	}
 
-	public void deleteSelectedAlien() {
+	private void deleteSelectedAlien() {
 		final Alien a = getSelectedAlien();
 		undoControler.redoThenAdd(new UndoRedo() {
 			@Override
@@ -728,7 +727,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		});
 	}
 
-	public void copySelectedAlien() {
+	private void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
 		if (!src.alienInfo.internal()) {
 			final Alien dest = makeAlien(src.alienInfo);
@@ -770,7 +769,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		Box rectangle = getRect();
 		if (rectangle == null) return;
 		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
-		s.fill(getCurrentBlock());
+		s.fill(getCompressedCurrentBlock());
 		MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, rectangle.left, rectangle.top, s);
 		submitEdit(u);
 	}
@@ -779,47 +778,21 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		return currentBlock;
 	}
 
+	private int getCompressedCurrentBlock() {
+		return loadBlockSet().wi.blockRandomisationTable.compress(currentBlock);
+	}
+
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
 		paletteTimer = 100;
 	}
-
-	//
-	// Delegates:
-	//
-	
 	
 	// ---------------------------------------------------------------------------
-	// MAPPER SPECIFICS
-	// ---------------------------------------------------------------------------
 
-	public void quitMapper(Coord mousePos) {
+	private void quitMapper(Coord mousePos) {
 		
 	}
-
-//	// System.gc();
-//	if (usingMapper) {
-//		mapper.run();
-//	}
-//	else {
-//		int k = keyboard.justPressed();
-//		if (k == Mapper.MAPPER_KEY) {
-//			System.out.println("STARTING MAPPER");
-//			usingMapper = true;
-//			scr.setMapBoundsInPixels(WHOLE_MAP_BOUNDS_IN_PIXELS);
-//
 //			gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
-//			if (mapper == null) {
-//
-//
-//				mapper = new Mapper(alienInfoMap, animsPool, gameMap, this, mouse, keyboard, gc, fonts.debugFont);
-//			}
-//			setScreenPosition(getScreenPosition());
-//			mapper.init();
-//		}
-//		else {
-
-
 
 	public Coord getScreenPosition() {
 		return scr.position();
@@ -827,28 +800,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	public void setScreenPosition(Coord c) {
 		scr.setPosition(c);
-	}
-
-	private void drawGrid() {
-		ScreenOrdinate ix = scr.scrOrdX;
-		ScreenOrdinate iy = scr.scrOrdY;
-
-		int col = 0x40ffffff;
-		for (int q = 0; q < iy.blockCount; q++) {
-			int dx = ix.initialPixelDestination;
-			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int s = ix.blockCount * Const.BLOCK_SIZE;
-			mgc.fillRectangle(dx, dy, s, 1, col);
-			mgc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
-		}
-
-		for (int q = 0; q < ix.blockCount; q++) {
-			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int dy = iy.initialPixelDestination;
-			int s = iy.blockCount * Const.BLOCK_SIZE;
-			mgc.fillRectangle(dx, dy, 1, s, col);
-			mgc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
-		}
 	}
 
 
@@ -915,8 +866,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 	
-	// TODO: that wiggly thing with block randomistion
-	// TODO: only drawing with non-randomized things (for undo redo reasons)
-	// TODO: test launch from here, test launch
-	
+	// TODO: that wiggly bug with block shuffling - cause is stop blocks! (draw them)
+	// TODO: test launch from here / test launch
 }
