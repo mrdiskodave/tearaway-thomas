@@ -3,6 +3,7 @@ package com.nney.tt.gfx;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
@@ -206,7 +207,7 @@ public class SimpleImage {
 		}
 	}
 
-	public int[] collectPalette() {
+	public Set<Integer> collectPalette() {
 		final TreeSet<Integer> pal = new TreeSet<Integer>();
 		visitPixels(new VisitPixel() {
 			@Override
@@ -214,12 +215,7 @@ public class SimpleImage {
 				pal.add(c);
 			}
 		});
-		Integer[] boxed = (Integer[]) pal.toArray(new Integer[pal.size()]);
-		int[] unboxed = new int[boxed.length];
-		for (int x = 0; x < boxed.length; x++) {
-			unboxed[x] = boxed[x];
-		}
-		return unboxed;
+		return pal;
 	}
 
 	public void sysout() {

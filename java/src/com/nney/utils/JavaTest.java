@@ -447,4 +447,9 @@ public class JavaTest extends TestCase {
 		// The obvious way of writing it silently fails on int overflow.
 		//
 	}
+	
+	public void testPri() {
+		assertEquals(17, 1*16+1);
+		assertEquals(32, 1<<4+1);
+	}
 }

@@ -35,7 +35,6 @@ public class OuterWorld implements FrameDrawer {
 
 	public int lives = 3;
 
-
 	public OuterWorld(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;
 		this.joystick = joystick;
@@ -48,7 +47,7 @@ public class OuterWorld implements FrameDrawer {
 	}
 
 	public BlockSet loadBlockSet(BlockSet.Config config) {
-		if (blockSet == null || !blockSet.config.equals(config)) {
+		if (blockSet == null || !blockSet.isSame(config)) {
 			freeBlocksSet();
 			blockSet = new BlockSet(gc, config);
 		}
@@ -66,7 +65,7 @@ public class OuterWorld implements FrameDrawer {
 
 	@Override
 	public void drawFrame() {
-		System.gc();
+//		System.gc();
 		if (fd==null) {
 			fd = new Mapper(this);
 		}

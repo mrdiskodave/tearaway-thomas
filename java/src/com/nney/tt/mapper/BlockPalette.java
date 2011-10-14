@@ -3,9 +3,9 @@ package com.nney.tt.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.gfx.BlocksHolder;
 import com.nney.utils.Math2;
 
 /**
@@ -34,7 +34,7 @@ public class BlockPalette {
 	/**
 	 * The number of blocks we present per line. This should be the same number
 	 * of blocks per line that the artist had when drawing them to that a line
-	 * retains its meaning.
+	 * retains its artist-given meaning.
 	 */
 	private static final int BLOCKS_PER_LINE = 20;
 
@@ -43,10 +43,11 @@ public class BlockPalette {
 	 */
 	private static final int COL_BACKGROUND = 0xff0020ff;
 
-	private final BlocksHolder blocksHolder;
 	private final int blockCount;
 	private final int bigBlockPaletteHeight;
 	private final MapperGC mgc;
+
+	private BlockSet blockSet;
 
 	private class BlockPos {
 		public final int x;
@@ -75,10 +76,10 @@ public class BlockPalette {
 		return answer;
 	}
 
-	public BlockPalette(MapperGC mgc, BlocksHolder blocksHolder) {
+	public BlockPalette(MapperGC mgc, BlockSet blockSet) {
 		this.mgc = mgc;
-		this.blocksHolder = blocksHolder;
-		this.blockCount = blocksHolder.getBlockCount();
+		this.blockSet = blockSet;
+		this.blockCount = blockSet.getBlockCount();
 		this.bigBlockPaletteHeight = Math2.roundUpDiv(blockCount, BLOCKS_PER_LINE);
 	}
 
@@ -90,12 +91,11 @@ public class BlockPalette {
 		int sx = 0; // mgc.screenWidth() - db;
 		int sy = 0;
 		mgc.fillRectangle(sx, sy, db, db, COL_BACKGROUND);
-		for (BlockPos p : createBlockPosList(x, y, d, d, sx, sy)) {
-			blocksHolder.draw(p.b, p.x, p.y);
-			if (currentBlock == p.b) {
-				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
-			}
-		}
+		drawIt(false, currentBlock, currentBlock, createBlockPosList(x, y, d, d, sx, sy));
+	}
+
+	private int c(int x) {
+		return blockSet.compressBlock(x);
 	}
 
 	public int showBigPalette(int currentBlock, Coord mouse) {
@@ -105,26 +105,43 @@ public class BlockPalette {
 		int vscroll = computeVerticalScrollAmount(mouse.y, protrusion);
 		int hoverBlock = -1;
 
-		for (BlockPos p : createBlockPosList(0, 0, BLOCKS_PER_LINE, bigBlockPaletteHeight, 0, -vscroll)) {
-			blocksHolder.draw(p.b, p.x, p.y);
-			if (currentBlock == p.b) {
-				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
-				mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, COL_CURRENT_BLOCK,
-						String.format("%4d", currentBlock));
-			}
+		List<BlockPos> ps = createBlockPosList(0, 0, BLOCKS_PER_LINE, bigBlockPaletteHeight, 0, -vscroll);
+		for (BlockPos p : ps) {
 			if (mouse.y >= p.y && mouse.y <= p.y + 15 && mouse.x >= p.x && mouse.x <= p.x + 15) {
 				hoverBlock = p.b;
-				if (hoverBlock == currentBlock) {
-					mgc.drawBox(p.x + 1, p.y + 1, 14, 14, mgc.process(COL_HOVER_BLOCK));
+			}
+		}
+
+		drawIt(true, currentBlock, hoverBlock, ps);
+		return hoverBlock;
+	}
+
+	private void drawIt(boolean labels, int currentBlock, int hoverBlock, List<BlockPos> ps) {
+		currentBlock = c(currentBlock);
+
+		for (BlockPos p : ps) {
+			blockSet.draw(p.b, p.x, p.y);
+			if (currentBlock == c(p.b)) {
+				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
+				if (labels) {
+					mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, COL_CURRENT_BLOCK,
+							String.format("%4d", currentBlock));
+				}
+			}
+			if (hoverBlock == p.b) {
+				if (c(hoverBlock) == currentBlock) {
+					mgc.drawBox(p.x + 1, p.y + 1, Const.BLOCK_SIZE - 2, Const.BLOCK_SIZE - 2,
+							mgc.process(COL_HOVER_BLOCK));
 				}
 				else {
 					mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_HOVER_BLOCK));
 				}
-				mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, COL_HOVER_BLOCK,
-						String.format("%4d", hoverBlock));
+				if (labels) {
+					mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, COL_HOVER_BLOCK,
+							String.format("%4d", c(hoverBlock)));
+				}
 			}
 		}
-		return hoverBlock;
 	}
 
 	private int computeVerticalScrollAmount(int mousePos, int protrusion) {

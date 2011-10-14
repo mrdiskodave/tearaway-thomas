@@ -155,6 +155,11 @@ public abstract class Alien {
 		}
 	}
 
+	public void connect(Alien src) {
+		fromTo(LifeCycle.ATTACH, LifeCycle.CONNECT);
+		anims = src.anims;
+	}
+
 	public void load(AlienServices world) {
 		fromTo(LifeCycle.CONNECT, LifeCycle.READY);
 		srv = world;

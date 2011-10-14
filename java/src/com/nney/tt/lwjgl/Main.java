@@ -87,7 +87,7 @@ public class Main {
 		LwjglKeyboard keys = new LwjglKeyboard();
 		KeyboardJoystick joystick = new KeyboardJoystick(keys);
 		GlGraphicsContext gc = new GlGraphicsContext();
-
+		
 		LwjglPointer wonkyMouse = new LwjglPointer();
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
 		// projection

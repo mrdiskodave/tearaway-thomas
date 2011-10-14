@@ -11,7 +11,7 @@ import com.nney.tt.resources.TTResource;
 import com.nney.utils.OpenableTools;
 
 public class BlockSet implements Disposable {
-	public Config config;
+	private Config config;
 	public BlocksHolder blocksHolder;
 	public MasksHolder maskHolder;
 	public WorldInformation wi;
@@ -68,14 +68,34 @@ public class BlockSet implements Disposable {
 		BlockSource bs = new BlockSource(bsi, Const.BLOCK_SIZE);
 		if (!config.showHidden) bs.doBlockHiding(wi.invisibleBlockHiding);
 		blocksHolder = gc.createBlocksHolder(bs);
-		maskHolder = new MasksHolder(Const.BLOCK_SIZE, msi);
+		maskHolder = new MasksHolder(msi);
 
 		this.config = config;
 	}
-
-
+	
 	@Override
 	public void dispose() {
 		blocksHolder.dispose();
 	}
+
+	public boolean isSame(Config config2) {
+		return config.equals(config2);
+	}
+
+	
+
+
+	
+	public int compressBlock(int currentBlock) {
+		return wi.blockRandomisationTable.compress(currentBlock);
+	}
+	
+	public int getBlockCount() {
+		return blocksHolder.getBlockCount();
+	}
+
+	public void draw(int b, int x, int y) {
+		blocksHolder.draw(b, x, y);
+	}
+
 }

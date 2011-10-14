@@ -4,6 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.MapperGC;
 
 public class ScreenPosition {
 	/**
@@ -135,5 +136,29 @@ public class ScreenPosition {
 			gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
 		}
 	}
+	
+	public void drawGrid(MapperGC mgc) {
+		ScreenOrdinate ix = scrOrdX;
+		ScreenOrdinate iy = scrOrdY;
+
+		int col = 0x40ffffff;
+		for (int q = 0; q < iy.blockCount; q++) {
+			int dx = ix.initialPixelDestination;
+			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int s = ix.blockCount * Const.BLOCK_SIZE;
+			mgc.fillRectangle(dx, dy, s, 1, col);
+			mgc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
+		}
+
+		for (int q = 0; q < ix.blockCount; q++) {
+			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int dy = iy.initialPixelDestination;
+			int s = iy.blockCount * Const.BLOCK_SIZE;
+			mgc.fillRectangle(dx, dy, 1, s, col);
+			mgc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
+		}
+	}
+
+
 
 }

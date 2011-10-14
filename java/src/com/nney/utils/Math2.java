@@ -20,7 +20,15 @@ public final class Math2 {
 	public static final boolean bitTest(int x, int bit) {
 		return maskTest(x, 1<<bit);
 	}
-	
+
+	public static int findPowerOfTwo(int v) {
+		for (int x = 0; x < 32; x++) {
+			int a = 1 << x;
+			if (a == v) return x;
+		}
+		throw new RuntimeException(v+" was supposed to be a power of two");
+	}
+
 	public static final int closer(int x, int target, int amount) {
 		if (x<target) {
 			x += amount;

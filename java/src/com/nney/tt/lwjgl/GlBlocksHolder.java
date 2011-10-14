@@ -14,36 +14,74 @@ import com.nney.tt.gfx.SimpleImage;
 public final class GlBlocksHolder implements BlocksHolder {
 	final private int blockSize;
 
+	/**
+	 * Each entry in {@link #textures} can hold this many blocks along one edge.
+	 */
 	static final private int GRID_SIZE = 8;
 
+	/**
+	 * Each entry in {@link #textures} can hold this many blocks.
+	 */
 	static final private int GRID_CAPACITY = GRID_SIZE * GRID_SIZE;
 
-	final private int blockCount;
 	final private List<GlTexture> textures = new ArrayList<GlTexture>();
 
 	private int listBase;
 
+	/**
+	 * For each block in {@link #blockCount} we store a value: either -1
+	 * to say
+	 * "this block is transparent so we haven't allocated texture memory for it"
+	 * <b>or</b> some other value which is the actual block number that it has in our
+	 * {@link #textures}.
+	 */
+	private int[] blockMap;
+
+	private int blockCount;
+
 	public GlBlocksHolder(BlockSource sbi) {
 		blockSize = sbi.getBlockSize();
+
 		blockCount = sbi.getBlockCount();
+
+		blockMap = new int[blockCount];
+
+		int internalBlockCount = 0;
+		for (int b = 0; b < blockCount; b++) {
+			if (sbi.isEntirely(b, 0)) {
+				blockMap[b] = -1;
+			}
+			else {
+				blockMap[b] = internalBlockCount;
+				sbi.getBlock(internalBlockCount).overwriteWith(sbi.getBlock(b));
+				internalBlockCount++;
+			}
+		}
+
+		System.out.println("Reduced " + blockCount + " blocks to " + internalBlockCount);
+
 		int gridEdge = GRID_SIZE * blockSize;
 		SimpleImage grid = SimpleImage.createEmpty(gridEdge, gridEdge);
 
 		int gridPos = 0;
 		for (int b = 0; b < blockCount; b++) {
-			int x = gridPos & GRID_SIZE - 1;
-			int y = gridPos / GRID_SIZE;
-			x *= blockSize;
-			y *= blockSize;
-			grid.view(x, y, blockSize, blockSize).overwriteWith(sbi.getBlock(b));
-			gridPos++;
-			if (gridPos == GRID_CAPACITY) {
-				textures.add(new GlTexture(grid));
-				gridPos = 0;
+			int b2 = blockMap[b];
+			if (b2 >= 0) {
+				int x = gridPos & GRID_SIZE - 1;
+				int y = gridPos / GRID_SIZE;
+				x *= blockSize;
+				y *= blockSize;
+				grid.view(x, y, blockSize, blockSize).overwriteWith(sbi.getBlock(b2));
+				gridPos++;
+				if (gridPos == GRID_CAPACITY) {
+					textures.add(new GlTexture(grid));
+					gridPos = 0;
+				}
 			}
 		}
 		if (gridPos != 0) {
-			System.out.println(String.format("last grid had %d/%d", gridPos, GRID_CAPACITY));
+			System.out
+					.println(String.format("%d grids - last grid had %d/%d", textures.size(), gridPos, GRID_CAPACITY));
 			textures.add(new GlTexture(grid));
 		}
 
@@ -62,7 +100,8 @@ public final class GlBlocksHolder implements BlocksHolder {
 	}
 
 	private void idraw(int x) {
-		if (x != 0) {
+		x = blockMap[x];
+		if (x >= 0) {
 			GlTexture t = textures.get(x / GRID_CAPACITY);
 			x &= GRID_CAPACITY - 1;
 			int bx = x & GRID_SIZE - 1;

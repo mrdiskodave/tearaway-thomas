@@ -1,6 +1,7 @@
 package com.nney.tt.map;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -30,6 +31,7 @@ public class BlockAliasTable {
 	 *            A line of block numbers.
 	 */
 	private void registerLine(ArrayList<Integer> al) {
+		Collections.sort(al);
 		for (int x = 0; x < al.size(); x++) {
 			registerExpansion(al.get(x), al);
 			if (x != 0) {

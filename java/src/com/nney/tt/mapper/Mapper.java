@@ -85,7 +85,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	// stuff to do with the currentBlock
 	//
 	private int currentBlock;
-	private final int blockCount;
 	private int paletteTimer;
 
 	private final MapperGC mgc;
@@ -190,8 +189,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			load(alien);
 		}
 		
-		blockCount = getBlocksHolder().getBlockCount();
-
 		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
 		for (String name : alienInfoMap.queryNames()) {
 			ais.add(alienInfoMap.getByName(name));
@@ -223,7 +220,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public BlockPalette makeBP() {
-		return new BlockPalette(mgc, getBlocksHolder());
+		return new BlockPalette(mgc, loadBlockSet());
 	}
 
 	/**
@@ -490,14 +487,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 	
 	private Alien makeAlien(AlienInfo ai) {
-		Alien a = ai.instantiateAttach();
-		a.connect(animsPool);
-		return a;
+		return ai.instantiateAttach();
 	}
 
 	private void createAlien() {
 		AlienInfo ai = alienPalette.get();
 		Alien a = makeAlien(ai);
+		a.connect(animsPool);
 		a.resetTo(mmp.worldPixels());
 		APS.validateAlien(a);
 		createAlienWithUndoRedo(a);
@@ -512,7 +508,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_H) seeHidden = !seeHidden;
 	}
 
-	// 20,4,9,33,93
 	private void blockChoosingMode() {
 		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), mmp.screenPixels());
 		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
@@ -522,6 +517,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void changeCurrentBlock(int dx, int dy) {
 		int delta = BlockPalette.getPaletteDelta(dx, dy);
+		int blockCount = loadBlockSet().getBlockCount();
 		int b = delta + getCurrentBlock() + blockCount;
 		b %= blockCount;
 		setCurrentBlock(b);
@@ -730,11 +726,16 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
 		if (!src.alienInfo.internal()) {
-			final Alien dest = makeAlien(src.alienInfo);
-			APS.copyProps(src, dest);
-			APS.movePropsAbsolute(dest, mmp.worldPixels());
-			createAlienWithUndoRedo(dest);
+			createAlienWithUndoRedo(copyAlien(src));
 		}
+	}
+
+	private Alien copyAlien(final Alien src) {
+		final Alien dest = makeAlien(src.alienInfo);
+		dest.connect(src);
+		APS.copyProps(src, dest);
+		APS.movePropsAbsolute(dest, mmp.worldPixels());
+		return dest;
 	}
 
 	private void submitEdit(MapSymmetricalUndoRedo u) {
@@ -840,10 +841,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		return ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 	}
 
-	public BlocksHolder getBlocksHolder() {
-		return loadBlockSet().blocksHolder;
-	}
-
 	public void reinstate(Alien alien) {
 		alien.reinstate();
 		alienTracker.delayedAdd(alien);
@@ -852,7 +849,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	public boolean inTheGround(Coord c) {
 		int block = gameMap.getBlock(c.div2(Const.BLOCK_SIZE));
-		return loadBlockSet().maskHolder.inTheGround(block, c.x & 15, c.y & 15);
+		return loadBlockSet().maskHolder.inTheGround(block, c.x & Const.BLOCK_MASK, c.y & Const.BLOCK_MASK);
 	}
 
 	@Override

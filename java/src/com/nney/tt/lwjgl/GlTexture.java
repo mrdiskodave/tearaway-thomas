@@ -1,8 +1,11 @@
 package com.nney.tt.lwjgl;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.Util;
 
 import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.PrerenderedText;
@@ -10,7 +13,7 @@ import com.nney.tt.gfx.SimpleImage;
 import com.nney.utils.mbr.MustBeReleased;
 
 public final class GlTexture implements Blitable, PrerenderedText {
-	final private MustBeReleased mbr = new MustBeReleased(); 
+	final private MustBeReleased mbr = new MustBeReleased();
 	final private int textureId;
 	final private int textureW;
 	final private int textureH;
@@ -25,11 +28,11 @@ public final class GlTexture implements Blitable, PrerenderedText {
 	public GlTexture(SimpleImage si, boolean mono) {
 		this(si, si.width(), si.height(), mono);
 	}
-	
+
 	public GlTexture(int w, int h) {
 		this(null, w, h, false);
 	}
-	
+
 	private GlTexture(SimpleImage si, int w, int h, boolean mono) {
 		int theirFormat = mono ? GL11.GL_ALPHA : GL11.GL_RGBA8;
 
@@ -53,8 +56,11 @@ public final class GlTexture implements Blitable, PrerenderedText {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		ByteBuffer bb = GlTools.makeByteBufferRGBA(textureW, textureH);
+		if (si != null) GlTools.preLoadRGBA(bb, si);
 		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, theirFormat, textureW, textureH, 0, GL11.GL_RGBA,
-				GL11.GL_UNSIGNED_BYTE, GlTools.makeByteBuffer(si, textureW, textureH));
+				GL11.GL_UNSIGNED_BYTE, bb);
+		Util.checkGLError();
 	}
 
 	/**

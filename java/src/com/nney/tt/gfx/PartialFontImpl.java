@@ -1,8 +1,11 @@
 package com.nney.tt.gfx;
 
+import java.util.Set;
+
 
 public abstract class PartialFontImpl implements Font {
-	protected static final int ABSENT = 0xffff0101;
+	private static final int ABSENT = 0xffff0101;
+
 	final protected String characters;
 	final protected Bounds[] boxes;
 	private final boolean proportional;
@@ -30,12 +33,17 @@ public abstract class PartialFontImpl implements Font {
 		SimpleImage content = new SimpleImage(rf.data);
 		BlockSource bs = new BlockSource(content, miniW, miniH);
 		int count = bs.getBlockCount();
+		while (count!=0 && bs.isEntirely(count-1, ABSENT)) {
+			count--;
+		}
+		
 		boxes = new Bounds[count];
 		
 		this.characters = rf.characters;
 		this.missingChar = rf.characters.indexOf(rf.missingChar);
 		assert missingChar>=0: "Missing char is, itself, missing!";
-		assert characters.length() == count : "difference " + characters.length() + " " + boxes.length;
+
+		assert characters.length() == count : "difference " + characters.length() + " " + count;
 
 		for (int x = 0; x < count; x++) {
 			Bounds box = bs.getBlockBounds(x);
@@ -45,9 +53,11 @@ public abstract class PartialFontImpl implements Font {
 			}
 			boxes[x] = box;
 		}
-
-		int[] palette = content.collectPalette();
-		mono = palette.length == 2;
+		
+		Set<Integer> palette = content.collectPalette();
+		palette.remove(ABSENT);
+		mono = palette.size() == 2;
+		System.out.println("MONO is "+mono);
 		renderContent(content);
 	}
 
@@ -56,7 +66,6 @@ public abstract class PartialFontImpl implements Font {
 		for (;;) {
 			SimpleImage stripView = glyph.view(glyphWidth - 1, 0, 1, glyph.height());
 			if (!stripView.isEntirely(ABSENT)) break;
-//			stripView.fill(0);
 			glyphWidth--;
 		}
 		return glyphWidth;

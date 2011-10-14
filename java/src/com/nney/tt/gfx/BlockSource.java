@@ -1,5 +1,6 @@
 package com.nney.tt.gfx;
 
+import com.nney.tt.Const;
 import com.nney.tt.map.BlockAliasTable;
 
 public class BlockSource {
@@ -19,15 +20,11 @@ public class BlockSource {
 		assert allBlocksHeight % miniH == 0;
 		blocksHorizontally = allBlocksWidth / miniW;
 		int blocksVertically = allBlocksHeight / miniH;
+		blockCount = blocksHorizontally * blocksVertically;
+	}
 
-		int bc = blocksHorizontally * blocksVertically;
-		for (;;) {
-			SimpleImage blockView = getBlock(bc - 1);
-			if (!blockView.isEntirely(0xffff0101)) break;
-			blockView.fill(0);
-			bc--;
-		}
-		blockCount = bc;
+	public boolean isEntirely(int blockNumber, int c) {
+		return getBlock(blockNumber).isEntirely(c);
 	}
 
 	public BlockSource(SimpleImage si, int blockSize) {
