@@ -20,7 +20,6 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.input.HasKeys;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
@@ -238,12 +237,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	@Override
 	public void drawFrame() {
 		mgc.nextFrame();
-		mmp.update(mouse, getScreenPosition());
+		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
 
 		statusLayer = new TopDownStatusLayer(mgc);
 
 		boolean palettes = true;
 		int k = keyboard.justPressed();
+		int kns = k & (~Locks.LOCK_SHIFT);
 
 		if (pen != null) {
 			pen.run();
@@ -271,10 +271,18 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				ButtonRecord button = findButton();
 				hoverStatus.move(button);
 
-				if (k == Pointer.KEY_LEFT) {
-					if (button != null) {
+				if (k== Pointer.KEY_RIGHT){
+					startPen(k, new Pen() {
+						@Override
+						void stroke() {
+							selectNearestAlien(mmp.worldPixels());
+						}
+					});
+				}
+				if (kns == Pointer.KEY_LEFT) {
+					if (button != null && k==kns) {
 						hoverStatus.down(button);
-						startPen(new Pen() {
+						startPen(k, new Pen() {
 							@Override
 							void stroke() {
 								hoverStatus.move(findButton());
@@ -291,18 +299,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 							}
 						});
 					}
-					else if (bat == null) {
-						startPen(new Pen() {
-							@Override
-							void stroke() {
-								selectNearestAlien(mmp.worldPixels());
-							}
-						});
-					}
-					else {
+					else if (bat != null) {
 						final Coord batGrip = mmp.worldPixels().sub2(bat.where());
 						startAlienEdit();
-						startPen(new Pen() {
+						if (kns!=k) mmp.startSnap(8);
+						startPen(kns, new Pen() {
 							@Override
 							public void stroke() {
 								bat.onMove(mmp.worldPixels().sub2(batGrip));
@@ -339,9 +340,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				}
 			}
 			else {
-				if (k == Pointer.KEY_LEFT) {
+				if (kns == Pointer.KEY_LEFT) {
 					startBlockEdit();
-					startPen(new Pen() {
+					if (kns!=k) mmp.startSnap(4);
+					startPen(kns, new Pen() {
 						@Override
 						public void stroke() {
 							edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
@@ -420,17 +422,18 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
-	private void startPen(final Pen p) {
+	private void startPen(final int k, final Pen p) {
 		p.stroke();
 		pen = new Runnable() {
 			@Override
 			public void run() {
-				if (keyboard.isDown(Pointer.KEY_LEFT)) {
+				if (keyboard.isDown(k)) {
 					p.stroke();
 				}
 				else {
 					p.up();
 					pen = null;
+					mmp.stopSnap();
 				}
 			}
 		};
