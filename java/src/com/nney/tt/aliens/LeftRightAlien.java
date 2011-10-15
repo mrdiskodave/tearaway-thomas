@@ -9,7 +9,7 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 	@AlienProp(name = "Range", doc = "The horizontal span in which we move.", label = "range")
 	public XRange range;
 
-	@AlienProp(name = "Facing", xtraDef = "leftright", label = "goLeft")
+	@AlienProp(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
 	public boolean goLeft;
 
 	@Override
