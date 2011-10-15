@@ -29,11 +29,10 @@ public final class GlBlocksHolder implements BlocksHolder {
 	private int listBase;
 
 	/**
-	 * For each block in {@link #blockCount} we store a value: either -1
-	 * to say
+	 * For each block in {@link #blockCount} we store a value: either -1 to say
 	 * "this block is transparent so we haven't allocated texture memory for it"
-	 * <b>or</b> some other value which is the actual block number that it has in our
-	 * {@link #textures}.
+	 * <b>or</b> some other value which is the actual block number that it has
+	 * in our {@link #textures}.
 	 */
 	private int[] blockMap;
 
@@ -46,6 +45,9 @@ public final class GlBlocksHolder implements BlocksHolder {
 
 		blockMap = new int[blockCount];
 
+		// probably bigger than it needs to be
+		int[] inverseBlockMap = new int[blockCount];
+
 		int internalBlockCount = 0;
 		for (int b = 0; b < blockCount; b++) {
 			if (sbi.isEntirely(b, 0)) {
@@ -53,7 +55,7 @@ public final class GlBlocksHolder implements BlocksHolder {
 			}
 			else {
 				blockMap[b] = internalBlockCount;
-				sbi.getBlock(internalBlockCount).overwriteWith(sbi.getBlock(b));
+				inverseBlockMap[internalBlockCount] = b;
 				internalBlockCount++;
 			}
 		}
@@ -64,19 +66,15 @@ public final class GlBlocksHolder implements BlocksHolder {
 		SimpleImage grid = SimpleImage.createEmpty(gridEdge, gridEdge);
 
 		int gridPos = 0;
-		for (int b = 0; b < blockCount; b++) {
-			int b2 = blockMap[b];
-			if (b2 >= 0) {
-				int x = gridPos & GRID_SIZE - 1;
-				int y = gridPos / GRID_SIZE;
-				x *= blockSize;
-				y *= blockSize;
-				grid.view(x, y, blockSize, blockSize).overwriteWith(sbi.getBlock(b2));
-				gridPos++;
-				if (gridPos == GRID_CAPACITY) {
-					textures.add(new GlTexture(grid));
-					gridPos = 0;
-				}
+		for (int b = 0; b < internalBlockCount; b++) {
+			int x = gridPos & GRID_SIZE - 1;
+			int y = gridPos / GRID_SIZE;
+			grid.view(x * blockSize, y * blockSize, blockSize, blockSize).overwriteWith(
+					sbi.getBlock(inverseBlockMap[b]));
+			gridPos++;
+			if (gridPos == GRID_CAPACITY) {
+				textures.add(new GlTexture(grid));
+				gridPos = 0;
 			}
 		}
 		if (gridPos != 0) {
