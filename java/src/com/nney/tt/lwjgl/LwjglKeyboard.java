@@ -142,19 +142,27 @@ public class LwjglKeyboard implements Keyboard {
 			Integer theirKey = org.lwjgl.input.Keyboard.getEventKey();
 			Integer ourKey = fromThem.get(theirKey);
 			if (ourKey != null) {
-				boolean down = org.lwjgl.input.Keyboard.getEventKeyState();
-				if (down) {
-					keys.add(ourKey, theirKey);
-					justPressed = ourKey;
-				}
-				else {
-					keys.remove(ourKey, theirKey);
-					// we need to do it this way -- a simple map with a
-					// count in it fails when auto-repeat is on because
-					// then the press and release counts no longer match
+				boolean isRepeat = org.lwjgl.input.Keyboard.isRepeatEvent();
+				boolean suppress = isRepeat && nonRepeating(ourKey);
+				if (!suppress) {
+					boolean down = org.lwjgl.input.Keyboard.getEventKeyState();
+					if (down) {
+						keys.add(ourKey, theirKey);
+						justPressed = ourKey;
+					}
+					else {
+						keys.remove(ourKey, theirKey);
+						// we need to do it this way -- a simple map with a
+						// count in it fails when auto-repeat is on because
+						// then the press and release counts no longer match
+					}
 				}
 			}
 		}
+	}
+
+	private boolean nonRepeating(int k) {
+		return k>=KEYBEGIN_SHIFTS && k<=KEYEND_SHIFTS;
 	}
 
 	@Override
