@@ -124,9 +124,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private int messTimer;
 
 	private String messText;
-	
+
 	private final OuterWorld ow;
-	
+
 	private final AnimsPool animsPool;
 
 	private final ScreenPosition scr;
@@ -149,7 +149,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		final int y = c.y - screen.y;
 		s.drawByHandle(x, y, drawWhite);
 	}
-	
+
 	void drawDebugText(Coord c, String text) {
 		Coord a = c.sub2(scr.position());
 		mgc.drawText(a.x, a.y, 0xff00ff00, 0xff000000, text);
@@ -164,7 +164,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
 		mouse = ow.mouse;
 		animsPool = ow.animsPool;
-		
+
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		PersistedLevel pl = new PersistedLevel();
 		pl.populateFromLevelInfo(af, ow.levelNumber);
@@ -173,7 +173,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		for (String a : alienInfoMap.queryAnimList()) {
 			animsPool.load(a);
 		}
-		
+
 		gameMap = pl.gameMap;
 		gameMap.applyCompress(loadBlockSet().wi.blockRandomisationTable);
 
@@ -181,13 +181,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		for (Alien alien : aliens) {
 			if (alien instanceof PlayerAlien) {
 				PlayerAlien playerPos = (PlayerAlien) alien;
-				System.out.println("SNAP TO "+playerPos.c);
+				System.out.println("SNAP TO " + playerPos.c);
 				scr.snapTo(playerPos.c);
 			}
 			alien.connect(animsPool);
 			load(alien);
 		}
-		
+
 		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
 		for (String name : alienInfoMap.queryNames()) {
 			ais.add(alienInfoMap.getByName(name));
@@ -212,7 +212,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		};
 		undoControler.add(u);
 	}
-	
+
 	public void load(Alien alien) {
 		alien.load(alienServices);
 		alienTracker.delayedAdd(alien);
@@ -243,7 +243,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		boolean palettes = true;
 		int k = keyboard.justPressed();
-		int kns = k & (~Locks.LOCK_SHIFT);
+		// System.out.println(String.format("PRESSED:%08x", k));
 
 		if (pen != null) {
 			pen.run();
@@ -266,127 +266,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 		else {
 			if (alienMode) {
-				final BatRecord bat = batRecords.find(mmp.worldPixels());
-
-				ButtonRecord button = findButton();
-				hoverStatus.move(button);
-
-				if (k== Pointer.KEY_RIGHT){
-					startPen(k, new Pen() {
-						@Override
-						void stroke() {
-							selectNearestAlien(mmp.worldPixels());
-						}
-					});
-				}
-				if (kns == Pointer.KEY_LEFT) {
-					if (button != null && k==kns) {
-						hoverStatus.down(button);
-						startPen(k, new Pen() {
-							@Override
-							void stroke() {
-								hoverStatus.move(findButton());
-							};
-
-							@Override
-							public void up() {
-								ButtonRecord b = findButton();
-								if (hoverStatus.up(b)) {
-									startAlienEdit();
-									b.press();
-									endAlienEdit();
-								}
-							}
-						});
-					}
-					else if (bat != null) {
-						final Coord batGrip = mmp.worldPixels().sub2(bat.where());
-						startAlienEdit();
-						if (kns!=k) mmp.startSnap(8);
-						startPen(kns, new Pen() {
-							@Override
-							public void stroke() {
-								bat.onMove(mmp.worldPixels().sub2(batGrip));
-							}
-
-							@Override
-							public void up() {
-								endAlienEdit();
-							}
-						});
-					}
-				}
-				else {
-					Coord nudge = getNudge(k);
-					if (nudge != null) {
-						startAlienEdit();
-						bat.onMove(nudge);
-						endAlienEdit();
-					}
-				}
-
-				if (haveAlien()) {
-					if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
-					if (k == Keyboard.KEY_C) copySelectedAlien();
-				}
-				if (k == Keyboard.KEY_N) createAlien();
-				keyboardAlienChoice(k);
-
-				if (k == Keyboard.KEY_D) {
-					alienMode = false;
-					marker = null;
-					paletteTimer = 0;
-					say("Drawing mode");
-				}
+				alienMode(k);
 			}
 			else {
-				if (kns == Pointer.KEY_LEFT) {
-					startBlockEdit();
-					if (kns!=k) mmp.startSnap(4);
-					startPen(kns, new Pen() {
-						@Override
-						public void stroke() {
-							edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
-						}
-
-						@Override
-						public void up() {
-							endBlockEdit();
-						}
-					});
-				}
-				if (k == Keyboard.KEY_I) {
-					setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
-				}
-				if (k == Keyboard.KEY_M) {
-					marker = mmp.worldBlocks();
-				}
-				if (k == Keyboard.KEY_F) {
-					fillRect();
-				}
-				if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
-					int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
-					copyRect(slotNumber);
-					marker = null;
-					say("Copied into slot " + slotNumber);
-				}
-				if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
-					int slotNumber = k - PASTE_BUFFER_START;
-					pasteRect(slotNumber);
-					marker = null;
-					say("Pasted from slot " + slotNumber);
-				}
-				if (keyboard.isDown(Keyboard.KEY_T)) {
-					Coord c = mmp.worldBlocksDelta();
-					changeCurrentBlock(c.x, c.y);
-				}
-				blockSelectionKeys(k);
-
-				if (k == Keyboard.KEY_A) {
-					alienMode = true;
-					paletteTimer = 0;
-					say("Alien mode");
-				}
+				blockMode(k);
 			}
 
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
@@ -396,14 +279,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				messTimer = 0;
 			}
 			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-				
 				say("Saved");
 			}
 
 			drawLevel();
-			if (!alienMode) {
-				drawBlockCursor();
-			}
 		}
 
 		if (palettes) {
@@ -417,16 +296,147 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 
+	private void blockMode(int k) {
+		if (k == Pointer.KEY_LEFT) {
+			startBlockEdit();
+			startPen(0, k, new Pen() {
+				@Override
+				public void stroke() {
+					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
+					drawBlockCursor();
+				}
+
+				@Override
+				public void up() {
+					endBlockEdit();
+				}
+			});
+		}
+		if (k == Keyboard.KEY_I) {
+			setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
+		}
+		if (k == Keyboard.KEY_M) {
+			marker = mmp.worldBlocks();
+		}
+		if (k == Keyboard.KEY_F) {
+			fillRect();
+		}
+		if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
+			int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
+			copyRect(slotNumber);
+			marker = null;
+			say("Copied into slot " + slotNumber);
+		}
+		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
+			int slotNumber = k - PASTE_BUFFER_START;
+			pasteRect(slotNumber);
+			marker = null;
+			say("Pasted from slot " + slotNumber);
+		}
+		if (keyboard.isDown(Keyboard.KEY_T)) {
+			Coord c = mmp.worldBlocksDelta();
+			changeCurrentBlock(c.x, c.y);
+		}
+		blockSelectionKeys(k);
+
+		if (k == Keyboard.KEY_A) {
+			alienMode = true;
+			paletteTimer = 0;
+			say("Alien mode");
+		}
+	}
+
+	private void alienMode(int k) {
+		int kns = k & (~Locks.LOCK_SHIFT);
+		final BatRecord bat = batRecords.find(mmp.worldPixels());
+
+		ButtonRecord button = findButton();
+		hoverStatus.move(button);
+
+		if (k == Pointer.KEY_RIGHT) {
+			startPen(0, k, new Pen() {
+				@Override
+				void stroke() {
+					selectNearestAlien(mmp.worldPixels());
+				}
+			});
+		}
+		if (kns == Pointer.KEY_LEFT) {
+			if (button != null && k == kns) {
+				hoverStatus.down(button);
+				startPen(0, k, new Pen() {
+					@Override
+					void stroke() {
+						hoverStatus.move(findButton());
+					};
+
+					@Override
+					public void up() {
+						ButtonRecord b = findButton();
+						if (hoverStatus.up(b)) {
+							startAlienEdit();
+							b.press();
+							endAlienEdit();
+						}
+					}
+				});
+			}
+			else if (bat != null) {
+				final Coord batGrip = mmp.worldPixels().sub2(bat.where());
+				startAlienEdit();
+				startPen(8, kns, new Pen() {
+					@Override
+					public void stroke() {
+						bat.onMove(mmp.worldPixels().sub2(batGrip));
+					}
+
+					@Override
+					public void up() {
+						endAlienEdit();
+					}
+				});
+			}
+		}
+		else {
+			Coord nudge = getNudge(k);
+			if (nudge != null) {
+				startAlienEdit();
+				bat.onMove(nudge);
+				endAlienEdit();
+			}
+		}
+
+		if (haveAlien()) {
+			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
+			if (k == Keyboard.KEY_C) copySelectedAlien();
+		}
+		if (k == Keyboard.KEY_N) createAlien();
+		keyboardAlienChoice(k);
+
+		if (k == Keyboard.KEY_D) {
+			alienMode = false;
+			marker = null;
+			paletteTimer = 0;
+			say("Drawing mode");
+		}
+	}
+
 	private ButtonRecord findButton() {
 		if (buttonRecords == null) return null;
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
-	private void startPen(final int k, final Pen p) {
-		p.stroke();
+	private void startPen(final int spokes, final int k, final Pen p) {
 		pen = new Runnable() {
+			boolean wasDown = false;
+
 			@Override
 			public void run() {
+				boolean isDown = keyboard.isDown(Locks.LOCK_SHIFT);
+				if (isDown && !wasDown) mmp.startSnap(spokes);
+				if (wasDown && !isDown) mmp.stopSnap();
+				wasDown = isDown;
+
 				if (keyboard.isDown(k)) {
 					p.stroke();
 				}
@@ -457,6 +467,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		scr.drawTheMap(gameMap, loadBlockSet());
 		drawRect();
 		updateAliens();
+		if (!alienMode) {
+			drawBlockCursor();
+		}
 	}
 
 	private void drawRect() {
@@ -488,7 +501,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			paletteTimer = 100;
 		}
 	}
-	
+
 	private Alien makeAlien(AlienInfo ai) {
 		return ai.instantiateAttach();
 	}
@@ -790,13 +803,14 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		this.currentBlock = currentBlock;
 		paletteTimer = 100;
 	}
-	
+
 	// ---------------------------------------------------------------------------
 
 	private void quitMapper(Coord mousePos) {
-		
+
 	}
-//			gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
+
+	// gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 
 	public Coord getScreenPosition() {
 		return scr.position();
@@ -806,7 +820,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		scr.setPosition(c);
 	}
 
-
 	private void updateAliens() {
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
@@ -815,7 +828,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox);
 		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox);
 	}
-	
+
 	private void updateList(List<Alien> alienList, Box screenBox) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
@@ -826,7 +839,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 		}
 	}
-
 
 	public Anim mapperLoadAnim(String animsName) {
 		Anims anims = animsPool.expect(animsName);
@@ -849,7 +861,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		alienTracker.delayedAdd(alien);
 	}
 
-
 	public boolean inTheGround(Coord c) {
 		int block = gameMap.getBlock(c.div2(Const.BLOCK_SIZE));
 		return loadBlockSet().maskHolder.inTheGround(block, c.x & Const.BLOCK_MASK, c.y & Const.BLOCK_MASK);
@@ -865,7 +876,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 		}
 	}
-	
-	// TODO: that wiggly bug with block shuffling - cause is stop blocks! (draw them)
+
+	// TODO: that wiggly bug with block shuffling - cause is stop blocks! (draw
+	// them)
 	// TODO: test launch from here / test launch
 }

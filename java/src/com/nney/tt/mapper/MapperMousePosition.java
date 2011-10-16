@@ -2,7 +2,6 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.input.Pointer;
 
 public class MapperMousePosition {
 	private static final double FULL_CIRCLE = 2*Math.PI;
@@ -21,13 +20,11 @@ public class MapperMousePosition {
 	private double spokeSize;
 	
 	
-	
-	// TODO: actually,
-	// it wants to be switchable during movement not just enabled at the start)
-	
 	void startSnap(int spokes) {
-		snap = pos.copy();
-		spokeSize = FULL_CIRCLE/spokes;
+		if (spokes!=0) {
+			spokeSize = FULL_CIRCLE/spokes;
+			snap = pos.copy();
+		}
 	}
 	
 	void stopSnap() {
@@ -46,7 +43,9 @@ public class MapperMousePosition {
 			angle *= spokeSize;
 			long y = Math.round(Math.sin(angle)*length);
 			long x = Math.round(Math.cos(angle)*length);
-			pos = snap.add2(new Coord((int)x, (int)y));
+			Coord e = new Coord((int)x, (int)y);
+			pos = snap.add2(e);
+//			System.out.println("relative: "+d+" -> "+e + " snap:"+snap + " pos:"+pos);
 		}
 		
 		delta = pos.sub2(last);
