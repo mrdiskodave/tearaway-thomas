@@ -50,6 +50,11 @@ public class GameMap {
 //		System.out.println("Get " + c + " is " + answer);
 		return answer;
 	}
+	
+	public int safeGetBlock(Coord c) {
+		if (!isInMap(c.x, c.y)) return 0;
+		return getBlock(c);
+	}
 
 	public void setBlock(Coord c, int b) {
 		validPosition(c.x, c.y);

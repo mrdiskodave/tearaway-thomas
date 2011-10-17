@@ -31,6 +31,7 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 
 /**
  * A level editor.
@@ -104,7 +105,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private final MapperMousePosition mmp = new MapperMousePosition();
 
-	private StatusLayer statusLayer;
+	private StatusLayer topDownStatusLayer;
 
 	private final UndoControler undoControler = new UndoControler();
 
@@ -142,6 +143,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private String worldName;
 
 	private final AlienServices alienServices = new MapperAlienServices(this);
+
+	private BottomUpStatusLayer bottomUpStatusLayer;
 
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -236,10 +239,15 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public void drawFrame() {
+		
+//		at();
+//		System.exit(1);
+		
 		mgc.nextFrame();
 		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
 
-		statusLayer = new TopDownStatusLayer(mgc);
+		topDownStatusLayer = new TopDownStatusLayer(mgc);
+		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
 		boolean palettes = true;
 		int k = keyboard.justPressed();
@@ -281,6 +289,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
 				say("Saved");
 			}
+			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
+				say("Position:" + mmp.worldPixels() + "pixels " + mmp.worldBlocks() + "blocks");
+			}
 
 			drawLevel();
 		}
@@ -288,11 +299,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (palettes) {
 			if (alienMode) showSelectedAlienProps();
 			drawPalettes();
-		}
 
-		if (messTimer != 0) {
-			messTimer--;
-			statusLayer.draw(statusLayer.width() - messText.length(), 0, ButtonState.PASSIVE, messText);
+			if (messTimer != 0) {
+				messTimer--;
+				// topDownStatusLayer.draw(topDownStatusLayer.width() -
+				// messText.length(), 0, ButtonState.PASSIVE, messText);
+				bottomUpStatusLayer.draw(0, 0, ButtonState.PASSIVE, messText);
+			}
 		}
 	}
 
@@ -343,6 +356,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			alienMode = true;
 			paletteTimer = 0;
 			say("Alien mode");
+		}
+		if (k == Keyboard.KEY_H) {
+			at();
 		}
 	}
 
@@ -685,15 +701,15 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			// phases would be entirely separate
 
 			int y = 0;
-			statusLayer.touch(y++);
-			statusLayer.touch(y++);
+			topDownStatusLayer.touch(y++);
+			topDownStatusLayer.touch(y++);
 			String docs = "";
 			for (Prop p : props) {
-				if (statusLayer.getBox(0, y, -1, 1).inside(mmp.screenPixels())) {
+				if (topDownStatusLayer.getBox(0, y, -1, 1).inside(mmp.screenPixels())) {
 					docs = p.doc();
 				}
-				statusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
-				statusLayer.draw(15, y, ButtonState.PASSIVE, clip(p.text(), 20));
+				topDownStatusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
+				topDownStatusLayer.draw(15, y, ButtonState.PASSIVE, clip(p.text(), 20));
 				int x = 35;
 
 				ArrayList<Button> buttons = new ArrayList<Button>();
@@ -702,19 +718,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					String buttonText = "[" + button.name() + "]";
 					ButtonRecord buttonRecord;
 					if (cursor < 0) {
-						Box buttonBox = statusLayer.getBox(x, y, buttonText);
+						Box buttonBox = topDownStatusLayer.getBox(x, y, buttonText);
 						buttonRecord = new ButtonRecord(button, buttonBox);
 						buttonRecords.add(buttonRecord);
 					}
 					else {
 						buttonRecord = buttonRecords.get(cursor++);
 					}
-					statusLayer.draw(x, y, hoverStatus.status(buttonRecord), buttonText);
+					topDownStatusLayer.draw(x, y, hoverStatus.status(buttonRecord), buttonText);
 					x += buttonText.length() + 1;
 				}
 				y++;
 			}
-			statusLayer.draw(0, 0, ButtonState.PASSIVE, docs);
+			topDownStatusLayer.draw(0, 0, ButtonState.PASSIVE, docs);
 		}
 	}
 
@@ -843,6 +859,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
 		paletteTimer = 100;
+		say("block=" + currentBlock);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -921,4 +938,104 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	// TODO: that wiggly bug with block shuffling - cause is stop blocks! (draw
 	// them)
 	// TODO: test launch from here / test launch
+
+	boolean isWall(int b) {
+		return b >= 1 && b <= 4;
+	}
+
+	private boolean testWall(Coord coord, int i, int j) {
+		int b = gameMap.safeGetBlock(coord.add2(new Coord(i, j)));
+		return isWall(b);
+	}
+
+	private void at() {
+		int pc = 0;
+		int pw = 0;
+		System.out.println("Analize toyland");
+		for (int y = 0; y < GameMap.MAP_HEIGHT; y++) {
+			for (int x = 0; x < GameMap.MAP_WIDTH; x++) {
+				Coord coord = new Coord(x, y);
+				int b = gameMap.safeGetBlock(coord);
+
+				boolean checkers = Math2.maskTest(x, 1) ^ Math2.maskTest(y, 1);
+
+				boolean wallEast = testWall(coord, 1, 0);
+
+				boolean wallWest = testWall(coord, -1, 0);
+				boolean wallNorthWest = testWall(coord, -1, -1);
+				boolean wallNorth = testWall(coord, 0, -1);
+				boolean wallNorthEast = testWall(coord, 1, -1);
+
+				boolean wallSouth = testWall(coord, 0, 1);
+
+				int n = -1;
+				if (isWall(b)) {
+					int v = 0;
+					if (wallWest) v |= 1;
+					if (wallEast) v |= 2;
+					if (v == 3) n = 2;
+					if (v == 0) n = 4;
+					if (v == 1) n = 3;
+					if (v == 2) n = 1;
+				}
+				else if (b >= 80 && b < 240 && (b % 20) < 14) {
+					if (!wallWest && !wallNorthWest && !wallNorth) {
+						n = 167;
+					}
+					else if (wallWest && wallNorthWest && !wallNorth && !wallNorthEast) {
+						n = 173;
+						System.out.println("WALL "+n);
+					}
+					else if (wallWest && !wallNorthWest && !wallNorth && !wallNorthEast) {
+						n = 171;
+						System.out.println("WALL "+n);
+					}
+					else if (!wallWest && wallNorthWest && !wallNorth && !wallNorthEast) {
+						n = 170;
+						System.out.println("WALL "+n);
+					}
+					else if (wallWest && wallNorthWest && wallNorth && !wallNorthEast) {
+						n = 168;
+						System.out.println("WALL "+n);
+					}
+					else if (!wallWest && wallNorthWest && wallNorth) {
+						n = 169;
+						System.out.println("WALL "+n);
+					}
+
+					if (n>=0) {
+						if (!checkers) {
+							n += 40;
+						}
+						if (wallSouth) {
+							n += 20;
+						}
+					}
+					else {
+						System.out.println("Mystery wall: "+b+" at "+coord);
+					}
+				}
+
+				if (n >= 0) {
+					if (n != b) {
+						System.out.println("Predicted " + n + " but saw " + b + " at " + coord);
+						pw++;
+					}
+					else {
+						pc++;
+					}
+				}
+			}
+		}
+		System.out.println("Done! Correct:" + pc + " wrong:"+pw);
+	}
+
 }
+
+// 167,207 as a checker board X
+// 173,213 wall W&NW X
+// 171,221 wall W X
+// 170,210 wall NW X
+// 168,208 wall W&NW&N X
+// 172, wall N
+// 169, wall N&NW
