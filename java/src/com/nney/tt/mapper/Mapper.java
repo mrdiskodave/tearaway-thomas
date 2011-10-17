@@ -299,7 +299,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void blockMode(int k) {
 		if (k == Pointer.KEY_LEFT) {
 			startBlockEdit();
-			startPen(0, k, new Pen() {
+			startPen(k, new Pen() {
 				@Override
 				public void stroke() {
 					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
@@ -354,7 +354,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		hoverStatus.move(button);
 
 		if (k == Pointer.KEY_RIGHT) {
-			startPen(0, k, new Pen() {
+			startPen(k, new Pen() {
 				@Override
 				void stroke() {
 					selectNearestAlien(mmp.worldPixels());
@@ -364,7 +364,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (kns == Pointer.KEY_LEFT) {
 			if (button != null && k == kns) {
 				hoverStatus.down(button);
-				startPen(0, k, new Pen() {
+				startPen(k, new Pen() {
 					@Override
 					void stroke() {
 						hoverStatus.move(findButton());
@@ -384,10 +384,27 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			else if (bat != null) {
 				final Coord batGrip = mmp.worldPixels().sub2(bat.where());
 				startAlienEdit();
-				startPen(8, kns, new Pen() {
+				startPen(kns, new Pen() {
+					Coord origin;
+
+					public Coord where() {
+						return mmp.worldPixels().sub2(batGrip);
+					}
+
+					private Coord whereSnapped() {
+						boolean isDown = keyboard.isDown(Locks.LOCK_SHIFT);
+						if (isDown) {
+							if (origin == null) origin = where();
+						}
+						else {
+							origin = null;
+						}
+						return computeSnap(where(), origin, 8);
+					}
+
 					@Override
 					public void stroke() {
-						bat.onMove(mmp.worldPixels().sub2(batGrip));
+						bat.onMove(whereSnapped());
 					}
 
 					@Override
@@ -421,29 +438,53 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 
+	/**
+	 * Compute a new position that is the given position moved to lie on a spoke
+	 * radiating from the given origin.
+	 * 
+	 * @param pos
+	 *            The original position.
+	 * @param origin
+	 *            The position of the origin.
+	 * @param spokes
+	 *            The number of spokes radiating from the origin. The first
+	 *            spoke points right and they are equally spaced. e.g. 4 would
+	 *            mean "snap to the X and Y axis" while 8 would mean
+	 *            "snap to the axis or the diagonals". Zero has a special
+	 *            meaning of
+	 *            "don't do anything just return the input pos unmodified".
+	 * @return The computed new position.
+	 */
+	private Coord computeSnap(Coord pos, Coord origin, int spokes) {
+		if (origin == null) return pos;
+		double spokeSize = (2 * Math.PI) / spokes;
+		Coord d = pos.sub2(origin);
+		double length = Math.sqrt(d.squareOfLength());
+		double angle = Math.atan2(d.y, d.x);
+		angle /= spokeSize;
+		angle = Math.round(angle);
+		angle *= spokeSize;
+		long y = Math.round(Math.sin(angle) * length);
+		long x = Math.round(Math.cos(angle) * length);
+		Coord e = new Coord((int) x, (int) y);
+		return origin.add2(e);
+	}
+
 	private ButtonRecord findButton() {
 		if (buttonRecords == null) return null;
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
-	private void startPen(final int spokes, final int k, final Pen p) {
+	private void startPen(final int k, final Pen p) {
 		pen = new Runnable() {
-			boolean wasDown = false;
-
 			@Override
 			public void run() {
-				boolean isDown = keyboard.isDown(Locks.LOCK_SHIFT);
-				if (isDown && !wasDown) mmp.startSnap(spokes);
-				if (wasDown && !isDown) mmp.stopSnap();
-				wasDown = isDown;
-
 				if (keyboard.isDown(k)) {
 					p.stroke();
 				}
 				else {
 					p.up();
 					pen = null;
-					mmp.stopSnap();
 				}
 			}
 		};
