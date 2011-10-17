@@ -964,7 +964,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				boolean wallWest = testWall(coord, -1, 0);
 				boolean wallNorthWest = testWall(coord, -1, -1);
 				boolean wallNorth = testWall(coord, 0, -1);
-				boolean wallNorthEast = testWall(coord, 1, -1);
 
 				boolean wallSouth = testWall(coord, 0, 1);
 
@@ -979,28 +978,37 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					if (v == 2) n = 1;
 				}
 				else if (b >= 80 && b < 240 && (b % 20) < 14) {
+					int v = 0;
+					if (wallNorth) v|= 1;
+					if (wallNorthWest) v|= 2;
+					if (wallWest) v|= 4;
+					
+					
+					
 					if (!wallWest && !wallNorthWest && !wallNorth) {
 						n = 167;
 					}
-					else if (wallWest && wallNorthWest && !wallNorth && !wallNorthEast) {
-						n = 173;
-						System.out.println("WALL "+n);
+					if (!wallWest && !wallNorthWest && wallNorth) {
+						n = 172;
 					}
-					else if (wallWest && !wallNorthWest && !wallNorth && !wallNorthEast) {
-						n = 171;
-						System.out.println("WALL "+n);
-					}
-					else if (!wallWest && wallNorthWest && !wallNorth && !wallNorthEast) {
+					else if (!wallWest && wallNorthWest && !wallNorth) {
 						n = 170;
-						System.out.println("WALL "+n);
-					}
-					else if (wallWest && wallNorthWest && wallNorth && !wallNorthEast) {
-						n = 168;
-						System.out.println("WALL "+n);
 					}
 					else if (!wallWest && wallNorthWest && wallNorth) {
 						n = 169;
-						System.out.println("WALL "+n);
+					}
+					else if (wallWest && !wallNorthWest && !wallNorth) {
+						n = 171;
+					}
+					else if (wallWest && !wallNorthWest && wallNorth) {
+						// just west and north but not northwest? we don't know!
+						assert false;
+					}
+					else if (wallWest && wallNorthWest && !wallNorth) {
+						n = 173;
+					}
+					else if (wallWest && wallNorthWest && wallNorth) {
+						n = 168;
 					}
 
 					if (n>=0) {
