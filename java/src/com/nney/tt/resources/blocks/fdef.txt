@@ -1,0 +1,19 @@
+{
+"rt":
+    [
+    ],
+"spec":
+    [
+        "hrope",    [ 108 ],
+        "vrope",    [ 107 ],
+        "ladderleft", [280, 282, 284 ],
+    ],
+"invisibleBlockHiding":
+    [
+    ],
+"ladder":
+	{
+		"top": -13,
+		"bottom": -5
+	}
+}

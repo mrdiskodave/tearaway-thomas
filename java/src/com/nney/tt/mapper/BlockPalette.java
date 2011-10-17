@@ -123,7 +123,7 @@ public class BlockPalette {
 			blockSet.draw(p.b, p.x, p.y);
 			if (currentBlock == c(p.b)) {
 				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
-				if (labels) {
+				if (labels && currentBlock == p.b) {
 					mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, COL_CURRENT_BLOCK,
 							String.format("%4d", currentBlock));
 				}
