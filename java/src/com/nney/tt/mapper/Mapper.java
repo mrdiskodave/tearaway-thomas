@@ -957,72 +957,58 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				Coord coord = new Coord(x, y);
 				int b = gameMap.safeGetBlock(coord);
 
-				boolean checkers = Math2.maskTest(x, 1) ^ Math2.maskTest(y, 1);
+				boolean checkers = Math2.maskTest(x^y, 1);
 
 				boolean wallEast = testWall(coord, 1, 0);
-
 				boolean wallWest = testWall(coord, -1, 0);
 				boolean wallNorthWest = testWall(coord, -1, -1);
 				boolean wallNorth = testWall(coord, 0, -1);
-
 				boolean wallSouth = testWall(coord, 0, 1);
 
+				int walls[] = { 4, 3, 1, 2 };
+				int spaces[] = { 167, 172, 170, 169, 171, -1, 173, 168 };
+				
 				int n = -1;
 				if (isWall(b)) {
 					int v = 0;
 					if (wallWest) v |= 1;
 					if (wallEast) v |= 2;
-					if (v == 3) n = 2;
-					if (v == 0) n = 4;
-					if (v == 1) n = 3;
-					if (v == 2) n = 1;
+					n = walls[v];
 				}
-				else if (b >= 80 && b < 240 && (b % 20) < 14) {
-					int v = 0;
-					if (wallNorth) v|= 1;
-					if (wallNorthWest) v|= 2;
-					if (wallWest) v|= 4;
-					
-					
-					
-					if (!wallWest && !wallNorthWest && !wallNorth) {
-						n = 167;
-					}
-					if (!wallWest && !wallNorthWest && wallNorth) {
-						n = 172;
-					}
-					else if (!wallWest && wallNorthWest && !wallNorth) {
-						n = 170;
-					}
-					else if (!wallWest && wallNorthWest && wallNorth) {
-						n = 169;
-					}
-					else if (wallWest && !wallNorthWest && !wallNorth) {
-						n = 171;
-					}
-					else if (wallWest && !wallNorthWest && wallNorth) {
-						// just west and north but not northwest? we don't know!
-						assert false;
-					}
-					else if (wallWest && wallNorthWest && !wallNorth) {
-						n = 173;
-					}
-					else if (wallWest && wallNorthWest && wallNorth) {
-						n = 168;
-					}
-
-					if (n>=0) {
-						if (!checkers) {
-							n += 40;
+				else if (b >= 80 && b < 240) {
+					if ((b % 20) < 14) {
+						int v = 0;
+						if (wallNorth) v|= 1;
+						if (wallNorthWest) v|= 2;
+						if (wallWest) v|= 4;
+						n = spaces[v];
+	
+						if (n>=0) {
+							if (!checkers) {
+								n += 40;
+							}
+							if (wallSouth) {
+								n += 20;
+							}
 						}
-						if (wallSouth) {
-							n += 20;
+						else {
+							System.out.println("Bad wall placement: "+b+" at "+coord);
 						}
 					}
-					else {
-						System.out.println("Mystery wall: "+b+" at "+coord);
-					}
+					if (n<0) System.out.println("Mystery space: "+b+" at "+coord);
 				}
+				else if (b==0) {
+					
+				}
+				else {
+					System.out.println("Something else: "+b+" at "+coord);
+				}
+				
+				
+				// four blocks of style 
+				// 1) eyes 2) diagonals 3) plain 4) waves
+				// magical blocks start at 46,
+				// two for each, in order
 
 				if (n >= 0) {
 					if (n != b) {
