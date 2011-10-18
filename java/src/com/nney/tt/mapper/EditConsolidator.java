@@ -8,8 +8,8 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
 /**
- * Collects up a number of {@link #setBlock(Coord, int)} events to make a
- * single {@link MapSymmetricalUndoRedo} object.
+ * Collects up a number of {@link #setBlock(Coord, int)} events to make a single
+ * {@link MapSymmetricalUndoRedo} object.
  */
 public class EditConsolidator {
 	private final HashMap<Coord, Integer> originalBlocks = new HashMap<Coord, Integer>();
@@ -22,13 +22,18 @@ public class EditConsolidator {
 	/**
 	 * Change a block.
 	 * 
-	 * @param c Where is the block to change?
-	 * @param b What should it be changed to?
+	 * @param c
+	 *            Where is the block to change? Subsequent changes at this
+	 *            location will be ignored. So, essentially, this class is only
+	 *            useful for creating edits that paint a fixed block (or block
+	 *            pattern).
+	 * @param b
+	 *            What should it be changed to?
 	 */
 	public void setBlock(Coord c, int b) {
 		if (!isChangeAt(c)) {
-			int existingBlock = gameMap.getBlock(c);
-			originalBlocks.put(c, existingBlock);
+			int originalBlock = gameMap.getBlock(c);
+			originalBlocks.put(c, originalBlock);
 			gameMap.setBlock(c, b);
 		}
 	}
@@ -61,10 +66,22 @@ public class EditConsolidator {
 		return b;
 	}
 
-	public boolean isChangeAt(Coord s) {
-		return originalBlocks.containsKey(s);
+	/**
+	 * Have we called {@link #setBlock(Coord, int)} on a location?
+	 * 
+	 * @param c
+	 *            The location.
+	 * @return <code>true</code> meaning "we have" or <code>false</code> meaning
+	 *         "we have not".
+	 */
+	public boolean isChangeAt(Coord c) {
+		return originalBlocks.containsKey(c);
 	}
-	
+
+	/**
+	 * How many blocks did we change?
+	 * @return The number calls made to {@link #setBlock(Coord, int)}.
+	 */
 	public int size() {
 		return originalBlocks.size();
 	}
