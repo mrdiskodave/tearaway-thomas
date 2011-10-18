@@ -39,36 +39,45 @@ import com.nney.utils.Math2;
  * Keys:
  * 
  * <pre>
- * [A] Alien Tool - for changing aliens
- * 		LMB - select alien
- * 		LMB - change alien properties by dragging yellow control points
- * 		LMB - change alien properties by clicking on the panel at the bottom of the screen
- * 		Cursor Keys - nudge a control point by one pixel
- *      [C] - Copy alien to the mouse
- *      [pageup/down] - Choose alien
- *      [N] - New Alien
- * [D] Draw Tool - for changing blocks
- * 		Hold RMB - temporary use of the Block Chooser Tool from the Drawing Tool
- * 		Hold ALT - block choice follows mouse movements
- *                  (useful for drawing multi-block things from the block palette)
- *      Ctrl+CursorKeys change block
- * [B] Block Chooser Tool - full screen current-block choosing tool
- * 		LMB - select block
- * 		Cursor Keys - change block
- * [H] Hand Tool - for panning around
- * 		Hold SHIFT to go faster
+ * [A] Alien Mode:
+ *   [RMB] select alien - buttons and control points appear 
+ *   [LMB] grab and drag an alien's control point
+ *         press [SHIFT] to constrain this 
+ *   [CURSOR KEYS] nudge a control point
+ *   [LMB] on a button to change a property
+ *   [C] copy the selected alien
+ *   [PAGEUP/PAGEDOWN] change current alien type
+ *   [I] eye dropper - sets the current alien type from the selected alien 
+ *   [N] new alien (of the current alien type)
+ *   [DELETE] delete the selected alien
  * 
- * Hold:SPACE - temporary use of the Hand Tool from other tools
- * [CTRL+Z] undo (endless - all changes)
- * [CTRL+Y] redo
+ * [D] Drawing Mode:
+ *   [M] start marking a rectangle of blocks which you can end with:
+ *     [M] cancel marking
+ *     [F1-12] copy the rectangle of blocks into a numbered slot
+ *     [F] fill the rectangle of blocks with the current block
+ *   [F1-12] paste from rectangle from a numbered slot
+ *   [I] eye dropper - sets the current block from the map
+ *   hold [T] to make the current block track mouse movement (try it)
+ *   [LMB] draw with the current block
+ *   
+ *   [CURSOR KEYS] change the current block
+ *   [CTRL+M] toggle seeing block masks
+ *   [CTRL+I] toggle seeing hidden blocks
+ *
+ *   hold [RMB] for a block choosing screen:
+ *     [LMB] to pick.
+ *     [CURSOR KEYS] and [CTRL+M] and [CTRL+I] work in here too
  * 
- * A mini block chooser that uses CTRL with cursors or '0'.
- * And also CTRL+M to toggle showing block masks.
- * And also CTRL+V to toggle visibility of hidden blocks (magic floors etc).
- * Is available in the Draw
+ * Both:
+ * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
+ * [Ctrl+G] where am I?
+ * [Ctrl+Z] endless undo
+ * [Ctrl+Y] endless redo
+ * [ESCAPE] reset the mode
+ *          (removes temporary floating palettes and other statefulness)
  * </pre>
  * 
- * Mini
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
@@ -283,6 +292,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			if (k == Keyboard.KEY_ESCAPE) {
 				paletteTimer = 0;
 				messTimer = 0;
+				marker = null;
 			}
 			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
 				say("Saved");
