@@ -33,6 +33,13 @@ public class EditConsolidator {
 	public void setBlock(Coord c, int b) {
 		if (!isChangeAt(c)) {
 			int originalBlock = gameMap.getBlock(c);
+			
+			// when drawing we could save the need for this
+			// when b==originalBlock
+			// (because drawing doesn't need isChangeAt() to work)
+			// then we'd save some memory but this whole
+			// object is very temporary anyway so meh
+			
 			originalBlocks.put(c, originalBlock);
 			gameMap.setBlock(c, b);
 		}
@@ -43,11 +50,12 @@ public class EditConsolidator {
 		Box b = sizeUpEdits();
 		if (b != null) {
 			System.out.println("SAVING");
-			undo = new MapSymmetricalUndoRedo(gameMap, b);
+			SaveMapBlock sb = SaveMapBlock.fromMap(b, gameMap);
 			System.out.println("SAVED");
 			for (Entry<Coord, Integer> kv : originalBlocks.entrySet()) {
 				gameMap.setBlock(kv.getKey(), kv.getValue());
 			}
+			undo = new MapSymmetricalUndoRedo(gameMap, b.left, b.top, sb);
 		}
 		originalBlocks.clear();
 		return undo;

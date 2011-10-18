@@ -71,8 +71,6 @@ import com.nney.utils.Math2;
  * Mini
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
-	private final static int COPY_LOCK = Locks.LOCK_SHIFT;
-
 	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
 
 	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
@@ -239,10 +237,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public void drawFrame() {
-		
-//		at();
-//		System.exit(1);
-		
+
+		// at();
+		// System.exit(1);
+
 		mgc.nextFrame();
 		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
 
@@ -329,10 +327,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
 		}
 		if (k == Keyboard.KEY_M) {
-			marker = marker==null ? mmp.worldBlocks() : null;
+			marker = marker == null ? mmp.worldBlocks() : null;
 		}
 		if (k == Keyboard.KEY_F) {
-			if (marker!=null) {
+			if (marker != null) {
 				fillRect();
 			}
 			else {
@@ -340,22 +338,23 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				BlockTest test = new BlockTest() {
 					@Override
 					public boolean test(int b) {
-						return b==blk;
-					}};
+						return b == blk;
+					}
+				};
 				floodFill(test);
 			}
 		}
-		if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
-			int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
-			copyRect(slotNumber);
-			marker = null;
-			say("Copied into slot " + slotNumber);
-		}
 		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
 			int slotNumber = k - PASTE_BUFFER_START;
-			pasteRect(slotNumber);
-			marker = null;
-			say("Pasted from slot " + slotNumber);
+			if (marker == null) {
+				pasteRect(slotNumber);
+				say("Pasted from slot " + slotNumber);
+			}
+			else {
+				copyRect(slotNumber);
+				say("Copied into slot " + slotNumber);
+				marker = null;
+			}
 		}
 		if (keyboard.isDown(Keyboard.KEY_T)) {
 			Coord c = mmp.worldBlocksDelta();
@@ -834,7 +833,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
 			if (itFits) {
 				// paste it!
-				MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot);
+				MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot.copy());
 				submitEdit(u);
 			}
 		}
@@ -842,9 +841,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void copyRect(int slotNumber) {
 		Box rectangle = getRect();
-		if (rectangle == null) return;
-		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
-		s.read(rectangle.left, rectangle.top, gameMap);
+		SaveMapBlock s = SaveMapBlock.fromMap(rectangle, gameMap);
 		slots[slotNumber] = s;
 		System.out.println("SLOT " + slotNumber);
 		// slots[slotNumber].dump();
@@ -853,8 +850,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void fillRect() {
 		Box rectangle = getRect();
 		if (rectangle == null) return;
-		SaveMapBlock s = new SaveMapBlock(rectangle.width(), rectangle.height());
-		s.fill(getCompressedCurrentBlock());
+		SaveMapBlock s = SaveMapBlock.fromSolid(rectangle.width(), rectangle.height(), getCompressedCurrentBlock());
 		MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, rectangle.left, rectangle.top, s);
 		submitEdit(u);
 	}
@@ -958,22 +954,22 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		int b = gameMap.safeGetBlock(coord.add2(new Coord(i, j)));
 		return isWall(b);
 	}
-	
+
 	interface BlockTest {
 		boolean test(int b);
 	}
-	
+
 	private void floodFill(BlockTest fillable) {
 		startBlockEdit();
-		
+
 		// naive implementation but at least it is breadth first
 		// so doesn't keep too many false leads
 		ArrayList<Coord> positions = new ArrayList<Coord>();
 		ArrayList<Coord> nextPositions = new ArrayList<Coord>();
 		positions.add(mmp.worldBlocks());
-		
+
 		while (!positions.isEmpty()) {
-			for (Coord s: positions) {
+			for (Coord s : positions) {
 				if (!edit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
 					edit.setBlock(s, getCurrentBlock());
 					nextPositions.add(s.copyAndAdd(1, 0));
@@ -987,8 +983,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			positions = t;
 			nextPositions.clear();
 		}
-		
-		say(edit.size()+ " blocks filled");
+
+		say(edit.size() + " blocks filled");
 		endBlockEdit();
 	}
 
@@ -1001,7 +997,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				Coord coord = new Coord(x, y);
 				int b = gameMap.safeGetBlock(coord);
 
-				boolean checkers = Math2.maskTest(x^y, 1);
+				boolean checkers = Math2.maskTest(x ^ y, 1);
 
 				boolean wallEast = testWall(coord, 1, 0);
 				boolean wallWest = testWall(coord, -1, 0);
@@ -1011,7 +1007,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 				int walls[] = { 4, 3, 1, 2 };
 				int spaces[] = { 0, 5, 3, 2, 4, -1, 6, 1 };
-				
+
 				int n = -1;
 				if (isWall(b)) {
 					int v = 0;
@@ -1022,13 +1018,12 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				else if (b >= 80 && b < 240) {
 					if ((b % 20) < 14) {
 						int v = 0;
-						if (wallNorth) v|= 1;
-						if (wallNorthWest) v|= 2;
-						if (wallWest) v|= 4;
+						if (wallNorth) v |= 1;
+						if (wallNorthWest) v |= 2;
+						if (wallWest) v |= 4;
 						n = spaces[v];
 
-						
-						// four blocks of style 
+						// four blocks of style
 						// 1) 80 eyes - exit 48
 						// 2) 87 diagonals - exit 52
 						// 3) 160 grid - exit 51x4
@@ -1045,14 +1040,14 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 						// 17 2
 						// 18 4
 						// 19 3
-						
+
 						// does the width have to be 20?
-						
-						if (n>=0) {
-//							n += 167;
+
+						if (n >= 0) {
+							// n += 167;
 							n += 160;
-//							n += 80;
-//							n += 87;
+							// n += 80;
+							// n += 87;
 							if (!checkers) {
 								n += 40;
 							}
@@ -1061,19 +1056,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 							}
 						}
 						else {
-							System.out.println("Bad wall placement: "+b+" at "+coord);
+							System.out.println("Bad wall placement: " + b + " at " + coord);
 						}
 					}
-					if (n<0) System.out.println("Mystery space: "+b+" at "+coord);
+					if (n < 0) System.out.println("Mystery space: " + b + " at " + coord);
 				}
-				else if (b==0) {
-					
+				else if (b == 0) {
+
 				}
 				else {
-					System.out.println("Something else: "+b+" at "+coord);
+					System.out.println("Something else: " + b + " at " + coord);
 				}
-				
-				
 
 				if (n >= 0) {
 					if (n != b) {
@@ -1086,7 +1079,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				}
 			}
 		}
-		System.out.println("Done! Correct:" + pc + " wrong:"+pw);
+		System.out.println("Done! Correct:" + pc + " wrong:" + pw);
 	}
 
 }

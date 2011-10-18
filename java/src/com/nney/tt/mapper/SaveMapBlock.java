@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
@@ -8,10 +9,22 @@ public class SaveMapBlock {
 	public final int w;
 	public final int h;
 
-	public SaveMapBlock(int w, int h) {
+	private SaveMapBlock(int w, int h) {
 		this.w = w;
 		this.h = h;
 		this.z = new short[h][w];
+	}
+
+	public static SaveMapBlock fromMap(Box rectangle, GameMap gameMap) {
+		SaveMapBlock answer = new SaveMapBlock(rectangle.width(), rectangle.height());
+		answer.read(rectangle.left, rectangle.top, gameMap);
+		return answer;
+	}
+	
+	public static SaveMapBlock fromSolid(int w, int h, int b) {
+		SaveMapBlock answer = new SaveMapBlock(w, h);
+		answer.fill(b);
+		return answer;
 	}
 
 	private int get(int x, int y) {
