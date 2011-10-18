@@ -315,7 +315,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			startPen(k, new Pen() {
 				@Override
 				public void stroke() {
-					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock(), false);
+					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
 					drawBlockCursor();
 				}
 
@@ -975,7 +975,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		while (!positions.isEmpty()) {
 			for (Coord s: positions) {
 				if (!edit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
-					edit.setBlock(s, getCurrentBlock(), true);
+					edit.setBlock(s, getCurrentBlock());
 					nextPositions.add(s.copyAndAdd(1, 0));
 					nextPositions.add(s.copyAndAdd(-1, 0));
 					nextPositions.add(s.copyAndAdd(0, 1));

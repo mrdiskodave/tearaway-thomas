@@ -8,7 +8,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
 /**
- * Collects up a number of {@link #setBlock(Coord, int, boolean)} events to make a
+ * Collects up a number of {@link #setBlock(Coord, int)} events to make a
  * single {@link MapSymmetricalUndoRedo} object.
  */
 public class EditConsolidator {
@@ -23,16 +23,13 @@ public class EditConsolidator {
 	 * Change a block.
 	 * 
 	 * @param c Where is the block to change?
-	 * @param block What do you want to change it to?
-	 * @param always 
-	 * <code>false</code> meaning "only store this edit if it has an effect".
-	 * <code>true</code> meaning "always store this edit even if it has no effect".
+	 * @param b What should it be changed to?
 	 */
-	public void setBlock(Coord c, int block, boolean always) {
-		int existingBlock = gameMap.getBlock(c);
-		if (always || block != existingBlock) {
+	public void setBlock(Coord c, int b) {
+		if (!isChangeAt(c)) {
+			int existingBlock = gameMap.getBlock(c);
 			originalBlocks.put(c, existingBlock);
-			gameMap.setBlock(c, block);
+			gameMap.setBlock(c, b);
 		}
 	}
 
