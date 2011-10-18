@@ -121,12 +121,6 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public int getFrameNumber() {
-		ni();
-		return 0;
-	}
-
-	@Override
 	public boolean frameTest(int mask, int lessThan) {
 		ni();
 		return false;
@@ -207,5 +201,10 @@ final class MapperAlienServices implements AlienServices {
 	@Override
 	public void drawDebugText(Coord c, String text) {
 		mapper.drawDebugText(c, text);
+	}
+	
+	@Override
+	public int getFrameNumber() {
+		return 0;
 	}
 }
