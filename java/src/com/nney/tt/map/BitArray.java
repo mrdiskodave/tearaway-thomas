@@ -18,4 +18,12 @@ public class BitArray {
 		int mask = 1 << x;
 		return (content[offset] & mask) != 0;
 	}
+
+	public long count() {
+		int answer = 0;
+		for (int c : content) {
+			answer += Integer.bitCount(c);
+		}
+		return answer;
+	}
 }
