@@ -820,7 +820,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		return dest;
 	}
 
-	private void submitMapEdit(MapSymmetricalUndoRedo u) {
+	private void submitMapEdit(MapEdit u) {
 		if (u!=null) {
 			undoControler.redoThenAdd(u);
 		}
@@ -837,8 +837,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
 			if (itFits) {
 				// paste it!
-				MapSymmetricalUndoRedo u = MapSymmetricalUndoRedo.create(gameMap, c, slot.copy());
-				submitMapEdit(u);
+				MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
+				submitMapEdit(edit);
 			}
 		}
 	}
@@ -855,8 +855,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		Box rectangle = getRect();
 		if (rectangle == null) return;
 		SaveMapBlock s = SaveMapBlock.fromSolid(rectangle.width(), rectangle.height(), getCompressedCurrentBlock());
-		MapSymmetricalUndoRedo u = MapSymmetricalUndoRedo.create(gameMap, rectangle.topLeft(), s);
-		submitMapEdit(u);
+		MapEdit edit = MapEdit.create(gameMap, rectangle.topLeft(), s);
+		submitMapEdit(edit);
 	}
 
 	private int getCurrentBlock() {

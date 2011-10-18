@@ -9,7 +9,7 @@ import com.nney.tt.map.GameMap;
 
 /**
  * Collects up a number of {@link #setBlock(Coord, int)} events to make a single
- * {@link MapSymmetricalUndoRedo} object.
+ * {@link MapEdit} object.
  */
 public class EditConsolidator {
 	private final HashMap<Coord, Integer> originalBlocks = new HashMap<Coord, Integer>();
@@ -45,8 +45,8 @@ public class EditConsolidator {
 		}
 	}
 
-	public MapSymmetricalUndoRedo endEdit() {
-		MapSymmetricalUndoRedo undo = null;
+	public MapEdit endEdit() {
+		MapEdit answer = null;
 		Box b = sizeUpEdits();
 		if (b != null) {
 			System.out.println("SAVING");
@@ -55,10 +55,10 @@ public class EditConsolidator {
 			for (Entry<Coord, Integer> kv : originalBlocks.entrySet()) {
 				gameMap.setBlock(kv.getKey(), kv.getValue());
 			}
-			undo = MapSymmetricalUndoRedo.create(gameMap, b.topLeft(), sb);
+			answer = MapEdit.create(gameMap, b.topLeft(), sb);
 		}
 		originalBlocks.clear();
-		return undo;
+		return answer;
 	}
 
 	private Box sizeUpEdits() {
