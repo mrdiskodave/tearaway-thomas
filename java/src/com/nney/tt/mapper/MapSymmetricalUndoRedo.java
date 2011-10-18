@@ -1,26 +1,31 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
 public class MapSymmetricalUndoRedo extends SymmetricalUndoRedo {
 	private final GameMap gameMap;
-	private final int top;
-	private final int left;
-	private SaveMapBlock sbm;
-
-	public MapSymmetricalUndoRedo(GameMap gameMap, int x, int y, SaveMapBlock smb) {
+	private final Coord c;
+	private final SaveMapBlock smb;
+	
+	private MapSymmetricalUndoRedo(GameMap gameMap, Coord c, SaveMapBlock smb) {
 		this.gameMap = gameMap;
-		this.sbm = smb;
-		top = y;
-		left = x;
+		this.smb = smb;
+		this.c = c;
+	}
+
+
+	static MapSymmetricalUndoRedo create(GameMap gameMap, Coord c, SaveMapBlock smb) {
+		if (!smb.eorUs(c, gameMap)) return null;
+		
+		// smb is now immutable. we only ever call eorMap() on it.
+		// for many edits it will be mostly zeros.
+		// we could gzip it or who knows what, making us more efficient on undo/redo space.
+		return new MapSymmetricalUndoRedo(gameMap, c, smb);
 	}
 
 	@Override
 	public void swap() {
-		sbm.swap(left, top, gameMap);
-	}
-
-	public boolean changesNothing() {
-		return sbm.compare(left, top, gameMap);
+		smb.eorMap(c, gameMap);
 	}
 }

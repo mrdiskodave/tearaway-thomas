@@ -607,16 +607,15 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void startBlockEdit() {
-		System.out.println("Start edit");
+		System.out.println("startBlockEdit");
 		assert edit == null;
 		edit = new EditConsolidator(gameMap);
 	}
 
 	private void endBlockEdit() {
-		System.out.println("Submit edit");
+		System.out.println("endBlockEdit");
 		assert edit != null;
-		MapSymmetricalUndoRedo u = edit.endEdit();
-		if (u != null) submitEdit(u);
+		submitMapEdit(edit.endEdit());
 		edit = null;
 	}
 
@@ -821,8 +820,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		return dest;
 	}
 
-	private void submitEdit(MapSymmetricalUndoRedo u) {
-		if (!u.changesNothing()) undoControler.redoThenAdd(u);
+	private void submitMapEdit(MapSymmetricalUndoRedo u) {
+		if (u!=null) {
+			undoControler.redoThenAdd(u);
+		}
+		else {
+			System.out.println("Nothing changed");
+		}
 	}
 
 	private void pasteRect(int slotNumber) {
@@ -833,8 +837,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
 			if (itFits) {
 				// paste it!
-				MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, c.x, c.y, slot.copy());
-				submitEdit(u);
+				MapSymmetricalUndoRedo u = MapSymmetricalUndoRedo.create(gameMap, c, slot.copy());
+				submitMapEdit(u);
 			}
 		}
 	}
@@ -851,8 +855,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		Box rectangle = getRect();
 		if (rectangle == null) return;
 		SaveMapBlock s = SaveMapBlock.fromSolid(rectangle.width(), rectangle.height(), getCompressedCurrentBlock());
-		MapSymmetricalUndoRedo u = new MapSymmetricalUndoRedo(gameMap, rectangle.left, rectangle.top, s);
-		submitEdit(u);
+		MapSymmetricalUndoRedo u = MapSymmetricalUndoRedo.create(gameMap, rectangle.topLeft(), s);
+		submitMapEdit(u);
 	}
 
 	private int getCurrentBlock() {
@@ -951,7 +955,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private boolean testWall(Coord coord, int i, int j) {
-		int b = gameMap.safeGetBlock(coord.add2(new Coord(i, j)));
+		int b = gameMap.safeGetBlock(coord.copyAndAdd(i, j));
 		return isWall(b);
 	}
 

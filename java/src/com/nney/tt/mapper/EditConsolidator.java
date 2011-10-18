@@ -55,7 +55,7 @@ public class EditConsolidator {
 			for (Entry<Coord, Integer> kv : originalBlocks.entrySet()) {
 				gameMap.setBlock(kv.getKey(), kv.getValue());
 			}
-			undo = new MapSymmetricalUndoRedo(gameMap, b.left, b.top, sb);
+			undo = MapSymmetricalUndoRedo.create(gameMap, b.topLeft(), sb);
 		}
 		originalBlocks.clear();
 		return undo;

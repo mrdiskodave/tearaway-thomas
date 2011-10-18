@@ -17,7 +17,7 @@ public class SaveMapBlock {
 
 	public static SaveMapBlock fromMap(Box rectangle, GameMap gameMap) {
 		SaveMapBlock answer = new SaveMapBlock(rectangle.width(), rectangle.height());
-		answer.read(rectangle.left, rectangle.top, gameMap);
+		answer.read(rectangle.topLeft(), gameMap);
 		return answer;
 	}
 	
@@ -35,42 +35,36 @@ public class SaveMapBlock {
 		z[y][x] = (short) s;
 	}
 	
-	public void read(int x, int y, GameMap gameMap) {
-		process(true, false, x, y, gameMap);
-	}
-
-	public void swap(int x, int y, GameMap gameMap) {
-		process(true, true, x, y, gameMap);
-	}
-
-	private void process(boolean read, boolean write, int left, int top, GameMap gameMap) {
+	private void read(Coord mapPos, GameMap gameMap) {
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
-				Coord mapCoord = new Coord(left + x, top + y);
-				int mapBlock = gameMap.getBlock(mapCoord);
-				int ourBlock = get(x, y);
-				if (read) {
-					set(x, y, mapBlock);
-				}
-				if (write) {
-					gameMap.setBlock(mapCoord, ourBlock);
-				}
+				Coord m = mapPos.copyAndAdd(x, y);
+				set(x, y, gameMap.getBlock(m));
 			}
 		}
 	}
 	
-	public boolean compare(int left, int top, GameMap gameMap) {
+	public boolean eorUs(Coord mapPos, GameMap gameMap) {
+		int r = 0;
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
-				Coord mapCoord = new Coord(left + x, top + y);
-				int mapBlock = gameMap.getBlock(mapCoord);
-				int ourBlock = get(x, y);
-				if (mapBlock!=ourBlock) {
-					return false;
-				}
+				Coord m = mapPos.copyAndAdd(x, y);
+				int ea = gameMap.getBlock(m)^get(x, y);
+				set(x, y, ea);
+				r |= ea;
 			}
 		}
-		return true;
+		return r != 0;
+	}
+	
+	public void eorMap(Coord mapPos, GameMap gameMap) {
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				Coord m = mapPos.copyAndAdd(x, y);
+				int ea = gameMap.getBlock(m)^get(x, y);
+				gameMap.setBlock(m, ea);
+			}
+		}
 	}
 	
 	public SaveMapBlock copy() {
