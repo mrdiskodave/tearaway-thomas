@@ -315,7 +315,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			startPen(k, new Pen() {
 				@Override
 				public void stroke() {
-					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
+					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock(), false);
 					drawBlockCursor();
 				}
 
@@ -329,10 +329,21 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
 		}
 		if (k == Keyboard.KEY_M) {
-			marker = mmp.worldBlocks();
+			marker = marker==null ? mmp.worldBlocks() : null;
 		}
 		if (k == Keyboard.KEY_F) {
-			fillRect();
+			if (marker!=null) {
+				fillRect();
+			}
+			else {
+				final int blk = gameMap.getBlock(mmp.worldBlocks());
+				BlockTest test = new BlockTest() {
+					@Override
+					public boolean test(int b) {
+						return b==blk;
+					}};
+				floodFill(test);
+			}
 		}
 		if (k >= COPY_LOCK + PASTE_BUFFER_START && k <= COPY_LOCK + PASTE_BUFFER_END) {
 			int slotNumber = k - (COPY_LOCK + PASTE_BUFFER_START);
@@ -358,7 +369,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			say("Alien mode");
 		}
 		if (k == Keyboard.KEY_H) {
-			at();
+			generateToyland();
 		}
 	}
 
@@ -947,11 +958,44 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		int b = gameMap.safeGetBlock(coord.add2(new Coord(i, j)));
 		return isWall(b);
 	}
+	
+	interface BlockTest {
+		boolean test(int b);
+	}
+	
+	private void floodFill(BlockTest fillable) {
+		startBlockEdit();
+		
+		// naive implementation but at least it is breadth first
+		// so doesn't keep too many false leads
+		ArrayList<Coord> positions = new ArrayList<Coord>();
+		ArrayList<Coord> nextPositions = new ArrayList<Coord>();
+		positions.add(mmp.worldBlocks());
+		
+		while (!positions.isEmpty()) {
+			for (Coord s: positions) {
+				if (!edit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
+					edit.setBlock(s, getCurrentBlock(), true);
+					nextPositions.add(s.copyAndAdd(1, 0));
+					nextPositions.add(s.copyAndAdd(-1, 0));
+					nextPositions.add(s.copyAndAdd(0, 1));
+					nextPositions.add(s.copyAndAdd(0, -1));
+				}
+			}
+			ArrayList<Coord> t = nextPositions;
+			nextPositions = positions;
+			positions = t;
+			nextPositions.clear();
+		}
+		
+		say(edit.size()+ " blocks filled");
+		endBlockEdit();
+	}
 
-	private void at() {
+	private void generateToyland() {
 		int pc = 0;
 		int pw = 0;
-		System.out.println("Analize toyland");
+		System.out.println("Generating Intricacies Of Toyland");
 		for (int y = 0; y < GameMap.MAP_HEIGHT; y++) {
 			for (int x = 0; x < GameMap.MAP_WIDTH; x++) {
 				Coord coord = new Coord(x, y);
@@ -966,7 +1010,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				boolean wallSouth = testWall(coord, 0, 1);
 
 				int walls[] = { 4, 3, 1, 2 };
-				int spaces[] = { 167, 172, 170, 169, 171, -1, 173, 168 };
+				int spaces[] = { 0, 5, 3, 2, 4, -1, 6, 1 };
 				
 				int n = -1;
 				if (isWall(b)) {
@@ -982,8 +1026,33 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 						if (wallNorthWest) v|= 2;
 						if (wallWest) v|= 4;
 						n = spaces[v];
-	
+
+						
+						// four blocks of style 
+						// 1) 80 eyes - exit 48
+						// 2) 87 diagonals - exit 52
+						// 3) 160 grid - exit 51x4
+						// 4) 167 waves - exit 54
+						// magical blocks start at 46,
+						// two for each, in order
+
+						// 11 1
+						// 12 3
+						// 13 2
+						// 14 4
+						// 15 1!
+						// 16 3
+						// 17 2
+						// 18 4
+						// 19 3
+						
+						// does the width have to be 20?
+						
 						if (n>=0) {
+//							n += 167;
+							n += 160;
+//							n += 80;
+//							n += 87;
 							if (!checkers) {
 								n += 40;
 							}
@@ -1005,10 +1074,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				}
 				
 				
-				// four blocks of style 
-				// 1) eyes 2) diagonals 3) plain 4) waves
-				// magical blocks start at 46,
-				// two for each, in order
 
 				if (n >= 0) {
 					if (n != b) {
