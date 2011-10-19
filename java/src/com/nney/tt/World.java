@@ -230,13 +230,23 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	public boolean status;
 
 
-	private Coord playerStart;
+	private Coord configuredPlayerStart;
 
-
+	private String configuredMap;
+	
+	private Bootstrap configuredExitBootstrap;
+	
 	public void configurePlayerStart(Coord c) {
-		playerStart = c;
+		configuredPlayerStart = c;
 	}
-
+	
+	public void configureMap(String s) {
+		configuredMap = s;
+	}
+	
+	public void configureExitBootstrap(Bootstrap s) {
+		configuredExitBootstrap = s;
+	}
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -248,8 +258,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		this.fonts = ow.fonts;
 		this.animsPool = ow.animsPool;
 		alienInfoMap = new AlienInfoMap();
-
-		initLevel();
 	}
 
 	// ---------------------------------------------------------------------------
@@ -622,6 +630,10 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	@Override
 	public void drawFrame() {
 		dispatchMode();
+		
+		if (configuredExitBootstrap!=null && keyboard.justPressed()==Keyboard.KEY_ESCAPE) {
+			ow.bootstrap = configuredExitBootstrap;
+		}
 	}
 
 	private void dispatchMode() {
@@ -865,7 +877,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		}
 	}
 
-	private void initLevel() {
+	public void init() {
 		AlienFactory af = new AlienFactory(alienInfoMap);
 //		int a = 1;
 //		while (a == 1) {
@@ -873,7 +885,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 			System.out.println("Loading level " + ow.levelNumber);
 
 			pl = new PersistedLevel();
-			pl.populateFromLevelInfo(af, ow.levelNumber);
+			pl.populateFromLevelInfo(af, ow.levelNumber, configuredMap);
 //			pl.saveNew();
 //			levelNumber++;
 //		}
@@ -886,10 +898,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 		Coord playerWhere = null;
 		boolean playerLeft = false;
-		if (playerStart==null) {
-			playerWhere = playerStart; 
-		}
-		else {
+		if (configuredPlayerStart==null) {
 			for (Alien alien : aliens) {
 				if (alien instanceof PlayerAlien) {
 					PlayerAlien palien = (PlayerAlien) alien;
@@ -900,6 +909,9 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 			if (playerWhere==null) {
 				throw new RuntimeException("Need a PlayerAlien to establish player's starting position!");
 			}
+		}
+		else {
+			playerWhere = configuredPlayerStart; 
 		}
 
 		// work out what Anims we need
@@ -977,7 +989,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	}
 
 	public void setPlayerStart(Coord c) {
-		playerStart = c;
+		configuredPlayerStart = c;
 	}
 
 	/**
@@ -1129,6 +1141,8 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		if (hud!=null) hud.dispose();
 		if (statusDisplay!=null) statusDisplay.dispose();
 	}
+
+
 }
 
 // 64: worm - forget it

@@ -29,7 +29,6 @@ public class AlienTracker implements Iterable<Alien> {
 		for (;;) {
 			Alien a = fridge.remove(restore);
 			if (a == null) break;
-			System.out.println("Defrost");
 			add(a);
 		}
 	}
@@ -72,22 +71,18 @@ public class AlienTracker implements Iterable<Alien> {
 		Box fb = alien.freezeBounds;
 		if (fb != null) {
 			if (fb.right < screenBox.left) {
-				System.out.println("Freeze");
 				freezeLeft.add(alien, -fb.right);
 				return true;
 			}
 			else if (fb.bottom < screenBox.top) {
-				System.out.println("Freeze");
 				freezeTop.add(alien, -fb.bottom);
 				return true;
 			}
 			else if (fb.left > screenBox.right) {
-				System.out.println("Freeze");
 				freezeRight.add(alien, fb.left);
 				return true;
 			}
 			else if (fb.top > screenBox.bottom) {
-				System.out.println("Freeze");
 				freezeBottom.add(alien, fb.top);
 				return true;
 			}

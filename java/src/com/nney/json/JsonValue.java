@@ -72,4 +72,13 @@ public abstract class JsonValue implements DataItem {
 		}
 		return answer;
 	}
+	
+	public static JsonValue mustParse(String jsonString) {
+		try {
+			return parse(jsonString);
+		}
+		catch (JsonException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

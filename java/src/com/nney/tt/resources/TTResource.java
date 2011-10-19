@@ -78,17 +78,8 @@ public class TTResource {
 		return TTResource.formatted("horizons/%d.png", name);
 	}
 
-	
-	
-	
 	public static DataItem diFromText(Openable o) {
-		try {
-			String t = StringIO.mustLoadText(o, null);
-			return JsonValue.parse(t);
-		}
-		catch (JsonException e) {
-			throw new RuntimeException(e);
-		}
+		return JsonValue.mustParse(StringIO.mustLoadText(o, null));
 	}
 
 }

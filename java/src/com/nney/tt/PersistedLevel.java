@@ -13,6 +13,7 @@ import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
+import com.nney.json.JsonValue;
 import com.nney.json.SafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.MapBoundsAlien;
@@ -44,7 +45,7 @@ public class PersistedLevel {
 	// name of the map file
 	public String mapName;
 
-	public void populateFromLevelInfo(AlienFactory af, int levelNumber) {
+	public void populateFromLevelInfo(AlienFactory af, int levelNumber, String configuredMap) {
 		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
 
 		DataItem levels = levelInfo.requireField("levels");
@@ -60,7 +61,13 @@ public class PersistedLevel {
 		af.selectWorld(worldName);
 		
 //		loadLegacy(af, TTResource.legacyMap(mapName));
-		loadNew(af, mapName);
+		
+		if (configuredMap==null) {
+			loadNew(af, TTResource.diFromText(TTResource.map(mapName)));
+		}
+		else {
+			loadNew(af, JsonValue.mustParse(configuredMap));
+		}
 	}
 
 	private String readChunkId(DataInputStream di) throws IOException {
@@ -214,8 +221,7 @@ public class PersistedLevel {
 		}
 	}
 	
-	void loadNew(AlienFactory af, String mapName) {
-		DataItem level = TTResource.diFromText(TTResource.map(mapName));
+	private void loadNew(AlienFactory af, DataItem level) {
 		gameMap = new GameMap();
 		gameMap.loadMap(level.requireField("blocks"));
 		for (DataItem di: level.requireField("objects").requireList()) {

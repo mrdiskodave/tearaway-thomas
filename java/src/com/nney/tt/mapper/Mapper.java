@@ -180,7 +180,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		PersistedLevel pl = new PersistedLevel();
-		pl.populateFromLevelInfo(af, ow.levelNumber);
+		pl.populateFromLevelInfo(af, ow.levelNumber, null);
 		worldName = alienInfoMap.getWorldName();
 
 		for (String a : alienInfoMap.queryAnimList()) {
@@ -298,27 +298,22 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				marker = null;
 			}
 			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-				
-				
-				List<Alien> al = new ArrayList<Alien>();
-				for (Alien a: alienTracker) {
-					if (!(a instanceof PlayerAlien)) {
-						al.add(a);
-					}
-				}
-				
-				PlayerAlien player = new PlayerAlien();
-				alienInfoMap.attach(player);
-				player.c = mmp.worldPixels();
-				al.add(player);
-				
-				String s = PersistedLevel.staticSave(gameMap, al);
-				System.out.println(s);
-
+				final String s = PersistedLevel.staticSave(gameMap, alienTracker);
+				final Coord pp = mmp.worldPixels();
 				ow.bootstrap = new Bootstrap() {
 					@Override
 					public FrameDrawer create(OuterWorld outerWorld) {
-						return new World(outerWorld);
+						World fd = new World(outerWorld);
+						fd.configurePlayerStart(pp);
+						fd.configureMap(s);
+						fd.configureExitBootstrap(new Bootstrap() {
+							@Override
+							public FrameDrawer create(OuterWorld outerWorld) {
+								return Mapper.this;
+							}
+						});
+						fd.init();
+						return fd;
 					}
 				};
 				say("Saved");
