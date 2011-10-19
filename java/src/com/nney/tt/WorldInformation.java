@@ -19,6 +19,7 @@ public class WorldInformation {
 	}
 
 	static public WorldInformation load(String worldName) {
+		System.out.println("Loading WorldInformation "+worldName);
 		DataItem v = TTResource.diFromText(TTResource.blockDef(worldName));
 		BlockInformation bi = new BlockInformation(v.requireField("spec"));
 		

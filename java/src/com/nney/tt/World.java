@@ -966,24 +966,17 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	 * the {@link MapBoundsAlien} will keep him from seeing the larger map.
 	 */
 	private void pickTheBestBounds() {
-		final ArrayList<Box> boxes = new ArrayList<Box>();
-		alienTracker.visitAll(new Visitor<Alien>() {
-			@Override
-			public void visit(Alien a) {
-				if (a instanceof MapBoundsAlien) {
-					Box b = ((MapBoundsAlien) a).bounds.copy();
-					b.snapOutTo(Const.BLOCK_SIZE);
-					boxes.add(b);
-				}
-			}
-		});
-		// what is the smallest one that has the player in it?
 		Box bounds = WHOLE_MAP_BOUNDS_IN_PIXELS;
 		long bestArea = Long.MAX_VALUE;
-		for (Box box : boxes) {
-			if (box.inside(player.c) && box.area() < bestArea) {
-				bounds = box;
-				bestArea = box.area();
+		for (Alien a: alienTracker) {
+			if (a instanceof MapBoundsAlien) {
+				Box box = ((MapBoundsAlien) a).bounds.copy();
+				box.snapOutTo(Const.BLOCK_SIZE);
+				// what is the smallest one that has the player in it?
+				if (box.inside(player.c) && box.area() < bestArea) {
+					bounds = box;
+					bestArea = box.area();
+				}
 			}
 		}
 		// that is the one for us!
@@ -991,7 +984,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	}
 
 	private Coord getPlayerCentre() {
-		return getPlayerPosition().sub2(scr.position()).add2(new Coord(0, (ttSprite.h / 2) - ttSprite.handleY));
+		return getPlayerPosition().sub2(scr.position()).copyAndAdd(0, (ttSprite.h / 2) - ttSprite.handleY);
 	}
 
 	private void captureRecording() {
@@ -1055,9 +1048,13 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	}
 
 	private int countGems() {
-		AlienCounter ac = new AlienCounter(GemAlien.class);
-		alienTracker.visitAll(ac);
-		return ac.count();
+		int count = 0;
+		for (Alien a: alienTracker) {
+			if (GemAlien.class.isInstance(a)) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	@Override

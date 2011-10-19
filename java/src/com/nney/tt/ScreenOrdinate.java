@@ -39,6 +39,7 @@ public class ScreenOrdinate {
 
 	private int mapSize;
 
+	@SuppressWarnings("unused")
 	private final String name;
 
 	public ScreenOrdinate(String name) {

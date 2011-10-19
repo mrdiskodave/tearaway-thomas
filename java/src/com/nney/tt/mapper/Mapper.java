@@ -36,32 +36,31 @@ import com.nney.utils.Math2;
 /**
  * A level editor.
  * 
- * Keys:
- * 
  * <pre>
  * [A] Alien Mode:
- *   [RMB] select alien - buttons and control points appear 
- *   [LMB] grab and drag an alien's control point
- *         press [SHIFT] to constrain this 
+ *   [RMB] near an alien to select alien - buttons and control points appear! 
+ *   [LMB] on a control point to grab and drag it
+ *         press [SHIFT] to constrain dragging to axises
  *   [CURSOR KEYS] nudge a control point
- *   [LMB] on a button to change a property
+ *   [LMB] on a button to press it
  *   [C] copy the selected alien
  *   [PAGEUP/PAGEDOWN] change current alien type
  *   [I] eye dropper - sets the current alien type from the selected alien 
  *   [N] new alien (of the current alien type)
  *   [DELETE] delete the selected alien
+ *   [F] find the selected alien (i.e. scroll to it)
  * 
  * [D] Drawing Mode:
+ *   [LMB] draw with the current block
+ *   [I] eye dropper - sets the current block from the map
+ *   [CURSOR KEYS] change the current block
+ *   hold [T] to make the current block track mouse movement (try it)
  *   [M] start marking a rectangle of blocks which you can end with:
  *     [M] cancel marking
  *     [F1-12] copy the rectangle of blocks into a numbered slot
  *     [F] fill the rectangle of blocks with the current block
  *   [F1-12] paste from rectangle from a numbered slot
- *   [I] eye dropper - sets the current block from the map
- *   hold [T] to make the current block track mouse movement (try it)
- *   [LMB] draw with the current block
  *   
- *   [CURSOR KEYS] change the current block
  *   [CTRL+M] toggle seeing block masks
  *   [CTRL+I] toggle seeing hidden blocks
  *
@@ -69,15 +68,18 @@ import com.nney.utils.Math2;
  *     [LMB] to pick.
  *     [CURSOR KEYS] and [CTRL+M] and [CTRL+I] work in here too
  * 
- * Both:
+ * Either mode:
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
  * [Ctrl+G] where am I?
- * [Ctrl+Z] endless undo
- * [Ctrl+Y] endless redo
+ * [Ctrl+Z] undo
+ * [Ctrl+Y] redo
  * [ESCAPE] reset the mode
  *          (removes temporary floating palettes and other statefulness)
  * </pre>
  * 
+ * TODO: scrolling off the edges (so that [F] makes complete sense)
+ * TODO: next/previous alien (of this type)
+ * TODO: multiselect for delete and move
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
@@ -225,7 +227,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	public void load(Alien alien) {
 		alien.load(alienServices);
-		alienTracker.delayedAdd(alien);
+		alienTracker.add(alien);
 	}
 
 	public BlockPalette makeBP() {
@@ -295,6 +297,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				marker = null;
 			}
 			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
+				String s = PersistedLevel.staticSave(gameMap, alienTracker);
+				System.out.println(s);
 				say("Saved");
 			}
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
@@ -418,7 +422,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				});
 			}
 			else if (bat != null) {
-				final Coord batGrip = mmp.worldPixels().sub2(bat.where());
+				final Coord firstMousePos = mmp.worldPixels();
+				final Coord firstBatPos = bat.where().copy();
+				final Coord batGrip = firstMousePos.sub2(firstBatPos);
 				startAlienEdit();
 				startPen(kns, new Pen() {
 					Coord origin;
@@ -440,7 +446,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 					@Override
 					public void stroke() {
-						bat.onMove(whereSnapped());
+						Coord whereSnapped = whereSnapped();
+						say("Move by "+whereSnapped.sub2(firstBatPos));
+						bat.onMove(whereSnapped);
 					}
 
 					@Override
@@ -462,6 +470,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
 			if (k == Keyboard.KEY_C) copySelectedAlien();
+			if (k == Keyboard.KEY_F) setScreenCentre(getSelectedAlien().getLocation());
 		}
 		if (k == Keyboard.KEY_N) createAlien();
 		keyboardAlienChoice(k);
@@ -647,14 +656,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private Alien getSelectedAlien() {
-		if (selectedAlien != null && selectedAlien.remove) {
-			selectedAlien = null;
-		}
+		assert !(selectedAlien!=null && selectedAlien.remove);
 		return selectedAlien;
 	}
 
 	private void setSelectedAlien(Alien s) {
 		selectedAlien = s;
+		alienTracker.defrost(s);
 		buttonRecords = null;
 
 	}
@@ -913,7 +921,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
 			alien.mapperUpdate();
-			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
+			if (alien.remove || (alien!=selectedAlien && alienTracker.perhapsFreeze(alien, screenBox))) {
 				alienIterator.remove();
 			}
 		}
@@ -926,9 +934,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public Alien findNearestAlien(Coord c) {
-		NearestAlienFinder n = new NearestAlienFinder(c);
-		alienTracker.visitAll(n);
-		return n.getAnswer();
+		long dist = Long.MAX_VALUE;
+		Alien answer = null;
+		for (Alien a: alienTracker) {
+			Coord diff = a.getLocation().sub2(c);
+			long ndist = diff.squareOfLength();
+			if (ndist < dist) {
+				dist = ndist;
+				answer = a;
+			}
+		}
+		return answer;
 	}
 
 	public BlockSet loadBlockSet() {
@@ -937,7 +953,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	public void reinstate(Alien alien) {
 		alien.reinstate();
-		alienTracker.delayedAdd(alien);
+		alienTracker.add(alien);
 	}
 
 	public boolean inTheGround(Coord c) {
@@ -1098,10 +1114,3 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 }
 
-// 167,207 as a checker board X
-// 173,213 wall W&NW X
-// 171,221 wall W X
-// 170,210 wall NW X
-// 168,208 wall W&NW&N X
-// 172, wall N
-// 169, wall N&NW

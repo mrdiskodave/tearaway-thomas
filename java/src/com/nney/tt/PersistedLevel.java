@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import com.nney.json.DataDestination;
@@ -14,7 +14,6 @@ import com.nney.json.DataItem;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
-import com.nney.json.SimpleDataDestination;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlayerAlien;
@@ -23,7 +22,6 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.resources.TTResource;
-import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 
 public class PersistedLevel {
@@ -38,10 +36,12 @@ public class PersistedLevel {
 	public String title;
 
 	//
-	// things from the dot map
+	// things from the map file
 	//
 	public GameMap gameMap;
 	public List<Alien> aliens = new ArrayList<Alien>();
+	
+	// name of the map file
 	public String mapName;
 
 	public void populateFromLevelInfo(AlienFactory af, int levelNumber) {
@@ -230,6 +230,21 @@ public class PersistedLevel {
 	
 
 	void saveNew() {
+		String answer = staticSave(gameMap, aliens);
+		try {
+			String s = mapName;
+			s = s.replaceAll(".map", "");
+			System.out.println("Saving "+s);
+			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + s + ".txt");
+			w.write(answer);
+			w.close();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static String staticSave(GameMap gameMap, Iterable<Alien> aliens) {
 		final StringBuffer sb = new StringBuffer();
 
 		SafeWriter sw = new SafeWriter() {
@@ -248,6 +263,7 @@ public class PersistedLevel {
 		dd.beginArray();
 		
 		ArrayList<Alien> toSave = new ArrayList<Alien>();
+		
 		for (Alien a : aliens) {
 			if (!a.alienInfo.internal()) {
 				toSave.add(a);
@@ -271,17 +287,8 @@ public class PersistedLevel {
 		dd.end();
 		dd.end();
 
-		try {
-			String s = mapName;
-			s = s.replaceAll(".map", "");
-			System.out.println("Saving "+s);
-			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + s + ".txt");
-			w.write(sb.toString());
-			w.close();
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		String answer = sb.toString();
+		return answer;
 	}
 
 	public List<Alien> getAliens() {

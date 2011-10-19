@@ -17,7 +17,7 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	private void ni() {
-		throw new RuntimeException("service not implemented by map editor");
+		throw new UnsupportedOperationException("service not implemented by map editor");
 	}
 	
 	@Override

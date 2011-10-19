@@ -1,7 +1,10 @@
 package com.nney.tt;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
+
+import com.nney.tt.Fridge.FridgeEntry;
 
 /**
  * A fridge is a one dimensional structure for freezing off-screen objects.
@@ -28,7 +31,7 @@ import java.util.ListIterator;
  * @param <T>
  *            The type of the object we hold.
  */
-public class Fridge<T> {
+public class Fridge<T> implements Iterable<T> {
 	private LinkedList<FridgeEntry> content = new LinkedList<FridgeEntry>();
 
 	@SuppressWarnings("unused")
@@ -88,14 +91,49 @@ public class Fridge<T> {
 		assert fe == content.removeFirst();
 		return fe.item;
 	}
-	
-	public void visit(Visitor<T> v) {
-		for (FridgeEntry fe: content) {
-			v.visit(fe.item);
+
+	/**
+	 * A slow method to delete an object from anywhere in the fridge. Not
+	 * intended for real-time use.
+	 * 
+	 * @param t
+	 *            The object to look for.
+	 * @return <code>true</code> meaning "we found it and deleted it" or
+	 *         <code>false</code> meaning "we didn't find it".
+	 */
+	public boolean delete(T t) {
+		for (Iterator<FridgeEntry> i = content.iterator(); i.hasNext();) {
+			FridgeEntry z = i.next();
+			if (z.item == t) {
+				i.remove();
+				return true;
+			}
 		}
+		return false;
 	}
-	
+
 	public void clear() {
 		content.clear();
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		final Iterator<FridgeEntry> it = content.iterator();
+		return new Iterator<T>() {
+			@Override
+			public boolean hasNext() {
+				return it.hasNext();
+			}
+
+			@Override
+			public T next() {
+				return it.next().item;
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException("Cannot remove elements from Fridge iterator");
+			}
+		};
 	}
 }

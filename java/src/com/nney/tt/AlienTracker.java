@@ -1,13 +1,14 @@
 package com.nney.tt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 
-public class AlienTracker {
+public class AlienTracker implements Iterable<Alien> {
 	final private List<List<Alien>> alienLists;
 
 	final private List<Alien> delayedAdditions = new LinkedList<Alien>();
@@ -28,16 +29,24 @@ public class AlienTracker {
 		for (;;) {
 			Alien a = fridge.remove(restore);
 			if (a == null) break;
+			System.out.println("Defrost");
 			add(a);
 		}
 	}
 
-	private void add(Alien alien) {
+	public void add(Alien alien) {
+		assert !alien.remove;
 		alienLists.get(alien.depth).add(alien);
 	}
 
 	public void delayedAdd(Alien alien) {
+		assert !alien.remove;
 		delayedAdditions.add(alien);
+	}
+	
+	public void defrost(Alien alien) {
+		boolean defrosted = freezeLeft.delete(alien) || freezeTop.delete(alien) || freezeRight.delete(alien) || freezeBottom.delete(alien);
+		if (defrosted) add(alien);
 	}
 
 	public void begin(Box screenBox) {
@@ -59,73 +68,52 @@ public class AlienTracker {
 	}
 
 	public boolean perhapsFreeze(Alien alien, Box screenBox) {
+		assert !alien.remove;
 		Box fb = alien.freezeBounds;
 		if (fb != null) {
 			if (fb.right < screenBox.left) {
+				System.out.println("Freeze");
 				freezeLeft.add(alien, -fb.right);
 				return true;
 			}
 			else if (fb.bottom < screenBox.top) {
+				System.out.println("Freeze");
 				freezeTop.add(alien, -fb.bottom);
 				return true;
 			}
 			else if (fb.left > screenBox.right) {
+				System.out.println("Freeze");
 				freezeRight.add(alien, fb.left);
 				return true;
 			}
 			else if (fb.top > screenBox.bottom) {
+				System.out.println("Freeze");
 				freezeBottom.add(alien, fb.top);
 				return true;
 			}
 		}
 		return false;
 	}
+	
+	public void slowDefrostRequest(Alien a) {
+		
+	}
 
 	public List<Alien> get(int x) {
 		return alienLists.get(x);
 	}
 
-	static private void visitIt(Visitor<Alien> v, List<Alien> l) {
-		for (Alien a : l) {
-			v.visit(a);
+	@Override
+	public Iterator<Alien> iterator() {
+		ConcatenatedIterator<Alien> ci = new ConcatenatedIterator<Alien>();
+		ci.add(freezeBottom);
+		ci.add(freezeTop);
+		ci.add(freezeLeft);
+		ci.add(freezeRight);
+		ci.add(delayedAdditions);
+		for (List<Alien> aliens: alienLists) {
+			ci.add(aliens);
 		}
-	}
-
-	private void visitVisible(Visitor<Alien> v) {
-		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
-			visitIt(v, alienLists.get(x));
-		}
-	}
-
-	public void visitAll(Visitor<Alien> v) {
-		doDelayedAdditions();
-		visitVisible(v);
-		freezeBottom.visit(v);
-		freezeTop.visit(v);
-		freezeLeft.visit(v);
-		freezeRight.visit(v);
-	}
-
-	public void clearAll() {
-		delayedAdditions.clear();
-		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
-			alienLists.get(x).clear();
-		}
-		freezeBottom.clear();
-		freezeTop.clear();
-		freezeLeft.clear();
-		freezeRight.clear();
-	}
-
-	public List<Alien> getAliens() {
-		final List<Alien> answer = new ArrayList<Alien>(); 
-		visitAll(new Visitor<Alien>() {
-			@Override
-			public void visit(Alien a) {
-				answer.add(a);
-			}
-		});
-		clearAll();
-		return answer;
+		return ci;
 	}
 }

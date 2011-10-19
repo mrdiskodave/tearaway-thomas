@@ -29,7 +29,7 @@ public class OuterWorld implements FrameDrawer {
 	
 	public final Pointer mouse;
 
-	public int levelNumber = 0;
+	public int levelNumber = 11;
 
 	public int score = 0;
 

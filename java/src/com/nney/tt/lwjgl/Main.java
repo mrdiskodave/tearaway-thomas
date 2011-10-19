@@ -125,6 +125,8 @@ public class Main {
 
 			fpsRep.reportFps();
 			Thread.yield();
+			
+			// TODO: does the MENU key have to get stuck when you tab away?
 		}
 		
 		ac.dispose();
