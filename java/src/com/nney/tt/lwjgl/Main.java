@@ -10,11 +10,14 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
+import com.nney.tt.Bootstrap;
 import com.nney.tt.Const;
+import com.nney.tt.FrameDrawer;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdapter;
+import com.nney.tt.mapper.Mapper;
 
 public class Main {
 	static final int ZOOM = 2;
@@ -104,6 +107,12 @@ public class Main {
 		};
 
 		OuterWorld ow = new OuterWorld(gc, ac, joystick, keys, correctMouse);
+		ow.bootstrap = new Bootstrap() {
+			@Override
+			public FrameDrawer create(OuterWorld outerWorld) {
+				return new Mapper(outerWorld);
+			}
+		};
 
 		FpsReporter fpsRep = new FpsReporter(50);
 		boolean closing = false;

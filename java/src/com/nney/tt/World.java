@@ -230,6 +230,12 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	public boolean status;
 
 
+	private Coord playerStart;
+
+
+	public void configurePlayerStart(Coord c) {
+		playerStart = c;
+	}
 
 
 	public World(OuterWorld ow) {
@@ -878,10 +884,21 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 		List<Alien> aliens = pl.getAliens();
 
-		PlayerAlien playerPos = null;
-		for (Alien alien : aliens) {
-			if (alien instanceof PlayerAlien) {
-				playerPos = (PlayerAlien) alien;
+		Coord playerWhere = null;
+		boolean playerLeft = false;
+		if (playerStart==null) {
+			playerWhere = playerStart; 
+		}
+		else {
+			for (Alien alien : aliens) {
+				if (alien instanceof PlayerAlien) {
+					PlayerAlien palien = (PlayerAlien) alien;
+					playerWhere = palien.c;
+					playerLeft = palien.goLeft;
+				}
+			}
+			if (playerWhere==null) {
+				throw new RuntimeException("Need a PlayerAlien to establish player's starting position!");
 			}
 		}
 
@@ -907,7 +924,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 
-		player = new Player(this, animsPool.expect("0tt"), playerPos.c, playerPos.goLeft);
+		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
 		gameMap = pl.gameMap;
 
 		pickTheBestBounds();
@@ -957,6 +974,10 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
 		createStatusScreen(text);
+	}
+
+	public void setPlayerStart(Coord c) {
+		playerStart = c;
 	}
 
 	/**

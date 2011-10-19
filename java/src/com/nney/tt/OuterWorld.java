@@ -14,11 +14,11 @@ public class OuterWorld implements FrameDrawer {
 	public final AudioHub ah;
 
 	public final Fonts fonts;
-	
+
 	public final GraphicsContext gc;
 
 	public final Joystick joystick;
-	
+
 	public final Keyboard keyboard;
 
 	// Disposable:
@@ -26,7 +26,7 @@ public class OuterWorld implements FrameDrawer {
 
 	// Disposable:
 	public BlockSet blockSet;
-	
+
 	public final Pointer mouse;
 
 	public int levelNumber = 11;
@@ -40,7 +40,7 @@ public class OuterWorld implements FrameDrawer {
 		this.joystick = joystick;
 		this.keyboard = keyboard;
 		this.mouse = mouse;
-		
+
 		ah = new AudioHub(ac);
 		fonts = new Fonts(gc);
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
@@ -53,27 +53,24 @@ public class OuterWorld implements FrameDrawer {
 		}
 		return blockSet;
 	}
-	
+
 	private void freeBlocksSet() {
 		if (blockSet != null) {
 			blockSet.dispose();
 			blockSet = null;
 		}
 	}
-	
-	Mapper fd;
+
+	FrameDrawer fd;
+
+	public Bootstrap bootstrap;
 
 	@Override
 	public void drawFrame() {
-//		System.gc();
-		if (fd==null) {
-			fd = new Mapper(this);
+		if (bootstrap != null) {
+			fd = bootstrap.create(this);
+			bootstrap = null;
 		}
 		fd.drawFrame();
-//		if (fd.status) {
-//			levelNumber++;
-//			fd.dispose();
-//			fd = null;
-//		}
 	}
 }

@@ -10,6 +10,7 @@ import com.nney.tt.AlienInfoMap;
 import com.nney.tt.AlienServices;
 import com.nney.tt.AlienTracker;
 import com.nney.tt.BlockSet;
+import com.nney.tt.Bootstrap;
 import com.nney.tt.Const;
 import com.nney.tt.FrameDrawer;
 import com.nney.tt.OuterWorld;
@@ -154,7 +155,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final AlienServices alienServices = new MapperAlienServices(this);
 
 	private BottomUpStatusLayer bottomUpStatusLayer;
-
+	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
@@ -297,8 +298,29 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				marker = null;
 			}
 			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-				String s = PersistedLevel.staticSave(gameMap, alienTracker);
+				
+				
+				List<Alien> al = new ArrayList<Alien>();
+				for (Alien a: alienTracker) {
+					if (!(a instanceof PlayerAlien)) {
+						al.add(a);
+					}
+				}
+				
+				PlayerAlien player = new PlayerAlien();
+				alienInfoMap.attach(player);
+				player.c = mmp.worldPixels();
+				al.add(player);
+				
+				String s = PersistedLevel.staticSave(gameMap, al);
 				System.out.println(s);
+
+				ow.bootstrap = new Bootstrap() {
+					@Override
+					public FrameDrawer create(OuterWorld outerWorld) {
+						return new World(outerWorld);
+					}
+				};
 				say("Saved");
 			}
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
@@ -662,7 +684,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void setSelectedAlien(Alien s) {
 		selectedAlien = s;
-		alienTracker.defrost(s);
+		if (s!=null) {
+			alienTracker.defrost(s);
+		}
 		buttonRecords = null;
 
 	}
