@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.Bat;
 
 public class CommonBatRecord implements BatRecord {
 	final private Bat target;
@@ -12,7 +13,7 @@ public class CommonBatRecord implements BatRecord {
 
 	@Override
 	public boolean inside(Coord c) {
-		return where2().inside(c);
+		return box().inside(c);
 	}
 
 	@Override
@@ -21,7 +22,7 @@ public class CommonBatRecord implements BatRecord {
 	}
 
 	@Override
-	public Box where2() {
-		return target.where2();
+	public Box box() {
+		return target.box();
 	}
 }

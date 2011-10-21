@@ -9,7 +9,7 @@ import com.nney.tt.sprites.Sprite;
 public class ArrowAlien extends AlienWithLocation {
 	private int repeatCounter;
 
-	@AlienProp(name = "AdviceBox", doc = "Player's location for us to blink at him?", label = "adviceBox")
+	@PropAnn(name = "AdviceBox", doc = "Player's location for us to blink at him?", label = "adviceBox")
 	public Box box = new Box(0, 0, 0, 0);
 
 	@Override

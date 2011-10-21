@@ -2,8 +2,9 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.VisualPropGC;
 
-public class BatGCImpl implements BatGC {
+public class BatGCImpl implements VisualPropGC {
 	private static final int SUPERBAT_SIZE = 10;
 	private final Coord scr;
 	private final MapperGC mgc;

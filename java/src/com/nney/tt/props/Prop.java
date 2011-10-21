@@ -1,10 +1,11 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.util.List;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.mapper.FieldAccessor;
 
 public abstract class Prop {
 	private PropPack pp;
@@ -41,7 +42,7 @@ public abstract class Prop {
 	// ---------------------------------------------------------------------------
 	// TEXT UI 
 	
-	void getButtons(List<Button> buttons, ButtonPressServices bps) {
+	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 	}
 
 	// ---------------------------------------------------------------------------
@@ -50,13 +51,7 @@ public abstract class Prop {
 	public void getBats(List<Bat> bats) {
 	}
 	
-	/**
-	 * Generate this properties bats.
-	 * @param bt
-	 *            A destination for the bats (and also somewhere to render other
-	 *            visual hints about this {@link Prop}).
-	 */
-	void drawAuxBatStuff(BatGC bt) {}
+	public void drawAuxBatStuff(VisualPropGC bt) {}
 
 	public void moveBy(Coord delta) {
 	}

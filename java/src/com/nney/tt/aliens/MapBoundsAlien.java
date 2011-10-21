@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class MapBoundsAlien extends Alien {
-	@AlienProp(name = "Bounds", doc = "Where is the player is allowed to roam?", label = "bounds")
+	@PropAnn(name = "Bounds", doc = "Where is the player is allowed to roam?", label = "bounds")
 	public Box bounds;
 
 	@Override

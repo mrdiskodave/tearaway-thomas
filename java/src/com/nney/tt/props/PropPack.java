@@ -1,9 +1,10 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.lang.reflect.Field;
 
-import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.AlienProp;
+import com.nney.tt.aliens.PropAnn;
+import com.nney.tt.mapper.FieldAccessor;
+import com.nney.tt.mapper.FieldAccessorImpl;
 
 /**
  * The things needed to initialise a {@link Prop}.
@@ -25,7 +26,7 @@ public class PropPack {
 		return new FieldAccessorImpl(object, field);
 	}
 
-	public AlienProp getAnn() { 
-		return field.getAnnotation(AlienProp.class);
+	public PropAnn getAnn() { 
+		return field.getAnnotation(PropAnn.class);
 	}
 }

@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class CoordVisualProp extends VisualProp<Coord> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new PointBat() {
 			@Override
-			public Coord where() {
+			public Coord point() {
 				return simpleLocation();
 			}
 
@@ -61,16 +61,16 @@ public class CoordVisualProp extends VisualProp<Coord> {
 	}
 	
 	@Override
-	void getButtons(List<Button> buttons, final ButtonPressServices bps) {
+	public void getButtons(List<Button> buttons, final ButtonPressServices bps) {
 		super.getButtons(buttons, bps);
 		buttons.add(new Button() {
 			@Override
-			String name() {
+			public String name() {
 				return "fall";
 			}
 
 			@Override
-			void press() {
+			public void press() {
 				Coord c = read();
 				bps.fall(c);
 			}

@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new Bat() {
 			@Override
-			public Box where2() {
+			public Box box() {
 				XRange t = read();
 				int x = t.middle();
 				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
@@ -38,7 +38,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 
 		bats.add(new Bat() {
 			@Override
-			public Box where2() {
+			public Box box() {
 				XRange t = read();
 				int x = t.left;
 				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
@@ -53,7 +53,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 
 		bats.add(new Bat() {
 			@Override
-			public Box where2() {
+			public Box box() {
 				XRange t = read();
 				int x = t.right;
 				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
@@ -68,7 +68,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	}
 		
 	@Override
-	public void drawAuxBatStuff(BatGC rt) {
+	public void drawAuxBatStuff(VisualPropGC rt) {
 		XRange t = read();
 		Box box = new Box(t.left, Integer.MIN_VALUE / 4, t.right, Integer.MAX_VALUE / 4);
 		rt.drawBox(box);

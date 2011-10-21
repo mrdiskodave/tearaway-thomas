@@ -7,10 +7,10 @@ import com.nney.utils.Math2;
 
 public class TeleportAlien extends AlienWithLocation {
 
-	@AlienProp(name = "Destination", doc = "Where do we teleport the player to?", label = "destination")
+	@PropAnn(name = "Destination", doc = "Where do we teleport the player to?", label = "destination")
 	public Coord destination;
 	
-	@AlienProp(name = "Hidden", doc = "Are we hidden from view?", label = "hidden")
+	@PropAnn(name = "Hidden", doc = "Are we hidden from view?", label = "hidden")
 	public boolean hidden;
 	
 	@Override

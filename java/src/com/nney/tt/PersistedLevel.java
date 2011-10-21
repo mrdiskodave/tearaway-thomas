@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.nney.json.DataDestination;
@@ -21,8 +20,8 @@ import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.mapper.OPS;
 import com.nney.tt.mapper.APS;
+import com.nney.tt.props.OPS;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Openable;
 

@@ -1,4 +1,5 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
+
 
 public abstract class SpecificProp<T> extends Prop {
 	SpecificProp(PropPack pp) {

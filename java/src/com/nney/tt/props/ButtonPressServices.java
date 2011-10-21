@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import com.nney.tt.geom.Coord;
 

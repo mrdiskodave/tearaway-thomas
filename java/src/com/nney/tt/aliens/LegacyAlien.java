@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import org.apache.commons.codec.binary.Hex;
 
 public class LegacyAlien extends AlienWithLocation {
-	@AlienProp(name = "Legacy Data", doc = "The data we initialise from", label = "legacyData")
+	@PropAnn(name = "Legacy Data", doc = "The data we initialise from", label = "legacyData")
 	public String data;
 	
 	@Override

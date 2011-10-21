@@ -7,7 +7,7 @@ public class SpikeAlien extends AlienWithLocation {
 	private int freq = 100;
 	private Anim ourAnim;
 
-	@AlienProp(name = "Phase", doc = "Our movement in relation to other spikes (0-99)", label = "phase")
+	@PropAnn(name = "Phase", doc = "Our movement in relation to other spikes (0-99)", label = "phase")
 	public int phase;
 	
 	@Override

@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public abstract class BumbleAlien extends AlienWithLocation {
-	@AlienProp(name = "Area", doc = "The area we're confined to", label = "box")
+	@PropAnn(name = "Area", doc = "The area we're confined to", label = "box")
 	public Box box;
 	
 	protected Coord d;

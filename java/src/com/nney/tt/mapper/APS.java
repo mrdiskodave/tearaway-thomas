@@ -8,6 +8,8 @@ import com.nney.json.DataDestination;
 import com.nney.json.SimpleDataDestination;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.OPS;
+import com.nney.tt.props.Prop;
 
 /**
  * Alien Property Services.

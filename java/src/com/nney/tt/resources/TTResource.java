@@ -3,7 +3,6 @@ package com.nney.tt.resources;
 import java.io.IOException;
 
 import com.nney.json.DataItem;
-import com.nney.json.JsonException;
 import com.nney.json.JsonValue;
 import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;

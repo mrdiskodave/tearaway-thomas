@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.util.List;
 
@@ -27,15 +27,15 @@ public class BooleanProp extends SpecificProp<Boolean> {
 	}
 
 	@Override
-	void getButtons(List<Button> buttons, ButtonPressServices bps) {
+	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 		buttons.add(new Button() {
 			@Override
-			String name() {
+			public String name() {
 				return "change";
 			}
 
 			@Override
-			void press() {
+			public void press() {
 				write(!read());
 			}
 		});

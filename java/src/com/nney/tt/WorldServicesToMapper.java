@@ -1,6 +1,5 @@
 package com.nney.tt;
 
-import com.nney.tt.BlockSet.Config;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlocksHolder;

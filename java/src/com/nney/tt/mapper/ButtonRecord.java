@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.Button;
 
 public class ButtonRecord implements Collidable {
 	private final Button who;

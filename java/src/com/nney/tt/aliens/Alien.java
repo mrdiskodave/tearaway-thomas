@@ -4,7 +4,7 @@ import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.mapper.HasProps;
+import com.nney.tt.props.HasProps;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
@@ -162,8 +162,8 @@ public abstract class Alien implements HasProps {
 	public void load(AlienServices world) {
 		fromTo(LifeCycle.CONNECT, LifeCycle.READY);
 		srv = world;
-		onLoaded();
 		onPropUpdate();
+		onLoaded();
 	}
 
 	public void done() {

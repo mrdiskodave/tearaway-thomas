@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.util.List;
 
@@ -16,26 +16,26 @@ public class IntegerProp extends SpecificProp<Integer> {
 	}
 	
 	@Override
-	void getButtons(List<Button> buttons, ButtonPressServices bps) {
+	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 		buttons.add(new Button() {
 			@Override
-			String name() {
+			public String name() {
 				return "more";
 			}
 
 			@Override
-			void press() {
+			public void press() {
 				write(read()+1);
 			}
 		});
 		buttons.add(new Button() {
 			@Override
-			String name() {
+			public String name() {
 				return "less";
 			}
 
 			@Override
-			void press() {
+			public void press() {
 				write(read()-1);
 			}
 		});

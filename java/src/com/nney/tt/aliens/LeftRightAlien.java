@@ -6,10 +6,10 @@ import com.nney.tt.sprites.Anim;
 import com.nney.utils.Math2;
 
 public abstract class LeftRightAlien extends AlienWithLocation {
-	@AlienProp(name = "Range", doc = "The horizontal span in which we move.", label = "range")
+	@PropAnn(name = "Range", doc = "The horizontal span in which we move.", label = "range")
 	public XRange range;
 
-	@AlienProp(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
+	@PropAnn(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
 	public boolean goLeft;
 
 	@Override

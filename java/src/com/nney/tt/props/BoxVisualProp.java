@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new PointBat() {
 			@Override
-			public Coord where() {
+			public Coord point() {
 				return simpleLocation();
 			}
 
@@ -30,7 +30,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 		});
 		bats.add(new PointBat() {
 			@Override
-			public Coord where() {
+			public Coord point() {
 				Box t = read();
 				return t.topLeft();
 			}
@@ -45,7 +45,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 		bats.add(new PointBat() {
 			@Override
-			public Coord where() {
+			public Coord point() {
 				Box t = read();
 				return t.bottomRight();
 			}
@@ -60,7 +60,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 		bats.add(new PointBat() {
 			@Override
-			public Coord where() {
+			public Coord point() {
 				Box t = read();
 				return t.topRight();
 			}
@@ -75,7 +75,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 		bats.add(new PointBat() {
 			@Override
-			public Coord where() {
+			public Coord point() {
 				Box t = read();
 				return t.bottomLeft();
 			}
@@ -91,7 +91,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 	}
 
 	@Override
-	public void drawAuxBatStuff(BatGC rt) {
+	public void drawAuxBatStuff(VisualPropGC rt) {
 		Box t = read();
 		rt.drawBox(t);
 	}

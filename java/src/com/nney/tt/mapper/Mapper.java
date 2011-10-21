@@ -27,6 +27,11 @@ import com.nney.tt.input.LocksKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.props.Bat;
+import com.nney.tt.props.Button;
+import com.nney.tt.props.ButtonPressServices;
+import com.nney.tt.props.OPS;
+import com.nney.tt.props.Prop;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
@@ -433,7 +438,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 			else if (bat != null) {
 				final Coord firstMousePos = mmp.worldPixels();
-				final Coord firstBatPos = bat.where2().centre();
+				final Coord firstBatPos = bat.box().centre();
 				final Coord batGrip = firstMousePos.sub2(firstBatPos);
 				startAlienEdit();
 				startPen(kns, new Pen() {
@@ -699,7 +704,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				p.getBats(lbats);
 				for (Bat lbat : lbats) {
 					batRecords.add(new CommonBatRecord(lbat));
-					batGc.drawBat(lbat.where2());
+					batGc.drawBat(lbat.box());
 				}
 
 			}
@@ -710,7 +715,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			BatRecord superBat = new BatRecord() {
 				@Override
 				public boolean inside(Coord c) {
-					return where2().inside(c);
+					return box().inside(c);
 				}
 
 				@Override
@@ -719,7 +724,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				}
 
 				@Override
-				public Box where2() {
+				public Box box() {
 					return BatGCImpl.boxForSuperBat(alien.getLocation());
 				}
 			};

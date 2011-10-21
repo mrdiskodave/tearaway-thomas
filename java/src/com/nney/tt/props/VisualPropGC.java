@@ -1,8 +1,8 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import com.nney.tt.geom.Box;
 
-public interface BatGC {
+public interface VisualPropGC {
 	/**
 	 * Draw a box (which you might position bats around the edge of).
 	 * 

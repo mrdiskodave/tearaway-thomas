@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.props;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
-import com.nney.tt.aliens.AlienProp;
+import com.nney.tt.aliens.PropAnn;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
@@ -15,12 +15,12 @@ import com.nney.tt.geom.XRange;
  * Object Property Services.
  */
 public class OPS {
-	static List<Prop> propsFor(Object object) {
+	public static List<Prop> propsFor(Object object) {
 		assert object != null;
 		List<Prop> props = new ArrayList<Prop>();
 		Field[] fields = object.getClass().getFields();
 		for (Field field : fields) {
-			AlienProp p = field.getAnnotation(AlienProp.class);
+			PropAnn p = field.getAnnotation(PropAnn.class);
 			if (p != null) {
 				Prop prop = null;
 				PropPack pp = new PropPack(object, field);
