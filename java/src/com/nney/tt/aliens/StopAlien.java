@@ -2,6 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.PropAnn;
 
 public class StopAlien extends AlienWithLocation {
 	@PropAnn(name = "PushBox", doc = "The area we shove the player out of!", label = "pushBox")

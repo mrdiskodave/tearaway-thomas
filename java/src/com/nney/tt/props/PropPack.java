@@ -2,7 +2,6 @@ package com.nney.tt.props;
 
 import java.lang.reflect.Field;
 
-import com.nney.tt.aliens.PropAnn;
 import com.nney.tt.mapper.FieldAccessor;
 import com.nney.tt.mapper.FieldAccessorImpl;
 

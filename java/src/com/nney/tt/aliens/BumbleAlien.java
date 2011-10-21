@@ -2,6 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.PropAnn;
 
 public abstract class BumbleAlien extends AlienWithLocation {
 	@PropAnn(name = "Area", doc = "The area we're confined to", label = "box")

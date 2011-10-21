@@ -1,5 +1,6 @@
 package com.nney.tt.aliens;
 
+import com.nney.tt.props.PropAnn;
 import com.nney.utils.Math2;
 
 public abstract class AppearingAlien extends AlienWithLocation {

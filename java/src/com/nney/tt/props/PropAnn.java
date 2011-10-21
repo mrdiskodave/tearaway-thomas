@@ -1,4 +1,4 @@
-package com.nney.tt.aliens;
+package com.nney.tt.props;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

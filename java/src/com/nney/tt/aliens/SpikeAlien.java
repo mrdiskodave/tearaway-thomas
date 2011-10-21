@@ -1,5 +1,6 @@
 package com.nney.tt.aliens;
 
+import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Sprite;
 

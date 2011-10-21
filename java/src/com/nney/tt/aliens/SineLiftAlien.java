@@ -2,6 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.PropAnn;
 
 public class SineLiftAlien extends LiftAlien {
 	// need to think about what the props are here! could have signal generators

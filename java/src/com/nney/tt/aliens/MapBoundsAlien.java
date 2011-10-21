@@ -2,6 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.props.PropAnn;
 
 public class MapBoundsAlien extends Alien {
 	@PropAnn(name = "Bounds", doc = "Where is the player is allowed to roam?", label = "bounds")

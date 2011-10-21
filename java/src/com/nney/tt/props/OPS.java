@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
-import com.nney.tt.aliens.PropAnn;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
