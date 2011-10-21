@@ -1,5 +1,6 @@
 package com.nney.tt.lwjgl;
 
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import com.nney.tt.gfx.Blitable;
@@ -14,6 +15,14 @@ import com.nney.utils.Openable;
 import com.nney.utils.OpenableTools;
 
 public final class GlGraphicsContext implements GraphicsContext {
+	private final Runnable updateInputs;
+	private final int fps;
+
+	GlGraphicsContext(int fps, Runnable updateInputs) {
+		this.fps = fps;
+		this.updateInputs = updateInputs;
+	}
+	
 	@Override
 	public void fillRectangle(int x, int y, int w, int h, int col) {
 		GlTools.configureFor2dRect(col);
@@ -127,5 +136,28 @@ public final class GlGraphicsContext implements GraphicsContext {
 			GL11.glVertex2i(x + v[p] * ix, y + v[p + 1] * iy);
 		}
 		GL11.glEnd();
+	}
+
+	
+	boolean inside;
+	
+	@Override
+	public void beginDrawing() {
+		assert !inside;
+		inside = true;
+		Display.sync(fps);
+		updateInputs.run();
+		GlTools.configureFor2dBobs();
+	}
+
+	@Override
+	public void endDrawing() {
+		assert inside;
+		inside = false;
+		Display.update();
+		if (Display.isCloseRequested()) {
+			throw new ApplicationClosedException();
+		}
+		Thread.yield();
 	}
 }

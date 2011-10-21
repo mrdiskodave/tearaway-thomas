@@ -85,13 +85,12 @@ public class Main {
 		initLwjgl();
 		initOpenGL();
 		
-		AlAudioContext ac = new AlAudioContext();
+		final AlAudioContext ac = new AlAudioContext();
 
-		LwjglKeyboard keys = new LwjglKeyboard();
-		KeyboardJoystick joystick = new KeyboardJoystick(keys);
-		GlGraphicsContext gc = new GlGraphicsContext();
+		final LwjglKeyboard keys = new LwjglKeyboard();
+		final KeyboardJoystick joystick = new KeyboardJoystick(keys);
 		
-		LwjglPointer wonkyMouse = new LwjglPointer();
+		final LwjglPointer wonkyMouse = new LwjglPointer();
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
 		// projection
 		Pointer correctMouse = new PointerAdapter(wonkyMouse) {
@@ -106,6 +105,16 @@ public class Main {
 			}
 		};
 
+		GlGraphicsContext gc = new GlGraphicsContext(Const.FPS, new Runnable() {
+			@Override
+			public void run() {
+				keys.handleKeyboard();
+				joystick.update();
+				wonkyMouse.update();
+				ac.update();
+			}
+		});
+
 		OuterWorld ow = new OuterWorld(gc, ac, joystick, keys, correctMouse);
 		ow.bootstrap = new Bootstrap() {
 			@Override
@@ -114,32 +123,15 @@ public class Main {
 			}
 		};
 
-		FpsReporter fpsRep = new FpsReporter(50);
-		boolean closing = false;
-		while (!closing) {
-			Display.sync(Const.FPS);
 
-			keys.handleKeyboard();
-			joystick.update();
-			wonkyMouse.update();
-			ac.update();
-			GlTools.configureFor2dBobs();
-
-			ow.drawFrame();
-
-			Display.update();
-			if (Display.isCloseRequested()) {
-				closing = true;
-			}
-
-			fpsRep.reportFps();
-			Thread.yield();
-			
-			// TODO: does the MENU key have to get stuck when you tab away?
+		try {
+			ow.run();
 		}
-		
+		catch (ApplicationClosedException x) {};
+
 		ac.dispose();
-		
+		Mouse.destroy();
+		Keyboard.destroy();
 		Display.destroy();
 	}
 

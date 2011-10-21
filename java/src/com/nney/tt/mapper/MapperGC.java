@@ -15,18 +15,6 @@ public final class MapperGC {
 		this.cycler = cycler;
 	}
 
-	public void fillRectangle(int x, int y, int w, int h, int col) {
-		gc.fillRectangle(x, y, w, h, col);
-	}
-
-	public int screenWidth() {
-		return gc.screenWidth();
-	}
-
-	public int screenHeight() {
-		return gc.screenHeight();
-	}
-
 	public void drawBox(int x, int y, int w, int h, int c) {
 		gc.fillRectangle(x + 1, y, w - 2, 1, c);
 		gc.fillRectangle(x + 1, y + h - 1, w - 2, 1, c);
@@ -85,5 +73,29 @@ public final class MapperGC {
 
 	public Coord centreDisplacement() {
 		return new Coord(screenWidth() / 2, screenHeight() / 2);
+	}
+	
+	
+
+	// plain old delegates
+	
+	public void beginDrawing() {
+		gc.beginDrawing();
+	}
+
+	public void endDrawing() {
+		gc.endDrawing();
+	}
+
+	public void fillRectangle(int x, int y, int w, int h, int col) {
+		gc.fillRectangle(x, y, w, h, col);
+	}
+
+	public int screenWidth() {
+		return gc.screenWidth();
+	}
+
+	public int screenHeight() {
+		return gc.screenHeight();
 	}
 }

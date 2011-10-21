@@ -50,14 +50,18 @@ public class PersistedLevel {
 
 		DataItem levels = levelInfo.requireField("levels");
 		DataItem level = levels.requireElement(levelNumber);
+		
+		// TODO: these things need to travel in the map file
 		gemsNeeded = level.requireField("gemsNeeded").requireInt();
 		horizon = level.requireField("horizon").requireInt();
 		timeGiven = level.requireField("timeGiven").requireInt();
-		worldNum = level.requireField("world").requireInt();
-		String worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
-		stageNum = level.requireField("stage").requireInt();
 		title = level.requireField("title").requireString();
 		mapName = level.requireField("map").requireString();
+
+		worldNum = level.requireField("world").requireInt();
+		stageNum = level.requireField("stage").requireInt();
+		
+		String worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
 		af.selectWorld(worldName);
 		
 //		loadLegacy(af, TTResource.legacyMap(mapName));

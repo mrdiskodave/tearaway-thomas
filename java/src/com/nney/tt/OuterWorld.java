@@ -4,13 +4,12 @@ import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.mapper.Mapper;
 import com.nney.tt.sounds.AudioContext;
 import com.nney.tt.sounds.AudioHub;
 import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
 
-public class OuterWorld implements FrameDrawer {
+public class OuterWorld implements Runnable {
 	public final AudioHub ah;
 
 	public final Fonts fonts;
@@ -29,7 +28,7 @@ public class OuterWorld implements FrameDrawer {
 
 	public final Pointer mouse;
 
-	public int levelNumber = 11;
+	public int levelNumber = 0;
 
 	public int score = 0;
 
@@ -44,6 +43,12 @@ public class OuterWorld implements FrameDrawer {
 		ah = new AudioHub(ac);
 		fonts = new Fonts(gc);
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
+	}
+	
+	public void reset() {
+		levelNumber = 0;
+		score = 0;
+		lives = 3;
 	}
 
 	public BlockSet loadBlockSet(BlockSet.Config config) {
@@ -66,11 +71,13 @@ public class OuterWorld implements FrameDrawer {
 	public Bootstrap bootstrap;
 
 	@Override
-	public void drawFrame() {
-		if (bootstrap != null) {
-			fd = bootstrap.create(this);
-			bootstrap = null;
+	public void run() {
+		for (;;) {
+			if (bootstrap != null) {
+				fd = bootstrap.create(this);
+				bootstrap = null;
+			}
+			fd.drawFrame();
 		}
-		fd.drawFrame();
 	}
 }

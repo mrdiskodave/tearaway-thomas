@@ -38,12 +38,14 @@ import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 
-public class World implements AlienServices, FrameDrawer, Disposable {
+public class World implements AlienServices, Disposable {
+	public class ExitException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+	}
 
 	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
 			* Const.BLOCK_SIZE, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE);
-	
-	
+
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -64,7 +66,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	private HeadUpDisplay hud;
 
 	private AlienInfoMap alienInfoMap;
-
 
 	// Disposable:
 	private Horizon horizon;
@@ -105,12 +106,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	private int gemsTotal;
 
 	private int gemsCollected;
-	
-	enum GameMode {
-		PLAYING, PAUSED, COMPLETE, START
-	}
-
-	private GameMode mode = GameMode.PLAYING;
 
 	/**
 	 * A record of where (and how) we've put a {@link Sprite}.
@@ -133,30 +128,27 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	 * 
 	 * <p>
 	 * The aliens update their state <b>and</b> draw themselves in one method:
-	 * {@link Alien#update()}. {@link World#drawFrame()} is expected just
-	 * draw the screen when the game is paused but there is no on {@link Alien}
-	 * to just draw it. This is because all the update methods are modelled on
-	 * their 68000 originals.
+	 * {@link Alien#update()}. We are expected just draw the screen every frame
+	 * when the game is paused but there is no method on {@link Alien} to just
+	 * draw it. This the legacy reason being that all the update methods are
+	 * modelled on their 68000 originals.
 	 * 
 	 * <p>
-	 * Solution: we spend one frame recording where all the {@link Sprite}s are
-	 * drawn then we just play it back while we're paused without any calls any
-	 * methods on the {@link Alien}s.
+	 * Solution: we call {@link Alien#update()} (which'll have the unfortunate
+	 * effect of moving the alien by one frame) but we're really doing it to
+	 * capture a recording of where all the {@link Sprite}s get drawn. Then we
+	 * just play it back while we're paused without any further calls to
+	 * {@link Alien#update()}.
 	 * 
 	 * <p>
-	 * ORRR.... I was thinking about using SpriteRecords in order to have to
-	 * {@link Alien#update()} the aliens according to their {@link Alien#depth}.
-	 * Recording for one frame is awkward - it delays our intent by one frame
-	 * ... meaning we have to track that intent and also the game world moves on
-	 * by one frame. Maybe we record all the time? It need not generate garbage
-	 * if done right and then Aliens could sit in a single list. That's
-	 * something to consider.
-	 * 
+	 * ORRR.... we use this recording mechanism all the time perhaps? That would
+	 * decouple updating and actually drawing and leaving a recording sitting
+	 * around for whenever we needed it.
 	 * 
 	 * <p>
 	 * This is where we store the recording.
 	 */
-	private final ArrayList<SpriteRecord> recording = new ArrayList<World.SpriteRecord>();
+	private final ArrayList<SpriteRecord> recording = new ArrayList<SpriteRecord>();
 
 	/**
 	 * Were we pressing the pause key last frame?
@@ -169,8 +161,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	private StatusDisplay statusDisplay;
 
 	private boolean record;
-
-	private boolean completed;
 
 	// Disposable:
 	private StatusScreen statusScreen;
@@ -187,8 +177,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 	private Coroutine cr;
 
-
-	private static final int TELEPORT_TIME = 50;
+	private static final int TELEPORT_TIME = 20;
 
 	private int teleportTimer;
 
@@ -196,24 +185,14 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 	private Coord teleportDestination;
 
-
-	
 	private BlockSet blockSet;
 
 	private boolean seeMasks;
-	
+
 	private boolean seeHidden;
 
-	
-	
-	
-	
-	
-	
-	
-	
 	private OuterWorld ow;
-	
+
 	private GraphicsContext gc;
 
 	private AudioHub ah;
@@ -226,27 +205,13 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 	private AnimsPool animsPool;
 
-
-	public boolean status;
-
-
 	private Coord configuredPlayerStart;
 
-	private String configuredMap;
-	
-	private Bootstrap configuredExitBootstrap;
-	
-	public void configurePlayerStart(Coord c) {
-		configuredPlayerStart = c;
-	}
-	
-	public void configureMap(String s) {
-		configuredMap = s;
-	}
-	
-	public void configureExitBootstrap(Bootstrap s) {
-		configuredExitBootstrap = s;
-	}
+	private String configuredMapText;
+
+	private boolean drawPlayer = true;
+
+	private boolean completed;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -367,7 +332,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 	@Override
 	final public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
-		assert mode != GameMode.PAUSED;
 		if (record) {
 			recording.add(new SpriteRecord(c, s, drawWhite));
 		}
@@ -599,7 +563,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox);
 		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
 		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox);
-		if (mode != GameMode.COMPLETE) {
+		if (drawPlayer) {
 			player.draw();
 		}
 		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox);
@@ -608,8 +572,8 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		// Caveat1: only background Aliens get to move the player around.
 		// Caveat2: if any Alien does move him the scrolling for this frame
 		// won't know about it (because it has already happened) but you don't
-		// notice that because it is not hard scrolling but scrolling based on a
-		// SCROLLING_TABLE.
+		// notice that because it is not hard scrolling but soft scrolling based
+		// on a SCROLLING_TABLE.
 		//
 		// The Amiga version had Caveat2 (even if we didn't think about it).
 		// The Amiga version did not have Caveat1 because the player was beamed
@@ -626,149 +590,12 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		//
 	}
 
-
-	@Override
-	public void drawFrame() {
-		dispatchMode();
-		
-		if (configuredExitBootstrap!=null && keyboard.justPressed()==Keyboard.KEY_ESCAPE) {
-			ow.bootstrap = configuredExitBootstrap;
-		}
-	}
-
-	private void dispatchMode() {
-		if (getStick().testJustPressed(Joystick.FIRE)) {
-			firePressed = true;
-		}
-
-		if (mode == GameMode.COMPLETE) {
-			modeComplete();
-		}
-		else if (mode == GameMode.START) {
-			modeStart();
-		}
-		else if (mode == GameMode.PAUSED) {
-			modePaused();
-		}
-		else {
-			if (teleportTimer != 0) {
-				teleportTimer--;
-				drawTeleportEffect();
-				drawHudAndBorders(false);
-				if (teleportTimer == TELEPORT_TIME / 2) {
-					player.c = teleportDestination.copy();
-					pickTheBestBounds();
-					scr.snapTo(player.c);
-				}
-			}
-			else {
-				if (pauseAntiAutofire()) {
-					captureRecording();
-					mode = GameMode.PAUSED;
-					dispatchMode();
-				}
-				else if (completed) {
-					captureRecording();
-					dimFade.target(Curtain.CLOSED);
-
-					hole.setCentre(getPlayerCentre());
-					hole.target(Curtain.CLOSED);
-					hole.setRate(4);
-
-					String text = Messages.levelComplete(pl.worldNum, pl.stageNum, pl.title, gemsCollected, gemsTotal
-							- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
-					createStatusScreen(text);
-
-					cr = new Coroutine("timeBonus") {
-						@Override
-						public void run() {
-							// wait around a bit
-							pause(60);
-
-							//
-							// turn time into score
-							//
-							int fastScore = 0;
-							while (timeRemaining != 0) {
-								if (firePressed) {
-									fastScore += 10;
-								}
-								else {
-									awardScore(10, null);
-									playSoundEffect("tink");
-									pause(4);
-								}
-								timeRemaining = Math.max(0, timeRemaining - Const.FPS);
-							}
-							awardScore(fastScore, null);
-
-							// a pause so you get to look at it
-							pause(25);
-
-							//
-							// wait for fire
-							//
-							while (!firePressed) {
-								pause();
-							}
-
-							//
-							// fade to black
-							//
-							totalFade.target(Curtain.CLOSED);
-							while (!totalFade.isDone()) {
-								pause();
-							}
-						}
-					};
-
-					ah.startMusic(2);
-
-					mode = GameMode.COMPLETE;
-					firePressed = false;
-					frameNumber = 0;
-
-					dispatchMode();
-				}
-				else {
-					modeMainGame();
-				}
-			}
-		}
-	}
-
 	private void drawTeleportEffect() {
 		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xffffffff);
 	}
 
-	private void modePaused() {
-		horizon.draw();
-		drawTheMap();
-		for (SpriteRecord sr : recording) {
-			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
-		}
-		if (isExitOpen()) statusDisplay.drawExitOpen();
-
-		hole.draw();
-		statusDisplay.drawPaused();
-		drawHudAndBorders(false);
-
-		if (pauseAntiAutofire()) {
-			mode = GameMode.PLAYING;
-		}
-	}
-
 	private void drawTheMap() {
 		scr.drawTheMap(gameMap, blockSet);
-	}
-
-	private void modeStart() {
-		drawTitles(false);
-		if (getStick().testJustPressed(Joystick.FIRE)) {
-			dimFade.target(Curtain.OPEN);
-			mode = GameMode.PLAYING;
-			ah.startMusic(1);
-		}
 	}
 
 	private void drawTitles(boolean textOverHole) {
@@ -789,60 +616,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		totalFade.update();
 		drawHudAndBorders(true);
 	}
-
-	private void modeComplete() {
-		frameNumber++;
-
-		drawTitles(true);
-
-		try {
-			cr.step();
-		}
-		catch (CoTerminated ct) {
-			status = true;
-		}
-	}
-
-	private void modeMainGame() {
-		frameNumber++;
-
-		int timeDec = player.isStunned() ? 3 : 1;
-		timeRemaining = Math.max(timeRemaining - timeDec, 0);
-
-		playerSpriteTopLeft = null;
-		player.move();
-		assert playerSpriteTopLeft != null;
-
-		if (CTC_HARD_SCROLLING) {
-			scr.snapTo(player.c);
-		}
-		else {
-			scr.scrollTo(player.c);
-		}
-
-		horizon.draw();
-		drawTheMap();
-
-		updateAliens();
-
-		dimFade.update();
-
-		if (isExitOpen()) statusDisplay.drawExitOpen();
-		drawHurryUp();
-
-		if (teleportTimer != 0) {
-			drawTeleportEffect();
-		}
-
-		hole.update();
-		drawHudAndBorders(false);
-
-		// gc.fillRectangle(gc.screenWidth() / 2, 0, 1, 1000,
-		// 0xff000000);
-		// gc.fillRectangle(0, gc.screenHeight() / 2, 1000, 1,
-		// 0xff000000);
-	}
-
 
 	private boolean pauseAntiAutofire() {
 		boolean k = keyboard.isDown(Keyboard.KEY_P);
@@ -877,117 +650,6 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 		}
 	}
 
-	public void init() {
-		AlienFactory af = new AlienFactory(alienInfoMap);
-//		int a = 1;
-//		while (a == 1) {
-
-			System.out.println("Loading level " + ow.levelNumber);
-
-			pl = new PersistedLevel();
-			pl.populateFromLevelInfo(af, ow.levelNumber, configuredMap);
-//			pl.saveNew();
-//			levelNumber++;
-//		}
-
-		worldName = alienInfoMap.getWorldName();
-
-		alienTracker = new AlienTracker();
-
-		List<Alien> aliens = pl.getAliens();
-
-		Coord playerWhere = null;
-		boolean playerLeft = false;
-		if (configuredPlayerStart==null) {
-			for (Alien alien : aliens) {
-				if (alien instanceof PlayerAlien) {
-					PlayerAlien palien = (PlayerAlien) alien;
-					playerWhere = palien.c;
-					playerLeft = palien.goLeft;
-				}
-			}
-			if (playerWhere==null) {
-				throw new RuntimeException("Need a PlayerAlien to establish player's starting position!");
-			}
-		}
-		else {
-			playerWhere = configuredPlayerStart; 
-		}
-
-		// work out what Anims we need
-		TreeSet<String> animsNeeded = new TreeSet<String>();
-		whatAnimsDoTheyNeed(aliens, animsNeeded);
-		animsNeeded.add("0tt");
-		animsNeeded.add("0life");
-		alienInfoMap.collectPreloadNames(animsNeeded);
-
-		// unload what we no longer need
-		// load what we do need
-		animsPool.unloadReload(animsNeeded);
-
-		// connect the anims to the aliens
-		// and load the aliens into the world
-		for (Alien alien : aliens) {
-			alien.connect(animsPool);
-			load(alien);
-		}
-
-		horizon = gc.loadHorizon(TTResource.horizon(pl.horizon));
-
-		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
-
-		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
-		gameMap = pl.gameMap;
-
-		pickTheBestBounds();
-
-		player.move();
-		scr.snapTo(player.c);
-
-		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
-
-		gemsTotal = countGems();
-		System.out.println("Gems:" + gemsTotal);
-		gemsNeeded = pl.gemsNeeded;
-		gemsCollected = 0;
-
-		timeRemaining = pl.timeGiven * Const.FPS + Const.FPS - 1;
-
-		if (hud == null) {
-			Anims lifeAnims = animsPool.expect("0life");
-			hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).sprites[0]);
-			statusDisplay = new StatusDisplay(gc, fonts.font);
-		}
-
-		completed = false;
-		mode = GameMode.START;
-
-		captureRecording();
-
-		hole = new Aperture(gc);
-		hole.setCentre(getPlayerCentre());
-		hole.current(Curtain.CLOSED);
-		hole.target(Curtain.OPEN);
-
-		dimFade = new Fade(gc, 0x50, 0.25f);
-		dimFade.current(Curtain.CLOSED);
-		dimFade.target(Curtain.CLOSED);
-
-		totalFade = new Fade(gc, 0xff, 1f);
-		totalFade.current(Curtain.OPEN);
-		totalFade.target(Curtain.OPEN);
-
-		ah.loadMusic(2, "levelcomplete");
-
-		ah.loadMusic(1, worldName);
-
-		ah.loadMusic(0, "levelbegin");
-		ah.startMusic(0);
-
-		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
-		createStatusScreen(text);
-	}
-
 	public void setPlayerStart(Coord c) {
 		configuredPlayerStart = c;
 	}
@@ -1001,7 +663,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	private void pickTheBestBounds() {
 		Box bounds = WHOLE_MAP_BOUNDS_IN_PIXELS;
 		long bestArea = Long.MAX_VALUE;
-		for (Alien a: alienTracker) {
+		for (Alien a : alienTracker) {
 			if (a instanceof MapBoundsAlien) {
 				Box box = ((MapBoundsAlien) a).bounds.copy();
 				box.snapOutTo(Const.BLOCK_SIZE);
@@ -1082,7 +744,7 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 
 	private int countGems() {
 		int count = 0;
-		for (Alien a: alienTracker) {
+		for (Alien a : alienTracker) {
 			if (GemAlien.class.isInstance(a)) {
 				count++;
 			}
@@ -1113,11 +775,328 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	public boolean showText() {
 		return !record;
 	}
-	
+
+	// ---------------------------------------------------------------------------
+	// DRAWING A FRAME: BEGIN AND END
+	//
+
+	private void begin() {
+		if (getStick().testJustPressed(Joystick.FIRE)) {
+			firePressed = true;
+		}
+		gc.beginDrawing();
+	}
+
+	private void end() {
+		gc.endDrawing();
+		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
+			throw new ExitException();
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// PRINCIPAL METHODS
+
+	void maybePause() {
+		if (pauseAntiAutofire()) {
+			captureRecording();
+			while (!pauseAntiAutofire()) {
+				begin();
+				horizon.draw();
+				drawTheMap();
+				for (SpriteRecord sr : recording) {
+					directDrawSprite(sr.c, sr.s, sr.drawInWhite);
+				}
+				if (isExitOpen()) statusDisplay.drawExitOpen();
+				hole.draw();
+				statusDisplay.drawPaused();
+				drawHudAndBorders(false);
+				end();
+			}
+		}
+
+	}
+
+	public void create() {
+		hole = new Aperture(gc);
+		dimFade = new Fade(gc, 0x50, 0.25f);
+		totalFade = new Fade(gc, 0xff, 1f);
+
+		AlienFactory af = new AlienFactory(alienInfoMap);
+		// int a = 1;
+		// while (a == 1) {
+
+		System.out.println("Loading level " + ow.levelNumber);
+
+		pl = new PersistedLevel();
+		pl.populateFromLevelInfo(af, ow.levelNumber, configuredMapText);
+		// pl.saveNew();
+		// levelNumber++;
+		// }
+
+		worldName = alienInfoMap.getWorldName();
+
+		alienTracker = new AlienTracker();
+
+		List<Alien> aliens = pl.getAliens();
+
+		Coord playerWhere = null;
+		boolean playerLeft = false;
+		if (configuredPlayerStart == null) {
+			for (Alien alien : aliens) {
+				if (alien instanceof PlayerAlien) {
+					PlayerAlien palien = (PlayerAlien) alien;
+					playerWhere = palien.c;
+					playerLeft = palien.goLeft;
+				}
+			}
+			if (playerWhere == null) {
+				throw new RuntimeException("Need a PlayerAlien to establish player's starting position!");
+			}
+		}
+		else {
+			playerWhere = configuredPlayerStart;
+		}
+
+		// work out what Anims we need
+		TreeSet<String> animsNeeded = new TreeSet<String>();
+		whatAnimsDoTheyNeed(aliens, animsNeeded);
+		animsNeeded.add("0tt");
+		animsNeeded.add("0life");
+		alienInfoMap.collectPreloadNames(animsNeeded);
+
+		// unload what we no longer need
+		// load what we do need
+		animsPool.unloadReload(animsNeeded);
+
+		// connect the anims to the aliens
+		// and load the aliens into the world
+		for (Alien alien : aliens) {
+			alien.connect(animsPool);
+			load(alien);
+		}
+
+		horizon = gc.loadHorizon(TTResource.horizon(pl.horizon));
+
+		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
+
+		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
+		gameMap = pl.gameMap;
+
+		pickTheBestBounds();
+
+		player.move();
+		scr.snapTo(player.c);
+
+		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
+
+		gemsTotal = countGems();
+		System.out.println("Gems:" + gemsTotal);
+		gemsNeeded = pl.gemsNeeded;
+		gemsCollected = 0;
+
+		timeRemaining = pl.timeGiven * Const.FPS + Const.FPS - 1;
+
+		if (hud == null) {
+			Anims lifeAnims = animsPool.expect("0life");
+			hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).sprites[0]);
+			statusDisplay = new StatusDisplay(gc, fonts.font);
+		}
+	}
+
+	private void performIntro() {
+		captureRecording();
+
+		hole.setCentre(getPlayerCentre());
+		hole.current(Curtain.CLOSED);
+		hole.target(Curtain.OPEN);
+
+		dimFade.current(Curtain.CLOSED);
+		dimFade.target(Curtain.CLOSED);
+
+		totalFade.current(Curtain.OPEN);
+		totalFade.target(Curtain.OPEN);
+
+		ah.loadMusic(2, "levelcomplete");
+
+		ah.loadMusic(1, worldName);
+
+		ah.loadMusic(0, "levelbegin");
+		ah.startMusic(0);
+
+		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
+		createStatusScreen(text);
+
+		//
+		// MODE START
+		//
+		while (!getStick().testJustPressed(Joystick.FIRE)) {
+			begin();
+			drawTitles(false);
+			end();
+		}
+
+		dimFade.target(Curtain.OPEN);
+		ah.startMusic(1);
+	}
+
+	private void oneMainFrame() {
+		//
+		// MODE MAIN
+		//
+		begin();
+		frameNumber++;
+
+		int timeDec = player.isStunned() ? 3 : 1;
+		timeRemaining = Math.max(timeRemaining - timeDec, 0);
+
+		playerSpriteTopLeft = null;
+		player.move();
+		assert playerSpriteTopLeft != null;
+
+		if (CTC_HARD_SCROLLING) {
+			scr.snapTo(player.c);
+		}
+		else {
+			scr.scrollTo(player.c);
+		}
+
+		horizon.draw();
+		drawTheMap();
+
+		updateAliens();
+
+		dimFade.update();
+
+		if (isExitOpen()) statusDisplay.drawExitOpen();
+		drawHurryUp();
+
+		hole.update();
+
+		if (teleportTimer != 0) drawTeleportEffect();
+		drawHudAndBorders(false);
+
+		end();
+	}
+
+	private void checkTeleportation() {
+		while (teleportTimer != 0) {
+			begin();
+			teleportTimer--;
+			drawTeleportEffect();
+			drawHudAndBorders(false);
+			if (teleportTimer == TELEPORT_TIME / 2) {
+				player.c = teleportDestination.copy();
+				pickTheBestBounds();
+				scr.snapTo(player.c);
+			}
+			end();
+		}
+	}
+
+	private void performMain() {
+		while (!completed) {
+			checkTeleportation();
+			oneMainFrame();
+		}
+	}
+
+	private void performOutro() {
+
+		drawPlayer = false;
+		captureRecording();
+		dimFade.target(Curtain.CLOSED);
+
+		hole.setCentre(getPlayerCentre());
+		hole.target(Curtain.CLOSED);
+		hole.setRate(4);
+
+		String text = Messages.levelComplete(pl.worldNum, pl.stageNum, pl.title, gemsCollected, gemsTotal
+				- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
+		createStatusScreen(text);
+
+		cr = new Coroutine("timeBonus") {
+			@Override
+			public void run() {
+				// wait around a bit
+				pause(60);
+
+				//
+				// turn time into score
+				//
+				int fastScore = 0;
+				while (timeRemaining != 0) {
+					if (firePressed) {
+						fastScore += 10;
+					}
+					else {
+						awardScore(10, null);
+						playSoundEffect("tink");
+						pause(4);
+					}
+					timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+				}
+				awardScore(fastScore, null);
+
+				// a pause so you get to look at it
+				pause(25);
+
+				//
+				// wait for fire
+				//
+				while (!firePressed) {
+					pause();
+				}
+
+				//
+				// fade to black
+				//
+				totalFade.target(Curtain.CLOSED);
+				while (!totalFade.isDone()) {
+					pause();
+				}
+			}
+		};
+
+		ah.startMusic(2);
+
+		firePressed = false;
+
+		boolean done = false;
+		while (!done) {
+			begin();
+			drawTitles(true);
+
+			try {
+				cr.step();
+			}
+			catch (CoTerminated ct) {
+				done = true;
+			}
+			end();
+		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// ENTRY POINTS
+
+	public void playLevel(boolean intro, Coord playerStart, String mapText) {
+		try {
+			configuredPlayerStart = playerStart;
+			configuredMapText = mapText;
+			create();
+
+			if (intro) performIntro();
+			performMain();
+			performOutro();
+		}
+		catch (ExitException ex) {
+		}
+		dispose();
+	}
+
 	// ---------------------------------------------------------------------------
 	// (RE)LOAD AND FREE
-	// ---------------------------------------------------------------------------
-	
 
 	private void createStatusScreen(String text) {
 		freeStatusScreen();
@@ -1137,11 +1116,14 @@ public class World implements AlienServices, FrameDrawer, Disposable {
 	@Override
 	public void dispose() {
 		freeStatusScreen();
-		if (horizon!=null) horizon.dispose();
-		if (hud!=null) hud.dispose();
-		if (statusDisplay!=null) statusDisplay.dispose();
+		if (horizon != null) horizon.dispose();
+		if (hud != null) hud.dispose();
+		if (statusDisplay != null) statusDisplay.dispose();
 	}
 
+	public Coord getScreenPosition() {
+		return scr.position();
+	}
 
 }
 

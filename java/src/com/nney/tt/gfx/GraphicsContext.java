@@ -3,6 +3,9 @@ package com.nney.tt.gfx;
 import com.nney.utils.Openable;
 
 public interface GraphicsContext {
+	void beginDrawing();
+	
+	void endDrawing();
 
 	void fillRectangle(int x, int y, int w, int h, int col);
 

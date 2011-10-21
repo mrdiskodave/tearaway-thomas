@@ -10,7 +10,6 @@ import com.nney.tt.AlienInfoMap;
 import com.nney.tt.AlienServices;
 import com.nney.tt.AlienTracker;
 import com.nney.tt.BlockSet;
-import com.nney.tt.Bootstrap;
 import com.nney.tt.Const;
 import com.nney.tt.FrameDrawer;
 import com.nney.tt.OuterWorld;
@@ -55,7 +54,7 @@ import com.nney.utils.Math2;
  *   [LMB] draw with the current block
  *   [I] eye dropper - sets the current block from the map
  *   [CURSOR KEYS] change the current block
- *   hold [T] to make the current block track mouse movement (try it)
+ *   hold [C] to make the current block chase mouse movement (try it)
  *   [M] start marking a rectangle of blocks which you can end with:
  *     [M] cancel marking
  *     [F1-12] copy the rectangle of blocks into a numbered slot
@@ -76,6 +75,8 @@ import com.nney.utils.Math2;
  * [Ctrl+Y] redo
  * [ESCAPE] reset the mode
  *          (removes temporary floating palettes and other statefulness)
+ * [Alt+T] small test (test from the mouse position without the intro)
+ * [Alt+Shift+T] big test (test the whole level from start to finish)
  * </pre>
  * 
  * TODO: scrolling off the edges (so that [F] makes complete sense)
@@ -249,6 +250,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public void drawFrame() {
+		mgc.beginDrawing();
 
 		// at();
 		// System.exit(1);
@@ -278,10 +280,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			blockChoosingMode();
 			palettes = false;
 		}
-		else if (k == MAPPER_KEY) {
-			quitMapper(mmp.worldPixels());
-			drawLevel();
-		}
 		else {
 			if (alienMode) {
 				alienMode(k);
@@ -296,27 +294,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				paletteTimer = 0;
 				messTimer = 0;
 				marker = null;
-			}
-			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-				final String s = PersistedLevel.staticSave(gameMap, alienTracker);
-				final Coord pp = mmp.worldPixels();
-				ow.bootstrap = new Bootstrap() {
-					@Override
-					public FrameDrawer create(OuterWorld outerWorld) {
-						World fd = new World(outerWorld);
-						fd.configurePlayerStart(pp);
-						fd.configureMap(s);
-						fd.configureExitBootstrap(new Bootstrap() {
-							@Override
-							public FrameDrawer create(OuterWorld outerWorld) {
-								return Mapper.this;
-							}
-						});
-						fd.init();
-						return fd;
-					}
-				};
-				say("Saved");
 			}
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
 				say("Position:" + mmp.worldPixels() + "pixels " + mmp.worldBlocks() + "blocks");
@@ -336,6 +313,22 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				bottomUpStatusLayer.draw(0, 0, ButtonState.PASSIVE, messText);
 			}
 		}
+		mgc.endDrawing();
+
+		if (k == Locks.LOCK_MENU + Keyboard.KEY_T) {
+			testLevel(false);
+		}
+		if (k == Locks.LOCK_MENU + Locks.LOCK_SHIFT + Keyboard.KEY_T) {
+			testLevel(true);
+		}
+	}
+
+	private void testLevel(boolean bigTest) {
+		final String s = PersistedLevel.staticSave(gameMap, alienTracker);
+		final Coord pp = bigTest ? null : mmp.worldPixels();
+		World w = new World(ow);
+		w.playLevel(bigTest, pp, s);
+		setScreenPosition(w.getScreenPosition());
 	}
 
 	private void blockMode(int k) {
@@ -387,7 +380,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				marker = null;
 			}
 		}
-		if (keyboard.isDown(Keyboard.KEY_T)) {
+		if (keyboard.isDown(Keyboard.KEY_C)) {
 			Coord c = mmp.worldBlocksDelta();
 			changeCurrentBlock(c.x, c.y);
 		}
@@ -911,12 +904,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	// ---------------------------------------------------------------------------
-
-	private void quitMapper(Coord mousePos) {
-
-	}
-
-	// gameMap.applyCompress(blockSet.wi.blockRandomisationTable);
 
 	public Coord getScreenPosition() {
 		return scr.position();
