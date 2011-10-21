@@ -262,13 +262,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		mgc.nextFrame();
 		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
-
+		
 		topDownStatusLayer = new TopDownStatusLayer(mgc);
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
 		boolean palettes = true;
 		int k = keyboard.justPressed();
 		// System.out.println(String.format("PRESSED:%08x", k));
+
+		
+		if (!alienMode && keyboard.isDown(Keyboard.KEY_C)) {
+			Coord c = mmp.worldBlocksDelta();
+			changeCurrentBlock(c.x, c.y);
+		}
 
 		if (pen != null) {
 			pen.run();
@@ -384,10 +390,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				say("Copied into slot " + slotNumber);
 				marker = null;
 			}
-		}
-		if (keyboard.isDown(Keyboard.KEY_C)) {
-			Coord c = mmp.worldBlocksDelta();
-			changeCurrentBlock(c.x, c.y);
 		}
 		blockSelectionKeys(k);
 
