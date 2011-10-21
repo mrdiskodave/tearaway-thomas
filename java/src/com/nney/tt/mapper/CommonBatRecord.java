@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class CommonBatRecord implements BatRecord {
@@ -11,7 +12,7 @@ public class CommonBatRecord implements BatRecord {
 
 	@Override
 	public boolean inside(Coord c) {
-		return BatGCImpl.boxForBat(where()).inside(c);
+		return where2().inside(c);
 	}
 
 	@Override
@@ -20,7 +21,7 @@ public class CommonBatRecord implements BatRecord {
 	}
 
 	@Override
-	public Coord where() {
-		return target.where();
+	public Box where2() {
+		return target.where2();
 	}
 }

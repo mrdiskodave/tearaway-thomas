@@ -21,6 +21,7 @@ import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.OPS;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Openable;
@@ -231,7 +232,7 @@ public class PersistedLevel {
 		for (DataItem di: level.requireField("objects").requireList()) {
 			String type = di.requireField("type").requireString();
 			Alien alien = af.make(type);
-			APS.loadProps(alien, di);
+			OPS.loadProps(alien, di);
 			aliens.add(alien);
 		}
 	}
@@ -286,7 +287,7 @@ public class PersistedLevel {
 			dd.beginDict();
 			dd.write("type");
 			dd.write(a.alienInfo.name);
-			APS.saveProps(a, dd);
+			OPS.saveProps(a, dd);
 			dd.end();
 		}
 

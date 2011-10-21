@@ -11,6 +11,8 @@ import com.nney.tt.geom.XRange;
 
 public class XRangeVisualProp extends VisualProp<XRange> {
 	private static final int BORDER = 10;
+	
+	private static final int BAT_WIDTH = 3;
 
 	public XRangeVisualProp(PropPack pp) {
 		super(pp);
@@ -21,8 +23,10 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	public void getBats(List<Bat> bats) {
 		bats.add(new Bat() {
 			@Override
-			public Coord where() {
-				return location();
+			public Box where2() {
+				XRange t = read();
+				int x = t.middle();
+				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
 			}
 
 			@Override
@@ -34,10 +38,10 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 
 		bats.add(new Bat() {
 			@Override
-			public Coord where() {
+			public Box where2() {
 				XRange t = read();
-				int apy = alienPos().y;
-				return new Coord(t.left, apy);
+				int x = t.left;
+				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
 			}
 
 			@Override
@@ -49,10 +53,10 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 
 		bats.add(new Bat() {
 			@Override
-			public Coord where() {
+			public Box where2() {
 				XRange t = read();
-				int apy = alienPos().y;
-				return new Coord(t.right, apy);
+				int x = t.right;
+				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
 			}
 
 			@Override
@@ -86,6 +90,12 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	}
 
 	@Override
+	Coord location(Coord old) {
+		XRange t = read();
+		return new Coord(t.middle(), old.y);
+	}
+
+	@Override
 	public void validate() {
 		XRange t = read();
 		t.resideInside(World.WHOLE_MAP_BOUNDS_IN_PIXELS.toXRange());
@@ -95,13 +105,6 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	public void moveBy(Coord delta) {
 		XRange t = read();
 		t.add(delta.x);
-	}
-
-	@Override
-	Coord location() {
-		XRange t = read();
-		int apy = alienPos().y;
-		return new Coord(t.middle(), apy);
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import com.nney.tt.aliens.Alien;
  * (by directly accessing the {@link Alien}. Then call {@link #size()} and if it
  * is non-zero then submit this object to {@link UndoControler#add(UndoRedo)}.
  */
-class AlienEdit extends SymmetricalUndoRedo {
+class ObjectEdit extends SymmetricalUndoRedo {
 	class Content {
 		FieldAccessor fa;
 		Object content;
@@ -37,11 +37,11 @@ class AlienEdit extends SymmetricalUndoRedo {
 	}
 
 	private final List<Content> cs = new ArrayList<Content>();
-	private final Alien alien;
+	private final HasProps object;
 
-	AlienEdit(Alien alien) {
-		this.alien = alien;
-		for (Prop p : APS.propsForAlien(alien)) {
+	ObjectEdit(HasProps object) {
+		this.object = object;
+		for (Prop p : OPS.propsFor(object)) {
 			FieldAccessor fa = p.getFieldAccessor();
 			Object o = fa.getCopy();
 			cs.add(new Content(fa, o));
@@ -49,6 +49,7 @@ class AlienEdit extends SymmetricalUndoRedo {
 	}
 
 	private void removeMatching() {
+		object.onPropUpdate();
 		for (Iterator<Content> ci = cs.iterator(); ci.hasNext();) {
 			Content c = ci.next();
 			if (c.same()) {
@@ -62,9 +63,7 @@ class AlienEdit extends SymmetricalUndoRedo {
 	 */
 	public boolean containsAnything() {
 		removeMatching();
-		boolean answer = cs.size()!=0;
-		if (answer) alien.onPropUpdate();
-		return answer;
+		return cs.size()!=0;
 	}
 
 	@Override
@@ -72,6 +71,6 @@ class AlienEdit extends SymmetricalUndoRedo {
 		for (Content c : cs) {
 			c.swap();
 		}
-		alien.onPropUpdate();
+		object.onPropUpdate();
 	}
 }

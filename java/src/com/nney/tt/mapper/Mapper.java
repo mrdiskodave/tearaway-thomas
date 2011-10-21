@@ -109,7 +109,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
 	private CollidableList<ButtonRecord> buttonRecords;
 
-	private AlienEdit alienEdit;
+	private ObjectEdit alienEdit;
 
 	private final HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
 	private Alien selectedAlien;
@@ -433,7 +433,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 			else if (bat != null) {
 				final Coord firstMousePos = mmp.worldPixels();
-				final Coord firstBatPos = bat.where().copy();
+				final Coord firstBatPos = bat.where2().centre();
 				final Coord batGrip = firstMousePos.sub2(firstBatPos);
 				startAlienEdit();
 				startPen(kns, new Pen() {
@@ -607,7 +607,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		Alien a = makeAlien(ai);
 		a.connect(animsPool);
 		a.resetTo(mmp.worldPixels());
-		APS.validateAlien(a);
+		OPS.validate(a);
 		createAlienWithUndoRedo(a);
 	}
 
@@ -688,7 +688,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 			batGc.drawSuperBat(getSelectedAlien().getLocation());
 
-			List<Prop> props = APS.propsForAlien(getSelectedAlien());
+			List<Prop> props = OPS.propsFor(getSelectedAlien());
 
 			// bats
 			batRecords.clear();
@@ -699,7 +699,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				p.getBats(lbats);
 				for (Bat lbat : lbats) {
 					batRecords.add(new CommonBatRecord(lbat));
-					batGc.drawBat(lbat.where());
+					batGc.drawBat(lbat.where2());
 				}
 
 			}
@@ -710,17 +710,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			BatRecord superBat = new BatRecord() {
 				@Override
 				public boolean inside(Coord c) {
-					return BatGCImpl.boxForSuperBat(where()).inside(c);
+					return where2().inside(c);
 				}
 
 				@Override
 				public void onMove(Coord c) {
-					APS.movePropsAbsolute(alien, c);
+					APS.moveAlienAbsolute(alien, c);
 				}
 
 				@Override
-				public Coord where() {
-					return alien.getLocation();
+				public Box where2() {
+					return BatGCImpl.boxForSuperBat(alien.getLocation());
 				}
 			};
 			batRecords.add(superBat);
@@ -799,7 +799,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void startAlienEdit() {
 		assert alienEdit == null;
 		Alien a = getSelectedAlien();
-		alienEdit = new AlienEdit(a);
+		alienEdit = new ObjectEdit(a);
 	}
 
 	private void endAlienEdit() {
@@ -845,8 +845,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private Alien copyAlien(final Alien src) {
 		final Alien dest = makeAlien(src.alienInfo);
 		dest.connect(src);
-		APS.copyProps(src, dest);
-		APS.movePropsAbsolute(dest, mmp.worldPixels());
+		OPS.copyProps(src, dest);
+		APS.moveAlienAbsolute(dest, mmp.worldPixels());
 		return dest;
 	}
 

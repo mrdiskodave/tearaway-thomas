@@ -13,10 +13,6 @@ public abstract class Prop {
 		this.pp = pp;
 	}
 	
-	public Coord alienPos() {
-		return pp.alien().getLocation();
-	}
-
 	public FieldAccessor getFieldAccessor() {
 		return pp.access();
 	}

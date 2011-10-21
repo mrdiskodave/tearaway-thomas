@@ -14,10 +14,10 @@ public class CoordVisualProp extends VisualProp<Coord> {
 	
 	@Override
 	public void getBats(List<Bat> bats) {
-		bats.add(new Bat() {
+		bats.add(new PointBat() {
 			@Override
 			public Coord where() {
-				return location();
+				return simpleLocation();
 			}
 
 			@Override
@@ -45,7 +45,7 @@ public class CoordVisualProp extends VisualProp<Coord> {
 	}
 
 	@Override
-	Coord location() {
+	Coord location(Coord old) {
 		Coord t = read();
 		return t.copy();
 	}

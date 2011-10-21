@@ -13,18 +13,14 @@ public class BatGCImpl implements BatGC {
 		this.mgc = mgc;
 	}
 
-	public void drawBat(Coord c) {
-		Box b = boxForBat(c).sub2(scr);
+	public void drawBat(Box b) {
+		b = b.sub2(scr);
 		mgc.fillRectangle(b.left, b.top, b.width(), b.height(), 0xffffff00);
 	}
 	
 	public void drawSuperBat(Coord c) {
 		c = c.sub2(scr);
 		mgc.drawSight2(c.x, c.y, 25, mgc.process(0xff00ffff), SUPERBAT_SIZE, 0x40000000);
-	}
-
-	public static Box boxForBat(Coord c) {
-		return Box.around(c, 4);
 	}
 
 	public static Box boxForSuperBat(Coord c) {

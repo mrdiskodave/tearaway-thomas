@@ -307,4 +307,12 @@ public class Box implements Copyable<Box>, Cloneable {
 		a *= height();
 		return a;
 	}
+
+	public Coord centre() {
+		int x = left+right;
+		int y = top+bottom;
+		assert x%2==0;
+		assert y%2==0;
+		return new Coord(x/2, y/2);
+	}
 }

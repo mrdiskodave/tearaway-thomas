@@ -1,5 +1,6 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public interface Bat {
@@ -8,7 +9,7 @@ public interface Bat {
 	 * Where is it?
 	 * @return It's location.
 	 */
-	Coord where();
+	Box where2();
 	
 	/**
 	 * What happens when the user moves it.

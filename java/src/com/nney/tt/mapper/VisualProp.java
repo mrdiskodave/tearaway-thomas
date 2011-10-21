@@ -14,7 +14,11 @@ public abstract class VisualProp<T> extends SpecificProp<T> {
 		super(pp);
 	}
 	
-	abstract Coord location();
+	abstract Coord location(Coord old);
+	
+	public Coord simpleLocation() {
+		return location(null);
+	}
 	
 	
 	@Override
@@ -27,7 +31,7 @@ public abstract class VisualProp<T> extends SpecificProp<T> {
 
 			@Override
 			void press() {
-				bps.setScreenCentre(location());
+				bps.setScreenCentre(location(bps.screenCentre()));
 			}
 		});
 		buttons.add(new Button() {

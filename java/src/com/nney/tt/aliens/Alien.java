@@ -4,6 +4,7 @@ import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienServices;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.mapper.HasProps;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
@@ -12,10 +13,10 @@ import com.nney.tt.sprites.Sprite;
 
 /**
  * All the non-player things in the game are called "aliens" for legacy reasons.
- * It's because the first game we wrote was set in space - it had "aliens" - and
+ * It's because the first game I wrote was set in space - it had "aliens" - and
  * the name stuck.
  */
-public abstract class Alien {
+public abstract class Alien implements HasProps {
 	enum LifeCycle {
 		INSTANTIATED, ATTACH, CONNECT, READY, UNLOAD
 	}
@@ -106,7 +107,6 @@ public abstract class Alien {
 
 	}
 
-	
 	public Anim mapperAnim() {
 		return anims.find(0);
 	}
@@ -129,6 +129,7 @@ public abstract class Alien {
 
 	abstract public Coord getLocation();
 
+	@Override
 	public void onPropUpdate() {
 	}
 
@@ -140,8 +141,6 @@ public abstract class Alien {
 		}
 	}
 
-	
-	
 	public void attach(AlienInfo alienInfo2) {
 		fromTo(LifeCycle.INSTANTIATED, LifeCycle.ATTACH);
 		alienInfo = alienInfo2;

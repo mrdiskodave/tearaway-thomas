@@ -17,10 +17,10 @@ public class BoxVisualProp extends VisualProp<Box> {
 
 	@Override
 	public void getBats(List<Bat> bats) {
-		bats.add(new Bat() {
+		bats.add(new PointBat() {
 			@Override
 			public Coord where() {
-				return location();
+				return simpleLocation();
 			}
 
 			@Override
@@ -28,7 +28,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 				onBring(where);
 			}
 		});
-		bats.add(new Bat() {
+		bats.add(new PointBat() {
 			@Override
 			public Coord where() {
 				Box t = read();
@@ -43,7 +43,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 			}
 		});
 
-		bats.add(new Bat() {
+		bats.add(new PointBat() {
 			@Override
 			public Coord where() {
 				Box t = read();
@@ -58,7 +58,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 			}
 		});
 
-		bats.add(new Bat() {
+		bats.add(new PointBat() {
 			@Override
 			public Coord where() {
 				Box t = read();
@@ -73,7 +73,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 			}
 		});
 
-		bats.add(new Bat() {
+		bats.add(new PointBat() {
 			@Override
 			public Coord where() {
 				Box t = read();
@@ -105,7 +105,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 	@Override
 	void onBring(Coord c) {
 		Box t = read();
-		Coord delta = c.sub2(location());
+		Coord delta = c.sub2(simpleLocation());
 		t.add(delta);
 		validate();
 	}
@@ -123,7 +123,7 @@ public class BoxVisualProp extends VisualProp<Box> {
 	}
 
 	@Override
-	Coord location() {
+	Coord location(Coord old) {
 		Box t = read();
 		return t.middle();
 	}
