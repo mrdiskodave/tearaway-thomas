@@ -1,6 +1,5 @@
 package com.nney.tt.gfx;
 
-import com.nney.tt.Const;
 import com.nney.tt.map.BlockAliasTable;
 
 public class BlockSource {

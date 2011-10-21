@@ -4,8 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import com.nney.tt.Fridge.FridgeEntry;
-
 /**
  * A fridge is a one dimensional structure for freezing off-screen objects.
  * 

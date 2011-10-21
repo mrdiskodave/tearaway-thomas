@@ -3,8 +3,6 @@ package com.nney.tt.lwjgl;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import javax.management.RuntimeErrorException;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
