@@ -7,6 +7,9 @@ import com.nney.json.DataItem;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.mapper.FieldAccessor;
 
+/**
+ * Meta information and operations on an object property (AKA an object field). 
+ */
 public abstract class Prop {
 	private PropPack pp;
 
@@ -29,11 +32,9 @@ public abstract class Prop {
 	public String label() {
 		return pp.getAnn().label();
 	}
-
-	abstract public String text();
 	
 	public void copyFrom(Prop other) {
-		pp.access().put(other.pp.access().getCopy());
+		getFieldAccessor().put(other.getFieldAccessor().getCopy());
 	}
 
 	public void validate() {
@@ -41,6 +42,8 @@ public abstract class Prop {
 
 	// ---------------------------------------------------------------------------
 	// TEXT UI 
+
+	abstract public String text();
 	
 	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 	}
