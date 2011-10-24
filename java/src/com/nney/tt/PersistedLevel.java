@@ -14,6 +14,7 @@ import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
 import com.nney.json.JsonValue;
 import com.nney.json.SafeWriter;
+import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlayerAlien;
@@ -26,53 +27,125 @@ import com.nney.tt.resources.TTResource;
 import com.nney.utils.Openable;
 
 public class PersistedLevel {
-	//
-	// things from the levelinfo.txt entry
-	//
-	public int gemsNeeded;
-	public int horizon;
-	public int timeGiven;
-	public int worldNum;
-	public int stageNum;
-	public String title;
-
-	//
-	// things from the map file
-	//
+	public LevelInfo li;
 	public GameMap gameMap;
 	public List<Alien> aliens = new ArrayList<Alien>();
-	
-	// name of the map file
 	public String mapName;
 
-	public void populateFromLevelInfo(AlienFactory af, int levelNumber, String configuredMap) {
-		DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
+	static String getLevelName(int levelNumber) {
+		DataItem levelOrder = TTResource.diFromText(TTResource.config("levelorder.txt"));
+		return levelOrder.requireElement(levelNumber).requireString();
+	}
 
-		DataItem levels = levelInfo.requireField("levels");
-		DataItem level = levels.requireElement(levelNumber);
+	public PersistedLevel(AlienFactory af, int levelNumber, String configuredMap) {
+		mapName = getLevelName(levelNumber);
 		
-		// TODO: these things need to travel in the map file
-		gemsNeeded = level.requireField("gemsNeeded").requireInt();
-		horizon = level.requireField("horizon").requireInt();
-		timeGiven = level.requireField("timeGiven").requireInt();
-		title = level.requireField("title").requireString();
-		mapName = level.requireField("map").requireString();
-
-		worldNum = level.requireField("world").requireInt();
-		stageNum = level.requireField("stage").requireInt();
-		
-		String worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
-		af.selectWorld(worldName);
-		
-//		loadLegacy(af, TTResource.legacyMap(mapName));
-		
+		DataItem di;
 		if (configuredMap==null) {
-			loadNew(af, TTResource.diFromText(TTResource.map(mapName)));
+			di = TTResource.diFromText(TTResource.map(mapName));
 		}
 		else {
-			loadNew(af, JsonValue.mustParse(configuredMap));
+			di = JsonValue.mustParse(configuredMap);
+		}
+
+		af.selectWorld(li.worldName);
+		li = new LevelInfo(di.requireField("info"));
+		gameMap = GameMap.load(di.requireField("blocks"));
+		aliens = new ArrayList<Alien>();
+		staticLoadAliens(aliens, af, di.requireField("objects"));		
+	}
+
+	static void staticLoadAliens(List<Alien> aliens, AlienFactory af, DataItem dis) {
+		for (DataItem di: dis.requireList()) {
+			String type = di.requireField("type").requireString();
+			Alien alien = af.make(type);
+			OPS.loadProps(alien, di);
+			aliens.add(alien);
 		}
 	}
+
+
+	
+	void saveNew() {
+		String answer = staticSave(li, gameMap, aliens);
+		try {
+			String s = mapName;
+			s = s.replaceAll(".map", "");
+			System.out.println("Saving "+s);
+			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + s + ".txt");
+			w.write(answer);
+			w.close();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static String staticSave(LevelInfo li, GameMap gameMap, Iterable<Alien> aliens) {
+		SafeWriter sw = new StringSafeWriter();
+		IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
+		ijf.spaciousSeperators();
+		DataDestination dd = new JsonDataDestination(ijf);
+
+		dd.beginDict();
+
+		dd.write("info");
+		li.save(dd);
+
+		dd.write("objects");
+		staticSaveAliens(aliens, dd);
+		dd.write("blocks");
+		dd.beginArray();
+		gameMap.save(dd);
+		dd.end();
+		dd.end();
+
+		return sw.toString();
+	}
+
+	private static void staticSaveAliens(Iterable<Alien> aliens, DataDestination dd) {
+		dd.beginArray();
+		ArrayList<Alien> toSave = new ArrayList<Alien>();
+		for (Alien a : aliens) {
+			if (!a.alienInfo.internal()) {
+				toSave.add(a);
+			}
+		}
+
+		APS.orderAlienList(toSave);
+		
+		for (Alien a: toSave) {
+			dd.beginDict();
+			dd.write("type");
+			dd.write(a.alienInfo.name);
+			OPS.saveProps(a, dd);
+			dd.end();
+		}
+
+		dd.end();
+	}
+
+	public List<Alien> getAliens() {
+		List<Alien> answer = aliens;
+		aliens = null;
+		return answer;
+	}
+
+	
+	
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
 
 	private String readChunkId(DataInputStream di) throws IOException {
 		StringBuilder sb = new StringBuilder();
@@ -140,6 +213,9 @@ public class PersistedLevel {
 		}
 	}
 
+	
+
+	
 	private void createLegacyAlien(AlienFactory af, int x, int y, int typeCode, byte[] rest) {
 
 		//
@@ -180,8 +256,7 @@ public class PersistedLevel {
 			try {
 				DataInputStream di = new DataInputStream(i);
 				// get the game map off the front of the stream
-				gameMap = new GameMap();
-				gameMap.loadFromLegacyMap(di);
+				gameMap = GameMap.loadLegacy(di);
 
 				// read the other things
 				for (;;) {
@@ -224,92 +299,5 @@ public class PersistedLevel {
 			throw new RuntimeException(e);
 		}
 	}
-	
-	private void loadNew(AlienFactory af, DataItem level) {
-		gameMap = new GameMap();
-		gameMap.loadMap(level.requireField("blocks"));
-		for (DataItem di: level.requireField("objects").requireList()) {
-			String type = di.requireField("type").requireString();
-			Alien alien = af.make(type);
-			OPS.loadProps(alien, di);
-			aliens.add(alien);
-		}
-	}
-
-	
-	
-
-	void saveNew() {
-		String answer = staticSave(gameMap, aliens);
-		try {
-			String s = mapName;
-			s = s.replaceAll(".map", "");
-			System.out.println("Saving "+s);
-			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + s + ".txt");
-			w.write(answer);
-			w.close();
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static String staticSave(GameMap gameMap, Iterable<Alien> aliens) {
-		final StringBuffer sb = new StringBuffer();
-
-		SafeWriter sw = new SafeWriter() {
-			@Override
-			public void write(String text) {
-				sb.append(text);
-			}
-		};
-
-		IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
-		ijf.spaciousSeperators();
-		DataDestination dd = new JsonDataDestination(ijf);
-
-		dd.beginDict();
-		dd.write("objects");
-		dd.beginArray();
-		
-		ArrayList<Alien> toSave = new ArrayList<Alien>();
-		
-		for (Alien a : aliens) {
-			if (!a.alienInfo.internal()) {
-				toSave.add(a);
-			}
-		}
-
-		APS.orderAlienList(toSave);
-		
-		for (Alien a: toSave) {
-			dd.beginDict();
-			dd.write("type");
-			dd.write(a.alienInfo.name);
-			OPS.saveProps(a, dd);
-			dd.end();
-		}
-
-		dd.end();
-		dd.write("blocks");
-		dd.beginArray();
-		gameMap.saveMap(dd);
-		dd.end();
-		dd.end();
-
-		String answer = sb.toString();
-		return answer;
-	}
-
-	public List<Alien> getAliens() {
-		List<Alien> answer = aliens;
-		aliens = null;
-		return answer;
-	}
-
-	
-	
-
-
 
 }

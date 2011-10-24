@@ -12,6 +12,7 @@ import com.nney.tt.AlienTracker;
 import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
 import com.nney.tt.FrameDrawer;
+import com.nney.tt.LevelInfo;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
 import com.nney.tt.ScreenPosition;
@@ -161,6 +162,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final AlienServices alienServices = new MapperAlienServices(this);
 
 	private BottomUpStatusLayer bottomUpStatusLayer;
+
+	private LevelInfo levelInfo;
 	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -185,8 +188,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		animsPool = ow.animsPool;
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
-		PersistedLevel pl = new PersistedLevel();
-		pl.populateFromLevelInfo(af, ow.levelNumber, null);
+		PersistedLevel pl = new PersistedLevel(af, ow.levelNumber, null);
 		worldName = alienInfoMap.getWorldName();
 
 		for (String a : alienInfoMap.queryAnimList()) {
@@ -335,7 +337,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void testLevel(boolean bigTest) {
-		final String s = PersistedLevel.staticSave(gameMap, alienTracker);
+		assert false: "BROKEN coz of levelInfo";
+		final String s = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
 		final Coord pp = bigTest ? null : mmp.worldPixels();
 		World w = new World(ow);
 		w.playLevel(bigTest, pp, s);

@@ -213,6 +213,8 @@ public class World implements AlienServices, Disposable {
 
 	private boolean completed;
 
+	private LevelInfo levelInfo;
+
 	public World(OuterWorld ow) {
 		this.ow = ow;
 		this.gc = ow.gc;
@@ -828,8 +830,7 @@ public class World implements AlienServices, Disposable {
 
 		System.out.println("Loading level " + ow.levelNumber);
 
-		pl = new PersistedLevel();
-		pl.populateFromLevelInfo(af, ow.levelNumber, configuredMapText);
+		pl = new PersistedLevel(af, ow.levelNumber, configuredMapText);
 		// pl.saveNew();
 		// levelNumber++;
 		// }
@@ -875,8 +876,10 @@ public class World implements AlienServices, Disposable {
 			alien.connect(animsPool);
 			load(alien);
 		}
+		
+		levelInfo = pl.li;
 
-		horizon = gc.loadHorizon(TTResource.horizon(pl.horizon));
+		horizon = gc.loadHorizon(TTResource.horizon(levelInfo.horizon));
 
 		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 
@@ -892,10 +895,10 @@ public class World implements AlienServices, Disposable {
 
 		gemsTotal = countGems();
 		System.out.println("Gems:" + gemsTotal);
-		gemsNeeded = pl.gemsNeeded;
+		gemsNeeded = levelInfo.gemsNeeded;
 		gemsCollected = 0;
 
-		timeRemaining = pl.timeGiven * Const.FPS + Const.FPS - 1;
+		timeRemaining = levelInfo.timeGiven * Const.FPS + Const.FPS - 1;
 
 		if (hud == null) {
 			Anims lifeAnims = animsPool.expect("0life");
@@ -924,7 +927,7 @@ public class World implements AlienServices, Disposable {
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
 
-		String text = Messages.levelStart(pl.worldNum, pl.stageNum, pl.title, pl.gemsNeeded, gemsTotal, pl.timeGiven);
+		String text = Messages.levelStart(ow.levelNumber+1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal, levelInfo.timeGiven);
 		createStatusScreen(text);
 
 		//
@@ -1011,7 +1014,7 @@ public class World implements AlienServices, Disposable {
 		hole.target(Curtain.CLOSED);
 		hole.setRate(4);
 
-		String text = Messages.levelComplete(pl.worldNum, pl.stageNum, pl.title, gemsCollected, gemsTotal
+		String text = Messages.levelComplete(ow.levelNumber+1, levelInfo.title, gemsCollected, gemsTotal
 				- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
 		createStatusScreen(text);
 
