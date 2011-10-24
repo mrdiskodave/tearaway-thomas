@@ -17,8 +17,10 @@ import com.nney.tt.resources.TTResource;
 public class LevelConverter {
 
 	//
-	// converts levelinfo.txt to fat levels that include LevelInfo
-	// and a levelorder array
+	// adds levelinfo.txt to the tops of all the levels
+	// (giving fat levels that include all that information)
+	// this means we can delete levelinfo.txt
+	// and are left with levelorder.txt that just gives the running order
 	//
 	public static void main(String[] args) {
 		SafeWriter sw = new StringSafeWriter();
