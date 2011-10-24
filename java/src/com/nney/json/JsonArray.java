@@ -197,4 +197,13 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 		return content.toString();
 	}
 
+	@Override
+	public void save(DataDestination d) {
+		d.beginArray();
+		for (JsonValue v: content) {
+			v.save(d);
+		}
+		d.end();
+	}
+
 }

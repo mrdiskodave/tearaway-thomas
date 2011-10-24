@@ -11,4 +11,9 @@ public class JsonNull extends JsonValue {
 	public void writeJson(DataWriter writer) throws JsonException {
 		writer.writeNull();
 	}
+
+	@Override
+	public void save(DataDestination d) {
+		d.writeNull();
+	}
 }

@@ -68,4 +68,9 @@ public interface DataItem {
 
 	boolean isNull();
 
+	/**
+	 * Save this into that. Recurses into any nested dictionaries and arrays.
+	 * @param that
+	 */
+	void save(DataDestination that);
 }

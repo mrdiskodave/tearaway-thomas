@@ -183,6 +183,8 @@ class JsonInput {
 	 */
 	public JsonValue nextValue() throws JsonException {
 		skipWhiteAndComments();
+		
+//		System.out.println(formatMessage("Looking at "+(char) peek()));
 
 		if (consume('"')) {
 			return new JsonString(nextString('"'));
@@ -215,7 +217,7 @@ class JsonInput {
 			}
 		}
 
-		throw syntaxError("Not a JSON item");
+		throw syntaxError("Not a JSON item: "+(char) peek());
 	}
 
 	private void back() {
@@ -230,8 +232,12 @@ class JsonInput {
 	 * @return A JSONException object, suitable for throwing
 	 */
 	JsonException syntaxError(String message) {
-		String fullMessage = message + " at " + TextPosition.fromText(text.substring(0, pos));
+		String fullMessage = formatMessage(message);
 		return new JsonException(fullMessage);
+	}
+
+	private String formatMessage(String message) {
+		return message + " at " + TextPosition.fromText(text.substring(0, pos));
 	}
 
 	public void parseList(char open, char close, String name, JsonBlock contentParser) throws JsonException {

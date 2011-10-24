@@ -151,4 +151,14 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 		return content.values();
 	}
 
+	@Override
+	public void save(DataDestination d) {
+		d.beginDict();
+		for (Map.Entry<String, JsonValue> entry : content.entrySet()) {
+			d.write(entry.getKey());
+			entry.getValue().save(d);
+		}
+		d.end();
+	}
+
 }

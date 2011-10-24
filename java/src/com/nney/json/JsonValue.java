@@ -62,7 +62,7 @@ public abstract class JsonValue implements DataItem {
 	public DataItem[] requireList() throws DataException {
 		throw new DataException("array expected");
 	}
-
+	
 	public static JsonValue parse(String jsonString) throws JsonException {
 		JsonInput jsonInput = new JsonInput(jsonString);
 		JsonValue answer = jsonInput.nextValue();

@@ -42,4 +42,9 @@ public class JsonString extends JsonValue {
 	public String requireString() {
 		return value;
 	}
+
+	@Override
+	public void save(DataDestination d) {
+		d.write(value);
+	}
 }

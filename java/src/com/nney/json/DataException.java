@@ -2,7 +2,7 @@ package com.nney.json;
 
 /**
  * Triggered if the callers expectations about {@link DataItem} are violated.
- * This will only happen in the event that bad data has been supplied. This is
+ * This will only happen in the event that bad data has been supplied. That is
  * why this exception is unchecked.
  */
 public class DataException extends RuntimeException {
