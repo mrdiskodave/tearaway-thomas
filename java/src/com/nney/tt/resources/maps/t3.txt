@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 25, 
+		"timeGiven": 70, 
+		"horizon": 0, 
+		"title": "gems in high places", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

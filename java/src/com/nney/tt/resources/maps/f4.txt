@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 0, 
+		"timeGiven": 60, 
+		"horizon": 3, 
+		"title": "challenge", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "legacy", 

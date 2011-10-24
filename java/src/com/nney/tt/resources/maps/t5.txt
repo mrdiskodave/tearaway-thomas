@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 25, 
+		"timeGiven": 75, 
+		"horizon": 0, 
+		"title": "the car ferry", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

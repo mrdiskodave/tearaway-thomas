@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 95, 
+		"timeGiven": 35, 
+		"horizon": 1, 
+		"title": "i feel the need...", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

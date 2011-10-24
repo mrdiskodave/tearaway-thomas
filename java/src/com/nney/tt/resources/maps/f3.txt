@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 45, 
+		"timeGiven": 70, 
+		"horizon": 5, 
+		"title": "the long hard shaft", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 55, 
+		"timeGiven": 99, 
+		"horizon": 0, 
+		"title": "laser blazer", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

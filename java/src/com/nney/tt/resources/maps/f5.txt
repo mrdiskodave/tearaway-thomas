@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 70, 
+		"timeGiven": 99, 
+		"horizon": 2, 
+		"title": "save the bast 'til last", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 33, 
+		"timeGiven": 80, 
+		"horizon": 6, 
+		"title": "back to the future", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "clock", 

@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 45, 
+		"timeGiven": 99, 
+		"horizon": 4, 
+		"title": "lift city", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "arrowUp", 

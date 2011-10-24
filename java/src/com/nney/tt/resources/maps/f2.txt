@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 0, 
+		"timeGiven": 20, 
+		"horizon": 7, 
+		"title": "challenge", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "fruit0", 

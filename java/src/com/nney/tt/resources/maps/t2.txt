@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 55, 
+		"timeGiven": 70, 
+		"horizon": 0, 
+		"title": "this way up", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "arrowUp", 

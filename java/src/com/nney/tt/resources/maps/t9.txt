@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 55, 
+		"timeGiven": 20, 
+		"horizon": 0, 
+		"title": "challenge", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "mapBounds", 

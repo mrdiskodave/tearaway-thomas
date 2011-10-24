@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 15, 
+		"timeGiven": 60, 
+		"horizon": 0, 
+		"title": "the big wheel", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

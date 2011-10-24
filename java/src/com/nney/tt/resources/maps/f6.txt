@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 70, 
+		"timeGiven": 50, 
+		"horizon": 4, 
+		"title": "teleport city", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

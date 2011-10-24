@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 65, 
+		"timeGiven": 75, 
+		"horizon": 0, 
+		"title": "up, up and (tear)away", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

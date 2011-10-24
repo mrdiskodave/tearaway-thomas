@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 60, 
+		"timeGiven": 95, 
+		"horizon": 0, 
+		"title": "the choice is still yours", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 

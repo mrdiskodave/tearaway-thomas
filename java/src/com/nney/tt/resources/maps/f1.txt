@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 80, 
+		"timeGiven": 95, 
+		"horizon": 3, 
+		"title": "pipe-nightmare", 
+		"world": "f"
+	}, 
 	"objects": [
 		{
 			"type": "clock", 

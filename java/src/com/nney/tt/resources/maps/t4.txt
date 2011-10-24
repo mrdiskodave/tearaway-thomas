@@ -1,4 +1,11 @@
 {
+	"info": {
+		"gemsNeeded": 35, 
+		"timeGiven": 90, 
+		"horizon": 0, 
+		"title": "the crazy maze", 
+		"world": "t"
+	}, 
 	"objects": [
 		{
 			"type": "exit", 
