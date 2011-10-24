@@ -6,7 +6,7 @@
     [
         "hrope",    [ 108 ],
         "vrope",    [ 107 ],
-        "ladderleft", [280, 282, 284 ],
+        "ladderleft", [280, 282, 284 ]
     ],
 "invisibleBlockHiding":
     [
