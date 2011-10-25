@@ -23,7 +23,7 @@ public class SaveMapBlock {
 	
 	public static SaveMapBlock fromSolid(int w, int h, int b) {
 		SaveMapBlock answer = new SaveMapBlock(w, h);
-		answer.fill(b);
+		if (b!=0) answer.fill(b);
 		return answer;
 	}
 
