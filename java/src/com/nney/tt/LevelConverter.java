@@ -36,7 +36,7 @@ public class LevelConverter {
 			DataItem levels = levelInfo.requireField("levels");
 			DataItem level = levels.requireElement(levelNumber);
 
-			LevelInfo li = new LevelInfo(level);
+			LevelInfo li = new LevelInfo(null, level);
 			
 			int worldNum = level.requireField("world").requireInt();
 //			li.worldName = levelInfo.requireField("worldNames").requireElement(worldNum - 1).requireString();
@@ -53,8 +53,7 @@ public class LevelConverter {
 			GameMap gameMap = GameMap.load(blocks);
 			gameMap.applyCompress(wi.blockRandomisationTable);
 			
-			AlienInfoMap alienInfoMap = new AlienInfoMap();
-			alienInfoMap.setWorld(li.worldName);
+			AlienInfoMap alienInfoMap = new AlienInfoMap(li.worldName);
 			
 			ArrayList<Alien> aliens = new ArrayList<Alien>();
 			AlienFactory af = new AlienFactory(alienInfoMap);

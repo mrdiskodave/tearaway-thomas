@@ -5,7 +5,6 @@ import com.nney.json.DataItem;
 import com.nney.tt.props.PropAnn;
 
 public class LevelInfo {
-	
 	@PropAnn(doc = "How many gems must be collected before the exit opens?")
 	public int gemsNeeded;
 
@@ -18,7 +17,11 @@ public class LevelInfo {
 	@PropAnn(doc = "What is the title of this level?")
 	public String title;
 	
+	@PropAnn(doc = "What is the filename of this level?")
+	public String filename;
+
 	public String worldName;
+
 
 	public LevelInfo(int gemsNeeded, int timeGiven, int horizon, String title, String worldName) {
 		this.gemsNeeded = gemsNeeded;
@@ -28,12 +31,13 @@ public class LevelInfo {
 		this.worldName = worldName;
 	}
 	
-	public LevelInfo(DataItem di) {
+	public LevelInfo(String mapName0, DataItem di) {
 		gemsNeeded = di.requireField("gemsNeeded").requireInt();
 		horizon = di.requireField("horizon").requireInt();
 		timeGiven = di.requireField("timeGiven").requireInt();
 		title = di.requireField("title").requireString();
 		worldName = di.requireField("world").requireString();
+		filename = mapName0;
 	}
 	
 	void save(DataDestination d) {

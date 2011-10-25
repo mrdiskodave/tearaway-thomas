@@ -19,33 +19,37 @@ import com.nney.tt.props.OPS;
 import com.nney.tt.resources.TTResource;
 
 public class PersistedLevel {
-	final public LevelInfo levelInfo;
-	final public GameMap gameMap;
-	final private List<Alien> aliens = new ArrayList<Alien>();
-	final public String mapName;
+	final private DataItem diLevel;
+	final private String mapName;
 
 	static String getLevelName(int levelNumber) {
 		DataItem levelOrder = TTResource.diFromText(TTResource.config("levelorder.txt"));
 		return levelOrder.requireElement(levelNumber).requireString();
 	}
 
-	public PersistedLevel(AlienFactory af, int levelNumber, String overrideLevelData) {
-		mapName = getLevelName(levelNumber);
-		
-		DataItem diLevel;
-		if (overrideLevelData==null) {
+	public PersistedLevel(int levelNumber, String overrideLevelText) {
+		if (overrideLevelText==null) {
+			mapName = getLevelName(levelNumber);
 			diLevel = TTResource.diFromText(TTResource.map(mapName));
 		}
 		else {
-			diLevel = JsonValue.mustParse(overrideLevelData);
+			mapName = "_internal_test_";
+			diLevel = JsonValue.mustParse(overrideLevelText);
 		}
-
-		levelInfo = new LevelInfo(diLevel.requireField("info"));
-		
-		
-		af.setWorld(levelInfo.worldName);
-		staticLoadAliens(aliens, af, diLevel.requireField("objects"));		
-		gameMap = GameMap.load(diLevel.requireField("blocks"));
+	}
+	
+	public LevelInfo getLevelInfo() {
+		return new LevelInfo(mapName, diLevel.requireField("info"));
+	}
+	
+	public List<Alien> getAliens(AlienFactory af) {
+		List<Alien> aliens = new ArrayList<Alien>();
+		staticLoadAliens(aliens, af, diLevel.requireField("objects"));
+		return aliens;
+	}
+	
+	public GameMap getMap() {
+		return GameMap.load(diLevel.requireField("blocks"));
 	}
 
 	static void staticLoadAliens(List<Alien> aliens, AlienFactory af, DataItem dis) {
@@ -56,22 +60,16 @@ public class PersistedLevel {
 			aliens.add(alien);
 		}
 	}
-
-
+		
 	
-	void saveNew() {
+
+	// ---------------------------------------------------------------------------
+	// SAVING
+	
+	
+	static void saveNew(LevelInfo levelInfo, GameMap gameMap, Iterable<Alien> aliens) {
 		String answer = staticSave(levelInfo, gameMap, aliens);
-		try {
-			String s = mapName;
-			s = s.replaceAll(".map", "");
-			System.out.println("Saving "+s);
-			FileWriter w = new FileWriter("C:\\Users\\david\\Desktop\\maps\\" + s + ".txt");
-			w.write(answer);
-			w.close();
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		TTResource.saveMap(levelInfo.filename, answer);
 	}
 	
 	public static String staticSave(LevelInfo li, GameMap gameMap, Iterable<Alien> aliens) {
@@ -116,10 +114,6 @@ public class PersistedLevel {
 		}
 
 		dd.end();
-	}
-
-	public List<Alien> getAliens() {
-		return aliens;
 	}
 	
 	

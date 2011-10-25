@@ -54,10 +54,12 @@ import com.nney.utils.Math2;
  *   [I] eye dropper - sets the current alien type from the selected alien 
  *   [N] new alien (of the current alien type)
  *   [DELETE] delete the selected alien
+ *   [Ctrl+Delete] delete all aliens
  *   [F] find the selected alien (i.e. scroll to it)
  * 
  * [D] Drawing Mode:
  *   [LMB] draw with the current block
+ *   [Ctrl+Delete] clear the whole map
  *   [I] eye dropper - sets the current block from the map
  *   [CURSOR KEYS] change the current block
  *   hold [C] to make the current block chase mouse movement (try it)
@@ -69,12 +71,12 @@ import com.nney.utils.Math2;
  *   
  *   [CTRL+M] toggle seeing block masks
  *   [CTRL+I] toggle seeing hidden blocks
- *
+ * 
  *   hold [RMB] for a block choosing screen:
  *     [LMB] to pick.
  *     [CURSOR KEYS] and [CTRL+M] and [CTRL+I] work in here too
  * 
- * Either mode:
+ * Always:
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
  * [Ctrl+G] where am I?
  * [Ctrl+Z] undo
@@ -83,11 +85,12 @@ import com.nney.utils.Math2;
  *          (removes temporary floating palettes and other statefulness)
  * [Alt+T] small test (test from the mouse position without the intro)
  * [Alt+Shift+T] big test (test the whole level from start to finish)
+ * [NumPad5] jump to the middle of the level
+ *           (and the eight keys around it work as expected)
  * </pre>
  * 
- * TODO: scrolling off the edges (so that [F] makes complete sense)
- * TODO: next/previous alien (of this type)
- * TODO: multiselect for delete and move
+ * TODO: scrolling off the edges (so that [F] makes complete sense) TODO:
+ * next/previous alien (of this type) TODO: multiselect for delete and move
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
@@ -149,13 +152,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private final ScreenPosition scr;
 
-	private final AlienInfoMap alienInfoMap = new AlienInfoMap();
+	private final AlienInfoMap alienInfoMap;
 
 	private boolean seeHidden = true;
 
 	private boolean seeMasks;
 
-	private final AlienTracker alienTracker = new AlienTracker();
+	private AlienTracker alienTracker = new AlienTracker();
 
 	private String worldName;
 
@@ -164,7 +167,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private BottomUpStatusLayer bottomUpStatusLayer;
 
 	private LevelInfo levelInfo;
-	
+
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
@@ -187,19 +190,21 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		mouse = ow.mouse;
 		animsPool = ow.animsPool;
 
-		AlienFactory af = new AlienFactory(alienInfoMap);
-		PersistedLevel pl = new PersistedLevel(af, ow.levelNumber, null);
-		levelInfo = pl.levelInfo;
+		PersistedLevel pl = new PersistedLevel(ow.levelNumber, null);
+		levelInfo = pl.getLevelInfo();
+		alienInfoMap = new AlienInfoMap(levelInfo.worldName);
+
 		worldName = alienInfoMap.getName();
 
 		for (String a : alienInfoMap.queryAnimList()) {
 			animsPool.load(a);
 		}
 
-		gameMap = pl.gameMap;
+		gameMap = pl.getMap();
 		gameMap.applyCompress(loadBlockSet().wi.blockRandomisationTable);
 
-		List<Alien> aliens = pl.getAliens();
+		AlienFactory af = new AlienFactory(alienInfoMap);
+		List<Alien> aliens = pl.getAliens(af);
 		for (Alien alien : aliens) {
 			if (alien instanceof PlayerAlien) {
 				PlayerAlien playerPos = (PlayerAlien) alien;
@@ -265,7 +270,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		mgc.nextFrame();
 		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
-		
+
 		topDownStatusLayer = new TopDownStatusLayer(mgc);
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
@@ -273,7 +278,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		int k = keyboard.justPressed();
 		// System.out.println(String.format("PRESSED:%08x", k));
 
-		
+
 		if (!alienMode && keyboard.isDown(Keyboard.KEY_C)) {
 			Coord c = mmp.worldBlocksDelta();
 			changeCurrentBlock(c.x, c.y);
@@ -300,6 +305,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 			else {
 				blockMode(k);
+			}
+
+			Coord nc = numCoord(k);
+			if (nc != null) {
+				int x = Math2.fracMult(nc.x, GameMap.MAP_WIDTH * Const.BLOCK_SIZE - 1, 2);
+				int y = Math2.fracMult(nc.y, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE - 1, 2);
+				setScreenCentre(new Coord(x, y));
 			}
 
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
@@ -337,12 +349,24 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 
+	private Coord numCoord(int k) {
+		if (k == Keyboard.KEY_NUMPAD7) return new Coord(0, 0);
+		if (k == Keyboard.KEY_NUMPAD8) return new Coord(1, 0);
+		if (k == Keyboard.KEY_NUMPAD9) return new Coord(2, 0);
+		if (k == Keyboard.KEY_NUMPAD4) return new Coord(0, 1);
+		if (k == Keyboard.KEY_NUMPAD5) return new Coord(1, 1);
+		if (k == Keyboard.KEY_NUMPAD6) return new Coord(2, 1);
+		if (k == Keyboard.KEY_NUMPAD1) return new Coord(0, 2);
+		if (k == Keyboard.KEY_NUMPAD2) return new Coord(1, 2);
+		if (k == Keyboard.KEY_NUMPAD3) return new Coord(2, 2);
+		return null;
+	}
+
 	private void testLevel(boolean bigTest) {
-		assert false: "BROKEN coz of levelInfo";
-		final String s = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
-		final Coord pp = bigTest ? null : mmp.worldPixels();
+		final String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
+		final Coord playerPosition = bigTest ? null : mmp.worldPixels();
 		World w = new World(ow);
-		w.playLevel(bigTest, pp, s);
+		w.playLevel(bigTest, playerPosition, levelText);
 		setScreenPosition(w.getScreenPosition());
 	}
 
@@ -394,6 +418,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				say("Copied into slot " + slotNumber);
 				marker = null;
 			}
+		}
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
+			SaveMapBlock m = SaveMapBlock.fromSolid(GameMap.MAP_WIDTH, GameMap.MAP_HEIGHT, 0);
+			MapEdit edit = MapEdit.create(gameMap, new Coord(0, 0), m);
+			submitMapEdit(edit);
 		}
 		blockSelectionKeys(k);
 
@@ -468,7 +497,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					@Override
 					public void stroke() {
 						Coord whereSnapped = whereSnapped();
-						say("Move by "+whereSnapped.sub2(firstBatPos));
+						say("Move by " + whereSnapped.sub2(firstBatPos));
 						bat.onMove(whereSnapped);
 					}
 
@@ -487,6 +516,12 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				endAlienEdit();
 			}
 		}
+		
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
+			setSelectedAlien(null);
+			alienTracker = new AlienTracker();
+		}
+
 
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
@@ -677,13 +712,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private Alien getSelectedAlien() {
-		assert !(selectedAlien!=null && selectedAlien.remove);
+		assert !(selectedAlien != null && selectedAlien.remove);
 		return selectedAlien;
 	}
 
 	private void setSelectedAlien(Alien s) {
 		selectedAlien = s;
-		if (s!=null) {
+		if (s != null) {
 			alienTracker.defrost(s);
 		}
 		buttonRecords = null;
@@ -862,7 +897,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void submitMapEdit(MapEdit u) {
-		if (u!=null) {
+		if (u != null) {
 			undoControler.redoThenAdd(u);
 		}
 		else {
@@ -938,7 +973,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
 			alien.mapperUpdate();
-			if (alien.remove || (alien!=selectedAlien && alienTracker.perhapsFreeze(alien, screenBox))) {
+			if (alien.remove || (alien != selectedAlien && alienTracker.perhapsFreeze(alien, screenBox))) {
 				alienIterator.remove();
 			}
 		}
@@ -953,7 +988,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	public Alien findNearestAlien(Coord c) {
 		long dist = Long.MAX_VALUE;
 		Alien answer = null;
-		for (Alien a: alienTracker) {
+		for (Alien a : alienTracker) {
 			Coord diff = a.getLocation().sub2(c);
 			long ndist = diff.squareOfLength();
 			if (ndist < dist) {
@@ -1130,4 +1165,3 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 }
-

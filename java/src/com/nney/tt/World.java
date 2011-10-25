@@ -222,7 +222,6 @@ public class World implements AlienServices, Disposable {
 		this.keyboard = ow.keyboard;
 		this.fonts = ow.fonts;
 		this.animsPool = ow.animsPool;
-		alienInfoMap = new AlienInfoMap();
 	}
 
 	// ---------------------------------------------------------------------------
@@ -822,22 +821,26 @@ public class World implements AlienServices, Disposable {
 		dimFade = new Fade(gc, 0x50, 0.25f);
 		totalFade = new Fade(gc, 0xff, 1f);
 
-		AlienFactory af = new AlienFactory(alienInfoMap);
 		// int a = 1;
 		// while (a == 1) {
 
 		System.out.println("Loading level " + ow.levelNumber);
 
-		PersistedLevel pl = new PersistedLevel(af, ow.levelNumber, configuredMapText);
 		// pl.saveNew();
 		// levelNumber++;
 		// }
 
-		worldName = alienInfoMap.getName();
-
 		alienTracker = new AlienTracker();
 
-		List<Alien> aliens = pl.getAliens();
+		PersistedLevel pl = new PersistedLevel(ow.levelNumber, configuredMapText);
+		levelInfo = pl.getLevelInfo();
+		worldName = levelInfo.worldName;
+
+		alienInfoMap = new AlienInfoMap(worldName);
+		AlienFactory af = new AlienFactory(alienInfoMap);
+		List<Alien> aliens = pl.getAliens(af);
+		gameMap = pl.getMap();
+		pl = null;
 
 		Coord playerWhere = null;
 		boolean playerLeft = false;
@@ -875,14 +878,11 @@ public class World implements AlienServices, Disposable {
 			load(alien);
 		}
 		
-		levelInfo = pl.levelInfo;
-
 		horizon = gc.loadHorizon(TTResource.horizon(levelInfo.horizon));
 
 		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 
 		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
-		gameMap = pl.gameMap;
 
 		pickTheBestBounds();
 

@@ -11,10 +11,6 @@ public class AlienFactory {
 		this.alienInfoMap = alienInfoMap;
 	}
 
-	public void setWorld(String name) {
-		alienInfoMap.setWorld(name);
-	}
-
 	public Alien make(int typeCode, int x, int y, byte[] rest) {
 		String tcName = AlienInfoMap.typeCodeToName(typeCode);
 		Alien alien;

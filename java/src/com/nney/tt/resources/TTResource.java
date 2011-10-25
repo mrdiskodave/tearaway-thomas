@@ -1,5 +1,7 @@
 package com.nney.tt.resources;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import com.nney.json.DataItem;
@@ -14,8 +16,29 @@ import com.nney.utils.StringIO;
  * disk but we're headed towards getting them all into SVN!
  */
 public class TTResource {
+	private static final String FORMAT_FOR_MAP_PATH = "maps/%s.txt";
+	static private File resourcePath;
+
+	/**
+	 * This is used during development when we want to read resources from local
+	 * disk rather than from our classpath.
+	 * 
+	 * @param resourcePath
+	 */
+	static public void setResourcePath(File resourcePath) {
+		TTResource.resourcePath = resourcePath;
+	}
+
 	private static Openable formatted(String format, Object... args) {
-		return new ClassResourceOpenable(TTResource.class, String.format(format, args));
+		String formattedName = String.format(format, args);
+		if (resourcePath != null) {
+			File f = new File(resourcePath, formattedName);
+			if (f.exists()) {
+				System.out.println("Loading from resource path: "+f);
+				return new FileOpenable(f);
+			}
+		}
+		return new ClassResourceOpenable(TTResource.class, formattedName);
 	}
 
 	public static Openable blockDef(String worldName) {
@@ -38,13 +61,42 @@ public class TTResource {
 		return TTResource.formatted("config/%s", name);
 	}
 
-	public static Openable legacyMap(String name) {
-		String filename = String.format("C:/Users/david/Desktop/newdata/maps/%s.map", name);
-		return new FileOpenable(filename);
+	// public static Openable legacyMap(String name) {
+	// String filename =
+	// String.format("C:/Users/david/Desktop/newdata/maps/%s.map", name);
+	// return new FileOpenable(filename);
+	// }
+
+	public static void saveMap(String name, String content) {
+		requireResourcePath();
+		String formattedName = String.format(FORMAT_FOR_MAP_PATH, name);
+		saveResource(formattedName, content);
 	}
-	
+
+	private static void saveResource(String formattedName, String content) {
+		File f = new File(resourcePath, formattedName);
+		System.out.println("Saving to resource path: "+f);
+		try {
+			FileWriter w = new FileWriter(f);
+			w.write(content);
+			w.close();
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void requireResourcePath() {
+		if (resourcePath!=null) {
+			throw new RuntimeException("Resource path not configured");
+		}
+		if (!resourcePath.isDirectory()) {
+			throw new RuntimeException("Resource path not a directory: "+resourcePath);
+		}
+	}
+
 	public static Openable map(String name) {
-		return TTResource.formatted("maps/%s.txt", name);
+		return TTResource.formatted(FORMAT_FOR_MAP_PATH, name);
 	}
 
 	public static Openable spriteFrame(String spriteName, int frameNumber) {
@@ -60,11 +112,11 @@ public class TTResource {
 			return false;
 		}
 	}
-	
+
 	public static Openable spriteDef(String spriteName) {
 		return TTResource.formatted("anims/%s/def.txt", spriteName);
 	}
-	
+
 	public static Openable music(String s) {
 		return TTResource.formatted("sounds/music/%s", s);
 	}

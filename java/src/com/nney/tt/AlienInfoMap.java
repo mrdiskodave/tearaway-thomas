@@ -65,7 +65,7 @@ public class AlienInfoMap {
 
 	private String worldName;
 	
-	public AlienInfoMap() {
+	public AlienInfoMap(String worldName) {
 		add(new AlienInfo(4, "exit", "0exit", ExitAlien.class));
 		add(new AlienInfo(5, "shield", "0shld", ShieldAlien.class));
 		add(new AlienInfo(7, "clock", "0clok", ClockAlien.class));
@@ -114,6 +114,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("fall"), null, FallingAlien.class));
 
+		setWorld(worldName);
 	}
 
 	private void add(AlienInfo a) {
@@ -141,7 +142,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(a.type(), a.name(), a.gfx(), a.score(), c));
 	}
 
-	public void setWorld(String worldName) {
+	private void setWorld(String worldName) {
 		this.worldName = worldName;
 		nameToAlienInfo.clear();
 		classToAlienInfo.clear();
