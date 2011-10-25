@@ -189,7 +189,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		PersistedLevel pl = new PersistedLevel(af, ow.levelNumber, null);
-		worldName = alienInfoMap.getWorldName();
+		levelInfo = pl.levelInfo;
+		worldName = alienInfoMap.getName();
 
 		for (String a : alienInfoMap.queryAnimList()) {
 			animsPool.load(a);

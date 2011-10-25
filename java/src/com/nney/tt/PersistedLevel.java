@@ -1,10 +1,7 @@
 package com.nney.tt;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,43 +13,39 @@ import com.nney.json.JsonValue;
 import com.nney.json.SafeWriter;
 import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.MapBoundsAlien;
-import com.nney.tt.aliens.PlayerAlien;
-import com.nney.tt.geom.Box;
-import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.props.OPS;
 import com.nney.tt.resources.TTResource;
-import com.nney.utils.Openable;
 
 public class PersistedLevel {
-	public LevelInfo li;
-	public GameMap gameMap;
-	public List<Alien> aliens = new ArrayList<Alien>();
-	public String mapName;
+	final public LevelInfo levelInfo;
+	final public GameMap gameMap;
+	final private List<Alien> aliens = new ArrayList<Alien>();
+	final public String mapName;
 
 	static String getLevelName(int levelNumber) {
 		DataItem levelOrder = TTResource.diFromText(TTResource.config("levelorder.txt"));
 		return levelOrder.requireElement(levelNumber).requireString();
 	}
 
-	public PersistedLevel(AlienFactory af, int levelNumber, String configuredMap) {
+	public PersistedLevel(AlienFactory af, int levelNumber, String overrideLevelData) {
 		mapName = getLevelName(levelNumber);
 		
-		DataItem di;
-		if (configuredMap==null) {
-			di = TTResource.diFromText(TTResource.map(mapName));
+		DataItem diLevel;
+		if (overrideLevelData==null) {
+			diLevel = TTResource.diFromText(TTResource.map(mapName));
 		}
 		else {
-			di = JsonValue.mustParse(configuredMap);
+			diLevel = JsonValue.mustParse(overrideLevelData);
 		}
 
-		af.selectWorld(li.worldName);
-		li = new LevelInfo(di.requireField("info"));
-		gameMap = GameMap.load(di.requireField("blocks"));
-		aliens = new ArrayList<Alien>();
-		staticLoadAliens(aliens, af, di.requireField("objects"));		
+		levelInfo = new LevelInfo(diLevel.requireField("info"));
+		
+		
+		af.setWorld(levelInfo.worldName);
+		staticLoadAliens(aliens, af, diLevel.requireField("objects"));		
+		gameMap = GameMap.load(diLevel.requireField("blocks"));
 	}
 
 	static void staticLoadAliens(List<Alien> aliens, AlienFactory af, DataItem dis) {
@@ -67,7 +60,7 @@ public class PersistedLevel {
 
 	
 	void saveNew() {
-		String answer = staticSave(li, gameMap, aliens);
+		String answer = staticSave(levelInfo, gameMap, aliens);
 		try {
 			String s = mapName;
 			s = s.replaceAll(".map", "");
@@ -126,178 +119,163 @@ public class PersistedLevel {
 	}
 
 	public List<Alien> getAliens() {
-		List<Alien> answer = aliens;
-		aliens = null;
-		return answer;
+		return aliens;
 	}
-
 	
 	
 
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	private String readChunkId(DataInputStream di) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		for (int r = 4; r-- > 0;) {
-			sb.append((char) di.readByte());
-		}
-		String id = sb.toString();
-		// System.out.println("Got chunk: >" + id + "<");
-		return id;
-	}
-
-	private void loadRawSettings(AlienFactory af, byte[] rawSettings) throws IOException {
-		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
-		{
-			// read the legacy player position information
-			// as a PlayerAlien
-			int x = dis.readShort();
-			int y = dis.readShort();
-			boolean goLeft = dis.readByte() != 0;
-
-			// and stuff that into the game the modern way with a
-			// PlayerPositionAlien
-			PlayerAlien alien = new PlayerAlien();
-			af.wrapExisting(alien);
-			alien.c = new Coord(x, y);
-			alien.goLeft = goLeft;
-			aliens.add(alien);
-		}
-
-		{
-			// read legacy map size
-			// as a MapBoundsAlien
-			dis.readByte(); // blkset
-			dis.readByte(); // specjsr1
-			dis.readByte(); // specjsr2
-			dis.readByte(); // specjsr3
-			int minx = dis.readByte() & 0xff;
-			int maxx = dis.readByte() & 0xff;
-			int miny = dis.readByte() & 0xff;
-			int maxy = dis.readByte() & 0xff;
-
-			// horizontally, at least, it
-			// seemed like we saved an exclusive box
-			// where as we need an inclusive one
-			// (maybe that was related to have the screen an extra block wide
-			// for
-			// scrolling reasons)
-			maxx++;
-			// maxy++;
-
-			// also vertical levels were strangely less than 18 wide
-			// (when 18 was there actual width)
-			maxx = Math.max(minx + (18 - 1), maxx);
-
-			assert maxx < GameMap.MAP_WIDTH;
-			assert maxy < GameMap.MAP_HEIGHT;
-			assert minx < maxx;
-			assert miny < maxy;
-
-			MapBoundsAlien alien = new MapBoundsAlien();
-			af.wrapExisting(alien);
-			alien.bounds = new Box(minx, miny, maxx, maxy).mult2(Const.BLOCK_SIZE);
-			// System.out.println("Bounds:"+alien.bounds);
-			aliens.add(alien);
-		}
-	}
-
-	
-
-	
-	private void createLegacyAlien(AlienFactory af, int x, int y, int typeCode, byte[] rest) {
-
-		//
-		// adjustments
-		//
-		if (typeCode == 2 || typeCode == 3) {
-			// this is what gem_render -> bob_gem did
-			// at rendering time! let's do it early:
-			x += 8;
-		}
-		// polymorphic bird
-		else if (typeCode == 75) {
-			typeCode = 55;
-		}
-		// polymorphic bear
-		else if (typeCode == 61 || typeCode == 76) {
-			typeCode = 36;
-		}
-
-		rest[0] = (byte) typeCode;
-
-		//
-		// creation
-		//
-		Alien alien = af.make(typeCode, x, y, rest);
-		aliens.add(alien);
-	}
-
-	/**
-	 * 
-	 * @param world
-	 *            Only used for {@link World#instantiateAttach(int)}.
-	 * @param mapOpenable
-	 */
-	public void loadLegacy(AlienFactory af, Openable mapOpenable) {
-		try {
-			InputStream i = mapOpenable.open();
-			try {
-				DataInputStream di = new DataInputStream(i);
-				// get the game map off the front of the stream
-				gameMap = GameMap.loadLegacy(di);
-
-				// read the other things
-				for (;;) {
-					String id = readChunkId(di);
-					if (id.equals("set2")) {
-						byte[] rawSettings = new byte[0x30];
-						di.readFully(rawSettings);
-						loadRawSettings(af, rawSettings);
-					}
-					else if (id.equals("obj2")) {
-						for (;;) {
-							int x = di.readShort();
-							int y = di.readShort();
-							if (x < 0) break;
-							int typeCode = di.readByte();
-							byte[] rest = new byte[22];
-							di.readFully(rest, 1, 21);
-
-							createLegacyAlien(af, x, y, typeCode, rest);
-						}
-					}
-					else if (id.equals("pal2")) {
-						while (di.readShort() != -1) {
-						}
-					}
-					else if (id.equals("end!")) {
-						break;
-					}
-					else {
-						throw new RuntimeException("Unknown chunk: " + id);
-					}
-				}
-			}
-			finally {
-				i.close();
-			}
-
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+//
+//	private String readChunkId(DataInputStream di) throws IOException {
+//		StringBuilder sb = new StringBuilder();
+//		for (int r = 4; r-- > 0;) {
+//			sb.append((char) di.readByte());
+//		}
+//		String id = sb.toString();
+//		// System.out.println("Got chunk: >" + id + "<");
+//		return id;
+//	}
+//
+//	private void loadRawSettings(AlienFactory af, byte[] rawSettings) throws IOException {
+//		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(rawSettings));
+//		{
+//			// read the legacy player position information
+//			// as a PlayerAlien
+//			int x = dis.readShort();
+//			int y = dis.readShort();
+//			boolean goLeft = dis.readByte() != 0;
+//
+//			// and stuff that into the game the modern way with a
+//			// PlayerPositionAlien
+//			PlayerAlien alien = new PlayerAlien();
+//			af.wrapExisting(alien);
+//			alien.c = new Coord(x, y);
+//			alien.goLeft = goLeft;
+//			aliens.add(alien);
+//		}
+//
+//		{
+//			// read legacy map size
+//			// as a MapBoundsAlien
+//			dis.readByte(); // blkset
+//			dis.readByte(); // specjsr1
+//			dis.readByte(); // specjsr2
+//			dis.readByte(); // specjsr3
+//			int minx = dis.readByte() & 0xff;
+//			int maxx = dis.readByte() & 0xff;
+//			int miny = dis.readByte() & 0xff;
+//			int maxy = dis.readByte() & 0xff;
+//
+//			// horizontally, at least, it
+//			// seemed like we saved an exclusive box
+//			// where as we need an inclusive one
+//			// (maybe that was related to have the screen an extra block wide
+//			// for
+//			// scrolling reasons)
+//			maxx++;
+//			// maxy++;
+//
+//			// also vertical levels were strangely less than 18 wide
+//			// (when 18 was there actual width)
+//			maxx = Math.max(minx + (18 - 1), maxx);
+//
+//			assert maxx < GameMap.MAP_WIDTH;
+//			assert maxy < GameMap.MAP_HEIGHT;
+//			assert minx < maxx;
+//			assert miny < maxy;
+//
+//			MapBoundsAlien alien = new MapBoundsAlien();
+//			af.wrapExisting(alien);
+//			alien.bounds = new Box(minx, miny, maxx, maxy).mult2(Const.BLOCK_SIZE);
+//			// System.out.println("Bounds:"+alien.bounds);
+//			aliens.add(alien);
+//		}
+//	}
+//
+//	
+//
+//	
+//	private void createLegacyAlien(AlienFactory af, int x, int y, int typeCode, byte[] rest) {
+//
+//		//
+//		// adjustments
+//		//
+//		if (typeCode == 2 || typeCode == 3) {
+//			// this is what gem_render -> bob_gem did
+//			// at rendering time! let's do it early:
+//			x += 8;
+//		}
+//		// polymorphic bird
+//		else if (typeCode == 75) {
+//			typeCode = 55;
+//		}
+//		// polymorphic bear
+//		else if (typeCode == 61 || typeCode == 76) {
+//			typeCode = 36;
+//		}
+//
+//		rest[0] = (byte) typeCode;
+//
+//		//
+//		// creation
+//		//
+//		Alien alien = af.make(typeCode, x, y, rest);
+//		aliens.add(alien);
+//	}
+//
+//	/**
+//	 * 
+//	 * @param world
+//	 *            Only used for {@link World#instantiateAttach(int)}.
+//	 * @param mapOpenable
+//	 */
+//	private void loadLegacy2(AlienFactory af, Openable mapOpenable) {
+//		try {
+//			InputStream i = mapOpenable.open();
+//			try {
+//				DataInputStream di = new DataInputStream(i);
+//				// get the game map off the front of the stream
+//				gameMap = GameMap.loadLegacy(di);
+//
+//				// read the other things
+//				for (;;) {
+//					String id = readChunkId(di);
+//					if (id.equals("set2")) {
+//						byte[] rawSettings = new byte[0x30];
+//						di.readFully(rawSettings);
+//						loadRawSettings(af, rawSettings);
+//					}
+//					else if (id.equals("obj2")) {
+//						for (;;) {
+//							int x = di.readShort();
+//							int y = di.readShort();
+//							if (x < 0) break;
+//							int typeCode = di.readByte();
+//							byte[] rest = new byte[22];
+//							di.readFully(rest, 1, 21);
+//
+//							createLegacyAlien(af, x, y, typeCode, rest);
+//						}
+//					}
+//					else if (id.equals("pal2")) {
+//						while (di.readShort() != -1) {
+//						}
+//					}
+//					else if (id.equals("end!")) {
+//						break;
+//					}
+//					else {
+//						throw new RuntimeException("Unknown chunk: " + id);
+//					}
+//				}
+//			}
+//			finally {
+//				i.close();
+//			}
+//
+//		}
+//		catch (IOException e) {
+//			throw new RuntimeException(e);
+//		}
+//	}
 
 }

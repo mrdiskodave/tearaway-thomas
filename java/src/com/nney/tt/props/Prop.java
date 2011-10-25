@@ -22,7 +22,7 @@ public abstract class Prop {
 	}
 	
 	public String name() {
-		return pp.getAnn().name();
+		return pp.name();
 	}
 
 	public String doc() {
@@ -30,7 +30,7 @@ public abstract class Prop {
 	}
 
 	public String label() {
-		return pp.getAnn().label();
+		return pp.label();
 	}
 	
 	public void copyFrom(Prop other) {

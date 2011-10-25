@@ -5,33 +5,33 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 
 public class StopAlien extends AlienWithLocation {
-	@PropAnn(name = "PushBox", doc = "The area we shove the player out of!", label = "pushBox")
-	public Box box;
+	@PropAnn(doc = "The area we shove the player out of!")
+	public Box pushBox;
 
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
-		box = Box.around(c, 32, 60);
-		box.add(new Coord(40, 0));
+		pushBox = Box.around(c, 32, 60);
+		pushBox.add(new Coord(40, 0));
 	}
 
 	@Override
 	public void loadFromLegacyData() {
-		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
+		pushBox = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
 
 	@Override
 	public void update() {
 		Coord pp = srv.getPlayerPosition();
-		boolean collide = box.inside(pp);
+		boolean collide = pushBox.inside(pp);
 		if (collide) {
 			if (c.x < pp.x) {
-				pp.x = box.right + 1;
+				pp.x = pushBox.right + 1;
 			}
 			else {
-				pp.x = box.left - 1;
+				pp.x = pushBox.left - 1;
 			}
-			System.out.println("Pushed by a StopAlien of width " + box.width());
+			System.out.println("Pushed by a StopAlien of width " + pushBox.width());
 		}
 	}
 }

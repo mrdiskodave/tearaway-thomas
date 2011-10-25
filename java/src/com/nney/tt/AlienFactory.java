@@ -11,7 +11,7 @@ public class AlienFactory {
 		this.alienInfoMap = alienInfoMap;
 	}
 
-	public void selectWorld(String name) {
+	public void setWorld(String name) {
 		alienInfoMap.setWorld(name);
 	}
 

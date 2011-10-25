@@ -165,8 +165,6 @@ public class World implements AlienServices, Disposable {
 	// Disposable:
 	private StatusScreen statusScreen;
 
-	private PersistedLevel pl;
-
 	private Aperture hole;
 
 	private Fade dimFade;
@@ -830,12 +828,12 @@ public class World implements AlienServices, Disposable {
 
 		System.out.println("Loading level " + ow.levelNumber);
 
-		pl = new PersistedLevel(af, ow.levelNumber, configuredMapText);
+		PersistedLevel pl = new PersistedLevel(af, ow.levelNumber, configuredMapText);
 		// pl.saveNew();
 		// levelNumber++;
 		// }
 
-		worldName = alienInfoMap.getWorldName();
+		worldName = alienInfoMap.getName();
 
 		alienTracker = new AlienTracker();
 
@@ -877,7 +875,7 @@ public class World implements AlienServices, Disposable {
 			load(alien);
 		}
 		
-		levelInfo = pl.li;
+		levelInfo = pl.levelInfo;
 
 		horizon = gc.loadHorizon(TTResource.horizon(levelInfo.horizon));
 

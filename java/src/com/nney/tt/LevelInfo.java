@@ -2,13 +2,23 @@ package com.nney.tt;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
+import com.nney.tt.props.PropAnn;
 
 public class LevelInfo {
-	public final int gemsNeeded;
-	public final int timeGiven;
-	public final int horizon;
-	public final String title;
-	public final String worldName;
+	
+	@PropAnn(doc = "How many gems must be collected before the exit opens?")
+	public int gemsNeeded;
+
+	@PropAnn(doc = "How many seconds is the player allowed to complete the level?")
+	public int timeGiven;
+	
+	@PropAnn(doc = "What horizon sits behind the level?")
+	public int horizon;
+	
+	@PropAnn(doc = "What is the title of this level?")
+	public String title;
+	
+	public String worldName;
 
 	public LevelInfo(int gemsNeeded, int timeGiven, int horizon, String title, String worldName) {
 		this.gemsNeeded = gemsNeeded;
@@ -23,7 +33,7 @@ public class LevelInfo {
 		horizon = di.requireField("horizon").requireInt();
 		timeGiven = di.requireField("timeGiven").requireInt();
 		title = di.requireField("title").requireString();
-		worldName = di.requireField("worldName").requireString();
+		worldName = di.requireField("world").requireString();
 	}
 	
 	void save(DataDestination d) {

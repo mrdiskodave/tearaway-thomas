@@ -6,7 +6,7 @@ import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Sprite;
 
 public abstract class AlienWithLocation extends Alien {
-	@PropAnn(name = "Location", doc = "Where are we?", label = "location")
+	@PropAnn(doc = "Where are we?", label = "location")
 	public Coord c = new Coord();
 
 	@Override

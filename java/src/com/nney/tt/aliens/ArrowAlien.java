@@ -10,14 +10,14 @@ import com.nney.tt.sprites.Sprite;
 public class ArrowAlien extends AlienWithLocation {
 	private int repeatCounter;
 
-	@PropAnn(name = "AdviceBox", doc = "Player's location for us to blink at him?", label = "adviceBox")
-	public Box box = new Box(0, 0, 0, 0);
+	@PropAnn(doc = "Player's location for us to blink at him?")
+	public Box adviceBox = new Box(0, 0, 0, 0);
 
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
-		box = Box.around(c, 50);
-		box.add(new Coord(25, 0));
+		adviceBox = Box.around(c, 50);
+		adviceBox.add(new Coord(25, 0));
 	}
 
 	@Override
@@ -27,12 +27,12 @@ public class ArrowAlien extends AlienWithLocation {
 
 	@Override
 	public void loadFromLegacyData() {
-		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
+		adviceBox = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
 
 	@Override
 	public void update() {
-		boolean collide = box.inside(srv.getPlayerPosition());
+		boolean collide = adviceBox.inside(srv.getPlayerPosition());
 		if (collide) {
 			repeatCounter = 8;
 		}

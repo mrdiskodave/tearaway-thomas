@@ -4,16 +4,16 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 
 public class PlainLiftAlien extends LiftAlien {
-	@PropAnn(name = "Start", label = "start")
+	@PropAnn(doc="Where the lift starts from")
 	public Coord start;
 
-	@PropAnn(name = "End", label = "end")
+	@PropAnn(doc="Where the lift ends up")
 	public Coord end;
 
-	@PropAnn(name = "Phase", doc = "Our movement in relation to other identical lifts (0-99)", label = "phase")
+	@PropAnn(doc = "Our movement in relation to other identical lifts (0-99)")
 	private int phase;
 
-	@PropAnn(name = "Pause", doc = "How long do we wait at either end?", label = "pause")
+	@PropAnn(doc = "How long do we wait at either end?")
 	private int pause;
 
 	@Override

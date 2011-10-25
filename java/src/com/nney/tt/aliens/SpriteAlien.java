@@ -14,7 +14,7 @@ import com.nney.utils.Math2;
 public class SpriteAlien extends AlienWithLocation {
 	private static final int FLAG_BEHIND = 6;
 
-	@PropAnn(name = "Front", doc = "Do we appear in front of other graphics?", label = "foreground")
+	@PropAnn(name = "Front", doc = "Do we appear in front of other graphics?")
 	public boolean foreground;
 
 	@Override

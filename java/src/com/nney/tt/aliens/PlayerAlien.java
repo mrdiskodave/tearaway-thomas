@@ -12,7 +12,7 @@ import com.nney.tt.sprites.Anim;
  * the information that this object contains.
  */
 public class PlayerAlien extends AlienWithLocation {
-	@PropAnn(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
+	@PropAnn(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright")
 	public boolean goLeft;
 
 	@Override

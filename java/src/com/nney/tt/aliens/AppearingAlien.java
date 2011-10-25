@@ -4,7 +4,7 @@ import com.nney.tt.props.PropAnn;
 import com.nney.utils.Math2;
 
 public abstract class AppearingAlien extends AlienWithLocation {
-	@PropAnn(name = "Hidden", doc = "Will we suddenly appear when the player runs past?", label = "hidden")
+	@PropAnn(doc = "Will we suddenly appear when the player runs past?", label = "hidden")
 	public boolean hidden;
 
 	private boolean falling;
