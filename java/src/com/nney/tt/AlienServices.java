@@ -114,7 +114,7 @@ public interface AlienServices {
 
 	boolean isOffTheBottom(Coord c);
 
-	void levelCompleted();
+	void levelCompleted(Coord exit);
 
 	boolean showText();
 

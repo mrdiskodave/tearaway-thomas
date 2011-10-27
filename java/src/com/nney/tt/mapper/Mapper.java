@@ -40,6 +40,7 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.Math2;
+import com.nney.utils.ListUtil;
 
 /**
  * A level editor.
@@ -213,12 +214,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
+		
+		PlayerAlien pa = ListUtil.findOne(PlayerAlien.class, aliens);
+		if (pa!=null) scr.snapTo(pa.c);
+		
 		for (Alien alien : aliens) {
-			if (alien instanceof PlayerAlien) {
-				PlayerAlien playerPos = (PlayerAlien) alien;
-				System.out.println("SNAP TO " + playerPos.c);
-				scr.snapTo(playerPos.c);
-			}
 			alien.connect(animsPool);
 			load(alien);
 		}
@@ -365,7 +365,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
 		Coord playerPosition = bigTest ? null : mmp.worldPixels();
 		World w = new World(ow);
-		w.playLevel(bigTest, playerPosition, levelText);
+		w.testLevel(bigTest, playerPosition, levelText);
 		setScreenPosition(w.getScreenPosition());
 	}
 

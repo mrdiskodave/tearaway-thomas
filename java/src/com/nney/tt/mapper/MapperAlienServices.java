@@ -69,7 +69,7 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public void levelCompleted() {
+	public void levelCompleted(Coord exit) {
 		ni();
 	}
 

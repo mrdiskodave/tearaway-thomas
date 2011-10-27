@@ -16,7 +16,7 @@ public class ExitAlien extends AlienWithLocation {
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 		if (isOpen && srv.collideBoxWithPlayer(Box.around(c, 2))) {
-			srv.levelCompleted();
+			srv.levelCompleted(c);
 		}
 	}
 }

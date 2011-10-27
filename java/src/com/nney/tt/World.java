@@ -37,6 +37,7 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.ListUtil;
 
 public class World implements AlienServices, Disposable {
 	public class ExitException extends RuntimeException {
@@ -209,9 +210,11 @@ public class World implements AlienServices, Disposable {
 
 	private boolean drawPlayer = true;
 
-	private boolean completed;
+	private Coord completed;
 
 	private LevelInfo levelInfo;
+
+	private boolean loadAnims = true;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -662,19 +665,17 @@ public class World implements AlienServices, Disposable {
 	private void pickTheBestBounds() {
 		Box bounds = WHOLE_MAP_BOUNDS_IN_PIXELS;
 		long bestArea = Long.MAX_VALUE;
-		for (Alien a : alienTracker) {
-			if (a instanceof MapBoundsAlien) {
-				Box box = ((MapBoundsAlien) a).bounds.copy();
-				box.snapOutTo(Const.BLOCK_SIZE);
-				// what is the smallest one that has the player in it?
-				if (box.inside(player.c) && box.area() < bestArea) {
-					bounds = box;
-					bestArea = box.area();
-				}
+		for (MapBoundsAlien a : ListUtil.findMany(MapBoundsAlien.class, alienTracker)) {
+			Box box = a.bounds.copy();
+			box.snapOutTo(Const.BLOCK_SIZE);
+			// what is the smallest one that has the player in it?
+			if (box.inside(player.c) && box.area() < bestArea) {
+				bounds = box;
+				bestArea = box.area();
 			}
 		}
 		// that is the one for us!
-		System.out.println("Map bounds: "+bounds);
+		System.out.println("Map bounds: " + bounds);
 		scr.setMapBoundsInPixels(bounds, bounds);
 	}
 
@@ -767,8 +768,8 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
-	public void levelCompleted() {
-		completed = true;
+	public void levelCompleted(Coord exit) {
+		completed = exit.copy();
 	}
 
 	@Override
@@ -846,14 +847,12 @@ public class World implements AlienServices, Disposable {
 		Coord playerWhere = null;
 		boolean playerLeft = false;
 		if (configuredPlayerStart == null) {
-			for (Alien alien : aliens) {
-				if (alien instanceof PlayerAlien) {
-					PlayerAlien palien = (PlayerAlien) alien;
-					playerWhere = palien.c;
-					playerLeft = palien.goLeft;
-				}
+			PlayerAlien palien = ListUtil.findOne(PlayerAlien.class, aliens);
+			if (palien != null) {
+				playerWhere = palien.c;
+				playerLeft = palien.goLeft;
 			}
-			if (playerWhere == null) {
+			else {
 				throw new RuntimeException("Need a PlayerAlien to establish player's starting position!");
 			}
 		}
@@ -861,16 +860,18 @@ public class World implements AlienServices, Disposable {
 			playerWhere = configuredPlayerStart;
 		}
 
-		// work out what Anims we need
-		TreeSet<String> animsNeeded = new TreeSet<String>();
-		whatAnimsDoTheyNeed(aliens, animsNeeded);
-		animsNeeded.add("0tt");
-		animsNeeded.add("0life");
-		alienInfoMap.collectPreloadNames(animsNeeded);
-
-		// unload what we no longer need
-		// load what we do need
-		animsPool.unloadReload(animsNeeded);
+		if (loadAnims) {
+			// work out what Anims we need
+			TreeSet<String> animsNeeded = new TreeSet<String>();
+			whatAnimsDoTheyNeed(aliens, animsNeeded);
+			animsNeeded.add("0tt");
+			animsNeeded.add("0life");
+			alienInfoMap.collectPreloadNames(animsNeeded);
+	
+			// unload what we no longer need
+			// load what we do need
+			animsPool.unloadReload(animsNeeded);
+		}
 
 		// connect the anims to the aliens
 		// and load the aliens into the world
@@ -878,7 +879,7 @@ public class World implements AlienServices, Disposable {
 			alien.connect(animsPool);
 			load(alien);
 		}
-		
+
 		horizon = gc.loadHorizon(TTResource.horizon(levelInfo.horizon));
 
 		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
@@ -926,7 +927,8 @@ public class World implements AlienServices, Disposable {
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
 
-		String text = Messages.levelStart(ow.levelNumber+1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal, levelInfo.timeGiven);
+		String text = Messages.levelStart(ow.levelNumber + 1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal,
+				levelInfo.timeGiven);
 		createStatusScreen(text);
 
 		//
@@ -997,23 +999,22 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void performMain() {
-		while (!completed) {
+		while (completed == null) {
 			checkTeleportation();
 			oneMainFrame();
 		}
 	}
 
 	private void performOutro() {
-
 		drawPlayer = false;
 		captureRecording();
 		dimFade.target(Curtain.CLOSED);
 
-		hole.setCentre(getPlayerCentre());
+		hole.setCentre(completed.sub2(scr.position()));
 		hole.target(Curtain.CLOSED);
 		hole.setRate(4);
 
-		String text = Messages.levelComplete(ow.levelNumber+1, levelInfo.title, gemsCollected, gemsTotal
+		String text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
 				- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
 		createStatusScreen(text);
 
@@ -1082,8 +1083,9 @@ public class World implements AlienServices, Disposable {
 	// ---------------------------------------------------------------------------
 	// ENTRY POINTS
 
-	public void playLevel(boolean intro, Coord playerStart, String mapText) {
+	public void testLevel(boolean intro, Coord playerStart, String mapText) {
 		try {
+			loadAnims = false;
 			configuredPlayerStart = playerStart;
 			configuredMapText = mapText;
 			create();

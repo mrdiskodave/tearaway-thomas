@@ -102,8 +102,8 @@ public class ScreenOrdinate {
 
 		highBorderStart = initialPixelDestination + blockCount * Const.BLOCK_SIZE;
 
-		System.out.println(String.format("%s dest%d map%d-%d (cl%d cr%d)", name, initialPixelDestination, mapSourceInBlocks,
-				blockCount, l, r));
+//		System.out.println(String.format("%s dest%d map%d-%d (cl%d cr%d)", name, initialPixelDestination, mapSourceInBlocks,
+//				blockCount, l, r));
 	}
 
 	public int generate(int current) {
