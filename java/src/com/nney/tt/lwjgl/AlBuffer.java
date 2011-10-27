@@ -19,7 +19,7 @@ public class AlBuffer implements Disposable {
 		bb.order(ByteOrder.nativeOrder());
 		ShortBuffer sb = bb.asShortBuffer();
 		for (int x = 0; x < data.length; x++) {
-			sb.put((short) data[x]);
+			sb.put(data[x]);
 		}
 		int buffer = AlTools.alCheckName(AL10.alGenBuffers());
 		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, sound.freq);

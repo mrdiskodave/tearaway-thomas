@@ -20,7 +20,7 @@ public class FpsReporter {
 
 			float diff = present - past;
 			diff /= 1000000000;
-			float actual_fps = (float) count / diff;
+			float actual_fps = count / diff;
 			Display.setTitle("FPS: " + actual_fps);
 
 			lastTime = System.nanoTime();

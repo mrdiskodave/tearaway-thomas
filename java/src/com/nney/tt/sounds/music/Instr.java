@@ -3,16 +3,17 @@ package com.nney.tt.sounds.music;
 
 public class Instr {
 	private static final int Isamplen = 0;
-	private static final int Iname = 2;
+//	private static final int Iname = 2;
 	private static final int Iloop = 10;
 	private static final int Itone = 42;
 	private static final int Iasdr = 58;
 	
-	/**
-	 * Always 2 if it is anything. We should just read the tone data faster
-	 * or hardwire the 2. (currently doing neither!)
-	 */
-	private static final int Itone_speed = 66;
+//	/**
+//	 * Always 2 if it is anything. We just assume this
+//	 * see  "tonePosition += 2".
+//	 * Though perhaps we should read the tone data faster.
+//	 */
+//	private static final int Itone_speed = 66;
 	
 	private static final int Itone_pause = 67;
 	private static final int Itone_mulu = 68;
