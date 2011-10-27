@@ -59,7 +59,6 @@ public abstract class AlienTracker implements Iterable<Alien> {
 		}
 		return false;
 	}
-	
 
 	@Override
 	public Iterator<Alien> iterator() {
@@ -67,7 +66,7 @@ public abstract class AlienTracker implements Iterable<Alien> {
 		for (Iterable<Alien> it: lists()) {
 			ci.add(it);
 		}
-		return new ReadOnlyIterator<Alien>(ci);
+		return ReadOnlyIterator.wrap(ci);
 	}
 	
 	public List<Alien> getAll() {

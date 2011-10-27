@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import com.nney.utils.ReadOnlyIterator;
+
 /**
  * A fridge is a one dimensional structure for freezing off-screen objects.
  * 
@@ -16,15 +18,12 @@ import java.util.ListIterator;
  * </ul>
  * 
  * <p>
- * The caller needs to maintain a fridge per screen edge.
+ * The caller needs to maintain a fridge per screen edge. i.e. four on a 2D screen
  * 
  * <p>
  * The fridge has a position system where objects with numerically larger
  * positions are deeper in the fridge (i.e. further off-screen). Objects with
- * smaller positions are closer to returning to the screen. This means that,
- * when a screen edge is encountered as the ordinate increases, fridge-position
- * is the same as screen ordinate. However, the fridge for the opposite screen
- * edges will need its given fridge-positions negated by the caller.
+ * smaller positions are closer to returning to the screen.
  * 
  * @param <T>
  *            The type of the object we hold.
@@ -61,8 +60,8 @@ public class Fridge<T> implements Iterable<T> {
 	public void add(T item, int pos) {
 		// System.out.println(String.format("Fridge: %08x(%7d) frozen    into %-6s",
 		// item.hashCode(), pos, name));
-		// Skip (to the right) over existing items that should be to
-		// the left of the one we've been given.
+		
+		// Insert the item so the Fridge remains sorted by pos
 		ListIterator<FridgeEntry> ci = content.listIterator();
 		while (ci.hasNext()) {
 			if (ci.next().pos >= pos) {
@@ -77,47 +76,23 @@ public class Fridge<T> implements Iterable<T> {
 	/**
 	 * Perhaps remove an object from this fridge.
 	 * 
-	 * @param left
-	 *            Only remove the object if is left of (or on) this position.
+	 * @param edge
+	 *            Only remove the object if it's position is less than this value
 	 * @return The object, if removed, or <code>null</code>.
 	 */
-	public T pop(int left) {
+	public T pop(int edge) {
 		FridgeEntry fe = content.peekFirst();
-		if (fe == null || fe.pos > left) return null;
+		if (fe == null || fe.pos > edge) return null;
 		// System.out.println(String.format("Fridge: %08x(%7d) defrosted from %-6s using %d",
-		// fe.item.hashCode(), fe.pos, name, left));
-		assert fe == content.removeFirst();
+		// fe.item.hashCode(), fe.pos, name, edge));
+		content.removeFirst();
 		return fe.item;
-	}
-
-	/**
-	 * A slow method to remove an object from anywhere in the fridge. Not
-	 * intended for real-time use.
-	 * 
-	 * @param t
-	 *            The object to look for.
-	 * @return <code>true</code> meaning "we found it and deleted it" or
-	 *         <code>false</code> meaning "we didn't find it".
-	 */
-	public boolean remove(T t) {
-		for (Iterator<FridgeEntry> i = content.iterator(); i.hasNext();) {
-			FridgeEntry z = i.next();
-			if (z.item == t) {
-				i.remove();
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public void clear() {
-		content.clear();
 	}
 
 	@Override
 	public Iterator<T> iterator() {
 		final Iterator<FridgeEntry> it = content.iterator();
-		return new Iterator<T>() {
+		return new ReadOnlyIterator<T>() {
 			@Override
 			public boolean hasNext() {
 				return it.hasNext();
@@ -126,11 +101,6 @@ public class Fridge<T> implements Iterable<T> {
 			@Override
 			public T next() {
 				return it.next().item;
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("Cannot remove elements from Fridge iterator");
 			}
 		};
 	}
