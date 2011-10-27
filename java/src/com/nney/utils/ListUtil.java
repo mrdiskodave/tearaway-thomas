@@ -25,4 +25,9 @@ public class ListUtil {
 		return answer;
 	}
 	
+	public static <T> void copy(List<? super T> dest, Iterable<? extends T> src) {
+		for (T t: src) {
+			dest.add(t);
+		}
+	}
 }

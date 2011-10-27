@@ -11,7 +11,7 @@ import java.util.ListIterator;
  * <li>Objects in a fridge are known to be off-screen.
  * <li>Objects in a fridge do not consume any processing resources.
  * <li>Objects in a fridge need only a single small test (performed in
- * {@link #remove(int)}) that establishes if <b>any</b> of them are coming back
+ * {@link #pop(int)}) that establishes if <b>any</b> of them are coming back
  * on screen (in a constant time ... not related to the number of objects).
  * </ul>
  * 
@@ -81,7 +81,7 @@ public class Fridge<T> implements Iterable<T> {
 	 *            Only remove the object if is left of (or on) this position.
 	 * @return The object, if removed, or <code>null</code>.
 	 */
-	public T remove(int left) {
+	public T pop(int left) {
 		FridgeEntry fe = content.peekFirst();
 		if (fe == null || fe.pos > left) return null;
 		// System.out.println(String.format("Fridge: %08x(%7d) defrosted from %-6s using %d",
@@ -91,7 +91,7 @@ public class Fridge<T> implements Iterable<T> {
 	}
 
 	/**
-	 * A slow method to delete an object from anywhere in the fridge. Not
+	 * A slow method to remove an object from anywhere in the fridge. Not
 	 * intended for real-time use.
 	 * 
 	 * @param t
@@ -99,7 +99,7 @@ public class Fridge<T> implements Iterable<T> {
 	 * @return <code>true</code> meaning "we found it and deleted it" or
 	 *         <code>false</code> meaning "we didn't find it".
 	 */
-	public boolean delete(T t) {
+	public boolean remove(T t) {
 		for (Iterator<FridgeEntry> i = content.iterator(); i.hasNext();) {
 			FridgeEntry z = i.next();
 			if (z.item == t) {

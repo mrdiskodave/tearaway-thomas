@@ -86,7 +86,7 @@ public class World implements AlienServices, Disposable {
 
 	private GameMap gameMap;
 
-	private AlienTracker alienTracker;
+	private GameAlienTracker alienTracker;
 
 	private int frameNumber;
 
@@ -562,13 +562,13 @@ public class World implements AlienServices, Disposable {
 		// add fresh aliens
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox);
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_BG_SCENARY), screenBox);
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS), screenBox);
 		if (drawPlayer) {
 			player.draw();
 		}
-		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox);
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY), screenBox);
 
 		//
 		// Caveat1: only background Aliens get to move the player around.
@@ -832,7 +832,7 @@ public class World implements AlienServices, Disposable {
 		// levelNumber++;
 		// }
 
-		alienTracker = new AlienTracker();
+		alienTracker = new GameAlienTracker();
 
 		PersistedLevel pl = new PersistedLevel(ow.levelNumber, configuredMapText);
 		levelInfo = pl.getLevelInfo();

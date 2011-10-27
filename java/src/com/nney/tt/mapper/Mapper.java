@@ -8,7 +8,6 @@ import com.nney.tt.AlienFactory;
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
 import com.nney.tt.AlienServices;
-import com.nney.tt.AlienTracker;
 import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
 import com.nney.tt.FrameDrawer;
@@ -158,7 +157,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private boolean seeMasks;
 
-	private AlienTracker alienTracker = new AlienTracker();
+	private MapperAlienTracker alienTracker = new MapperAlienTracker(); 
 
 	private String worldName;
 
@@ -732,15 +731,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private Alien getSelectedAlien() {
-		assert !(selectedAlien != null && selectedAlien.remove);
 		return selectedAlien;
 	}
 
 	private void setSelectedAlien(Alien s) {
 		selectedAlien = s;
-		if (s != null) {
-			alienTracker.defrost(s);
-		}
 		buttonRecords = null;
 
 	}
@@ -844,8 +839,20 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void deleteAlien(Alien a) {
-		a.done();
+		List<Alien> all = flatten();
+		all.remove(a);
+		unflatten(all);
 		setSelectedAlien(null);
+	}
+
+	private List<Alien> flatten() {
+		List<Alien> all = alienTracker.getAll();
+		alienTracker = new MapperAlienTracker();
+		return all;
+	}
+
+	private void unflatten(List<Alien> all) {
+		alienTracker.add(all);
 	}
 
 	private Coord getNudge(int k) {
@@ -979,22 +986,26 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		scr.setPosition(c);
 	}
 
+	
 	private void updateAliens() {
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_BG_SCENARY), screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_ALIENS), screenBox);
-		updateList(alienTracker.get(Alien.DEPTH_FG_SCENARY), screenBox);
+		List<Alien> a = alienTracker.getOnScreen();
+		updateList(a, Alien.DEPTH_BG_SCENARY, screenBox);
+		updateList(a, Alien.DEPTH_LIFTS_AND_COLLECTABLES, screenBox);
+		updateList(a, Alien.DEPTH_ALIENS, screenBox);
+		updateList(a, Alien.DEPTH_FG_SCENARY, screenBox);
 	}
 
-	private void updateList(List<Alien> alienList, Box screenBox) {
+	private void updateList(List<Alien> alienList, int depth, Box screenBox) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
-			alien.freezeBounds = null;
-			alien.mapperUpdate();
-			if (alien.remove || (alien != selectedAlien && alienTracker.perhapsFreeze(alien, screenBox))) {
-				alienIterator.remove();
+			if (alien.depth==depth) {
+				alien.freezeBounds = null;
+				alien.mapperUpdate();
+				if (alienTracker.perhapsFreeze(alien, screenBox)) {
+					alienIterator.remove();
+				}
 			}
 		}
 	}
@@ -1024,7 +1035,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public void reinstate(Alien alien) {
-		alien.reinstate();
 		alienTracker.add(alien);
 	}
 
