@@ -90,10 +90,6 @@ public class AlienTracker implements Iterable<Alien> {
 		return false;
 	}
 	
-	public void slowDefrostRequest(Alien a) {
-		
-	}
-
 	public List<Alien> get(int x) {
 		return alienLists.get(x);
 	}
