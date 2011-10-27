@@ -30,7 +30,7 @@ public abstract class VisualProp<T> extends SpecificProp<T> {
 
 			@Override
 			public void press() {
-				bps.setScreenCentre(location(bps.screenCentre()));
+				bps.setFocus(location(bps.getFocus()));
 			}
 		});
 		buttons.add(new Button() {
@@ -41,7 +41,7 @@ public abstract class VisualProp<T> extends SpecificProp<T> {
 
 			@Override
 			public void press() {
-				onBring(bps.screenCentre());
+				onBring(bps.getFocus());
 			}
 		});
 	}

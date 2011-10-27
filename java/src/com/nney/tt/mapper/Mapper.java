@@ -21,7 +21,6 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.HasKeys;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
@@ -39,8 +38,8 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
-import com.nney.utils.Math2;
 import com.nney.utils.ListUtil;
+import com.nney.utils.Math2;
 
 /**
  * A level editor.
@@ -215,14 +214,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
 		
+		// player start position
 		PlayerAlien pa = ListUtil.findOne(PlayerAlien.class, aliens);
 		if (pa!=null) scr.snapTo(pa.c);
 		
+		// load the aliens
 		for (Alien alien : aliens) {
 			alien.connect(animsPool);
 			load(alien);
 		}
 
+		// build the AlienPalette
 		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
 		for (String name : alienInfoMap.queryNames()) {
 			ais.add(alienInfoMap.getByName(name));
@@ -316,9 +318,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 			Coord nc = numCoord(k);
 			if (nc != null) {
-				int x = Math2.fracMult(nc.x, GameMap.MAP_WIDTH * Const.BLOCK_SIZE - 1, 2);
-				int y = Math2.fracMult(nc.y, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE - 1, 2);
-				setScreenCentre(new Coord(x, y));
+				setFocus(convertNumCoord(nc));
 			}
 
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
@@ -359,6 +359,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			TTResource.saveMap(levelInfo.filename, levelText);
 			say("Saved: " + levelInfo.filename);
 		}
+	}
+
+	private Coord convertNumCoord(Coord nc) {
+		int x = Math2.fracMult(nc.x, GameMap.MAP_WIDTH * Const.BLOCK_SIZE - 1, 2);
+		int y = Math2.fracMult(nc.y, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE - 1, 2);
+		Coord c = new Coord(x, y);
+		return c;
 	}
 
 	private void testLevel(boolean bigTest) {
@@ -404,9 +411,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_M) {
 			marker = marker == null ? mmp.worldBlocks() : null;
 		}
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_A) {
+			marker = new Coord(0, 0);
+			setFocus(convertNumCoord(new Coord(2, 2)));
+		}
 		if (k == Keyboard.KEY_F) {
 			if (marker != null) {
-				fillRect();
+				fillRect(getCompressedCurrentBlock());
 			}
 			else {
 				final int blk = gameMap.getBlock(mmp.worldBlocks());
@@ -419,6 +430,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				floodFill(test);
 			}
 		}
+		if (k == Keyboard.KEY_DELETE) fillRect(0);
 		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
 			int slotNumber = k - PASTE_BUFFER_START;
 			if (marker == null) {
@@ -430,11 +442,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				say("Copied into slot " + slotNumber);
 				marker = null;
 			}
-		}
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
-			SaveMapBlock m = SaveMapBlock.fromSolid(GameMap.MAP_WIDTH, GameMap.MAP_HEIGHT, 0);
-			MapEdit edit = MapEdit.create(gameMap, new Coord(0, 0), m);
-			submitMapEdit(edit);
 		}
 		blockSelectionKeys(k);
 
@@ -529,15 +536,15 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 		}
 
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
-			setSelectedAlien(null);
-			alienTracker = new AlienTracker();
-		}
+//		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
+//			setSelectedAlien(null);
+//			alienTracker = new AlienTracker();
+//		}
 
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
 			if (k == Keyboard.KEY_C) copySelectedAlien();
-			if (k == Keyboard.KEY_F) setScreenCentre(getSelectedAlien().getLocation());
+			if (k == Keyboard.KEY_F) setFocus(getSelectedAlien().getLocation());
 		}
 		if (k == Keyboard.KEY_N) createAlien();
 		keyboardAlienChoice(k);
@@ -674,6 +681,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
+		if (k == Keyboard.KEY_0) setCurrentBlock(0);
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) seeMasks = !seeMasks;
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_H) seeHidden = !seeHidden;
 	}
@@ -868,13 +876,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	@Override
-	public Coord screenCentre() {
-		return getScreenPosition().add2(mgc.centreDisplacement());
+	public Coord getFocus() {
+		return mmp.worldPixels();
 	}
 
 	@Override
-	public void setScreenCentre(Coord c) {
-		setScreenPosition(c.sub2(mgc.centreDisplacement()));
+	public void setFocus(Coord c) {
+		setScreenPosition(c.sub2(mmp.screenPixels()));
 	}
 
 	private void deleteSelectedAlien() {
@@ -939,10 +947,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		// slots[slotNumber].dump();
 	}
 
-	private void fillRect() {
+	private void fillRect(int block) {
 		Box rectangle = getRect();
 		if (rectangle == null) return;
-		SaveMapBlock s = SaveMapBlock.fromSolid(rectangle.width(), rectangle.height(), getCompressedCurrentBlock());
+		SaveMapBlock s = SaveMapBlock.fromSolid(rectangle.width(), rectangle.height(), block);
 		MapEdit edit = MapEdit.create(gameMap, rectangle.topLeft(), s);
 		submitMapEdit(edit);
 	}
@@ -1059,10 +1067,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		// naive implementation but at least it is breadth first
 		// so doesn't keep too many false leads
 		ArrayList<Coord> positions = new ArrayList<Coord>();
-		ArrayList<Coord> nextPositions = new ArrayList<Coord>();
 		positions.add(mmp.worldBlocks());
 
 		while (!positions.isEmpty()) {
+			ArrayList<Coord> nextPositions = new ArrayList<Coord>();
 			for (Coord s : positions) {
 				if (!edit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
 					edit.setBlock(s, getCurrentBlock());
@@ -1072,10 +1080,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					nextPositions.add(s.copyAndAdd(0, -1));
 				}
 			}
-			ArrayList<Coord> t = nextPositions;
-			nextPositions = positions;
-			positions = t;
-			nextPositions.clear();
+			positions = nextPositions;
 		}
 
 		say(edit.size() + " blocks filled");
