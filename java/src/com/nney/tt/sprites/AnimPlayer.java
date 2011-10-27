@@ -23,10 +23,7 @@ public class AnimPlayer {
 	public void changeAnimation(Anim freshAnim) {
 		assert freshAnim!=null;
 		
-		if (freshAnim == null) {
-			anim = null;
-		}
-		else if (anim != freshAnim) {
+		if (anim != freshAnim) {
 			// System.out.println("Fresh len "+freshAnim.frames.length);
 			anim = freshAnim;
 			rate = freshAnim.defaultRate;
