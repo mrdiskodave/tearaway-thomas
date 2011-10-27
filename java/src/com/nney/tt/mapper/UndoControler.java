@@ -1,12 +1,16 @@
 package com.nney.tt.mapper;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 class UndoControler {
 	private Stack<UndoRedo> undo = new Stack<UndoRedo>();
 
 	private Stack<UndoRedo> redo = new Stack<UndoRedo>();
+
+	private int mark = -1;
 
 	/**
 	 * Add a new action. Any actions waiting to be redone are lost.
@@ -36,6 +40,26 @@ class UndoControler {
 		}
 		u.redo();
 		add(u);
+	}
+	
+	/**
+	 * Drop a marker in the undo chain.
+	 */
+	public void mark() {
+		mark = undo.size(); 
+	}
+	
+	/**
+	 * Fold all the undo events between the marker and now into a single event.
+	 */
+	public void fold() {
+		assert mark>0;
+		List<UndoRedo> items = new	ArrayList<UndoRedo>(); 
+		while (undo.size()>mark) {
+			items.add(undo.pop());
+		}
+		undo.push(new MetaUndoRedo(items));
+		mark = -1;
 	}
 
 	/**
