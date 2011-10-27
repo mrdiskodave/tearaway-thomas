@@ -217,7 +217,7 @@ public class World implements AlienServices, Disposable {
 		this.ow = ow;
 		this.gc = ow.gc;
 		this.ah = ow.ah;
-		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight());
+		this.scr = new ScreenPosition(gc.screenWidth(), gc.screenHeight(), new Coord(50, 64));
 		this.joystick = ow.joystick;
 		this.keyboard = ow.keyboard;
 		this.fonts = ow.fonts;
@@ -674,7 +674,8 @@ public class World implements AlienServices, Disposable {
 			}
 		}
 		// that is the one for us!
-		scr.setMapBoundsInPixels(bounds);
+		System.out.println("Map bounds: "+bounds);
+		scr.setMapBoundsInPixels(bounds, bounds);
 	}
 
 	private Coord getPlayerCentre() {

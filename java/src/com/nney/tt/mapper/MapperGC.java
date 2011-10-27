@@ -98,4 +98,8 @@ public final class MapperGC {
 	public int screenHeight() {
 		return gc.screenHeight();
 	}
+	
+	public GraphicsContext gc() {
+		return gc;
+	}
 }

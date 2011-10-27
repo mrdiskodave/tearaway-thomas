@@ -1,5 +1,6 @@
 package com.nney.tt.lwjgl;
 
+import java.io.File;
 import java.util.HashSet;
 
 import org.lwjgl.LWJGLException;
@@ -10,14 +11,14 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
-import com.nney.tt.Bootstrap;
 import com.nney.tt.Const;
-import com.nney.tt.FrameDrawer;
+import com.nney.tt.Launcher;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdapter;
 import com.nney.tt.mapper.Mapper;
+import com.nney.tt.resources.TTResource;
 
 public class Main {
 	static final int ZOOM = 2;
@@ -82,6 +83,8 @@ public class Main {
 	// ---------------------------------------------------------------------------
 
 	private void run() {
+		TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
+		
 		initLwjgl();
 		initOpenGL();
 		
@@ -116,10 +119,12 @@ public class Main {
 		});
 
 		OuterWorld ow = new OuterWorld(gc, ac, joystick, keys, correctMouse);
-		ow.bootstrap = new Bootstrap() {
+		ow.bootstrap = new Launcher() {
 			@Override
-			public FrameDrawer create(OuterWorld outerWorld) {
-				return new Mapper(outerWorld);
+			public void launch(OuterWorld outerWorld) {
+				new Mapper(outerWorld).run();
+//				World w = new World(outerWorld);
+//				w.playLevel(true, null, null);
 			}
 		};
 

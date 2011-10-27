@@ -59,7 +59,7 @@ public class GameMap {
 	}
 
 	public int fastGetBlock(int x, int y) {
-		assert isInMap(x, y);
+		validPosition(x, y);
 		return map[y * MAP_WIDTH + x];
 	}
 

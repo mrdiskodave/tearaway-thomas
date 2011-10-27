@@ -5,6 +5,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.MapperGC;
+import com.nney.utils.Math2;
 
 public class ScreenPosition {
 	/**
@@ -19,22 +20,30 @@ public class ScreenPosition {
 	private final Coord screen = new Coord();
 	private final int screenWidth;
 	private final int screenHeight;
-	private Box scrollBoundsInPixels;
 
 	public final ScreenOrdinate scrOrdX = new ScreenOrdinate("X");
 	public final ScreenOrdinate scrOrdY = new ScreenOrdinate("Y");
 
-	public ScreenPosition(int screenWidth, int screenHeight) {
+	private Coord centre;
+
+	private Box mapLimits;
+
+	public ScreenPosition(int screenWidth, int screenHeight, Coord centre) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
+		int cx = Math2.fracMult(screenWidth, centre.x, 100);
+		int cy = Math2.fracMult(screenHeight, centre.y, 100);
+		this.centre = new Coord(cx, cy);
 	}
 
-	public void setMapBoundsInPixels(Box b) {
-		scrollBoundsInPixels = b;
-		scrOrdX.setConstraints(screenWidth, b.left, b.width(), "X");
-		scrOrdY.setConstraints(screenHeight, b.top, b.height(), "Y");
+	public void setMapBoundsInPixels(Box scrollLimits, Box mapLimits) {
+		this.mapLimits = mapLimits.copy();
+		scrOrdX.setConstraints(screenWidth, mapLimits.left, mapLimits.width(), scrollLimits.left, scrollLimits.width(),
+				"X");
+		scrOrdY.setConstraints(screenHeight, mapLimits.top, mapLimits.height(), scrollLimits.top,
+				scrollLimits.height(), "Y");
 	}
-	
+
 	public void setPosition(Coord c) {
 		screen.x = scrOrdX.generate(c.x);
 		screen.y = scrOrdY.generate(c.y);
@@ -56,11 +65,11 @@ public class ScreenPosition {
 	}
 
 	private Coord screenDest(Coord c) {
-		return c.copyAndAdd(-screenWidth / 2, -screenHeight * 64 / 100);
+		return c.sub2(centre);
 	}
 
 	private static int scrollOrd(int current, int dest) {
-		return current +  shrinkDelta(dest - current);
+		return current + shrinkDelta(dest - current);
 	}
 
 	// player:
@@ -81,7 +90,7 @@ public class ScreenPosition {
 	}
 
 	public void keepPlayerInMap(Coord c) {
-		Box m = scrollBoundsInPixels.copy();
+		Box m = mapLimits.copy();
 		m.shrink(6);
 		m.constrain(c);
 	}
@@ -93,72 +102,79 @@ public class ScreenPosition {
 	public Box box() {
 		return Box.fromTopLeftAndSize(screen, screenWidth, screenHeight);
 	}
-	
-	
 
-	
-	
+	// ----------------------------------------------------------------------------------------------------
+	// DRAWING
 	//
-	// not sure these two screen-drawing routines belong here
+	// not convinced these screen-drawing routines belong here
 	//
 	// the whole rest of this class is otherwise concerned with
 	// just working out where the screen and borders are located
 	//
-	
-	
-	public void drawTheMap(GameMap gameMap, BlockSet blockSet) {
-		ScreenOrdinate ix = scrOrdX;
-		ScreenOrdinate iy = scrOrdY;
 
-		int[] blockRow = new int[ix.blockCount];
-		int pixelDestY = iy.initialPixelDestination;
-		for (int loopY = 0; loopY < iy.blockCount; loopY++) {
-			for (int loopX = 0; loopX < ix.blockCount; loopX++) {
-				blockRow[loopX] = gameMap.fastGetBlock(ix.mapSourceInBlocks + loopX, iy.mapSourceInBlocks + loopY);
+	public void drawTheMap(GameMap gameMap, BlockSet blockSet) {
+		ScreenOrdinate ox = scrOrdX;
+		ScreenOrdinate oy = scrOrdY;
+
+		int[] blockRow = new int[ox.blockCount];
+		int pixelDestY = oy.initialPixelDestination;
+		for (int loopY = 0; loopY < oy.blockCount; loopY++) {
+			for (int loopX = 0; loopX < ox.blockCount; loopX++) {
+				blockRow[loopX] = gameMap.fastGetBlock(ox.mapSourceInBlocks + loopX, oy.mapSourceInBlocks + loopY);
 			}
-			blockSet.blocksHolder.draw(blockRow, ix.initialPixelDestination, pixelDestY);
+			blockSet.blocksHolder.draw(blockRow, ox.initialPixelDestination, pixelDestY);
 			pixelDestY += Const.BLOCK_SIZE;
 		}
 	}
-	
+
 	private static final int BORDER_COLOR = 0xff000000;
-	
+
 	public void drawBorders(GraphicsContext gc) {
-		// draw borders on the playing area if the map is small
-		ScreenOrdinate lr = scrOrdX;
-		if (lr.highBorderStart >= 0) {
-			gc.fillRectangle(0, 0, lr.initialPixelDestination, gc.screenHeight(), BORDER_COLOR);
-			gc.fillRectangle(lr.highBorderStart, 0, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+		int sw = gc.screenWidth();
+		int sh = gc.screenHeight();
+		{
+			ScreenOrdinate ox = scrOrdX;
+			if (ox.initialPixelDestination > 0) {
+				gc.fillRectangle(0, 0, ox.initialPixelDestination, sh, BORDER_COLOR);
+			}
+			if (ox.highBorderStart < sw) {
+				gc.fillRectangle(ox.highBorderStart, 0, sw, sh, BORDER_COLOR);
+			}
 		}
-		ScreenOrdinate tb = scrOrdY;
-		if (tb.highBorderStart >= 0) {
-			gc.fillRectangle(0, 0, gc.screenWidth(), tb.initialPixelDestination, BORDER_COLOR);
-			gc.fillRectangle(0, tb.highBorderStart, gc.screenWidth(), gc.screenHeight(), BORDER_COLOR);
+		{
+			ScreenOrdinate oy = scrOrdY;
+			if (oy.initialPixelDestination > 0) {
+				gc.fillRectangle(0, 0, sw, oy.initialPixelDestination, BORDER_COLOR);
+			}
+			if (oy.highBorderStart < sh) {
+				gc.fillRectangle(0, oy.highBorderStart, sw, sh, BORDER_COLOR);
+			}
 		}
 	}
-	
-	public void drawGrid(MapperGC mgc) {
-		ScreenOrdinate ix = scrOrdX;
-		ScreenOrdinate iy = scrOrdY;
 
+	public void drawGrid(GraphicsContext gc) {
+		ScreenOrdinate ox = scrOrdX;
+		ScreenOrdinate oy = scrOrdY;
 		int col = 0x40ffffff;
-		for (int q = 0; q < iy.blockCount; q++) {
-			int dx = ix.initialPixelDestination;
-			int dy = iy.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int s = ix.blockCount * Const.BLOCK_SIZE;
-			mgc.fillRectangle(dx, dy, s, 1, col);
-			mgc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
-		}
 
-		for (int q = 0; q < ix.blockCount; q++) {
-			int dx = ix.initialPixelDestination + q * Const.BLOCK_SIZE;
-			int dy = iy.initialPixelDestination;
-			int s = iy.blockCount * Const.BLOCK_SIZE;
-			mgc.fillRectangle(dx, dy, 1, s, col);
-			mgc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
+		{
+			int dx = ox.initialPixelDestination;
+			int s = ox.blockCount * Const.BLOCK_SIZE;
+			for (int q = 0; q < oy.blockCount; q++) {
+				int dy = oy.initialPixelDestination + q * Const.BLOCK_SIZE;
+				gc.fillRectangle(dx, dy, s, 1, col);
+				gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
+			}
+		}
+		{
+			int dy = oy.initialPixelDestination;
+			int s = oy.blockCount * Const.BLOCK_SIZE;
+			for (int q = 0; q < ox.blockCount; q++) {
+				int dx = ox.initialPixelDestination + q * Const.BLOCK_SIZE;
+				gc.fillRectangle(dx, dy, 1, s, col);
+				gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
+			}
 		}
 	}
-
-
 
 }

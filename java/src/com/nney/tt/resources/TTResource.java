@@ -34,7 +34,7 @@ public class TTResource {
 		if (resourcePath != null) {
 			File f = new File(resourcePath, formattedName);
 			if (f.exists()) {
-				System.out.println("Loading from resource path: "+f);
+				System.out.println("Loading from resource path: " + f);
 				return new FileOpenable(f);
 			}
 		}
@@ -75,7 +75,7 @@ public class TTResource {
 
 	private static void saveResource(String formattedName, String content) {
 		File f = new File(resourcePath, formattedName);
-		System.out.println("Saving to resource path: "+f);
+		System.out.println("Saving to resource path: " + f);
 		try {
 			FileWriter w = new FileWriter(f);
 			w.write(content);
@@ -87,11 +87,11 @@ public class TTResource {
 	}
 
 	public static void requireResourcePath() {
-		if (resourcePath!=null) {
+		if (resourcePath == null) {
 			throw new RuntimeException("Resource path not configured");
 		}
 		if (!resourcePath.isDirectory()) {
-			throw new RuntimeException("Resource path not a directory: "+resourcePath);
+			throw new RuntimeException("Resource path not a directory: " + resourcePath);
 		}
 	}
 

@@ -66,18 +66,12 @@ public class OuterWorld implements Runnable {
 		}
 	}
 
-	FrameDrawer fd;
-
-	public Bootstrap bootstrap;
+	public Launcher bootstrap;
 
 	@Override
 	public void run() {
 		for (;;) {
-			if (bootstrap != null) {
-				fd = bootstrap.create(this);
-				bootstrap = null;
-			}
-			fd.drawFrame();
+			bootstrap.launch(this);
 		}
 	}
 }

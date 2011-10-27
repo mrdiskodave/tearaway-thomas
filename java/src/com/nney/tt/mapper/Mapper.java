@@ -21,6 +21,7 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.input.HasKeys;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
@@ -33,6 +34,7 @@ import com.nney.tt.props.Button;
 import com.nney.tt.props.ButtonPressServices;
 import com.nney.tt.props.OPS;
 import com.nney.tt.props.Prop;
+import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
@@ -89,15 +91,13 @@ import com.nney.utils.Math2;
  *           (and the eight keys around it work as expected)
  * </pre>
  * 
- * TODO: scrolling off the edges (so that [F] makes complete sense) TODO:
- * next/previous alien (of this type) TODO: multiselect for delete and move
+ * TODO: next/previous alien (of this type)
+ * TODO: multiselect for delete and move
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
 
 	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
-
-	private final static int MAPPER_KEY = Keyboard.KEY_TAB;
 
 	private final static int COL_BACKGROUND = 0xff0080ff;
 
@@ -184,8 +184,16 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		this.ow = ow;
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(ow.gc, ow.fonts.debugFont, colorCycler);
-		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight());
-		scr.setMapBoundsInPixels(World.WHOLE_MAP_BOUNDS_IN_PIXELS);
+		
+		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight(), new Coord(50, 50));
+
+		Box scrollBounds = World.WHOLE_MAP_BOUNDS_IN_PIXELS.copy();
+		scrollBounds.left -= mgc.screenWidth()-1;
+		scrollBounds.top -= mgc.screenHeight()-1;
+		scrollBounds.right += mgc.screenWidth()-1;
+		scrollBounds.bottom += mgc.screenHeight()-1;
+		scr.setMapBoundsInPixels(scrollBounds, World.WHOLE_MAP_BOUNDS_IN_PIXELS);
+		
 		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
 		mouse = ow.mouse;
 		animsPool = ow.animsPool;
@@ -278,7 +286,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		int k = keyboard.justPressed();
 		// System.out.println(String.format("PRESSED:%08x", k));
 
-
 		if (!alienMode && keyboard.isDown(Keyboard.KEY_C)) {
 			Coord c = mmp.worldBlocksDelta();
 			changeCurrentBlock(c.x, c.y);
@@ -347,6 +354,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Locks.LOCK_MENU + Locks.LOCK_SHIFT + Keyboard.KEY_T) {
 			testLevel(true);
 		}
+		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
+			String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
+			TTResource.saveMap(levelInfo.filename, levelText);
+			say("Saved: " + levelInfo.filename);
+		}
+	}
+
+	private void testLevel(boolean bigTest) {
+		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
+		Coord playerPosition = bigTest ? null : mmp.worldPixels();
+		World w = new World(ow);
+		w.playLevel(bigTest, playerPosition, levelText);
+		setScreenPosition(w.getScreenPosition());
 	}
 
 	private Coord numCoord(int k) {
@@ -360,14 +380,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_NUMPAD2) return new Coord(1, 2);
 		if (k == Keyboard.KEY_NUMPAD3) return new Coord(2, 2);
 		return null;
-	}
-
-	private void testLevel(boolean bigTest) {
-		final String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
-		final Coord playerPosition = bigTest ? null : mmp.worldPixels();
-		World w = new World(ow);
-		w.playLevel(bigTest, playerPosition, levelText);
-		setScreenPosition(w.getScreenPosition());
 	}
 
 	private void blockMode(int k) {
@@ -516,12 +528,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				endAlienEdit();
 			}
 		}
-		
+
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
 			setSelectedAlien(null);
 			alienTracker = new AlienTracker();
 		}
-
 
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
@@ -605,7 +616,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void drawLevel() {
 		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-		scr.drawGrid(mgc);
+		scr.drawGrid(mgc.gc());
+		scr.drawBorders(mgc.gc());
 		scr.drawTheMap(gameMap, loadBlockSet());
 		drawRect();
 		updateAliens();
@@ -1164,4 +1176,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		System.out.println("Done! Correct:" + pc + " wrong:" + pw);
 	}
 
+	public void run() {
+		for (;;) {
+			drawFrame();
+		}
+	}
 }
