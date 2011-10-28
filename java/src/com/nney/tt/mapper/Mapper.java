@@ -50,11 +50,11 @@ import com.nney.utils.Math2;
  *   [LMB] on a control point to grab and drag it
  *         press [SHIFT] to constrain dragging to axises
  *   [CURSOR KEYS] on a control point to nudge it
- *   [LMB] on a button to press it (e.g. to toggle an aliens boolean property)
+ *   [LMB] on a button to press it
  *   [C] copy the selected alien
  *   [PAGEUP/PAGEDOWN] change current alien type
  *   [I] eye dropper - sets the current alien type from the selected alien 
- *   [N] new alien (of the current alien type)
+ *   [N] create a new alien (of the current alien type)
  *   [DELETE] delete the selected alien
  *   [F] find the selected alien (i.e. scroll to it)
  * 
@@ -72,8 +72,8 @@ import com.nney.utils.Math2;
  *   [F] flood fill with the current block
  *   
  *   In Drawing Mode (even though it is an alien function) [F1-F12] and [DELETE]
- *   work on aliens when you hold down Ctrl (i.e. every slot can hold blocks,
- *   aliens or both).
+ *   work on aliens instead of blocks when you hold down Ctrl
+ *   (i.e. every slot can hold blocks, aliens or both).
  *   
  *   [Ctrl+A] start marking a rectangle of blocks covering the whole map
  *   [Ctrl+M] toggle seeing block masks
@@ -104,7 +104,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		boolean is(Alien t);
 	}
 
-	private final CountingMap<AlienInfo> survey = new CountingMap<AlienInfo>();
+	private final CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
 
 	private static final int SLOT_COUNT = 12;
 
@@ -253,9 +253,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		for (String name : alienInfoMap.queryNames()) {
 			ais.add(alienInfoMap.getByName(name));
 		}
-		alienPalette = new AlienPalette(ais, mgc, animsPool, survey);
+		alienPalette = new AlienPalette(ais, mgc, animsPool, census);
 	}
-
+	
 	void createAlienWithUndoRedo(final Alien alien) {
 		load(alien);
 		setSelectedAlien(alien);
@@ -731,9 +731,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void surveyAliens() {
-		survey.clear();
+		census.clear();
 		for (Alien a: alienTracker) {
-			survey.inc(a.alienInfo);
+			census.inc(a.alienInfo);
 		}
 	}
 

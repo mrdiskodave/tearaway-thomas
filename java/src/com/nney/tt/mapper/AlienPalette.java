@@ -43,9 +43,9 @@ public class AlienPalette {
 	private final CountingMap<AlienInfo> survey;
 
 	
-	public AlienPalette(ArrayList<AlienInfo> ais, MapperGC mgc, AnimsPool animsPool, CountingMap<AlienInfo> survey) {
+	public AlienPalette(ArrayList<AlienInfo> ais, MapperGC mgc, AnimsPool animsPool, CountingMap<AlienInfo> census) {
 		this.mgc = mgc;
-		this.survey = survey;
+		this.survey = census;
 
 		for (AlienInfo ai: ais) {
 			if (ai.animsName()!=null) {
