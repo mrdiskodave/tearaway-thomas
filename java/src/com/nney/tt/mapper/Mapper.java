@@ -48,59 +48,62 @@ import com.nney.utils.Math2;
  *   [RMB] near an alien to select alien - buttons and control points appear! 
  *   [LMB] on a control point to grab and drag it
  *         press [SHIFT] to constrain dragging to axises
- *   [CURSOR KEYS] nudge a control point
- *   [LMB] on a button to press it
+ *   [CURSOR KEYS] on a control point to nudge it
+ *   [LMB] on a button to press it (e.g. to toggle an aliens boolean property)
  *   [C] copy the selected alien
  *   [PAGEUP/PAGEDOWN] change current alien type
  *   [I] eye dropper - sets the current alien type from the selected alien 
  *   [N] new alien (of the current alien type)
  *   [DELETE] delete the selected alien
- *   [Ctrl+Delete] delete all aliens
  *   [F] find the selected alien (i.e. scroll to it)
  * 
  * [D] Drawing Mode:
  *   [LMB] draw with the current block
- *   [Ctrl+Delete] clear the whole map
  *   [I] eye dropper - sets the current block from the map
  *   [CURSOR KEYS] change the current block
  *   hold [C] to make the current block chase mouse movement (try it)
- *   [M] start marking a rectangle of blocks which you can end with:
+ *   [M] starting marking a rectangle of blocks during which:
  *     [M] cancel marking
  *     [F1-12] copy the rectangle of blocks into a numbered slot
- *     [F] fill the rectangle of blocks with the current block
- *   [F1-12] paste from rectangle from a numbered slot
+ *     [F] fill the rectangle with the current block
+ *     [DELETE] delete those blocks (i.e. fill rectangle with block 0) 
+ *   [F1-12] paste blocks from numbered slot
+ *   [F] flood fill with the current block
  *   
- *   [CTRL+M] toggle seeing block masks
- *   [CTRL+I] toggle seeing hidden blocks
+ *   Even though it is an alien function, in Drawing Mode [F1-F12] and [DELETE]
+ *   work on aliens when you hold down control (i.e. every slot can hold blocks,
+ *   aliens or both).
+ *   
+ *   [Ctrl+A] starting marking a rectangle of blocks covering the whole map
+ *   [Ctrl+M] toggle seeing block masks
+ *   [Ctrl+I] toggle seeing hidden blocks
  * 
- *   hold [RMB] for a block choosing screen:
+ *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
- *     [CURSOR KEYS] and [CTRL+M] and [CTRL+I] work in here too
+ *     [CURSOR KEYS], [0], [CTRL+M] and [CTRL+I] work in here too
  * 
  * Always:
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
+ * [NUMPAD5] jump to the middle of the level
+ *           (and the eight numbered keys around it work as expected)
  * [Ctrl+G] where am I?
- * [Ctrl+Z] undo
- * [Ctrl+Y] redo
- * [ESCAPE] reset the mode
+ * [Ctrl+Z] endless undo
+ * [Ctrl+Y] endless redo
+ * [ESCAPE] reset
  *          (removes temporary floating palettes and other statefulness)
- * [Alt+T] small test (test from the mouse position without the intro)
- * [Alt+Shift+T] big test (test the whole level from start to finish)
- * [NumPad5] jump to the middle of the level
- *           (and the eight keys around it work as expected)
+ * [Alt+T] small test (test the level from the mouse position without the intro)
+ * [Alt+Shift+T] big test (test the whole level as the player would experience it)
+ * [Alt+S] save the level
  * </pre>
- * 
- * TODO: next/previous alien (of this type) TODO: multiselect for delete and
- * move
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
+	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
+
 	interface AlienPredicate {
 		boolean is(Alien t);
 	}
 
-	private static final int SLOT_GROUP = 4;
-
-	private static final int SLOT_COUNT = SLOT_GROUP * 4;
+	private static final int SLOT_COUNT = 12;
 
 	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
 	private final static int PASTE_BUFFER_END = PASTE_BUFFER_START + SLOT_COUNT - 1;
@@ -127,9 +130,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 
-	private final SavedMapBlock[] blockSlots = new SavedMapBlock[SLOT_GROUP];
+	private final SavedMapBlock[] blockSlots = new SavedMapBlock[SLOT_COUNT];
 
-	private final SavedAlienSlot[] alienSlots = new SavedAlienSlot[SLOT_GROUP];
+	private final SavedAlienSlot[] alienSlots = new SavedAlienSlot[SLOT_COUNT];
 
 	private EditConsolidator edit;
 
@@ -436,10 +439,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			setFocus(convertNumCoord(new Coord(2, 2)));
 		}
 		if (k == Keyboard.KEY_F) {
-			if (marker != null) {
-				fillRect(getCompressedCurrentBlock());
-			}
-			else {
+			if (marker == null) {
 				final int blk = gameMap.getBlock(mmp.worldBlocks());
 				BlockTest test = new BlockTest() {
 					@Override
@@ -449,9 +449,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				};
 				floodFill(test);
 			}
+			else {
+				fillRect(getCompressedCurrentBlock());
+			}
 		}
+
 		if (k == Keyboard.KEY_DELETE) fillRect(0);
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
+		if (k == ALIENS_LOCK + Keyboard.KEY_DELETE) {
 			if (marker != null) {
 				AlienPredicate ap = getRectPredicate();
 				removePredicatedAliensWithUndo(ap);
@@ -460,10 +464,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
 			int slotNumber = k - PASTE_BUFFER_START;
 			if (marker == null) {
-				pasteRect(slotNumber);
+				pasteBlocks(slotNumber);
 			}
 			else {
-				copyRect(slotNumber);
+				copyBlocks(slotNumber);
+			}
+		}
+		if (k >= ALIENS_LOCK + PASTE_BUFFER_START && k <= ALIENS_LOCK + PASTE_BUFFER_END) {
+			int slotNumber = k - (ALIENS_LOCK + PASTE_BUFFER_START);
+			if (marker == null) {
+				pasteAliens(slotNumber);
+			}
+			else {
+				copyAliens(slotNumber);
 			}
 		}
 
@@ -480,7 +493,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public AlienPredicate getRectPredicate() {
-		final Box rectangle = getPixelRect();
+		final Box rectangle = getRectInPixels();
 		return new AlienPredicate() {
 			@Override
 			public boolean is(Alien a) {
@@ -489,13 +502,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		};
 	}
 
-	public Box getPixelRect() {
-		return getRect().mult2(Const.BLOCK_SIZE);
+	private Box getRectInBlocks() {
+		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
+	}
+
+	public Box getRectInPixels() {
+		return getRectInBlocks().mult2(Const.BLOCK_SIZE);
 	}
 
 	public void removePredicatedAliensWithUndo(final AlienPredicate ap) {
 		undoControler.redoThenAdd(new UndoRedo() {
-			List<Alien> lost;
+			private List<Alien> lost;
 
 			@Override
 			public void undo() {
@@ -592,12 +609,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				endAlienEdit();
 			}
 		}
-
-		// if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
-		// setSelectedAlien(null);
-		// alienTracker = new AlienTracker();
-		// }
-
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
 			if (k == Keyboard.KEY_C) copySelectedAlien();
@@ -621,14 +632,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	 * @param pos
 	 *            The original position.
 	 * @param origin
-	 *            The position of the origin.
+	 *            The position of the origin. <code>null</code> means
+	 *            "don't do anything just return the given position unmodified".
 	 * @param spokes
 	 *            The number of spokes radiating from the origin. The first
 	 *            spoke points right and they are equally spaced. e.g. 4 would
 	 *            mean "snap to the X and Y axis" while 8 would mean
-	 *            "snap to the axis or the diagonals". Zero has a special
-	 *            meaning of
-	 *            "don't do anything just return the input pos unmodified".
+	 *            "snap to the X and Y axis or the diagonals".
 	 * @return The computed new position.
 	 */
 	private Coord computeSnap(Coord pos, Coord origin, int spokes) {
@@ -691,18 +701,12 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void drawRect() {
-		Box box = getRect();
-		if (box != null) {
-			box.mult(Const.BLOCK_SIZE);
+		if (marker != null) {
+			Box box = getRectInPixels();
 			box.shrink(1);
 			box.sub(getScreenPosition());
 			mgc.drawBox(box.left, box.top, box.width(), box.height(), mgc.process(0xff00ffff));
 		}
-	}
-
-	private Box getRect() {
-		if (marker == null) return null;
-		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
 	}
 
 	private void say(String s) {
@@ -738,7 +742,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
-		if (k == Keyboard.KEY_0) setCurrentBlock(0);
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) seeMasks = !seeMasks;
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_H) seeHidden = !seeHidden;
 	}
@@ -906,6 +909,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private List<Alien> flatten() {
 		List<Alien> all = alienTracker.getAll();
 		alienTracker = new MapperAlienTracker();
+//		APS.orderAlienList(all);
 		return all;
 	}
 
@@ -987,62 +991,60 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		undoControler.redoThenAdd(u);
 	}
 
-	private void pasteRect(int slotNumber) {
-		if (slotNumber < SLOT_GROUP) {
-			SavedMapBlock slot = blockSlots[slotNumber];
-			if (slot != null) {
-				Coord c = mmp.worldBlocks();
-				// does it fit?
-				boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
-				if (itFits) {
-					// paste it!
-					MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
-					submitMapEdit(edit);
-				}
-				say("Pasted " + slot.size() + " blocks from slot " + slotNumber);
+	public void pasteAliens(int slotNumber) {
+		SavedAlienSlot sas = alienSlots[slotNumber];
+		if (sas != null) {
+			undoControler.mark();
+			Coord oc = sas.corner;
+			Coord nc = mmp.worldBlocks().mul2(Const.BLOCK_SIZE);
+			Coord diff = nc.sub2(oc);
+			for (Alien a : sas.aliens) {
+				Alien a2 = copyAlien(a);
+				APS.moveAlienRelative(a2, diff);
+				createAlienWithUndoRedo(a2);
 			}
-		}
-		else {
-			SavedAlienSlot sas = alienSlots[slotNumber - SLOT_GROUP];
-			if (sas != null) {
-				undoControler.mark();
-				Coord oc = sas.corner;
-				Coord nc = mmp.worldBlocks().mul2(Const.BLOCK_SIZE);
-				Coord diff = nc.sub2(oc);
-				for (Alien a : sas.aliens) {
-					Alien a2 = copyAlien(a);
-					APS.moveAlienRelative(a2, diff);
-					createAlienWithUndoRedo(a2);
-				}
-				undoControler.fold();
-				say("Pasted " + sas.aliens.size() + " aliens from slot " + slotNumber);
-			}
+			undoControler.fold();
+			say("Pasted " + sas.aliens.size() + " aliens from slot " + slotNumber);
 		}
 	}
 
-	private void copyRect(int slotNumber) {
-		Box rectangle = getRect();
-		if (slotNumber < SLOT_GROUP) {
-			SavedMapBlock s = SavedMapBlock.fromMap(rectangle, gameMap);
-			blockSlots[slotNumber] = s;
-			say("Copied " + s.size() + " blocks to slot " + slotNumber);
-		}
-		else {
-			rectangle.mult(Const.BLOCK_SIZE);
-			List<Alien> captured = new ArrayList<Alien>();
-			for (Alien a : alienTracker) {
-				if (rectangle.inside(a.getLocation())) {
-					captured.add(copyAlien(a));
-				}
+	public void pasteBlocks(int slotNumber) {
+		SavedMapBlock slot = blockSlots[slotNumber];
+		if (slot != null) {
+			Coord c = mmp.worldBlocks();
+			// does it fit?
+			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
+			if (itFits) {
+				// paste it!
+				MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
+				submitMapEdit(edit);
 			}
-			alienSlots[slotNumber - SLOT_GROUP] = new SavedAlienSlot(rectangle.topLeft(), captured);
-			say("Copied " + captured.size() + " aliens to slot " + slotNumber);
+			say("Pasted " + slot.size() + " blocks from slot " + slotNumber);
 		}
+	}
+
+	public void copyAliens(int slotNumber) {
+		Box rectangle = getRectInBlocks();
+		rectangle.mult(Const.BLOCK_SIZE);
+		List<Alien> captured = new ArrayList<Alien>();
+		for (Alien a : alienTracker) {
+			if (rectangle.inside(a.getLocation())) {
+				captured.add(copyAlien(a));
+			}
+		}
+		alienSlots[slotNumber] = new SavedAlienSlot(rectangle.topLeft(), captured);
+		say("Copied " + captured.size() + " aliens to slot " + slotNumber);
+	}
+
+	public void copyBlocks(int slotNumber) {
+		Box rectangle = getRectInBlocks();
+		SavedMapBlock s = SavedMapBlock.fromMap(rectangle, gameMap);
+		blockSlots[slotNumber] = s;
+		say("Copied " + s.size() + " blocks to slot " + slotNumber);
 	}
 
 	private void fillRect(int block) {
-		Box rectangle = getRect();
-		if (rectangle == null) return;
+		Box rectangle = getRectInBlocks();
 		SavedMapBlock s = SavedMapBlock.fromSolid(rectangle.width(), rectangle.height(), block);
 		MapEdit edit = MapEdit.create(gameMap, rectangle.topLeft(), s);
 		submitMapEdit(edit);
