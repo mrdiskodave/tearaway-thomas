@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.nney.json.DataDestination;
 import com.nney.json.DataItem;
+import com.nney.tt.World;
 import com.nney.tt.geom.Coord;
 
 public class CoordVisualProp extends VisualProp<Coord> {
@@ -75,5 +76,10 @@ public class CoordVisualProp extends VisualProp<Coord> {
 				bps.fall(c);
 			}
 		});
+	}
+	
+	@Override
+	public void validate() {
+		World.WHOLE_MAP_BOUNDS_IN_PIXELS.constrain(read());
 	}
 }

@@ -255,8 +255,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 		alienPalette = new AlienPalette(ais, mgc, animsPool, census);
 	}
-	
+
 	void createAlienWithUndoRedo(final Alien alien) {
+		OPS.validate(alien);
 		load(alien);
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
@@ -723,7 +724,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_PRIOR) alienPalette.prev();
 		if (k == Keyboard.KEY_I && haveAlien()) alienPalette.find(getSelectedAlien().alienInfo);
 		if (alienPalette.get() != current) {
-			if (paletteTimer==0) {
+			if (paletteTimer == 0) {
 				surveyAliens();
 			}
 			paletteTimer = 100;
@@ -732,7 +733,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void surveyAliens() {
 		census.clear();
-		for (Alien a: alienTracker) {
+		for (Alien a : alienTracker) {
 			census.inc(a.alienInfo);
 		}
 	}
@@ -746,7 +747,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		Alien a = makeAlien(ai);
 		a.connect(animsPool);
 		a.resetTo(mmp.worldPixels());
-		OPS.validate(a);
 		createAlienWithUndoRedo(a);
 	}
 
@@ -922,7 +922,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private List<Alien> flatten() {
 		List<Alien> all = alienTracker.getAll();
 		alienTracker = new MapperAlienTracker();
-//		APS.orderAlienList(all);
+		// APS.orderAlienList(all);
 		return all;
 	}
 
@@ -1026,13 +1026,20 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (slot != null) {
 			Coord c = mmp.worldBlocks();
 			// does it fit?
-			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
-			if (itFits) {
+			int xs = c.x + slot.w - GameMap.MAP_WIDTH;
+			int ys = c.y + slot.h - GameMap.MAP_HEIGHT;
+			if (xs > 0) {
+				say("Move left by at least " + xs + " blocks");
+			}
+			else if (ys > 0) {
+				say("Move up by at least " + ys + " blocks");
+			}
+			else {
 				// paste it!
 				MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
 				submitMapEdit(edit);
+				say("Pasted " + slot.size() + " blocks from slot " + slotNumber);
 			}
-			say("Pasted " + slot.size() + " blocks from slot " + slotNumber);
 		}
 	}
 
