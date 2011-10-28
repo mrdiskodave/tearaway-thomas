@@ -9,6 +9,7 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.CountingMap;
 
 public class AlienPalette {
 	class AnimAndPlayer {
@@ -39,9 +40,12 @@ public class AlienPalette {
 
 	private final MapperGC mgc;
 
+	private final CountingMap<AlienInfo> survey;
+
 	
-	public AlienPalette(ArrayList<AlienInfo> ais, MapperGC mgc, AnimsPool animsPool) {
+	public AlienPalette(ArrayList<AlienInfo> ais, MapperGC mgc, AnimsPool animsPool, CountingMap<AlienInfo> survey) {
 		this.mgc = mgc;
+		this.survey = survey;
 
 		for (AlienInfo ai: ais) {
 			if (ai.animsName()!=null) {
@@ -115,7 +119,10 @@ public class AlienPalette {
 			sprite.drawByHandle(cex, cey, false);
 		}
 
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, ai.name);
+		String t = ai.name;
+		int c = survey.get(ai);
+		if (c!=0) t += "("+c+")";
+		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, t);
 		
 		if (!live) {
 			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,

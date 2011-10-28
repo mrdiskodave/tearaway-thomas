@@ -37,6 +37,7 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.CountingMap;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
 
@@ -62,7 +63,7 @@ import com.nney.utils.Math2;
  *   [I] eye dropper - sets the current block from the map
  *   [CURSOR KEYS] change the current block
  *   hold [C] to make the current block chase mouse movement (try it)
- *   [M] starting marking a rectangle of blocks during which:
+ *   [M] start marking a rectangle of blocks during which:
  *     [M] cancel marking
  *     [F1-12] copy the rectangle of blocks into a numbered slot
  *     [F] fill the rectangle with the current block
@@ -70,11 +71,11 @@ import com.nney.utils.Math2;
  *   [F1-12] paste blocks from numbered slot
  *   [F] flood fill with the current block
  *   
- *   Even though it is an alien function, in Drawing Mode [F1-F12] and [DELETE]
- *   work on aliens when you hold down control (i.e. every slot can hold blocks,
+ *   In Drawing Mode (even though it is an alien function) [F1-F12] and [DELETE]
+ *   work on aliens when you hold down Ctrl (i.e. every slot can hold blocks,
  *   aliens or both).
  *   
- *   [Ctrl+A] starting marking a rectangle of blocks covering the whole map
+ *   [Ctrl+A] start marking a rectangle of blocks covering the whole map
  *   [Ctrl+M] toggle seeing block masks
  *   [Ctrl+I] toggle seeing hidden blocks
  * 
@@ -102,6 +103,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	interface AlienPredicate {
 		boolean is(Alien t);
 	}
+
+	private final CountingMap<AlienInfo> survey = new CountingMap<AlienInfo>();
 
 	private static final int SLOT_COUNT = 12;
 
@@ -250,7 +253,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		for (String name : alienInfoMap.queryNames()) {
 			ais.add(alienInfoMap.getByName(name));
 		}
-		alienPalette = new AlienPalette(ais, mgc, animsPool);
+		alienPalette = new AlienPalette(ais, mgc, animsPool, survey);
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -720,7 +723,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_PRIOR) alienPalette.prev();
 		if (k == Keyboard.KEY_I && haveAlien()) alienPalette.find(getSelectedAlien().alienInfo);
 		if (alienPalette.get() != current) {
+			if (paletteTimer==0) {
+				surveyAliens();
+			}
 			paletteTimer = 100;
+		}
+	}
+
+	private void surveyAliens() {
+		survey.clear();
+		for (Alien a: alienTracker) {
+			survey.inc(a.alienInfo);
 		}
 	}
 
