@@ -45,6 +45,7 @@ import com.nney.tt.aliens.WingsAlien;
 import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowBirdAlien;
 import com.nney.tt.resources.TTResource;
+import com.nney.utils.CountingMap;
 
 public class AlienInfoMap {
 	/**
@@ -58,7 +59,7 @@ public class AlienInfoMap {
 	 */
 	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
-	private final Map<Class<? extends Alien>, Integer> classUseCount = new HashMap<Class<? extends Alien>, Integer>();
+	private final CountingMap<Class<? extends Alien>> classUseCount = new CountingMap<Class<? extends Alien>>(); 
 
 	private final List<String> names = new ArrayList<String>();
 	private final List<String> animList = new ArrayList<String>();
@@ -154,11 +155,7 @@ public class AlienInfoMap {
 			if (ai.setWorld(worldName)) {
 				classToAlienInfo.put(ai.alienClass, ai);
 
-				Integer useCount = classUseCount.get(ai.alienClass);
-				if (useCount == null) useCount = 0;
-				useCount++;
-				classUseCount.put(ai.alienClass, useCount);
-
+				classUseCount.inc(ai.alienClass);
 				if (!ai.internal()) {
 					addToIndex(ai, ai.name);
 					addToIndex(ai, typeCodeToName(ai.typeCode));
@@ -197,10 +194,8 @@ public class AlienInfoMap {
 
 	private AlienInfo getByClass(Class<? extends Alien> c) {
 		// it's a problem if we cannot give an unambiguous answer
-		Integer cuc = classUseCount.get(c);
-		int icuc = cuc == null ? 0 : cuc;
-		if (icuc != 1) {
-			throw new RuntimeException("Class count is " + icuc + " for " + c);
+		if (classUseCount.get(c) != 1) {
+			throw new RuntimeException("Class count is " + classUseCount.get(c) + " for " + c);
 		}
 		return classToAlienInfo.get(c);
 	}
