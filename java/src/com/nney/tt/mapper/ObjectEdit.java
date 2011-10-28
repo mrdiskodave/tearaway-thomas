@@ -51,7 +51,7 @@ class ObjectEdit extends SymmetricalUndoRedo {
 		}
 	}
 
-	private void removeMatching() {
+	public void removeMatching() {
 		object.onPropUpdate();
 		for (Iterator<Content> ci = cs.iterator(); ci.hasNext();) {
 			Content c = ci.next();
@@ -61,19 +61,13 @@ class ObjectEdit extends SymmetricalUndoRedo {
 		}
 	}
 
-	/**
-	 * How many properties have changed?
-	 */
-	public boolean containsAnything() {
-		removeMatching();
-		return cs.size()!=0;
-	}
-
 	@Override
-	protected void swap() {
+	protected boolean swap() {
+		if (cs.isEmpty()) return false;
 		for (Content c : cs) {
 			c.swap();
 		}
 		object.onPropUpdate();
+		return true;
 	}
 }

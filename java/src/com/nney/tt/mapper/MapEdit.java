@@ -6,17 +6,17 @@ import com.nney.tt.map.GameMap;
 public class MapEdit extends SymmetricalUndoRedo {
 	private final GameMap gameMap;
 	private final Coord c;
-	private final SaveMapBlock smb;
+	private final SavedMapBlock smb;
 	
-	private MapEdit(GameMap gameMap, Coord c, SaveMapBlock smb) {
+	private MapEdit(GameMap gameMap, Coord c, SavedMapBlock smb) {
 		this.gameMap = gameMap;
 		this.smb = smb;
 		this.c = c;
 	}
 
 
-	static MapEdit create(GameMap gameMap, Coord c, SaveMapBlock smb) {
-		if (!smb.eorUs(c, gameMap)) return null;
+	static MapEdit create(GameMap gameMap, Coord c, SavedMapBlock smb) {
+		smb.eorUs(c, gameMap);
 		
 		// smb is now immutable. we only ever call eorMap() on it.
 		// for many edits it will be mostly zeros.
@@ -25,7 +25,7 @@ public class MapEdit extends SymmetricalUndoRedo {
 	}
 
 	@Override
-	public void swap() {
-		smb.eorMap(c, gameMap);
+	public boolean swap() {
+		return smb.eorMap(c, gameMap);
 	}
 }

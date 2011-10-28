@@ -7,7 +7,7 @@ public interface UndoRedo {
 	/**
 	 * Do the action.
 	 */
-	void redo();
+	boolean redo();
 
 	/**
 	 * Undo the action.

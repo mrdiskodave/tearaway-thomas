@@ -4,25 +4,25 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.map.GameMap;
 
-public class SaveMapBlock {
+public class SavedMapBlock {
 	private final short[][] z;
 	public final int w;
 	public final int h;
 
-	private SaveMapBlock(int w, int h) {
+	private SavedMapBlock(int w, int h) {
 		this.w = w;
 		this.h = h;
 		this.z = new short[h][w];
 	}
 
-	public static SaveMapBlock fromMap(Box rectangle, GameMap gameMap) {
-		SaveMapBlock answer = new SaveMapBlock(rectangle.width(), rectangle.height());
+	public static SavedMapBlock fromMap(Box rectangle, GameMap gameMap) {
+		SavedMapBlock answer = new SavedMapBlock(rectangle.width(), rectangle.height());
 		answer.read(rectangle.topLeft(), gameMap);
 		return answer;
 	}
 	
-	public static SaveMapBlock fromSolid(int w, int h, int b) {
-		SaveMapBlock answer = new SaveMapBlock(w, h);
+	public static SavedMapBlock fromSolid(int w, int h, int b) {
+		SavedMapBlock answer = new SavedMapBlock(w, h);
 		if (b!=0) answer.fill(b);
 		return answer;
 	}
@@ -44,31 +44,30 @@ public class SaveMapBlock {
 		}
 	}
 	
-	public boolean eorUs(Coord mapPos, GameMap gameMap) {
+	public void eorUs(Coord mapPos, GameMap gameMap) {
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				Coord m = mapPos.copyAndAdd(x, y);
+				set(x, y, gameMap.getBlock(m)^get(x, y));
+			}
+		}
+	}
+	
+	public boolean eorMap(Coord mapPos, GameMap gameMap) {
 		int r = 0;
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				Coord m = mapPos.copyAndAdd(x, y);
-				int ea = gameMap.getBlock(m)^get(x, y);
-				set(x, y, ea);
-				r |= ea;
+				int edit = get(x, y);
+				gameMap.setBlock(m, gameMap.getBlock(m)^edit);
+				r |= edit;
 			}
 		}
 		return r != 0;
 	}
 	
-	public void eorMap(Coord mapPos, GameMap gameMap) {
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				Coord m = mapPos.copyAndAdd(x, y);
-				int ea = gameMap.getBlock(m)^get(x, y);
-				gameMap.setBlock(m, ea);
-			}
-		}
-	}
-	
-	public SaveMapBlock copy() {
-		SaveMapBlock answer = new SaveMapBlock(w, h);
+	public SavedMapBlock copy() {
+		SavedMapBlock answer = new SavedMapBlock(w, h);
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				answer.set(x, y, get(x, y));
@@ -83,6 +82,10 @@ public class SaveMapBlock {
 				set(x, y, currentBlock);
 			}
 		}
+	}
+	
+	public int size() {
+		return w*h;
 	}
 
 //	public void dump() {

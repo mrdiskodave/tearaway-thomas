@@ -38,8 +38,12 @@ class UndoControler {
 		if (u == null) {
 			throw new InvalidParameterException();
 		}
-		u.redo();
-		add(u);
+		if (u.redo()) {
+			add(u);
+		}
+		else {
+			System.out.println("Nothing changed");
+		}
 	}
 	
 	/**
@@ -53,12 +57,16 @@ class UndoControler {
 	 * Fold all the undo events between the marker and now into a single event.
 	 */
 	public void fold() {
-		assert mark>0;
-		List<UndoRedo> items = new	ArrayList<UndoRedo>(); 
-		while (undo.size()>mark) {
-			items.add(undo.pop());
+		assert mark>=0;
+		int distance = undo.size()-mark;
+		System.out.println("FOLD:"+distance);
+		if (distance>1) {
+			List<UndoRedo> items = new	ArrayList<UndoRedo>(); 
+			while (undo.size()>mark) {
+				items.add(undo.pop());
+			}
+			undo.push(new MetaUndoRedo(items));
 		}
-		undo.push(new MetaUndoRedo(items));
 		mark = -1;
 	}
 
@@ -89,5 +97,10 @@ class UndoControler {
 			u.redo();
 			undo.push(u);
 		}
+	}
+
+	public int size() {
+		// just for status display
+		return undo.size();
 	}
 }

@@ -2,8 +2,8 @@ package com.nney.tt.mapper;
 
 public abstract class SymmetricalUndoRedo implements UndoRedo {
 	@Override
-	public void redo() {
-		swap();
+	public boolean redo() {
+		return swap();
 	}
 
 	@Override
@@ -12,5 +12,5 @@ public abstract class SymmetricalUndoRedo implements UndoRedo {
 
 	}
 
-	abstract protected void swap();
+	abstract protected boolean swap();
 }

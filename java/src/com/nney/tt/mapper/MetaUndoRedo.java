@@ -10,11 +10,13 @@ public class MetaUndoRedo implements UndoRedo {
 	}
 
 	@Override
-	public void redo() {
+	public boolean redo() {
+		boolean doneSomething = false;
 		int x = items.size();
 		while (--x >= 0) {
-			items.get(x).redo();
+			doneSomething |= items.get(x).redo();
 		}
+		return doneSomething;
 	}
 
 	@Override

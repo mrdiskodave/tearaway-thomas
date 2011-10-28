@@ -90,13 +90,20 @@ import com.nney.utils.Math2;
  *           (and the eight keys around it work as expected)
  * </pre>
  * 
- * TODO: next/previous alien (of this type)
- * TODO: multiselect for delete and move
+ * TODO: next/previous alien (of this type) TODO: multiselect for delete and
+ * move
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
-	private final static int PASTE_BUFFER_END = Keyboard.KEY_F12;
+	interface AlienPredicate {
+		boolean is(Alien t);
+	}
+
+	private static final int SLOT_GROUP = 4;
+
+	private static final int SLOT_COUNT = SLOT_GROUP * 4;
 
 	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
+	private final static int PASTE_BUFFER_END = PASTE_BUFFER_START + SLOT_COUNT - 1;
 
 	private final static int COL_BACKGROUND = 0xff0080ff;
 
@@ -110,7 +117,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final Pointer mouse;
 	private final GameMap gameMap;
 
-	private final SaveMapBlock[] slots = new SaveMapBlock[12];
+	class SavedAlienSlot {
+		public final Coord corner;
+		public final List<Alien> aliens;
+
+		SavedAlienSlot(Coord corner, List<Alien> aliens) {
+			this.corner = corner;
+			this.aliens = aliens;
+		}
+	}
+
+	private final SavedMapBlock[] blockSlots = new SavedMapBlock[SLOT_GROUP];
+
+	private final SavedAlienSlot[] alienSlots = new SavedAlienSlot[SLOT_GROUP];
 
 	private EditConsolidator edit;
 
@@ -157,7 +176,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private boolean seeMasks;
 
-	private MapperAlienTracker alienTracker = new MapperAlienTracker(); 
+	private MapperAlienTracker alienTracker = new MapperAlienTracker();
 
 	private String worldName;
 
@@ -183,16 +202,16 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		this.ow = ow;
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(ow.gc, ow.fonts.debugFont, colorCycler);
-		
+
 		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight(), new Coord(50, 50));
 
 		Box scrollBounds = World.WHOLE_MAP_BOUNDS_IN_PIXELS.copy();
-		scrollBounds.left -= mgc.screenWidth()-1;
-		scrollBounds.top -= mgc.screenHeight()-1;
-		scrollBounds.right += mgc.screenWidth()-1;
-		scrollBounds.bottom += mgc.screenHeight()-1;
+		scrollBounds.left -= mgc.screenWidth() - 1;
+		scrollBounds.top -= mgc.screenHeight() - 1;
+		scrollBounds.right += mgc.screenWidth() - 1;
+		scrollBounds.bottom += mgc.screenHeight() - 1;
 		scr.setMapBoundsInPixels(scrollBounds, World.WHOLE_MAP_BOUNDS_IN_PIXELS);
-		
+
 		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
 		mouse = ow.mouse;
 		animsPool = ow.animsPool;
@@ -212,11 +231,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
-		
+
 		// player start position
 		PlayerAlien pa = ListUtil.findOne(PlayerAlien.class, aliens);
-		if (pa!=null) scr.snapTo(pa.c);
-		
+		if (pa != null) scr.snapTo(pa.c);
+
 		// load the aliens
 		for (Alien alien : aliens) {
 			alien.connect(animsPool);
@@ -236,9 +255,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
 			@Override
-			public void redo() {
+			public boolean redo() {
 				reinstate(alien);
 				setSelectedAlien(alien);
+				return true;
 			}
 
 			@Override
@@ -328,7 +348,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				marker = null;
 			}
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
-				say("Position:" + mmp.worldPixels() + "pixels " + mmp.worldBlocks() + "blocks");
+				say("Position:" + mmp.worldPixels() + "pixels " + mmp.worldBlocks() + "blocks " + undoControler.size()
+						+ "actions");
 			}
 
 			drawLevel();
@@ -430,18 +451,22 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 		}
 		if (k == Keyboard.KEY_DELETE) fillRect(0);
+		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
+			if (marker != null) {
+				AlienPredicate ap = getRectPredicate();
+				removePredicatedAliensWithUndo(ap);
+			}
+		}
 		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
 			int slotNumber = k - PASTE_BUFFER_START;
 			if (marker == null) {
 				pasteRect(slotNumber);
-				say("Pasted from slot " + slotNumber);
 			}
 			else {
 				copyRect(slotNumber);
-				say("Copied into slot " + slotNumber);
-				marker = null;
 			}
 		}
+
 		blockSelectionKeys(k);
 
 		if (k == Keyboard.KEY_A) {
@@ -452,6 +477,39 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_H) {
 			generateToyland();
 		}
+	}
+
+	public AlienPredicate getRectPredicate() {
+		final Box rectangle = getPixelRect();
+		return new AlienPredicate() {
+			@Override
+			public boolean is(Alien a) {
+				return rectangle.inside(a.getLocation());
+			}
+		};
+	}
+
+	public Box getPixelRect() {
+		return getRect().mult2(Const.BLOCK_SIZE);
+	}
+
+	public void removePredicatedAliensWithUndo(final AlienPredicate ap) {
+		undoControler.redoThenAdd(new UndoRedo() {
+			List<Alien> lost;
+
+			@Override
+			public void undo() {
+				for (Alien a : lost) {
+					reinstate(a);
+				}
+			}
+
+			@Override
+			public boolean redo() {
+				lost = removePredicatedAliens(ap);
+				return !lost.isEmpty();
+			}
+		});
 	}
 
 	private void alienMode(int k) {
@@ -535,10 +593,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 		}
 
-//		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
-//			setSelectedAlien(null);
-//			alienTracker = new AlienTracker();
-//		}
+		// if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) {
+		// setSelectedAlien(null);
+		// alienTracker = new AlienTracker();
+		// }
 
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
@@ -876,9 +934,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void endAlienEdit() {
-		if (alienEdit.containsAnything()) {
-			undoControler.add(alienEdit);
-		}
+		alienEdit.removeMatching();
+		alienEdit.swap();
+		undoControler.redoThenAdd(alienEdit);
 		alienEdit = null;
 	}
 
@@ -902,8 +960,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 
 			@Override
-			public void redo() {
+			public boolean redo() {
 				deleteAlien(a);
+				return true;
 			}
 		});
 	}
@@ -911,53 +970,80 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void copySelectedAlien() {
 		final Alien src = getSelectedAlien();
 		if (!src.alienInfo.internal()) {
-			createAlienWithUndoRedo(copyAlien(src));
+			Alien dest = copyAlien(src);
+			APS.moveAlienAbsolute(dest, mmp.worldPixels());
+			createAlienWithUndoRedo(dest);
 		}
 	}
 
-	private Alien copyAlien(final Alien src) {
-		final Alien dest = makeAlien(src.alienInfo);
+	private Alien copyAlien(Alien src) {
+		Alien dest = makeAlien(src.alienInfo);
 		dest.connect(src);
 		OPS.copyProps(src, dest);
-		APS.moveAlienAbsolute(dest, mmp.worldPixels());
 		return dest;
 	}
 
 	private void submitMapEdit(MapEdit u) {
-		if (u != null) {
-			undoControler.redoThenAdd(u);
-		}
-		else {
-			System.out.println("Nothing changed");
-		}
+		undoControler.redoThenAdd(u);
 	}
 
 	private void pasteRect(int slotNumber) {
-		SaveMapBlock slot = slots[slotNumber];
-		if (slot != null) {
-			Coord c = mmp.worldBlocks();
-			// does it fit?
-			boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
-			if (itFits) {
-				// paste it!
-				MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
-				submitMapEdit(edit);
+		if (slotNumber < SLOT_GROUP) {
+			SavedMapBlock slot = blockSlots[slotNumber];
+			if (slot != null) {
+				Coord c = mmp.worldBlocks();
+				// does it fit?
+				boolean itFits = c.x + slot.w <= GameMap.MAP_WIDTH && c.y + slot.h <= GameMap.MAP_HEIGHT;
+				if (itFits) {
+					// paste it!
+					MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
+					submitMapEdit(edit);
+				}
+				say("Pasted " + slot.size() + " blocks from slot " + slotNumber);
+			}
+		}
+		else {
+			SavedAlienSlot sas = alienSlots[slotNumber - SLOT_GROUP];
+			if (sas != null) {
+				undoControler.mark();
+				Coord oc = sas.corner;
+				Coord nc = mmp.worldBlocks().mul2(Const.BLOCK_SIZE);
+				Coord diff = nc.sub2(oc);
+				for (Alien a : sas.aliens) {
+					Alien a2 = copyAlien(a);
+					APS.moveAlienRelative(a2, diff);
+					createAlienWithUndoRedo(a2);
+				}
+				undoControler.fold();
+				say("Pasted " + sas.aliens.size() + " aliens from slot " + slotNumber);
 			}
 		}
 	}
 
 	private void copyRect(int slotNumber) {
 		Box rectangle = getRect();
-		SaveMapBlock s = SaveMapBlock.fromMap(rectangle, gameMap);
-		slots[slotNumber] = s;
-		System.out.println("SLOT " + slotNumber);
-		// slots[slotNumber].dump();
+		if (slotNumber < SLOT_GROUP) {
+			SavedMapBlock s = SavedMapBlock.fromMap(rectangle, gameMap);
+			blockSlots[slotNumber] = s;
+			say("Copied " + s.size() + " blocks to slot " + slotNumber);
+		}
+		else {
+			rectangle.mult(Const.BLOCK_SIZE);
+			List<Alien> captured = new ArrayList<Alien>();
+			for (Alien a : alienTracker) {
+				if (rectangle.inside(a.getLocation())) {
+					captured.add(copyAlien(a));
+				}
+			}
+			alienSlots[slotNumber - SLOT_GROUP] = new SavedAlienSlot(rectangle.topLeft(), captured);
+			say("Copied " + captured.size() + " aliens to slot " + slotNumber);
+		}
 	}
 
 	private void fillRect(int block) {
 		Box rectangle = getRect();
 		if (rectangle == null) return;
-		SaveMapBlock s = SaveMapBlock.fromSolid(rectangle.width(), rectangle.height(), block);
+		SavedMapBlock s = SavedMapBlock.fromSolid(rectangle.width(), rectangle.height(), block);
 		MapEdit edit = MapEdit.create(gameMap, rectangle.topLeft(), s);
 		submitMapEdit(edit);
 	}
@@ -986,7 +1072,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		scr.setPosition(c);
 	}
 
-	
 	private void updateAliens() {
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
@@ -1000,7 +1085,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void updateList(List<Alien> alienList, int depth, Box screenBox) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
-			if (alien.depth==depth) {
+			if (alien.depth == depth) {
 				alien.freezeBounds = null;
 				alien.mapperUpdate();
 				if (alienTracker.perhapsFreeze(alien, screenBox)) {
@@ -1195,5 +1280,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		for (;;) {
 			drawFrame();
 		}
+	}
+
+	public List<Alien> removePredicatedAliens(AlienPredicate ap) {
+		List<Alien> lost = new ArrayList<Alien>();
+		List<Alien> as = flatten();
+		for (Iterator<Alien> iterator = as.iterator(); iterator.hasNext();) {
+			Alien alien = iterator.next();
+			if (ap.is(alien)) {
+				iterator.remove();
+				lost.add(alien);
+			}
+		}
+		unflatten(as);
+		return lost;
 	}
 }
