@@ -591,7 +591,7 @@ public class Player {
 			snap = maxSnap - snap;
 
 			// System.out.println("SNAP" + snap + "max" + maxSnap);
-			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && testStick(Joystick.DOWN | Joystick.UP)
+			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && getStickUpDownDelta()!=0
 					&& ladderLatch.can(srv.getFrameNumber())) {
 				if (testLadder(snap, getStickUpDownDelta())) {
 					reset(Mode.LADDER);
@@ -606,7 +606,7 @@ public class Player {
 	}
 
 	private boolean moveStick() {
-		return testStick(Joystick.LEFT | Joystick.RIGHT);
+		return getStickLeftRightDelta()!=0;
 	}
 
 	private void doLadderMode() {
@@ -626,7 +626,7 @@ public class Player {
 			}
 
 			// leave the ladder?
-			boolean wantToWalkOffLadder = testStick(Joystick.LEFT | Joystick.RIGHT);
+			boolean wantToWalkOffLadder = getStickLeftRightDelta()!=0;
 			if (wantToWalkOffLadder && canWalkOffLadder()) {
 				startModeWalk();
 			}
@@ -655,7 +655,7 @@ public class Player {
 	private void perhapsStartRopeMode() {
 		if (mode == Mode.AIR) {
 			// start rope?
-			if (testStick(Joystick.DOWN | Joystick.UP) && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
+			if (getStickUpDownDelta()!=0 && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
 				// The original flipped goLeft here and not on mode exit.
 				// We don't flip it here but do flip it on mode exit.
 				// i.e. goLeft means the opposite to us (in this mode)
@@ -680,8 +680,8 @@ public class Player {
 			// do rope!
 			// SCC7
 			if (mode == Mode.ROPE) {
-				boolean wannaTwistLeft = testStick(Joystick.LEFT) && !goLeft;
-				boolean wannaTwistRight = testStick(Joystick.RIGHT) && goLeft;
+				boolean wannaTwistLeft = getStickLeftRightDelta()<0 && !goLeft;
+				boolean wannaTwistRight = getStickLeftRightDelta()>0 && goLeft;
 				if (wannaTwistLeft || wannaTwistRight) {
 					goLeft = !goLeft;
 					mode = Mode.ROPE_TWIST;
@@ -769,10 +769,11 @@ public class Player {
 			// do monkey!
 			// SCC6
 			boolean moving = false;
-			if (testStick(Joystick.LEFT)) {
+			int d = getStickLeftRightDelta();
+			if (d<0) {
 				moving |= monkeyAttempt(true);
 			}
-			else if (testStick(Joystick.RIGHT)) {
+			if (d>0) {
 				moving |= monkeyAttempt(false);
 			}
 			if (!moving) {
