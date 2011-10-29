@@ -31,14 +31,14 @@ public class AlienPalette {
 		}
 	}
 
-	private final HashMap<AlienInfo, AnimAndPlayer> animPlayers = new HashMap<AlienInfo, AnimAndPlayer>(); 
-	
+	private final HashMap<AlienInfo, AnimAndPlayer> animPlayers = new HashMap<AlienInfo, AnimAndPlayer>();
+
 	private static final int ALIENS_TAB_BOX_RADIUS = 90;
 	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
 	private static final int ALIENS_TAB_BOX_TEXT_GAP = -2;
 	private static final int ALIENS_TAB_BOX_MARGIN = 5;
 
-	private TypeCodeTabber<AlienInfo> alienTabber;
+	private Carousel<AlienInfo> carousel;
 
 	private final MapperGC mgc;
 
@@ -49,13 +49,13 @@ public class AlienPalette {
 	public AlienPalette(List<AlienInfo> alienTypes, MapperGC mgc, AnimsPool animsPool) {
 		this.mgc = mgc;
 
-		for (AlienInfo ai: alienTypes) {
+		for (AlienInfo ai : alienTypes) {
 			String a = ai.animsName();
-			if (a!=null) {
+			if (a != null) {
 				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(a).find(0)));
 			}
 		}
-		this.alienTabber = new TypeCodeTabber<AlienInfo>(alienTypes);
+		this.carousel = new Carousel<AlienInfo>(alienTypes);
 		this.alienTypes = alienTypes;
 	}
 
@@ -63,89 +63,75 @@ public class AlienPalette {
 		int sx = mgc.screenWidth() / 2;
 		int osy = mgc.screenHeight() / 2;
 
-		TypeCodeTabber<AlienInfo> at = alienTabber.copy();
-		osy -= alienTabHeight(at.get());
+		Carousel<AlienInfo> c = carousel.copy();
+		osy -= alienTabHeight(c.get());
 
 		int sy = osy;
-		while (sy<mgc.screenHeight()) {
-			AlienInfo ai = at.get();
-			drawAlienTab(sx, sy, ai, sy==osy);
+		while (sy < mgc.screenHeight()) {
+			AlienInfo ai = c.get();
+			drawAlienTab(sx, sy, ai, sy == osy);
 			sy += alienTabHeight(ai);
-			at.next();
+			c.next();
 		}
-		
-		sy = osy;
-		at = alienTabber.copy();
 
-		while (sy>0) {
-			at.prev();
-			AlienInfo ai = at.get();
+		sy = osy;
+		c = carousel.copy();
+
+		while (sy > 0) {
+			c.prev();
+			AlienInfo ai = c.get();
 			sy -= alienTabHeight(ai);
 			drawAlienTab(sx, sy, ai, false);
 		}
 	}
-	
+
 	private int alienTabHeight(AlienInfo ai) {
-		return more()+graphicHeight(ai);
+		return more() + graphicHeight(ai);
 	}
 
 	private int more() {
-		return ALIENS_TAB_BOX_MARGIN*2  + ALIENS_TAB_BOX_TEXT_GAP + mgc.charHeight();
+		return ALIENS_TAB_BOX_MARGIN * 2 + ALIENS_TAB_BOX_TEXT_GAP + mgc.charHeight();
 	}
 
 	private int graphicHeight(AlienInfo ai) {
 		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer==null) return 20;
+		if (animAndPlayer == null) return 20;
 		return animAndPlayer.box.height();
 	}
-	
+
 	private void drawAlienTab(int sx, int sy, AlienInfo ai, boolean live) {
 		if (live) {
-			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
-				alienTabHeight(ai), mgc.process(0xff00ff00), 0xff0020ff);
+			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER, alienTabHeight(ai),
+					mgc.process(0xff00ff00), 0xff0020ff);
 		}
 
 		int sp = graphicHeight(ai);
 		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer!=null) {
+		if (animAndPlayer != null) {
 			Sprite sprite = animAndPlayer.nextFrame();
 
 			Box b = animAndPlayer.box;
 			int cex = sx;
-			int cey = sy + (sp+ALIENS_TAB_BOX_MARGIN)/2;
+			int cey = sy + (sp + ALIENS_TAB_BOX_MARGIN) / 2;
 			cex -= b.left;
 			cey -= b.top;
-			cex -= b.width()/2;
-			cey -= b.height()/2;
-			// mgc.fillRectangle(cex+b.left, cey+b.top, b.width(), b.height(), 0xffff0000);
+			cex -= b.width() / 2;
+			cey -= b.height() / 2;
+			// mgc.fillRectangle(cex+b.left, cey+b.top, b.width(), b.height(),
+			// 0xffff0000);
 			sprite.drawByHandle(cex, cey, false);
 		}
 
 		String t = ai.name;
 		int c = census.get(ai);
-		if (c!=0) t += "("+c+")";
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0xffffff, t);
-		
+		if (c != 0) t += "(" + c + ")";
+		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp + ALIENS_TAB_BOX_MARGIN + ALIENS_TAB_BOX_TEXT_GAP),
+				0xffffff, t);
+
 		if (!live) {
-			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
-				alienTabHeight(ai), 0xff000000, 0xb00020ff);
+			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER, alienTabHeight(ai), 0xff000000,
+					0xb00020ff);
 		}
-	}
-
-	public AlienInfo get() {
-		return alienTabber.get();
-	}
-	
-	public void next() {
-		alienTabber.next();
-	}
-
-	public void prev() {
-		alienTabber.prev();
-	}
-
-	public void find(AlienInfo typeCode) {
-		alienTabber.find(typeCode);
 	}
 
 	public void sendCenus(CountingMap<AlienInfo> c) {
@@ -153,8 +139,28 @@ public class AlienPalette {
 		ListUtil.sort(alienTypes, new SortKeyGenerator<AlienInfo, String>() {
 			@Override
 			public String gen(AlienInfo t) {
-				return String.format("%08d%s", 99999999-census.get(t), t.name);
+				// Order first by quantity and then by name.
+				//
+				// one could make a nice Comparable class but this hack works
+				// just as well...
+				return String.format("%08d%s", 99999999 - census.get(t), t.name);
 			}
 		});
+	}
+	
+	public AlienInfo get() {
+		return carousel.get();
+	}
+
+	public void next() {
+		carousel.next();
+	}
+
+	public void prev() {
+		carousel.prev();
+	}
+
+	public void find(AlienInfo typeCode) {
+		carousel.find(typeCode);
 	}
 }

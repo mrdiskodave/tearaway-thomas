@@ -15,15 +15,15 @@ import java.util.List;
  * @param <T>
  *            The type of the thing.
  */
-public class TypeCodeTabber<T> {
+public class Carousel<T> {
 	private List<T> list;
 	private T current;
 
-	TypeCodeTabber(List<T> list) {
+	Carousel(List<T> list) {
 		this.list = list;
 	}
 
-	private TypeCodeTabber(List<T> list2, T t) {
+	private Carousel(List<T> list2, T t) {
 		list = list2;
 		current = t;
 		validateAndInit();
@@ -64,9 +64,9 @@ public class TypeCodeTabber<T> {
 		return list.indexOf(get());
 	}
 
-	public TypeCodeTabber<T> copy() {
+	public Carousel<T> copy() {
 		validateAndInit();
-		return new TypeCodeTabber<T>(list, current);
+		return new Carousel<T>(list, current);
 	}
 
 	public void find(T typeCode) {
