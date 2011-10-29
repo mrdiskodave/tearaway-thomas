@@ -52,6 +52,8 @@ public class AlienInfoMap {
 	 * Full list of {@link AlienInfo}s.
 	 */
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
+	
+	private final List<AlienInfo> present = new ArrayList<AlienInfo>();
 
 	/**
 	 * Various indexes that all ignore aliens that are not available according
@@ -61,7 +63,6 @@ public class AlienInfoMap {
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
 	private final CountingMap<Class<? extends Alien>> classUseCount = new CountingMap<Class<? extends Alien>>(); 
 
-	private final List<String> names = new ArrayList<String>();
 	private final List<String> animList = new ArrayList<String>();
 
 	private String worldName;
@@ -148,8 +149,8 @@ public class AlienInfoMap {
 		nameToAlienInfo.clear();
 		classToAlienInfo.clear();
 		classUseCount.clear();
-		names.clear();
 		animList.clear();
+		present.clear();
 
 		for (AlienInfo ai : aim) {
 			if (ai.setWorld(worldName)) {
@@ -159,9 +160,6 @@ public class AlienInfoMap {
 				if (!ai.internal()) {
 					addToIndex(ai, ai.name);
 					addToIndex(ai, typeCodeToName(ai.typeCode));
-
-					assert !names.contains(ai.name);
-					names.add(ai.name);
 				}
 
 				String name = ai.animsName();
@@ -169,9 +167,12 @@ public class AlienInfoMap {
 					assert !animList.contains(name);
 					animList.add(name);
 				}
+				
+				present.add(ai);
+				
 			}
+			
 		}
-		Collections.sort(names);
 		Collections.sort(animList);
 	}
 	
@@ -213,13 +214,6 @@ public class AlienInfoMap {
 	}
 
 	/**
-	 * @return A read only list of all the alien names available.
-	 */
-	public List<String> queryNames() {
-		return names;
-	}
-
-	/**
 	 * @return A read only list of all the anims we'll ever need.
 	 */
 	public List<String> queryAnimList() {
@@ -247,5 +241,13 @@ public class AlienInfoMap {
 
 	static String typeCodeToName(int typeCode) {
 		return AlienInfo.makeInternalName("tc" + typeCode);
+	}
+	
+	public ArrayList<AlienInfo> getExternal() {
+		ArrayList<AlienInfo> answer = new ArrayList<AlienInfo>();
+		for (AlienInfo ai: present) {
+			if (!ai.internal()) answer.add(ai);
+		}
+		return answer;
 	}
 }

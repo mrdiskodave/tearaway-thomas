@@ -40,6 +40,7 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.utils.CountingMap;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
+import com.nney.utils.SortKeyGenerator;
 
 /**
  * A level editor.
@@ -56,7 +57,8 @@ import com.nney.utils.Math2;
  *   [I] eye dropper - sets the current alien type from the selected alien 
  *   [N] create a new alien (of the current alien type)
  *   [DELETE] delete the selected alien
- *   [F] find the selected alien (i.e. scroll to it)
+ *   [F] find: jump to the selected alien
+ *   [NUMPAD+/-] jump to the next and previous current alien type
  * 
  * [D] Drawing Mode:
  *   [LMB] draw with the current block
@@ -76,6 +78,7 @@ import com.nney.utils.Math2;
  *   (i.e. every slot can hold blocks, aliens or both).
  *   
  *   [Ctrl+A] start marking a rectangle of blocks covering the whole map
+ *            (this requires a jump to the bottom right of the map)
  *   [Ctrl+M] toggle seeing block masks
  *   [Ctrl+I] toggle seeing hidden blocks
  * 
@@ -95,6 +98,12 @@ import com.nney.utils.Math2;
  * [Alt+T] small test (test the level from the mouse position without the intro)
  * [Alt+Shift+T] big test (test the whole level as the player would experience it)
  * [Alt+S] save the level
+ * 
+ * Notes:
+ * The editor never moves the mouse pointer. This means "jump" operations above
+ * just place the jumped-to-location under the mouse pointer. If you
+ * are making heavy use of jumping you'll get less dizzy if you place the
+ * mouse pointer in the middle of the screen.
  * </pre>
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
@@ -103,8 +112,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	interface AlienPredicate {
 		boolean is(Alien t);
 	}
-
-	private final CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
 
 	private static final int SLOT_COUNT = 12;
 
@@ -184,8 +191,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private MapperAlienTracker alienTracker = new MapperAlienTracker();
 
-	private String worldName;
-
 	private final AlienServices alienServices = new MapperAlienServices(this);
 
 	private BottomUpStatusLayer bottomUpStatusLayer;
@@ -226,8 +231,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		levelInfo = pl.getLevelInfo();
 		alienInfoMap = new AlienInfoMap(levelInfo.worldName);
 
-		worldName = alienInfoMap.getName();
-
 		for (String a : alienInfoMap.queryAnimList()) {
 			animsPool.load(a);
 		}
@@ -249,11 +252,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 
 		// build the AlienPalette
-		ArrayList<AlienInfo> ais = new ArrayList<AlienInfo>();
-		for (String name : alienInfoMap.queryNames()) {
-			ais.add(alienInfoMap.getByName(name));
-		}
-		alienPalette = new AlienPalette(ais, mgc, animsPool, census);
+		List<AlienInfo> ais = alienInfoMap.getExternal();
+		alienPalette = new AlienPalette(ais, mgc, animsPool);
+		sendCensus();
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -533,6 +534,39 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		});
 	}
 
+	private void findType(int dir) {
+		ArrayList<Alien> candidates = new ArrayList<Alien>();
+		AlienInfo t = alienPalette.get();
+		for (Alien a: alienTracker) {
+			if (a.alienInfo==t) {
+				candidates.add(a);
+			}
+		}
+		ListUtil.sort(candidates, new SortKeyGenerator<Alien, Coord>() {
+			@Override
+			public Coord gen(Alien t) {
+				return t.getLocation();
+			}
+		});
+		if (candidates.size()!=0) {
+			int z = candidates.indexOf(getSelectedAlien());
+			if (z<0) {
+				z = 0;
+			}
+			else {
+				z += candidates.size() + dir;
+				z %= candidates.size();
+			}
+			Alien a = candidates.get(z);
+			setSelectedAlien(a);
+			setFocus(a.getLocation());
+			say(String.format("%s %d of %d", t.name, z+1, candidates.size()));
+		}
+		else {
+			say(String.format("%s not found", t.name));
+		}
+	}
+
 	private void alienMode(int k) {
 		int kns = k & (~Locks.LOCK_SHIFT);
 		final BatRecord bat = batRecords.find(mmp.worldPixels());
@@ -618,6 +652,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			if (k == Keyboard.KEY_C) copySelectedAlien();
 			if (k == Keyboard.KEY_F) setFocus(getSelectedAlien().getLocation());
 		}
+		if (k == Keyboard.KEY_ADD) findType(1);
+		if (k == Keyboard.KEY_SUBTRACT) findType(-1);
 		if (k == Keyboard.KEY_N) createAlien();
 		keyboardAlienChoice(k);
 
@@ -719,23 +755,33 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void keyboardAlienChoice(int k) {
-		AlienInfo current = alienPalette.get();
-		if (k == Keyboard.KEY_NEXT) alienPalette.next();
-		if (k == Keyboard.KEY_PRIOR) alienPalette.prev();
-		if (k == Keyboard.KEY_I && haveAlien()) alienPalette.find(getSelectedAlien().alienInfo);
-		if (alienPalette.get() != current) {
-			if (paletteTimer == 0) {
-				surveyAliens();
-			}
-			paletteTimer = 100;
+		if (k == Keyboard.KEY_NEXT) {
+			showAlienPalette();
+			alienPalette.next();
+		}
+		if (k == Keyboard.KEY_PRIOR) {
+			showAlienPalette();
+			alienPalette.prev();
+		}
+		if (k == Keyboard.KEY_I && haveAlien()) {
+			showAlienPalette();
+			alienPalette.find(getSelectedAlien().alienInfo);
 		}
 	}
 
-	private void surveyAliens() {
-		census.clear();
+	public void showAlienPalette() {
+		if (paletteTimer == 0) {
+			sendCensus();
+		}
+		paletteTimer = 100;
+	}
+
+	public void sendCensus() {
+		CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
 		for (Alien a : alienTracker) {
 			census.inc(a.alienInfo);
 		}
+		alienPalette.sendCenus(census);
 	}
 
 	private Alien makeAlien(AlienInfo ai) {
@@ -1138,7 +1184,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public BlockSet loadBlockSet() {
-		return ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
+		return ow.loadBlockSet(new BlockSet.Config(levelInfo.worldName, seeMasks, seeHidden));
 	}
 
 	public void reinstate(Alien alien) {

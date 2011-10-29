@@ -2,52 +2,76 @@ package com.nney.tt.mapper;
 
 import java.util.List;
 
+/**
+ * 
+ * A carousel for leafing through a list of things.
+ * 
+ * <p>
+ * What is interesting is that the list on which we are constructed can be
+ * changed elsewhere and we keep working just so long as a) the list is is never
+ * empty 2) following the first call to {@link #get()}: the value last returned
+ * from this method must remain in the list.
+ * 
+ * @param <T>
+ *            The type of the thing.
+ */
 public class TypeCodeTabber<T> {
-	private final List<T> list;
-	private int pos;
+	private List<T> list;
+	private T current;
 
 	TypeCodeTabber(List<T> list) {
 		this.list = list;
-		home();
 	}
-	
-	private TypeCodeTabber(List<T> list2, int pos2) {
+
+	private TypeCodeTabber(List<T> list2, T t) {
 		list = list2;
-		pos = pos2;
+		current = t;
+		validateAndInit();
+	}
+
+	private void validateAndInit() {
+		assert !list.isEmpty();
+		if (current == null) current = list.get(0);
+		assert list.contains(current);
 	}
 
 	public T get() {
-		return list.get(pos);
+		validateAndInit();
+		return current;
 	}
-	
+
 	public void next() {
-		pos++;
-		if (pos>=list.size()) {
-			home();
-		}
+		validateAndInit();
+		moveBy(1);
 	}
 
-	public void home() {
-		pos = 0;
-	}
-	
 	public void prev() {
-		pos--;
-		if (pos<0) {
-			end();
-		}
+		validateAndInit();
+		moveBy(-1);
 	}
 
-	public void end() {
-		pos = list.size()-1;
+	private void moveBy(int i) {
+		validateAndInit();
+		int idx = getPos();
+		int s = list.size();
+		idx += i + s;
+		idx %= s;
+		current = list.get(idx);
 	}
-	
+
+	public int getPos() {
+		validateAndInit();
+		return list.indexOf(get());
+	}
+
 	public TypeCodeTabber<T> copy() {
-		return new TypeCodeTabber<T>(list, pos);
+		validateAndInit();
+		return new TypeCodeTabber<T>(list, current);
 	}
 
 	public void find(T typeCode) {
-		int where = list.indexOf(typeCode);
-		if (where>0) pos = where;
+		validateAndInit();
+		current = typeCode;
+		getPos();
 	}
 }

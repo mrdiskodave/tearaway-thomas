@@ -1,7 +1,7 @@
 package com.nney.tt.mapper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.nney.tt.AlienInfo;
 import com.nney.tt.geom.Box;
@@ -10,6 +10,8 @@ import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.CountingMap;
+import com.nney.utils.ListUtil;
+import com.nney.utils.SortKeyGenerator;
 
 public class AlienPalette {
 	class AnimAndPlayer {
@@ -40,19 +42,21 @@ public class AlienPalette {
 
 	private final MapperGC mgc;
 
-	private final CountingMap<AlienInfo> survey;
+	private CountingMap<AlienInfo> census;
 
-	
-	public AlienPalette(ArrayList<AlienInfo> ais, MapperGC mgc, AnimsPool animsPool, CountingMap<AlienInfo> census) {
+	private final List<AlienInfo> alienTypes;
+
+	public AlienPalette(List<AlienInfo> alienTypes, MapperGC mgc, AnimsPool animsPool) {
 		this.mgc = mgc;
-		this.survey = census;
 
-		for (AlienInfo ai: ais) {
-			if (ai.animsName()!=null) {
-				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(ai.animsName()).find(0)));
+		for (AlienInfo ai: alienTypes) {
+			String a = ai.animsName();
+			if (a!=null) {
+				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(a).find(0)));
 			}
 		}
-		this.alienTabber = new TypeCodeTabber<AlienInfo>(ais);
+		this.alienTabber = new TypeCodeTabber<AlienInfo>(alienTypes);
+		this.alienTypes = alienTypes;
 	}
 
 	public void showAlienPalette() {
@@ -60,14 +64,13 @@ public class AlienPalette {
 		int osy = mgc.screenHeight() / 2;
 
 		TypeCodeTabber<AlienInfo> at = alienTabber.copy();
-		osy -= alienTabHeight(at.get())/2;
+		osy -= alienTabHeight(at.get());
 
 		int sy = osy;
 		while (sy<mgc.screenHeight()) {
 			AlienInfo ai = at.get();
-			int h = alienTabHeight(ai);
 			drawAlienTab(sx, sy, ai, sy==osy);
-			sy += h;
+			sy += alienTabHeight(ai);
 			at.next();
 		}
 		
@@ -77,8 +80,7 @@ public class AlienPalette {
 		while (sy>0) {
 			at.prev();
 			AlienInfo ai = at.get();
-			int h = alienTabHeight(ai);
-			sy -= h;
+			sy -= alienTabHeight(ai);
 			drawAlienTab(sx, sy, ai, false);
 		}
 	}
@@ -120,9 +122,9 @@ public class AlienPalette {
 		}
 
 		String t = ai.name;
-		int c = survey.get(ai);
+		int c = census.get(ai);
 		if (c!=0) t += "("+c+")";
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0x80ffff, t);
+		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp+ALIENS_TAB_BOX_MARGIN+ALIENS_TAB_BOX_TEXT_GAP), 0xffffff, t);
 		
 		if (!live) {
 			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER,
@@ -144,5 +146,15 @@ public class AlienPalette {
 
 	public void find(AlienInfo typeCode) {
 		alienTabber.find(typeCode);
+	}
+
+	public void sendCenus(CountingMap<AlienInfo> c) {
+		this.census = c;
+		ListUtil.sort(alienTypes, new SortKeyGenerator<AlienInfo, String>() {
+			@Override
+			public String gen(AlienInfo t) {
+				return String.format("%08d%s", 99999999-census.get(t), t.name);
+			}
+		});
 	}
 }
