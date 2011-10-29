@@ -65,11 +65,6 @@ public class PersistedLevel {
 	// SAVING
 	
 	
-	static void saveNew(LevelInfo levelInfo, GameMap gameMap, Iterable<Alien> aliens) {
-		String answer = staticSave(levelInfo, gameMap, aliens);
-		TTResource.saveMap(levelInfo.filename, answer);
-	}
-	
 	public static String staticSave(LevelInfo li, GameMap gameMap, Iterable<Alien> aliens) {
 		SafeWriter sw = new StringSafeWriter();
 		IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);

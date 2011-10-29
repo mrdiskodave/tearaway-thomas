@@ -98,9 +98,4 @@ class UndoControler {
 			undo.push(u);
 		}
 	}
-
-	public int size() {
-		// just for status display
-		return undo.size();
-	}
 }

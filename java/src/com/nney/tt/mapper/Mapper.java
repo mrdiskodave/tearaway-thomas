@@ -356,8 +356,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				marker = null;
 			}
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
-				say("Position:" + mmp.worldPixels() + "pixels " + mmp.worldBlocks() + "blocks " + undoControler.size()
-						+ "actions");
+				sayf("Position: %spixels %sblocks", mmp.worldPixels(), mmp.worldBlocks());
 			}
 
 			drawLevel();
@@ -383,10 +382,14 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			testLevel(true);
 		}
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-			String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
-			TTResource.saveMap(levelInfo.filename, levelText);
-			say("Saved: " + levelInfo.filename);
+			saveMap(false);
+			sayf("Saved: %s", levelInfo.filename);
 		}
+	}
+
+	public void saveMap(boolean autoSave) {
+		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
+		TTResource.saveMap(levelInfo.filename, levelText, autoSave);
 	}
 
 	private Coord convertNumCoord(Coord nc) {
@@ -397,6 +400,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void testLevel(boolean bigTest) {
+		saveMap(true);
 		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
 		Coord playerPosition = bigTest ? null : mmp.worldPixels();
 		World w = new World(ow);
@@ -560,10 +564,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			Alien a = candidates.get(z);
 			setSelectedAlien(a);
 			setFocus(a.getLocation());
-			say(String.format("%s %d of %d", t.name, z+1, candidates.size()));
+			sayf("%s %d of %d", t.name, z+1, candidates.size());
 		}
 		else {
-			say(String.format("%s not found", t.name));
+			sayf("%s not found", t.name);
 		}
 	}
 
@@ -628,7 +632,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					@Override
 					public void stroke() {
 						Coord whereSnapped = whereSnapped();
-						say("Move by " + whereSnapped.sub2(firstBatPos));
+						sayf("Move by %s", whereSnapped.sub2(firstBatPos));
 						bat.onMove(whereSnapped);
 					}
 
@@ -752,6 +756,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void say(String s) {
 		messTimer = 100;
 		messText = s;
+	}
+	
+	private void sayf(String f, Object...a) {
+		say(String.format(f, a));
 	}
 
 	private void keyboardAlienChoice(int k) {
@@ -1051,19 +1059,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public void pasteAliens(int slotNumber) {
-		SavedAlienSlot sas = alienSlots[slotNumber];
-		if (sas != null) {
+		SavedAlienSlot slot = alienSlots[slotNumber];
+		if (slot != null) {
 			undoControler.mark();
-			Coord oc = sas.corner;
+			Coord oc = slot.corner;
 			Coord nc = mmp.worldBlocks().mul2(Const.BLOCK_SIZE);
 			Coord diff = nc.sub2(oc);
-			for (Alien a : sas.aliens) {
+			for (Alien a : slot.aliens) {
 				Alien a2 = copyAlien(a);
 				APS.moveAlienRelative(a2, diff);
 				createAlienWithUndoRedo(a2);
 			}
 			undoControler.fold();
-			say("Pasted " + sas.aliens.size() + " aliens from slot " + slotNumber);
+			sayf("Pasted %s aliens from slot %s", slot.aliens.size(), slotNumber);
 		}
 	}
 
@@ -1075,16 +1083,16 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			int xs = c.x + slot.w - GameMap.MAP_WIDTH;
 			int ys = c.y + slot.h - GameMap.MAP_HEIGHT;
 			if (xs > 0) {
-				say("Move left by at least " + xs + " blocks");
+				sayf("Move left by at least %s blocks", xs);
 			}
 			else if (ys > 0) {
-				say("Move up by at least " + ys + " blocks");
+				sayf("Move up by at least %s blocks", ys);
 			}
 			else {
 				// paste it!
 				MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
 				submitMapEdit(edit);
-				say("Pasted " + slot.size() + " blocks from slot " + slotNumber);
+				sayf("Pasted %s blocks from slot %s", slot.size(), slotNumber);
 			}
 		}
 	}
@@ -1099,14 +1107,14 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 		}
 		alienSlots[slotNumber] = new SavedAlienSlot(rectangle.topLeft(), captured);
-		say("Copied " + captured.size() + " aliens to slot " + slotNumber);
+		sayf("Copied %s aliens to slot %s", captured.size(), slotNumber);
 	}
 
 	public void copyBlocks(int slotNumber) {
 		Box rectangle = getRectInBlocks();
-		SavedMapBlock s = SavedMapBlock.fromMap(rectangle, gameMap);
-		blockSlots[slotNumber] = s;
-		say("Copied " + s.size() + " blocks to slot " + slotNumber);
+		SavedMapBlock captured = SavedMapBlock.fromMap(rectangle, gameMap);
+		blockSlots[slotNumber] = captured;
+		sayf("Copied %s blocks to slot %s", captured.size(), slotNumber);
 	}
 
 	private void fillRect(int block) {
@@ -1127,7 +1135,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
 		paletteTimer = 100;
-		say("block=" + currentBlock);
+		sayf("block=%s", currentBlock);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1246,7 +1254,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			positions = nextPositions;
 		}
 
-		say(edit.size() + " blocks filled");
+		sayf("%s blocks filled", edit.size());
 		endBlockEdit();
 	}
 

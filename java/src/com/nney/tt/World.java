@@ -1098,6 +1098,20 @@ public class World implements AlienServices, Disposable {
 		}
 		dispose();
 	}
+	
+	public void playLevel() {
+		try {
+			create();
+			performIntro();
+			performMain();
+			performOutro();
+			ow.levelNumber++;
+		}
+		catch (ExitException ex) {
+		}
+		dispose();
+	}
+	
 
 	// ---------------------------------------------------------------------------
 	// (RE)LOAD AND FREE
@@ -1119,6 +1133,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void dispose() {
+		ah.stopMusic();
 		freeStatusScreen();
 		if (horizon != null) horizon.dispose();
 		if (hud != null) hud.dispose();

@@ -98,7 +98,8 @@ public class AlAudioContext implements AudioContext, Disposable {
 		musicSource.play();
 	}
 
-	private void stopMusic() {
+	@Override
+	public void stopMusic() {
 		if (musicSource==null) return;
 		musicSource.setVol(0);
 		musicSource.dispose();
@@ -109,14 +110,9 @@ public class AlAudioContext implements AudioContext, Disposable {
 	@Override
 	public void setMusicVolume(float vol) {
 		musicVol = vol;
-		if (vol==0) {
-			stopMusic();
-		}
-		else {
-			musicSource.setVol(vol);
-		}
+		musicSource.setVol(vol);
 	}
-	
+
 	@Override
 	public void loadEffect(float vol, Sound sound) {
 		effects.add(new Effect(new AlBuffer(sound), vol));

@@ -3,6 +3,8 @@ package com.nney.tt.resources;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.nney.json.DataItem;
 import com.nney.json.JsonValue;
@@ -27,6 +29,7 @@ public class TTResource {
 	 */
 	static public void setResourcePath(File resourcePath) {
 		TTResource.resourcePath = resourcePath;
+		requireResourcePath();
 	}
 
 	private static Openable formatted(String format, Object... args) {
@@ -67,16 +70,27 @@ public class TTResource {
 	// return new FileOpenable(filename);
 	// }
 
-	public static void saveMap(String name, String content) {
+	public static void saveMap(String name, String content, boolean autoSave) {
 		requireResourcePath();
 		String formattedName = String.format(FORMAT_FOR_MAP_PATH, name);
-		saveResource(formattedName, content);
+		saveResource(formattedName, content, autoSave);
 	}
 
-	private static void saveResource(String formattedName, String content) {
+	private static void saveResource(String formattedName, String content, boolean autoSave) {
 		File f = new File(resourcePath, formattedName);
-		System.out.println("Saving to resource path: " + f);
 		try {
+			if (autoSave) {
+				f = uniqueName("autosave", f);
+			}
+			else {
+				if (f.exists()) {
+					File dest = uniqueName("backup", f);
+					System.out.println(f+" renamed to "+dest);
+					f.renameTo(dest);
+				}
+			}
+			
+			System.out.println("Saving to resource path: " + f);
 			FileWriter w = new FileWriter(f);
 			w.write(content);
 			w.close();
@@ -86,7 +100,20 @@ public class TTResource {
 		}
 	}
 
-	public static void requireResourcePath() {
+	private static File uniqueName(String t, File f) {
+		Date date = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("'d'yyyyMMdd_'t'HHmm"); // ss
+		String textDate = formatter.format(date);
+		int version = 0;
+		File dest;
+		do {
+			dest = new File(f.getParentFile(), String.format("%s_%s_v%s_%s", t, textDate, version, f.getName()));
+			version++;
+		} while (dest.exists());
+		return dest;
+	}
+
+	static void requireResourcePath() {
 		if (resourcePath == null) {
 			throw new RuntimeException("Resource path not configured");
 		}
