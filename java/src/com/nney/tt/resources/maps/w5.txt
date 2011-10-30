@@ -208,7 +208,7 @@
 			"type": "bird", 
 			"location": [
 				3074, 
-				909
+				907
 			], 
 			"goLeft": false, 
 			"range": [
