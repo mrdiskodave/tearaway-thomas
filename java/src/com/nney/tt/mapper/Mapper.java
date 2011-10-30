@@ -345,7 +345,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 			Coord nc = numCoord(k);
 			if (nc != null) {
-				setFocus(convertNumCoord(nc));
+				moveMouse(convertNumCoord(nc));
 			}
 
 			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
@@ -445,7 +445,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_A) {
 			marker = new Coord(0, 0);
-			setFocus(convertNumCoord(new Coord(2, 2)));
+			moveMouse(convertNumCoord(new Coord(2, 2)));
 		}
 		if (k == Keyboard.KEY_F) {
 			if (marker == null) {
@@ -563,7 +563,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			}
 			Alien a = candidates.get(z);
 			setSelectedAlien(a);
-			setFocus(a.getLocation());
+			moveMouse(a.getLocation());
 			sayf("%s %d of %d", t.name, z+1, candidates.size());
 		}
 		else {
@@ -647,6 +647,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			Coord nudge = getNudge(k);
 			if (nudge != null) {
 				startAlienEdit();
+				Coord firstBatPos = bat.box().centre();
+				nudge.add(firstBatPos);
 				bat.onMove(nudge);
 				endAlienEdit();
 			}
@@ -654,7 +656,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (haveAlien()) {
 			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
 			if (k == Keyboard.KEY_C) copySelectedAlien();
-			if (k == Keyboard.KEY_F) setFocus(getSelectedAlien().getLocation());
+			if (k == Keyboard.KEY_F) moveMouse(getSelectedAlien().getLocation());
 		}
 		if (k == Keyboard.KEY_ADD) findType(1);
 		if (k == Keyboard.KEY_SUBTRACT) findType(-1);
@@ -1013,11 +1015,22 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public Coord getFocus() {
-		return mmp.worldPixels();
+		return getScreenPosition().add2(screenMid());
 	}
 
 	@Override
 	public void setFocus(Coord c) {
+		setScreenPosition(c.sub2(screenMid()));
+	}
+
+	private Coord screenMid() {
+		return new Coord(mgc.screenWidth()/2, mgc.screenHeight()/2);
+	}
+	
+	// we can't actually move the mouse
+	// so we scroll the required spot on the map
+	// to be under the mouse
+	public void moveMouse(Coord c) {
 		setScreenPosition(c.sub2(mmp.screenPixels()));
 	}
 
