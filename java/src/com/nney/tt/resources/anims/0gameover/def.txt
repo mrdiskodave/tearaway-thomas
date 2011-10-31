@@ -1,0 +1,16 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0 
+            ], 
+            "name": "game" 
+        }, 
+        {
+            "frames": [
+                1 
+            ], 
+            "name": "over" 
+        } 
+    ]
+}
