@@ -30,7 +30,7 @@ public class GameOverDisplay implements LifeLostDevice {
 		gx -= gv;
 		if (gx <= 0) {
 			gx = 0;
-			if (gv < 1f) {
+			if (gv < 2f) {
 				gv = 0;
 				timer--;
 			}
