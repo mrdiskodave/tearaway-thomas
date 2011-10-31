@@ -28,7 +28,7 @@ public class OuterWorld implements Runnable {
 
 	public final Pointer mouse;
 
-	public int levelNumber = 3;
+	public int levelNumber = 6;
 
 	public int score = 0;
 

@@ -1,12 +1,13 @@
 package com.nney.tt.lwjgl;
 
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import com.nney.tt.input.Keyboard;
 
 public class LwjglKeyboard implements Keyboard {
 	private HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>();
-	private MultiCountingSet<Integer, Integer> keys = new MultiCountingSet<Integer, Integer>();
+	private TreeSet<Integer> keys = new TreeSet<Integer>();
 
 	private int justPressed;
 	private int period;
@@ -135,7 +136,7 @@ public class LwjglKeyboard implements Keyboard {
 		return keys.contains(key);
 	}
 
-	public void handleKeyboard() {
+	public void update() {
 		period ++;
 		justPressed = 0;
 		while (org.lwjgl.input.Keyboard.next()) {
@@ -147,14 +148,19 @@ public class LwjglKeyboard implements Keyboard {
 				if (!suppress) {
 					boolean down = org.lwjgl.input.Keyboard.getEventKeyState();
 					if (down) {
-						keys.add(ourKey, theirKey);
+						keys.add(ourKey);
 						justPressed = ourKey;
 					}
 					else {
-						keys.remove(ourKey, theirKey);
-						// we need to do it this way -- a simple map with a
-						// count in it fails when auto-repeat is on because
-						// then the press and release counts no longer match
+						keys.remove(ourKey);
+						// we use ourKey here (which has the Locks merged)
+						//
+						// i'd like to track presses and releases of theirKey
+						// (in a MultiCountingSet) then our KEY_SHIFT would be
+						// down if either their shifts were down. However, theirKey
+						// is borked for the various Lock keys ...
+						// http://lwjgl.org/forum/index.php?msg=23104;topic=4268.0
+						//
 					}
 				}
 			}
@@ -168,6 +174,10 @@ public class LwjglKeyboard implements Keyboard {
 	@Override
 	public int periodNumber() {
 		return period;
+	}
+
+	public void clear() {
+		keys.clear();
 	}
 
 }

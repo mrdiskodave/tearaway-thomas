@@ -21,14 +21,6 @@ public class Player {
 		this.lc = playerStart.copy();
 	}
 
-	private boolean testStick(int s) {
-		return srv.getStick().test(s);
-	}
-
-	private boolean testStickJustPressed(int s) {
-		return srv.getStick().testJustPressed(s);
-	}
-
 	private void setAnim(String name, boolean animate) {
 		// System.out.println("setAnim() "+name+" "+animate);
 		Anim anim = playersAnimations.find(name);
@@ -37,7 +29,7 @@ public class Player {
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}
-
+	
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
@@ -196,6 +188,12 @@ public class Player {
 
 	private boolean flyingFlap;
 
+	private int jdx;
+
+	private int jdy;
+
+	private EdgeDetector jfire = new EdgeDetector();
+
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
 
@@ -206,6 +204,35 @@ public class Player {
 
 	// ---------------------------------------------------------------------------
 	// PRIVATE SUBROUTINES
+
+	// controls
+
+	private int getStickUpDownDelta() {
+		return jdy;
+	}
+
+	private int getStickLeftRightDelta() {
+		return jdx;
+	}
+
+	private boolean wantsToExitModeByJumping() {
+		return jfire.pressed();
+	}
+
+	private boolean wantsToJump() {
+		return jfire.current();
+	}
+
+	private boolean wantsToFly() {
+		return jfire.pressed();
+	}
+
+	private boolean wantsToDrop() {
+		return getStickUpDownDelta() > 0;
+	}
+
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	// -
 
 	private void reset(Mode n) {
 		vely = 0;
@@ -256,15 +283,7 @@ public class Player {
 		airSpin = true;
 	}
 
-	private boolean wantsToExitModeByJumping() {
-		return testStickJustPressed(Joystick.FIRE);
-	}
-
-	private boolean wantsToJump() {
-		return testStick(Joystick.FIRE);
-	}
-
-	private void jumpOnFire() {
+	private void jumpIfWanted() {
 		if (wantsToJump()) {
 			jump();
 		}
@@ -276,21 +295,6 @@ public class Player {
 
 	private int directionalMovement(boolean left, int x) {
 		return left ? -x : x;
-	}
-
-	private int getStickDelta(int less, int more) {
-		int delta = 0;
-		if (testStick(less)) delta--;
-		if (testStick(more)) delta++;
-		return delta;
-	}
-
-	private int getStickUpDownDelta() {
-		return getStickDelta(Joystick.UP, Joystick.DOWN);
-	}
-
-	private int getStickLeftRightDelta() {
-		return getStickDelta(Joystick.LEFT, Joystick.RIGHT);
 	}
 
 	private int applyGravity(int v) {
@@ -356,8 +360,8 @@ public class Player {
 	/**
 	 * Have we touched down?
 	 * 
-	 * A touch down happens on a sky-to-ground edge. The player touches down on/in/at
-	 * the sky pixel which has a ground pixel directly below.
+	 * A touch down happens on a sky-to-ground edge. The player touches down
+	 * on/in/at the sky pixel which has a ground pixel directly below.
 	 * 
 	 * @return <code>true</code> (meaning "we've touched down") on
 	 *         <code>false</code> meaning ("we are still in the air").
@@ -424,9 +428,9 @@ public class Player {
 
 	private void doAirModeY() {
 		if (airJumpTimer != 0) {
-			jumpOnFire();
+			jumpIfWanted();
 		}
-		else if (canFly && testStickJustPressed(Joystick.FIRE)) {
+		else if (canFly && wantsToFly()) {
 			flying = true;
 			vely = 0;
 			flyingFlap = true;
@@ -453,9 +457,9 @@ public class Player {
 	// ---------------------------------------------------------------------------
 	// STUN MODE
 
-	private void startStunMode() {
+	private void startStunMode(int t) {
 		jumpV(STUN_VELOCITY);
-		stunTimer = STUN_TIME;
+		stunTimer = t;
 		mode = Mode.STUN;
 	}
 
@@ -463,6 +467,7 @@ public class Player {
 		if (mode == Mode.STUN) {
 			if (normalVerticalMovement()) {
 				setAnim("wobble", true);
+				System.out.println(String.format("%x STUNT TIME", stunTimer));
 				if (--stunTimer <= 0) {
 					startModeWalk();
 					proofTimer = RESTUN_PROOF_TIME;
@@ -591,7 +596,7 @@ public class Player {
 			snap = maxSnap - snap;
 
 			// System.out.println("SNAP" + snap + "max" + maxSnap);
-			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && getStickUpDownDelta()!=0
+			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && getStickUpDownDelta() != 0
 					&& ladderLatch.can(srv.getFrameNumber())) {
 				if (testLadder(snap, getStickUpDownDelta())) {
 					reset(Mode.LADDER);
@@ -606,7 +611,7 @@ public class Player {
 	}
 
 	private boolean moveStick() {
-		return getStickLeftRightDelta()!=0;
+		return getStickLeftRightDelta() != 0;
 	}
 
 	private void doLadderMode() {
@@ -626,7 +631,7 @@ public class Player {
 			}
 
 			// leave the ladder?
-			boolean wantToWalkOffLadder = getStickLeftRightDelta()!=0;
+			boolean wantToWalkOffLadder = getStickLeftRightDelta() != 0;
 			if (wantToWalkOffLadder && canWalkOffLadder()) {
 				startModeWalk();
 			}
@@ -655,7 +660,7 @@ public class Player {
 	private void perhapsStartRopeMode() {
 		if (mode == Mode.AIR) {
 			// start rope?
-			if (getStickUpDownDelta()!=0 && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
+			if (getStickUpDownDelta() != 0 && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
 				// The original flipped goLeft here and not on mode exit.
 				// We don't flip it here but do flip it on mode exit.
 				// i.e. goLeft means the opposite to us (in this mode)
@@ -680,8 +685,8 @@ public class Player {
 			// do rope!
 			// SCC7
 			if (mode == Mode.ROPE) {
-				boolean wannaTwistLeft = getStickLeftRightDelta()<0 && !goLeft;
-				boolean wannaTwistRight = getStickLeftRightDelta()>0 && goLeft;
+				boolean wannaTwistLeft = getStickLeftRightDelta() < 0 && !goLeft;
+				boolean wannaTwistRight = getStickLeftRightDelta() > 0 && goLeft;
 				if (wannaTwistLeft || wannaTwistRight) {
 					goLeft = !goLeft;
 					mode = Mode.ROPE_TWIST;
@@ -718,7 +723,7 @@ public class Player {
 
 	private void jumpOrDrop() {
 		// though if you are holding down ...
-		if (testStick(Joystick.DOWN)) {
+		if (wantsToDrop()) {
 			// .. then you just drop
 			reset(Mode.AIR);
 			vely = -4;
@@ -735,8 +740,7 @@ public class Player {
 		if (mode == Mode.AIR) {
 			// start monkey?
 			// SCC5
-			if (testForHorizontalRope(0) && vely >= 0 && !testStick(Joystick.DOWN)
-					&& monkeyLatch.can(srv.getFrameNumber())) {
+			if (testForHorizontalRope(0) && vely >= 0 && !wantsToDrop() && monkeyLatch.can(srv.getFrameNumber())) {
 				// block align:
 				c.y -= 2;
 				c.y &= -Const.BLOCK_SIZE;
@@ -770,17 +774,17 @@ public class Player {
 			// SCC6
 			boolean moving = false;
 			int d = getStickLeftRightDelta();
-			if (d<0) {
+			if (d < 0) {
 				moving |= monkeyAttempt(true);
 			}
-			if (d>0) {
+			if (d > 0) {
 				moving |= monkeyAttempt(false);
 			}
 			if (!moving) {
 				setAnim("monkeymid", true);
 			}
 			// exit the mode by pressing down ..
-			if (testStickJustPressed(Joystick.DOWN)) {
+			if (wantsToDrop()) {
 				reset(Mode.AIR);
 				vely = 4;
 				System.out.println("Monkey: end .. drop");
@@ -831,7 +835,7 @@ public class Player {
 			// The floor to air transition is done between X and Y movement.
 			// Floor X, Air Y. This gives us a clean take off!
 			// SCC9
-			jumpOnFire();
+			jumpIfWanted();
 		}
 
 		//
@@ -937,8 +941,30 @@ public class Player {
 	// frame-loop calls
 	//
 
-	public void move() {
+	private int getStickDelta(Joystick stick, int less, int more) {
+		int delta = 0;
+		if (stick.test(less)) delta--;
+		if (stick.test(more)) delta++;
+		return delta;
+	}
+
+	public void move(Joystick stick) {
+		playerSprite = null;
+		if (stick == null) {
+			jdx = jdy = 0;
+			jfire.next(false).next(false);
+		}
+		else {
+			jdx = getStickDelta(stick, Joystick.LEFT, Joystick.RIGHT);
+			jdy = getStickDelta(stick, Joystick.UP, Joystick.DOWN);
+			jfire.next(stick.test(Joystick.FIRE));
+		}
 		move2();
+		assert playerSprite!=null;
+	}
+
+	public void move() {
+		move(null);
 	}
 
 	public void draw() {
@@ -976,9 +1002,19 @@ public class Player {
 	public void stun() {
 		if (CTC_VULNERABLE) {
 			if (proofTimer == 0 && stunTimer == 0) {
-				startStunMode();
+				startStunMode(STUN_TIME);
 			}
 		}
+	}
+	
+	public void kill() {
+		startStunMode(Integer.MAX_VALUE);
+	}
+	
+	public boolean onArse() {
+		boolean answer = stunTimer >= Integer.MAX_VALUE/2 && stunTimer < (Integer.MAX_VALUE-10);
+		System.out.println("ON ARSE "+answer);
+		return answer;
 	}
 
 	public void startLiftMode(LiftAlien lift, int height) {

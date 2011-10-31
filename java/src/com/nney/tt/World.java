@@ -38,6 +38,7 @@ import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.ListUtil;
+import com.nney.utils.Math2;
 
 public class World implements AlienServices, Disposable {
 	public class ExitException extends RuntimeException {
@@ -100,13 +101,15 @@ public class World implements AlienServices, Disposable {
 	 */
 	private Coord playerSpriteTopLeft;
 
-	private int timeRemaining;
+	private int timeRemainingInFrames;
 
 	private int gemsNeeded;
 
 	private int gemsTotal;
 
 	private int gemsCollected;
+	
+	private boolean collisionDetection = true;
 
 	/**
 	 * A record of where (and how) we've put a {@link Sprite}.
@@ -154,7 +157,7 @@ public class World implements AlienServices, Disposable {
 	/**
 	 * Were we pressing the pause key last frame?
 	 */
-	private boolean wasPauseKeyPressedLastFrame;
+	private EdgeDetector pauseKey = new EdgeDetector();
 
 	// ---------------------------------------------------------------------------
 
@@ -210,11 +213,15 @@ public class World implements AlienServices, Disposable {
 
 	private boolean drawPlayer = true;
 
-	private Coord completed;
+	private boolean complete;
+	
+	private Coord whereWeExitedTheLevel;
 
 	private LevelInfo levelInfo;
 
 	private boolean loadAnims = true;
+
+	private boolean didScroll;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -388,7 +395,7 @@ public class World implements AlienServices, Disposable {
 					if (diffY <= box.bottom + 30) {
 						// drawAbsoluteDebugText(new Coord(0, 90),
 						// String.format("Y overlap"));
-						return true;
+						return collisionDetection;
 					}
 				}
 			}
@@ -404,7 +411,7 @@ public class World implements AlienServices, Disposable {
 			if (diffX <= box.right) {
 				if (diffY >= box.top) {
 					if (diffY <= box.bottom) {
-						return true;
+						return collisionDetection;
 					}
 				}
 			}
@@ -449,17 +456,6 @@ public class World implements AlienServices, Disposable {
 		player.stun();
 	}
 
-	// TODO: unused
-	@Override
-	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
-		int dx = alienPos.x - alienSprite.handleX - playerSpriteTopLeft.x;
-		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
-			int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
-			return dy < ttSprite.h && dy > (-alienSprite.h);
-		}
-		return false;
-	}
-
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
 		int dx = alienPos.x - alienSprite.handleX - playerSpriteTopLeft.x;
@@ -467,10 +463,10 @@ public class World implements AlienServices, Disposable {
 			int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
 				if (dy < 0) {
-					return LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, -dy, dx);
+					return LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, -dy, dx) && collisionDetection;
 				}
 				else {
-					return LineInfo.collide(ttSprite.lineInfo, alienSprite.lineInfo, dy, -dx);
+					return LineInfo.collide(ttSprite.lineInfo, alienSprite.lineInfo, dy, -dx) && collisionDetection;
 				}
 			}
 		}
@@ -480,11 +476,6 @@ public class World implements AlienServices, Disposable {
 	@Override
 	public Player getThePlayer() {
 		return player;
-	}
-
-	@Override
-	public Joystick getStick() {
-		return joystick;
 	}
 
 	@Override
@@ -556,7 +547,7 @@ public class World implements AlienServices, Disposable {
 		}
 	}
 
-	private void updateAliens() {
+	private void updateTheAliens() {
 		recording.clear();
 
 		// add fresh aliens
@@ -597,11 +588,11 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void drawTheMap() {
+		horizon.draw();
 		scr.drawTheMap(gameMap, blockSet);
 	}
 
 	private void drawTitles(boolean textOverHole) {
-		horizon.draw();
 		drawTheMap();
 		for (SpriteRecord sr : recording) {
 			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
@@ -620,10 +611,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private boolean pauseAntiAutofire() {
-		boolean k = keyboard.isDown(Keyboard.KEY_P);
-		boolean answer = k & !wasPauseKeyPressedLastFrame;
-		wasPauseKeyPressedLastFrame = k;
-		return answer;
+		return pauseKey.next(keyboard.isDown(Keyboard.KEY_P)).pressed();
 	}
 
 	void drawHudAndBorders(boolean supressHurryUp) {
@@ -636,17 +624,17 @@ public class World implements AlienServices, Disposable {
 		if (isExitOpen()) {
 			showGems = gemsTotal - gemsCollected;
 		}
-		hud.update(ow.score, timeRemaining, supressHurryUp ? false : isHurryUp(), showGems, isExitOpen(), ow.lives);
+		hud.update(ow.score, timeRemainingInFrames, supressHurryUp ? false : isHurryUp(), showGems, isExitOpen(), ow.lives);
 	}
 
 	private boolean isHurryUp() {
-		return timeRemaining < 6 * Const.FPS;
+		return timeRemainingInFrames < 6 * Const.FPS;
 	}
 
 	private void drawHurryUp() {
 		if (isHurryUp()) {
 			int flashRate = 20;
-			if ((timeRemaining % flashRate) < (flashRate / 2)) {
+			if ((timeRemainingInFrames % flashRate) < (flashRate / 2)) {
 				statusDisplay.drawHurryUp();
 			}
 		}
@@ -679,13 +667,13 @@ public class World implements AlienServices, Disposable {
 		scr.setMapBoundsInPixels(bounds, bounds);
 	}
 
-	private Coord getPlayerCentre() {
-		return getPlayerPosition().sub2(scr.position()).copyAndAdd(0, (ttSprite.h / 2) - ttSprite.handleY);
+	private Coord getPlayerCentreOnScreen() {
+		return getPlayerPosition().copyAndAdd(0, (ttSprite.h / 2) - ttSprite.handleY).sub2(scr.position());
 	}
 
 	private void captureRecording() {
 		record = true;
-		updateAliens();
+		updateTheAliens();
 		record = false;
 	}
 
@@ -737,10 +725,10 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void awardExtraTime(int seconds) {
-		timeRemaining /= Const.FPS;
-		timeRemaining = Math.min(timeRemaining + seconds, 99);
-		timeRemaining *= Const.FPS;
-		timeRemaining += Const.FPS - 1;
+		timeRemainingInFrames /= Const.FPS;
+		timeRemainingInFrames = Math.min(timeRemainingInFrames + seconds, 99);
+		timeRemainingInFrames *= Const.FPS;
+		timeRemainingInFrames += Const.FPS - 1;
 	}
 
 	private int countGems() {
@@ -769,7 +757,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void levelCompleted(Coord exit) {
-		completed = exit.copy();
+		whereWeExitedTheLevel = exit.copy();
 	}
 
 	@Override
@@ -782,7 +770,7 @@ public class World implements AlienServices, Disposable {
 	//
 
 	private void begin() {
-		if (getStick().testJustPressed(Joystick.FIRE)) {
+		if (joystick.testJustPressed(Joystick.FIRE)) {
 			firePressed = true;
 		}
 		gc.beginDrawing();
@@ -803,7 +791,6 @@ public class World implements AlienServices, Disposable {
 			captureRecording();
 			while (!pauseAntiAutofire()) {
 				begin();
-				horizon.draw();
 				drawTheMap();
 				for (SpriteRecord sr : recording) {
 					directDrawSprite(sr.c, sr.s, sr.drawInWhite);
@@ -866,6 +853,7 @@ public class World implements AlienServices, Disposable {
 			whatAnimsDoTheyNeed(aliens, animsNeeded);
 			animsNeeded.add("0tt");
 			animsNeeded.add("0life");
+			animsNeeded.add("0gameover");
 			alienInfoMap.collectPreloadNames(animsNeeded);
 	
 			// unload what we no longer need
@@ -898,7 +886,7 @@ public class World implements AlienServices, Disposable {
 		gemsNeeded = levelInfo.gemsNeeded;
 		gemsCollected = 0;
 
-		timeRemaining = levelInfo.timeGiven * Const.FPS + Const.FPS - 1;
+		timeRemainingInFrames = levelInfo.timeGiven * Const.FPS + Const.FPS - 1;
 
 		if (hud == null) {
 			Anims lifeAnims = animsPool.expect("0life");
@@ -910,15 +898,15 @@ public class World implements AlienServices, Disposable {
 	private void performIntro() {
 		captureRecording();
 
-		hole.setCentre(getPlayerCentre());
+		hole.setCentre(getPlayerCentreOnScreen());
 		hole.current(Curtain.CLOSED);
 		hole.target(Curtain.OPEN);
 
 		dimFade.current(Curtain.CLOSED);
 		dimFade.target(Curtain.CLOSED);
 
-		totalFade.current(Curtain.OPEN);
-		totalFade.target(Curtain.OPEN);
+//		totalFade.current(Curtain.OPEN);
+//		totalFade.target(Curtain.OPEN);
 
 		ah.loadMusic(2, "levelcomplete");
 
@@ -934,7 +922,7 @@ public class World implements AlienServices, Disposable {
 		//
 		// MODE START
 		//
-		while (!getStick().testJustPressed(Joystick.FIRE)) {
+		while (!joystick.testJustPressed(Joystick.FIRE)) {
 			begin();
 			drawTitles(false);
 			end();
@@ -945,42 +933,137 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void oneMainFrame() {
-		//
-		// MODE MAIN
-		//
-		begin();
-		frameNumber++;
+		checkTeleportation();
+
+		maybePause();
+		
+		if (keyboard.isDown(Keyboard.KEY_D)) {
+			timeRemainingInFrames = 0;
+		}
 
 		int timeDec = player.isStunned() ? 3 : 1;
-		timeRemaining = Math.max(timeRemaining - timeDec, 0);
+		timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
+		if (timeRemainingInFrames==0) {
+			performLifeDec();
+		}
+		else {
+			//
+			// MODE MAIN
+			//
+			begin();
+			mainActions(joystick);
+	
+			dimFade.update();
+		
+			if (isExitOpen()) statusDisplay.drawExitOpen();
+			drawHurryUp();
+		
+			hole.update();
+			drawHudAndBorders(false);
+		
+			end();
+			
+			if (whereWeExitedTheLevel!=null) {
+				performOutro();
+			}
+		}
+	}
 
-		playerSpriteTopLeft = null;
-		player.move();
-		assert playerSpriteTopLeft != null;
+	private void performLifeDec() {
+		collisionDetection = false;
 
+		player.kill();
+		do {
+			begin();
+			mainActions(null);
+			drawHudAndBorders(false);
+			end();
+		} while (!player.onArse() || didScroll);
+		System.out.println("ARSE!");
+		
+		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
+		hole.setCentre(t);
+		hole.current(Curtain.OPEN);
+		hole.target(Curtain.CLOSED);
+		hole.setRate(3);
+
+
+		boolean gameOver = ow.lives<=1;
+		gameOver = true;
+		LifeLostDevice gdo;
+		
+		boolean start = false;
+		if (gameOver) {
+			gdo = new GameOverDisplay(animsPool, gc);
+			start = true;
+		}
+		else {
+			gdo = new LifeLostDevice() {
+				@Override
+				public void update() {
+					statusDisplay.drawLifeLost(t.copyAndAdd(0,  28));
+				}
+
+				@Override
+				public boolean isDone() {
+					return true;
+				}};
+		}
+
+		EdgeDetector ed = new EdgeDetector();
+		do {
+			begin();
+			mainActions(null);
+			hole.update();
+			int p = hole.current();
+			if (p>60) start = true;
+			if (start) {
+				if (ed.next(true).pressed()) {
+					ow.lives--;
+				}
+				gdo.update();
+			}
+			drawHudAndBorders(false);
+			end();
+		} while (!gdo.isDone() || !hole.isDone());
+		
+		Fade f = new Fade(gc, 0xff, 0.30f);
+		f.target(Curtain.CLOSED);
+		do {
+			begin();
+			gdo.update();
+			f.update();
+			drawHudAndBorders(false);
+			end();
+		} while (!f.isDone());
+
+
+		complete = true;
+	}
+
+	
+	
+//	gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
+//	gc.fillRectangle(0, t.y, 1000, 1, 0xffff00ff);
+
+	
+	private void mainActions(Joystick joystick) {
+		frameNumber++;
+		player.move(joystick);
+		scrollTheScreen();
+		drawTheMap();
+		updateTheAliens();
+	}
+
+	private void scrollTheScreen() {
+		Coord orig = scr.position().copy();
 		if (CTC_HARD_SCROLLING) {
 			scr.snapTo(player.c);
 		}
 		else {
 			scr.scrollTo(player.c);
 		}
-
-		horizon.draw();
-		drawTheMap();
-
-		updateAliens();
-
-		dimFade.update();
-
-		if (isExitOpen()) statusDisplay.drawExitOpen();
-		drawHurryUp();
-
-		hole.update();
-
-		if (teleportTimer != 0) drawTeleportEffect();
-		drawHudAndBorders(false);
-
-		end();
+		didScroll = !orig.equals(scr.position());
 	}
 
 	private void checkTeleportation() {
@@ -999,8 +1082,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void performMain() {
-		while (completed == null) {
-			checkTeleportation();
+		while (!complete) {
 			oneMainFrame();
 		}
 	}
@@ -1010,12 +1092,12 @@ public class World implements AlienServices, Disposable {
 		captureRecording();
 		dimFade.target(Curtain.CLOSED);
 
-		hole.setCentre(completed.sub2(scr.position()));
+		hole.setCentre(whereWeExitedTheLevel.sub2(scr.position()));
 		hole.target(Curtain.CLOSED);
 		hole.setRate(4);
 
 		String text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
-				- gemsCollected, timeRemaining / Const.FPS, player.gotStar());
+				- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
 		createStatusScreen(text);
 
 		cr = new Coroutine("timeBonus") {
@@ -1028,7 +1110,7 @@ public class World implements AlienServices, Disposable {
 				// turn time into score
 				//
 				int fastScore = 0;
-				while (timeRemaining != 0) {
+				while (timeRemainingInFrames != 0) {
 					if (firePressed) {
 						fastScore += 10;
 					}
@@ -1037,7 +1119,7 @@ public class World implements AlienServices, Disposable {
 						playSoundEffect("tink");
 						pause(4);
 					}
-					timeRemaining = Math.max(0, timeRemaining - Const.FPS);
+					timeRemainingInFrames = Math.max(0, timeRemainingInFrames - Const.FPS);
 				}
 				awardScore(fastScore, null);
 
@@ -1078,6 +1160,9 @@ public class World implements AlienServices, Disposable {
 			}
 			end();
 		}
+		
+		ow.levelNumber++;
+		complete = true;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1092,7 +1177,6 @@ public class World implements AlienServices, Disposable {
 
 			if (intro) performIntro();
 			performMain();
-			performOutro();
 		}
 		catch (ExitException ex) {
 		}
@@ -1104,8 +1188,6 @@ public class World implements AlienServices, Disposable {
 			create();
 			performIntro();
 			performMain();
-			performOutro();
-			ow.levelNumber++;
 		}
 		catch (ExitException ex) {
 		}

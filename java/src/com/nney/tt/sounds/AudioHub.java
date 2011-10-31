@@ -10,7 +10,7 @@ import com.nney.tt.sounds.wav.WavTools;
 import com.nney.utils.OpenableTools;
 
 public class AudioHub {
-	private static final boolean SOUND_ENABLED = true;
+	private static final boolean SOUND_ENABLED = false;
 	private MusicPlayerConnector mp = new MusicPlayerConnector(new MusicPlayer());
 	private HashMap<String, Integer> fxMap = new HashMap<String, Integer>();
 	private final AudioContext ac;

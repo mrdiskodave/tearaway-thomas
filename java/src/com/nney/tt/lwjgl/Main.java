@@ -85,15 +85,15 @@ public class Main {
 
 	private void run() {
 		TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
-		
+
 		initLwjgl();
 		initOpenGL();
-		
+
 		final AlAudioContext ac = new AlAudioContext();
 
 		final LwjglKeyboard keys = new LwjglKeyboard();
 		final KeyboardJoystick joystick = new KeyboardJoystick(keys);
-		
+
 		final LwjglPointer wonkyMouse = new LwjglPointer();
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
 		// projection
@@ -112,10 +112,15 @@ public class Main {
 		GlGraphicsContext gc = new GlGraphicsContext(Const.FPS, new Runnable() {
 			@Override
 			public void run() {
-				keys.handleKeyboard();
+				keys.update();
 				joystick.update();
 				wonkyMouse.update();
 				ac.update();
+			}
+		}, new Runnable() {
+			@Override
+			public void run() {
+				keys.clear();
 			}
 		});
 
@@ -123,17 +128,18 @@ public class Main {
 		ow.bootstrap = new Launcher() {
 			@Override
 			public void launch(OuterWorld outerWorld) {
-				new Mapper(outerWorld).run();
-//				World w = new World(outerWorld);
-//				w.playLevel();
+//				new Mapper(outerWorld).run();
+				 World w = new World(outerWorld);
+				 w.playLevel();
 			}
 		};
-
 
 		try {
 			ow.run();
 		}
-		catch (ApplicationClosedException x) {};
+		catch (ApplicationClosedException x) {
+		}
+		;
 
 		ac.dispose();
 		Mouse.destroy();

@@ -16,11 +16,13 @@ import com.nney.utils.OpenableTools;
 
 public final class GlGraphicsContext implements GraphicsContext {
 	private final Runnable updateInputs;
+	private final Runnable onActivate;
 	private final int fps;
 
-	GlGraphicsContext(int fps, Runnable updateInputs) {
+	GlGraphicsContext(int fps, Runnable updateInputs, Runnable onActivate) {
 		this.fps = fps;
 		this.updateInputs = updateInputs;
+		this.onActivate = onActivate;
 	}
 	
 	@Override
@@ -140,6 +142,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 
 	
 	boolean inside;
+	boolean active = true;
 	
 	@Override
 	public void beginDrawing() {
@@ -157,6 +160,15 @@ public final class GlGraphicsContext implements GraphicsContext {
 		Display.update();
 		if (Display.isCloseRequested()) {
 			throw new ApplicationClosedException();
+		}
+		if (Display.isActive()) {
+			if (!active) {
+				active = true;
+				onActivate.run();
+			}
+		}
+		else {
+			active = false;
 		}
 		Thread.yield();
 	}

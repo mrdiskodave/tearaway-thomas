@@ -30,8 +30,6 @@ public interface AlienServices {
 
 	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
 
-	boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite);
-
 	boolean inTheGround(Coord c);
 
 	/**
@@ -51,9 +49,6 @@ public interface AlienServices {
 	boolean playerFall(Coord where, int fallMax);
 
 	// called by the player
-
-	Joystick getStick();
-
 	void validatePlayerPosition(Coord c);
 
 	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);

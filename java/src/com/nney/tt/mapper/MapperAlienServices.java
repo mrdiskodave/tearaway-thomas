@@ -103,12 +103,6 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public Joystick getStick() {
-		ni();
-		return null;
-	}
-
-	@Override
 	public Coord getPlayerPosition() {
 		ni();
 		return null;
@@ -146,12 +140,6 @@ final class MapperAlienServices implements AlienServices {
 
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
-		ni();
-		return false;
-	}
-
-	@Override
-	public boolean collideAlienWithPlayerBounds(Coord alienPos, Sprite alienSprite) {
 		ni();
 		return false;
 	}

@@ -1,5 +1,6 @@
 package com.nney.tt.osd;
 
+import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
@@ -25,7 +26,7 @@ public class StatusDisplay implements Disposable {
 		exitOpenText = new StaticText(font, COL_GOOD, 0, "exit open");
 		hurryUpText = new StaticText(font, COL_BAD, 0, "hurry up");
 		pausedText = new StaticText(font, 0xff00ffff, 0, "paused");
-		lifeLostText = new StaticText(font, COL_BAD, 0, "life lost");
+		lifeLostText = new StaticText(font, COL_BAD, 0, "out of time");
 		pressJumpText = new StaticText(font, 0xffffff00, 0, "press jump");
 		
 		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText, pressJumpText);
@@ -43,8 +44,8 @@ public class StatusDisplay implements Disposable {
 		drawLow(pausedText);
 	}
 	
-	public void drawLifeLost() {
-		drawLow(lifeLostText);
+	public void drawLifeLost(Coord c) {
+		lifeLostText.centredDraw(c.x, c.y);
 	}
 	
 	
