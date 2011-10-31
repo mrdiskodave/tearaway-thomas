@@ -9,8 +9,14 @@ public abstract class CurtainImpl implements Curtain {
 	public void current(int state) {
 		currentValue = stateToValue(state);
 	}
+	
+	@Override
+	public int current() {
+		return valueToState(currentValue);
+	}
 
 	protected abstract int stateToValue(int state);
+	protected abstract int valueToState(int value);
 	protected abstract void move();
 	protected abstract void draw();
 	

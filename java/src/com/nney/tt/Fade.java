@@ -28,7 +28,12 @@ public class Fade extends CurtainImpl {
 	protected int stateToValue(int state) {
 		return Math2.fracMult(darkest, state, CLOSED);
 	}
-	
+
+	@Override
+	protected int valueToState(int value) {
+		return Math2.fracMult(CLOSED, value, darkest);
+	}
+
 	@Override
 	public void move() {
 		currentValue = Math2.closer(currentValue, targetValue, rate);
@@ -41,4 +46,5 @@ public class Fade extends CurtainImpl {
 			gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), c<<24);
 		}
 	}
+
 }

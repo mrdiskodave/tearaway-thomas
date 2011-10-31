@@ -73,9 +73,18 @@ public class Aperture extends CurtainImpl {
 
 	@Override
 	protected int stateToValue(int state) {
-		return Math2.fracMult(maxRadius, CLOSED-state, CLOSED);
+		state = CLOSED - state;
+		state = Math2.fracMult(maxRadius, state, CLOSED);
+		return state;
 	}
-	
+
+	@Override
+	protected int valueToState(int value) {
+		value = Math2.fracMult(CLOSED, value, maxRadius);
+		value = CLOSED - value;
+		return value;
+	}
+
 	public void setRate(int pixelPerFrame) {
 		rate = pixelPerFrame;
 	}
