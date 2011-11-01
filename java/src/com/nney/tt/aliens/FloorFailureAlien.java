@@ -18,7 +18,6 @@ public class FloorFailureAlien extends AlienWithLocation {
 		Box box = Box.fromTopLeftAndSize(d, 18, 16);
 		freezeBounds = box;
 		if (srv.collideBoxWithPlayerHandle(box)) {
-			srv.drawDebugText(c, "hello");
 			Player p = srv.getThePlayer();
 			if (p.getTouchDownVel()>=8) {
 				if (--strength<=0) {

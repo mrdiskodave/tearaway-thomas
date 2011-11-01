@@ -989,7 +989,6 @@ public class World implements AlienServices, Disposable {
 
 
 		boolean gameOver = ow.lives<=1;
-		gameOver = true;
 		LifeLostDevice gdo;
 		
 		boolean start = false;

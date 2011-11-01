@@ -467,7 +467,6 @@ public class Player {
 		if (mode == Mode.STUN) {
 			if (normalVerticalMovement()) {
 				setAnim("wobble", true);
-				System.out.println(String.format("%x STUNT TIME", stunTimer));
 				if (--stunTimer <= 0) {
 					startModeWalk();
 					proofTimer = RESTUN_PROOF_TIME;
