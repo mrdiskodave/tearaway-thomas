@@ -6,7 +6,8 @@ package com.nney.tt;
  * become possible again.
  */
 public class Latch {
-	private int last;
+	// initial value so that can(0) returns true
+	private int last = Integer.MIN_VALUE+10;
 
 	public boolean can(int now) {
 		int diff = now - last;

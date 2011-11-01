@@ -5,6 +5,8 @@ import junit.framework.TestCase;
 public class LatchTest extends TestCase {
 	public void test() throws Exception {
 		Latch l = new Latch();
+		assertTrue(l.can(0));
+		assertFalse(l.can(1));
 		
 		assertTrue(l.can(5));
 		assertFalse(l.can(5));
