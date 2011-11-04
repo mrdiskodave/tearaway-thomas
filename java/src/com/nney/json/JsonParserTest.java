@@ -1,5 +1,7 @@
 package com.nney.json;
 
+import java.util.Random;
+
 import junit.framework.TestCase;
 
 import com.nney.utils.ClassResourceOpenable;
@@ -20,6 +22,13 @@ public class JsonParserTest extends TestCase {
 
 		v = JsonValue.parse("42");
 		assertEquals(42, v.requireInt());
+		
+		Random r = new Random(1);
+		for (int x=0; x<99999; x++) {
+			long t = r.nextLong();
+			v = JsonValue.parse(Long.toString(t));
+			assertEquals(t, v.requireLong());
+		}
 
 		v = JsonValue.parse("[ 42, 43 ]");
 		assertEquals(42, v.requireElement(0).requireInt());
