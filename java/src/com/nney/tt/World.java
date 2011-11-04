@@ -38,7 +38,6 @@ import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.ListUtil;
-import com.nney.utils.Math2;
 
 public class World implements AlienServices, Disposable {
 	public class ExitException extends RuntimeException {

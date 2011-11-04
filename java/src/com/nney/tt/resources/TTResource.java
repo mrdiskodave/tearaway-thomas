@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.nney.json.DataItem;
+import com.nney.json.DataItemImpl;
 import com.nney.json.JsonValue;
 import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;

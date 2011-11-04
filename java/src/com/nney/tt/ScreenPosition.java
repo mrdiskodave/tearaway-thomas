@@ -4,7 +4,6 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.mapper.MapperGC;
 import com.nney.utils.Math2;
 
 public class ScreenPosition {

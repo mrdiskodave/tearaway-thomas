@@ -5,7 +5,6 @@ import java.util.Random;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.input.Joystick;
 import com.nney.tt.sprites.Sprite;
 
 public interface AlienServices {
