@@ -26,10 +26,10 @@ package com.nney.json;
  SOFTWARE.
  */
 
-public class JsonString extends JsonValue {
+public class DataString extends DataItemImpl {
 	private final String value;
 
-	public JsonString(String value) {
+	public DataString(String value) {
 		this.value = value;
 	}
 

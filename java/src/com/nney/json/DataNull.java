@@ -1,6 +1,6 @@
 package com.nney.json;
 
-public class JsonNull extends JsonValue {
+public class DataNull extends DataItemImpl {
 
 	public @Override
 	boolean isNull() {

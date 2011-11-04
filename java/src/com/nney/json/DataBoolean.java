@@ -1,9 +1,9 @@
 package com.nney.json;
 
-public class JsonBoolean extends JsonValue {
+public class DataBoolean extends DataItemImpl {
 	private final boolean value;
 
-	public JsonBoolean(boolean value) {
+	public DataBoolean(boolean value) {
 		this.value = value;
 	}
 

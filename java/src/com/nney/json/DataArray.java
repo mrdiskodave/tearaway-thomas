@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
-public class JsonArray extends JsonValue implements List<JsonValue> {
-	Vector<JsonValue> content = new Vector<JsonValue>();
+public class DataArray extends DataItemImpl implements List<DataItemImpl> {
+	Vector<DataItemImpl> content = new Vector<DataItemImpl>();
 	
 	// ---------------------------------------------------------------------------
 	// Support for DataItem
@@ -41,7 +41,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	@Override
 	public void save(DataDestination d) {
 		d.beginArray();
-		for (JsonValue v : content) {
+		for (DataItemImpl v : content) {
 			v.save(d);
 		}
 		d.end();
@@ -65,22 +65,22 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	// Delegates for interface List
 
 	@Override
-	public void add(int index, JsonValue element) {
+	public void add(int index, DataItemImpl element) {
 		content.add(index, element);
 	}
 
 	@Override
-	public boolean add(JsonValue o) {
+	public boolean add(DataItemImpl o) {
 		return content.add(o);
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends JsonValue> c) {
+	public boolean addAll(Collection<? extends DataItemImpl> c) {
 		return content.addAll(c);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends JsonValue> c) {
+	public boolean addAll(int index, Collection<? extends DataItemImpl> c) {
 		return content.addAll(index, c);
 	}
 
@@ -100,7 +100,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	}
 
 	@Override
-	public JsonValue get(int index) {
+	public DataItemImpl get(int index) {
 		return content.get(index);
 	}
 
@@ -115,7 +115,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	}
 
 	@Override
-	public Iterator<JsonValue> iterator() {
+	public Iterator<DataItemImpl> iterator() {
 		return content.iterator();
 	}
 
@@ -125,17 +125,17 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	}
 
 	@Override
-	public ListIterator<JsonValue> listIterator() {
+	public ListIterator<DataItemImpl> listIterator() {
 		return content.listIterator();
 	}
 
 	@Override
-	public ListIterator<JsonValue> listIterator(int index) {
+	public ListIterator<DataItemImpl> listIterator(int index) {
 		return content.listIterator(index);
 	}
 
 	@Override
-	public JsonValue remove(int index) {
+	public DataItemImpl remove(int index) {
 		return content.remove(index);
 	}
 
@@ -155,7 +155,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	}
 
 	@Override
-	public JsonValue set(int index, JsonValue element) {
+	public DataItemImpl set(int index, DataItemImpl element) {
 		return content.set(index, element);
 	}
 
@@ -165,7 +165,7 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	}
 
 	@Override
-	public List<JsonValue> subList(int fromIndex, int toIndex) {
+	public List<DataItemImpl> subList(int fromIndex, int toIndex) {
 		return content.subList(fromIndex, toIndex);
 	}
 

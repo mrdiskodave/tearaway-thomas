@@ -1,19 +1,19 @@
 package com.nney.json;
 
 public class ArrayBuilder implements Builder {
-	private final JsonArray target;
+	private final DataArray target;
 
-	ArrayBuilder(JsonArray target) {
+	ArrayBuilder(DataArray target) {
 		this.target = target;
 	}
 
 	@Override
-	public void take(JsonValue v) {
+	public void take(DataItemImpl v) {
 		target.add(v);
 	}
 
 	@Override
-	public JsonValue value() {
+	public DataItemImpl value() {
 		return target;
 	}
 }

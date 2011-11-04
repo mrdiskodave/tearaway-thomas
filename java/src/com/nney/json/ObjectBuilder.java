@@ -2,14 +2,14 @@ package com.nney.json;
 
 public class ObjectBuilder implements Builder {
 	private String key;
-	private final JsonObject target;
+	private final DataObject target;
 
-	ObjectBuilder(JsonObject target) {
+	ObjectBuilder(DataObject target) {
 		this.target = target;
 	}
 
 	@Override
-	public void take(JsonValue v) {
+	public void take(DataItemImpl v) {
 		if (key == null) {
 			key = v.requireString();
 		}
@@ -20,7 +20,7 @@ public class ObjectBuilder implements Builder {
 	}
 	
 	@Override
-	public JsonValue value() {
+	public DataItemImpl value() {
 		return target;
 	}
 }

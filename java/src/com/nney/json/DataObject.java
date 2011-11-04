@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class JsonObject extends JsonValue implements Map<String, JsonValue> {
-	TreeMap<String, JsonValue> content = new TreeMap<String, JsonValue>();
+public class DataObject extends DataItemImpl implements Map<String, DataItemImpl> {
+	TreeMap<String, DataItemImpl> content = new TreeMap<String, DataItemImpl>();
 
 	@Override
 	public DataItem requireField(String name) throws DataException {
@@ -68,12 +68,12 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 	}
 
 	@Override
-	public Set<Entry<String, JsonValue>> entrySet() {
+	public Set<Entry<String, DataItemImpl>> entrySet() {
 		return content.entrySet();
 	}
 
 	@Override
-	public JsonValue get(Object key) {
+	public DataItemImpl get(Object key) {
 		return content.get(key);
 	}
 
@@ -88,17 +88,17 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 	}
 
 	@Override
-	public JsonValue put(String key, JsonValue value) {
+	public DataItemImpl put(String key, DataItemImpl value) {
 		return content.put(key, value);
 	}
 
 	@Override
-	public void putAll(Map<? extends String, ? extends JsonValue> map) {
+	public void putAll(Map<? extends String, ? extends DataItemImpl> map) {
 		content.putAll(map);
 	}
 
 	@Override
-	public JsonValue remove(Object key) {
+	public DataItemImpl remove(Object key) {
 		return content.remove(key);
 	}
 
@@ -113,14 +113,14 @@ public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 	}
 
 	@Override
-	public Collection<JsonValue> values() {
+	public Collection<DataItemImpl> values() {
 		return content.values();
 	}
 
 	@Override
 	public void save(DataDestination d) {
 		d.beginDict();
-		for (Map.Entry<String, JsonValue> entry : content.entrySet()) {
+		for (Map.Entry<String, DataItemImpl> entry : content.entrySet()) {
 			d.write(entry.getKey());
 			entry.getValue().save(d);
 		}

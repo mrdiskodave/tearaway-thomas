@@ -26,15 +26,20 @@ package com.nney.json;
  SOFTWARE.
  */
 //
-public class JsonNumber extends JsonValue {
-	private final double value;
+public class DataLong extends DataItemImpl {
+	private final long value;
 
-	public JsonNumber(double value) {
+	public DataLong(long value) {
 		this.value = value;
 	}
 
-	public @Override
-	double requireDouble() {
+	@Override
+	public double requireDouble() {
+		return value;
+	}
+	
+	@Override
+	public long requireLong() throws DataException {
 		return value;
 	}
 
@@ -42,5 +47,4 @@ public class JsonNumber extends JsonValue {
 	public void save(DataDestination d) {
 		d.write(value);
 	}
-	// TODO: would this safely round-trip all longs?
 }

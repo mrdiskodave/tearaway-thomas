@@ -22,7 +22,7 @@ public class JsonParser extends JsonInput {
 	 * 
 	 * @return An object.
 	 */
-	public void nextValue() throws JsonException {
+	private void nextValue() throws JsonException {
 		skipWhiteAndComments();
 
 		// System.out.println(formatMessage("Looking at "+(char) peek()));
@@ -76,10 +76,21 @@ public class JsonParser extends JsonInput {
 			String n = consumeG(NUMBER);
 			if (n != null) {
 				try {
-					dd.write(Double.parseDouble(n));
+					// parse it as a long if we can
+					// (certain longs can only be approximated as doubles
+					// and there is no need to start getting approximate
+					// just yet)
+					dd.write(Long.parseLong(n));
 				}
-				catch (NumberFormatException e) {
-					throw syntaxError("Bad number");
+				catch (NumberFormatException e1) {
+					try {
+						// otherwise as a double
+						// which is, by its nature, approximate for some values
+						dd.write(Double.parseDouble(n));
+					}
+					catch (NumberFormatException e2) {
+						throw syntaxError("Bad number");
+					}
 				}
 			}
 			else {

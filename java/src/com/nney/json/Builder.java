@@ -1,6 +1,6 @@
 package com.nney.json;
 
 public interface Builder {
-	void take(JsonValue v);
-	JsonValue value();
+	void take(DataItemImpl v);
+	DataItemImpl value();
 }

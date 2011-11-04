@@ -9,7 +9,7 @@ import com.nney.utils.StringIO;
 
 public class JsonParserTest extends TestCase {
 	public void testMain() throws Exception {
-		JsonValue v;
+		DataItem v;
 
 		v = JsonValue.parse("\"\\u004a\"");
 		assertEquals("J", v.requireString());
@@ -33,6 +33,10 @@ public class JsonParserTest extends TestCase {
 		v = JsonValue.parse("[ 42, 43 ]");
 		assertEquals(42, v.requireElement(0).requireInt());
 		assertEquals(43, v.requireElement(1).requireInt());
+
+		v = JsonValue.parse("42.93");
+		assertEquals(42, v.requireInt());
+		assertEquals(42.93, v.requireDouble());
 
 		v = JsonValue.parse("{ \"d\":42, \"c\":43 }");
 		assertEquals(42, v.requireField("d").requireInt());
