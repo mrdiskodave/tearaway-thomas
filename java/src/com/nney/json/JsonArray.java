@@ -34,35 +34,22 @@ import java.util.Vector;
 
 public class JsonArray extends JsonValue implements List<JsonValue> {
 	Vector<JsonValue> content = new Vector<JsonValue>();
+	
+	// ---------------------------------------------------------------------------
+	// Support for DataItem
 
-	public JsonArray(final JsonInput input) throws JsonException {
-		JsonBlock block = new JsonBlock() {
-			@Override
-			public void run() throws JsonException {
-				content.add(input.nextValue());
-			}
-		};
-		input.parseList('[', ']', "Array", block);
-	}
-
-	public JsonArray(JsonValue... values) {
-		for (JsonValue value : values) {
-			content.add(value);
+	@Override
+	public void save(DataDestination d) {
+		d.beginArray();
+		for (JsonValue v : content) {
+			v.save(d);
 		}
+		d.end();
 	}
 
 	@Override
-	public void writeJson(DataWriter w) throws JsonException {
-		w.beginList();
-		for (JsonValue v : content) {
-			v.writeJson(w);
-		}
-		w.end();
-	}
-
-	public @Override
-	DataItem requireElement(int position) throws DataException {
-		if (position >= content.size() || position<0) {
+	public DataItem requireElement(int position) throws DataException {
+		if (position >= content.size() || position < 0) {
 			throw new DataException("position " + position + " not found in array of length " + content.size());
 		}
 		return content.get(position);
@@ -73,9 +60,9 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 		return content.toArray(new DataItem[content.size()]);
 	}
 
-	//
-	// the proxying required to support interface List ...
-	//
+
+	// ---------------------------------------------------------------------------
+	// Delegates for interface List
 
 	@Override
 	public void add(int index, JsonValue element) {
@@ -195,15 +182,6 @@ public class JsonArray extends JsonValue implements List<JsonValue> {
 	@Override
 	public String toString() {
 		return content.toString();
-	}
-
-	@Override
-	public void save(DataDestination d) {
-		d.beginArray();
-		for (JsonValue v: content) {
-			v.save(d);
-		}
-		d.end();
 	}
 
 }

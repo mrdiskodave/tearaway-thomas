@@ -34,11 +34,6 @@ public class JsonString extends JsonValue {
 	}
 
 	@Override
-	public void writeJson(DataWriter writer) throws JsonException {
-		writer.writeValue(value);
-	}
-
-	@Override
 	public String requireString() {
 		return value;
 	}

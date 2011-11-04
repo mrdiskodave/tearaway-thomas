@@ -34,42 +34,8 @@ import java.util.TreeMap;
 public class JsonObject extends JsonValue implements Map<String, JsonValue> {
 	TreeMap<String, JsonValue> content = new TreeMap<String, JsonValue>();
 
-	public JsonObject(final JsonInput input) throws JsonException {
-		JsonBlock block = new JsonBlock() {
-			@Override
-			public void run() throws JsonException {
-				if (!input.consume('"')) {
-					throw input.syntaxError("Expected key string");
-				}
-				String key = input.nextString('"');
-				input.skipWhiteAndComments();
-				if (!input.consume(':')) {
-					throw input.syntaxError("Expected ':' after key '" + key + "'");
-				}
-				content.put(key, input.nextValue());
-			}
-		};
-		input.parseList('{', '}', "Object", block);
-	}
-
-	public JsonObject(JsonField... fields) {
-		for (JsonField field : fields) {
-			content.put(field.name, field.value);
-		}
-	}
-
 	@Override
-	public void writeJson(DataWriter w) throws JsonException {
-		w.beginMap();
-		for (Map.Entry<String, JsonValue> entry : content.entrySet()) {
-			w.writeFieldName(entry.getKey());
-			entry.getValue().writeJson(w);
-		}
-		w.end();
-	}
-
-	public @Override
-	DataItem requireField(String name) throws DataException {
+	public DataItem requireField(String name) throws DataException {
 		DataItem answer = content.get(name);
 		if (answer == null) {
 			throw new DataException("missing field: " + name);

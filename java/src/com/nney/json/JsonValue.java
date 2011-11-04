@@ -1,8 +1,6 @@
 package com.nney.json;
 
 public abstract class JsonValue implements DataItem {
-	abstract public void writeJson(DataWriter writer) throws JsonException;
-
 	@Override
 	public DataItem requireElement(int position) throws DataException {
 		throw new DataException("array expected");
@@ -63,14 +61,11 @@ public abstract class JsonValue implements DataItem {
 		throw new DataException("array expected");
 	}
 	
-	public static JsonValue parse(String jsonString) throws JsonException {
-		JsonInput jsonInput = new JsonInput(jsonString);
-		JsonValue answer = jsonInput.nextValue();
-		jsonInput.skipWhiteAndComments();
-		if (!jsonInput.eof()) {
-			throw jsonInput.syntaxError("Expected end of file");
-		}
-		return answer;
+	public static JsonValue parse(String jsonInputString) throws JsonException {
+		JsonValueBuilder builder = new JsonValueBuilder();
+		JsonParser parser = new JsonParser(jsonInputString, builder);
+		parser.parse();
+		return builder.result();
 	}
 	
 	public static JsonValue mustParse(String jsonString) {

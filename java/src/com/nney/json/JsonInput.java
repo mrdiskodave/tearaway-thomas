@@ -33,13 +33,13 @@ import java.util.regex.Pattern;
  * A JsonInput takes a source string and extracts characters and tokens from it.
  */
 class JsonInput {
-	private final static Pattern NUMBER = Pattern.compile("-?(0|[1-9][0-9]*)(\\.[0-9]+)?(e[-+][0-9]+)?",
-			Pattern.CASE_INSENSITIVE);
 	private final static Pattern HEX4 = Pattern.compile("[0-9a-f]{4}", Pattern.CASE_INSENSITIVE);
 
 	private int pos;
 
 	private String text;
+
+	boolean strictCommas = true;
 
 	boolean eof() {
 		return pos >= text.length();
@@ -65,18 +65,18 @@ class JsonInput {
 		return answer;
 	}
 
-	String remains() {
+	private String remains() {
 		String answer = text.substring(pos);
 		return answer;
 	}
 
-	int next() {
+	private int next() {
 		int answer = peek();
 		advance();
 		return answer;
 	}
 
-	private int peek() {
+	protected int peek() {
 		assert !eof();
 		return text.charAt(pos);
 	}
@@ -96,7 +96,7 @@ class JsonInput {
 		text = s;
 	}
 
-	public void skipWhiteAndComments() {
+	void skipWhiteAndComments() {
 		while (!eof()) {
 			if (consume('#')) {
 				while (!(eof() || consume('\r') || consume('\n'))) {
@@ -125,7 +125,7 @@ class JsonInput {
 	 * @throws JsonException
 	 *             Unterminated string.
 	 */
-	public String nextString(char quote) throws JsonException {
+	String nextString(char quote) throws JsonException {
 		StringBuffer sb = new StringBuffer();
 		for (;;) {
 			if (eof()) {
@@ -172,55 +172,8 @@ class JsonInput {
 		}
 	}
 
-	/**
-	 * Get the next value. The value can be a Boolean, Double, Integer,
-	 * JSONArray, JSONObject, Long, or String, or the JSONObject.NULL object.
-	 * 
-	 * @throws JsonException
-	 *             If syntax error.
-	 * 
-	 * @return An object.
-	 */
-	public JsonValue nextValue() throws JsonException {
-		skipWhiteAndComments();
-		
-//		System.out.println(formatMessage("Looking at "+(char) peek()));
 
-		if (consume('"')) {
-			return new JsonString(nextString('"'));
-		}
-		if (consume('{')) {
-			back();
-			return new JsonObject(this);
-		}
-		if (consume('[')) {
-			back();
-			return new JsonArray(this);
-		}
-		if (consume("true")) {
-			return new JsonBoolean(true);
-		}
-		if (consume("false")) {
-			return new JsonBoolean(false);
-		}
-		if (consume("null")) {
-			return new JsonNull();
-		}
-
-		String n = consumeG(NUMBER);
-		if (n != null) {
-			try {
-				return new JsonNumber(Double.parseDouble(n));
-			}
-			catch (NumberFormatException e) {
-				throw syntaxError("Bad number");
-			}
-		}
-
-		throw syntaxError("Not a JSON item: "+(char) peek());
-	}
-
-	private void back() {
+	void back() {
 		pos--;
 	}
 
@@ -240,8 +193,7 @@ class JsonInput {
 		return message + " at " + TextPosition.fromText(text.substring(0, pos));
 	}
 
-	public void parseList(char open, char close, String name, JsonBlock contentParser) throws JsonException {
-		boolean strict = true;
+	void parseList(char open, char close, String name, JsonBlock contentParser) throws JsonException {
 		skipWhiteAndComments();
 		if (!consume(open)) {
 			throw syntaxError(name + " text must start with '" + open + "'");
@@ -249,7 +201,7 @@ class JsonInput {
 		boolean commaExpected = false;
 		for (;;) {
 			skipWhiteAndComments();
-			if (strict) {
+			if (strictCommas) {
 				if (consume(close)) return;
 				if (commaExpected) {
 					boolean gotComma = consume(',');

@@ -24,6 +24,6 @@ class TextPosition {
 
 	@Override
 	public String toString() {
-		return "" + y + ":" + x;
+		return y + ":" + x;
 	}
 }

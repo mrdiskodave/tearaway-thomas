@@ -39,11 +39,6 @@ public class JsonNumber extends JsonValue {
 	}
 
 	@Override
-	public void writeJson(DataWriter writer) throws JsonException {
-		writer.writeValue(value);
-	}
-
-	@Override
 	public void save(DataDestination d) {
 		d.write(value);
 	}

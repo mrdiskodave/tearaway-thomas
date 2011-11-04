@@ -85,7 +85,7 @@ public class JsonDataDestination implements DataDestination {
 
 	@Override
 	public void write(double value) {
-		throw new RuntimeException("not implemented");
+		outputValue(String.format("%s", value));
 	}
 
 	@Override

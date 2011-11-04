@@ -35,6 +35,9 @@ public class JsonParserTest extends TestCase {
 		v = JsonValue.parse("true");
 		assertTrue(v.requireBoolean());
 
+		v = JsonValue.parse("false");
+		assertFalse(v.requireBoolean());
+
 		v = JsonValue.parse("\"pooh\"");
 		assertEquals("pooh", v.requireString());
 
