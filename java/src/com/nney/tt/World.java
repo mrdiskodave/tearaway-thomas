@@ -386,7 +386,6 @@ public class World implements AlienServices, Disposable {
 
 		// drawAbsoluteDebugText(new Coord(0, 50), String.format("%s %s,%s",
 		// box, diffX, diffY));
-
 		if (diffX >= box.left - 8) {
 			if (diffX <= box.right + 8) {
 				// drawAbsoluteDebugText(new Coord(0, 70),
@@ -633,8 +632,8 @@ public class World implements AlienServices, Disposable {
 
 	private void drawHurryUp() {
 		if (isHurryUp()) {
-			int flashRate = 20;
-			if ((timeRemainingInFrames % flashRate) < (flashRate / 2)) {
+			int flashRate = Const.FPS/2;
+			if ((frameNumber % flashRate) < (flashRate / 2)) {
 				statusDisplay.drawHurryUp();
 			}
 		}
@@ -675,6 +674,10 @@ public class World implements AlienServices, Disposable {
 		record = true;
 		updateTheAliens();
 		record = false;
+	}
+	
+	void clearRecording() {
+		recording.clear();
 	}
 
 	static private void whatAnimsDoTheyNeed(List<Alien> aliens, Set<String> animsNeeded) {
@@ -770,6 +773,9 @@ public class World implements AlienServices, Disposable {
 	//
 
 	private void begin() {
+		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
+			throw new ExitException();
+		}
 		if (joystick.testJustPressed(Joystick.FIRE)) {
 			firePressed = true;
 		}
@@ -778,9 +784,6 @@ public class World implements AlienServices, Disposable {
 
 	private void end() {
 		gc.endDrawing();
-		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
-			throw new ExitException();
-		}
 	}
 
 	// ---------------------------------------------------------------------------
@@ -801,6 +804,7 @@ public class World implements AlienServices, Disposable {
 				drawHudAndBorders(false);
 				end();
 			}
+			clearRecording();
 		}
 
 	}
@@ -930,6 +934,8 @@ public class World implements AlienServices, Disposable {
 
 		dimFade.target(Curtain.OPEN);
 		ah.startMusic(1);
+		
+		clearRecording();
 	}
 
 	private void oneMainFrame() {
