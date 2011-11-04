@@ -8,7 +8,7 @@ public class ArrayBuilder implements Builder {
 	}
 
 	@Override
-	public void take(DataItemImpl v) {
+	public void take(DataItem v) {
 		target.add(v);
 	}
 

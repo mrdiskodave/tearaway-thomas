@@ -9,7 +9,7 @@ public class ObjectBuilder implements Builder {
 	}
 
 	@Override
-	public void take(DataItemImpl v) {
+	public void take(DataItem v) {
 		if (key == null) {
 			key = v.requireString();
 		}

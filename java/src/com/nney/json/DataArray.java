@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
-public class DataArray extends DataItemImpl implements List<DataItemImpl> {
-	Vector<DataItemImpl> content = new Vector<DataItemImpl>();
+public class DataArray extends DataItemImpl implements List<DataItem> {
+	Vector<DataItem> content = new Vector<DataItem>();
 	
 	// ---------------------------------------------------------------------------
 	// Support for DataItem
@@ -41,7 +41,7 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	@Override
 	public void save(DataDestination d) {
 		d.beginArray();
-		for (DataItemImpl v : content) {
+		for (DataItem v : content) {
 			v.save(d);
 		}
 		d.end();
@@ -65,22 +65,22 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	// Delegates for interface List
 
 	@Override
-	public void add(int index, DataItemImpl element) {
+	public void add(int index, DataItem element) {
 		content.add(index, element);
 	}
 
 	@Override
-	public boolean add(DataItemImpl o) {
+	public boolean add(DataItem o) {
 		return content.add(o);
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends DataItemImpl> c) {
+	public boolean addAll(Collection<? extends DataItem> c) {
 		return content.addAll(c);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends DataItemImpl> c) {
+	public boolean addAll(int index, Collection<? extends DataItem> c) {
 		return content.addAll(index, c);
 	}
 
@@ -100,7 +100,7 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	}
 
 	@Override
-	public DataItemImpl get(int index) {
+	public DataItem get(int index) {
 		return content.get(index);
 	}
 
@@ -115,7 +115,7 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	}
 
 	@Override
-	public Iterator<DataItemImpl> iterator() {
+	public Iterator<DataItem> iterator() {
 		return content.iterator();
 	}
 
@@ -125,17 +125,17 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	}
 
 	@Override
-	public ListIterator<DataItemImpl> listIterator() {
+	public ListIterator<DataItem> listIterator() {
 		return content.listIterator();
 	}
 
 	@Override
-	public ListIterator<DataItemImpl> listIterator(int index) {
+	public ListIterator<DataItem> listIterator(int index) {
 		return content.listIterator(index);
 	}
 
 	@Override
-	public DataItemImpl remove(int index) {
+	public DataItem remove(int index) {
 		return content.remove(index);
 	}
 
@@ -155,7 +155,7 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	}
 
 	@Override
-	public DataItemImpl set(int index, DataItemImpl element) {
+	public DataItem set(int index, DataItem element) {
 		return content.set(index, element);
 	}
 
@@ -165,7 +165,7 @@ public class DataArray extends DataItemImpl implements List<DataItemImpl> {
 	}
 
 	@Override
-	public List<DataItemImpl> subList(int fromIndex, int toIndex) {
+	public List<DataItem> subList(int fromIndex, int toIndex) {
 		return content.subList(fromIndex, toIndex);
 	}
 

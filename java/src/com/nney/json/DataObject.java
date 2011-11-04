@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class DataObject extends DataItemImpl implements Map<String, DataItemImpl> {
-	TreeMap<String, DataItemImpl> content = new TreeMap<String, DataItemImpl>();
+public class DataObject extends DataItemImpl implements Map<String, DataItem> {
+	TreeMap<String, DataItem> content = new TreeMap<String, DataItem>();
 
 	@Override
 	public DataItem requireField(String name) throws DataException {
@@ -68,12 +68,12 @@ public class DataObject extends DataItemImpl implements Map<String, DataItemImpl
 	}
 
 	@Override
-	public Set<Entry<String, DataItemImpl>> entrySet() {
+	public Set<Entry<String, DataItem>> entrySet() {
 		return content.entrySet();
 	}
 
 	@Override
-	public DataItemImpl get(Object key) {
+	public DataItem get(Object key) {
 		return content.get(key);
 	}
 
@@ -88,17 +88,17 @@ public class DataObject extends DataItemImpl implements Map<String, DataItemImpl
 	}
 
 	@Override
-	public DataItemImpl put(String key, DataItemImpl value) {
+	public DataItem put(String key, DataItem value) {
 		return content.put(key, value);
 	}
 
 	@Override
-	public void putAll(Map<? extends String, ? extends DataItemImpl> map) {
+	public void putAll(Map<? extends String, ? extends DataItem> map) {
 		content.putAll(map);
 	}
 
 	@Override
-	public DataItemImpl remove(Object key) {
+	public DataItem remove(Object key) {
 		return content.remove(key);
 	}
 
@@ -113,14 +113,14 @@ public class DataObject extends DataItemImpl implements Map<String, DataItemImpl
 	}
 
 	@Override
-	public Collection<DataItemImpl> values() {
+	public Collection<DataItem> values() {
 		return content.values();
 	}
 
 	@Override
 	public void save(DataDestination d) {
 		d.beginDict();
-		for (Map.Entry<String, DataItemImpl> entry : content.entrySet()) {
+		for (Map.Entry<String, DataItem> entry : content.entrySet()) {
 			d.write(entry.getKey());
 			entry.getValue().save(d);
 		}
