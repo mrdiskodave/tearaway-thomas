@@ -452,4 +452,25 @@ public class JavaTest extends TestCase {
 		assertEquals(17, 1*16+1);
 		assertEquals(32, 1<<4+1);
 	}
+	
+	public void testParseDoubleIsSilentAboutLongsThatDontFit() {
+		long a = -4964420948893066024L;
+		double b = Double.parseDouble(Long.toString(a)); // no exception thrown
+		long c = (long) b;
+		long diff = Math.abs(a-c);
+		assertTrue(diff>100); // it's 216 here :O :O
+	}
+
+	public void testParseIntIsNoiseyAboutLongsThatDontFit() {
+		try {
+			long a = ((long)Integer.MAX_VALUE+1);
+			Integer.parseInt(Long.toString(a)); // exception thrown
+			fail();
+		}
+		catch (NumberFormatException e) {
+			// expected
+		}
+	}
+
+	
 }
