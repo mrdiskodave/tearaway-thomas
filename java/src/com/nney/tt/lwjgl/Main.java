@@ -89,7 +89,7 @@ public class Main {
 		initLwjgl();
 		initOpenGL();
 
-		final AlAudioContext ac = new AlAudioContext();
+		final AlAudioContext audioContext = new AlAudioContext();
 
 		final LwjglKeyboard keys = new LwjglKeyboard();
 		final KeyboardJoystick joystick = new KeyboardJoystick(keys);
@@ -113,9 +113,8 @@ public class Main {
 			@Override
 			public void run() {
 				keys.update();
-				joystick.update();
 				wonkyMouse.update();
-				ac.update();
+				audioContext.update();
 			}
 		}, new Runnable() {
 			@Override
@@ -124,13 +123,13 @@ public class Main {
 			}
 		});
 
-		OuterWorld ow = new OuterWorld(gc, ac, joystick, keys, correctMouse);
+		OuterWorld ow = new OuterWorld(gc, audioContext, joystick, keys, correctMouse);
 		ow.bootstrap = new Launcher() {
 			@Override
 			public void launch(OuterWorld outerWorld) {
-//				new Mapper(outerWorld).run();
-				 World w = new World(outerWorld);
-				 w.playLevel();
+				new Mapper(outerWorld).run();
+//				 World w = new World(outerWorld);
+//				 w.playLevel();
 			}
 		};
 
@@ -141,7 +140,7 @@ public class Main {
 		}
 		;
 
-		ac.dispose();
+		audioContext.dispose();
 		Mouse.destroy();
 		Keyboard.destroy();
 		Display.destroy();

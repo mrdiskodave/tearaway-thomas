@@ -2,7 +2,7 @@ package com.nney.tt;
 
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.input.Joystick;
+import com.nney.tt.input.ParsedJoystick;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
@@ -29,7 +29,7 @@ public class Player {
 		srv.registerPlayerSpriteForAlienColisions(c, s);
 		playerSprite = s;
 	}
-	
+
 	// ---------------------------------------------------------------------------
 	// CONSTANTS
 
@@ -69,7 +69,7 @@ public class Player {
 	 */
 	private static final int NO_SLIDE = 9;
 
-	private static final boolean CTC_VULNERABLE = true;
+	private static final boolean CTC_STUNABLE = true;
 
 	// ---------------------------------------------------------------------------
 	// FIELDS
@@ -207,15 +207,7 @@ public class Player {
 
 	// controls
 
-	private int getStickUpDownDelta() {
-		return jdy;
-	}
-
-	private int getStickLeftRightDelta() {
-		return jdx;
-	}
-
-	private boolean wantsToExitModeByJumping() {
+	private boolean wantsToExitMode() {
 		return jfire.pressed();
 	}
 
@@ -228,7 +220,7 @@ public class Player {
 	}
 
 	private boolean wantsToDrop() {
-		return getStickUpDownDelta() > 0;
+		return jdy > 0;
 	}
 
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -254,13 +246,13 @@ public class Player {
 	private void startModeWalk() {
 		reset(Mode.WALK);
 
-		// if you jump off a ladding holding up (meaning: grip ladder)
+		// if you jump off a ladder holding up (meaning: grip/climb ladder)
 		// you won't grip (because of the latch) but this shouldn't go on
 		// forever so we should clear the latch when you hit the ground.
 		ladderLatch.clear();
 
 		// it is important that we immediately check for slides
-		// or the player could get off a rogue jump-off-a-slide
+		// or the player could get a rogue jump-off-a-slide
 		// before we detect it later!
 		perhapsStartSlideMode();
 
@@ -268,7 +260,7 @@ public class Player {
 	}
 
 	/**
-	 * Called when you standing on something (be a lift or the floor).
+	 * Called when you standing on something (lift or the floor).
 	 */
 	private void onSomething() {
 		headBounceCounter = 0;
@@ -305,7 +297,7 @@ public class Player {
 	}
 
 	private int getXDelta() {
-		int d = getStickLeftRightDelta();
+		int d = jdx;
 		if (d < 0) goLeft = true;
 		if (d > 0) goLeft = false;
 		int xdelta = pvt.next(d);
@@ -549,7 +541,7 @@ public class Player {
 				slideVel += slide;
 				// and we get to influence it a bit with the joystick
 				if ((frm & 7) == 0) {
-					slideVel += getStickLeftRightDelta();
+					slideVel += jdx;
 				}
 			}
 			// make sure we're not going to fast
@@ -594,23 +586,20 @@ public class Player {
 			snap &= 15;
 			snap = maxSnap - snap;
 
-			// System.out.println("SNAP" + snap + "max" + maxSnap);
-			if (snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0) && getStickUpDownDelta() != 0
+			if (jdy != 0 && snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0)
 					&& ladderLatch.can(srv.getFrameNumber())) {
-				if (testLadder(snap, getStickUpDownDelta())) {
-					reset(Mode.LADDER);
-					c.x += snap;
-					System.out.println("Ladder: on board!");
-				}
-				else {
-					System.out.println("Ladder: run straight past");
-				}
+				reset(Mode.LADDER);
+				c.x += snap;
+				System.out.println("Ladder: on board!");
+			}
+			else {
+				System.out.println("Ladder: run straight past");
 			}
 		}
 	}
 
 	private boolean moveStick() {
-		return getStickLeftRightDelta() != 0;
+		return jdx != 0;
 	}
 
 	private void doLadderMode() {
@@ -619,7 +608,7 @@ public class Player {
 
 			// do ladder!
 			boolean moving = false;
-			int delta = getStickUpDownDelta() * 2;
+			int delta = jdy * 2;
 			MovementSlicer yslicer = new MovementSlicer(delta);
 			while (yslicer.more()) {
 				int n = yslicer.next(1);
@@ -630,11 +619,11 @@ public class Player {
 			}
 
 			// leave the ladder?
-			boolean wantToWalkOffLadder = getStickLeftRightDelta() != 0;
+			boolean wantToWalkOffLadder = jdx != 0;
 			if (wantToWalkOffLadder && canWalkOffLadder()) {
 				startModeWalk();
 			}
-			else if (wantsToExitModeByJumping()) {
+			else if (wantsToExitMode()) {
 				jumpOrDrop();
 			}
 
@@ -659,7 +648,7 @@ public class Player {
 	private void perhapsStartRopeMode() {
 		if (mode == Mode.AIR) {
 			// start rope?
-			if (getStickUpDownDelta() != 0 && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
+			if (jdy != 0 && testForVerticalRope(0) && ropeLatch.can(srv.getFrameNumber())) {
 				// The original flipped goLeft here and not on mode exit.
 				// We don't flip it here but do flip it on mode exit.
 				// i.e. goLeft means the opposite to us (in this mode)
@@ -684,8 +673,8 @@ public class Player {
 			// do rope!
 			// SCC7
 			if (mode == Mode.ROPE) {
-				boolean wannaTwistLeft = getStickLeftRightDelta() < 0 && !goLeft;
-				boolean wannaTwistRight = getStickLeftRightDelta() > 0 && goLeft;
+				boolean wannaTwistLeft = jdx < 0 && !goLeft;
+				boolean wannaTwistRight = jdx > 0 && goLeft;
 				if (wannaTwistLeft || wannaTwistRight) {
 					goLeft = !goLeft;
 					mode = Mode.ROPE_TWIST;
@@ -697,7 +686,7 @@ public class Player {
 				}
 			}
 
-			int delta = getStickUpDownDelta() * 2;
+			int delta = jdy * 2;
 			boolean moving = false;
 			if (delta != 0 && testForVerticalRope(delta)) {
 				c.y += delta;
@@ -705,7 +694,7 @@ public class Player {
 			}
 
 			// jump off the rope
-			if (wantsToExitModeByJumping()) {
+			if (wantsToExitMode()) {
 				jumpOrDrop();
 				goLeft = !goLeft;
 			}
@@ -728,6 +717,7 @@ public class Player {
 			vely = -4;
 		}
 		else {
+			// .. otherwise you jump
 			jump();
 		}
 	}
@@ -737,17 +727,22 @@ public class Player {
 
 	private void perhapsStartMonkeyMode() {
 		if (mode == Mode.AIR) {
-			// start monkey?
-			// SCC5
-			if (testForHorizontalRope(0) && vely >= 0 && !wantsToDrop() && monkeyLatch.can(srv.getFrameNumber())) {
-				// block align:
-				c.y -= 2;
-				c.y &= -Const.BLOCK_SIZE;
-				c.y += 2;
-				reset(Mode.MONKEY);
-				System.out.println("Monkey: Start");
+			if (testForHorizontalRope(0)) {
+				if (vely >= 0) {
+					if (monkeyLatch.can(srv.getFrameNumber())) {
+						if (!wantsToDrop()) {
+							// block align:
+							c.y -= 2;
+							c.y &= -Const.BLOCK_SIZE;
+							c.y += 2;
+							reset(Mode.MONKEY);
+							System.out.println("Monkey: Start");
+						}
+					}
+				}
 			}
 		}
+
 	}
 
 	private boolean monkeyAttempt(boolean left) {
@@ -772,7 +767,7 @@ public class Player {
 			// do monkey!
 			// SCC6
 			boolean moving = false;
-			int d = getStickLeftRightDelta();
+			int d = jdx;
 			if (d < 0) {
 				moving |= monkeyAttempt(true);
 			}
@@ -789,7 +784,7 @@ public class Player {
 				System.out.println("Monkey: end .. drop");
 			}
 			// or jumping off
-			if (wantsToExitModeByJumping()) {
+			if (wantsToExitMode()) {
 				System.out.println("Monkey: end .. jump");
 				jump();
 			}
@@ -887,6 +882,7 @@ public class Player {
 	// MAIN MOVEMENT ROUTINE
 
 	private void move2() {
+		System.out.println("Player:" + c);
 		touchDownVel = 0;
 		flyingFlap = false;
 
@@ -940,30 +936,13 @@ public class Player {
 	// frame-loop calls
 	//
 
-	private int getStickDelta(Joystick stick, int less, int more) {
-		int delta = 0;
-		if (stick.test(less)) delta--;
-		if (stick.test(more)) delta++;
-		return delta;
-	}
-
-	public void move(Joystick stick) {
+	public void move(ParsedJoystick parsedJoystick) {
 		playerSprite = null;
-		if (stick == null) {
-			jdx = jdy = 0;
-			jfire.next(false).next(false);
-		}
-		else {
-			jdx = getStickDelta(stick, Joystick.LEFT, Joystick.RIGHT);
-			jdy = getStickDelta(stick, Joystick.UP, Joystick.DOWN);
-			jfire.next(stick.test(Joystick.FIRE));
-		}
+		jdx = parsedJoystick.x();
+		jdy = parsedJoystick.y();
+		jfire.next(parsedJoystick.fire());
 		move2();
-		assert playerSprite!=null;
-	}
-
-	public void move() {
-		move(null);
+		assert playerSprite != null;
 	}
 
 	public void draw() {
@@ -999,21 +978,19 @@ public class Player {
 	}
 
 	public void stun() {
-		if (CTC_VULNERABLE) {
+		if (CTC_STUNABLE) {
 			if (proofTimer == 0 && stunTimer == 0) {
 				startStunMode(STUN_TIME);
 			}
 		}
 	}
-	
+
 	public void kill() {
 		startStunMode(Integer.MAX_VALUE);
 	}
-	
+
 	public boolean onArse() {
-		boolean answer = stunTimer >= Integer.MAX_VALUE/2 && stunTimer < (Integer.MAX_VALUE-10);
-		System.out.println("ON ARSE "+answer);
-		return answer;
+		return stunTimer < Integer.MAX_VALUE;
 	}
 
 	public void startLiftMode(LiftAlien lift, int height) {
@@ -1070,7 +1047,7 @@ public class Player {
 		// must be above but not too far above
 		if (diff.y > 0 && diff.y < 100) {
 			// must be moving towards
-			int d = getStickLeftRightDelta();
+			int d = jdx;
 			if (d != 0 && d != Integer.signum(diff.x)) {
 				// and must be the correct distance in front
 				int dx = Math.abs(diff.x);

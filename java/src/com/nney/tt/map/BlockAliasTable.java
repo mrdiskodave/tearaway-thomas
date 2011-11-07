@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 
 public class BlockAliasTable {
 	private final HashMap<Integer, ArrayList<Integer>> expand = new HashMap<Integer, ArrayList<Integer>>(1, 0.1f);
@@ -12,10 +12,10 @@ public class BlockAliasTable {
 
 	private final Random r = new Random();
 
-	public BlockAliasTable(DataItem di) {
-		for (DataItem line : di.requireList()) {
+	public BlockAliasTable(Node di) {
+		for (Node line : di.requireList()) {
 			ArrayList<Integer> al = new ArrayList<Integer>();
-			for (DataItem x : line.requireList()) {
+			for (Node x : line.requireList()) {
 				al.add(x.requireInt());
 			}
 			registerLine(al);

@@ -1,8 +1,8 @@
 package com.nney.tt;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 
 public interface LoadsFromSpriteDefUnused {
-	void load(DataItem di);
+	void load(Node di);
 	// TODO: 99: unused?
 }

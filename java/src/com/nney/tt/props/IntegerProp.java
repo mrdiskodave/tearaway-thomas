@@ -2,8 +2,8 @@ package com.nney.tt.props;
 
 import java.util.List;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 
 public class IntegerProp extends SpecificProp<Integer> {
 	public IntegerProp(PropPack pp) {
@@ -47,7 +47,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 	}
 
 	@Override
-	void load(DataItem d) {
+	void load(Node d) {
 		write(d.requireInt());
 	}
 }

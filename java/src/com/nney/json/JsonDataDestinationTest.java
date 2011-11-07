@@ -38,7 +38,7 @@ public class JsonDataDestinationTest extends TestCase {
 	}
 
 	public void testSimpleDict() throws Exception {
-		f.beginDict();
+		f.beginObject();
 		f.write("hello");
 		f.write(true);
 		f.write("yeah!");
@@ -57,11 +57,11 @@ public class JsonDataDestinationTest extends TestCase {
 	}
 	
 	public void testNestedDict() throws Exception {
-		f.beginDict();
+		f.beginObject();
 		f.write("hello");
 		f.write(true);
 		f.write("yeah");
-		f.beginDict();
+		f.beginObject();
 		f.write("A");
 		f.write("B");
 		f.end();

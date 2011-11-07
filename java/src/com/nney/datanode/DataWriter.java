@@ -1,4 +1,4 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /**
  * An interface for serialising objects.

@@ -1,9 +1,9 @@
-package com.nney.json;
+package com.nney.datanode;
 
-public class DataBoolean extends DataItemImpl {
+public class BooleanNode extends NodeImpl {
 	private final boolean value;
 
-	public DataBoolean(boolean value) {
+	public BooleanNode(boolean value) {
 		this.value = value;
 	}
 

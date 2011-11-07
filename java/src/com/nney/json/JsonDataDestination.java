@@ -2,6 +2,8 @@ package com.nney.json;
 
 import java.util.Stack;
 
+import com.nney.datanode.DataDestination;
+
 public class JsonDataDestination implements DataDestination {
 	private SimpleJsonFormatter target;
 
@@ -77,7 +79,7 @@ public class JsonDataDestination implements DataDestination {
 	}
 
 	@Override
-	public void beginDict() {
+	public void beginObject() {
 		stateChange();
 		target.beginDict();
 		begin(State.DICT_KEY);

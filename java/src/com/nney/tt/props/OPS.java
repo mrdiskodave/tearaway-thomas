@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
@@ -77,7 +77,7 @@ public class OPS {
 		}
 	}
 
-	public static void loadProps(Object object, DataItem di) {
+	public static void loadProps(Object object, Node di) {
 		List<Prop> props = OPS.propsFor(object);
 		for (Prop prop : props) {
 			prop.load(di.requireField(prop.label()));

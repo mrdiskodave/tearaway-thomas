@@ -6,17 +6,15 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.nney.json.DataItem;
-import com.nney.json.DataItemImpl;
-import com.nney.json.JsonValue;
+import com.nney.datanode.Node;
+import com.nney.json.JsonParser;
 import com.nney.utils.ClassResourceOpenable;
 import com.nney.utils.FileOpenable;
 import com.nney.utils.Openable;
 import com.nney.utils.StringIO;
 
 /**
- * All the knowledge about how to open our external resources. Some are still on
- * disk but we're headed towards getting them all into SVN!
+ * All the knowledge about how to open our external resources.
  */
 public class TTResource {
 	private static final String FORMAT_FOR_MAP_PATH = "maps/%s.txt";
@@ -157,8 +155,8 @@ public class TTResource {
 		return TTResource.formatted("horizons/%d.png", name);
 	}
 
-	public static DataItem diFromText(Openable o) {
-		return JsonValue.mustParse(StringIO.mustLoadText(o, null));
+	public static Node nodeFromText(Openable o) {
+		return JsonParser.mustParse(StringIO.mustLoadText(o, null));
 	}
 
 }

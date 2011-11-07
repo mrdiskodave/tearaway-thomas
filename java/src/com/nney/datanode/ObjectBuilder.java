@@ -1,15 +1,15 @@
-package com.nney.json;
+package com.nney.datanode;
 
-public class ObjectBuilder implements Builder {
+class ObjectBuilder implements Builder {
 	private String key;
-	private final DataObject target;
+	private final ObjectNode target;
 
-	ObjectBuilder(DataObject target) {
+	public ObjectBuilder(ObjectNode target) {
 		this.target = target;
 	}
 
 	@Override
-	public void take(DataItem v) {
+	public void take(Node v) {
 		if (key == null) {
 			key = v.requireString();
 		}
@@ -20,7 +20,7 @@ public class ObjectBuilder implements Builder {
 	}
 	
 	@Override
-	public DataItemImpl value() {
+	public NodeImpl value() {
 		return target;
 	}
 }

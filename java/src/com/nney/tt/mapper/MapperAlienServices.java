@@ -6,7 +6,6 @@ import com.nney.tt.Player;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.input.Joystick;
 import com.nney.tt.sprites.Sprite;
 
 final class MapperAlienServices implements AlienServices {

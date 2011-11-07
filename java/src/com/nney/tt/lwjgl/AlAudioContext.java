@@ -8,8 +8,6 @@ import com.nney.tt.sounds.Loop;
 import com.nney.tt.sounds.Sound;
 
 public class AlAudioContext implements AudioContext, Disposable {
-	private static final int SLOTS = 3;
-
 	private static final int SIMULTANEOUS_FX = 1;
 
 	class Effect implements Disposable {
@@ -54,8 +52,6 @@ public class AlAudioContext implements AudioContext, Disposable {
 	private AlSource musicSource;
 	
 	private float musicVol = 1;
-	
-	
 	
 	private Music[] musics = new Music[SLOTS];
 	

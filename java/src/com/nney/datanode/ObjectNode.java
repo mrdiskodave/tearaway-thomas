@@ -1,4 +1,4 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /*
  Based on code from JSON.org ...
@@ -31,12 +31,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class DataObject extends DataItemImpl implements Map<String, DataItem> {
-	TreeMap<String, DataItem> content = new TreeMap<String, DataItem>();
+public class ObjectNode extends NodeImpl implements Map<String, Node> {
+	TreeMap<String, Node> content = new TreeMap<String, Node>();
 
 	@Override
-	public DataItem requireField(String name) throws DataException {
-		DataItem answer = content.get(name);
+	public Node requireField(String name) throws DataException {
+		Node answer = content.get(name);
 		if (answer == null) {
 			throw new DataException("missing field: " + name);
 		}
@@ -68,12 +68,12 @@ public class DataObject extends DataItemImpl implements Map<String, DataItem> {
 	}
 
 	@Override
-	public Set<Entry<String, DataItem>> entrySet() {
+	public Set<Entry<String, Node>> entrySet() {
 		return content.entrySet();
 	}
 
 	@Override
-	public DataItem get(Object key) {
+	public Node get(Object key) {
 		return content.get(key);
 	}
 
@@ -88,17 +88,17 @@ public class DataObject extends DataItemImpl implements Map<String, DataItem> {
 	}
 
 	@Override
-	public DataItem put(String key, DataItem value) {
+	public Node put(String key, Node value) {
 		return content.put(key, value);
 	}
 
 	@Override
-	public void putAll(Map<? extends String, ? extends DataItem> map) {
+	public void putAll(Map<? extends String, ? extends Node> map) {
 		content.putAll(map);
 	}
 
 	@Override
-	public DataItem remove(Object key) {
+	public Node remove(Object key) {
 		return content.remove(key);
 	}
 
@@ -113,14 +113,14 @@ public class DataObject extends DataItemImpl implements Map<String, DataItem> {
 	}
 
 	@Override
-	public Collection<DataItem> values() {
+	public Collection<Node> values() {
 		return content.values();
 	}
 
 	@Override
 	public void save(DataDestination d) {
-		d.beginDict();
-		for (Map.Entry<String, DataItem> entry : content.entrySet()) {
+		d.beginObject();
+		for (Map.Entry<String, Node> entry : content.entrySet()) {
 			d.write(entry.getKey());
 			entry.getValue().save(d);
 		}

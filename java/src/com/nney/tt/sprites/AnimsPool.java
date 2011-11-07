@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.resources.TTResource;
@@ -43,7 +43,7 @@ public class AnimsPool implements Disposable {
 	private Anims loadAnims(final String animsName) {
 		ArrayList<Anim> an = new ArrayList<Anim>();
 
-		DataItem diRoot = sdp.load(animsName);
+		Node diRoot = sdp.load(animsName);
 		final boolean makeWhiteVersion = animsName == "0tt";
 		// TODO: fix ^this^ hack?
 
@@ -56,8 +56,8 @@ public class AnimsPool implements Disposable {
 			}
 		};
 
-		for (DataItem diAnim : diRoot.requireField("anims").requireList()) {
-			DataItem[] diFrames = diAnim.requireField("frames").requireList();
+		for (Node diAnim : diRoot.requireField("anims").requireList()) {
+			Node[] diFrames = diAnim.requireField("frames").requireList();
 			Sprite[] frames = new Sprite[diFrames.length];
 			for (int x = 0; x < frames.length; x++) {
 				int fno = diFrames[x].requireInt();

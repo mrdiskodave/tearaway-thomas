@@ -35,6 +35,10 @@ import java.util.regex.Pattern;
 class JsonInput {
 	private final static Pattern HEX4 = Pattern.compile("[0-9a-f]{4}", Pattern.CASE_INSENSITIVE);
 
+	interface JsonBlock {
+		void run() throws JsonException;
+	}
+
 	private int pos;
 
 	private String text;

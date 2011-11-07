@@ -1,11 +1,11 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /**
  * An interface for getting at structured run-time type-checked data items. The
  * caller is expected to know the data layout in advance and so never receive a
  * {@link DataException}.
  */
-public interface DataItem {
+public interface Node {
 
 	/**
 	 * Assuming this item is an array, get an element from it.
@@ -17,7 +17,7 @@ public interface DataItem {
 	 *             If the item is not an array or does not contain that many
 	 *             elements.
 	 */
-	DataItem requireElement(int position) throws DataException;
+	Node requireElement(int position) throws DataException;
 
 	/**
 	 * Assuming this item is an array, get all the elements from it.
@@ -26,7 +26,7 @@ public interface DataItem {
 	 * @throws DataException
 	 *             If the item is not an array.
 	 */
-	DataItem[] requireList() throws DataException;
+	Node[] requireList() throws DataException;
 
 	/**
 	 * Assuming this item is an object (AKA map AKA hash), get the named entry
@@ -39,7 +39,7 @@ public interface DataItem {
 	 *             If the item is not an object or does not contain that named
 	 *             entry.
 	 */
-	DataItem requireField(String fieldName) throws DataException;
+	Node requireField(String fieldName) throws DataException;
 
 	/**
 	 * Assuming this item is an object (AKA map AKA hash), check if it contains
@@ -69,7 +69,7 @@ public interface DataItem {
 	boolean isNull();
 
 	/**
-	 * Save this into that. Recurses into any nested dictionaries and arrays.
+	 * Save this into that. Recurses into any nested objects and arrays.
 	 * @param that
 	 */
 	void save(DataDestination that);

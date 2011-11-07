@@ -2,8 +2,8 @@ package com.nney.tt.props;
 
 import java.util.List;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -114,7 +114,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	}
 	
 	@Override
-	void load(DataItem d) {
+	void load(Node d) {
 		write(XRange.load(d));
 	}	
 }

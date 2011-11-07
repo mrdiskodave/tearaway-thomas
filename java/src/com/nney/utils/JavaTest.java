@@ -453,6 +453,7 @@ public class JavaTest extends TestCase {
 		assertEquals(32, 1<<4+1);
 	}
 	
+	
 	public void testParseDoubleIsSilentAboutLongsThatDontFit() {
 		long a = -4964420948893066024L;
 		double b = Double.parseDouble(Long.toString(a)); // no exception thrown
@@ -463,7 +464,7 @@ public class JavaTest extends TestCase {
 
 	public void testParseIntIsNoiseyAboutLongsThatDontFit() {
 		try {
-			long a = ((long)Integer.MAX_VALUE+1);
+			long a = (long)Integer.MAX_VALUE+1;
 			Integer.parseInt(Long.toString(a)); // exception thrown
 			fail();
 		}

@@ -2,7 +2,7 @@ package com.nney.tt.sounds;
 
 import java.util.HashMap;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 import com.nney.tt.lwjgl.AlAudioContext;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sounds.music.MusicPlayer;
@@ -14,22 +14,22 @@ public class AudioHub {
 	private MusicPlayerConnector mp = new MusicPlayerConnector(new MusicPlayer());
 	private HashMap<String, Integer> fxMap = new HashMap<String, Integer>();
 	private final AudioContext ac;
-	private String[] slotContents = { "", "", "" };
+	private String[] slotContents = new String[AudioContext.SLOTS];
 
 	public AudioHub(AudioContext ac) {
 		this.ac = ac;
 
 		int indx = 0;
-		for (DataItem i : TTResource.diFromText(TTResource.fx("def.txt")).requireList()) {
-			String name = i.requireField("name").requireString();
-			String data = i.requireField("data").requireString();
+		for (Node n : TTResource.nodeFromText(TTResource.fx("def.txt")).requireList()) {
+			String name = n.requireField("name").requireString();
+			String data = n.requireField("data").requireString();
 			
 			byte[] d = OpenableTools.mustLoad(TTResource.fx(data));
 			Sound sound = WavTools.read(d);
 			
-			float vol = (float) i.requireField("vol").requireDouble();
-			if (i.fieldExists("freq")) {
-				sound = new Sound(sound.data, i.requireField("freq").requireInt());
+			float vol = (float) n.requireField("vol").requireDouble();
+			if (n.fieldExists("freq")) {
+				sound = new Sound(sound.data, n.requireField("freq").requireInt());
 			}
 			ac.loadEffect(vol, sound);
 			fxMap.put(name, indx++);

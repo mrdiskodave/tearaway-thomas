@@ -24,6 +24,7 @@ import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
+import com.nney.tt.input.ParsedJoystickImpl;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.osd.HeadUpDisplay;
@@ -38,6 +39,7 @@ import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.ListUtil;
+import com.nney.utils.Math2;
 
 public class World implements AlienServices, Disposable {
 	public class ExitException extends RuntimeException {
@@ -154,9 +156,14 @@ public class World implements AlienServices, Disposable {
 	private final ArrayList<SpriteRecord> recording = new ArrayList<SpriteRecord>();
 
 	/**
-	 * Were we pressing the pause key last frame?
+	 * Pressing the pause key.
 	 */
 	private EdgeDetector pauseKey = new EdgeDetector();
+	
+	/**
+	 * Pressing fire.
+	 */
+	boolean firePressed;
 
 	// ---------------------------------------------------------------------------
 
@@ -174,7 +181,6 @@ public class World implements AlienServices, Disposable {
 
 	private Fade totalFade;
 
-	private boolean firePressed;
 
 	private Coroutine cr;
 
@@ -221,6 +227,8 @@ public class World implements AlienServices, Disposable {
 	private boolean loadAnims = true;
 
 	private boolean didScroll;
+
+	private ParsedJoystickImpl parsedJoystick = new ParsedJoystickImpl();
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -775,9 +783,8 @@ public class World implements AlienServices, Disposable {
 		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
 			throw new ExitException();
 		}
-		if (joystick.testJustPressed(Joystick.FIRE)) {
-			firePressed = true;
-		}
+		firePressed |= Math2.maskTest(joystick.get(), Joystick.FIRE);
+		
 		gc.beginDrawing();
 	}
 
@@ -879,7 +886,7 @@ public class World implements AlienServices, Disposable {
 
 		pickTheBestBounds();
 
-		player.move();
+		player.move(parsedJoystick);
 		scr.snapTo(player.c);
 
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
@@ -911,21 +918,20 @@ public class World implements AlienServices, Disposable {
 //		totalFade.current(Curtain.OPEN);
 //		totalFade.target(Curtain.OPEN);
 
+		ah.loadMusic(3, "gameover");
 		ah.loadMusic(2, "levelcomplete");
-
 		ah.loadMusic(1, worldName);
-
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
 
 		String text = Messages.levelStart(ow.levelNumber + 1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal,
 				levelInfo.timeGiven);
 		createStatusScreen(text);
-
+		
 		//
 		// MODE START
 		//
-		while (!joystick.testJustPressed(Joystick.FIRE)) {
+		while (!firePressed) {
 			begin();
 			drawTitles(false);
 			end();
@@ -956,7 +962,7 @@ public class World implements AlienServices, Disposable {
 			// MODE MAIN
 			//
 			begin();
-			mainActions(joystick);
+			mainActions(joystick.get());
 	
 			dimFade.update();
 		
@@ -980,7 +986,7 @@ public class World implements AlienServices, Disposable {
 		player.kill();
 		do {
 			begin();
-			mainActions(null);
+			mainActions(0);
 			drawHudAndBorders(false);
 			end();
 		} while (!player.onArse() || didScroll);
@@ -999,6 +1005,7 @@ public class World implements AlienServices, Disposable {
 		boolean start = false;
 		if (gameOver) {
 			gdo = new GameOverDisplay(animsPool, gc);
+			ah.startMusic(3);
 			start = true;
 		}
 		else {
@@ -1017,7 +1024,7 @@ public class World implements AlienServices, Disposable {
 		EdgeDetector ed = new EdgeDetector();
 		do {
 			begin();
-			mainActions(null);
+			mainActions(0);
 			hole.update();
 			int p = hole.current();
 			if (p>60) start = true;
@@ -1051,9 +1058,10 @@ public class World implements AlienServices, Disposable {
 //	gc.fillRectangle(0, t.y, 1000, 1, 0xffff00ff);
 
 	
-	private void mainActions(Joystick joystick) {
+	private void mainActions(int stick) {
 		frameNumber++;
-		player.move(joystick);
+		parsedJoystick.set(stick);
+		player.move(parsedJoystick);
 		scrollTheScreen();
 		drawTheMap();
 		updateTheAliens();

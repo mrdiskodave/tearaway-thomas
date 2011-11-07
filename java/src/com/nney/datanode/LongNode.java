@@ -1,4 +1,4 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /*
  Based on code from JSON.org ...
@@ -26,10 +26,10 @@ package com.nney.json;
  SOFTWARE.
  */
 //
-public class DataLong extends DataItemImpl {
+public class LongNode extends NodeImpl {
 	private final long value;
 
-	public DataLong(long value) {
+	public LongNode(long value) {
 		this.value = value;
 	}
 

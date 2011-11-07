@@ -1,9 +1,9 @@
-package com.nney.json;
+package com.nney.datanode;
 
 public interface DataDestination {
 	void beginArray();
 	
-	void beginDict();
+	void beginObject();
 	
 	void end();
 	

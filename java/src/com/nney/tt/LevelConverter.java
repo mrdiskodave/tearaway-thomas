@@ -4,8 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
@@ -31,10 +31,10 @@ public class LevelConverter {
 		dd.beginArray();
 		
 		for (int levelNumber = 0; levelNumber<50; levelNumber++) { 
-			DataItem levelInfo = TTResource.diFromText(TTResource.config("levelinfo.txt"));
+			Node levelInfo = TTResource.nodeFromText(TTResource.config("levelinfo.txt"));
 
-			DataItem levels = levelInfo.requireField("levels");
-			DataItem level = levels.requireElement(levelNumber);
+			Node levels = levelInfo.requireField("levels");
+			Node level = levels.requireElement(levelNumber);
 
 			LevelInfo li = new LevelInfo(null, level);
 			
@@ -46,8 +46,8 @@ public class LevelConverter {
 
 			System.out.println("LOading "+mapName);
 
-			DataItem mdi = TTResource.diFromText(TTResource.map(mapName));
-			DataItem blocks = mdi.requireField("blocks");
+			Node mdi = TTResource.nodeFromText(TTResource.map(mapName));
+			Node blocks = mdi.requireField("blocks");
 			
 			WorldInformation wi = WorldInformation.load(li.worldName);
 			GameMap gameMap = GameMap.load(blocks);

@@ -1,7 +1,7 @@
 package com.nney.tt.geom;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.utils.Copyable;
 
 public class XRange implements Copyable<XRange>, Cloneable {
@@ -90,7 +90,7 @@ public class XRange implements Copyable<XRange>, Cloneable {
 		d.end();
 	}
 
-	public static XRange load(DataItem d) {
+	public static XRange load(Node d) {
 		int left = d.requireElement(0).requireInt();
 		int right = d.requireElement(1).requireInt();
 		return new XRange(left, right);

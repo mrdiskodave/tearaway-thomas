@@ -3,8 +3,8 @@ package com.nney.tt.map;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.tt.geom.Coord;
 
 public class GameMap {
@@ -13,13 +13,13 @@ public class GameMap {
 	final public static int MAP_SIZE = MAP_WIDTH * MAP_HEIGHT;
 	final private short[] map = new short[MAP_SIZE];
 
-	public static GameMap load(DataItem a) {
+	public static GameMap load(Node a) {
 		GameMap answer = new GameMap();
 		answer.load2(a);
 		return answer;
 	}
 
-	private void load2(DataItem di) {
+	private void load2(Node di) {
 		for (int y = 0; y < MAP_HEIGHT; y++) {
 			TextMapRle.unpack(map, y * MAP_WIDTH, MAP_WIDTH, di.requireElement(y).requireString());
 		}

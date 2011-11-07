@@ -1,4 +1,4 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /*
  Based on code from JSON.org ...
@@ -32,8 +32,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
-public class DataArray extends DataItemImpl implements List<DataItem> {
-	Vector<DataItem> content = new Vector<DataItem>();
+public class ArrayNode extends NodeImpl implements List<Node> {
+	Vector<Node> content = new Vector<Node>();
 	
 	// ---------------------------------------------------------------------------
 	// Support for DataItem
@@ -41,14 +41,14 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	@Override
 	public void save(DataDestination d) {
 		d.beginArray();
-		for (DataItem v : content) {
+		for (Node v : content) {
 			v.save(d);
 		}
 		d.end();
 	}
 
 	@Override
-	public DataItem requireElement(int position) throws DataException {
+	public Node requireElement(int position) throws DataException {
 		if (position >= content.size() || position < 0) {
 			throw new DataException("position " + position + " not found in array of length " + content.size());
 		}
@@ -56,8 +56,8 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	}
 
 	@Override
-	public DataItem[] requireList() throws DataException {
-		return content.toArray(new DataItem[content.size()]);
+	public Node[] requireList() throws DataException {
+		return content.toArray(new Node[content.size()]);
 	}
 
 
@@ -65,22 +65,22 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	// Delegates for interface List
 
 	@Override
-	public void add(int index, DataItem element) {
+	public void add(int index, Node element) {
 		content.add(index, element);
 	}
 
 	@Override
-	public boolean add(DataItem o) {
+	public boolean add(Node o) {
 		return content.add(o);
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends DataItem> c) {
+	public boolean addAll(Collection<? extends Node> c) {
 		return content.addAll(c);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends DataItem> c) {
+	public boolean addAll(int index, Collection<? extends Node> c) {
 		return content.addAll(index, c);
 	}
 
@@ -100,7 +100,7 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	}
 
 	@Override
-	public DataItem get(int index) {
+	public Node get(int index) {
 		return content.get(index);
 	}
 
@@ -115,7 +115,7 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	}
 
 	@Override
-	public Iterator<DataItem> iterator() {
+	public Iterator<Node> iterator() {
 		return content.iterator();
 	}
 
@@ -125,17 +125,17 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	}
 
 	@Override
-	public ListIterator<DataItem> listIterator() {
+	public ListIterator<Node> listIterator() {
 		return content.listIterator();
 	}
 
 	@Override
-	public ListIterator<DataItem> listIterator(int index) {
+	public ListIterator<Node> listIterator(int index) {
 		return content.listIterator(index);
 	}
 
 	@Override
-	public DataItem remove(int index) {
+	public Node remove(int index) {
 		return content.remove(index);
 	}
 
@@ -155,7 +155,7 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	}
 
 	@Override
-	public DataItem set(int index, DataItem element) {
+	public Node set(int index, Node element) {
 		return content.set(index, element);
 	}
 
@@ -165,7 +165,7 @@ public class DataArray extends DataItemImpl implements List<DataItem> {
 	}
 
 	@Override
-	public List<DataItem> subList(int fromIndex, int toIndex) {
+	public List<Node> subList(int fromIndex, int toIndex) {
 		return content.subList(fromIndex, toIndex);
 	}
 

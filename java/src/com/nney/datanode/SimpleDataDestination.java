@@ -1,4 +1,4 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /**
  * This {@link DataDestination} is sloppy because different unique input
@@ -19,7 +19,7 @@ public final class SimpleDataDestination implements DataDestination {
 	}
 
 	@Override
-	public void beginDict() {
+	public void beginObject() {
 		sb.append('{');
 		sep();
 	}

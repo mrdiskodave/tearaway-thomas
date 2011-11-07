@@ -1,7 +1,7 @@
-package com.nney.json;
+package com.nney.datanode;
 
 /**
- * Triggered if the callers expectations about {@link DataItem} are violated.
+ * Triggered if the callers expectations about {@link Node} are violated.
  * This will only happen in the event that bad data has been supplied. That is
  * why this exception is unchecked.
  */

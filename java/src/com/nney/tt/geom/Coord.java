@@ -1,7 +1,7 @@
 package com.nney.tt.geom;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.utils.Copyable;
 import com.nney.utils.Math2;
 
@@ -97,7 +97,7 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		d.end();
 	}
 
-	public static Coord load(DataItem d) {
+	public static Coord load(Node d) {
 		int x = d.requireElement(0).requireInt();
 		int y = d.requireElement(1).requireInt();
 		return new Coord(x, y);

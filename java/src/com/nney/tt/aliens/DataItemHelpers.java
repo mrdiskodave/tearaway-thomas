@@ -1,10 +1,10 @@
 package com.nney.tt.aliens;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 import com.nney.tt.geom.Box;
 
 public class DataItemHelpers {
-	static public Box loadBox(DataItem diBox) {
+	static public Box loadBox(Node diBox) {
 		int l = diBox.requireElement(0).requireInt();
 		int t = diBox.requireElement(1).requireInt();
 		int r = diBox.requireElement(2).requireInt();

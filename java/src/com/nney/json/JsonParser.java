@@ -2,6 +2,10 @@ package com.nney.json;
 
 import java.util.regex.Pattern;
 
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
+import com.nney.datanode.NodeDataDestination;
+
 public class JsonParser extends JsonInput {
 	protected final static Pattern NUMBER = Pattern.compile("-?(0|[1-9][0-9]*)(\\.[0-9]+)?(e[-+][0-9]+)?",
 			Pattern.CASE_INSENSITIVE);
@@ -32,7 +36,7 @@ public class JsonParser extends JsonInput {
 		}
 		else if (consume('{')) {
 			back();
-			dd.beginDict();
+			dd.beginObject();
 			JsonBlock block = new JsonBlock() {
 				@Override
 				public void run() throws JsonException {
@@ -104,6 +108,22 @@ public class JsonParser extends JsonInput {
 		skipWhiteAndComments();
 		if (!eof()) {
 			throw syntaxError("Expected end of file");
+		}
+	}
+	
+	public static Node parse(String jsonInputString) throws JsonException {
+		NodeDataDestination builder = new NodeDataDestination();
+		JsonParser parser = new JsonParser(jsonInputString, builder);
+		parser.parse();
+		return builder.result();
+	}
+	
+	public static Node mustParse(String jsonString) {
+		try {
+			return parse(jsonString);
+		}
+		catch (JsonException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

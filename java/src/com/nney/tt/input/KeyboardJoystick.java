@@ -1,13 +1,14 @@
 package com.nney.tt.input;
 
-public class KeyboardJoystick extends PartialJoystickImpl {
+public class KeyboardJoystick implements Joystick {
 	private final Keyboard keyboard;
 
 	public KeyboardJoystick(Keyboard target) {
 		this.keyboard = target;
 	}
 
-	public void update() {
+	@Override
+	public int get() {
 		int x = 0;
 		if (keyboard.isDown(Keyboard.KEY_Q)) {
 			x |= Joystick.UP;
@@ -24,6 +25,6 @@ public class KeyboardJoystick extends PartialJoystickImpl {
 		if (keyboard.isDown(Keyboard.KEY_SPACE)) {
 			x |= Joystick.FIRE;
 		}
-		setNext(x);
+		return x;
 	}
 }

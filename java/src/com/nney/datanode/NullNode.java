@@ -1,6 +1,6 @@
-package com.nney.json;
+package com.nney.datanode;
 
-public class DataNull extends DataItemImpl {
+public class NullNode extends NodeImpl {
 
 	public @Override
 	boolean isNull() {

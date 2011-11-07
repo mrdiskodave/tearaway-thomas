@@ -6,20 +6,32 @@ package com.nney.tt;
  * become possible again.
  */
 public class Latch {
-	// initial value so that can(0) returns true
-	private int last = Integer.MIN_VALUE+10;
-
-	public boolean can(int now) {
-		int diff = now - last;
-		set(now);
-		return diff > 1;
+	private int last;
+	
+	public Latch() {
+		clear();
 	}
 
+	public boolean can(int now) {
+		boolean answer = test(now);
+		last = now;
+		return answer;
+	}
+
+	private boolean test(int now) {
+		int diff = now - last;
+		System.out.println(String.format("test:now%s last%s diff%s", now, last, diff));
+		boolean answer = diff > 1;
+		return answer;
+	}
+	
 	public void set(int now) {
+		System.out.println("set:now"+now);
 		last = now;
 	}
 
 	public void clear() {
-		last = 0;
+		// initial value so that can(0) returns true
+		last = -10;
 	}
 }

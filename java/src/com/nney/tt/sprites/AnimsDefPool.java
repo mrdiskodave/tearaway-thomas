@@ -2,18 +2,18 @@ package com.nney.tt.sprites;
 
 import java.io.IOException;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 import com.nney.json.JsonException;
-import com.nney.json.JsonValue;
+import com.nney.json.JsonParser;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.StringIO;
 
-public class AnimsDefPool extends CachedLoader<String, DataItem> {
+public class AnimsDefPool extends CachedLoader<String, Node> {
 	@Override
-	protected DataItem internalLoad(String k) {
+	protected Node internalLoad(String k) {
 		try {
 			String text = StringIO.loadText(TTResource.spriteDef(k), null);
-			return JsonValue.parse(text);
+			return JsonParser.parse(text);
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);

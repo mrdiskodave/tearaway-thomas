@@ -3,11 +3,11 @@ package com.nney.tt;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
-import com.nney.json.JsonValue;
+import com.nney.json.JsonParser;
 import com.nney.json.SafeWriter;
 import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
@@ -17,41 +17,41 @@ import com.nney.tt.props.OPS;
 import com.nney.tt.resources.TTResource;
 
 public class PersistedLevel {
-	final private DataItem diLevel;
+	final private Node levelNode;
 	final private String mapName;
 
 	static String getLevelName(int levelNumber) {
-		DataItem levelOrder = TTResource.diFromText(TTResource.config("levelorder.txt"));
+		Node levelOrder = TTResource.nodeFromText(TTResource.config("levelorder.txt"));
 		return levelOrder.requireElement(levelNumber).requireString();
 	}
 
 	public PersistedLevel(int levelNumber, String overrideLevelText) {
 		if (overrideLevelText==null) {
 			mapName = getLevelName(levelNumber);
-			diLevel = TTResource.diFromText(TTResource.map(mapName));
+			levelNode = TTResource.nodeFromText(TTResource.map(mapName));
 		}
 		else {
 			mapName = "_internal_test_";
-			diLevel = JsonValue.mustParse(overrideLevelText);
+			levelNode = JsonParser.mustParse(overrideLevelText);
 		}
 	}
 	
 	public LevelInfo getLevelInfo() {
-		return new LevelInfo(mapName, diLevel.requireField("info"));
+		return new LevelInfo(mapName, levelNode.requireField("info"));
 	}
 	
 	public List<Alien> getAliens(AlienFactory af) {
 		List<Alien> aliens = new ArrayList<Alien>();
-		staticLoadAliens(aliens, af, diLevel.requireField("objects"));
+		staticLoadAliens(aliens, af, levelNode.requireField("objects"));
 		return aliens;
 	}
 	
 	public GameMap getMap() {
-		return GameMap.load(diLevel.requireField("blocks"));
+		return GameMap.load(levelNode.requireField("blocks"));
 	}
 
-	static void staticLoadAliens(List<Alien> aliens, AlienFactory af, DataItem dis) {
-		for (DataItem di: dis.requireList()) {
+	static void staticLoadAliens(List<Alien> aliens, AlienFactory af, Node dis) {
+		for (Node di: dis.requireList()) {
 			String type = di.requireField("type").requireString();
 			Alien alien = af.make(type);
 			OPS.loadProps(alien, di);
@@ -71,7 +71,7 @@ public class PersistedLevel {
 		ijf.spaciousSeperators();
 		DataDestination dd = new JsonDataDestination(ijf);
 
-		dd.beginDict();
+		dd.beginObject();
 
 		dd.write("info");
 		li.save(dd);
@@ -99,7 +99,7 @@ public class PersistedLevel {
 		APS.orderAlienList(toSave);
 		
 		for (Alien a: toSave) {
-			dd.beginDict();
+			dd.beginObject();
 			dd.write("type");
 			dd.write(a.alienInfo.name);
 			OPS.saveProps(a, dd);

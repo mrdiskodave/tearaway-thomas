@@ -1,13 +1,13 @@
-package com.nney.json;
+package com.nney.datanode;
 
-public abstract class DataItemImpl implements DataItem {
+public abstract class NodeImpl implements Node {
 	@Override
-	public DataItem requireElement(int position) throws DataException {
+	public Node requireElement(int position) throws DataException {
 		throw new DataException("array expected");
 	}
 
 	@Override
-	public DataItem requireField(String name) throws DataException {
+	public Node requireField(String name) throws DataException {
 		throw new DataException("object expected");
 	}
 
@@ -52,7 +52,7 @@ public abstract class DataItemImpl implements DataItem {
 	}
 
 	@Override
-	public DataItem[] requireList() throws DataException {
+	public Node[] requireList() throws DataException {
 		throw new DataException("array expected");
 	}
 }

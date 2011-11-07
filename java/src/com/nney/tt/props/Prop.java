@@ -2,8 +2,8 @@ package com.nney.tt.props;
 
 import java.util.List;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.mapper.FieldAccessor;
 
@@ -63,5 +63,5 @@ public abstract class Prop {
 	// LOAD AND SAVE
 	
 	abstract void save(DataDestination d);
-	abstract void load(DataItem d);
+	abstract void load(Node d);
 }

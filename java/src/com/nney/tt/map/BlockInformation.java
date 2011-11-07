@@ -2,7 +2,7 @@ package com.nney.tt.map;
 
 import java.util.HashMap;
 
-import com.nney.json.DataItem;
+import com.nney.datanode.Node;
 
 /**
  * Some blocks are special. Some are ladder, some are stop-blocks, some are
@@ -11,14 +11,14 @@ import com.nney.json.DataItem;
 public class BlockInformation {
 	private final HashMap<Integer, String> specs = new HashMap<Integer, String>(1, 0.1f);
 
-	public BlockInformation(DataItem di) {
-		DataItem[] z = di.requireList();
+	public BlockInformation(Node di) {
+		Node[] z = di.requireList();
 		int l = z.length;
 		assert l % 1 == 0;
 		for (int x = 0; x < l; x += 2) {
 			String name = z[x].requireString();
-			DataItem[] itemsDi = z[x + 1].requireList();
-			for (DataItem itemDi : itemsDi) {
+			Node[] itemsDi = z[x + 1].requireList();
+			for (Node itemDi : itemsDi) {
 				int item = itemDi.requireInt();
 				assert !specs.containsKey(item);
 				specs.put(item, name);

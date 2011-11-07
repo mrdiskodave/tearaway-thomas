@@ -1,20 +1,21 @@
-package com.nney.json;
+package com.nney.datanode;
 
 import java.util.Stack;
 
-public class JsonValueBuilder implements DataDestination {
+
+public class NodeDataDestination implements DataDestination {
 	Stack<Builder> stack = new Stack<Builder>();
 	
-	DataItemImpl answer;
+	Node answer;
 	
 	@Override
 	public void beginArray() {
-		stack.add(new ArrayBuilder(new DataArray()));
+		stack.add(new ArrayBuilder(new ArrayNode()));
 	}
 
 	@Override
-	public void beginDict() {
-		stack.add(new ObjectBuilder(new DataObject()));
+	public void beginObject() {
+		stack.add(new ObjectBuilder(new ObjectNode()));
 	}
 
 	@Override
@@ -22,7 +23,7 @@ public class JsonValueBuilder implements DataDestination {
 		add(stack.pop().value());
 	}
 	
-	void add(DataItemImpl v) {
+	void add(Node v) {
 		if (stack.isEmpty()) {
 			if (answer!=null) {
 				throw new IllegalArgumentException("More than one top level item - array or object needed?");
@@ -36,36 +37,36 @@ public class JsonValueBuilder implements DataDestination {
 
 	@Override
 	public void write(double value) {
-		add(new DataDouble(value));
+		add(new DoubleNode(value));
 	}
 
 	@Override
 	public void write(int value) {
-		add(new DataLong(value));
+		add(new LongNode(value));
 	}
 
 	@Override
 	public void write(long value) {
-		add(new DataLong(value));
+		add(new LongNode(value));
 	}
 
 	@Override
 	public void write(boolean value) {
-		add(new DataBoolean(value));
+		add(new BooleanNode(value));
 	}
 
 	@Override
 	public void write(String value) {
-		add(new DataString(value));
+		add(new StringNode(value));
 	}
 
 	@Override
 	public void writeNull() {
-		add(new DataNull());
+		add(new NullNode());
 
 	}
 
-	public DataItemImpl result() {
+	public Node result() {
 		return answer;
 	}
 }

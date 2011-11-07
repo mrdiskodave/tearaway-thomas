@@ -1,7 +1,7 @@
 package com.nney.tt;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 import com.nney.tt.props.PropAnn;
 
 public class LevelInfo {
@@ -31,7 +31,7 @@ public class LevelInfo {
 		this.worldName = worldName;
 	}
 	
-	public LevelInfo(String mapName0, DataItem di) {
+	public LevelInfo(String mapName0, Node di) {
 		gemsNeeded = di.requireField("gemsNeeded").requireInt();
 		horizon = di.requireField("horizon").requireInt();
 		timeGiven = di.requireField("timeGiven").requireInt();
@@ -41,7 +41,7 @@ public class LevelInfo {
 	}
 	
 	void save(DataDestination d) {
-		d.beginDict();
+		d.beginObject();
 		d.write("gemsNeeded");
 		d.write(gemsNeeded);
 		d.write("timeGiven");

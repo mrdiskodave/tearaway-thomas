@@ -1,7 +1,7 @@
 package com.nney.tt.props;
 
-import com.nney.json.DataDestination;
-import com.nney.json.DataItem;
+import com.nney.datanode.DataDestination;
+import com.nney.datanode.Node;
 
 public class StringProp extends SpecificProp<String> {
 	public StringProp(PropPack pp) {
@@ -19,7 +19,7 @@ public class StringProp extends SpecificProp<String> {
 	}
 
 	@Override
-	void load(DataItem d) {
+	void load(Node d) {
 		write(d.requireString());
 	}
 }
