@@ -9,6 +9,11 @@ import java.util.TreeSet;
 
 import com.nney.coroutines.CoTerminated;
 import com.nney.coroutines.Coroutine;
+import com.nney.datanode.DataDestination;
+import com.nney.json.IndentedJsonFormatter;
+import com.nney.json.JsonDataDestination;
+import com.nney.json.SafeWriter;
+import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.FallingAlien;
@@ -154,6 +159,8 @@ public class World implements AlienServices, Disposable {
 	 * This is where we store the recording.
 	 */
 	private final ArrayList<SpriteRecord> recording = new ArrayList<SpriteRecord>();
+	
+	private SimpleByteBuffer scriptOut = new SimpleByteBuffer();
 
 	/**
 	 * Pressing the pause key.
@@ -781,6 +788,32 @@ public class World implements AlienServices, Disposable {
 
 	private void begin() {
 		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
+			if (scriptOut!=null) {
+				byte[] data = scriptOut.get();
+				
+				SafeWriter sw = new StringSafeWriter();
+				IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
+				ijf.spaciousSeperators();
+				DataDestination dd = new JsonDataDestination(ijf);
+				dd.beginArray();
+				
+				int p = 0;
+				while (p<data.length) {
+					byte c = data[p];
+					int r = 1;
+					while (p+r<data.length && data[p+r]==c) {
+						r++;
+					}
+					dd.beginArray();
+					dd.write(c);
+					dd.write(r);
+					dd.end();
+					p += r;
+				}
+				
+				dd.end();
+				TTResource.saveScript("script", sw.toString());
+			}
 			throw new ExitException();
 		}
 		firePressed |= Math2.maskTest(joystick.get(), Joystick.FIRE);
@@ -962,7 +995,12 @@ public class World implements AlienServices, Disposable {
 			// MODE MAIN
 			//
 			begin();
-			mainActions(joystick.get());
+			
+			int j = joystick.get();
+			if (scriptOut!=null) {
+				scriptOut.add((byte) j);
+			}
+			mainActions(j);
 	
 			dimFade.update();
 		
@@ -1060,8 +1098,10 @@ public class World implements AlienServices, Disposable {
 	
 	private void mainActions(int stick) {
 		frameNumber++;
+		
 		parsedJoystick.set(stick);
 		player.move(parsedJoystick);
+		
 		scrollTheScreen();
 		drawTheMap();
 		updateTheAliens();

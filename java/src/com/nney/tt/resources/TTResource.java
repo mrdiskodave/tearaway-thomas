@@ -1,8 +1,11 @@
 package com.nney.tt.resources;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -18,6 +21,7 @@ import com.nney.utils.StringIO;
  */
 public class TTResource {
 	private static final String FORMAT_FOR_MAP_PATH = "maps/%s.txt";
+	private static final String FORMAT_FOR_SCRIPT_PATH = "scripts/%s.txt";
 	static private File resourcePath;
 
 	/**
@@ -69,13 +73,26 @@ public class TTResource {
 	// return new FileOpenable(filename);
 	// }
 
+	public static Openable script(String name) {
+		return TTResource.formatted(FORMAT_FOR_SCRIPT_PATH, name);
+	}
+
+	public static void saveScript(String name, String content) {
+		String formattedName = String.format(FORMAT_FOR_SCRIPT_PATH, name);
+		saveResource(formattedName, content, false);
+	}
+
+	public static Openable map(String name) {
+		return TTResource.formatted(FORMAT_FOR_MAP_PATH, name);
+	}
+
 	public static void saveMap(String name, String content, boolean autoSave) {
-		requireResourcePath();
 		String formattedName = String.format(FORMAT_FOR_MAP_PATH, name);
 		saveResource(formattedName, content, autoSave);
 	}
 
 	private static void saveResource(String formattedName, String content, boolean autoSave) {
+		requireResourcePath();
 		File f = new File(resourcePath, formattedName);
 		try {
 			if (autoSave) {
@@ -84,15 +101,24 @@ public class TTResource {
 			else {
 				if (f.exists()) {
 					File dest = uniqueName("backup", f);
-					System.out.println(f+" renamed to "+dest);
+					System.out.println(f + " renamed to " + dest);
 					f.renameTo(dest);
 				}
 			}
-			
+
 			System.out.println("Saving to resource path: " + f);
-			FileWriter w = new FileWriter(f);
-			w.write(content);
-			w.close();
+			FileOutputStream fos = new FileOutputStream(f);
+			try {
+				// ISO-8859-1 AKA Latin-1
+				Writer w = new OutputStreamWriter(fos, "ISO-8859-1");
+				w.write(content);
+				w.flush();
+				w.close();
+			}
+			finally {
+				fos.close();
+			}
+			
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -119,10 +145,6 @@ public class TTResource {
 		if (!resourcePath.isDirectory()) {
 			throw new RuntimeException("Resource path not a directory: " + resourcePath);
 		}
-	}
-
-	public static Openable map(String name) {
-		return TTResource.formatted(FORMAT_FOR_MAP_PATH, name);
 	}
 
 	public static Openable spriteFrame(String spriteName, int frameNumber) {
