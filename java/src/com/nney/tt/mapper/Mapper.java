@@ -401,10 +401,15 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void testLevel(boolean bigTest) {
 		saveMap(true);
-		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
-		Coord playerPosition = bigTest ? null : mmp.worldPixels();
+		
 		World w = new World(ow);
-		w.testLevel(bigTest, playerPosition, levelText);
+		if (!bigTest) {
+			w.configurePerformIntro(false);
+			w.configurePlayerStart(mmp.worldPixels());
+			w.configureScriptRecording(levelInfo.filename);
+		}
+		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, alienTracker));
+		w.playLevel();
 		setScreenPosition(w.getScreenPosition());
 	}
 

@@ -592,9 +592,7 @@ public class Player {
 				c.x += snap;
 				System.out.println("Ladder: on board!");
 			}
-			else {
-				System.out.println("Ladder: run straight past");
-			}
+			// System.out.println("Ladder: run straight past");
 		}
 	}
 
@@ -882,7 +880,7 @@ public class Player {
 	// MAIN MOVEMENT ROUTINE
 
 	private void move2() {
-		System.out.println("Player:" + c);
+//		System.out.println("Player:" + c);
 		touchDownVel = 0;
 		flyingFlap = false;
 

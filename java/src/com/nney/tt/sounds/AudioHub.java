@@ -20,7 +20,7 @@ public class AudioHub {
 		this.ac = ac;
 
 		int indx = 0;
-		for (Node n : TTResource.nodeFromText(TTResource.fx("def.txt")).requireList()) {
+		for (Node n : TTResource.asNode(TTResource.fx("def.txt")).requireList()) {
 			String name = n.requireField("name").requireString();
 			String data = n.requireField("data").requireString();
 			

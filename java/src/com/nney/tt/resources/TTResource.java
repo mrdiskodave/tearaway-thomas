@@ -177,8 +177,16 @@ public class TTResource {
 		return TTResource.formatted("horizons/%d.png", name);
 	}
 
-	public static Node nodeFromText(Openable o) {
-		return JsonParser.mustParse(StringIO.mustLoadText(o, null));
+	public static Node asNode(Openable o) {
+		return asNode(asText(o));
+	}
+
+	public static Node asNode(String text) {
+		return JsonParser.mustParse(text);
+	}
+	
+	public static String asText(Openable o) {
+		return StringIO.mustLoadText(o, null);
 	}
 
 }

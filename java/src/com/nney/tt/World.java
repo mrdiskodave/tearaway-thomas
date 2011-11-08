@@ -9,11 +9,6 @@ import java.util.TreeSet;
 
 import com.nney.coroutines.CoTerminated;
 import com.nney.coroutines.Coroutine;
-import com.nney.datanode.DataDestination;
-import com.nney.json.IndentedJsonFormatter;
-import com.nney.json.JsonDataDestination;
-import com.nney.json.SafeWriter;
-import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.FallingAlien;
@@ -114,7 +109,7 @@ public class World implements AlienServices, Disposable {
 	private int gemsTotal;
 
 	private int gemsCollected;
-	
+
 	private boolean collisionDetection = true;
 
 	/**
@@ -159,14 +154,16 @@ public class World implements AlienServices, Disposable {
 	 * This is where we store the recording.
 	 */
 	private final ArrayList<SpriteRecord> recording = new ArrayList<SpriteRecord>();
-	
-	private SimpleByteBuffer scriptOut = new SimpleByteBuffer();
+
+	private ScriptWriter scriptWriter;
+
+	private ScriptReader scriptReader;
 
 	/**
 	 * Pressing the pause key.
 	 */
 	private EdgeDetector pauseKey = new EdgeDetector();
-	
+
 	/**
 	 * Pressing fire.
 	 */
@@ -187,7 +184,6 @@ public class World implements AlienServices, Disposable {
 	private Fade dimFade;
 
 	private Fade totalFade;
-
 
 	private Coroutine cr;
 
@@ -226,16 +222,20 @@ public class World implements AlienServices, Disposable {
 	private boolean drawPlayer = true;
 
 	private boolean complete;
-	
+
 	private Coord whereWeExitedTheLevel;
 
 	private LevelInfo levelInfo;
 
-	private boolean loadAnims = true;
+	private boolean configuredLoadAnims = true;
 
 	private boolean didScroll;
 
 	private ParsedJoystickImpl parsedJoystick = new ParsedJoystickImpl();
+
+	private boolean configuredPerformIntro = true;
+
+	private String configuredScriptDestination;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -637,7 +637,8 @@ public class World implements AlienServices, Disposable {
 		if (isExitOpen()) {
 			showGems = gemsTotal - gemsCollected;
 		}
-		hud.update(ow.score, timeRemainingInFrames, supressHurryUp ? false : isHurryUp(), showGems, isExitOpen(), ow.lives);
+		hud.update(ow.score, timeRemainingInFrames, supressHurryUp ? false : isHurryUp(), showGems, isExitOpen(),
+				ow.lives);
 	}
 
 	private boolean isHurryUp() {
@@ -646,7 +647,7 @@ public class World implements AlienServices, Disposable {
 
 	private void drawHurryUp() {
 		if (isHurryUp()) {
-			int flashRate = Const.FPS/2;
+			int flashRate = Const.FPS / 2;
 			if ((frameNumber % flashRate) < (flashRate / 2)) {
 				statusDisplay.drawHurryUp();
 			}
@@ -689,7 +690,7 @@ public class World implements AlienServices, Disposable {
 		updateTheAliens();
 		record = false;
 	}
-	
+
 	void clearRecording() {
 		recording.clear();
 	}
@@ -788,36 +789,10 @@ public class World implements AlienServices, Disposable {
 
 	private void begin() {
 		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
-			if (scriptOut!=null) {
-				byte[] data = scriptOut.get();
-				
-				SafeWriter sw = new StringSafeWriter();
-				IndentedJsonFormatter ijf = new IndentedJsonFormatter(sw);
-				ijf.spaciousSeperators();
-				DataDestination dd = new JsonDataDestination(ijf);
-				dd.beginArray();
-				
-				int p = 0;
-				while (p<data.length) {
-					byte c = data[p];
-					int r = 1;
-					while (p+r<data.length && data[p+r]==c) {
-						r++;
-					}
-					dd.beginArray();
-					dd.write(c);
-					dd.write(r);
-					dd.end();
-					p += r;
-				}
-				
-				dd.end();
-				TTResource.saveScript("script", sw.toString());
-			}
 			throw new ExitException();
 		}
 		firePressed |= Math2.maskTest(joystick.get(), Joystick.FIRE);
-		
+
 		gc.beginDrawing();
 	}
 
@@ -890,7 +865,7 @@ public class World implements AlienServices, Disposable {
 			playerWhere = configuredPlayerStart;
 		}
 
-		if (loadAnims) {
+		if (configuredLoadAnims) {
 			// work out what Anims we need
 			TreeSet<String> animsNeeded = new TreeSet<String>();
 			whatAnimsDoTheyNeed(aliens, animsNeeded);
@@ -898,7 +873,7 @@ public class World implements AlienServices, Disposable {
 			animsNeeded.add("0life");
 			animsNeeded.add("0gameover");
 			alienInfoMap.collectPreloadNames(animsNeeded);
-	
+
 			// unload what we no longer need
 			// load what we do need
 			animsPool.unloadReload(animsNeeded);
@@ -948,8 +923,8 @@ public class World implements AlienServices, Disposable {
 		dimFade.current(Curtain.CLOSED);
 		dimFade.target(Curtain.CLOSED);
 
-//		totalFade.current(Curtain.OPEN);
-//		totalFade.target(Curtain.OPEN);
+		// totalFade.current(Curtain.OPEN);
+		// totalFade.target(Curtain.OPEN);
 
 		ah.loadMusic(3, "gameover");
 		ah.loadMusic(2, "levelcomplete");
@@ -960,7 +935,7 @@ public class World implements AlienServices, Disposable {
 		String text = Messages.levelStart(ow.levelNumber + 1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal,
 				levelInfo.timeGiven);
 		createStatusScreen(text);
-		
+
 		//
 		// MODE START
 		//
@@ -972,7 +947,7 @@ public class World implements AlienServices, Disposable {
 
 		dimFade.target(Curtain.OPEN);
 		ah.startMusic(1);
-		
+
 		clearRecording();
 	}
 
@@ -980,14 +955,14 @@ public class World implements AlienServices, Disposable {
 		checkTeleportation();
 
 		maybePause();
-		
+
 		if (keyboard.isDown(Keyboard.KEY_D)) {
 			timeRemainingInFrames = 0;
 		}
 
 		int timeDec = player.isStunned() ? 3 : 1;
 		timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
-		if (timeRemainingInFrames==0) {
+		if (timeRemainingInFrames == 0) {
 			performLifeDec();
 		}
 		else {
@@ -995,24 +970,23 @@ public class World implements AlienServices, Disposable {
 			// MODE MAIN
 			//
 			begin();
-			
+
 			int j = joystick.get();
-			if (scriptOut!=null) {
-				scriptOut.add((byte) j);
-			}
+			if (scriptReader != null) j = scriptReader.get();
+			if (scriptWriter != null) scriptWriter.put(j);
 			mainActions(j);
-	
+
 			dimFade.update();
-		
+
 			if (isExitOpen()) statusDisplay.drawExitOpen();
 			drawHurryUp();
-		
+
 			hole.update();
 			drawHudAndBorders(false);
-		
+
 			end();
-			
-			if (whereWeExitedTheLevel!=null) {
+
+			if (whereWeExitedTheLevel != null) {
 				performOutro();
 			}
 		}
@@ -1029,17 +1003,16 @@ public class World implements AlienServices, Disposable {
 			end();
 		} while (!player.onArse() || didScroll);
 		System.out.println("ARSE!");
-		
+
 		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
 		hole.setCentre(t);
 		hole.current(Curtain.OPEN);
 		hole.target(Curtain.CLOSED);
 		hole.setRate(3);
 
-
-		boolean gameOver = ow.lives<=1;
+		boolean gameOver = ow.lives <= 1;
 		LifeLostDevice gdo;
-		
+
 		boolean start = false;
 		if (gameOver) {
 			gdo = new GameOverDisplay(animsPool, gc);
@@ -1050,13 +1023,14 @@ public class World implements AlienServices, Disposable {
 			gdo = new LifeLostDevice() {
 				@Override
 				public void update() {
-					statusDisplay.drawLifeLost(t.copyAndAdd(0,  28));
+					statusDisplay.drawLifeLost(t.copyAndAdd(0, 28));
 				}
 
 				@Override
 				public boolean isDone() {
 					return true;
-				}};
+				}
+			};
 		}
 
 		EdgeDetector ed = new EdgeDetector();
@@ -1065,7 +1039,7 @@ public class World implements AlienServices, Disposable {
 			mainActions(0);
 			hole.update();
 			int p = hole.current();
-			if (p>60) start = true;
+			if (p > 60) start = true;
 			if (start) {
 				if (ed.next(true).pressed()) {
 					ow.lives--;
@@ -1075,7 +1049,7 @@ public class World implements AlienServices, Disposable {
 			drawHudAndBorders(false);
 			end();
 		} while (!gdo.isDone() || !hole.isDone());
-		
+
 		Fade f = new Fade(gc, 0xff, 0.30f);
 		f.target(Curtain.CLOSED);
 		do {
@@ -1086,22 +1060,18 @@ public class World implements AlienServices, Disposable {
 			end();
 		} while (!f.isDone());
 
-
 		complete = true;
 	}
 
-	
-	
-//	gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
-//	gc.fillRectangle(0, t.y, 1000, 1, 0xffff00ff);
+	// gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
+	// gc.fillRectangle(0, t.y, 1000, 1, 0xffff00ff);
 
-	
 	private void mainActions(int stick) {
 		frameNumber++;
-		
+
 		parsedJoystick.set(stick);
 		player.move(parsedJoystick);
-		
+
 		scrollTheScreen();
 		drawTheMap();
 		updateTheAliens();
@@ -1212,7 +1182,7 @@ public class World implements AlienServices, Disposable {
 			}
 			end();
 		}
-		
+
 		ow.levelNumber++;
 		complete = true;
 	}
@@ -1220,32 +1190,44 @@ public class World implements AlienServices, Disposable {
 	// ---------------------------------------------------------------------------
 	// ENTRY POINTS
 
-	public void testLevel(boolean intro, Coord playerStart, String mapText) {
-		try {
-			loadAnims = false;
-			configuredPlayerStart = playerStart;
-			configuredMapText = mapText;
-			create();
-
-			if (intro) performIntro();
-			performMain();
-		}
-		catch (ExitException ex) {
-		}
-		dispose();
+	public void configurePlayerStart(Coord c) {
+		configuredPlayerStart = c;
 	}
-	
+
+	public void configureMapText(String s) {
+		configuredMapText = s;
+	}
+
+	public void configureLoadAnims(boolean b) {
+		configuredLoadAnims = b;
+	}
+
+	public void configurePerformIntro(boolean b) {
+		configuredPerformIntro = b;
+	}
+
+	public void configureScriptRecording(String filename) {
+		configuredScriptDestination = filename;
+		scriptWriter = new ScriptWriter();
+	}
+
+	public void configureScriptPlayback(String filename) {
+		scriptReader = new ScriptReader(TTResource.asText(TTResource.script(filename)));
+	}
+
 	public void playLevel() {
 		try {
 			create();
-			performIntro();
+			if (configuredPerformIntro) performIntro();
 			performMain();
 		}
 		catch (ExitException ex) {
 		}
 		dispose();
+		if (scriptWriter != null) {
+			TTResource.saveScript(configuredScriptDestination, scriptWriter.save());
+		}
 	}
-	
 
 	// ---------------------------------------------------------------------------
 	// (RE)LOAD AND FREE

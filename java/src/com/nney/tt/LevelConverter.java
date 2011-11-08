@@ -31,7 +31,7 @@ public class LevelConverter {
 		dd.beginArray();
 		
 		for (int levelNumber = 0; levelNumber<50; levelNumber++) { 
-			Node levelInfo = TTResource.nodeFromText(TTResource.config("levelinfo.txt"));
+			Node levelInfo = TTResource.asNode(TTResource.config("levelinfo.txt"));
 
 			Node levels = levelInfo.requireField("levels");
 			Node level = levels.requireElement(levelNumber);
@@ -46,7 +46,7 @@ public class LevelConverter {
 
 			System.out.println("LOading "+mapName);
 
-			Node mdi = TTResource.nodeFromText(TTResource.map(mapName));
+			Node mdi = TTResource.asNode(TTResource.map(mapName));
 			Node blocks = mdi.requireField("blocks");
 			
 			WorldInformation wi = WorldInformation.load(li.worldName);

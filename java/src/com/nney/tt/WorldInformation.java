@@ -20,7 +20,7 @@ public class WorldInformation {
 
 	static public WorldInformation load(String worldName) {
 		System.out.println("Loading WorldInformation "+worldName);
-		Node v = TTResource.nodeFromText(TTResource.blockDef(worldName));
+		Node v = TTResource.asNode(TTResource.blockDef(worldName));
 		BlockInformation bi = new BlockInformation(v.requireField("spec"));
 		
 		// TODO: no! measure this out of the block masks :) OAOO

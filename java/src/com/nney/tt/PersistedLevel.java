@@ -7,7 +7,6 @@ import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
 import com.nney.json.IndentedJsonFormatter;
 import com.nney.json.JsonDataDestination;
-import com.nney.json.JsonParser;
 import com.nney.json.SafeWriter;
 import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
@@ -21,18 +20,18 @@ public class PersistedLevel {
 	final private String mapName;
 
 	static String getLevelName(int levelNumber) {
-		Node levelOrder = TTResource.nodeFromText(TTResource.config("levelorder.txt"));
+		Node levelOrder = TTResource.asNode(TTResource.config("levelorder.txt"));
 		return levelOrder.requireElement(levelNumber).requireString();
 	}
 
 	public PersistedLevel(int levelNumber, String overrideLevelText) {
 		if (overrideLevelText==null) {
 			mapName = getLevelName(levelNumber);
-			levelNode = TTResource.nodeFromText(TTResource.map(mapName));
+			levelNode = TTResource.asNode(TTResource.map(mapName));
 		}
 		else {
 			mapName = "_internal_test_";
-			levelNode = JsonParser.mustParse(overrideLevelText);
+			levelNode = TTResource.asNode(overrideLevelText);
 		}
 	}
 	
