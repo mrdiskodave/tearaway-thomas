@@ -10,7 +10,6 @@ import java.util.TreeSet;
 import com.nney.coroutines.CoTerminated;
 import com.nney.coroutines.Coroutine;
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.MagicDustAlien;
@@ -59,11 +58,7 @@ public class World implements AlienServices, Disposable {
 	// 15 the gallery:
 	// -- map: wall priority
 
-	// TODO: secret areas should be bounded by those things
-
 	// TODO: code ballon man
-	// TODO: code lives--
-	// TODO: mapper: reset on enter?
 
 	// Disposable:
 	private HeadUpDisplay hud;
@@ -227,7 +222,7 @@ public class World implements AlienServices, Disposable {
 
 	private LevelInfo levelInfo;
 
-	private boolean configuredLoadAnims = true;
+	private boolean configuredCalledFromMapper;
 
 	private boolean didScroll;
 
@@ -236,6 +231,8 @@ public class World implements AlienServices, Disposable {
 	private boolean configuredPerformIntro = true;
 
 	private String configuredScriptDestination;
+
+	private int changingNumber;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -433,8 +430,8 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
-	public void headBounce(AlienWithLocation alien, Sprite alienSprite) {
-		Coord alienPos = alien.c;
+	public void headBounce(Alien alien, Sprite alienSprite) {
+		Coord alienPos = alien.getLocation();
 		int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 		if (dy < ttSprite.h && dy > 0) {
 			int consideredInTearaway = ttSprite.h - 1 - dy;
@@ -454,7 +451,7 @@ public class World implements AlienServices, Disposable {
 					}
 					else {
 						alien.done();
-						FallingAlien fa = new FallingAlien(alien.c, headScore, raiseScoreNoticeBy, frightAnim);
+						FallingAlien fa = new FallingAlien(alienPos, headScore, raiseScoreNoticeBy, frightAnim);
 						attachConnectLoad(fa);
 					}
 					return;
@@ -865,7 +862,7 @@ public class World implements AlienServices, Disposable {
 			playerWhere = configuredPlayerStart;
 		}
 
-		if (configuredLoadAnims) {
+		if (!configuredCalledFromMapper) {
 			// work out what Anims we need
 			TreeSet<String> animsNeeded = new TreeSet<String>();
 			whatAnimsDoTheyNeed(aliens, animsNeeded);
@@ -996,14 +993,17 @@ public class World implements AlienServices, Disposable {
 		collisionDetection = false;
 
 		player.kill();
+		// so that twangs him up in the air
+		// we need to keep waiting until
+		// he is on his arse and the screen has stopped scrolling
 		do {
 			begin();
 			mainActions(0);
 			drawHudAndBorders(false);
 			end();
 		} while (!player.onArse() || didScroll);
-		System.out.println("ARSE!");
 
+		
 		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
 		hole.setCentre(t);
 		hole.current(Curtain.OPEN);
@@ -1011,16 +1011,16 @@ public class World implements AlienServices, Disposable {
 		hole.setRate(3);
 
 		boolean gameOver = ow.lives <= 1;
-		LifeLostDevice gdo;
+		LifeLostDevice lifeLostDevice;
 
 		boolean start = false;
 		if (gameOver) {
-			gdo = new GameOverDisplay(animsPool, gc);
+			lifeLostDevice = new GameOverDisplay(animsPool, gc);
 			ah.startMusic(3);
 			start = true;
 		}
 		else {
-			gdo = new LifeLostDevice() {
+			lifeLostDevice = new LifeLostDevice() {
 				@Override
 				public void update() {
 					statusDisplay.drawLifeLost(t.copyAndAdd(0, 28));
@@ -1044,21 +1044,21 @@ public class World implements AlienServices, Disposable {
 				if (ed.next(true).pressed()) {
 					ow.lives--;
 				}
-				gdo.update();
+				lifeLostDevice.update();
 			}
 			drawHudAndBorders(false);
 			end();
-		} while (!gdo.isDone() || !hole.isDone());
+		} while (!lifeLostDevice.isDone() || !hole.isDone());
 
-		Fade f = new Fade(gc, 0xff, 0.30f);
-		f.target(Curtain.CLOSED);
+		Fade fadeOut = new Fade(gc, 0xff, 0.30f);
+		fadeOut.target(Curtain.CLOSED);
 		do {
 			begin();
-			gdo.update();
-			f.update();
+			lifeLostDevice.update();
+			fadeOut.update();
 			drawHudAndBorders(false);
 			end();
-		} while (!f.isDone());
+		} while (!fadeOut.isDone());
 
 		complete = true;
 	}
@@ -1066,10 +1066,10 @@ public class World implements AlienServices, Disposable {
 	// gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
 	// gc.fillRectangle(0, t.y, 1000, 1, 0xffff00ff);
 
-	private void mainActions(int stick) {
+	private void mainActions(int joystickPosition) {
 		frameNumber++;
 
-		parsedJoystick.set(stick);
+		parsedJoystick.set(joystickPosition);
 		player.move(parsedJoystick);
 
 		scrollTheScreen();
@@ -1198,9 +1198,6 @@ public class World implements AlienServices, Disposable {
 		configuredMapText = s;
 	}
 
-	public void configureLoadAnims(boolean b) {
-		configuredLoadAnims = b;
-	}
 
 	public void configurePerformIntro(boolean b) {
 		configuredPerformIntro = b;
@@ -1215,6 +1212,11 @@ public class World implements AlienServices, Disposable {
 		scriptReader = new ScriptReader(TTResource.asText(TTResource.script(filename)));
 	}
 
+	public void testLevelFromMapper() {
+		configuredCalledFromMapper = true;
+		playLevel();
+	}
+
 	public void playLevel() {
 		try {
 			create();
@@ -1223,10 +1225,10 @@ public class World implements AlienServices, Disposable {
 		}
 		catch (ExitException ex) {
 		}
-		dispose();
 		if (scriptWriter != null) {
 			TTResource.saveScript(configuredScriptDestination, scriptWriter.save());
 		}
+		dispose();
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1258,6 +1260,11 @@ public class World implements AlienServices, Disposable {
 
 	public Coord getScreenPosition() {
 		return scr.position();
+	}
+
+	@Override
+	public int getChangingNumber() {
+		return getFrameNumber();
 	}
 
 }

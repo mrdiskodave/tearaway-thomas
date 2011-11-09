@@ -197,6 +197,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private LevelInfo levelInfo;
 
+	private int changingNumber;
+
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
@@ -300,6 +302,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public void drawFrame() {
+		changingNumber++;
+		
 		mgc.beginDrawing();
 
 		// at();
@@ -409,7 +413,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			w.configureScriptRecording(levelInfo.filename);
 		}
 		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, alienTracker));
-		w.playLevel();
+		w.testLevelFromMapper();
 		setScreenPosition(w.getScreenPosition());
 	}
 
@@ -1182,8 +1186,14 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			if (alien.depth == depth) {
 				alien.freezeBounds = null;
 				alien.mapperUpdate();
-				if (alienTracker.perhapsFreeze(alien, screenBox)) {
-					alienIterator.remove();
+				Box fb = alien.freezeBounds;
+				if (fb!=null) {
+					Box s = fb.sub2(getScreenPosition());
+					mgc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
+					if (alienTracker.perhapsFreeze(alien, screenBox)) {
+						alienIterator.remove();
+						System.out.println("Froze!!");
+					}
 				}
 			}
 		}
@@ -1388,5 +1398,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 		unflatten(as);
 		return lost;
+	}
+
+	public int changingNumber() {
+		return changingNumber;
 	}
 }

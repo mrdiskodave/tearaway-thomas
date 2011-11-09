@@ -15,6 +15,7 @@ import com.nney.tt.aliens.BatAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
+import com.nney.tt.aliens.Bird2Alien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.ExitAlien;
@@ -86,6 +87,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
 		add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
 		add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
+		add(new AlienInfo(204, "bird2", "?bird", Bird2Alien.class)); // poly
 		add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
 		// add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		add(new AlienInfo(95, "star", "0star", StarAlien.class));
@@ -164,8 +166,8 @@ public class AlienInfoMap {
 
 				String name = ai.animsName();
 				if (name != null) {
-					assert !animList.contains(name);
-					animList.add(name);
+					// TODO: why not use a Set?
+					if (!animList.contains(name)) animList.add(name);
 				}
 				
 				present.add(ai);

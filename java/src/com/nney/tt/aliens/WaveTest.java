@@ -11,15 +11,13 @@ public class WaveTest extends TestCase {
 			sb.append(Wave.sawToothWaveWithPause(x, max, pause));
 		}
 		String actual = sb.toString();
-		System.out.println(actual);
 		return actual;
 	}
 
 	public void test() throws Exception {
-		assertEquals("0,0,0,1,2,3,4,5,5,5,4,3,2,1,0,0,0,1,2,3", generate(20, 5, 2));
-		assertEquals("0,1,2,1,0", generate(5, 2, 0));
-		assertEquals("0,1,2,1,0,1,2,1,0,1", generate(10, 2, 0));
-		assertEquals("0,0,1,2,2,1,0,0,1,2", generate(10, 2, 1));
+		assertEquals(">0,>1,<2,<1,>0,>1,<2,<1,>0,>1", generate(10, 2, 0));
+		assertEquals("=0,=0,>0,>1,>2,>3,>4,=5,=5,<5,<4,<3,<2,<1,=0,=0,>0,>1,>2,>3", generate(20, 5, 2));
+		assertEquals(">0,>1,<2,<1,>0", generate(5, 2, 0));
+		assertEquals("=0,>0,>1,=2,<2,<1,=0,>0,>1,=2", generate(10, 2, 1));
 	}
-
 }

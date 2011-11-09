@@ -31,17 +31,17 @@ public abstract class LiftAlien extends Alien {
 	 * lift that has been moved once this frame" just calls this method. The
 	 * risk of moving this lift twice is then zero.
 	 */
-	private void moveIfWeNeedTo() {
-		int frmNum = srv.getFrameNumber();
-		if (frmNum != lastMoveFrmNum) {
-			lastMoveFrmNum = frmNum;
+	private void moveOnce() {
+		int chngNum = srv.getChangingNumber();
+		if (chngNum != lastMoveFrmNum) {
+			lastMoveFrmNum = chngNum;
 			lastPlace = ourPlace.copy();
 			ourPlace = currentPosition();
 		}
 	}
 
 	private Coord lastFrameDelta() {
-		moveIfWeNeedTo();
+		moveOnce();
 		Coord delta = ourPlace.copy();
 		delta.sub(lastPlace);
 		return delta;
@@ -54,13 +54,8 @@ public abstract class LiftAlien extends Alien {
 	}
 
 	@Override
-	public void onPropUpdate() {
-		currentPosition();
-	}
-
-	@Override
 	public void update() {
-		moveIfWeNeedTo();
+		moveOnce();
 
 		srv.drawSprite(ourPlace, ourSprite);
 
@@ -76,7 +71,8 @@ public abstract class LiftAlien extends Alien {
 
 	@Override
 	public Coord getLocation() {
-		return currentPosition();
+		moveOnce();
+		return ourPlace;
 	}
 
 	

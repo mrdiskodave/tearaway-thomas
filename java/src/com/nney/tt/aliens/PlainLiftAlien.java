@@ -10,11 +10,11 @@ public class PlainLiftAlien extends LiftAlien {
 	@PropAnn(doc="Where the lift ends up")
 	public Coord end;
 
-	@PropAnn(doc = "Our movement in relation to other identical lifts (0-99)")
-	private int phase;
+	@PropAnn(doc = "Our movement in relation to other identical things (0-99)")
+	public int phase;
 
 	@PropAnn(doc = "How long do we wait at either end?")
-	private int pause;
+	public int pause;
 
 	@Override
 	public void resetTo(Coord c) {
@@ -32,13 +32,7 @@ public class PlainLiftAlien extends LiftAlien {
 		boolean majorX = absDelta.x>absDelta.y;
 		int big = majorX ? absDelta.x : absDelta.y;
 		
-		int len = Wave.sawToothWaveWithPauseCycleLength(big, pause);
-		int fphase = (phase*len)/100;
-		// ^ those could be fields (assuming onPropChange() was called consistently)
-		
-		
-		int pos = Wave.sawToothWaveWithPause(srv.getFrameNumber()+fphase, big, pause);
-
+		int pos = Wave.sawToothWaveWithPauseAndPhase(big, pause, phase, srv.getFrameNumber()).pos;
 		float frac = pos;
 		frac /= big;
 		if (majorX) {

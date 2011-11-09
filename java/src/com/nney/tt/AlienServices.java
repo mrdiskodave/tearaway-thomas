@@ -2,7 +2,7 @@ package com.nney.tt;
 
 import java.util.Random;
 
-import com.nney.tt.aliens.AlienWithLocation;
+import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
@@ -20,6 +20,8 @@ public interface AlienServices {
 	int randomness(int n);
 
 	int getFrameNumber();
+	
+	int getChangingNumber();
 
 	boolean frameTest(int mask, int lessThan);
 
@@ -104,7 +106,7 @@ public interface AlienServices {
 
 	void awardExtraLife();
 
-	void headBounce(AlienWithLocation alien, Sprite alienSprite);
+	void headBounce(Alien alien, Sprite alienSprite);
 
 	boolean isOffTheBottom(Coord c);
 
@@ -113,4 +115,5 @@ public interface AlienServices {
 	boolean showText();
 
 	void playSoundEffect(String name);
+
 }

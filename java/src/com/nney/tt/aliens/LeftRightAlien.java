@@ -16,6 +16,7 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
+		range = new XRange(0, 0);
 		range.around(c.x, 50);
 		range.add(25);
 	}

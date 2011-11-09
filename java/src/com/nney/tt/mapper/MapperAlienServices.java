@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.AlienServices;
 import com.nney.tt.LadderInformation;
 import com.nney.tt.Player;
-import com.nney.tt.aliens.AlienWithLocation;
+import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
@@ -91,7 +91,7 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public void headBounce(AlienWithLocation alien, Sprite alienSprite) {
+	public void headBounce(Alien alien, Sprite alienSprite) {
 		ni();
 	}
 
@@ -193,5 +193,10 @@ final class MapperAlienServices implements AlienServices {
 	@Override
 	public int getFrameNumber() {
 		return 0;
+	}
+
+	@Override
+	public int getChangingNumber() {
+		return mapper.changingNumber();
 	}
 }

@@ -282,7 +282,7 @@ public class Player {
 	}
 
 	private String directionalAnimName(String base) {
-		return base + (goLeft ? "left" : "right");
+		return Anims.directionalAnimName(goLeft, base);
 	}
 
 	private int directionalMovement(boolean left, int x) {
