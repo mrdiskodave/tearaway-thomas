@@ -7,11 +7,15 @@ import com.nney.tt.props.Button;
 public class ButtonRecord implements Collidable {
 	private final Button who;
 	private final Box collisionBox;
+	public final String label;
+	public final Coord position;
 
 
-	public ButtonRecord(Button who, Box collisionBox) {
+	public ButtonRecord(Button who, Box collisionBox, String label, Coord position) {
 		this.who = who;
 		this.collisionBox = collisionBox;
+		this.label = label;
+		this.position = position;
 	}
 
 	@Override

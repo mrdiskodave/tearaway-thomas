@@ -21,8 +21,6 @@ public interface AlienServices {
 
 	int getFrameNumber();
 	
-	int getChangingNumber();
-
 	boolean frameTest(int mask, int lessThan);
 
 	void drawSprite(Coord c, Sprite s);

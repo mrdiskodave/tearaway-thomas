@@ -62,10 +62,18 @@ public abstract class StatusLayer {
 	}
 
 	public void touch(int y) {
+		itouch(y, 0x70000000);
+	}
+
+	public void highlightTouch(int y) {
+		itouch(y, 0x90000000);
+	}
+
+	private void itouch(int y, int col) {
 		if (!seenRow.contains(y)) {
 			seenRow.add(y);
 			int sy = cy(y);
-			mgc.fillRectangle(0, sy, swp, chp, 0x80000000);
+			mgc.fillRectangle(0, sy, swp, chp, col);
 		}
 	}
 	

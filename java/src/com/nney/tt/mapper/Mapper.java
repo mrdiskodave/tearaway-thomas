@@ -54,16 +54,18 @@ import com.nney.utils.SortKeyGenerator;
  *   [LMB] on a button to press it
  *   [C] copy the selected alien
  *   [PAGEUP/PAGEDOWN] change current alien type
+ *   [Q] show (query) the current alien type 
  *   [I] eye dropper - sets the current alien type from the selected alien 
  *   [N] create a new alien (of the current alien type)
  *   [DELETE] delete the selected alien
  *   [F] find: jump to the selected alien
- *   [NUMPAD+/-] jump to the next and previous current alien type
+ *   [NUMPAD+/-] jump to the next/previous occurrence of the current alien type
  * 
  * [D] Drawing Mode:
  *   [LMB] draw with the current block
  *   [I] eye dropper - sets the current block from the map
  *   [CURSOR KEYS] change the current block
+ *   [Q] show (query) the current block without changing it 
  *   hold [C] to make the current block chase mouse movement (try it)
  *   [M] start marking a rectangle of blocks during which:
  *     [M] cancel marking
@@ -84,7 +86,7 @@ import com.nney.utils.SortKeyGenerator;
  * 
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
- *     [CURSOR KEYS], [0], [CTRL+M] and [CTRL+I] work in here too
+ *     [CURSOR KEYS], [CTRL+M] and [CTRL+I] work in here too
  * 
  * Always:
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
@@ -107,6 +109,12 @@ import com.nney.utils.SortKeyGenerator;
  * </pre>
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
+	private static final int X_BUTTONS = 35;
+
+	private static final int X_VALUE = 15;
+
+	private static final int X_NAME = 0;
+
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
 	interface AlienPredicate {
@@ -147,7 +155,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private EditConsolidator edit;
 
 	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
-	private CollidableList<ButtonRecord> buttonRecords;
+	private final CollidableList<ButtonRecord> buttonRecords = new CollidableList<ButtonRecord>();
+	private List<Prop> props;
 
 	private ObjectEdit alienEdit;
 
@@ -196,9 +205,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private BottomUpStatusLayer bottomUpStatusLayer;
 
 	private LevelInfo levelInfo;
-
-	private int changingNumber;
-
+	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
@@ -256,7 +263,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		// build the AlienPalette
 		List<AlienInfo> ais = alienInfoMap.getExternal();
 		alienPalette = new AlienPalette(ais, mgc, animsPool);
-		sendCensus();
+		sendCensusToAlienPalette();
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -302,8 +309,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public void drawFrame() {
-		changingNumber++;
-		
 		mgc.beginDrawing();
 
 		// at();
@@ -712,7 +717,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private ButtonRecord findButton() {
-		if (buttonRecords == null) return null;
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
@@ -774,6 +778,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void keyboardAlienChoice(int k) {
+		if (k == Keyboard.KEY_Q) {
+			showAlienPalette();
+		}
 		if (k == Keyboard.KEY_NEXT) {
 			showAlienPalette();
 			alienPalette.next();
@@ -790,12 +797,12 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	public void showAlienPalette() {
 		if (paletteTimer == 0) {
-			sendCensus();
+			sendCensusToAlienPalette();
 		}
 		paletteTimer = 100;
 	}
-
-	public void sendCensus() {
+	
+	public void sendCensusToAlienPalette() {
 		CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
 		for (Alien a : alienTracker) {
 			census.inc(a.alienInfo);
@@ -816,6 +823,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	void blockSelectionKeys(int k) {
+		if (k == Keyboard.KEY_Q) changeCurrentBlock(0, 0);
 		if (k == Keyboard.KEY_UP) changeCurrentBlock(0, -1);
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
@@ -875,20 +883,39 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void setSelectedAlien(Alien s) {
 		selectedAlien = s;
-		buttonRecords = null;
-
+		
+		props = null;
+		buttonRecords.clear();
+		if (s!=null) {
+			// build buttonRecords!
+			props = OPS.propsFor(s);
+			int y = 2;
+			StatusLayer sl = topDownStatusLayer;
+			for (Prop p : props) {
+				int x = X_BUTTONS;
+				ArrayList<Button> buttons = new ArrayList<Button>();
+				p.getButtons(buttons, this);
+				for (Button button : buttons) {
+					String buttonText = buttonLabel(button);
+					Box buttonBox = sl.getBox(x, y, buttonText);
+					buttonRecords.add(new ButtonRecord(button, buttonBox, buttonText, new Coord(x, y)));
+					x += buttonText.length() + 1;
+				}
+				y++;
+			}
+		}
 	}
 
 	private void showSelectedAlienProps() {
 		if (haveAlien()) {
+			assert props!=null;
+			
 			//
 			// bats
 			//
 
 			BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 			batGc.drawSuperBat(getSelectedAlien().getLocation());
-
-			List<Prop> props = OPS.propsFor(getSelectedAlien());
 
 			// bats
 			batRecords.clear();
@@ -926,51 +953,43 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			batRecords.add(superBat);
 
 			//
-			// property descriptions and buttons
+			// property descriptions
 			//
-
-			// are we reading buttonRecords?
-			int cursor = 0;
-			if (buttonRecords == null) {
-				// no we're building them!
-				buttonRecords = new CollidableList<ButtonRecord>();
-				cursor = -1;
-			}
-			// TODO: ^^^ugly! ideally then generation and drawing
-			// phases would be entirely separate
-
+			StatusLayer sl = topDownStatusLayer;
 			int y = 0;
-			topDownStatusLayer.touch(y++);
-			topDownStatusLayer.touch(y++);
-			String docs = "";
+			sl.touch(y++);
+			sl.touch(y++);
+			Prop mouseOver = null;
 			for (Prop p : props) {
-				if (topDownStatusLayer.getBox(0, y, -1, 1).inside(mmp.screenPixels())) {
-					docs = p.doc();
+				if (sl.getBox(0, y, -1, 1).inside(mmp.screenPixels())) {
+					mouseOver = p;
+					sl.highlightTouch(y);
 				}
-				topDownStatusLayer.draw(0, y, ButtonState.PASSIVE, clip(p.name(), 10));
-				topDownStatusLayer.draw(15, y, ButtonState.PASSIVE, clip(p.text(), 20));
-				int x = 35;
-
-				ArrayList<Button> buttons = new ArrayList<Button>();
-				p.getButtons(buttons, this);
-				for (Button button : buttons) {
-					String buttonText = "[" + button.name() + "]";
-					ButtonRecord buttonRecord;
-					if (cursor < 0) {
-						Box buttonBox = topDownStatusLayer.getBox(x, y, buttonText);
-						buttonRecord = new ButtonRecord(button, buttonBox);
-						buttonRecords.add(buttonRecord);
-					}
-					else {
-						buttonRecord = buttonRecords.get(cursor++);
-					}
-					topDownStatusLayer.draw(x, y, hoverStatus.status(buttonRecord), buttonText);
-					x += buttonText.length() + 1;
-				}
+				
+				sl.draw(0, y, ButtonState.PASSIVE, clip(p.name(), X_VALUE-X_NAME));
+				sl.draw(15, y, ButtonState.PASSIVE, clip(p.text(), X_BUTTONS-X_VALUE));
 				y++;
 			}
-			topDownStatusLayer.draw(0, 0, ButtonState.PASSIVE, docs);
+			//
+			// buttons
+			//
+			for (ButtonRecord b: buttonRecords) {
+				sl.draw(b.position.x, b.position.y, hoverStatus.status(b), b.label);
+			}
+			//
+			// docs
+			//
+			if (mouseOver!=null) {
+				sl.draw(0, 0, ButtonState.PASSIVE, mouseOver.doc());
+			}
 		}
+		else {
+			assert props==null;
+		}
+	}
+
+	public String buttonLabel(Button button) {
+		return "[" + button.name() + "]";
 	}
 
 	private static String clip(String s, int x) {
@@ -1398,9 +1417,5 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 		unflatten(as);
 		return lost;
-	}
-
-	public int changingNumber() {
-		return changingNumber;
 	}
 }

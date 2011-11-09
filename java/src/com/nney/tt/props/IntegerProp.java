@@ -1,5 +1,6 @@
 package com.nney.tt.props;
 
+import java.awt.font.NumericShaper;
 import java.util.List;
 
 import com.nney.datanode.DataDestination;
@@ -14,7 +15,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 	public String text() {
 		return Integer.toString(read());
 	}
-	
+
 	@Override
 	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 		buttons.add(new Button() {
@@ -25,7 +26,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 
 			@Override
 			public void press() {
-				write(read()+1);
+				write(read() + 1);
 			}
 		});
 		buttons.add(new Button() {
@@ -36,11 +37,11 @@ public class IntegerProp extends SpecificProp<Integer> {
 
 			@Override
 			public void press() {
-				write(read()-1);
+				write(read() - 1);
 			}
 		});
 	}
-	
+
 	@Override
 	void save(DataDestination d) {
 		d.write(read());
@@ -49,5 +50,20 @@ public class IntegerProp extends SpecificProp<Integer> {
 	@Override
 	void load(Node d) {
 		write(d.requireInt());
+	}
+
+	@Override
+	public boolean takesInput() {
+		return true;
+	}
+
+	@Override
+	public void takeInput(String s) {
+		try {
+			write(Integer.parseInt(s));
+		}
+		catch (NumberFormatException e) {
+			// ignored
+		}
 	}
 }

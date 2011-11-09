@@ -194,9 +194,4 @@ final class MapperAlienServices implements AlienServices {
 	public int getFrameNumber() {
 		return 0;
 	}
-
-	@Override
-	public int getChangingNumber() {
-		return mapper.changingNumber();
-	}
 }

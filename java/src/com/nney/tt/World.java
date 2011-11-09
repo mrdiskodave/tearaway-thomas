@@ -1261,12 +1261,6 @@ public class World implements AlienServices, Disposable {
 	public Coord getScreenPosition() {
 		return scr.position();
 	}
-
-	@Override
-	public int getChangingNumber() {
-		return getFrameNumber();
-	}
-
 }
 
 // 64: worm - forget it

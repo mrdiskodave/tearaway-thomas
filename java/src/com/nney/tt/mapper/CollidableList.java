@@ -1,10 +1,11 @@
 package com.nney.tt.mapper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.nney.tt.geom.Coord;
 
-public class CollidableList<T extends Collidable> {
+public class CollidableList<T extends Collidable> implements Iterable<T> {
 	private ArrayList<T> content = new ArrayList<T>();
 	
 	public T get(int x) {
@@ -24,6 +25,11 @@ public class CollidableList<T extends Collidable> {
 			if (t.inside(c)) return t;
 		}
 		return null;
+	}
+
+	@Override
+	public Iterator<T> iterator() {
+		return content.iterator();
 	}
 	
 }

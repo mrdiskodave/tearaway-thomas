@@ -7,6 +7,7 @@ import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
+import com.nney.utils.Math2;
 
 public class Bird2Alien extends AlienWithLocation {
 	@PropAnn(doc = "The horizontal span in which we move.", label = "range")
@@ -15,40 +16,33 @@ public class Bird2Alien extends AlienWithLocation {
 	@PropAnn(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
 	public boolean goLeft;
 
-	private int lastMoveFrmNum;
-
+	@PropAnn(doc="How fast do we move?")
+	int speed = 200;
+	
 	private Coord c2;
 
 	private String animName;
 	
-	void moveOnce() {
-		int chngNum = srv.getChangingNumber();
-		if (chngNum != lastMoveFrmNum) {
-			lastMoveFrmNum = chngNum;
-			Result r = ourResult();
-			c2 = new Coord(range.left+r.pos, c.y);
-			animName = Anims.directionalAnimName(r.goLeft(), "");
+	void generateInternalStateFromFrameNumber() {
+		int phase = c.x - range.left;
+		int span = range.width();
+		if (goLeft) {
+			phase = span*2 - phase;
 		}
+		Result r = Wave.z(span, 0, Math2.fracMult(srv.getFrameNumber(), speed, 100), phase);
+		c2 = new Coord(range.left+r.pos, c.y);
+		animName = Anims.directionalAnimName(r.goLeft(), "");
 	}
 
 	@Override
 	public void update() {
-		moveOnce();
+		generateInternalStateFromFrameNumber();
 		changeAnimation(animName);
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 			srv.headBounce(this, s);
 		}
-	}
-
-	private Result ourResult() {
-		int phase = c.x - range.left;
-		int span = range.width();
-		if (goLeft) {
-			phase = span*2 - phase;
-		}
-		return Wave.z(span, 0, srv.getFrameNumber()*2, phase);
 	}
 
 	@Override
@@ -61,13 +55,13 @@ public class Bird2Alien extends AlienWithLocation {
 
 	@Override
 	public Anim mapperAnim() {
-		moveOnce();
+		generateInternalStateFromFrameNumber();
 		return anims.find(animName);
 	}
 
 	@Override
 	public Coord getLocation() {
-		moveOnce();
+		generateInternalStateFromFrameNumber();
 		Coord answer = c2;
 		System.out.println("BIRD@ "+answer);
 		return answer;
