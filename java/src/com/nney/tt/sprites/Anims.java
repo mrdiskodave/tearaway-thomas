@@ -2,9 +2,10 @@ package com.nney.tt.sprites;
 
 import java.util.ArrayList;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Disposable;
 
-public class Anims implements Disposable {
+public final class Anims implements Disposable {
 	private final ArrayList<Anim> anims;
 
 	public Anims(ArrayList<Anim> animList) {
@@ -37,5 +38,23 @@ public class Anims implements Disposable {
 		for (Anim anim : anims) {
 			anim.dispose();
 		}
+	}
+
+	public Box box() {
+		Box answer = null;
+		for (Anim anim: anims) {
+			Box b = anim.box();
+			if (answer==null) {
+				answer = b;
+			}
+			else {
+				answer.accommodate(b);
+			}
+		}
+		return answer;
+	}
+	
+	static public String directionalAnimName(boolean goLeft, String base) {
+		return base + (goLeft ? "left" : "right");
 	}
 }

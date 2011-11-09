@@ -4,7 +4,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Disposable;
 import com.nney.utils.Math2;
 
-public class Anim implements Disposable {
+public final class Anim implements Disposable {
 	public static final int MAX_RATE = 256;
 
 	final public int defaultRate;
@@ -54,5 +54,4 @@ public class Anim implements Disposable {
 			sprite.dispose();
 		}
 	}
-
 }
