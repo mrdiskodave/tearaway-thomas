@@ -8,4 +8,6 @@ public interface ButtonPressServices {
 	void setFocus(Coord c);
 	
 	void fall(Coord c);
+
+	void startEdit(Prop prop, String initialValue, TakeTextBack textBack);
 }

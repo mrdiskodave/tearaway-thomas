@@ -17,7 +17,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 	}
 
 	@Override
-	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
+	public void getButtons(List<Button> buttons, final ButtonPressServices bps) {
 		buttons.add(new Button() {
 			@Override
 			public String name() {
@@ -40,6 +40,26 @@ public class IntegerProp extends SpecificProp<Integer> {
 				write(read() - 1);
 			}
 		});
+		buttons.add(new Button() {
+			@Override
+			public String name() {
+				return "edit";
+			}
+
+			@Override
+			public void press() {
+				bps.startEdit(IntegerProp.this, text(), new TakeTextBack() {
+					@Override
+					public void take(String text) {
+						try {
+							write(Integer.parseInt(text));
+						}
+						catch (NumberFormatException e) {
+							// ignored
+						}
+					}});
+			}
+		});
 	}
 
 	@Override
@@ -50,20 +70,5 @@ public class IntegerProp extends SpecificProp<Integer> {
 	@Override
 	void load(Node d) {
 		write(d.requireInt());
-	}
-
-	@Override
-	public boolean takesInput() {
-		return true;
-	}
-
-	@Override
-	public void takeInput(String s) {
-		try {
-			write(Integer.parseInt(s));
-		}
-		catch (NumberFormatException e) {
-			// ignored
-		}
 	}
 }

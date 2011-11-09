@@ -32,6 +32,7 @@ import com.nney.tt.props.Button;
 import com.nney.tt.props.ButtonPressServices;
 import com.nney.tt.props.OPS;
 import com.nney.tt.props.Prop;
+import com.nney.tt.props.TakeTextBack;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
@@ -205,6 +206,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private BottomUpStatusLayer bottomUpStatusLayer;
 
 	private LevelInfo levelInfo;
+
+	private Prop editProp;
+
+	private StringBuffer editBuffer;
 	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -320,6 +325,17 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		topDownStatusLayer = new TopDownStatusLayer(mgc);
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
+		if (editProp!=null) {
+			drawLevel();
+			drawOverlays();
+			int k = keyboard.justPressed();
+			if (k>=Keyboard.KEY_0 && k<=Keyboard.KEY_9) {
+				editBuffer.append((char)('0'+(k-Keyboard.KEY_0)));
+			}
+			mgc.endDrawing();
+			return;
+		}
+		
 		boolean palettes = true;
 		int k = keyboard.justPressed();
 		// System.out.println(String.format("PRESSED:%08x", k));
@@ -372,15 +388,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 
 		if (palettes) {
-			if (alienMode) showSelectedAlienProps();
-			drawPalettes();
-
-			if (messTimer != 0) {
-				messTimer--;
-				// topDownStatusLayer.draw(topDownStatusLayer.width() -
-				// messText.length(), 0, ButtonState.PASSIVE, messText);
-				bottomUpStatusLayer.draw(0, 0, ButtonState.PASSIVE, messText);
-			}
+			drawOverlays();
 		}
 		mgc.endDrawing();
 
@@ -393,6 +401,18 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
 			saveMap(false);
 			sayf("Saved: %s", levelInfo.filename);
+		}
+	}
+
+	public void drawOverlays() {
+		if (alienMode) showSelectedAlienProps();
+		drawPalettes();
+
+		if (messTimer != 0) {
+			messTimer--;
+			// topDownStatusLayer.draw(topDownStatusLayer.width() -
+			// messText.length(), 0, ButtonState.PASSIVE, messText);
+			bottomUpStatusLayer.draw(0, 0, ButtonState.PASSIVE, messText);
 		}
 	}
 
@@ -906,6 +926,15 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 
+	
+	@Override
+	public void startEdit(Prop prop, String initialValue, TakeTextBack textBack) {
+		editProp = prop;
+		editBuffer = new StringBuffer();
+		editBuffer.append(initialValue);
+		
+	}
+
 	private void showSelectedAlienProps() {
 		if (haveAlien()) {
 			assert props!=null;
@@ -917,7 +946,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			BatGCImpl batGc = new BatGCImpl(getScreenPosition(), mgc);
 			batGc.drawSuperBat(getSelectedAlien().getLocation());
 
-			// bats
 			batRecords.clear();
 			for (Prop p : props) {
 				p.drawAuxBatStuff(batGc);
@@ -967,7 +995,12 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				}
 				
 				sl.draw(0, y, ButtonState.PASSIVE, clip(p.name(), X_VALUE-X_NAME));
-				sl.draw(15, y, ButtonState.PASSIVE, clip(p.text(), X_BUTTONS-X_VALUE));
+				if (editProp==p) {
+					sl.draw(15, y, ButtonState.PASSIVE, clip(editBuffer.toString(), X_BUTTONS-X_VALUE));
+				}
+				else {
+					sl.draw(15, y, ButtonState.PASSIVE, clip(p.text(), X_BUTTONS-X_VALUE));
+				}
 				y++;
 			}
 			//
@@ -1262,9 +1295,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 	}
 
-	// TODO: that wiggly bug with block shuffling - cause is stop blocks! (draw
-	// them)
-	// TODO: test launch from here / test launch
+	// TODO: that wiggly bug with block shuffling
+	// it's coz of undrawn stop blocks! (draw them?)
 
 	boolean isWall(int b) {
 		return b >= 1 && b <= 4;

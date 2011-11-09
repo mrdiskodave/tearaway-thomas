@@ -48,14 +48,6 @@ public abstract class Prop {
 	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 	}
 	
-	public boolean takesInput() {
-		return false;
-	}
-	
-	public void takeInput(String s) {
-		
-	}
-
 	// ---------------------------------------------------------------------------
 	// GRAPHICAL UI 
 
