@@ -110,12 +110,18 @@ import com.nney.utils.SortKeyGenerator;
  * </pre>
  */
 public class Mapper implements ButtonPressServices, FrameDrawer {
+	private static final int FIRST_LINE = 2;
+
 	private static final int X_BUTTONS = 35;
 
 	private static final int X_VALUE = 15;
 
 	private static final int X_NAME = 0;
 
+	
+	
+	
+	
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
 	interface AlienPredicate {
@@ -210,6 +216,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private Prop editProp;
 
 	private StringBuffer editBuffer;
+
+	private Prop mouseOver;
 	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -410,9 +418,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		if (messTimer != 0) {
 			messTimer--;
-			// topDownStatusLayer.draw(topDownStatusLayer.width() -
-			// messText.length(), 0, ButtonState.PASSIVE, messText);
-			bottomUpStatusLayer.draw(0, 0, ButtonState.PASSIVE, messText);
+			bottomUpStatusLayer.draw(0, 0, messText);
 		}
 	}
 
@@ -606,6 +612,16 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void alienMode(int k) {
+		mouseOver = null;
+		if (haveAlien()) {
+			int y = FIRST_LINE;
+			for (Prop p : props) {
+				if (topDownStatusLayer.getBox(0, y++, -1, 1).inside(mmp.screenPixels())) {
+					mouseOver = p;
+				}
+			}
+		}
+
 		int kns = k & (~Locks.LOCK_SHIFT);
 		final BatRecord bat = batRecords.find(mmp.worldPixels());
 
@@ -909,7 +925,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (s!=null) {
 			// build buttonRecords!
 			props = OPS.propsFor(s);
-			int y = 2;
+			int y = FIRST_LINE;
 			StatusLayer sl = topDownStatusLayer;
 			for (Prop p : props) {
 				int x = X_BUTTONS;
@@ -987,19 +1003,18 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			int y = 0;
 			sl.touch(y++);
 			sl.touch(y++);
-			Prop mouseOver = null;
+			
 			for (Prop p : props) {
-				if (sl.getBox(0, y, -1, 1).inside(mmp.screenPixels())) {
-					mouseOver = p;
+				if (p == mouseOver) {
 					sl.highlightTouch(y);
 				}
 				
-				sl.draw(0, y, ButtonState.PASSIVE, clip(p.name(), X_VALUE-X_NAME));
+				sl.draw(X_NAME, y, clip(p.name(), X_VALUE-X_NAME));
 				if (editProp==p) {
-					sl.draw(15, y, ButtonState.PASSIVE, clip(editBuffer.toString(), X_BUTTONS-X_VALUE));
+					sl.drawWithCursor(X_VALUE, y, editBuffer.length(), clip(editBuffer.toString(), X_BUTTONS-X_VALUE));
 				}
 				else {
-					sl.draw(15, y, ButtonState.PASSIVE, clip(p.text(), X_BUTTONS-X_VALUE));
+					sl.draw(X_VALUE, y, clip(p.text(), X_BUTTONS-X_VALUE));
 				}
 				y++;
 			}
@@ -1013,7 +1028,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			// docs
 			//
 			if (mouseOver!=null) {
-				sl.draw(0, 0, ButtonState.PASSIVE, mouseOver.doc());
+				sl.draw(0, 0, mouseOver.doc());
 			}
 		}
 		else {

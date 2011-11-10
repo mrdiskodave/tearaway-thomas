@@ -7,11 +7,11 @@ public class BottomUpStatusLayer extends StatusLayer {
 
 	@Override
 	protected int computeFirstY() {
-		return shp - (shc * chp);
+		return screenHeightInPixels - (screenHeightInCharacters * characterHeightInPixels);
 	}
 
 	@Override
 	protected int computeRow(int row) {
-		return shc - 1 - row;
+		return screenHeightInCharacters - 1 - row;
 	}
 }

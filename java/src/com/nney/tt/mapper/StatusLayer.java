@@ -6,23 +6,23 @@ import com.nney.tt.geom.Box;
 
 public abstract class StatusLayer {
 	private final MapperGC mgc;
-	private HashSet<Integer> seenRow = new HashSet<Integer>();
+	private final HashSet<Integer> seenRow = new HashSet<Integer>();
 
-	private int swc;
-	protected int shc;
-	protected int shp;
-	private int swp;
-	private int cwp;
-	protected int chp;
+	private final int screenWidthInCharacters;
+	protected final int screenHeightInCharacters;
+	protected final int screenHeightInPixels;
+	private final int screenWidthInPixels;
+	private final int characterWidthInPixels;
+	protected final int characterHeightInPixels;
 
 	public StatusLayer(MapperGC mgc) {
 		this.mgc = mgc;
-		swp = mgc.screenWidth();
-		shp = mgc.screenHeight();
-		cwp = mgc.charWidth();
-		chp = mgc.charHeight();
-		swc = swp / cwp;
-		shc = shp / chp;
+		screenWidthInPixels = mgc.screenWidth();
+		screenHeightInPixels = mgc.screenHeight();
+		characterWidthInPixels = mgc.charWidth();
+		characterHeightInPixels = mgc.charHeight();
+		screenWidthInCharacters = screenWidthInPixels / characterWidthInPixels;
+		screenHeightInCharacters = screenHeightInPixels / characterHeightInPixels;
 	}
 
 	protected abstract int computeFirstY();
@@ -31,19 +31,36 @@ public abstract class StatusLayer {
 
 	private int cx(int x) {
 		if (x < 0) {
-			x += swc;
+			x += screenWidthInCharacters;
 		}
-		x *= cwp;
+		x *= characterWidthInPixels;
 		return x;
 	}
 
 	private int cy(int y) {
 		y = computeRow(y);
-		y *= chp;
+		y *= characterHeightInPixels;
 		y += computeFirstY();
 		return y;
 	}
 
+	public void draw(int x, int y, String text) {
+		draw(x, y, ButtonState.PASSIVE, text);
+	}
+
+	public void drawWithCursor(int x, int y, int cursorX, String text) {
+		draw(x, y, ButtonState.PASSIVE, text);
+
+		int sx = cx(x+cursorX);
+		int sy = cy(y);
+		mgc.fillRectangle(sx, sy, characterWidthInPixels, characterHeightInPixels, 0xffffffff);
+		if (cursorX<text.length()) {
+			String s = text.substring(cursorX, cursorX+1);
+			mgc.drawText(sx+cursorX*characterWidthInPixels, sy, 0xff000000, s);
+		}
+	}
+
+	
 	public void draw(int x, int y, ButtonState status, String text) {
 		touch(y);
 		int sx = cx(x);
@@ -73,16 +90,16 @@ public abstract class StatusLayer {
 		if (!seenRow.contains(y)) {
 			seenRow.add(y);
 			int sy = cy(y);
-			mgc.fillRectangle(0, sy, swp, chp, col);
+			mgc.fillRectangle(0, sy, screenWidthInPixels, characterHeightInPixels, col);
 		}
 	}
 	
 	public Box getBox(int x, int y, int w, int h) {
 		int sx = cx(x);
 		int sy = cy(y);
-		if (w<0) w = swc;
-		if (h<0) h = shc;
-		return Box.fromTopLeftAndSize(sx, sy, cwp * w, chp * h);
+		if (w<0) w = screenWidthInCharacters;
+		if (h<0) h = screenHeightInCharacters;
+		return Box.fromTopLeftAndSize(sx, sy, characterWidthInPixels * w, characterHeightInPixels * h);
 	}
 	
 	
@@ -91,7 +108,7 @@ public abstract class StatusLayer {
 	}
 	
 	public int width() {
-		return swc;
+		return screenWidthInCharacters;
 	}
 
 }
