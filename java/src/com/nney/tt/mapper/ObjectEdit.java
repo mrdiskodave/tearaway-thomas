@@ -52,6 +52,7 @@ class ObjectEdit extends SymmetricalUndoRedo {
 	}
 
 	public void removeMatching() {
+		OPS.validate(object);
 		object.onPropUpdate();
 		for (Iterator<Content> ci = cs.iterator(); ci.hasNext();) {
 			Content c = ci.next();

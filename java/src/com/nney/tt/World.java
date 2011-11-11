@@ -1037,7 +1037,7 @@ public class World implements AlienServices, Disposable {
 			};
 		}
 
-		EdgeDetector ed = new EdgeDetector();
+		SlowBoolean ot = new SlowBoolean(true);
 		do {
 			begin();
 			mainActions(0);
@@ -1045,7 +1045,7 @@ public class World implements AlienServices, Disposable {
 			int p = hole.current();
 			if (p > 60) start = true;
 			if (start) {
-				if (ed.next(true).pressed()) {
+				if (ot.set(false)) {
 					ow.lives--;
 				}
 				lifeLostDevice.update();

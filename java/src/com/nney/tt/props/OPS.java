@@ -80,7 +80,10 @@ public class OPS {
 	public static void loadProps(Object object, Node di) {
 		List<Prop> props = OPS.propsFor(object);
 		for (Prop prop : props) {
-			prop.load(di.requireField(prop.label()));
+			String l = prop.label();
+			if (di.fieldExists(l)) {
+				prop.load(di.requireField(l));
+			}
 		}
 	}
 }

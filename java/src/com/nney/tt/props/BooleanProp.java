@@ -11,11 +11,11 @@ public class BooleanProp extends SpecificProp<Boolean> {
 
 	public BooleanProp(PropPack pp) {
 		super(pp);
-		String t = "YES";
-		String f = "NO";
+		String t = "yes";
+		String f = "no";
 		if (pp.getAnn().xtraDef().equals("leftright")) {
-			t = "LEFT";
-			f = "RIGHT";
+			t = "left";
+			f = "right";
 		}
 		textTrue = t;
 		textFalse = f;

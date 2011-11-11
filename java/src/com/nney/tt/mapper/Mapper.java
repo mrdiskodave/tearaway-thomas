@@ -12,6 +12,7 @@ import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
 import com.nney.tt.FrameDrawer;
 import com.nney.tt.LevelInfo;
+import com.nney.tt.SlowBoolean;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
 import com.nney.tt.ScreenPosition;
@@ -218,6 +219,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private Prop mouseOver;
 
 	private EditManager em;
+
+	private SlowBoolean emUnknown = new SlowBoolean();
 	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -333,6 +336,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
 		if (em!=null) {
+			if (emUnknown.set(false)) {
+				startAlienEdit();
+			}
 			drawLevel();
 			drawOverlays();
 			KeyEvent e = keyboard.nextEvent();
@@ -340,6 +346,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				em.keyboardInput(e);
 				if (e.keyCode==Keyboard.KEY_RETURN) {
 					em.done();
+					endAlienEdit();
 					em = null;
 				}
 			}
@@ -950,6 +957,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	@Override
 	public void startEdit(Prop prop, String initialValue, TakeTextBack textBack) {
 		em = new EditManager(prop, new StringEditor(initialValue, W_VALUE), textBack);
+		emUnknown.set(true);
 	}
 
 	private void showSelectedAlienProps() {

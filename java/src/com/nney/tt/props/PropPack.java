@@ -9,8 +9,8 @@ import com.nney.tt.mapper.FieldAccessorImpl;
  * The things needed to initialise a {@link Prop}.
  */
 public class PropPack {
-	private final Object object;
 	private final Field field;
+	private final Object object;
 
 	PropPack(Object object, Field field) {
 		this.object = object;

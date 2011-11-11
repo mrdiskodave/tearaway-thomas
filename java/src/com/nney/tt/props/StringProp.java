@@ -1,5 +1,7 @@
 package com.nney.tt.props;
 
+import java.util.List;
+
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
 
@@ -14,6 +16,12 @@ public class StringProp extends SpecificProp<String> {
 	}
 	
 	@Override
+	public void writeText(String text) {
+		// no parsing required!
+		write(text);
+	}
+	
+	@Override
 	void save(DataDestination d) {
 		d.write(read());
 	}
@@ -21,5 +29,10 @@ public class StringProp extends SpecificProp<String> {
 	@Override
 	void load(Node d) {
 		write(d.requireString());
+	}
+	
+	@Override
+	public void getButtons(List<Button> buttons, final ButtonPressServices bps) {
+		addEditButton(buttons, bps);
 	}
 }

@@ -62,8 +62,6 @@ public class Bird2Alien extends AlienWithLocation {
 	@Override
 	public Coord getLocation() {
 		generateInternalStateFromFrameNumber();
-		Coord answer = c2;
-		System.out.println("BIRD@ "+answer);
-		return answer;
+		return c2;
 	}
 }
