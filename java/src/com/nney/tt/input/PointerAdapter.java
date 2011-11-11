@@ -18,11 +18,6 @@ public class PointerAdapter implements Pointer {
 	}
 
 	@Override
-	public int getDWheel() {
-		return target.getDWheel();
-	}
-
-	@Override
 	public boolean isDown(int key) {
 		return target.isDown(key);
 	}
