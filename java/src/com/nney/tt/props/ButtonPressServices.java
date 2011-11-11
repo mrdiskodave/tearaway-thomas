@@ -9,5 +9,5 @@ public interface ButtonPressServices {
 	
 	void fall(Coord c);
 
-	void startEdit(Prop prop, String initialValue, TakeTextBack textBack);
+	void startEdit(Prop prop, String initialValue, TakeTextBack callback);
 }

@@ -3,11 +3,10 @@ package com.nney.tt.input;
 /**
  * Merge multiple things with keys ({@link HasKeys}) into one.
  */
-public class TeeKeyAdaptor extends KeyAdaptor {
+public class TeeKeyAdaptor implements HasKeys {
 	private HasKeys[] things;
 
 	public TeeKeyAdaptor(HasKeys... things) {
-		super(things[0]);
 		this.things = things;
 	}
 	
@@ -20,11 +19,11 @@ public class TeeKeyAdaptor extends KeyAdaptor {
 	}
 
 	@Override
-	protected int getNext() {
+	public KeyEvent nextEvent() {
 		for (HasKeys thing: things) {
-			int k = thing.justPressed();
-			if (k!=0) return k;
+			KeyEvent e = thing.nextEvent();
+			if (e!=null) return e;
 		}
-		return 0;
+		return null;
 	}
 }

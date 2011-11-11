@@ -1,17 +1,10 @@
 package com.nney.tt.input;
 
-public class LocksKeyAdaptor extends KeyAdaptor {
-	public LocksKeyAdaptor(HasKeys target) {
-		super(target);
-	}
+public class LocksKeyAdaptor implements HasKeys {
+	private final HasKeys target;
 
-	@Override
-	protected int getNext() {
-		int k = target.justPressed();
-		if (target.isDown(Keyboard.KEY_SHIFT)) k |= Locks.LOCK_SHIFT;
-		if (target.isDown(Keyboard.KEY_CONTROL)) k |= Locks.LOCK_CONTROL;
-		if (target.isDown(Keyboard.KEY_MENU)) k |= Locks.LOCK_MENU;
-		return k;
+	public LocksKeyAdaptor(HasKeys target) {
+		this.target = target;
 	}
 
 	/**
@@ -27,5 +20,19 @@ public class LocksKeyAdaptor extends KeyAdaptor {
 		if (key == Locks.LOCK_CONTROL) key = Keyboard.KEY_CONTROL;
 		if (key == Locks.LOCK_MENU) key = Keyboard.KEY_MENU;
 		return target.isDown(key);
+	}
+
+	@Override
+	public KeyEvent nextEvent() {
+		KeyEvent e = target.nextEvent();
+		if (e==null) return null;
+		int k = 0;
+		if (target.isDown(Keyboard.KEY_SHIFT)) k |= Locks.LOCK_SHIFT;
+		if (target.isDown(Keyboard.KEY_CONTROL)) k |= Locks.LOCK_CONTROL;
+		if (target.isDown(Keyboard.KEY_MENU)) k |= Locks.LOCK_MENU;
+		if (k!=0) {
+			e = new KeyEvent(e.keyCode|k, e.keyChar);
+		}
+		return e;
 	}
 }

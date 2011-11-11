@@ -67,22 +67,17 @@ public final class MapperGC {
 		return cycler.process(col);
 	}
 	
-	public void nextFrame() {
-		cycler.advance();
-	}
-
 	public Coord centreDisplacement() {
 		return new Coord(screenWidth() / 2, screenHeight() / 2);
 	}
 	
-	
-
-	// plain old delegates
-	
 	public void beginDrawing() {
 		gc.beginDrawing();
+		cycler.advance();
 	}
 
+
+	// plain old delegates
 	public void endDrawing() {
 		gc.endDrawing();
 	}

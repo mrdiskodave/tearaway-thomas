@@ -21,12 +21,14 @@ import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.HasKeys;
+import com.nney.tt.input.KeyEvent;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
 import com.nney.tt.input.LocksKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.StringEditor.State;
 import com.nney.tt.props.Bat;
 import com.nney.tt.props.Button;
 import com.nney.tt.props.ButtonPressServices;
@@ -112,15 +114,15 @@ import com.nney.utils.SortKeyGenerator;
 public class Mapper implements ButtonPressServices, FrameDrawer {
 	private static final int FIRST_LINE = 2;
 
-	private static final int X_BUTTONS = 35;
-
+	private static final int X_NAME = 0;
+	
 	private static final int X_VALUE = 15;
 
-	private static final int X_NAME = 0;
+	private static final int X_BUTTONS = 35;
 
-	
-	
-	
+	private static final int W_NAME = X_VALUE-X_NAME;
+
+	private static final int W_VALUE = X_BUTTONS-X_VALUE;
 	
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
@@ -213,11 +215,9 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private LevelInfo levelInfo;
 
-	private Prop editProp;
-
-	private StringBuffer editBuffer;
-
 	private Prop mouseOver;
+
+	private EditManager em;
 	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -327,26 +327,30 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		// at();
 		// System.exit(1);
 
-		mgc.nextFrame();
 		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
 
 		topDownStatusLayer = new TopDownStatusLayer(mgc);
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
-		if (editProp!=null) {
+		if (em!=null) {
 			drawLevel();
 			drawOverlays();
-			int k = keyboard.justPressed();
-			if (k>=Keyboard.KEY_0 && k<=Keyboard.KEY_9) {
-				editBuffer.append((char)('0'+(k-Keyboard.KEY_0)));
+			KeyEvent e = keyboard.nextEvent();
+			if (e!=null) {
+				em.keyboardInput(e);
+				if (e.keyCode==Keyboard.KEY_RETURN) {
+					em.done();
+					em = null;
+				}
 			}
 			mgc.endDrawing();
 			return;
 		}
 		
 		boolean palettes = true;
-		int k = keyboard.justPressed();
-		// System.out.println(String.format("PRESSED:%08x", k));
+
+		KeyEvent e = keyboard.nextEvent();
+		int k = e==null ? 0 : e.keyCode;
 
 		if (!alienMode && keyboard.isDown(Keyboard.KEY_C)) {
 			Coord c = mmp.worldBlocksDelta();
@@ -945,10 +949,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	
 	@Override
 	public void startEdit(Prop prop, String initialValue, TakeTextBack textBack) {
-		editProp = prop;
-		editBuffer = new StringBuffer();
-		editBuffer.append(initialValue);
-		
+		em = new EditManager(prop, new StringEditor(initialValue, W_VALUE), textBack);
 	}
 
 	private void showSelectedAlienProps() {
@@ -1009,12 +1010,18 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 					sl.highlightTouch(y);
 				}
 				
-				sl.draw(X_NAME, y, clip(p.name(), X_VALUE-X_NAME));
-				if (editProp==p) {
-					sl.drawWithCursor(X_VALUE, y, editBuffer.length(), clip(editBuffer.toString(), X_BUTTONS-X_VALUE));
+				sl.draw(X_NAME, y, clip(p.name(), W_NAME));
+				if (em!=null && em.isUs(p)) {
+					State s = em.state();
+					if (em.isCursorOn()) {
+						sl.drawWithCursor(X_VALUE, y, s.cursor, s.show);
+					}
+					else {
+						sl.draw(X_VALUE, y, s.show);
+					}
 				}
 				else {
-					sl.draw(X_VALUE, y, clip(p.text(), X_BUTTONS-X_VALUE));
+					sl.draw(X_VALUE, y, clip(p.text(), W_VALUE));
 				}
 				y++;
 			}

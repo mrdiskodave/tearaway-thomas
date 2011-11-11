@@ -6,7 +6,7 @@ public class StringEditorTest extends TestCase {
 	private StringEditor se;
 
 	public void testScrolling() {
-		se = new StringEditor("", 12, 3, null);
+		se = new StringEditor("", 12);
 		
 		for (int x=0; x<26; x++) {
 			char c = (char)('a'+x);
@@ -33,32 +33,21 @@ public class StringEditorTest extends TestCase {
 	}
 	
 	public void bestOps() throws Exception {
-//		KeyMap smk = new KeyMap() {
-//			@Override
-//			public int mapKey(int key) {
-//				if (key>=Keyboard.KEY_0 && key<=Keyboard.KEY_9) {
-//					key -= Keyboard.KEY_0;
-//					key += '0';
-//					return key;
-//				}
-//				return -1;
-//			}
-//		};
-		se = new StringEditor("f", 1000, 1000, null);
+		se = new StringEditor("f", 1000);
 		expect("f_");
 		se.opDeleteToStart();
 		se.opType('0');
 		expect("0_");
 		se.opType('1');
 		expect("01_");
-		se.opRight();
-		expect("01_!");
+		se.opRight(); // illegal action
+		expect("01_");
 		se.opLeft();
 		expect("0_1");
 		se.opLeft();
 		expect("_01");
-		se.opLeft();
-		expect("_01!");
+		se.opLeft(); // illegal action
+		expect("_01");
 		se.opEnd();
 		expect("01_");
 		se.opEnd();
@@ -73,8 +62,8 @@ public class StringEditorTest extends TestCase {
 		expect("7_12");
 		se.opDeleteBack();
 		expect("_12");
-		se.opDeleteBack();
-		expect("_12!");
+		se.opDeleteBack();  // illegal action
+		expect("_12");
 		se.opRight();
 		se.opDeleteToEnd();
 		expect("1_");
@@ -89,14 +78,10 @@ public class StringEditorTest extends TestCase {
 		expect("_3");
 		se.opDeleteToEnd();
 		expect("_");
-		se.opDeleteHere();
-		expect("_!");
-		se.opDeleteBack();
-		expect("_!");
-	}
-
-	public void send(int z) {
-		se.keyIn(z);
+		se.opDeleteHere();  // illegal action
+		expect("_");
+		se.opDeleteBack();  // illegal action
+		expect("_");
 	}
 
 	private void expect(String expect) {

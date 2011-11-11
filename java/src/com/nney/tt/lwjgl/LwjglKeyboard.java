@@ -4,15 +4,13 @@ import java.util.HashMap;
 import java.util.TreeSet;
 
 import com.nney.tt.input.Keyboard;
+import com.nney.tt.input.PartialHasKeysImpl;
 
-public class LwjglKeyboard implements Keyboard {
+public class LwjglKeyboard extends PartialHasKeysImpl implements Keyboard {
 	private HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>();
 	private TreeSet<Integer> keys = new TreeSet<Integer>();
 
-	private int justPressed;
-	private int period;
-
-	void add(int theirKey, int ourKey) {
+	private void add(int theirKey, int ourKey) {
 		fromThem.put(theirKey, ourKey);
 	}
 
@@ -127,18 +125,11 @@ public class LwjglKeyboard implements Keyboard {
 	}
 
 	@Override
-	public int justPressed() {
-		return justPressed;
-	}
-
-	@Override
 	public boolean isDown(int key) {
 		return keys.contains(key);
 	}
 
 	public void update() {
-		period ++;
-		justPressed = 0;
 		while (org.lwjgl.input.Keyboard.next()) {
 			Integer theirKey = org.lwjgl.input.Keyboard.getEventKey();
 			Integer ourKey = fromThem.get(theirKey);
@@ -149,7 +140,7 @@ public class LwjglKeyboard implements Keyboard {
 					boolean down = org.lwjgl.input.Keyboard.getEventKeyState();
 					if (down) {
 						keys.add(ourKey);
-						justPressed = ourKey;
+						queueEvent(ourKey, org.lwjgl.input.Keyboard.getEventCharacter());
 					}
 					else {
 						keys.remove(ourKey);
@@ -169,11 +160,6 @@ public class LwjglKeyboard implements Keyboard {
 
 	private boolean nonRepeating(int k) {
 		return k>=KEYBEGIN_SHIFTS && k<=KEYEND_SHIFTS;
-	}
-
-	@Override
-	public int periodNumber() {
-		return period;
 	}
 
 	public void clear() {

@@ -1,56 +1,44 @@
 package com.nney.tt.mapper;
 
+import com.nney.tt.input.KeyEvent;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Locks;
 import com.nney.utils.Math2;
 
 public class StringEditor {
 	private final StringBuffer content;
-	private final int screenWidth;
 	private int cx;
+
+	// the scrollable screen is a separate concern that could be pulled out
+	private final int screenWidth;
 	private int sx;
-	private boolean bell;
-	
-	private final KeyMap km;
-	private final int margin;
-	
+
 	class State {
 		public final String show;
 		public final int cursor;
-		public final boolean bell;
 
-		State(String show, int cursor, boolean bell) {
+		State(String show, int cursor) {
 			this.show = show;
 			this.cursor = cursor;
-			this.bell = bell;
-			
 		}
-		
+
 		@Override
 		public String toString() {
 			StringBuffer sb = new StringBuffer(show);
-//			System.out.println("SBDO :"+sb+" at "+cursor);
 			sb.insert(cursor, '_');
-//			System.out.println("SBGOT:"+sb);
-			if (bell) sb.append('!');
 			return sb.toString();
 		}
 	}
 
-	StringEditor(String content, int screenWidth, int margin, KeyMap km) {
+	StringEditor(String content, int screenWidth) {
 		this.screenWidth = screenWidth;
-		this.margin = margin;
-		this.km = km;
 		this.content = new StringBuffer(content);
 		cx = content.length();
-		sx = 0;
 	}
-
-	private void moveCursorTo(int np) {
-		cx = Math2.limit(0, content.length(), np);
-	}
-
-	void keyIn(int k) {
+	
+	// the key operation of this is a separate concern that could be pulled out
+	public void keyboardInput(KeyEvent key) {
+		int k = key.keyCode;
 		if (k == Keyboard.KEY_HOME) opBegin();
 		if (k == Keyboard.KEY_END) opEnd();
 		if (k == Keyboard.KEY_LEFT) opLeft();
@@ -59,45 +47,33 @@ public class StringEditor {
 		if (k == Keyboard.KEY_BACK) opDeleteBack();
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_DELETE) opDeleteToEnd();
 		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_BACK) opDeleteToStart();
-		
-		int c = km.mapKey(k);
-		if (c>=0) {
-			opType((char)c);
-		}
+		opType(key.keyChar);
 	}
 
-	public void opType(char c) {
-		content.insert(cx++, c);
+	private void moveCursorTo(int np) {
+		cx = Math2.limit(0, content.length(), np);
+	}
+
+	public void opType(int c) {
+		if (c>=32) {
+			content.insert(cx++, (char)c);
+		}
 	}
 
 	public void opLeft() {
-		if (cx==0) {
-			bell();
-		}
-		else {
-			cx--;
-		}
-	}
-
-	private void bell() {
-		bell = true;
+		moveCursorTo(cx-1);
 	}
 
 	public void opRight() {
-		if (cx==content.length()) {
-			bell();
-		}
-		else {
-			cx++;
-		}
-	}
-
-	public void opEnd() {
-		moveCursorTo(Integer.MAX_VALUE);
+		moveCursorTo(cx+1);
 	}
 
 	public void opBegin() {
 		moveCursorTo(0);
+	}
+
+	public void opEnd() {
+		moveCursorTo(Integer.MAX_VALUE);
 	}
 
 	public void opDeleteToStart() {
@@ -110,40 +86,30 @@ public class StringEditor {
 	}
 
 	public void opDeleteBack() {
-		if (cx == 0) {
-			bell();
-		}
-		else {
+		if (cx != 0) {
 			cx--;
 			content.deleteCharAt(cx);
 		}
 	}
 
 	public void opDeleteHere() {
-		if (cx == content.length()) {
-			bell();
-		}
-		else {
+		if (cx != content.length()) {
 			content.deleteCharAt(cx);
 		}
 	}
-	
+
 	public State state() {
 		int edge = screenWidth - 1;
-		if (cx<sx) sx = cx;
-		if (cx>sx+edge) sx = cx-edge;
-		
-		System.out.println(content);
-		System.out.println(sx);
-		
-		
-		String show = content.substring(sx, Math.min(content.length(), sx+screenWidth));
+		if (cx < sx) sx = cx;
+		if (cx > sx + edge) sx = cx - edge;
+
+		String show = content.substring(sx, Math.min(content.length(), sx + screenWidth));
 		int cursor = cx - sx;
-		boolean b = bell;
-		bell = false;
-		return new State(show, cursor, b);
-		
-		// fabcdefghijk
-		// 123456789012
+		return new State(show, cursor);
+	}
+	
+	@Override
+	public String toString() {
+		return content.toString();
 	}
 }

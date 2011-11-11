@@ -23,17 +23,12 @@ public class PointerAdapter implements Pointer {
 	}
 
 	@Override
-	public boolean isDown(int mask) {
-		return target.isDown(mask);
+	public boolean isDown(int key) {
+		return target.isDown(key);
 	}
-
+	
 	@Override
-	public int justPressed() {
-		return target.justPressed();
-	}
-
-	@Override
-	public int periodNumber() {
-		return target.periodNumber();
+	public KeyEvent nextEvent() {
+		return target.nextEvent();
 	}
 }

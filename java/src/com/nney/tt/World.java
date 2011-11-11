@@ -785,7 +785,11 @@ public class World implements AlienServices, Disposable {
 	//
 
 	private void begin() {
-		if (keyboard.justPressed() == Keyboard.KEY_ESCAPE) {
+		// the main game doesn't use events so this is just to drain them
+		// i.e. stop them piling up
+		keyboard.nextEvent();
+		
+		if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
 			throw new ExitException();
 		}
 		firePressed |= Math2.maskTest(joystick.get(), Joystick.FIRE);
