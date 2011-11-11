@@ -129,17 +129,15 @@ public class StringEditor {
 	}
 	
 	public State state() {
-		int need = Math.max(content.length(), cx+1);
+		int edge = screenWidth - 1;
+		if (cx<sx) sx = cx;
+		if (cx>sx+edge) sx = cx-edge;
 		
-		// TODO: !!!! :)
-		int lowBound = Math.max(0, cx-margin);
-		int highBound = Math.max(lowBound, Math.min(need, cx+margin)-screenWidth);
-		System.out.println(String.format("%s-%s", lowBound, highBound));
-		sx = Math2.limit(lowBound, highBound, sx);
-
+		System.out.println(content);
+		System.out.println(sx);
 		
 		
-		String show = content.substring(sx, Math.min(content.length(), screenWidth));
+		String show = content.substring(sx, Math.min(content.length(), sx+screenWidth));
 		int cursor = cx - sx;
 		boolean b = bell;
 		bell = false;

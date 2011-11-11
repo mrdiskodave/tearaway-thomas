@@ -6,15 +6,30 @@ public class StringEditorTest extends TestCase {
 	private StringEditor se;
 
 	public void testScrolling() {
-		se = new StringEditor("f", 12, 3, null);
+		se = new StringEditor("", 12, 3, null);
 		
 		for (int x=0; x<26; x++) {
 			char c = (char)('a'+x);
 			System.out.println("Type:"+c);
 			se.opType(c);
 		}
-		System.out.println(se.state());
-		
+		expect("pqrstuvwxyz_");
+		se.opBegin();
+		expect("_abcdefghijkl");
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		se.opRight();
+		expect("abcdefghijk_l");
+		se.opDeleteHere();
+		expect("abcdefghijk_m");
 	}
 	
 	public void bestOps() throws Exception {
