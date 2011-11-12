@@ -17,7 +17,7 @@ import com.nney.tt.OuterWorld;
 import com.nney.tt.World;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
-import com.nney.tt.input.PointerAdapter;
+import com.nney.tt.input.PointerAdaptor;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.resources.TTResource;
 
@@ -97,7 +97,7 @@ public class Main {
 		final LwjglPointer wonkyMouse = new LwjglPointer();
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
 		// projection
-		Pointer correctMouse = new PointerAdapter(wonkyMouse) {
+		Pointer correctMouse = new PointerAdaptor(wonkyMouse) {
 			@Override
 			public int getX() {
 				return super.getX() / 2;

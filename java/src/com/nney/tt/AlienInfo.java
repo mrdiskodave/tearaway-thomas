@@ -28,10 +28,10 @@ public class AlienInfo {
 		this(id, name, animBaseName, -1, alienClass);
 	}
 
-	public Alien instantiateAttach() {
+	public Alien instantiateAttach(AlienServices srv) {
 		try {
 			Alien answer = alienClass.newInstance();
-			answer.attach(this);
+			answer.attach(this, srv);
 			return answer;
 		}
 		catch (InstantiationException e) {

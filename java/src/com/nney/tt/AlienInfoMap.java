@@ -67,8 +67,11 @@ public class AlienInfoMap {
 	private final List<String> animList = new ArrayList<String>();
 
 	private String worldName;
+
+	private final AlienServices srv;
 	
-	public AlienInfoMap(String worldName) {
+	public AlienInfoMap(String worldName, AlienServices srv) {
+		this.srv = srv;
 		add(new AlienInfo(4, "exit", "0exit", ExitAlien.class));
 		add(new AlienInfo(5, "shield", "0shld", ShieldAlien.class));
 		add(new AlienInfo(7, "clock", "0clok", ClockAlien.class));
@@ -203,17 +206,6 @@ public class AlienInfoMap {
 		return classToAlienInfo.get(c);
 	}
 
-	/**
-	 * There are two ways to make a correctly wired up {@link Alien}. 1) use
-	 * {@link AlienInfo#instantiateAttach()} 2) Construct it with <code>new</code>
-	 * then pass it here.
-	 * 
-	 * @param alien
-	 *            The {@link Alien} that you just constructed.
-	 */
-	public void attach(Alien alien) {
-		alien.attach(getByClass(alien.getClass()));
-	}
 
 	/**
 	 * @return A read only list of all the anims we'll ever need.
@@ -251,5 +243,23 @@ public class AlienInfoMap {
 			if (!ai.internal()) answer.add(ai);
 		}
 		return answer;
+	}
+
+	
+
+	/**
+	 * There are two ways to make a correctly wired up {@link Alien}. 1) use
+	 * {@link AlienInfo#instantiateAttach()} 2) Construct it with <code>new</code>
+	 * then pass it here.
+	 * 
+	 * @param alien
+	 *            The {@link Alien} that you just constructed.
+	 */
+	public void attach(Alien alien) {
+		alien.attach(getByClass(alien.getClass()), srv);
+	}
+
+	public Alien instantiateAttach(AlienInfo ai) {
+		return ai.instantiateAttach(srv);
 	}
 }

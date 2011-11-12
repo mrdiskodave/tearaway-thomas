@@ -1,9 +1,9 @@
 package com.nney.tt.input;
 
-public class PointerAdapter implements Pointer {
+public class PointerAdaptor implements Pointer {
 	private final Pointer target;
 
-	public PointerAdapter(Pointer target) {
+	public PointerAdaptor(Pointer target) {
 		this.target = target;
 	}
 

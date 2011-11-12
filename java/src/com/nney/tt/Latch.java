@@ -20,9 +20,8 @@ public class Latch {
 
 	private boolean test(int now) {
 		int diff = now - last;
-		System.out.println(String.format("test:now%s last%s diff%s", now, last, diff));
-		boolean answer = diff > 1;
-		return answer;
+//		System.out.println(String.format("test:now%s last%s diff%s", now, last, diff));
+		return diff > 1;
 	}
 	
 	public void set(int now) {

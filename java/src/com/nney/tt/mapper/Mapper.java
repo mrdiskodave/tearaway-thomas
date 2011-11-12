@@ -254,7 +254,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		PersistedLevel pl = new PersistedLevel(ow.levelNumber, null);
 		levelInfo = pl.getLevelInfo();
-		alienInfoMap = new AlienInfoMap(levelInfo.worldName);
+		alienInfoMap = new AlienInfoMap(levelInfo.worldName, alienServices);
 
 		for (String a : alienInfoMap.queryAnimList()) {
 			animsPool.load(a);
@@ -303,7 +303,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public void load(Alien alien) {
-		alien.load(alienServices);
+		alien.load();
 		alienTracker.add(alien);
 	}
 
@@ -858,7 +858,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private Alien makeAlien(AlienInfo ai) {
-		return ai.instantiateAttach();
+		return alienInfoMap.instantiateAttach(ai);
 	}
 
 	private void createAlien() {
@@ -1272,10 +1272,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				if (fb!=null) {
 					Box s = fb.sub2(getScreenPosition());
 					mgc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
-					if (alienTracker.perhapsFreeze(alien, screenBox)) {
-						alienIterator.remove();
-						System.out.println("Froze!!");
-					}
+				}
+				
+				if (alienTracker.perhapsFreeze(alien, screenBox)) {
+					alienIterator.remove();
+					System.out.println("Froze!!");
 				}
 			}
 		}

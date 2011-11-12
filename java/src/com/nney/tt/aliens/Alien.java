@@ -151,9 +151,10 @@ public abstract class Alien implements HasProps {
 		}
 	}
 
-	public void attach(AlienInfo alienInfo2) {
+	public void attach(AlienInfo alienInfo2, AlienServices srv2) {
 		fromTo(LifeCycle.INSTANTIATED, LifeCycle.ATTACH);
 		alienInfo = alienInfo2;
+		srv = srv2;
 	}
 
 	public void connect(AnimsPool ap) {
@@ -169,9 +170,8 @@ public abstract class Alien implements HasProps {
 		anims = src.anims;
 	}
 
-	public void load(AlienServices world) {
+	public void load() {
 		fromTo(LifeCycle.CONNECT, LifeCycle.READY);
-		srv = world;
 		onPropUpdate();
 		onLoaded();
 	}

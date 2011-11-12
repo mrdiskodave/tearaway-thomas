@@ -15,7 +15,7 @@ public class AlienFactory {
 		String tcName = AlienInfoMap.typeCodeToName(typeCode);
 		Alien alien;
 		if (alienInfoMap.nameExists(tcName)) {
-			alien = alienInfoMap.getByName(tcName).instantiateAttach();
+			alien = alienInfoMap.instantiateAttach(alienInfoMap.getByName(tcName));
 		}
 		else {
 			System.out.println("LEGACY ALIEN " + typeCode);
@@ -33,7 +33,7 @@ public class AlienFactory {
 	}
 
 	public Alien make(String name) {
-		return alienInfoMap.getByName(name).instantiateAttach();
+		return alienInfoMap.instantiateAttach(alienInfoMap.getByName(name));
 	}
 
 	public void wrapExisting(Alien alien) {

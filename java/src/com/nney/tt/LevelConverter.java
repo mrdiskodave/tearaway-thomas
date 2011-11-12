@@ -53,7 +53,7 @@ public class LevelConverter {
 			GameMap gameMap = GameMap.load(blocks);
 			gameMap.applyCompress(wi.blockRandomisationTable);
 			
-			AlienInfoMap alienInfoMap = new AlienInfoMap(li.worldName);
+			AlienInfoMap alienInfoMap = new AlienInfoMap(li.worldName, null);
 			
 			ArrayList<Alien> aliens = new ArrayList<Alien>();
 			AlienFactory af = new AlienFactory(alienInfoMap);

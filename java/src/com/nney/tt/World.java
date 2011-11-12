@@ -540,7 +540,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	public void load(Alien alien) {
-		alien.load(this);
+		alien.load();
 		alienTracker.delayedAdd(alien);
 	}
 
@@ -551,6 +551,13 @@ public class World implements AlienServices, Disposable {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
 			alien.update();
+
+			Box fb = alien.freezeBounds;
+			if (fb!=null) {
+				Box s = fb.sub2(getScreenPosition());
+				gc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
+			}
+			
 			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
 				alienIterator.remove();
 			}
@@ -844,7 +851,7 @@ public class World implements AlienServices, Disposable {
 		levelInfo = pl.getLevelInfo();
 		worldName = levelInfo.worldName;
 
-		alienInfoMap = new AlienInfoMap(worldName);
+		alienInfoMap = new AlienInfoMap(worldName, this);
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
 		gameMap = pl.getMap();
