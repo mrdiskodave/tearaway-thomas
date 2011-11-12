@@ -48,7 +48,7 @@ public class Wave {
 
 	public final static Result sawToothWaveWithPauseAndPhase(int span, int pause, int phase, int frm) {
 		int len = Wave.sawToothWaveWithPauseCycleLength(span, pause);
-		int fphase = Math2.fracMult(len, phase, 100);
+		int fphase = Math2.percent(len, phase);
 		return Wave.sawToothWaveWithPause(frm+fphase, span, pause);
 	}
 

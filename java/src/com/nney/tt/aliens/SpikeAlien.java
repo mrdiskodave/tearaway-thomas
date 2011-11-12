@@ -23,7 +23,7 @@ public class SpikeAlien extends AlienWithLocation {
 	public void update() {
 		freezeBounds = ourAnim.box().add2(c);
 
-		int f = srv.getFrameNumber() + Math2.fracMult(frequency, phase, 100);
+		int f = srv.getFrameNumber() + Math2.percent(frequency, phase);
 		f %= frequency;
 
 		Sprite s = ourAnim.randomAccessByFrameNumber(f);

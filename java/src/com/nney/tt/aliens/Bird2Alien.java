@@ -42,7 +42,7 @@ public class Bird2Alien extends Alien {
 		if (goLeft) {
 			phase = span*2 - phase;
 		}
-		Result r = Wave.z(span, 0, Math2.fracMult(srv.getFrameNumber(), speed, 100), phase);
+		Result r = Wave.z(span, 0, Math2.percent(srv.getFrameNumber(), speed), phase);
 		c2 = new Coord(range.left+r.pos, c1.y);
 		animName = Anims.directionalAnimName(r.goLeft(), "");
 	}

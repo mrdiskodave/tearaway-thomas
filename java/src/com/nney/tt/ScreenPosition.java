@@ -30,8 +30,8 @@ public class ScreenPosition {
 	public ScreenPosition(int screenWidth, int screenHeight, Coord centre) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
-		int cx = Math2.fracMult(screenWidth, centre.x, 100);
-		int cy = Math2.fracMult(screenHeight, centre.y, 100);
+		int cx = Math2.percent(screenWidth, centre.x);
+		int cy = Math2.percent(screenHeight, centre.y);
 		this.centre = new Coord(cx, cy);
 	}
 
