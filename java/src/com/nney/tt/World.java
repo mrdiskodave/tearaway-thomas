@@ -540,7 +540,6 @@ public class World implements AlienServices, Disposable {
 	}
 
 	public void load(Alien alien) {
-		alien.load();
 		alienTracker.delayedAdd(alien);
 	}
 

@@ -32,6 +32,8 @@ public class Bird2Alien extends Alien {
 	@Override
 	public void onLoaded() {
 		box = anims.box();
+		box.add(new Coord(range.left, c1.y));
+		box.right += range.width();
 	}
 	
 	void generateInternalStateFromFrameNumber() {
@@ -51,10 +53,10 @@ public class Bird2Alien extends Alien {
 		changeAnimation(animName);
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);
-		freezeBounds = box.add2(c2);
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 			srv.headBounce(this, s);
 		}
+		freezeBounds = box;
 	}
 
 	@Override

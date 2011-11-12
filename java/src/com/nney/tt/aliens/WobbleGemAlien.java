@@ -1,6 +1,5 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Sprite;
@@ -11,8 +10,10 @@ import com.nney.utils.Math2;
 })
 public class WobbleGemAlien extends GemAlien {
 	private static final int FLAG_NO_WOBBLE = 3;
+	
+	private static final int MAX_WOBBLE = 3;
 
-	private static final int[] WOBBLE = { 0, -1, -2, -3, -2, -1, 0, 1, 2, 3, 2, 1 };
+	private static final int[] WOBBLE = { 0, -1, -2, -MAX_WOBBLE, -2, -1, 0, 1, 2, MAX_WOBBLE, 2, 1 };
 
 	@PropAnn(name = "Wobble", doc = "Do we wobble?", label = "wobble")
 	public boolean wobble = true;
@@ -48,7 +49,11 @@ public class WobbleGemAlien extends GemAlien {
 		// (so player tunnels when sliding on ice)
 
 		if (!isFalling()) {
-			freezeBounds = Box.around(c, 20, 20);
+			freezeBounds = spriteBounds(s);
+			if (wobble) {
+				freezeBounds.bottom += MAX_WOBBLE;
+				freezeBounds.top -= MAX_WOBBLE;
+			}
 		}
 	}
 }

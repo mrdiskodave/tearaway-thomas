@@ -303,7 +303,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public void load(Alien alien) {
-		alien.load();
 		alienTracker.add(alien);
 	}
 

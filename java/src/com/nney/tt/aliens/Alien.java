@@ -18,7 +18,7 @@ import com.nney.tt.sprites.Sprite;
  */
 public abstract class Alien implements HasProps {
 	enum LifeCycle {
-		INSTANTIATED, ATTACH, CONNECT, READY, UNLOAD
+		INSTANTIATED, ATTACH, READY, UNLOAD
 	}
 
 	private LifeCycle lifeCycle = LifeCycle.INSTANTIATED;
@@ -158,20 +158,18 @@ public abstract class Alien implements HasProps {
 	}
 
 	public void connect(AnimsPool ap) {
-		fromTo(LifeCycle.ATTACH, LifeCycle.CONNECT);
+		fromTo(LifeCycle.ATTACH, LifeCycle.READY);
 		String a = alienInfo.animsName();
 		if (a != null) {
 			anims = ap.expect(a);
 		}
+		onPropUpdate();
+		onLoaded();
 	}
 
 	public void connect(Alien src) {
-		fromTo(LifeCycle.ATTACH, LifeCycle.CONNECT);
+		fromTo(LifeCycle.ATTACH, LifeCycle.READY);
 		anims = src.anims;
-	}
-
-	public void load() {
-		fromTo(LifeCycle.CONNECT, LifeCycle.READY);
 		onPropUpdate();
 		onLoaded();
 	}
