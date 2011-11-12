@@ -2,7 +2,16 @@ package com.nney.utils;
 
 public final class Math2 {
 	public static final int fracMult(int x, int top, int bottom) {
-		return (x*top)/bottom;
+		return x*top/bottom;
+	}
+
+	public static final int percent(int x, int percent) {
+		return fracMult(x, percent, 100);
+	}
+	
+	public static final int percent2(int x, int percent) {
+		// slightly slower, on my machine, than percent()
+		return (int) (x*(percent*0.01f));
 	}
 	
 	public static final int roundUpDiv(int x, int y) {

@@ -365,6 +365,14 @@ public class JavaTest extends TestCase {
 		assertEquals(42, counter);
 	}
 
+	public void testRepeatingYourself4() {
+		int counter = 0;
+		for (int x = 42; x!=0; x--) {
+			counter++;
+		}
+		assertEquals(42, counter);
+	}
+
 	public void testExtend() {
 		assertEquals(512, ((byte) 1) * 512);
 	}
