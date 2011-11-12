@@ -74,13 +74,13 @@ public class Aperture extends CurtainImpl {
 	@Override
 	protected int stateToValue(int state) {
 		state = CLOSED - state;
-		state = Math2.fracMult(maxRadius, state, CLOSED);
+		state = Math2.fracMult(state, maxRadius, CLOSED);
 		return state;
 	}
 
 	@Override
 	protected int valueToState(int value) {
-		value = Math2.fracMult(CLOSED, value, maxRadius);
+		value = Math2.fracMult(value, CLOSED, maxRadius);
 		value = CLOSED - value;
 		return value;
 	}

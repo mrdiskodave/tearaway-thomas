@@ -26,12 +26,12 @@ public class Fade extends CurtainImpl {
 	
 	@Override
 	protected int stateToValue(int state) {
-		return Math2.fracMult(darkest, state, CLOSED);
+		return Math2.fracMult(state, darkest, CLOSED);
 	}
 
 	@Override
 	protected int valueToState(int value) {
-		return Math2.fracMult(CLOSED, value, darkest);
+		return Math2.fracMult(value, CLOSED, darkest);
 	}
 
 	@Override
