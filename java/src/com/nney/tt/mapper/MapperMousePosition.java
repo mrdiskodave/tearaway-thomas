@@ -2,6 +2,7 @@ package com.nney.tt.mapper;
 
 import com.nney.tt.Const;
 import com.nney.tt.World;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class MapperMousePosition {
@@ -13,6 +14,11 @@ public class MapperMousePosition {
 	private Coord worldBlockPos;
 	private Coord worldBlockPosDelta;
 	private Coord lastWorldBlockPos = new Coord();
+	private final Box worldLimits;
+	
+	public MapperMousePosition(Box worldLimits) {
+		this.worldLimits = worldLimits;
+	}
 
 	void update(Coord mouse, Coord scr) {
 		pos = mouse.copy();
@@ -21,7 +27,7 @@ public class MapperMousePosition {
 		last = pos.copy();
 		
 		worldPos = pos.add2(scr);
-		World.WHOLE_MAP_BOUNDS_IN_PIXELS.constrain(worldPos);
+		worldLimits.constrain(worldPos);
 		worldBlockPos = worldPos.div2(Const.BLOCK_SIZE);
 		worldBlockPosDelta = worldBlockPos.sub2(lastWorldBlockPos);
 		lastWorldBlockPos = worldBlockPos.copy();

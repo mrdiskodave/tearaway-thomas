@@ -181,7 +181,7 @@ public class AlienInfoMap {
 		Collections.sort(animList);
 	}
 	
-	public String getName() {
+	public String getWorldName() {
 		return worldName;
 	}
 

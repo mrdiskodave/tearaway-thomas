@@ -2,6 +2,7 @@ package com.nney.tt.props;
 
 import java.util.List;
 
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 /**

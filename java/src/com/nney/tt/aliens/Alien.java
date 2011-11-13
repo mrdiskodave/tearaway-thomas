@@ -163,15 +163,15 @@ public abstract class Alien implements HasProps {
 		if (a != null) {
 			anims = ap.expect(a);
 		}
-		onPropUpdate();
 		onLoaded();
+		onPropUpdate();
 	}
 
 	public void connect(Alien src) {
 		fromTo(LifeCycle.ATTACH, LifeCycle.READY);
 		anims = src.anims;
-		onPropUpdate();
 		onLoaded();
+		onPropUpdate();
 	}
 
 	public void done() {

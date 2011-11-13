@@ -5,6 +5,7 @@ import java.util.List;
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
 import com.nney.tt.World;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public class CoordVisualProp extends VisualProp<Coord> {
@@ -79,7 +80,7 @@ public class CoordVisualProp extends VisualProp<Coord> {
 	}
 	
 	@Override
-	public void validate() {
-		World.WHOLE_MAP_BOUNDS_IN_PIXELS.constrain(read());
+	public void validate(Box constraints) {
+		constraints.constrain(read());
 	}
 }

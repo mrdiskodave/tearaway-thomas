@@ -34,6 +34,8 @@ public class Bird2Alien extends Alien {
 		box = anims.box();
 		box.add(new Coord(range.left, c1.y));
 		box.right += range.width();
+		animPlayer.setRateScale(speed/2);
+		// if we halve the base rate of bird anim this fudge factor can go
 	}
 	
 	void generateInternalStateFromFrameNumber() {

@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
-import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
@@ -107,13 +106,12 @@ public class BoxVisualProp extends VisualProp<Box> {
 		Box t = read();
 		Coord delta = c.sub2(simpleLocation());
 		t.add(delta);
-		validate();
 	}
 
 	@Override
-	public void validate() {
+	public void validate(Box constraints) {
 		Box t = read();
-		t.resideInside(World.WHOLE_MAP_BOUNDS_IN_PIXELS);
+		t.resideInside(constraints);
 	}
 
 	@Override

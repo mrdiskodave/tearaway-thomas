@@ -45,9 +45,6 @@ public class World implements AlienServices, Disposable {
 		private static final long serialVersionUID = 1L;
 	}
 
-	public static final Box WHOLE_MAP_BOUNDS_IN_PIXELS = Box.fromTopLeftAndSize(0, 0, GameMap.MAP_WIDTH
-			* Const.BLOCK_SIZE, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE);
-
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
@@ -668,7 +665,7 @@ public class World implements AlienServices, Disposable {
 	 * the {@link MapBoundsAlien} will keep him from seeing the larger map.
 	 */
 	private void pickTheBestBounds() {
-		Box bounds = WHOLE_MAP_BOUNDS_IN_PIXELS;
+		Box bounds = gameMap.boundsInPixels();
 		long bestArea = Long.MAX_VALUE;
 		for (MapBoundsAlien a : ListUtil.findMany(MapBoundsAlien.class, alienTracker)) {
 			Box box = a.bounds.copy();

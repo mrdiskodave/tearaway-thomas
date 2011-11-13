@@ -62,10 +62,10 @@ public class OPS {
 		}
 	}
 
-	public static void validate(Object object) {
+	public static void validate(Object object, Box constraints) {
 		List<Prop> props = OPS.propsFor(object);
 		for (Prop prop : props) {
-			prop.validate();
+			prop.validate(constraints);
 		}
 	}
 

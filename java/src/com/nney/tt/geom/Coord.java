@@ -110,7 +110,7 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 	 * @param rounds
 	 *            How many iterations to do (more takes longer but may give
 	 *            better quality output).
-	 * @return A positive number less than max.
+	 * @return A positive int.
 	 */
 	public int pseudorandom(int max, int rounds) {
 		int x = this.x;

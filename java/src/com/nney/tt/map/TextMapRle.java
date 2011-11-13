@@ -51,8 +51,9 @@ public class TextMapRle {
 				map[offset++] = (short) v;
 			}
 		}
-		if (offset < limit)
+		if (offset < limit) {
 			throw new RuntimeException("Text packed map too small - it finished on " + offset + " not " + limit);
+		}
 	}
 
 	public static String pack(short[] s) {

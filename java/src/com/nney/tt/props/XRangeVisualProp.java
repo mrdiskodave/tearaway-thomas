@@ -86,7 +86,6 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 		int delta = c.x;
 		delta -= t.middle();
 		t.add(delta);
-		validate();
 	}
 
 	@Override
@@ -96,9 +95,9 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 	}
 
 	@Override
-	public void validate() {
+	public void validate(Box constraints) {
 		XRange t = read();
-		t.resideInside(World.WHOLE_MAP_BOUNDS_IN_PIXELS.toXRange());
+		t.resideInside(constraints.toXRange());
 	}
 	
 	@Override

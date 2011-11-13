@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
+import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.mapper.FieldAccessor;
 
@@ -37,7 +38,7 @@ public abstract class Prop {
 		getFieldAccessor().put(other.getFieldAccessor().getCopy());
 	}
 
-	public void validate() {
+	public void validate(Box constraints) {
 	}
 
 	// ---------------------------------------------------------------------------

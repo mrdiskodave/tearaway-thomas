@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
+import com.nney.tt.geom.Box;
 import com.nney.utils.Math2;
 
 public class IntegerProp extends SpecificProp<Integer> {
@@ -75,7 +76,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 	}
 	
 	@Override
-	public void validate() {
+	public void validate(Box constraints) {
 		write(Math2.limit(ourMin, ourMax, read()));
 	}
 }

@@ -33,6 +33,7 @@ import com.nney.tt.mapper.StringEditor.State;
 import com.nney.tt.props.Bat;
 import com.nney.tt.props.Button;
 import com.nney.tt.props.ButtonPressServices;
+import com.nney.tt.props.HasProps;
 import com.nney.tt.props.OPS;
 import com.nney.tt.props.Prop;
 import com.nney.tt.props.TakeTextBack;
@@ -173,7 +174,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private final HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
 	private Alien selectedAlien;
 
-	private final MapperMousePosition mmp = new MapperMousePosition();
+	private final MapperMousePosition mmp;
 
 	private StatusLayer topDownStatusLayer;
 
@@ -221,6 +222,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private EditManager em;
 
 	private SlowBoolean emUnknown = new SlowBoolean();
+
+	private Box constraints;
 	
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -241,13 +244,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight(), new Coord(50, 50));
 
-		Box scrollBounds = World.WHOLE_MAP_BOUNDS_IN_PIXELS.copy();
-		scrollBounds.left -= mgc.screenWidth() - 1;
-		scrollBounds.top -= mgc.screenHeight() - 1;
-		scrollBounds.right += mgc.screenWidth() - 1;
-		scrollBounds.bottom += mgc.screenHeight() - 1;
-		scr.setMapBoundsInPixels(scrollBounds, World.WHOLE_MAP_BOUNDS_IN_PIXELS);
-
 		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
 		mouse = ow.mouse;
 		animsPool = ow.animsPool;
@@ -261,7 +257,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 
 		gameMap = pl.getMap();
+		constraints = gameMap.boundsInPixels();
 		gameMap.applyCompress(loadBlockSet().wi.blockRandomisationTable);
+		
+		Box mapBoundsInPixels = gameMap.boundsInPixels();
+		mmp = new MapperMousePosition(mapBoundsInPixels);
+		Box scrollBounds = mapBoundsInPixels.copy();
+		int w = mgc.screenWidth() - 1;
+		int h = mgc.screenHeight() - 1;
+		scrollBounds.left -= w;
+		scrollBounds.top -= h;
+		scrollBounds.right += w;
+		scrollBounds.bottom += h;
+		scr.setMapBoundsInPixels(scrollBounds, mapBoundsInPixels);
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
@@ -283,7 +291,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
-		OPS.validate(alien);
+		OPS.validate(alien, constraints);
 		load(alien);
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
@@ -438,8 +446,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private Coord convertNumCoord(Coord nc) {
-		int x = Math2.fracMult(nc.x, GameMap.MAP_WIDTH * Const.BLOCK_SIZE - 1, 2);
-		int y = Math2.fracMult(nc.y, GameMap.MAP_HEIGHT * Const.BLOCK_SIZE - 1, 2);
+		int x = Math2.fracMult(nc.x, gameMap.width() * Const.BLOCK_SIZE - 1, 2);
+		int y = Math2.fracMult(nc.y, gameMap.height() * Const.BLOCK_SIZE - 1, 2);
 		Coord c = new Coord(x, y);
 		return c;
 	}
@@ -543,6 +551,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 		if (k == Keyboard.KEY_A) {
 			alienMode = true;
+			marker = null;
 			paletteTimer = 0;
 			say("Alien mode");
 		}
@@ -670,6 +679,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				final Coord firstMousePos = mmp.worldPixels();
 				final Coord firstBatPos = bat.box().centre();
 				final Coord batGrip = firstMousePos.sub2(firstBatPos);
+				final HasProps a = getSelectedAlien();
 				startAlienEdit();
 				startPen(kns, new Pen() {
 					Coord origin;
@@ -694,6 +704,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 						Coord whereSnapped = whereSnapped();
 						sayf("Move by %s", whereSnapped.sub2(firstBatPos));
 						bat.onMove(whereSnapped);
+						validateAlien(a);
 					}
 
 					@Override
@@ -863,8 +874,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	private void createAlien() {
 		AlienInfo ai = alienPalette.get();
 		Alien a = makeAlien(ai);
-		a.connect(animsPool);
 		a.resetTo(mmp.worldPixels());
+		a.connect(animsPool);
 		createAlienWithUndoRedo(a);
 	}
 
@@ -1092,15 +1103,22 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private void startAlienEdit() {
 		assert alienEdit == null;
-		Alien a = getSelectedAlien();
+		HasProps a = getSelectedAlien();
 		alienEdit = new ObjectEdit(a);
 	}
 
 	private void endAlienEdit() {
+		HasProps a = getSelectedAlien();
+		validateAlien(a);
 		alienEdit.removeMatching();
 		alienEdit.swap();
 		undoControler.redoThenAdd(alienEdit);
 		alienEdit = null;
+	}
+
+	public void validateAlien(HasProps a) {
+		OPS.validate(a, constraints);
+		a.onPropUpdate();
 	}
 
 	@Override
@@ -1183,8 +1201,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (slot != null) {
 			Coord c = mmp.worldBlocks();
 			// does it fit?
-			int xs = c.x + slot.w - GameMap.MAP_WIDTH;
-			int ys = c.y + slot.h - GameMap.MAP_HEIGHT;
+			int xs = c.x + slot.w - gameMap.width();
+			int ys = c.y + slot.h - gameMap.height();
 			if (xs > 0) {
 				sayf("Move left by at least %s blocks", xs);
 			}
@@ -1371,8 +1389,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		int pc = 0;
 		int pw = 0;
 		System.out.println("Generating Intricacies Of Toyland");
-		for (int y = 0; y < GameMap.MAP_HEIGHT; y++) {
-			for (int x = 0; x < GameMap.MAP_WIDTH; x++) {
+		for (int y = 0; y < gameMap.width(); y++) {
+			for (int x = 0; x < gameMap.height(); x++) {
 				Coord coord = new Coord(x, y);
 				int b = gameMap.safeGetBlock(coord);
 

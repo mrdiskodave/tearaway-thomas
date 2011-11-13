@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.geom.Box;
 import com.nney.tt.props.HasProps;
 import com.nney.tt.props.OPS;
 import com.nney.tt.props.Prop;
@@ -52,8 +53,6 @@ class ObjectEdit extends SymmetricalUndoRedo {
 	}
 
 	public void removeMatching() {
-		OPS.validate(object);
-		object.onPropUpdate();
 		for (Iterator<Content> ci = cs.iterator(); ci.hasNext();) {
 			Content c = ci.next();
 			if (c.same()) {

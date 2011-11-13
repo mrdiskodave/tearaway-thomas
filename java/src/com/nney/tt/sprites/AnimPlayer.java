@@ -1,5 +1,7 @@
 package com.nney.tt.sprites;
 
+import com.nney.utils.Math2;
+
 public class AnimPlayer {
 	/**
 	 * Where we are in the frame list.
@@ -16,8 +18,14 @@ public class AnimPlayer {
 	private int rate;
 
 	private boolean animEnded;
+	
+	private int rateScale = 100;
 
 	public AnimPlayer() {
+	}
+	
+	public void setRateScale(int rs) {
+		rateScale = rs;
 	}
 
 	public void changeAnimation(Anim freshAnim) {
@@ -26,13 +34,18 @@ public class AnimPlayer {
 		if (anim != freshAnim) {
 			// System.out.println("Fresh len "+freshAnim.frames.length);
 			anim = freshAnim;
-			rate = freshAnim.defaultRate;
+			setRate(freshAnim.defaultRate);
 			rewind();
 		}
 	}
 	
 	public void customiseRate(int customRate) {
-		rate = customRate;
+		setRate(customRate);
+	}
+
+	private void setRate(int r) {
+		rate = Math2.percent(r, rateScale);
+		
 	}
 
 	public void rewind() {
