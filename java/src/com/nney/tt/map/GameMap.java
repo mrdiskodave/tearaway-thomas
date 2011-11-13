@@ -7,9 +7,11 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
 public final class GameMap {
-	// use of these private constants are the only place map size is still hard-wired 
+	// use of these private constants are the only place
+	// where map size is still hard-wired 
 	private final static int OMAP_WIDTH = 256;
 	private final static int OMAP_HEIGHT = 128;
+	// this opens up the possibility of megamaps!!!
 
 	private final Box boundsInPixels;
 
@@ -82,11 +84,11 @@ public final class GameMap {
 	}
 
 	public int getBlock(Coord c) {
-		return map[c.y][c.x];
+		return fastGetBlock(c.x, c.y);
 	}
 
 	public void setBlock(Coord c, int b) {
-		map[c.y][c.x] = (short) b;
+		fastSetBlock(c.x, c.y, b);
 	}
 
 	public int safeGetBlock(Coord c) {

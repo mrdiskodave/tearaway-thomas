@@ -27,6 +27,7 @@ import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HiddenScoreGiftAlien;
 import com.nney.tt.aliens.LegacyAlien;
+import com.nney.tt.aliens.LevelInfoAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
@@ -100,6 +101,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
 		add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
 		add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
+		add(new AlienInfo(204, "levelInfo", null, LevelInfoAlien.class));
 
 		// use of annotations to make this easier
 		addFromAnnotation(FlameAlien.class);

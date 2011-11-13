@@ -425,8 +425,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			testLevel(true);
 		}
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-			saveMap(false);
-			sayf("Saved: %s", levelInfo.filename);
+			if (ListUtil.findOne(PlayerAlien.class, alienTracker)==null) {
+				say("Can't save an invalid map: add the player?");
+			}
+			else {
+				saveMap(false);
+				sayf("Saved: %s", levelInfo.filename);
+			}
 		}
 	}
 

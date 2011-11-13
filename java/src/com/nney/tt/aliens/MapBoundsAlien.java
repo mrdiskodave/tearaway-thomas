@@ -22,6 +22,6 @@ public class MapBoundsAlien extends Alien {
 
 	@Override
 	public void update() {
-		freezeBounds = Box.around(getLocation());
+		pseudoAlienUpdate();
 	}
 }

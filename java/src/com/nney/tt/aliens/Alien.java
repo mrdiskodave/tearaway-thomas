@@ -188,4 +188,8 @@ public abstract class Alien implements HasProps {
 		assert lifeCycle == pre;
 		lifeCycle = post;
 	}
+	
+	void pseudoAlienUpdate() {
+		freezeBounds = Box.around(getLocation());
+	}
 }
