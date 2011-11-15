@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.geom.Box;
 import com.nney.tt.props.HasProps;
 import com.nney.tt.props.OPS;
 import com.nney.tt.props.Prop;

@@ -749,16 +749,6 @@ public class World implements AlienServices, Disposable {
 		timeRemainingInFrames += Const.FPS - 1;
 	}
 
-	private int countGems() {
-		int count = 0;
-		for (Alien a : alienTracker) {
-			if (GemAlien.class.isInstance(a)) {
-				count++;
-			}
-		}
-		return count;
-	}
-
 	@Override
 	public void awardExtraLife() {
 		if (ow.lives != 9) {
@@ -903,8 +893,7 @@ public class World implements AlienServices, Disposable {
 
 		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
 
-		gemsTotal = countGems();
-		System.out.println("Gems:" + gemsTotal);
+		gemsTotal = ListUtil.count(GemAlien.class, alienTracker);
 		gemsNeeded = levelInfo.gemsNeeded;
 		gemsCollected = 0;
 

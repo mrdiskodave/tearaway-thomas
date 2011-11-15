@@ -26,6 +26,14 @@ public class ListUtil {
 		return answer;
 	}
 
+	public static <T> int count(Class<T> type, Iterable<?> it) {
+		int answer = 0;
+		for (Object o : it) {
+			if (type.isInstance(o)) answer++;
+		}
+		return answer;
+	}
+
 	public static <T> void copy(List<? super T> dest, Iterable<? extends T> src) {
 		for (T t : src) {
 			dest.add(t);

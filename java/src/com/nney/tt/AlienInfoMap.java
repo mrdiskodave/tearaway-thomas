@@ -15,7 +15,6 @@ import com.nney.tt.aliens.BatAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
-import com.nney.tt.aliens.Bird2Alien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.ExitAlien;
@@ -27,7 +26,6 @@ import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HiddenScoreGiftAlien;
 import com.nney.tt.aliens.LegacyAlien;
-import com.nney.tt.aliens.LevelInfoAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlainLiftAlien;
@@ -91,7 +89,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
 		add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
 		add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
-		add(new AlienInfo(204, "bird2", "?bird", Bird2Alien.class)); // poly
+//		add(new AlienInfo(204, "bird2", "?bird", Bird2Alien.class)); // poly
 		add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
 		// add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		add(new AlienInfo(95, "star", "0star", StarAlien.class));
@@ -101,7 +99,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
 		add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
 		add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
-		add(new AlienInfo(204, "levelInfo", null, LevelInfoAlien.class));
+//		add(new AlienInfo(204, "levelInfo", null, LevelInfoAlien.class));
 
 		// use of annotations to make this easier
 		addFromAnnotation(FlameAlien.class);
@@ -188,7 +186,9 @@ public class AlienInfoMap {
 	}
 
 	private void addToIndex(AlienInfo ai, String k) {
-		assert !nameToAlienInfo.containsKey(k);
+		if (nameToAlienInfo.containsKey(k)) {
+			throw new RuntimeException(k+" present twice");
+		}
 		nameToAlienInfo.put(k, ai);
 	}
 

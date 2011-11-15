@@ -22,6 +22,6 @@ public class PlayerAlien extends AlienWithLocation {
 
 	@Override
 	public void update() {
-		freezeBounds = Box.around(getLocation());
+		pseudoAlienUpdate();
 	}
 }

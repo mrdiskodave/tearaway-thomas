@@ -2,9 +2,10 @@ package com.nney.tt;
 
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
+import com.nney.tt.props.HasProps;
 import com.nney.tt.props.PropAnn;
 
-public class LevelInfo {
+public class LevelInfo implements HasProps {
 	@PropAnn(doc = "How many gems must be collected before the exit opens?")
 	public int gemsNeeded;
 
@@ -20,8 +21,8 @@ public class LevelInfo {
 	@PropAnn(doc = "What is the filename of this level?")
 	public String filename;
 
+	@PropAnn(doc = "What world is this level in?")
 	public String worldName;
-
 
 	public LevelInfo(int gemsNeeded, int timeGiven, int horizon, String title, String worldName) {
 		this.gemsNeeded = gemsNeeded;
@@ -53,5 +54,11 @@ public class LevelInfo {
 		d.write("world");
 		d.write(worldName);
 		d.end();
+	}
+
+	@Override
+	public void onPropUpdate() {
+		// TODO Auto-generated method stub
+		
 	}
 }
