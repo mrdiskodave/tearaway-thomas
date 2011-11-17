@@ -21,12 +21,6 @@
             "name": "right", 
             "rate": 128, 
             "repeatPos": 0
-        }, 
-        {
-            "frames": [
-                4
-            ], 
-            "name": "fright"
         }
     ], 
     "comment": "GFXlrry"

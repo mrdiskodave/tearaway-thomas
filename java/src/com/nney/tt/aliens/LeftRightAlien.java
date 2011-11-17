@@ -32,7 +32,7 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 	boolean moveLeftRight(int speed) {
 		if (movingFright!=0) {
 			movingFright--;
-			changeAnimation("fright");
+			changeAnimation("movingFright");
 		}
 		else {
 			changeAnimation(Anims.directionalAnimName(goLeft, ""));

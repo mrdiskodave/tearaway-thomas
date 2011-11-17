@@ -33,7 +33,7 @@
                 12, 
                 13
             ], 
-            "name": "fright", 
+            "name": "movingFright", 
             "rate": 128, 
             "repeatPos": 0
         }
