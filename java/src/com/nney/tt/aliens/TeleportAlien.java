@@ -13,6 +13,8 @@ public class TeleportAlien extends AlienWithLocation {
 	
 	@PropAnn(doc = "Are we hidden from view?")
 	public boolean hidden;
+
+	private Box ourFreezeBounds;
 	
 	@Override
 	public void loadFromLegacyData() {
@@ -25,17 +27,23 @@ public class TeleportAlien extends AlienWithLocation {
 		super.resetTo(p);
 		destination = p.copyAndAdd(0, -40);
 	}
+	
+	@Override
+	public void onLoaded() {
+		changeAnimation(0);
+		ourFreezeBounds = anims.box();
+		ourFreezeBounds.add(c);
+	}
 
 	@Override
 	public void update() {
-		changeAnimation(0);
 		if (!hidden) {
 			Sprite s = nextFrame();
 			srv.drawSprite(c, s);
 		}
+		freezeBounds = ourFreezeBounds;
 
 		Box b = boxAroundUs(5);
-		freezeBounds = b;
 		if (srv.collideBoxWithPlayer(b)) {
 //			srv.drawDebugText(new Coord(10, 10), "hit");
 			srv.teleportTo(destination);
