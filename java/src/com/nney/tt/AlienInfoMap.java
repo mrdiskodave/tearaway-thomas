@@ -235,7 +235,7 @@ public class AlienInfoMap {
 		return answer;
 	}
 
-	static String typeCodeToName(int typeCode) {
+	public static String typeCodeToName(int typeCode) {
 		return AlienInfo.makeInternalName("tc" + typeCode);
 	}
 	

@@ -15,6 +15,8 @@
 package com.nney.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -367,7 +369,7 @@ public class JavaTest extends TestCase {
 
 	public void testRepeatingYourself4() {
 		int counter = 0;
-		for (int x = 42; x!=0; x--) {
+		for (int x = 42; x != 0; x--) {
 			counter++;
 		}
 		assertEquals(42, counter);
@@ -418,7 +420,8 @@ public class JavaTest extends TestCase {
 		// Surprising that this passes
 		String[][] a = new String[0][42];
 		// and that we are still here
-		// (swap that 42 for any number ... it is ignored and not stored anywhere)
+		// (swap that 42 for any number ... it is ignored and not stored
+		// anywhere)
 
 		assertEquals(0, a.length);
 		// of course
@@ -441,7 +444,7 @@ public class JavaTest extends TestCase {
 
 	public void testBigIntSquared() {
 		int bigInt = 0x7fffffff;
-		
+
 		// wrong!
 		long a = bigInt * bigInt;
 		assertEquals(1, a);
@@ -455,24 +458,23 @@ public class JavaTest extends TestCase {
 		// The obvious way of writing it silently fails on int overflow.
 		//
 	}
-	
+
 	public void testPri() {
-		assertEquals(17, 1*16+1);
-		assertEquals(32, 1<<4+1);
+		assertEquals(17, 1 * 16 + 1);
+		assertEquals(32, 1 << 4 + 1);
 	}
-	
-	
+
 	public void testParseDoubleIsSilentAboutLongsThatDontFit() {
 		long a = -4964420948893066024L;
 		double b = Double.parseDouble(Long.toString(a)); // no exception thrown
 		long c = (long) b;
-		long diff = Math.abs(a-c);
-		assertTrue(diff>100); // it's 216 here :O :O
+		long diff = Math.abs(a - c);
+		assertTrue(diff > 100); // it's 216 here :O :O
 	}
 
 	public void testParseIntIsNoiseyAboutLongsThatDontFit() {
 		try {
-			long a = (long)Integer.MAX_VALUE+1;
+			long a = (long) Integer.MAX_VALUE + 1;
 			Integer.parseInt(Long.toString(a)); // exception thrown
 			fail();
 		}
@@ -481,5 +483,29 @@ public class JavaTest extends TestCase {
 		}
 	}
 
+	public void testConcurrentModification() throws Exception {
+		try {
+			ArrayList<Integer> l = new ArrayList<Integer>();
+			l.add(1);
+			l.add(2);
+			Iterator<Integer> it = l.iterator();
+			assertEquals((Integer) 1, it.next());
+			l.add(3);
+			assertEquals((Integer) 2, it.next()); // bang!
+			fail();
+		}
+		catch (ConcurrentModificationException e) {
+			// expected
+		}
+	}
 	
+	public void testCollectionsCopyClearsFirst() throws Exception {
+		ArrayList<Integer> d = new ArrayList<Integer>();
+		Collections.addAll(d, 1, 2, 3);
+		ArrayList<Integer> s = new ArrayList<Integer>();
+		Collections.addAll(s, 1, 2, 3);
+		Collections.copy(d, s);
+		assertEquals(3, d.size());
+	}
+
 }

@@ -1,5 +1,6 @@
 package com.nney.tt.osd;
 
+import com.nney.tt.DisposableField;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.PrerenderedText;
 
@@ -7,9 +8,9 @@ import com.nney.tt.gfx.PrerenderedText;
  * Text that can be changed.
  */
 class SmartText extends AbstractText {
-	private PrerenderedText content;
+	private DisposableField<PrerenderedText> content = new DisposableField<PrerenderedText>();
 
-	private String slast = "";
+	private String contentDescription;
 
 	private final Font font;
 
@@ -23,34 +24,30 @@ class SmartText extends AbstractText {
 	}
 
 	void set(int col, int kern, String next) {
-		String snext = String.format("%x-%x-%s", col, kern, next);
-		if (!slast.equals(snext)) {
-			dispose();
-			content = font.preRender(col, kern, next);
-			slast = snext;
+		String nextDescription = String.format("%x-%x-%s", col, kern, next);
+		if (content.empty() || !nextDescription.equals(contentDescription)) {
+			content.set(font.preRender(col, kern, next));
+			contentDescription = nextDescription;
 		}
 	}
 
 	@Override
 	public void draw(int x, int y) {
-		content.draw(x, y);
+		content.get().draw(x, y);
 	}
 
 	@Override
 	public int width() {
-		return content.width();
+		return content.get().width();
 	}
 
 	@Override
 	public int height() {
-		return content.height();
+		return content.get().height();
 	}
 
 	@Override
 	public void dispose() {
-		if (content != null) {
-			content.dispose();
-			content = null;
-		}
+		content.dispose();
 	}
 }

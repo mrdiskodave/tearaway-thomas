@@ -5,16 +5,15 @@ import org.apache.commons.codec.binary.Hex;
 
 public class HexServices {
 	public static byte[] mustDecodeHex(String hexString) {
-		char content[] = new char[hexString.length()];
-		hexString.getChars(0, hexString.length(), content, 0);
-		byte[] data;
+		int l = hexString.length();
+		char content[] = new char[l];
+		hexString.getChars(0, l, content, 0);
 		try {
-			data = Hex.decodeHex(content);
+			return Hex.decodeHex(content);
 		}
 		catch (DecoderException e) {
-			throw new RuntimeException("Bad hex: " + hexString);
+			throw new RuntimeException(e);
 		}
-		return data;
 	}
 
 }

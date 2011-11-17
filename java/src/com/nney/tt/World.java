@@ -62,7 +62,6 @@ public class World implements AlienServices, Disposable {
 
 	private AlienInfoMap alienInfoMap;
 
-	// Disposable:
 	private Horizon horizon;
 
 	private String worldName;
@@ -169,7 +168,7 @@ public class World implements AlienServices, Disposable {
 	private boolean record;
 
 	// Disposable:
-	private StatusScreen statusScreen;
+	private DisposableField<StatusScreen> statusScreen = new DisposableField<StatusScreen>();
 
 	private Aperture hole;
 
@@ -228,8 +227,6 @@ public class World implements AlienServices, Disposable {
 	private boolean configuredPerformIntro = true;
 
 	private String configuredScriptDestination;
-
-	private int changingNumber;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -613,10 +610,10 @@ public class World implements AlienServices, Disposable {
 		dimFade.update();
 		if (textOverHole) {
 			hole.update();
-			statusScreen.update();
+			statusScreen.get().update();
 		}
 		else {
-			statusScreen.update();
+			statusScreen.get().update();
 			hole.update();
 		}
 		totalFade.update();
@@ -880,7 +877,7 @@ public class World implements AlienServices, Disposable {
 			load(alien);
 		}
 
-		horizon = gc.loadHorizon(TTResource.horizon(levelInfo.horizon));
+		horizon = ow.getHorizon(levelInfo.horizon);
 
 		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 
@@ -899,11 +896,11 @@ public class World implements AlienServices, Disposable {
 
 		timeRemainingInFrames = levelInfo.timeGiven * Const.FPS + Const.FPS - 1;
 
-		if (hud == null) {
-			Anims lifeAnims = animsPool.expect("0life");
-			hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).sprites[0]);
-			statusDisplay = new StatusDisplay(gc, fonts.font);
-		}
+		assert hud == null;
+
+		Anims lifeAnims = animsPool.expect("0life");
+		hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).sprites[0]);
+		statusDisplay = new StatusDisplay(gc, fonts.font);
 	}
 
 	private void performIntro() {
@@ -1231,27 +1228,21 @@ public class World implements AlienServices, Disposable {
 	// (RE)LOAD AND FREE
 
 	private void createStatusScreen(String text) {
-		freeStatusScreen();
-		statusScreen = new StatusScreen(gc, fonts.font);
-		OsdParser osdParser = new OsdParser(statusScreen);
+		statusScreen.dispose();
+		StatusScreen ss = new StatusScreen(gc, fonts.font);
+		OsdParser osdParser = new OsdParser(ss);
 		osdParser.parse(text);
-		statusScreen.done();
-	}
-
-	private void freeStatusScreen() {
-		if (statusScreen != null) {
-			statusScreen.dispose();
-			statusScreen = null;
-		}
+		ss.done();
+		statusScreen.set(ss);
 	}
 
 	@Override
 	public void dispose() {
+		// this presupposes create() ran successfully
 		ah.stopMusic();
-		freeStatusScreen();
-		if (horizon != null) horizon.dispose();
-		if (hud != null) hud.dispose();
-		if (statusDisplay != null) statusDisplay.dispose();
+		statusScreen.dispose();
+		hud.dispose();
+		statusDisplay.dispose();
 	}
 
 	public Coord getScreenPosition() {

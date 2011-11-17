@@ -1,6 +1,6 @@
 package com.nney.tt.gfx;
 
-public interface PrerenderedText {
+public interface PrerenderedText extends Disposable {
 	/**
 	 * How wide is this thing?
 	 * 
@@ -22,9 +22,4 @@ public interface PrerenderedText {
 	 * @param y The y coordinate to draw it at.
 	 */
 	void draw(int x, int y);
-
-	/**
-	 * Release any resources associated with this object.
-	 */
-	void dispose();
 }

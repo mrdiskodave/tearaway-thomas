@@ -9,10 +9,10 @@ public class LevelInfo implements HasProps {
 	@PropAnn(doc = "How many gems must be collected before the exit opens?")
 	public int gemsNeeded;
 
-	@PropAnn(doc = "How many seconds is the player allowed to complete the level?")
+	@PropAnn(doc = "How many seconds is the player given to complete the level?")
 	public int timeGiven;
 	
-	@PropAnn(doc = "What horizon sits behind the level?")
+	@PropAnn(doc = "What horizon sits behind the level?", min=0, max=7)
 	public int horizon;
 	
 	@PropAnn(doc = "What is the title of this level?")

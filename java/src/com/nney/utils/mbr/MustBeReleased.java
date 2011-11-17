@@ -30,10 +30,10 @@ import java.io.InputStream;
  * that required you imposing that contract in the first place, e.g. releasing
  * some of your own fields, and, only then, call {@link #release()}. Then the
  * {@link MustBeReleased} object can be garbage collected without complaining.
- * Then, at the next GC, you are assured that your callers honoured the contract
- * you imposed on them.<br>
- * (while hunting for leaks you can bring the next GC earlier by calling
- * {@link System#gc()})
+ * Then, at the next full garbage collection, you are assured that your caller
+ * has honoured the contract you imposed on them.<br>
+ * (while hunting for leaks you can bring the next garbage collection earlier by
+ * calling {@link System#gc()})
  * 
  * <p>
  * Using this is extra overhead but this area is such a can-of-worms that it is
@@ -57,6 +57,7 @@ public class MustBeReleased {
 
 	@Override
 	public void finalize() {
+		// no point throwing from in here as it won't go anywhere
 		if (assertsEnabled && !hasBeenReleased) {
 			System.err.println("MustBeReleased without release()");
 			trace.printStackTrace(System.err);

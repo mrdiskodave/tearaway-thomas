@@ -1,6 +1,7 @@
 package com.nney.tt.mapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -10,15 +11,16 @@ import com.nney.tt.AlienInfoMap;
 import com.nney.tt.AlienServices;
 import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
-import com.nney.tt.FrameDrawer;
 import com.nney.tt.LevelInfo;
-import com.nney.tt.SlowBoolean;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
 import com.nney.tt.ScreenPosition;
+import com.nney.tt.SlowBoolean;
 import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.AlienWithLocation;
 import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.LegacyAlien;
 import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
@@ -88,17 +90,23 @@ import com.nney.utils.SortKeyGenerator;
  *   [Ctrl+A] start marking a rectangle of blocks covering the whole map
  *            (this requires a jump to the bottom right of the map)
  *   [Ctrl+M] toggle seeing block masks
- *   [Ctrl+I] toggle seeing hidden blocks
+ *   [Ctrl+H] toggle seeing hidden blocks
+ *   {Ctrl+G] toggle seeing the grid
  * 
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
  *     [CURSOR KEYS], [CTRL+M] and [CTRL+I] work in here too
+ *     
+ * [S] Specification mode:
+ *   Level properties are displayed (e.g. level title e.g. horizon number)
+ *   and they can be set in the same way as the properties of aliens durnig
+ *   Alien Mode.
  * 
  * Always:
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
  * [NUMPAD5] jump to the middle of the level
  *           (and the eight numbered keys around it work as expected)
- * [Ctrl+G] where am I?
+ * [Ctrl+W] where am I?
  * [Ctrl+Z] endless undo
  * [Ctrl+Y] endless redo
  * [ESCAPE] reset
@@ -114,20 +122,37 @@ import com.nney.utils.SortKeyGenerator;
  * mouse pointer in the middle of the screen.
  * </pre>
  */
-public class Mapper implements ButtonPressServices, FrameDrawer {
-	private static final int FIRST_LINE = 2;
+public class Mapper implements ButtonPressServices {
+	private static final int KEY_SELECT_ALL = Locks.LOCK_CONTROL + Keyboard.KEY_A;
 
-	private static final int X_NAME = 0;
+	private static final int KEY_REDO = Locks.LOCK_CONTROL + Keyboard.KEY_Y;
 
-	private static final int X_VALUE = 15;
+	private static final int KEY_UNDO = Locks.LOCK_CONTROL + Keyboard.KEY_Z;
 
-	private static final int X_BUTTONS = 35;
+	private static final int KEY_WHERE = Locks.LOCK_CONTROL + Keyboard.KEY_W;
 
-	private static final int W_NAME = X_VALUE - X_NAME;
+	private static final int KEY_SEE_GRID = Locks.LOCK_CONTROL + Keyboard.KEY_G;
 
-	private static final int W_VALUE = X_BUTTONS - X_VALUE;
+	private static final int KEY_SEE_HIDDEN = Locks.LOCK_CONTROL + Keyboard.KEY_H;
 
+	private static final int KEY_SEE_MASKS = Locks.LOCK_CONTROL + Keyboard.KEY_M;
+	
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
+
+	// prop panel layout:
+	
+	private static final int PROPS_FIRST_LINE = 2;
+
+	private static final int PROPS_X_NAME = 0;
+
+	private static final int PROPS_X_VALUE = 15;
+
+	private static final int PROPS_X_BUTTONS = 45;
+
+	private static final int PROPS_W_NAME = PROPS_X_VALUE - PROPS_X_NAME;
+
+	private static final int PROPS_W_VALUE = PROPS_X_BUTTONS - PROPS_X_VALUE;
+
 
 	interface AlienPredicate {
 		boolean is(Alien t);
@@ -210,9 +235,11 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	private final AlienInfoMap alienInfoMap;
 
-	private boolean seeHidden = true;
+	static final int FLAG_SEE_HIDDEN = 1;
+	static final int FLAG_SEE_MASKS = 2;
+	static final int FLAG_SEE_GRID = 4;
 
-	private boolean seeMasks;
+	int flags = FLAG_SEE_HIDDEN + FLAG_SEE_GRID;
 
 	private MapperAlienTracker alienTracker = new MapperAlienTracker();
 
@@ -338,7 +365,6 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 	}
 
-	@Override
 	public void drawFrame() {
 		mgc.beginDrawing();
 
@@ -404,12 +430,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 			if (nc != null) {
 				moveMouse(convertNumCoord(nc));
 			}
-			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_G) {
-				sayf("Position: %spixels %sblocks %sgems", mmp.worldPixels(), mmp.worldBlocks(), ListUtil.count(GemAlien.class, alienTracker));
+			if (k == KEY_WHERE) {
+				int gemCount = ListUtil.count(GemAlien.class, alienTracker);
+				sayf("Position: %spixels %sblocks | Gems: %s", mmp.worldPixels(), mmp.worldBlocks(), gemCount);
 			}
 
-			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Z) undoControler.undo();
-			if (k == Locks.LOCK_CONTROL + Keyboard.KEY_Y) undoControler.redo();
+			if (k == KEY_UNDO) undoControler.undo();
+			if (k == KEY_REDO) undoControler.redo();
 			if (k == Keyboard.KEY_ESCAPE) {
 				paletteTimer = 0;
 				messTimer = 0;
@@ -438,6 +465,36 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				saveMap(false);
 				sayf("Saved: %s", levelInfo.filename);
 			}
+		}
+		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) {
+			// enliven
+			List<Alien> n = new ArrayList<Alien>();
+			List<Alien> all = flatten();
+			for (Iterator<Alien> iterator = all.iterator(); iterator.hasNext();) {
+				Alien a = iterator.next();
+				if (a instanceof LegacyAlien) {
+					LegacyAlien la = (LegacyAlien) a;
+					byte[] d = la.getLegacyData();
+					
+					int typeCode = d[0]&0xff;
+					String tcName = AlienInfoMap.typeCodeToName(typeCode);
+					if (alienInfoMap.nameExists(tcName)) {
+						Alien alien = alienInfoMap.instantiateAttach(alienInfoMap.getByName(tcName));
+						if (alien instanceof AlienWithLocation) {
+							AlienWithLocation awl = (AlienWithLocation) alien;
+							awl.c = la.getLocation();
+						}
+						alien.legacyData = d;
+						alien.loadFromLegacyData();
+						alien.connect(animsPool);
+						n.add(alien);
+						iterator.remove();
+					}
+				}
+			}
+			sayf("%s legacy aliens enlivened", n.size());
+			ListUtil.copy(all, n);
+			unflatten(all);
 		}
 	}
 
@@ -515,7 +572,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_M) {
 			marker = marker == null ? mmp.worldBlocks() : null;
 		}
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_A) {
+		if (k == KEY_SELECT_ALL) {
 			marker = new Coord(0, 0);
 			moveMouse(convertNumCoord(new Coord(2, 2)));
 		}
@@ -536,11 +593,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		}
 
 		if (k == Keyboard.KEY_DELETE) fillRect(0);
-		if (k == ALIENS_LOCK + Keyboard.KEY_DELETE) {
-			if (marker != null) {
-				AlienPredicate ap = getRectPredicate();
-				removePredicatedAliensWithUndo(ap);
-			}
+		if (k == ALIENS_LOCK + Keyboard.KEY_DELETE && marker != null) {
+			removePredicatedAliensWithUndo(getRectPredicate());
 		}
 		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
 			int slotNumber = k - PASTE_BUFFER_START;
@@ -753,7 +807,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	public void checkPropMouseOver() {
 		mouseOver = null;
 		if (props != null) {
-			int y = FIRST_LINE;
+			int y = PROPS_FIRST_LINE;
 			for (Prop p : props) {
 				if (topDownStatusLayer.getBox(0, y++, -1, 1).inside(mmp.screenPixels())) {
 					mouseOver = p;
@@ -841,8 +895,13 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	private void drawLevel() {
-		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-		scr.drawGrid(mgc.gc());
+		if (testFlag(FLAG_SEE_GRID)) {
+			mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
+			scr.drawGrid(mgc.gc());
+		}
+		else {
+			ow.getHorizon(levelInfo.horizon).draw();
+		}
 		scr.drawBorders(mgc.gc());
 		scr.drawTheMap(gameMap, loadBlockSet());
 		drawRect();
@@ -850,6 +909,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (mode == Mode.DRAW) {
 			drawBlockCursor();
 		}
+	}
+
+	private boolean testFlag(int test) {
+		return Math2.maskTest(flags, test);
 	}
 
 	private void drawRect() {
@@ -921,8 +984,19 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_M) seeMasks = !seeMasks;
-		if (k == Locks.LOCK_CONTROL + Keyboard.KEY_H) seeHidden = !seeHidden;
+		if (k == KEY_SEE_MASKS) flipFlag(FLAG_SEE_MASKS);
+		if (k == KEY_SEE_HIDDEN) flipFlag(FLAG_SEE_HIDDEN);
+		if (k == KEY_SEE_GRID) flipFlag(FLAG_SEE_GRID);
+	}
+
+	private void flipFlag(int flip) {
+		flags ^= flip;
+		sayf("Masks: %s | Hidden Blocks: %s | Grid: %s", testFlagAsString(FLAG_SEE_MASKS),
+				testFlagAsString(FLAG_SEE_HIDDEN), testFlagAsString(FLAG_SEE_GRID));
+	}
+
+	private String testFlagAsString(int test) {
+		return testFlag(test) ? "ON " : "OFF";
 	}
 
 	private void blockChoosingMode() {
@@ -985,10 +1059,10 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		if (s != null) {
 			// build buttonRecords!
 			props = OPS.propsFor(s);
-			int y = FIRST_LINE;
+			int y = PROPS_FIRST_LINE;
 			StatusLayer sl = topDownStatusLayer;
 			for (Prop p : props) {
-				int x = X_BUTTONS;
+				int x = PROPS_X_BUTTONS;
 				ArrayList<Button> buttons = new ArrayList<Button>();
 				p.getButtons(buttons, this);
 				for (Button button : buttons) {
@@ -1004,7 +1078,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 
 	@Override
 	public void startEdit(Prop prop, String initialValue, TakeTextBack textBack) {
-		editManager = new EditManager(prop, new StringEditor(initialValue, W_VALUE), textBack);
+		editManager = new EditManager(prop, new StringEditor(initialValue, PROPS_W_VALUE), textBack);
 		emUnknown.set(true);
 	}
 
@@ -1062,7 +1136,7 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 		//
 		StatusLayer sl = topDownStatusLayer;
 		int y = 0;
-		while (y < FIRST_LINE) {
+		while (y < PROPS_FIRST_LINE) {
 			sl.touch(y++);
 		}
 
@@ -1071,18 +1145,18 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 				sl.highlightTouch(y);
 			}
 
-			sl.draw(X_NAME, y, clip(p.name(), W_NAME));
+			sl.draw(PROPS_X_NAME, y, clip(p.name(), PROPS_W_NAME));
 			if (editManager != null && editManager.isUs(p)) {
 				State s = editManager.state();
 				if (editManager.isCursorOn()) {
-					sl.drawWithCursor(X_VALUE, y, s.cursor, s.show);
+					sl.drawWithCursor(PROPS_X_VALUE, y, s.cursor, s.show);
 				}
 				else {
-					sl.draw(X_VALUE, y, s.show);
+					sl.draw(PROPS_X_VALUE, y, s.show);
 				}
 			}
 			else {
-				sl.draw(X_VALUE, y, clip(p.text(), W_VALUE));
+				sl.draw(PROPS_X_VALUE, y, clip(p.text(), PROPS_W_VALUE));
 			}
 			y++;
 		}
@@ -1367,7 +1441,8 @@ public class Mapper implements ButtonPressServices, FrameDrawer {
 	}
 
 	public BlockSet loadBlockSet() {
-		return ow.loadBlockSet(new BlockSet.Config(levelInfo.worldName, seeMasks, seeHidden));
+		return ow.loadBlockSet(new BlockSet.Config(levelInfo.worldName, testFlag(FLAG_SEE_MASKS),
+				testFlag(FLAG_SEE_HIDDEN)));
 	}
 
 	public void reinstate(Alien alien) {
