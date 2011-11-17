@@ -15,6 +15,7 @@ import com.nney.tt.aliens.BatAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
+import com.nney.tt.aliens.CarAlien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.ExitAlien;
@@ -25,6 +26,7 @@ import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HiddenScoreGiftAlien;
+import com.nney.tt.aliens.JumboAlien;
 import com.nney.tt.aliens.LegacyAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
@@ -79,6 +81,10 @@ public class AlienInfoMap {
 		add(new AlienInfo(14, "wings", "0wing", WingsAlien.class));
 		add(new AlienInfo(15, "floorFailure", null, FloorFailureAlien.class)); // special1
 		// for w6.map
+		add(new AlienInfo(27, "lorry", "tlrry", CarAlien.class));
+		add(new AlienInfo(28, "jumboJet", "tjmbo", JumboAlien.class));
+		add(new AlienInfo(29, "car", "tcar0", CarAlien.class));
+
 		add(new AlienInfo(34, "hiddenScoreGift", null, HiddenScoreGiftAlien.class));
 		add(new AlienInfo(36, "bear", "?bear", BearAlien.class));
 		add(new AlienInfo(37, "bat", "gbatt", BatAlien.class));

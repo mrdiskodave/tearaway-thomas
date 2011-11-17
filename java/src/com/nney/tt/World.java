@@ -424,7 +424,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
-	public void headBounce(Alien alien, Sprite alienSprite) {
+	public boolean headBounce(Alien alien, Sprite alienSprite) {
 		Coord alienPos = alien.getLocation();
 		int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
 		if (dy < ttSprite.h && dy > 0) {
@@ -448,7 +448,7 @@ public class World implements AlienServices, Disposable {
 						FallingAlien fa = new FallingAlien(alienPos, headScore, raiseScoreNoticeBy, frightAnim);
 						attachConnectLoad(fa);
 					}
-					return;
+					return true;
 				}
 				else {
 					System.out.println("NoHeadBounce: diffX");
@@ -458,6 +458,7 @@ public class World implements AlienServices, Disposable {
 
 		// no head bounce :(
 		player.stun();
+		return false;
 	}
 
 	@Override

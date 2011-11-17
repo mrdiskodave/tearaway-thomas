@@ -468,17 +468,21 @@ public class Mapper implements ButtonPressServices {
 		}
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) {
 			// enliven
-			List<Alien> n = new ArrayList<Alien>();
 			List<Alien> all = flatten();
+			List<Alien> n = new ArrayList<Alien>();
+			int count = 0;
 			for (Iterator<Alien> iterator = all.iterator(); iterator.hasNext();) {
 				Alien a = iterator.next();
 				if (a instanceof LegacyAlien) {
+					count++;
 					LegacyAlien la = (LegacyAlien) a;
 					byte[] d = la.getLegacyData();
 					
 					int typeCode = d[0]&0xff;
 					String tcName = AlienInfoMap.typeCodeToName(typeCode);
+					System.out.println("Enliven: "+tcName);
 					if (alienInfoMap.nameExists(tcName)) {
+						System.out.println("yes");
 						Alien alien = alienInfoMap.instantiateAttach(alienInfoMap.getByName(tcName));
 						if (alien instanceof AlienWithLocation) {
 							AlienWithLocation awl = (AlienWithLocation) alien;
@@ -492,7 +496,7 @@ public class Mapper implements ButtonPressServices {
 					}
 				}
 			}
-			sayf("%s legacy aliens enlivened", n.size());
+			sayf("%s out of %s legacy aliens enlivened", n.size(), count);
 			ListUtil.copy(all, n);
 			unflatten(all);
 		}

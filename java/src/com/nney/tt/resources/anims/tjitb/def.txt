@@ -1,0 +1,23 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ], 
+            "name": "shut"
+        }, 
+        {
+            "frames": [
+                1
+            ], 
+            "name": "halfout"
+        }, 
+        {
+            "frames": [
+                2
+            ], 
+            "name": "out"
+        }
+    ], 
+    "comment": "GFXjitb"
+}

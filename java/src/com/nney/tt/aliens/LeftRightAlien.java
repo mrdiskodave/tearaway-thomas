@@ -4,6 +4,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.geom.XRange;
 import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Anim;
+import com.nney.tt.sprites.Anims;
 import com.nney.utils.Math2;
 
 public abstract class LeftRightAlien extends AlienWithLocation {
@@ -12,6 +13,8 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 
 	@PropAnn(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
 	public boolean goLeft;
+
+	protected int movingFright;
 
 	@Override
 	public void resetTo(Coord p) {
@@ -27,8 +30,14 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 	}
 
 	boolean moveLeftRight(int speed) {
+		if (movingFright!=0) {
+			movingFright--;
+			changeAnimation("fright");
+		}
+		else {
+			changeAnimation(Anims.directionalAnimName(goLeft, ""));
+		}
 		if (!goLeft) {
-			changeAnimation("right");
 			c.x += speed;
 			if (c.x > range.right) {
 				goLeft = true;
@@ -36,7 +45,6 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 			}
 		}
 		else {
-			changeAnimation("left");
 			c.x -= speed;
 			if (c.x < range.left) {
 				goLeft = false;

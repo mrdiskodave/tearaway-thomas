@@ -104,7 +104,7 @@ public interface AlienServices {
 
 	void awardExtraLife();
 
-	void headBounce(Alien alien, Sprite alienSprite);
+	boolean headBounce(Alien alien, Sprite alienSprite);
 
 	boolean isOffTheBottom(Coord c);
 
