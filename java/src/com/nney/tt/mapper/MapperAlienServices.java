@@ -175,6 +175,17 @@ final class MapperAlienServices implements AlienServices {
 	public void applyMapEdits(Coord c, int[][] mapEdits) {
 		ni();
 	}
+
+	@Override
+	public void addAlien(Alien a) {
+		ni();
+	}
+
+	@Override
+	public boolean keepInMap(Coord c) {
+		ni();
+		return false;
+	}
 	
 	@Override
 	public void drawSprite(Coord c, Sprite s, boolean drawWhite) {
@@ -195,4 +206,5 @@ final class MapperAlienServices implements AlienServices {
 	public int getFrameNumber() {
 		return 0;
 	}
+
 }

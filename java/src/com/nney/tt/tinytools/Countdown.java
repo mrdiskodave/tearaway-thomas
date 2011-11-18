@@ -14,12 +14,11 @@ public final class Countdown {
 		t = x;
 	}
 
-	public boolean testAndDec() {
-		if (t == 0) return false;
-		t--;
-		return true;
+	public Countdown run() {
+		if (t!=0) t--;
+		return this;
 	}
-
+	
 	public boolean test() {
 		return t != 0;
 	}

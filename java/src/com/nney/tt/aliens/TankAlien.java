@@ -1,5 +1,8 @@
 package com.nney.tt.aliens;
 
+import org.lwjgl.util.glu.Project;
+
+import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
@@ -8,13 +11,13 @@ import com.nney.utils.Math2;
 
 public class TankAlien extends LeftRightAlien {
 	private static final int FLAG_CAN_MOVE = 3;
-	
+
 	@PropAnn(doc = "Are we able to move?")
 	public boolean canMove;
-	
+
 	private Countdown stunTimer = new Countdown();
 	private Countdown fireTimer = new Countdown();
-	private int turretAngle;
+	private int currentTurretAngle;
 
 	@Override
 	public void loadFromLegacyData() {
@@ -30,46 +33,48 @@ public class TankAlien extends LeftRightAlien {
 
 	@Override
 	public void update() {
-		boolean canFire = false;
 		if (canMove) {
 			moveLeftRight(1);
-			if (srv.frameTest(2)) {
-				if (stunTimer.testAndDec()) {
-					turretAngle += 1;
-					turretAngle %= 8;
+		}
+		Coord canFire = null;
+		if (srv.frameTest(2)) {
+			if (stunTimer.run().test()) {
+				currentTurretAngle += 1;
+				currentTurretAngle %= 8;
+			}
+			else {
+				boolean faceLeft = srv.getPlayerPosition().x < c.x;
+				int desiredTargetAngle = faceLeft ? 4 : 0;
+				// System.out.println("Target:"+target);
+				if (currentTurretAngle == desiredTargetAngle) {
+					if (!fireTimer.run().test()) {
+						reloadFireTimer();
+						System.out.println("Bang!");
+						int m = faceLeft ? -1 : 1;
+						Coord sv = new Coord(m*4, 0);
+						Coord sd = new Coord(m*28, -20);
+						srv.addAlien(new ShellAlien(c.add2(sd), sv));
+					}
 				}
 				else {
-					boolean faceLeft =  srv.getPlayerPosition().x < c.x;
-					int target = faceLeft ? 4 : 0;
-					System.out.println("Target:"+target);
-					if (turretAngle==target) {
-						canFire = true;
-					}
-					else {
-						turretAngle += 8;
-						turretAngle = Math2.closer(turretAngle, target, 1);
-						turretAngle %= 8;
-					}
+					currentTurretAngle += 8;
+					currentTurretAngle = Math2.closer(currentTurretAngle, desiredTargetAngle, 1);
+					currentTurretAngle %= 8;
 				}
 			}
 		}
-		if (canFire && fireTimer.testAndDec()) {
-			reloadFireTimer();
-			System.out.println("Bang!");
-		}
-
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
-		Sprite ts = anims.find("turret").sprites[turretAngle];
+		Sprite ts = anims.find("turret").sprites[currentTurretAngle];
 		srv.drawSprite(c, ts);
-		
-//		if (srv.collideAlienWithPlayerHiRes(c, s)) {
-//			srv.headBounce(this, s);
-//		}
+
+		// if (srv.collideAlienWithPlayerHiRes(c, s)) {
+		// srv.headBounce(this, s);
+		// }
 	}
 
 	private void reloadFireTimer() {
-		fireTimer.set(srv.randomness(32)+50);
+		fireTimer.set(srv.randomness(32) + 50);
 	}
 
 }

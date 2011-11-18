@@ -130,4 +130,7 @@ public interface AlienServices {
 
 	void playSoundEffect(String name);
 
+	void addAlien(Alien a);
+
+	boolean keepInMap(Coord c);
 }

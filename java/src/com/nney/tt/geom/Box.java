@@ -56,22 +56,25 @@ public class Box implements Copyable<Box>, Cloneable {
 	}
 
 	
-	
-	
-	public void constrain(Coord c) {
+	public boolean constrain(Coord c) {
+		boolean changed = false;
 		if (c.x < left) {
 			c.x = left;
+			changed = true;
 		}
 		if (c.x > right) {
 			c.x = right;
+			changed = true;
 		}
 		if (c.y < top) {
 			c.y = top;
+			changed = true;
 		}
 		if (c.y > bottom) {
 			c.y = bottom;
+			changed = true;
 		}
-
+		return changed;
 	}
 
 	public void accommodate(Coord c) {

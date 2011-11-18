@@ -20,8 +20,8 @@ public class ScreenPosition {
 	private final int screenWidth;
 	private final int screenHeight;
 
-	public final ScreenOrdinate scrOrdX = new ScreenOrdinate("X");
-	public final ScreenOrdinate scrOrdY = new ScreenOrdinate("Y");
+	private final ScreenOrdinate scrOrdX = new ScreenOrdinate("X");
+	private final ScreenOrdinate scrOrdY = new ScreenOrdinate("Y");
 
 	private Coord centre;
 
@@ -92,6 +92,10 @@ public class ScreenPosition {
 		Box m = mapLimits.copy();
 		m.shrink(6);
 		m.constrain(c);
+	}
+	
+	public boolean keepInMap(Coord c) {
+		return mapLimits.constrain(c);
 	}
 
 	public Coord position() {

@@ -379,7 +379,16 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
+		// TODO: 000 look at where this is called from
+		
+		// it also keeps the player from going off the bottom (a bit)
+		// which we need to trap
 		scr.keepPlayerInMap(c);
+	}
+	
+	@Override
+	public boolean keepInMap(Coord c) {
+		return scr.keepInMap(c);
 	}
 
 	@Override
@@ -520,6 +529,12 @@ public class World implements AlienServices, Disposable {
 	public void magicDust(Coord location) {
 		attachConnectLoad(new MagicDustAlien(location.copy()));
 	}
+	
+	@Override
+	public void addAlien(Alien a) {
+		attachConnectLoad(a);
+	}
+	
 
 	// ---------------------------------------------------------------------------
 	// ALIEN LIFECYCLE

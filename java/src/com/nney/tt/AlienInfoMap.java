@@ -35,6 +35,7 @@ import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
+import com.nney.tt.aliens.ShellAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
 import com.nney.tt.aliens.SpikeAlien;
@@ -129,6 +130,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("score"), "0scor", ScoreNoticeAlien.class));
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("fall"), null, FallingAlien.class));
+		add(new AlienInfo(-1, AlienInfo.makeInternalName("shell"), "tshel", ShellAlien.class));
 
 		setWorld(worldName);
 	}
