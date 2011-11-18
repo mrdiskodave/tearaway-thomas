@@ -76,6 +76,22 @@ public abstract class Alien implements HasProps {
 		animPlayer.changeAnimation(anims.find(name));
 	}
 
+	protected void changeAnimation(int name) {
+		assert anims != null;
+		animPlayer.changeAnimation(anims.find(name));
+	}
+
+	protected void setAnimation(String name) {
+		assert anims != null;
+		assert name != null;
+		animPlayer.setAnimation(anims.find(name));
+	}
+
+	protected void setAnimation(int name) {
+		assert anims != null;
+		animPlayer.setAnimation(anims.find(name));
+	}
+
 	protected Box spriteBounds(Sprite s) {
 		return s.box().add2(getLocation());
 	}
@@ -84,10 +100,6 @@ public abstract class Alien implements HasProps {
 		return Box.around(getLocation(), size);
 	}
 
-	protected void changeAnimation(int name) {
-		assert anims != null;
-		animPlayer.changeAnimation(anims.find(name));
-	}
 
 	protected Sprite nextFrame() {
 		return animPlayer.nextFrame();

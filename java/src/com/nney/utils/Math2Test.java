@@ -1,6 +1,5 @@
 package com.nney.utils;
 
-import com.nney.tt.StopWatch;
 
 import junit.framework.TestCase;
 

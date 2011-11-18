@@ -11,7 +11,7 @@
                 7, 
                 6
             ], 
-            "name": "left", 
+            "name": "right", 
             "rate": 40, 
             "repeatPos": 0
         }, 
@@ -26,7 +26,7 @@
                 2, 
                 1
             ], 
-            "name": "right", 
+            "name": "left", 
             "rate": 40, 
             "repeatPos": 0
         }

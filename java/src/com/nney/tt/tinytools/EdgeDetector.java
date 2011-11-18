@@ -1,6 +1,6 @@
-package com.nney.tt;
+package com.nney.tt.tinytools;
 
-public class EdgeDetector {
+public final class EdgeDetector {
 	private boolean current;
 	private boolean last;
 	

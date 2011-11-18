@@ -1,11 +1,11 @@
-package com.nney.tt;
+package com.nney.tt.tinytools;
 
 /**
  * Sometimes you want to do something as long as you haven't already done it
  * last frame (or this frame). Only when the agent stops trying to do it does it
  * become possible again.
  */
-public class Latch {
+public final class Latch {
 	private int last;
 	
 	public Latch() {

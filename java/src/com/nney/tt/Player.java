@@ -7,6 +7,8 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
+import com.nney.tt.tinytools.EdgeDetector;
+import com.nney.tt.tinytools.Latch;
 
 /**
  * Player movement.

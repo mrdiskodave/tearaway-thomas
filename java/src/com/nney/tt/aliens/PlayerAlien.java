@@ -1,7 +1,6 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.Player;
-import com.nney.tt.geom.Box;
 import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Anim;
 

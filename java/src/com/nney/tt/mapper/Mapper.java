@@ -15,7 +15,6 @@ import com.nney.tt.LevelInfo;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
 import com.nney.tt.ScreenPosition;
-import com.nney.tt.SlowBoolean;
 import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.AlienWithLocation;
@@ -45,6 +44,7 @@ import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
+import com.nney.tt.tinytools.SlowBoolean;
 import com.nney.utils.CountingMap;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
@@ -253,7 +253,7 @@ public class Mapper implements ButtonPressServices {
 
 	private EditManager editManager;
 
-	private SlowBoolean emUnknown = new SlowBoolean();
+	private SlowBoolean editManagerStartObjectEdit = new SlowBoolean();
 
 	private Box constraints;
 
@@ -377,7 +377,7 @@ public class Mapper implements ButtonPressServices {
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 
 		if (editManager != null) {
-			if (emUnknown.set(false)) {
+			if (editManagerStartObjectEdit.set(false)) {
 				startObjectEdit();
 			}
 			drawLevel();
@@ -1082,8 +1082,14 @@ public class Mapper implements ButtonPressServices {
 
 	@Override
 	public void startEdit(Prop prop, String initialValue, TakeTextBack textBack) {
+		// we're inside an objectEdit right now
+		// (as there is a button press going on and
+		// we might have wanted to change the given prop)
+		// instead we set up the editManager
 		editManager = new EditManager(prop, new StringEditor(initialValue, PROPS_W_VALUE), textBack);
-		emUnknown.set(true);
+		// and set a flag for deferred startObjectEdit() when
+		// we encounter the new EditManager for the first time
+		editManagerStartObjectEdit.set(true);
 	}
 
 	public void drawProps() {

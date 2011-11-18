@@ -8,16 +8,11 @@
         }, 
         {
             "frames": [
-                1
+                1, 2
             ], 
-            "name": "halfout"
+            "name": "open"
+            "rate": 60
         }, 
-        {
-            "frames": [
-                2
-            ], 
-            "name": "out"
-        }
     ], 
     "comment": "GFXjitb"
 }

@@ -41,6 +41,7 @@ import com.nney.tt.aliens.SpikeAlien;
 import com.nney.tt.aliens.SpriteAlien;
 import com.nney.tt.aliens.StarAlien;
 import com.nney.tt.aliens.StopAlien;
+import com.nney.tt.aliens.TankAlien;
 import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.TrampolineAlien;
 import com.nney.tt.aliens.WingsAlien;
@@ -81,6 +82,8 @@ public class AlienInfoMap {
 		add(new AlienInfo(14, "wings", "0wing", WingsAlien.class));
 		add(new AlienInfo(15, "floorFailure", null, FloorFailureAlien.class)); // special1
 		// for w6.map
+
+		add(new AlienInfo(25, "tank", "ttank", TankAlien.class));
 		add(new AlienInfo(27, "lorry", "tlrry", CarAlien.class));
 		add(new AlienInfo(28, "jumboJet", "tjmbo", JumboAlien.class));
 		add(new AlienInfo(29, "car", "tcar0", CarAlien.class));

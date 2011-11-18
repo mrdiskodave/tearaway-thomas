@@ -37,6 +37,9 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
+import com.nney.tt.tinytools.EdgeDetector;
+import com.nney.tt.tinytools.Latch;
+import com.nney.tt.tinytools.SlowBoolean;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
 
@@ -1027,7 +1030,7 @@ public class World implements AlienServices, Disposable {
 			};
 		}
 
-		SlowBoolean ot = new SlowBoolean(true);
+		SlowBoolean decLives = new SlowBoolean(true);
 		do {
 			begin();
 			mainActions(0);
@@ -1035,7 +1038,7 @@ public class World implements AlienServices, Disposable {
 			int p = hole.current();
 			if (p > 60) start = true;
 			if (start) {
-				if (ot.set(false)) {
+				if (decLives.set(false)) {
 					ow.lives--;
 				}
 				lifeLostDevice.update();

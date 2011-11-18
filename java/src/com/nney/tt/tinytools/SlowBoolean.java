@@ -1,6 +1,6 @@
-package com.nney.tt;
+package com.nney.tt.tinytools;
 
-public class SlowBoolean {
+public final class SlowBoolean {
 	private boolean value;
 	
 	public SlowBoolean() {

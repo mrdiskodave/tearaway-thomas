@@ -32,11 +32,15 @@ public class AnimPlayer {
 		assert freshAnim!=null;
 		
 		if (anim != freshAnim) {
-			// System.out.println("Fresh len "+freshAnim.frames.length);
-			anim = freshAnim;
-			setRate(freshAnim.defaultRate);
-			rewind();
+			setAnimation(freshAnim);
 		}
+	}
+
+	public void setAnimation(Anim freshAnim) {
+		// System.out.println("Fresh len "+freshAnim.frames.length);
+		anim = freshAnim;
+		setRate(freshAnim.defaultRate);
+		rewind();
 	}
 	
 	public void customiseRate(int customRate) {

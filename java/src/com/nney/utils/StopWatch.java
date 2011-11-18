@@ -1,4 +1,4 @@
-package com.nney.tt;
+package com.nney.utils;
 
 public class StopWatch {
 	private long startTime;
