@@ -1,0 +1,31 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1, 
+                2
+            ], 
+            "name": "left", 
+            "rate": 255, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                2, 
+                1, 
+                0
+            ], 
+            "name": "right", 
+            "rate": 255, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                0
+            ], 
+            "name": "still"
+        }
+    ], 
+    "comment": "GFXtank"
+}

@@ -1,0 +1,27 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ], 
+            "name": "right"
+        }, 
+        {
+            "frames": [
+                1
+            ], 
+            "name": "left"
+        }, 
+        {
+            "frames": [
+                2, 
+                3, 
+                4, 
+                5
+            ], 
+            "name": "pop", 
+            "rate": 60
+        }
+    ], 
+    "comment": "GFXshel"
+}
