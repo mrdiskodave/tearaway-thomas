@@ -33,7 +33,7 @@ public class TankAlien extends LeftRightAlien {
 		boolean canFire = false;
 		if (canMove) {
 			moveLeftRight(1);
-			if (srv.frameTest(2, 1)) {
+			if (srv.frameTest(2)) {
 				if (stunTimer.testAndDec()) {
 					turretAngle += 1;
 					turretAngle %= 8;

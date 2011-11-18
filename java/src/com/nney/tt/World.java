@@ -492,8 +492,8 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
-	public boolean frameTest(int mask, int lessThan) {
-		return (getFrameNumber() & (mask - 1)) < lessThan;
+	public boolean frameTest(int mask) {
+		return (getFrameNumber() & (mask - 1)) == 0;
 	}
 
 	@Override

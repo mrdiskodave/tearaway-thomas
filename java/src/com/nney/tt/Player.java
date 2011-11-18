@@ -292,7 +292,7 @@ public class Player {
 	}
 
 	private int applyGravity(int v) {
-		if (!flying || srv.frameTest(2, 1)) {
+		if (!flying || srv.frameTest(2)) {
 			return Math.min(v + 1, 16);
 		}
 		return v;
@@ -530,9 +530,8 @@ public class Player {
 					if (Math.abs(slideVel) <= pvt.max()) {
 						// right! we've slowed to running speed on a
 						// non-slippery surface
-						System.out.println("Slide: too slow quit");
+						System.out.println("Slide: too slow so quit");
 						startModeWalk();
-						// mode = Mode.WALK;
 						return;
 					}
 				}
@@ -901,7 +900,7 @@ public class Player {
 		perhapsStartSlideMode();
 
 		if (mode == Mode.WALK) {
-			if (srv.frameTest(2, 1) && srv.blockInfoIs(c, "magic")) {
+			if (srv.frameTest(2) && srv.blockInfoIs(c, "magic")) {
 				srv.magicDust(c.copyAndAdd(srv.randomness(17) - 8, 0));
 			}
 		}

@@ -19,7 +19,7 @@ public class FallingAlien extends AlienWithLocation {
 	@Override
 	public void update() {
 		c.y += vely;
-		if (srv.frameTest(2, 1)) {
+		if (srv.frameTest(2)) {
 			vely = Math.min(vely + 1, 8);
 			
 			if (vely==0 && delayedScore!=0) {

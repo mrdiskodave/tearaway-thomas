@@ -19,9 +19,25 @@ public interface AlienServices {
 	 */
 	int randomness(int n);
 
+	/**
+	 * Get current frame number. This is incremented once per frame during game
+	 * play. It is not incremented at other times e.g. when paused or when using
+	 * the Mapper.
+	 * 
+	 * @return
+	 */
 	int getFrameNumber();
-	
-	boolean frameTest(int mask, int lessThan);
+
+	/**
+	 * Is the frame number a multiple of the given value? e.g.
+	 * <code>if (frameTest(2)) blah;</code> does blah every other frame.
+	 * 
+	 * @param m
+	 *            The multiple. <b>must</b> be a power of two.
+	 * @return <code>true</code> meaning "yes it is" or <code>false</code>
+	 *         meaning "no it isn't".
+	 */
+	boolean frameTest(int m);
 
 	void drawSprite(Coord c, Sprite s);
 

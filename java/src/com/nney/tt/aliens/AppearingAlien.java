@@ -32,7 +32,7 @@ public abstract class AppearingAlien extends AlienWithLocation {
 				}
 				else {
 					// apply gravity and continue falling
-					if (fallSpeed < 6 && srv.frameTest(2, 1)) {
+					if (fallSpeed < 6 && srv.frameTest(2)) {
 						fallSpeed++;
 					}
 					normalUpdate();

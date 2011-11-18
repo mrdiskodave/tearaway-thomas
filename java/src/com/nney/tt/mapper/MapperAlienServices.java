@@ -115,7 +115,7 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public boolean frameTest(int mask, int lessThan) {
+	public boolean frameTest(int m) {
 		ni();
 		return false;
 	}
