@@ -14,12 +14,19 @@ public final class Countdown {
 		t = x;
 	}
 
-	public Countdown run() {
+	public void run() {
 		if (t!=0) t--;
-		return this;
 	}
 	
 	public boolean test() {
 		return t != 0;
 	}
+	
+	public boolean testAndRun() {
+		if (t==0) return false;
+		t--;
+		return true;
+	}
+	
+	
 }

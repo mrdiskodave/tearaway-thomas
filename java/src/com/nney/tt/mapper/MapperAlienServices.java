@@ -91,7 +91,7 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public boolean headBounce(Alien alien, Sprite alienSprite) {
+	public boolean headBounce(Alien alien, Sprite... alienSprites) {
 		ni();
 		return false;
 	}

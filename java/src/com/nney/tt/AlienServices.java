@@ -120,8 +120,6 @@ public interface AlienServices {
 
 	void awardExtraLife();
 
-	boolean headBounce(Alien alien, Sprite alienSprite);
-
 	boolean isOffTheBottom(Coord c);
 
 	void levelCompleted(Coord exit);
@@ -133,4 +131,28 @@ public interface AlienServices {
 	void addAlien(Alien a);
 
 	boolean keepInMap(Coord c);
+
+	/**
+	 * After having established a collision using
+	 * {@link #collideAlienWithPlayerHiRes(Coord, Sprite)} call this method to
+	 * check for head-bounces.
+	 * 
+	 * @param alien
+	 *            The caller.
+	 * @param alienSprites
+	 *            The caller's sprites. Normally just one but there may be many
+	 *            in special cases such as the tank with the independent turret.
+	 *            If passing many the top-most should be passed in first (the
+	 *            first one is used to place the head-bounce score-notification
+	 *            above caller).
+	 * @return Did a head-bounce happen? <code>true</code> meaning
+	 *         "yes, it happened". Score is added, score notification is displayed.
+	 *         If the caller has an animation named "fright" then that will be
+	 *         used create a new FallingAlien in place of the caller. This is
+	 *         the counted as a fatal head-bounce and will give cumulative score
+	 *         if the player can keep doing them. <code>false</code> meaning "no
+	 *         it didn't -- the player wasn't in the right place so was stunned
+	 *         instead".
+	 */
+	boolean headBounce(Alien alien, Sprite... alienSprites);
 }

@@ -435,43 +435,64 @@ public class World implements AlienServices, Disposable {
 		return false;
 	}
 
-	@Override
-	public boolean headBounce(Alien alien, Sprite alienSprite) {
-		Coord alienPos = alien.getLocation();
-		int dy = alienPos.y - alienSprite.handleY - playerSpriteTopLeft.y;
-		if (dy < ttSprite.h && dy > 0) {
-			int consideredInTearaway = ttSprite.h - 1 - dy;
-			if (player.isHeadBouncePossible(consideredInTearaway)) {
-				int diffX = Math.abs(alienPos.x - player.c.x);
-				int w = Math.abs(alienSprite.w) / 2 + 6;
-				System.out.println(String.format("SpareX: %s <= %s (w=%s)", diffX, w, alienSprite.w));
-				if (diffX <= w) {
-					// head bounce :)
-					playSoundEffect("headbounce");
-					Anim frightAnim = alien.anims.mightFind("fright");
-					boolean willSurvive = frightAnim == null;
-					int headScore = player.headBounce(willSurvive);
-					int raiseScoreNoticeBy = alienSprite.handleY + 10;
-					if (willSurvive) {
-						awardScore(headScore, new Coord(alienPos.x, alienPos.y - raiseScoreNoticeBy));
-					}
-					else {
-						alien.done();
-						FallingAlien fa = new FallingAlien(alienPos, headScore, raiseScoreNoticeBy, frightAnim);
-						attachConnectLoad(fa);
-					}
-					return true;
+	
+	private boolean hbCollide(Coord alienPos, Sprite alienSprite, int h) {
+		int dx = alienPos.x - alienSprite.handleX - playerSpriteTopLeft.x;
+		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
+			int dy = alienPos.y - alienSprite.handleY - (playerSpriteTopLeft.y - h);
+			if (dy < ttSprite.h && dy > (-alienSprite.h)) {
+				if (dy < 0) {
+					return LineInfo.collide(alienSprite.lineInfo, ttSprite.lineInfo, -dy, dx);
 				}
 				else {
-					System.out.println("NoHeadBounce: diffX");
+					return LineInfo.collide(ttSprite.lineInfo, alienSprite.lineInfo, dy, -dx);
 				}
 			}
+		}
+		return false;
+	}
+
+	private boolean hbCollides(Coord alienPos, Sprite[] alienSprites, int h) {
+		for (Sprite alienSprite: alienSprites) {
+			if (hbCollide(alienPos, alienSprite, h)) return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean headBounce(Alien alien, Sprite... alienSprites) {
+		Coord alienPos = alien.getLocation();
+		
+		// this can surely be optimised
+		// e.g. if hbCollide() just ran bottom-up rather
+		// than top-down that would help
+		int h = 1;
+		while (hbCollides(alienPos, alienSprites, h)) {
+			h++;
+		}
+		
+		if (player.isHeadBouncePossible(h)) {
+			playSoundEffect("headbounce");
+			Anim frightAnim = alien.anims.mightFind("fright");
+			boolean willSurvive = frightAnim == null;
+			int headScore = player.headBounce(willSurvive);
+			int raiseScoreNoticeBy = alienSprites[0].handleY + 10;
+			if (willSurvive) {
+				awardScore(headScore, new Coord(alienPos.x, alienPos.y - raiseScoreNoticeBy));
+			}
+			else {
+				alien.done();
+				FallingAlien fa = new FallingAlien(alienPos, headScore, raiseScoreNoticeBy, frightAnim);
+				attachConnectLoad(fa);
+			}
+			return true;
 		}
 
 		// no head bounce :(
 		player.stun();
 		return false;
 	}
+
 
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {

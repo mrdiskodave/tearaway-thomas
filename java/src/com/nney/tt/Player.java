@@ -1063,12 +1063,12 @@ public class Player {
 		jumpV(i);
 	}
 
-	public boolean isHeadBouncePossible(int consideredInTearaway) {
+	public boolean isHeadBouncePossible(int intrusion) {
 		if (mode == Mode.AIR) {
-			if (vely > 6) {
+			if (vely > 2) {
 				if (wantsToJump()) {
-					System.out.println("SpareY:" + consideredInTearaway + " <= " + vely + "+4");
-					if (consideredInTearaway <= vely + 4) {
+					System.out.println("SpareY:" + intrusion + " <= " + vely + "+4");
+					if (intrusion <= vely + 4) {
 						return true;
 					}
 				}
@@ -1078,12 +1078,12 @@ public class Player {
 	}
 
 	public int headBounce(boolean alienWillSurviveTheImpact) {
-		proofTimer = 1;
+		proofTimer = 3;
 		jump();
 
 		if (alienWillSurviveTheImpact) {
 			// well it isn't worth much then
-			return 100;
+			return 50;
 		}
 
 		// ahh - it's worth compound bonus!

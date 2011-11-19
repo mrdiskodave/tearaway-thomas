@@ -1,7 +1,5 @@
 package com.nney.tt.aliens;
 
-import org.lwjgl.util.glu.Project;
-
 import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Anims;
@@ -10,6 +8,8 @@ import com.nney.tt.tinytools.Countdown;
 import com.nney.utils.Math2;
 
 public class TankAlien extends LeftRightAlien {
+	private static final int TURRET_POSITIONS = 8;
+
 	private static final int FLAG_CAN_MOVE = 3;
 
 	@PropAnn(doc = "Are we able to move?")
@@ -36,30 +36,32 @@ public class TankAlien extends LeftRightAlien {
 		if (canMove) {
 			moveLeftRight(1);
 		}
-		Coord canFire = null;
 		if (srv.frameTest(2)) {
-			if (stunTimer.run().test()) {
+			if (stunTimer.testAndRun()) {
 				currentTurretAngle += 1;
-				currentTurretAngle %= 8;
+				currentTurretAngle %= TURRET_POSITIONS;
+				if (!stunTimer.test()) {
+					reloadFireTimer();
+				}
 			}
 			else {
 				boolean faceLeft = srv.getPlayerPosition().x < c.x;
 				int desiredTargetAngle = faceLeft ? 4 : 0;
 				// System.out.println("Target:"+target);
 				if (currentTurretAngle == desiredTargetAngle) {
-					if (!fireTimer.run().test()) {
+					if (!fireTimer.testAndRun()) {
 						reloadFireTimer();
 						System.out.println("Bang!");
-						int m = faceLeft ? -1 : 1;
-						Coord sv = new Coord(m*4, 0);
-						Coord sd = new Coord(m*28, -20);
-						srv.addAlien(new ShellAlien(c.add2(sd), sv));
+						int sign = faceLeft ? -1 : 1;
+						Coord shellVelocity = new Coord(sign*4, 0);
+						Coord shellStart = c.copyAndAdd(sign*28, -20);
+						srv.addAlien(new ShellAlien(shellStart, shellVelocity));
 					}
 				}
 				else {
-					currentTurretAngle += 8;
+					currentTurretAngle += TURRET_POSITIONS;
 					currentTurretAngle = Math2.closer(currentTurretAngle, desiredTargetAngle, 1);
-					currentTurretAngle %= 8;
+					currentTurretAngle %= TURRET_POSITIONS;
 				}
 			}
 		}
@@ -68,9 +70,11 @@ public class TankAlien extends LeftRightAlien {
 		Sprite ts = anims.find("turret").sprites[currentTurretAngle];
 		srv.drawSprite(c, ts);
 
-		// if (srv.collideAlienWithPlayerHiRes(c, s)) {
-		// srv.headBounce(this, s);
-		// }
+		if (srv.collideAlienWithPlayerHiRes(c, s) || srv.collideAlienWithPlayerHiRes(c, ts)) {
+			if (srv.headBounce(this, ts, s)) {
+				stunTimer.set(60);
+			}
+		}
 	}
 
 	private void reloadFireTimer() {

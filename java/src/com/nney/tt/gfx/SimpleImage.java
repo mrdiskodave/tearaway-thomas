@@ -37,9 +37,10 @@ public class SimpleImage {
 		public int change(int c) {
 			int alpha = c >>> 3 * 8;
 			// all
-			if (alpha != 0xff)
-			// or nothing
+			if (alpha != 0xff) {
+				// or nothing
 				c = 0;
+			}
 			return c;
 		}
 	};
@@ -50,7 +51,7 @@ public class SimpleImage {
 		this.offset = start;
 		this.stride = stride;
 		this.pixels = pixels;
-//		this.isView = true;
+		// this.isView = true;
 	}
 
 	private SimpleImage(int width, int height, int[] pixels) {
@@ -59,7 +60,7 @@ public class SimpleImage {
 		this.pixels = new int[width * height];
 		offset = 0;
 		stride = width;
-//		isView = false;
+		// isView = false;
 	}
 
 	static public SimpleImage createEmpty(int w, int h) {
@@ -86,7 +87,7 @@ public class SimpleImage {
 		this.pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
 		offset = 0;
 		stride = width;
-//		isView = false;
+		// isView = false;
 
 		changePixels(IMPORTER);
 	}
@@ -98,7 +99,7 @@ public class SimpleImage {
 	public int width() {
 		return width;
 	}
-
+	
 	private int computeOffset(int x, int y) {
 		assert x >= 0 : x;
 		assert y >= 0 : y;
