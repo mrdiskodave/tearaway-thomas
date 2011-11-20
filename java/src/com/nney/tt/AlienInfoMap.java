@@ -26,6 +26,7 @@ import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HiddenScoreGiftAlien;
+import com.nney.tt.aliens.JackInTheBoxAlien;
 import com.nney.tt.aliens.JumboAlien;
 import com.nney.tt.aliens.LegacyAlien;
 import com.nney.tt.aliens.MagicDustAlien;
@@ -85,6 +86,7 @@ public class AlienInfoMap {
 		// for w6.map
 
 		add(new AlienInfo(25, "tank", "ttank", TankAlien.class));
+		add(new AlienInfo(26, "jackInTheBox", "tjitb", JackInTheBoxAlien.class));
 		add(new AlienInfo(27, "lorry", "tlrry", CarAlien.class));
 		add(new AlienInfo(28, "jumboJet", "tjmbo", JumboAlien.class));
 		add(new AlienInfo(29, "car", "tcar0", CarAlien.class));

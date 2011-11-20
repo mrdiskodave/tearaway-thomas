@@ -10,9 +10,9 @@
             "frames": [
                 1, 2
             ], 
-            "name": "open"
+            "name": "open",
             "rate": 60
-        }, 
+        }
     ], 
     "comment": "GFXjitb"
 }
