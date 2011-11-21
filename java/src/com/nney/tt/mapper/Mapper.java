@@ -514,10 +514,6 @@ public class Mapper implements ButtonPressServices {
 		if (mode==Mode.PLAYERSIMULATION) {
 			Coord c = sim.get().sub2(getScreenPosition());
 			mgc.drawSight(c.x, c.y, 40, sim.isStanding() ? 0xff00ff00 : 0xffff0000);
-
-			Coord cf = sim.getFeet().sub2(getScreenPosition());
-			mgc.drawSight(cf.x, cf.y, 10, 0xffffffff);
-
 		}
 		drawPalettes();
 
@@ -647,15 +643,7 @@ public class Mapper implements ButtonPressServices {
 			generateButtons(levelInfo);
 		}
 		if (changeMode(k, Keyboard.KEY_P, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
-			sim = new PlayerPosition(mmp.worldPixels(), new PlayerPositionServices() {
-				@Override
-				public boolean inTheGround(int x, int y) {
-					x >>= Const.BLOCK_SHIFT;
-					y >>= Const.BLOCK_SHIFT;
-					int block = gameMap.fastGetBlock(x, y);
-					return loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
-				}
-			});
+			simStart();
 		}
 	}
 
@@ -751,17 +739,49 @@ public class Mapper implements ButtonPressServices {
 	}
 	
 	private void simulationMode(int k) {
-		Coord d = mmp.worldPixels();
-		Coord s = sim.get();
-		Coord diff = d.sub2(s);
+		flagSelectionKeys(k);
+		
+		if (keyboard.isDown(Pointer.KEY_LEFT)) {
+			Coord d = mmp.worldPixels();
+			Coord s = sim.get();
+			Coord diff = d.sub2(s);
+			diff.x = Integer.signum(diff.x);
+			diff.y = Integer.signum(diff.y);
+			simDiff(diff);
+		}
+		
+		if (k == Pointer.KEY_RIGHT){
+			simStart();
+		}
+		
+		Coord diff = getNudge(k);
+		if (diff!=null) simDiff(diff);
+	}
+
+	public void simStart() {
+		sim = new PlayerPosition(mmp.worldPixels(), new PlayerPositionServices() {
+			@Override
+			public boolean inTheGround(int x, int y) {
+				int block = gameMap.fastGetBlock(x>>Const.BLOCK_SHIFT, y>>Const.BLOCK_SHIFT);
+				boolean answer = loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
+				return answer;
+
+			}
+		});
+	}
+	
+	public void simDiff(Coord diff) {
+		Coord c = sim.get().copy();
 		if (diff.y>0) {
 			sim.moveDown();
 		}
 		if (diff.y<0) {
 			sim.moveUp();
 		}
-		int dx = Integer.signum(diff.x);
-		if (dx!=0) sim.moveX(dx);
+		if (diff.x!=0) sim.moveX(diff.x);
+		if (!sim.get().equals(c)) {
+			System.out.println("Now at "+sim.get());
+		}
 	}
 
 	private void alienMode(int k) {
@@ -1026,6 +1046,10 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
+		flagSelectionKeys(k);
+	}
+
+	public void flagSelectionKeys(int k) {
 		if (k == KEY_SEE_MASKS) flipFlag(FLAG_SEE_MASKS);
 		if (k == KEY_SEE_HIDDEN) flipFlag(FLAG_SEE_HIDDEN);
 		if (k == KEY_SEE_GRID) flipFlag(FLAG_SEE_GRID);

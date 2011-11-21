@@ -5,37 +5,24 @@ import com.nney.tt.geom.Coord;
 /**
  * An abstraction of the player position. It will have simple methods for moving
  * one pixel up, down, left and right. It will only allow valid movement. Bigger
- * things based on it will then also be guarenteed-valid.
+ * things based on it will then also be guaranteed-valid.
  */
 public class PlayerPosition {
 	private Coord c;
 	private PlayerPositionServices srv;
-	private int feety;
-	private boolean standing;
 
 	public PlayerPosition(Coord c, PlayerPositionServices srv) {
 		this.c = c;
 		this.srv = srv;
-		this.feety = c.y;
-		
-		standing = !ig(c.x, c.y) && ig(c.x, c.y); 
 	}
 
 	private boolean ig(int x, int y) {
 		return srv.inTheGround(x, y);
 	}
 
-	private void dropFeet() {
-		feety = c.y;
-		for (;;) {
-			feety++;
-			if (!ig(c.x, feety)) break;
-		}
-	}
-
 	public void moveUp() {
+//		System.out.println("MoveUp");
 		c.y--;
-		standing = false;
 	}
 
 	public void moveDown() {
@@ -44,22 +31,29 @@ public class PlayerPosition {
 		if (now || !after) {
 			c.y++;
 		}
-		else {
-			standing = true;
-		}
 	}
 
 	public void moveX(int dx) {
+		assert dx==1 || dx==-1;
+		
+//		System.out.println("MoveX:"+dx);
 		boolean now = ig(c.x, c.y);
 		boolean after = ig(c.x + dx, c.y + 0);
 		int ncx = c.x + dx;
 
 		if (now) {
 			// now: ground
-			dropFeet();
-			for (int s = c.y+1; s<=feety; s++) {
+			int s = c.y;
+			int patience = 5; 
+			for (;;) {
+				s++;
 				if (!ig(ncx, s)) {
+					// yes! somewhere to fall onto
 					mx(ncx);
+					break;
+				}
+				if (!ig(c.x, s) && --patience==0) {
+					// give up looking
 					break;
 				}
 			}
@@ -69,16 +63,22 @@ public class PlayerPosition {
 			if (after) {
 				// air->ground: NO
 				
-				// special case for standing:
-				if (standing && !ig(ncx, c.y-1)) {
+				// except for a special case for standing:
+				if (isStanding() && !ig(ncx, c.y-1)) {
+					// climb!
 					c.y--;
 					mx(ncx);
 				}
 			}
 			else {
-				// air->air
-				if (!ig(ncx, c.y+1)) {
-					standing = false;
+				// air->air: YES
+				if (isStanding()) {
+					if (!ig(ncx, c.y+1)) {
+						if (ig(ncx, c.y+2)) {
+							// suck!
+							c.y++;
+						}
+					}
 				}
 				mx(ncx);
 			}
@@ -93,12 +93,8 @@ public class PlayerPosition {
 		return c.copy();
 	}
 
-	public Coord getFeet() {
-		return new Coord(c.x, feety);
-	}
-	
 	public boolean isStanding() {
-		return standing;
+		return !ig(c.x, c.y) && ig(c.x, c.y+1); 
 	}
 
 }
