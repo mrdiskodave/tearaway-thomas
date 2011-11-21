@@ -760,6 +760,8 @@ public class Mapper implements ButtonPressServices {
 		if (diff.y<0) {
 			sim.moveUp();
 		}
+		int dx = Integer.signum(diff.x);
+		if (dx!=0) sim.moveX(dx);
 	}
 
 	private void alienMode(int k) {

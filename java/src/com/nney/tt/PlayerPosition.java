@@ -40,9 +40,16 @@ public class PlayerPosition {
 	}
 
 	private void dropFeet() {
-		while (!ig(c.x, feety + 1)) {
+		feety = c.y;
+		for (;;) {
 			feety++;
+			if (!ig(c.x, feety)) break;
 		}
+//		int f = feety;
+//		while (ig(c.x, feety) || !ig(c.x, feety + 1)) {
+//			feety++;
+//		}
+//		System.out.println("Feet drop:"+(feety-f));
 	}
 
 	public void moveUp() {
@@ -50,20 +57,49 @@ public class PlayerPosition {
 		boolean after = pig(0, -1);
 		c.y--;
 		if (now && !after) {
-			feety = c.y;
+//			feety = c.y;
 		}
 	}
 
 	public void moveDown() {
-		// OR don't do it if our feet are in the way
-		if (c.y != feety) {
+		boolean now = pig();
+		boolean after = pig(0, 1);
+		if (now || !after) {
 			c.y++;
 		}
-		// boolean now = ig();
-		// boolean after = ig(0, 1);
-		// if (now || !after) {
-		// c.y++;
-		// }
+		else {
+//			feety = c.y;
+		}
+	}
+
+	public void moveX(int dx) {
+		boolean now = pig();
+		boolean after = pig(dx, 0);
+		int ncx = c.x + dx;
+
+		if (now) {
+			// now: ground
+			dropFeet();
+			for (int s = c.y+1; s<=feety; s++) {
+				if (!ig(ncx, s)) {
+					mx(ncx);
+					break;
+				}
+			}
+		}
+		else {
+			// now: air
+			if (after) {
+				// air->ground: NO
+			}
+			else {
+				mx(ncx);
+			}
+		}
+	}
+
+	public void mx(int ncx) {
+		c.x = ncx;
 	}
 
 	public Coord get() {
