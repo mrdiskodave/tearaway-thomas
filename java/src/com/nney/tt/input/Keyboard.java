@@ -69,7 +69,7 @@ public interface Keyboard extends HasKeys {
 	static final int KEY_DOWN = 62;
 
 	// shift keys
-	static final int KEYBEGIN_SHIFTS = 62;
+	static final int KEYBEGIN_SHIFTS = 63;
 	static final int KEY_SHIFT = 63;
 	static final int KEY_CONTROL = 64;
 	static final int KEY_MENU = 65;
