@@ -3,9 +3,10 @@ package com.nney.tt;
 import com.nney.tt.geom.Coord;
 
 /**
- * An abstraction of the player position. It will have simple methods for moving
- * one pixel up, down, left and right. It will only allow valid movement. Bigger
- * things based on it will then also be guaranteed-valid.
+ * An abstraction of the player position. It has simple methods for moving one
+ * pixel up, down, left and right. It only allows valid movement.
+ * <p>
+ * Bigger things based on it will then also be guaranteed-valid.
  */
 public class PlayerPosition {
 	private Coord c;
@@ -20,72 +21,85 @@ public class PlayerPosition {
 		return srv.inTheGround(x, y);
 	}
 
-	public void moveUp() {
-//		System.out.println("MoveUp");
-		c.y--;
-	}
-
-	public void moveDown() {
-		boolean now = ig(c.x, c.y);
-		boolean after = ig(c.x + 0, c.y + 1);
-		if (now || !after) {
-			c.y++;
+	public void move(int dx, int dy) {
+		if (dy == -1) {
+			c.y--;
+		}
+		if (dy == 1) {
+			if (ig(c.x, c.y) || !ig(c.x, c.y + 1)) {
+				c.y++;
+			}
+		}
+		if (dx == 1 || dx == -1) {
+			moveX(dx);
 		}
 	}
 
-	public void moveX(int dx) {
-		assert dx==1 || dx==-1;
-		
-//		System.out.println("MoveX:"+dx);
+	private void moveX(int dx) {
+		assert dx == 1 || dx == -1;
+
+		// System.out.println("MoveX:"+dx);
 		boolean now = ig(c.x, c.y);
-		boolean after = ig(c.x + dx, c.y + 0);
 		int ncx = c.x + dx;
 
 		if (now) {
 			// now: ground
-			int s = c.y;
-			int patience = 5; 
+			int y = c.y;
+			int patience = 5;
 			for (;;) {
-				s++;
-				if (!ig(ncx, s)) {
+				y++;
+				if (!ig(ncx, y)) {
 					// yes! somewhere to fall onto
-					mx(ncx);
+					xSuccess(ncx);
 					break;
 				}
-				if (!ig(c.x, s) && --patience==0) {
+				if (!ig(c.x, y) && --patience == 0) {
 					// give up looking
+					// (but not right away to allow for sloped undersides)
 					break;
 				}
 			}
 		}
 		else {
 			// now: air
+			boolean after = ig(c.x + dx, c.y + 0);
 			if (after) {
 				// air->ground: NO
-				
+
 				// except for a special case for standing:
-				if (isStanding() && !ig(ncx, c.y-1)) {
-					// climb!
-					c.y--;
-					mx(ncx);
+				if (isStanding()) {
+					if (!ig(ncx, c.y - 1)) {
+						// climb!
+						c.y--;
+						xSuccess(ncx);
+					}
+					else if (!ig(ncx, c.y - 2)) {
+						// climb more!
+						c.y -= 2;
+						xSuccess(ncx);
+					}
 				}
 			}
 			else {
-				// air->air: YES
 				if (isStanding()) {
-					if (!ig(ncx, c.y+1)) {
-						if (ig(ncx, c.y+2)) {
+					if (!ig(ncx, c.y + 1)) {
+						// no longer standing?
+						if (ig(ncx, c.y + 2)) {
 							// suck!
 							c.y++;
 						}
+						else if (ig(ncx, c.y + 3)) {
+							// suck more!
+							c.y += 2;
+						}
 					}
 				}
-				mx(ncx);
+				xSuccess(ncx);
 			}
 		}
 	}
 
-	public void mx(int ncx) {
+	private void xSuccess(int ncx) {
 		c.x = ncx;
 	}
 
@@ -94,7 +108,7 @@ public class PlayerPosition {
 	}
 
 	public boolean isStanding() {
-		return !ig(c.x, c.y) && ig(c.x, c.y+1); 
+		return !ig(c.x, c.y) && ig(c.x, c.y + 1);
 	}
 
 }

@@ -170,4 +170,9 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		long y = this.y;
 		return x * x + y * y;
 	}
+	
+	public void signum() {
+		x = Integer.signum(x);
+		y = Integer.signum(y);
+	}
 }

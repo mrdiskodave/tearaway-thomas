@@ -643,7 +643,7 @@ public class Mapper implements ButtonPressServices {
 			generateButtons(levelInfo);
 		}
 		if (changeMode(k, Keyboard.KEY_P, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
-			simStart();
+			simulationModeInit();
 		}
 	}
 
@@ -738,27 +738,8 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 	
-	private void simulationMode(int k) {
-		flagSelectionKeys(k);
-		
-		if (keyboard.isDown(Pointer.KEY_LEFT)) {
-			Coord d = mmp.worldPixels();
-			Coord s = sim.get();
-			Coord diff = d.sub2(s);
-			diff.x = Integer.signum(diff.x);
-			diff.y = Integer.signum(diff.y);
-			simDiff(diff);
-		}
-		
-		if (k == Pointer.KEY_RIGHT){
-			simStart();
-		}
-		
-		Coord diff = getNudge(k);
-		if (diff!=null) simDiff(diff);
-	}
 
-	public void simStart() {
+	public void simulationModeInit() {
 		sim = new PlayerPosition(mmp.worldPixels(), new PlayerPositionServices() {
 			@Override
 			public boolean inTheGround(int x, int y) {
@@ -769,16 +750,31 @@ public class Mapper implements ButtonPressServices {
 			}
 		});
 	}
+
+	
+	private void simulationMode(int k) {
+		flagSelectionKeys(k);
+		
+		if (keyboard.isDown(Pointer.KEY_LEFT)) {
+			Coord d = mmp.worldPixels();
+			Coord s = sim.get();
+			Coord diff = d.sub2(s);
+			diff.signum();
+			simDiff(diff);
+		}
+		
+		if (k == Pointer.KEY_RIGHT){
+			simulationModeInit();
+		}
+		
+		Coord diff = getNudge(k);
+		if (diff!=null) simDiff(diff);
+	}
+
 	
 	public void simDiff(Coord diff) {
 		Coord c = sim.get().copy();
-		if (diff.y>0) {
-			sim.moveDown();
-		}
-		if (diff.y<0) {
-			sim.moveUp();
-		}
-		if (diff.x!=0) sim.moveX(diff.x);
+		sim.move(diff.x, diff.y);
 		if (!sim.get().equals(c)) {
 			System.out.println("Now at "+sim.get());
 		}
@@ -847,7 +843,7 @@ public class Mapper implements ButtonPressServices {
 		}
 		else {
 			Coord nudge = getNudge(k);
-			if (nudge != null) {
+			if (nudge != null && bat!= null) {
 				startObjectEdit();
 				Coord firstBatPos = bat.box().centre();
 				nudge.add(firstBatPos);
@@ -864,6 +860,7 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_SUBTRACT) findType(-1);
 		if (k == Keyboard.KEY_N) createAlien();
 		keyboardAlienChoice(k);
+		flagSelectionKeys(k);
 	}
 
 	public void checkPropMouseOver() {
