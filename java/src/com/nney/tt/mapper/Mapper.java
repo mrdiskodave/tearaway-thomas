@@ -513,7 +513,7 @@ public class Mapper implements ButtonPressServices {
 		}
 		if (mode==Mode.PLAYERSIMULATION) {
 			Coord c = sim.get().sub2(getScreenPosition());
-			mgc.drawSight(c.x, c.y, 40, 0xffff00ff);
+			mgc.drawSight(c.x, c.y, 40, sim.isStanding() ? 0xff00ff00 : 0xffff0000);
 
 			Coord cf = sim.getFeet().sub2(getScreenPosition());
 			mgc.drawSight(cf.x, cf.y, 10, 0xffffffff);

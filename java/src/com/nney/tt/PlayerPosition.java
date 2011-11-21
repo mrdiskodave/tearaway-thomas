@@ -11,32 +11,18 @@ public class PlayerPosition {
 	private Coord c;
 	private PlayerPositionServices srv;
 	private int feety;
+	private boolean standing;
 
 	public PlayerPosition(Coord c, PlayerPositionServices srv) {
 		this.c = c;
 		this.srv = srv;
 		this.feety = c.y;
-		dropFeet();
-	}
-
-	private boolean pig() {
-		return ig(c);
-	}
-
-	private boolean pig(int x, int y) {
-		return ig(c, x, y);
+		
+		standing = !ig(c.x, c.y) && ig(c.x, c.y); 
 	}
 
 	private boolean ig(int x, int y) {
 		return srv.inTheGround(x, y);
-	}
-
-	private boolean ig(Coord c) {
-		return ig(c.x, c.y);
-	}
-
-	private boolean ig(Coord c, int dx, int dy) {
-		return ig(c.x + dx, c.y + dy);
 	}
 
 	private void dropFeet() {
@@ -45,36 +31,27 @@ public class PlayerPosition {
 			feety++;
 			if (!ig(c.x, feety)) break;
 		}
-//		int f = feety;
-//		while (ig(c.x, feety) || !ig(c.x, feety + 1)) {
-//			feety++;
-//		}
-//		System.out.println("Feet drop:"+(feety-f));
 	}
 
 	public void moveUp() {
-		boolean now = pig();
-		boolean after = pig(0, -1);
 		c.y--;
-		if (now && !after) {
-//			feety = c.y;
-		}
+		standing = false;
 	}
 
 	public void moveDown() {
-		boolean now = pig();
-		boolean after = pig(0, 1);
+		boolean now = ig(c.x, c.y);
+		boolean after = ig(c.x + 0, c.y + 1);
 		if (now || !after) {
 			c.y++;
 		}
 		else {
-//			feety = c.y;
+			standing = true;
 		}
 	}
 
 	public void moveX(int dx) {
-		boolean now = pig();
-		boolean after = pig(dx, 0);
+		boolean now = ig(c.x, c.y);
+		boolean after = ig(c.x + dx, c.y + 0);
 		int ncx = c.x + dx;
 
 		if (now) {
@@ -91,8 +68,18 @@ public class PlayerPosition {
 			// now: air
 			if (after) {
 				// air->ground: NO
+				
+				// special case for standing:
+				if (standing && !ig(ncx, c.y-1)) {
+					c.y--;
+					mx(ncx);
+				}
 			}
 			else {
+				// air->air
+				if (!ig(ncx, c.y+1)) {
+					standing = false;
+				}
 				mx(ncx);
 			}
 		}
@@ -108,6 +95,10 @@ public class PlayerPosition {
 
 	public Coord getFeet() {
 		return new Coord(c.x, feety);
+	}
+	
+	public boolean isStanding() {
+		return standing;
 	}
 
 }
