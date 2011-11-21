@@ -79,212 +79,160 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
+			"type": "jackInTheBox", 
 			"location": [
-				1091, 
-				532
-			], 
-			"legacyData": "4e0004000213000000000002fd000000000000000000"
+				1792, 
+				608
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "jackInTheBox", 
 			"location": [
-				1129, 
-				532
-			], 
-			"legacyData": "4e0004df021e000000000002fd000000000000000000"
+				1887, 
+				608
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "jackInTheBox", 
 			"location": [
-				1183, 
-				432
-			], 
-			"legacyData": "1909049f028904c002730106b6000000280000000000"
+				1983, 
+				608
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "jackInTheBox", 
 			"location": [
-				1183, 
-				528
-			], 
-			"legacyData": "1909049f028904c0027300060c000000370000000000"
+				2079, 
+				608
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1183, 
-				624
-			], 
-			"legacyData": "1909049f028904c00273010616000000230000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				148, 
-				623
-			], 
-			"legacyData": "1b01005f026801c00268030640000100000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1599, 
-				432
-			], 
-			"legacyData": "1909061f02660640026b0206e1000100470000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1599, 
-				528
-			], 
-			"legacyData": "1909061f02660640026b0206ac000000230000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1599, 
-				624
-			], 
-			"legacyData": "1909061f02660640026b0206ab0000002d0000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1650, 
-				539
-			], 
-			"legacyData": "4e00061b021e000000000002fd000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1688, 
-				539
-			], 
-			"legacyData": "4e0006ee021f000000000002fd000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
+			"type": "jumboJet", 
 			"location": [
 				1780, 
 				426
 			], 
-			"legacyData": "1c0506e801a8085a01b2050466000000000000000000"
+			"goLeft": false, 
+			"range": [
+				1768, 
+				2138
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1792, 
-				608
-			], 
-			"legacyData": "1a010000000000000000000676000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1887, 
-				608
-			], 
-			"legacyData": "1a010000000000000000000676000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1983, 
-				608
-			], 
-			"legacyData": "1a010000000000000000000676000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
+			"type": "jumboJet", 
 			"location": [
 				2018, 
 				490
 			], 
-			"legacyData": "1c0506e801a8085a01b203040e000100000000000000"
+			"goLeft": false, 
+			"range": [
+				1768, 
+				2138
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "lorry", 
 			"location": [
-				2079, 
-				608
+				148, 
+				623
 			], 
-			"legacyData": "1a010000000000000000000676000000000000000000"
+			"goLeft": false, 
+			"range": [
+				95, 
+				448
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2212, 
-				530
-			], 
-			"legacyData": "4e00084d020f000000000002fd000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2249, 
-				529
-			], 
-			"legacyData": "4e00090c021c000000000002fd000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
+			"type": "lorry", 
 			"location": [
 				358, 
 				703
 			], 
-			"legacyData": "1b01004502b601da02b8030610000000000000000000"
+			"goLeft": false, 
+			"range": [
+				69, 
+				474
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "lorry", 
 			"location": [
 				370, 
 				543
 			], 
-			"legacyData": "1b010130021501e0021c000668000000000000000000"
+			"goLeft": false, 
+			"range": [
+				304, 
+				480
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "lorry", 
 			"location": [
 				382, 
 				463
 			], 
-			"legacyData": "1b01005f026801c002680106e8000000000000000000"
+			"goLeft": false, 
+			"range": [
+				95, 
+				448
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				530, 
-				527
-			], 
-			"legacyData": "4e0001f40210000000000002fd000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				572, 
-				527
-			], 
-			"legacyData": "4e0002670219000000000002fd000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
+			"type": "lorry", 
 			"location": [
 				75, 
 				543
 			], 
-			"legacyData": "1b010044021900f002190106c0000100000000000000"
+			"goLeft": false, 
+			"range": [
+				68, 
+				240
+			]
 		}, 
 		{
 			"type": "mapBounds", 
 			"bounds": [
-				0, 
-				272, 
-				2783, 
-				767
+				1125, 
+				276, 
+				1657, 
+				762
+			]
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				1682, 
+				274, 
+				2214, 
+				760
+			]
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				2, 
+				275, 
+				534, 
+				761
+			]
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				2246, 
+				277, 
+				2778, 
+				763
+			]
+		}, 
+		{
+			"type": "mapBounds", 
+			"bounds": [
+				563, 
+				276, 
+				1095, 
+				762
 			]
 		}, 
 		{
@@ -609,6 +557,84 @@
 			], 
 			"hidden": false, 
 			"wobble": true
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				1183, 
+				432
+			], 
+			"goLeft": false, 
+			"range": [
+				1183, 
+				1216
+			], 
+			"canMove": true
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				1183, 
+				528
+			], 
+			"goLeft": false, 
+			"range": [
+				1183, 
+				1216
+			], 
+			"canMove": true
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				1183, 
+				624
+			], 
+			"goLeft": false, 
+			"range": [
+				1183, 
+				1216
+			], 
+			"canMove": true
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				1599, 
+				432
+			], 
+			"goLeft": false, 
+			"range": [
+				1567, 
+				1600
+			], 
+			"canMove": true
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				1599, 
+				528
+			], 
+			"goLeft": false, 
+			"range": [
+				1567, 
+				1600
+			], 
+			"canMove": true
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				1599, 
+				624
+			], 
+			"goLeft": false, 
+			"range": [
+				1567, 
+				1600
+			], 
+			"canMove": true
 		}, 
 		{
 			"type": "teleport", 

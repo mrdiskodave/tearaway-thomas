@@ -20,13 +20,13 @@ public class MapperMousePosition {
 		this.worldLimits = worldLimits;
 	}
 
-	void update(Coord mouse, Coord scr) {
-		pos = mouse.copy();
+	void update(Coord mouseInScreen, Coord screenInWorld) {
+		pos = mouseInScreen.copy();
 		
 		delta = pos.sub2(last);
 		last = pos.copy();
 		
-		worldPos = pos.add2(scr);
+		worldPos = pos.add2(screenInWorld);
 		worldLimits.constrain(worldPos);
 		worldBlockPos = worldPos.div2(Const.BLOCK_SIZE);
 		worldBlockPosDelta = worldBlockPos.sub2(lastWorldBlockPos);

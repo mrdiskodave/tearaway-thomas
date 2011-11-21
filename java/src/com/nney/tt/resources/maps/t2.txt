@@ -34,6 +34,54 @@
 			]
 		}, 
 		{
+			"type": "car", 
+			"location": [
+				147, 
+				879
+			], 
+			"goLeft": true, 
+			"range": [
+				79, 
+				207
+			]
+		}, 
+		{
+			"type": "car", 
+			"location": [
+				149, 
+				879
+			], 
+			"goLeft": false, 
+			"range": [
+				79, 
+				207
+			]
+		}, 
+		{
+			"type": "car", 
+			"location": [
+				167, 
+				1455
+			], 
+			"goLeft": false, 
+			"range": [
+				110, 
+				175
+			]
+		}, 
+		{
+			"type": "car", 
+			"location": [
+				92, 
+				1775
+			], 
+			"goLeft": false, 
+			"range": [
+				82, 
+				202
+			]
+		}, 
+		{
 			"type": "exit", 
 			"location": [
 				143, 
@@ -73,84 +121,30 @@
 			"hidden": true
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				131, 
-				1135
-			], 
-			"legacyData": "1901004f04ce00ce04cc02065e000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				147, 
-				879
-			], 
-			"legacyData": "1d00004f036d00cf036b010680000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				149, 
-				879
-			], 
-			"legacyData": "1d01004f036d00cf036b010680000100000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				151, 
-				735
-			], 
-			"legacyData": "1901002f02da00f002d802068c000004000000000000"
-		}, 
-		{
-			"type": "legacy", 
+			"type": "jackInTheBox", 
 			"location": [
 				16, 
 				1600
-			], 
-			"legacyData": "1a010000000000000000000699000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				167, 
-				1455
-			], 
-			"legacyData": "1d05006e057900af057c010680000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
+			"type": "jackInTheBox", 
 			"location": [
 				240, 
 				1600
-			], 
-			"legacyData": "1a01000000000000000000063f000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "jumboJet", 
 			"location": [
 				84, 
 				475
 			], 
-			"legacyData": "1c01004e01d200d001d7040458000100000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				88, 
-				1231
-			], 
-			"legacyData": "1901004f04ce00ce04cc0006d4000105000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				92, 
-				1775
-			], 
-			"legacyData": "1d01005206e400ca06e5020688000100000000000000"
+			"goLeft": false, 
+			"range": [
+				78, 
+				208
+			]
 		}, 
 		{
 			"type": "mapBounds", 
@@ -419,6 +413,19 @@
 				123
 			], 
 			"hidden": false
+		}, 
+		{
+			"type": "tank", 
+			"location": [
+				151, 
+				735
+			], 
+			"goLeft": false, 
+			"range": [
+				47, 
+				240
+			], 
+			"canMove": true
 		}, 
 		{
 			"type": "yellowGem", 
@@ -758,15 +765,6 @@
 			"location": [
 				79, 
 				1132
-			], 
-			"hidden": false, 
-			"wobble": true
-		}, 
-		{
-			"type": "yellowGem", 
-			"location": [
-				80, 
-				1228
 			], 
 			"hidden": false, 
 			"wobble": true

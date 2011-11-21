@@ -20,10 +20,7 @@ public class TrampolineAlien extends AlienWithLocation {
 		int touchDownSpeed = srv.getThePlayer().getTouchDownVel();
 		if (touchDownSpeed >= 8) {
 			if (srv.collideBoxWithPlayerHandle(ourBox)) {
-				// TODO: work takeOffSpeed out from touchDownSpeed?
-				// but that could break compatibility on w6.map
-				int takeOffSpeed = 20;
-				srv.getThePlayer().boost(-takeOffSpeed);
+				srv.getThePlayer().boost(-20);
 				srv.playSoundEffect("trampoline");
 			}
 		}

@@ -22,7 +22,9 @@ public class TankAlien extends LeftRightAlien {
 	@Override
 	public void loadFromLegacyData() {
 		super.loadFromLegacyData();
-		canMove = Math2.bitTest(loadByte(OBflags), FLAG_CAN_MOVE);
+		System.out.println(String.format("Tank flag %02x", loadByte(OBflags)));
+		canMove = !Math2.bitTest(loadByte(OBflags), FLAG_CAN_MOVE);
+		
 	}
 
 	@Override
@@ -65,13 +67,15 @@ public class TankAlien extends LeftRightAlien {
 				}
 			}
 		}
-		Sprite s = nextFrame();
-		srv.drawSprite(c, s);
-		Sprite ts = anims.find("turret").sprites[currentTurretAngle];
-		srv.drawSprite(c, ts);
+		
+		Sprite sprite = nextFrame();
+		srv.drawSprite(c, sprite);
+		
+		Sprite turretSprite = anims.find("turret").sprites[currentTurretAngle];
+		srv.drawSprite(c, turretSprite);
 
-		if (srv.collideAlienWithPlayerHiRes(c, s) || srv.collideAlienWithPlayerHiRes(c, ts)) {
-			if (srv.headBounce(this, ts, s)) {
+		if (srv.collideAlienWithPlayerHiRes(c, sprite) || srv.collideAlienWithPlayerHiRes(c, turretSprite)) {
+			if (srv.headBounce(this, turretSprite, sprite)) {
 				stunTimer.set(60);
 			}
 		}

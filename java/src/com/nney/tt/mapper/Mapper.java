@@ -1,7 +1,6 @@
 package com.nney.tt.mapper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +13,8 @@ import com.nney.tt.Const;
 import com.nney.tt.LevelInfo;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
+import com.nney.tt.PlayerPosition;
+import com.nney.tt.PlayerPositionServices;
 import com.nney.tt.ScreenPosition;
 import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
@@ -213,7 +214,7 @@ public class Mapper implements ButtonPressServices {
 	private Coord marker;
 
 	enum Mode {
-		DRAW, ALIEN, SPECIFICATION
+		DRAW, ALIEN, SPECIFICATION, PLAYERSIMULATION
 	}
 
 	private Mode mode = Mode.DRAW;
@@ -256,6 +257,8 @@ public class Mapper implements ButtonPressServices {
 	private SlowBoolean editManagerStartObjectEdit = new SlowBoolean();
 
 	private Box constraints;
+
+	private PlayerPosition sim;
 
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -424,6 +427,7 @@ public class Mapper implements ButtonPressServices {
 			if (mode == Mode.ALIEN) alienMode(k);
 			if (mode == Mode.DRAW) drawMode(k);
 			if (mode == Mode.SPECIFICATION) specificationMode(k);
+			if (mode == Mode.PLAYERSIMULATION) simulationMode(k);
 			changeMode(k);
 
 			Coord nc = numCoord(k);
@@ -506,6 +510,14 @@ public class Mapper implements ButtonPressServices {
 		if (mode == Mode.ALIEN) drawProps();
 		if (mode == Mode.SPECIFICATION) {
 			drawProps();
+		}
+		if (mode==Mode.PLAYERSIMULATION) {
+			Coord c = sim.get().sub2(getScreenPosition());
+			mgc.drawSight(c.x, c.y, 40, 0xffff00ff);
+
+			Coord cf = sim.getFeet().sub2(getScreenPosition());
+			mgc.drawSight(cf.x, cf.y, 10, 0xffffffff);
+
 		}
 		drawPalettes();
 
@@ -634,6 +646,17 @@ public class Mapper implements ButtonPressServices {
 		if (changeMode(k, Keyboard.KEY_S, Mode.SPECIFICATION, "Specification Mode")) {
 			generateButtons(levelInfo);
 		}
+		if (changeMode(k, Keyboard.KEY_P, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
+			sim = new PlayerPosition(mmp.worldPixels(), new PlayerPositionServices() {
+				@Override
+				public boolean inTheGround(int x, int y) {
+					x >>= Const.BLOCK_SHIFT;
+					y >>= Const.BLOCK_SHIFT;
+					int block = gameMap.fastGetBlock(x, y);
+					return loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
+				}
+			});
+		}
 	}
 
 	private boolean changeMode(int k, int r, Mode m, String d) {
@@ -658,6 +681,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private Box getRectInBlocks() {
+		assert marker!=null;
 		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
 	}
 
@@ -723,6 +747,18 @@ public class Mapper implements ButtonPressServices {
 		checkPropMouseOver();
 		if (k == Pointer.KEY_LEFT && button != null) {
 			handleButtonPress(k, button);
+		}
+	}
+	
+	private void simulationMode(int k) {
+		Coord d = mmp.worldPixels();
+		Coord s = sim.get();
+		Coord diff = d.sub2(s);
+		if (diff.y>0) {
+			sim.moveDown();
+		}
+		if (diff.y<0) {
+			sim.moveUp();
 		}
 	}
 
