@@ -3,15 +3,19 @@ package com.nney.tt.aliens;
 import com.nney.tt.Player;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
+import com.nney.tt.tinytools.Latch;
 
 public abstract class LiftAlien extends Alien {
 	private static final int EXTRA_WIDTH = 4;
+	private int lastFrameMoved = -100;
 
 	private Coord ourPlace = new Coord();
 	private Coord lastPlace = new Coord();
 
 	private Sprite ourSprite;
-	private int width;
+
+	public int left;
+	public int width;
 
 	@Override
 	public void onLoaded() {
@@ -30,21 +34,20 @@ public abstract class LiftAlien extends Alien {
 	 * risk of moving this lift twice is then zero.
 	 */
 	private void generateInternalStateFromFrameNumber() {
-		lastPlace = ourPlace.copy();
-		ourPlace = currentPosition();
+		int f = srv.getFrameNumber();
+		if (f != lastFrameMoved) {
+			lastFrameMoved = f;
+			lastPlace = ourPlace.copy();
+			ourPlace = currentPosition();
+			left = ourPlace.x - EXTRA_WIDTH;
+		}
 	}
 
-	private Coord lastFrameDelta() {
+	public Coord lastFrameDelta() {
 		generateInternalStateFromFrameNumber();
 		Coord delta = ourPlace.copy();
 		delta.sub(lastPlace);
 		return delta;
-	}
-
-	private boolean horizontalOverlap(Player p) {
-		int s = ourPlace.x - EXTRA_WIDTH;
-		int e = s + width;
-		return p.c.x >= s && p.c.x < e;
 	}
 
 	@Override
@@ -53,14 +56,8 @@ public abstract class LiftAlien extends Alien {
 
 		srv.drawSprite(ourPlace, ourSprite);
 
-		Player p = srv.getThePlayer();
-		if (p.isReadyToBoardALift()) {
-			int landOn = ourPlace.y - 1;
-			boolean verticalCrossing = p.lc.y < landOn && p.c.y >= landOn;
-			if (horizontalOverlap(p) && verticalCrossing) {
-				p.startLiftMode(this, landOn);
-			}
-		}
+		int landOn = ourPlace.y - 1;
+		srv.getThePlayer().performLiftBoarding(this, landOn);
 	}
 
 	@Override
@@ -68,21 +65,4 @@ public abstract class LiftAlien extends Alien {
 		generateInternalStateFromFrameNumber();
 		return ourPlace;
 	}
-
-	
-	// called from Player
-	public void movePlayer(Player player) {
-		player.c.add(lastFrameDelta());
-	}
-
-	// called from Player
-	public int getPlayerJumpBoost() {
-		return lastFrameDelta().y;
-	}
-	
-	// called from Player
-	public boolean amIStillOnThisLift(Player player) {
-		return horizontalOverlap(player);
-	}
-	
 }

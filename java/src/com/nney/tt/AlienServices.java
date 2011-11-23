@@ -7,7 +7,7 @@ import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public interface AlienServices {
+public interface AlienServices extends PlayerPositionServices {
 
 	/**
 	 * Get some randomness.

@@ -231,6 +231,12 @@ public class World implements AlienServices, Disposable {
 
 	private String configuredScriptDestination;
 
+
+	static final private boolean CTC_MEASURE_JUMP_HEIGHT = false;
+
+	private int smallestY;
+
+	
 	public World(OuterWorld ow) {
 		this.ow = ow;
 		this.gc = ow.gc;
@@ -258,8 +264,13 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public boolean inTheGround(Coord c) {
-		int block = getBlock(c);
-		return blockSet.maskHolder.inTheGround(block, c.x & 15, c.y & 15);
+		return inTheGround(c.x, c.y);
+	}
+	
+	@Override
+	public boolean inTheGround(int x, int y) {
+		int block = gameMap.fastGetBlock(x>>Const.BLOCK_SHIFT, y>>Const.BLOCK_SHIFT);
+		return blockSet.maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
 	}
 
 	/**
@@ -585,11 +596,11 @@ public class World implements AlienServices, Disposable {
 			alien.freezeBounds = null;
 			alien.update();
 
-			Box fb = alien.freezeBounds;
-			if (fb!=null) {
-				Box s = fb.sub2(getScreenPosition());
-				gc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
-			}
+//			Box fb = alien.freezeBounds;
+//			if (fb!=null) {
+//				Box s = fb.sub2(getScreenPosition());
+//				gc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
+//			}
 			
 			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
 				alienIterator.remove();
@@ -1104,7 +1115,20 @@ public class World implements AlienServices, Disposable {
 
 		parsedJoystick.set(joystickPosition);
 		player.move(parsedJoystick);
+		
 
+		
+		if (CTC_MEASURE_JUMP_HEIGHT) {
+			smallestY = Math.min(smallestY, player.c.y);
+			System.out.println(String.format("Player: %s (smallesty:%s height:%s)", player.c, smallestY, player.c.y-smallestY));
+			if (keyboard.isDown(Keyboard.KEY_R)) {
+				smallestY = Integer.MAX_VALUE;
+			}
+		}
+		
+		// JUMP HEIGHT: 66 .. 68 with the bug (of course)
+
+		
 		scrollTheScreen();
 		drawTheMap();
 		updateTheAliens();
@@ -1128,7 +1152,7 @@ public class World implements AlienServices, Disposable {
 			drawTeleportEffect();
 			drawHudAndBorders(false);
 			if (teleportTimer == TELEPORT_TIME / 2) {
-				player.c = teleportDestination.copy();
+				player.teleportTo(teleportDestination);
 				pickTheBestBounds();
 				scr.snapTo(player.c);
 			}

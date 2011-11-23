@@ -4,6 +4,13 @@ public final class EdgeDetector {
 	private boolean current;
 	private boolean last;
 	
+	public EdgeDetector() {
+	}
+	
+	public EdgeDetector(boolean b) {
+		current = b;
+	}
+	
 	public EdgeDetector next(boolean b) {
 		last = current;
 		current = b;

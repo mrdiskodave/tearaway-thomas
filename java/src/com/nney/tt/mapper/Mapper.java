@@ -744,9 +744,7 @@ public class Mapper implements ButtonPressServices {
 			@Override
 			public boolean inTheGround(int x, int y) {
 				int block = gameMap.fastGetBlock(x>>Const.BLOCK_SHIFT, y>>Const.BLOCK_SHIFT);
-				boolean answer = loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
-				return answer;
-
+				return loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
 			}
 		});
 	}
@@ -1576,6 +1574,20 @@ public class Mapper implements ButtonPressServices {
 		endBlockEdit();
 	}
 
+	// 4 different background styles
+	//
+	// 7or8 different kinds of shadow
+	// *
+	// two different kinds of checker
+	// *
+	// colours of pips + 1 for "no pips"
+	
+	// 4*7*2*4 R G B Y = 224
+	
+	
+	// empty/light/dark/RGBY/1234
+	
+	
 	private void generateToyland() {
 		int pc = 0;
 		int pw = 0;
@@ -1689,4 +1701,8 @@ public class Mapper implements ButtonPressServices {
 		unflatten(as);
 		return lost;
 	}
+	
+	// problem:
+	// bring something from the Fridge
+	// then it is onScreen (you see it's properties) but still frozen (it doesn't draw) 
 }

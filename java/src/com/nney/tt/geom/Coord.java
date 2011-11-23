@@ -175,4 +175,9 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		x = Integer.signum(x);
 		y = Integer.signum(y);
 	}
+
+	public void copyFieldsFrom(Coord other) {
+		x = other.x;
+		y = other.y;
+	}
 }

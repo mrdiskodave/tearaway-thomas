@@ -186,7 +186,13 @@ final class MapperAlienServices implements AlienServices {
 		ni();
 		return false;
 	}
-	
+
+	@Override
+	public boolean inTheGround(int x, int y) {
+		ni();
+		return false;
+	}
+
 	@Override
 	public void drawSprite(Coord c, Sprite s, boolean drawWhite) {
 		mapper.directDrawSprite(c, s, drawWhite);
@@ -206,5 +212,6 @@ final class MapperAlienServices implements AlienServices {
 	public int getFrameNumber() {
 		return 0;
 	}
+
 
 }

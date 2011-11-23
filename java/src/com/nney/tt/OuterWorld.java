@@ -34,7 +34,9 @@ public class OuterWorld implements Runnable, Disposable {
 
 	public final Pointer mouse;
 
-	public int levelNumber = 16;
+	// 31 "i0"
+	// 3 "worm"
+	public int levelNumber = 0;
 
 	public int score = 0;
 

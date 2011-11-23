@@ -8,6 +8,7 @@ import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.Sprite;
 import com.nney.tt.tinytools.EdgeDetector;
+import com.nney.tt.tinytools.FractionTracker;
 import com.nney.tt.tinytools.Latch;
 
 /**
@@ -21,6 +22,7 @@ public class Player {
 		this.c = playerStart.copy();
 		this.goLeft = goLeft;
 		this.lc = playerStart.copy();
+		this.pp = new PlayerPosition(c, srv);
 	}
 
 	private void setAnim(String name, boolean animate) {
@@ -52,7 +54,7 @@ public class Player {
 	private static final int STUN_TIME = 33;
 	private static final int RESTUN_PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
-	private static final int JUMP_VELOCITY = -12;
+	private static final float JUMP_VELOCITY = -12.245f;
 
 	// TODO: hollow out the masks for sign posts and trees.
 	// We just want a single pixel running along the top of
@@ -77,9 +79,21 @@ public class Player {
 	// FIELDS
 
 	/**
-	 * Where we are at.
+	 * Where we are at. We expose this, for speed, and require/trust that other
+	 * classes will only read it.
 	 */
 	public Coord c;
+
+	/**
+	 * We don't move {@link #c} much mostly relying on this object to move it
+	 * for us.
+	 */
+	private PlayerPosition pp;
+
+	/**
+	 * Our last coordinate.
+	 */
+	private Coord lc;
 
 	/**
 	 * Services we need from our environment.
@@ -117,7 +131,7 @@ public class Player {
 	 * Is the player facing left? <code>true</code> means "they are facing left"
 	 * and <code>false</code> means "they are facing right".
 	 */
-	boolean goLeft;
+	private boolean goLeft;
 
 	/**
 	 * The player is stunned until this timer counts down to zero.
@@ -150,18 +164,13 @@ public class Player {
 	/**
 	 * Our Y velocity.
 	 */
-	private int vely;
+	private float vely;
 
 	/**
 	 * Cleared when you touch the floor (or a lift!). Incremented when you
 	 * bounce on a head!
 	 */
 	private int headBounceCounter;
-
-	/**
-	 * Our last coordinate.
-	 */
-	public Coord lc;
 
 	/**
 	 * What {@link Mode} are we in?
@@ -184,8 +193,6 @@ public class Player {
 
 	private boolean hasStar;
 
-	private boolean inTheGroundBefore;
-
 	private int touchDownVel;
 
 	private boolean flyingFlap;
@@ -195,6 +202,17 @@ public class Player {
 	private int jdy;
 
 	private EdgeDetector jfire = new EdgeDetector();
+
+	/**
+	 * The fractional part of our Y ordinate.
+	 * 
+	 * <p>
+	 * {@link Coord} is all integers. This entire project runs in integer
+	 * coordinates. The exception is Player jumping velocity and gravity which
+	 * are both floats. This object keeps track of the "part less than 1.0f" of
+	 * our Y ordinate so that everything else can stay as integers.
+	 */
+	private FractionTracker yFraction = new FractionTracker();
 
 	// ---------------------------------------------------------------------------
 	// ENUMERATIONS
@@ -235,6 +253,7 @@ public class Player {
 		standingOn = null;
 		airSpin = false;
 		flying = false;
+
 		mode = n;
 	}
 
@@ -268,9 +287,9 @@ public class Player {
 		headBounceCounter = 0;
 	}
 
-	private void jumpV(int velocity) {
+	private void jumpV(float velocity) {
 		if (mode == Mode.LIFT) {
-			velocity += standingOn.getPlayerJumpBoost();
+			velocity += standingOn.lastFrameDelta().y;
 		}
 		reset(Mode.AIR);
 		vely = velocity;
@@ -291,11 +310,10 @@ public class Player {
 		return left ? -x : x;
 	}
 
-	private int applyGravity(int v) {
-		if (!flying || srv.frameTest(2)) {
-			return Math.min(v + 1, 16);
-		}
-		return v;
+	private float applyGravity(float v) {
+		float g = 1;
+		if (flying) g = 0.5f;
+		return Math.min(v + g, 16);
 	}
 
 	private int getXDelta() {
@@ -317,108 +335,22 @@ public class Player {
 	private boolean normalVerticalMovement() {
 		vely = applyGravity(vely);
 
-		MovementSlicer yslicer = new MovementSlicer(vely);
+		int yMove = yFraction.set(yFraction.get()+vely);
+		
+		MovementSlicer yslicer = new MovementSlicer(yMove);
 		while (yslicer.more()) {
 			int n = yslicer.next(1);
-			c.y += n;
-			if (landingLights()) {
-				return true;
-			}
+			pp.move(0, n);
+		}
+		if (vely > 0 && pp.isStanding()) {
+			yFraction.set(0);
+			return true;
 		}
 		return false;
 	}
 
-	/**
-	 * A player who touches the floor is held down onto it by this method.
-	 */
-	private void vacuumFloor() {
-		if (!srv.playerFall(c, 14)) {
-			fallOff();
-		}
-	}
-
-	// ---------------------------------------------------------------------------
-	// WALK MODE
-
-	private void doWalkModeX(MovementSlicer xslicer) {
-		int n = xslicer.next(1);
-		c.x += n;
-		vacuumFloor();
-	}
-
-	// Y handled inline in move2()
-
 	// ---------------------------------------------------------------------------
 	// AIR MODE
-
-	/**
-	 * Have we touched down?
-	 * 
-	 * A touch down happens on a sky-to-ground edge. The player touches down
-	 * on/in/at the sky pixel which has a ground pixel directly below.
-	 * 
-	 * @return <code>true</code> (meaning "we've touched down") on
-	 *         <code>false</code> meaning ("we are still in the air").
-	 */
-	private boolean landingLights() {
-		// SCC2
-		if (srv.inTheGround(c)) {
-			// in the ground
-			if (!inTheGroundBefore) {
-				// for the first time!
-				// so we move up
-				c.y--;
-				// and then either ...
-				if (srv.inTheGround(c)) {
-					// System.out.println("LL: entering ground");
-					// ... we're still in the ground unfortunately
-					inTheGroundBefore = true;
-
-					//
-					// Surely, this should be an increment because
-					// the speculative decrement above
-					// didn't work out on this code-path and we want
-					// to reverse it.
-					//
-					// But, in the original, it is a decrement effectively
-					// giving the player a two pixel upward kick when they
-					// enter the ground.
-					//
-					// I'm going to code it bug-for-bug identical because
-					// there are jumps that the player can't make otherwise.
-					// (e.g. the left of the first horizontal rope
-					// on the "the worm that turned" up to the branch
-					// above)
-					//
-					c.y--;
-
-					return false;
-				}
-				else {
-					// ... or that move got us up into the sky
-					// so this is a great spot to touch down!
-					inTheGroundBefore = false;
-					// System.out.println("LL: touching down");
-					return true;
-				}
-			}
-			// in the ground AGAIN ... boring
-			return false;
-		}
-		else {
-			// in the sky
-			inTheGroundBefore = false;
-			return false;
-		}
-	}
-
-	private void doAirModeX(MovementSlicer xslicer) {
-		int n = xslicer.next(1);
-		c.x += n;
-		if (landingLights()) {
-			startModeWalk();
-		}
-	}
 
 	private void doAirModeY() {
 		if (airJumpTimer != 0) {
@@ -430,7 +362,7 @@ public class Player {
 			flyingFlap = true;
 		}
 		if (normalVerticalMovement()) {
-			if (wantsToJump()) touchDownVel = vely;
+			if (wantsToJump()) touchDownVel = (int) vely;
 			startModeWalk();
 		}
 	}
@@ -441,7 +373,7 @@ public class Player {
 	private void doLiftModeX(MovementSlicer xslicer) {
 		int n = xslicer.next(1);
 		c.x += n;
-		if (!standingOn.amIStillOnThisLift(this)) {
+		if (!horizontalOverlap(standingOn)) {
 			fallOff();
 		}
 	}
@@ -454,6 +386,7 @@ public class Player {
 	private void startStunMode(int t) {
 		jumpV(STUN_VELOCITY);
 		stunTimer = t;
+		assert mode == Mode.AIR;
 		mode = Mode.STUN;
 	}
 
@@ -481,6 +414,7 @@ public class Player {
 			if (slide != NO_SLIDE) {
 				slideVel = ic.x - lc.x;
 				System.out.println("Starting slide " + slideVel);
+				assert mode == Mode.WALK;
 				mode = Mode.SLIDE;
 				return true;
 			}
@@ -504,17 +438,18 @@ public class Player {
 		if (mode == Mode.SLIDE) {
 			MovementSlicer xslicer = new MovementSlicer(slideVel);
 			while (xslicer.more()) {
-				c.x += xslicer.next(3);
-				if (!srv.playerFall(c, 14)) {
-					// we slid off an edge
-					fallOff();
-				}
+				pp.move(xslicer.next(1), 0);
 			}
 			updateSlideVel();
 
 			// set our direction and we're done
 			if (slideVel != 0) goLeft = slideVel < 0;
 			setAnim(directionalAnimName("jump"), true);
+
+			if (!pp.isStanding()) {
+				fallOff();
+			}
+
 		}
 	}
 
@@ -676,11 +611,13 @@ public class Player {
 				boolean wannaTwistRight = jdx > 0 && goLeft;
 				if (wannaTwistLeft || wannaTwistRight) {
 					goLeft = !goLeft;
+					assert mode == Mode.ROPE;
 					mode = Mode.ROPE_TWIST;
 				}
 			}
 			else {
 				if (animPlayer.hasAnimEnded()) {
+					assert mode == Mode.ROPE_TWIST;
 					mode = Mode.ROPE;
 				}
 			}
@@ -800,7 +737,7 @@ public class Player {
 
 		if (mode == Mode.LIFT) {
 			assert standingOn != null;
-			standingOn.movePlayer(this);
+			c.add(standingOn.lastFrameDelta());
 		}
 
 		// These all run off the same MovementSlicer.
@@ -811,13 +748,13 @@ public class Player {
 		MovementSlicer xslicer = new MovementSlicer(xmovement);
 		while (xslicer.more()) {
 			if (mode == Mode.WALK) {
-				doWalkModeX(xslicer);
+				pp.move(xslicer.next(1), 0);
 			}
 			else if (mode == Mode.LIFT) {
 				doLiftModeX(xslicer);
 			}
 			else if (mode == Mode.AIR) {
-				doAirModeX(xslicer);
+				pp.move(xslicer.next(1), 0);
 			}
 			else {
 				break;
@@ -836,13 +773,15 @@ public class Player {
 		//
 
 		if (mode == Mode.WALK) {
-			vacuumFloor();
-			// might change to Mode.AIR
+			if (!pp.isStanding()) {
+				fallOff();
+			}
 		}
 		if (mode == Mode.AIR) {
 			doAirModeY();
 			// might change to Mode.WALK
 		}
+		//
 		// Mode.LIFT isn't mentioned here because the LiftAlien moves us
 		// directly
 
@@ -881,7 +820,7 @@ public class Player {
 	// MAIN MOVEMENT ROUTINE
 
 	private void move2() {
-//		System.out.println("Player:" + c);
+		// System.out.println("Player:" + c);
 		touchDownVel = 0;
 		flyingFlap = false;
 
@@ -971,11 +910,6 @@ public class Player {
 	// actions
 	//
 
-	public void resetTo(Coord coord) {
-		reset(Mode.AIR);
-		c = coord;
-	}
-
 	public void stun() {
 		if (CTC_STUNABLE) {
 			if (proofTimer == 0 && stunTimer == 0) {
@@ -992,7 +926,7 @@ public class Player {
 		return stunTimer < Integer.MAX_VALUE;
 	}
 
-	public void startLiftMode(LiftAlien lift, int height) {
+	private void startLiftMode(LiftAlien lift, int height) {
 		reset(Mode.LIFT);
 		standingOn = lift;
 		c.y = height;
@@ -1008,8 +942,8 @@ public class Player {
 	 * <p>
 	 * The result is for <b>this frame only</b> so you have to keep asking if
 	 * you don't want to miss it. The requirement is not just that the player
-	 * hits the ground but that they intend (next frame) to jump up again. i.e.
-	 * that the play is "bouncing" off the ground.
+	 * hits the ground but also that they intend (next frame) to jump up again.
+	 * i.e. that the play is "bouncing" off the ground.
 	 * 
 	 * @return The velocity in pixels per frame or zero if didn't happen this
 	 *         frame.
@@ -1020,10 +954,6 @@ public class Player {
 
 	public boolean isStunned() {
 		return stunTimer != 0;
-	}
-
-	public boolean isReadyToBoardALift() {
-		return mode == Mode.AIR;
 	}
 
 	/**
@@ -1045,9 +975,7 @@ public class Player {
 
 		// must be above but not too far above
 		if (diff.y > 0 && diff.y < 100) {
-			// must be moving towards
-			int d = jdx;
-			if (d != 0 && d != Integer.signum(diff.x)) {
+			if (jdx != 0 && jdx != Integer.signum(diff.x)) {
 				// and must be the correct distance in front
 				int dx = Math.abs(diff.x);
 				if (dx > 75 && dx < 100) {
@@ -1092,6 +1020,27 @@ public class Player {
 			headBounceCounter++;
 		}
 		return answer;
+	}
+
+	private boolean horizontalOverlap(LiftAlien lift) {
+		int s = lift.left;
+		return c.x >= s && c.x < (s + lift.width);
+	}
+
+	private boolean verticalCrossing(int landOn) {
+		return lc.y < landOn && c.y >= landOn;
+	}
+
+	public void performLiftBoarding(LiftAlien caller, int landOn) {
+		if (mode == Mode.AIR && horizontalOverlap(caller) && verticalCrossing(landOn)) {
+			startLiftMode(caller, landOn);
+		}
+	}
+
+	public void teleportTo(Coord teleportDestination) {
+		// copy the content over because 'pp' holds a reference to that
+		// particular 'c'
+		c.copyFieldsFrom(teleportDestination);
 	}
 }
 

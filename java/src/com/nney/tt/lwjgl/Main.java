@@ -14,7 +14,6 @@ import org.lwjgl.opengl.GLContext;
 import com.nney.tt.Const;
 import com.nney.tt.Launcher;
 import com.nney.tt.OuterWorld;
-import com.nney.tt.World;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdaptor;
