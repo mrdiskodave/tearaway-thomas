@@ -2,7 +2,10 @@ package com.nney.tt.gfx;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -99,7 +102,7 @@ public class SimpleImage {
 	public int width() {
 		return width;
 	}
-	
+
 	private int computeOffset(int x, int y) {
 		assert x >= 0 : x;
 		assert y >= 0 : y;
@@ -184,6 +187,41 @@ public class SimpleImage {
 		}
 	}
 
+	public void mergeWith(SimpleImage src) {
+		assert width == src.width;
+		assert height == src.height;
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				int s = src.get(x, y);
+				int d = get(x, y);
+
+				int sa = (s >> 24) & 0xff;
+				int sr = (s >> 16) & 0xff;
+				int sg = (s >> 8) & 0xff;
+				int sb = s & 0xff;
+
+				int da = (d >> 24) & 0xff;
+				int dr = (d >> 16) & 0xff;
+				int dg = (d >> 8) & 0xff;
+				int db = d & 0xff;
+
+				da = m(sa, 0xff, da);
+				dr = m(sa, sr, dr);
+				dg = m(sa, sg, dg);
+				db = m(sa, sb, db);
+
+				d = (da << 24) | (dr << 16) | (dg << 8) | db;
+
+				put(x, y, d);
+			}
+		}
+	}
+
+	private int m(int alpha, int src, int dest) {
+		int answer = (dest * (0xff - alpha) + src * alpha) / 0xff;
+		return answer;
+	}
+
 	public void changePixels(ChangePixel p) {
 		for (int y = 0; y < height; y++) {
 			// System.out.println("Line"+y);
@@ -233,6 +271,32 @@ public class SimpleImage {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				put(x, y, c);
+			}
+		}
+	}
+
+	public void writeP6(OutputStream o) throws IOException {
+		String header = String.format("P6\n%s %s\n%s\n", width, height, 255);
+		o.write(header.getBytes("ISO-8859-1"));
+		byte[] c = new byte[3];
+		for (int y = 0; y < height; y++) {
+			System.out.println("line" + y);
+			for (int x = 0; x < width; x++) {
+				int i = get(x, y);
+				int a = (i >> 24) & 0xff;
+				int r = (i >> 16) & 0xff;
+				int g = (i >> 8) & 0xff;
+				int b = i & 0xff;
+				
+				a = 0xff - a;
+				r = m(a, 0xff, r);
+				g = m(a, 0x00, g);
+				b = m(a, 0xff, b);
+				
+				c[0] = (byte) r;
+				c[1] = (byte) g;
+				c[2] = (byte) b;
+				o.write(c);
 			}
 		}
 	}

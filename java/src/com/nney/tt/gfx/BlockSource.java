@@ -21,13 +21,14 @@ public class BlockSource {
 		int blocksVertically = allBlocksHeight / miniH;
 		blockCount = blocksHorizontally * blocksVertically;
 	}
-
-	public boolean isEntirely(int blockNumber, int c) {
-		return getBlock(blockNumber).isEntirely(c);
-	}
+	
 
 	public BlockSource(SimpleImage si, int blockSize) {
 		this(si, blockSize, blockSize);
+	}
+
+	public boolean isEntirely(int blockNumber, int c) {
+		return getBlock(blockNumber).isEntirely(c);
 	}
 
 	public void hideBlock(int src, int dest) {
