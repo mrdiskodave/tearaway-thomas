@@ -76,6 +76,7 @@ public class KeyboardTest {
 			Display.setDisplayMode(dm);
 			Display.setVSyncEnabled(true);
 			Display.create();
+			Keyboard.create();
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
@@ -91,6 +92,7 @@ public class KeyboardTest {
 		runTest();
 
 		Display.destroy();
+		Keyboard.destroy();
 	}
 
 	/**
