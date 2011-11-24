@@ -2,10 +2,8 @@ package com.nney.tt.gfx;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -195,31 +193,19 @@ public class SimpleImage {
 				int s = src.get(x, y);
 				int d = get(x, y);
 
-				int sa = (s >> 24) & 0xff;
-				int sr = (s >> 16) & 0xff;
-				int sg = (s >> 8) & 0xff;
-				int sb = s & 0xff;
+				int sa = xa(s);
+				int da = blend(sa, 0xff, xa(d));
+				int dr = blend(sa, xr(s), xr(d));
+				int dg = blend(sa, xg(s), xg(d));
+				int db = blend(sa, xb(s), xb(d));
 
-				int da = (d >> 24) & 0xff;
-				int dr = (d >> 16) & 0xff;
-				int dg = (d >> 8) & 0xff;
-				int db = d & 0xff;
-
-				da = m(sa, 0xff, da);
-				dr = m(sa, sr, dr);
-				dg = m(sa, sg, dg);
-				db = m(sa, sb, db);
-
-				d = (da << 24) | (dr << 16) | (dg << 8) | db;
-
-				put(x, y, d);
+				put(x, y, c(da, dr, dg, db));
 			}
 		}
 	}
 
-	private int m(int alpha, int src, int dest) {
-		int answer = (dest * (0xff - alpha) + src * alpha) / 0xff;
-		return answer;
+	static private int blend(int alpha, int src, int dest) {
+		return (dest * (0xff - alpha) + src * alpha) / 0xff;
 	}
 
 	public void changePixels(ChangePixel p) {
@@ -280,24 +266,43 @@ public class SimpleImage {
 		o.write(header.getBytes("ISO-8859-1"));
 		byte[] c = new byte[3];
 		for (int y = 0; y < height; y++) {
-			System.out.println("line" + y);
 			for (int x = 0; x < width; x++) {
 				int i = get(x, y);
-				int a = (i >> 24) & 0xff;
-				int r = (i >> 16) & 0xff;
-				int g = (i >> 8) & 0xff;
-				int b = i & 0xff;
-				
-				a = 0xff - a;
-				r = m(a, 0xff, r);
-				g = m(a, 0x00, g);
-				b = m(a, 0xff, b);
-				
-				c[0] = (byte) r;
-				c[1] = (byte) g;
-				c[2] = (byte) b;
+				int a = 0xff - xa(i);
+				c[0] = (byte) blend(a, 0xff, xr(i));
+				c[1] = (byte) blend(a, 0x00, xg(i));
+				c[2] = (byte) blend(a, 0xff, xb(i));
 				o.write(c);
 			}
 		}
+	}
+
+
+	//
+	// extract different components
+	//
+	
+	static private int xb(int i) {
+		return i & 0xff;
+	}
+
+	static private int xg(int i) {
+		return (i >> 8) & 0xff;
+	}
+
+	static private int xr(int i) {
+		return (i >> 16) & 0xff;
+	}
+
+	static private int xa(int i) {
+		return (i >> 24) & 0xff;
+	}
+	
+	//
+	// repack components
+	//
+
+	private static int c(int da, int dr, int dg, int db) {
+		return (da << 24) | (dr << 16) | (dg << 8) | db;
 	}
 }
