@@ -59,11 +59,5 @@ public class BlockSource {
 		return blockWidth;
 	}
 
-	public void doBlockHiding(BlockAliasTable bat) {
-		if (bat != null) {
-			for (int b = 0; b < blockCount; b++) {
-				hideBlock(bat.compress(b), b);
-			}
-		}
-	}
+
 }

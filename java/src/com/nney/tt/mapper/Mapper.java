@@ -8,7 +8,7 @@ import com.nney.tt.AlienFactory;
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
 import com.nney.tt.AlienServices;
-import com.nney.tt.BlockSet;
+import com.nney.tt.BlockSet2;
 import com.nney.tt.Const;
 import com.nney.tt.LevelInfo;
 import com.nney.tt.OuterWorld;
@@ -313,7 +313,8 @@ public class Mapper implements ButtonPressServices {
 
 		gameMap = pl.getMap();
 		constraints = gameMap.boundsInPixels();
-		gameMap.applyCompress(loadBlockSet().wi.blockRandomisationTable);
+		loadBlockSet().compressMap(gameMap);
+		
 
 		Box mapBoundsInPixels = gameMap.boundsInPixels();
 		mmp = new MapperMousePosition(mapBoundsInPixels);
@@ -1452,7 +1453,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private int getCompressedCurrentBlock() {
-		return loadBlockSet().wi.blockRandomisationTable.compress(currentBlock);
+		return loadBlockSet().compressBlock(currentBlock);
 	}
 
 	private void setCurrentBlock(int currentBlock) {
@@ -1521,8 +1522,8 @@ public class Mapper implements ButtonPressServices {
 		return answer;
 	}
 
-	public BlockSet loadBlockSet() {
-		return ow.loadBlockSet(new BlockSet.Config(levelInfo.worldName, testFlag(FLAG_SEE_MASKS),
+	public BlockSet2 loadBlockSet() {
+		return ow.loadBlockSet(new BlockSet2.Config(levelInfo.worldName, testFlag(FLAG_SEE_MASKS),
 				testFlag(FLAG_SEE_HIDDEN)));
 	}
 

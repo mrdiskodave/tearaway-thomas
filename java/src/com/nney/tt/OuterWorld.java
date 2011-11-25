@@ -30,13 +30,13 @@ public class OuterWorld implements Runnable, Disposable {
 	public final AnimsPool animsPool;
 
 	// Disposable:
-	public DisposableField<BlockSet> blockSet = new DisposableField<BlockSet>();
+	public DisposableField<BlockSet2> blockSet = new DisposableField<BlockSet2>();
 
 	public final Pointer mouse;
 
 	// 31 "i0"
 	// 3 "worm"
-	public int levelNumber = 0;
+	public int levelNumber = 12;
 
 	public int score = 0;
 
@@ -72,9 +72,9 @@ public class OuterWorld implements Runnable, Disposable {
 		lives = 3;
 	}
 
-	public BlockSet loadBlockSet(BlockSet.Config config) {
+	public BlockSet2 loadBlockSet(BlockSet2.Config config) {
 		if (blockSet.empty() || !blockSet.get().isSame(config)) {
-			blockSet.set(new BlockSet(gc, config));
+			blockSet.set(BlockSet2.createBlockSet(gc, config));
 		}
 		return blockSet.get();
 	}

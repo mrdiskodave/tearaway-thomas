@@ -189,7 +189,7 @@ public class World implements AlienServices, Disposable {
 
 	private Coord teleportDestination;
 
-	private BlockSet blockSet;
+	private BlockSet2 blockSet;
 
 	private boolean seeMasks;
 
@@ -284,7 +284,7 @@ public class World implements AlienServices, Disposable {
 	 */
 	private String getBlockInfo(Coord c) {
 		int block = getBlock(c);
-		return blockSet.wi.blockInformation.get(block);
+		return blockSet.getBlockInfo(block);
 	}
 
 	@Override
@@ -529,7 +529,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public LadderInformation getLadderInfo() {
-		return blockSet.wi.ladderInformation;
+		return blockSet.getLadderInfo();
 	}
 
 	@Override
@@ -930,7 +930,7 @@ public class World implements AlienServices, Disposable {
 
 		horizon = ow.getHorizon(levelInfo.horizon);
 
-		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
+		blockSet = ow.loadBlockSet(new BlockSet2.Config(worldName, seeMasks, seeHidden));
 
 		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
 
@@ -939,7 +939,7 @@ public class World implements AlienServices, Disposable {
 		player.move(parsedJoystick);
 		scr.snapTo(player.c);
 
-		gameMap.applyShuffle(blockSet.wi.blockRandomisationTable);
+		blockSet.expandMap(gameMap);
 
 		gemsTotal = ListUtil.count(GemAlien.class, alienTracker);
 		gemsNeeded = levelInfo.gemsNeeded;

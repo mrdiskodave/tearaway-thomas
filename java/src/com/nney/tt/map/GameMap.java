@@ -101,18 +101,14 @@ public final class GameMap {
 		return x >= 0 && x < w && y >= 0 && y < h;
 	}
 
-	public void applyShuffle(BlockAliasTable bat) {
-		for (int y=0; y<h; y++) {
-			for (int x=0; x<w; x++) {
-				fastSetBlock(x, y, bat.shuffle(fastGetBlock(x, y)));
-			}
-		}
+	public interface BlockFunc {
+		int update(int x);
 	}
 
-	public void applyCompress(BlockAliasTable bat) {
+	public void apply(BlockFunc func) {
 		for (int y=0; y<h; y++) {
 			for (int x=0; x<w; x++) {
-				fastSetBlock(x, y, bat.compress(fastGetBlock(x, y)));
+				fastSetBlock(x, y, func.update(fastGetBlock(x, y)));
 			}
 		}
 	}

@@ -335,9 +335,9 @@ public class ToyMaker {
 		}
 	}
 	
-	public WorldInformation getWorldInformation() {
-		return new WorldInformation(new BlockAliasTable(), new BlockAliasTable(), blockInformation, null);
-	}
+//	public WorldInformation getWorldInformation() {
+//		return new WorldInformation(new BlockAliasTable(), new BlockAliasTable(), blockInformation, null);
+//	}
 
 	static private int compose(int... d) {
 		int x = 0;
