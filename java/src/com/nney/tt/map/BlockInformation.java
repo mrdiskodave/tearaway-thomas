@@ -20,11 +20,18 @@ public class BlockInformation {
 			Node[] itemsDi = z[x + 1].requireList();
 			for (Node itemDi : itemsDi) {
 				int item = itemDi.requireInt();
-				assert !specs.containsKey(item);
-				specs.put(item, name);
+				put(item, name);
 			}
 		}
 	}
+
+	public void put(int item, String name) {
+		assert !specs.containsKey(item);
+		specs.put(item, name);
+	}
+	
+	public BlockInformation() {}
+	
 
 	public String get(int block) {
 		return specs.get(block);
