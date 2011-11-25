@@ -53,7 +53,6 @@ public class TankAlien extends LeftRightAlien {
 				if (currentTurretAngle == desiredTargetAngle) {
 					if (!fireTimer.testAndRun()) {
 						reloadFireTimer();
-						System.out.println("Bang!");
 						int sign = faceLeft ? -1 : 1;
 						Coord shellVelocity = new Coord(sign*4, 0);
 						Coord shellStart = c.copyAndAdd(sign*28, -20);

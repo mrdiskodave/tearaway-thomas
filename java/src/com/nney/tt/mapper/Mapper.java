@@ -191,24 +191,6 @@ public class Mapper implements ButtonPressServices {
 
 	private EditConsolidator blockEdit;
 
-	class BlockAccess {
-		public void set(Coord c, int b) {
-			blockEdit.setBlock(c, b);
-		}
-
-		public int get(Coord c) {
-			return gameMap.safeGetBlock(c);
-		}
-
-		public int width() {
-			return gameMap.width();
-		}
-
-		public int height() {
-			return gameMap.height();
-		}
-	}
-
 	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
 	private final CollidableList<ButtonRecord> buttonRecords = new CollidableList<ButtonRecord>();
 	private List<Prop> props;
@@ -1379,6 +1361,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void submitMapEdit(MapEdit u) {
+		assert u!=null;
 		undoControler.redoThenAdd(u);
 	}
 
@@ -1496,7 +1479,7 @@ public class Mapper implements ButtonPressServices {
 
 				if (alienTracker.perhapsFreeze(alien, screenBox)) {
 					alienIterator.remove();
-					System.out.println("Froze!!");
+					// System.out.println("Froze!!");
 				}
 			}
 		}

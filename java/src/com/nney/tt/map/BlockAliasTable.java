@@ -42,12 +42,12 @@ public class BlockAliasTable {
 		}
 	}
 
-	private void registerCompression(Integer src, Integer dest) {
+	public void registerCompression(Integer src, Integer dest) {
 		assert !compress.containsKey(src);
 		compress.put(src, dest);
 	}
 
-	private void registerExpansion(Integer src, ArrayList<Integer> dest) {
+	public void registerExpansion(Integer src, ArrayList<Integer> dest) {
 		assert !expand.containsKey(src);
 		expand.put(src, dest);
 	}

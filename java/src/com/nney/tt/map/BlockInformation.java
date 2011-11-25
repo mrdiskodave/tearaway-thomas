@@ -25,13 +25,12 @@ public class BlockInformation {
 		}
 	}
 
-	public void put(int item, String name) {
-		assert !specs.containsKey(item);
-		specs.put(item, name);
+	public void put(int block, String name) {
+		assert !specs.containsKey(block);
+		specs.put(block, name);
 	}
 	
 	public BlockInformation() {}
-	
 
 	public String get(int block) {
 		return specs.get(block);
