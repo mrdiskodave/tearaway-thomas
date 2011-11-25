@@ -1,26 +1,32 @@
 package com.nney.tt.mapper;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.nney.tt.Const;
+import com.nney.tt.LadderInformation;
+import com.nney.tt.WorldInformation;
+import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.SimpleImage.ChangePixel;
+import com.nney.tt.map.BlockAliasTable;
+import com.nney.tt.map.BlockInformation;
+import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.Mapper.BlockAccess;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Math2;
 import com.nney.utils.OpenableTools;
 
 public class ToyMaker {
+	public static final int WIDTH = 20;
 
-	private static final int WIDTH = 20;
+	private static final int NPOS_BLOCKS = 0;
+	private static final int NPOS_STYLE = WIDTH;
+	private static final int NPOS_HIDDEN = 2 * WIDTH;
+
 	private static final int WALL_COUNT = 4;
-	private static final int HIDDEN_POS = 5;
+	private static final int MAGIC_POS = 5;
 	private static final int SOLID_POS = 1;
 	private static final int PIPS_POS = 4;
 
@@ -35,17 +41,21 @@ public class ToyMaker {
 	private static final int SECOND = 1;
 	private static final int BOTH = 2;
 
-	private static final int COLOUR_STORE = 6;
-	private static final int COLOUR_COUNT = 6;
+	private static final int COLOUR_MAX = 20;
+
+	private int colourCount;
 
 	private BlockSource blocks;
+	private BlockSource masks;
 	private int pos;
 
-	private BlockSource[] colouredSources = new BlockSource[COLOUR_STORE];
+	private BlockSource[] colouredSources = new BlockSource[COLOUR_MAX];
 
-	private Map<Integer, Integer> mapIn = new HashMap<Integer, Integer>();
-	private Map<Integer, Integer> mapOut = new HashMap<Integer, Integer>();
-	private BlockSource masks;
+	private Map<Integer, Integer> flatternedToPos = new HashMap<Integer, Integer>();
+
+	private BlockAccess blockAccess2;
+	
+	private BlockInformation blockInformation = new BlockInformation();
 
 	static class S {
 		int wall = -1;
@@ -56,20 +66,20 @@ public class ToyMaker {
 		int which = -1;
 		boolean pips = false;
 		int shadow = 0;
-		boolean hidden = false;
+		boolean magic = false;
 
 		@Override
 		public String toString() {
 			if (wall >= 0) {
 				return String.format("wall%s col%s", wall, col);
 			}
-			assert style >= 0;
-			return String.format("style%s which%s pips%s (col%s) shaddow%s hidden%s", style, which, pips, col, shadow,
-					hidden);
+			// assert style >= 0;
+			return String.format("style%s which%s pips%s (col%s) shaddow%s magic%s", style, which, pips, col, shadow,
+					magic);
 		}
 
 		int flattern() {
-			return compose(col, pips ? 1 : 0, shadow, style, wall, which, hidden ? 1 : 0);
+			return compose(col, pips ? 1 : 0, shadow, style, wall, which, magic ? 1 : 0);
 		}
 
 		S col(int x) {
@@ -98,9 +108,9 @@ public class ToyMaker {
 			return this;
 		}
 
-		@Override
-		protected S clone() throws CloneNotSupportedException {
-			return (S) super.clone();
+		public S magic(boolean b) {
+			magic = b;
+			return this;
 		}
 
 		public S copy() {
@@ -111,95 +121,64 @@ public class ToyMaker {
 			a.which = which;
 			a.pips = pips;
 			a.shadow = shadow;
+			a.magic = magic;
 			return a;
-
-		}
-
-		public boolean reduce() {
-			if (wall >= 0) {
-				if (wall == SOLID_POS || wall == HIDDEN_POS) return false;
-				wall = SOLID_POS;
-				return true;
-			}
-			assert style >= 0;
-			if (which == 0 && !pips && shadow == 0) return false;
-			which = 0;
-			pips = false;
-			col = 0;
-			shadow = 0;
-			return true;
-		}
-
-		public S hidden(boolean b) {
-			hidden = b;
-			return this;
 		}
 	}
 
 	public static void main(String[] args) {
-		new ToyMaker().testname();
+		new ToyMaker().generate();
 	}
 
-	public void testname() {
-		TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
+	// TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
 
+	static class Result {
+		public final SimpleImage blocks;
+		public final SimpleImage masks;
+
+		public Result(SimpleImage blocks, SimpleImage masks) {
+			this.blocks = blocks;
+			this.masks = masks;
+		}
+	}
+
+	public Result generate() {
 		byte[] srcData = OpenableTools.mustLoad(TTResource.blocks("toyparts"));
 		SimpleImage canvas = new SimpleImage(srcData);
-
 		makeShaddowsTranslucent(canvas);
 
-		{
-			int x = 0;
-			addColour(x++, canvas);
-			addColour(x++, colouriseCanvas(canvas, 0xff006600, 0xff00aa00, 0xff00dd00));
-			addColour(x++, colouriseCanvas(canvas, 0xff666600, 0xffaaaa00, 0xffdddd00));
-			addColour(x++, colouriseCanvas(canvas, 0xff006666, 0xff00aaaa, 0xff00dddd));
-			addColour(x++, colouriseCanvas(canvas, 0xffaaaaaa, 0xffdddddd, 0xffffffff));
-			addColour(x++, colouriseCanvas(canvas, 0xff444444, 0xff888888, 0xffdddddd));
-			// addColour(x++, colouriseCanvas(canvas, 0xffffff00, 0xffaaaa00,
-			// 0xffdddd00));
-			assert x == COLOUR_STORE;
-		}
-
-		//
-		//
-		// 0-5 wall with this palette:
-		// ff000000
-		// ff660000
-		// ffaa1100
-		// ffdd3300
-		//
-		// 6-13 backgrounds
-		//
-		// 14-19 shadows
-		//
+		int c = 0;
+		addColour(c++, canvas);
+		addColour(c++, colouriseCanvas(canvas, 0xff006600, 0xff00aa00, 0xff00dd00));
+		addColour(c++, colouriseCanvas(canvas, 0xff666600, 0xffaaaa00, 0xffdddd00));
+		addColour(c++, colouriseCanvas(canvas, 0xff006666, 0xff00aaaa, 0xff00dddd));
+		addColour(c++, colouriseCanvas(canvas, 0xffaaaaaa, 0xffdddddd, 0xffffffff));
+		addColour(c++, colouriseCanvas(canvas, 0xff444444, 0xff888888, 0xffdddddd));
+		colourCount = c;
 
 		gen();
 		int rowsNeeded = Math2.roundUpDiv(pos, WIDTH);
 		int w = Const.BLOCK_SIZE * WIDTH;
 		int h = Const.BLOCK_SIZE * rowsNeeded;
+
 		SimpleImage blocksImage = SimpleImage.createEmpty(w, h);
 		SimpleImage masksImage = SimpleImage.createEmpty(w, h);
 		masksImage.fill(0xffffffff);
-
 		blocks = new BlockSource(blocksImage, Const.BLOCK_SIZE);
 		masks = new BlockSource(masksImage, Const.BLOCK_SIZE);
 		pos = 0;
 		gen();
+		return new Result(blocksImage, masksImage);
 
-		saveForExamination(blocksImage, "blocks");
-		saveForExamination(masksImage, "masks");
+		// saveForExamination(blocksImage, "blocks");
+		// saveForExamination(masksImage, "masks");
 	}
 
 	public void gen() {
-		// ***********************************************
-		// TODO 000 colouring and ordering next!! :)
-		// ***********************************************
-
 		//
 		// basic stuff for drawing with
 		//
-		for (int col = 0; col < COLOUR_COUNT; col++) {
+		for (int col = 0; col < colourCount; col++) {
 			copy(s().col(col).wall(SOLID_POS)); // solid
 		}
 		nextRow();
@@ -208,10 +187,8 @@ public class ToyMaker {
 			copy(s().style(style, FIRST));
 		}
 		nextRow();
-		for (int style = 0; style < STYLE_COUNT; style++) {
-			// hidden (in various styles)
-			copy(s().style(style, FIRST).hidden(true));
-		}
+		// hidden (in various styles)
+		copy(s().magic(true));
 		nextRow();
 
 		//
@@ -219,7 +196,7 @@ public class ToyMaker {
 		//
 
 		// coloured stuff
-		for (int col = 0; col < COLOUR_COUNT; col++) {
+		for (int col = 0; col < colourCount; col++) {
 			// rest of wall
 			for (int x = 0; x < WALL_COUNT; x++) {
 				if (x != SOLID_POS) {
@@ -236,7 +213,7 @@ public class ToyMaker {
 
 		// plain stuff
 		for (int style = 0; style < STYLE_COUNT; style++) {
-			copy(s().style(style, SECOND).hidden(true));
+			copy(s().style(style, BOTH).magic(true));
 			for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
 				boolean doneFirst = shadow == 0;
 				int which = doneFirst ? SECOND : BOTH;
@@ -254,6 +231,15 @@ public class ToyMaker {
 	}
 
 	public SimpleImage colouriseCanvas(SimpleImage canvas, int n1, int n2, int n3) {
+		//
+		//
+		// original wall has this palette
+		// ff000000
+		// ff660000
+		// ffaa1100
+		// ffdd3300
+		//
+
 		SimpleImage si;
 		int red1 = 0xff660000;
 		int red2 = 0xffaa1100;
@@ -267,21 +253,21 @@ public class ToyMaker {
 		return si;
 	}
 
-	public void saveForExamination(SimpleImage destImage, String name) {
-		//
-		// save to disk
-		//
-		try {
-			String fn = String.format("\\\\10.0.0.3\\x\\x\\tt\\%s.pnm", name);
-			System.out.println("Saving " + fn);
-			OutputStream o = new BufferedOutputStream(new FileOutputStream(fn));
-			destImage.writeP6(o);
-			o.close();
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	// private void saveForExamination(SimpleImage destImage, String name) {
+	// //
+	// // save to disk
+	// //
+	// try {
+	// String fn = String.format("\\\\10.0.0.3\\x\\x\\tt\\%s.pnm", name);
+	// System.out.println("Saving " + fn);
+	// OutputStream o = new BufferedOutputStream(new FileOutputStream(fn));
+	// destImage.writeP6(o);
+	// o.close();
+	// }
+	// catch (IOException e) {
+	// throw new RuntimeException(e);
+	// }
+	// }
 
 	static public S s() {
 		return new S();
@@ -325,18 +311,19 @@ public class ToyMaker {
 					solid = true;
 				}
 				else {
-					assert s.style >= 0;
-					int sp = STYLE_BASE + s.style * STYLE_SIZE;
-					d.mergeWith(getSrc(0, sp + s.which));
+					if (s.style >= 0) {
+						int sp = STYLE_BASE + s.style * STYLE_SIZE;
+						d.mergeWith(getSrc(0, sp + s.which));
+					}
 					if (s.pips) {
 						d.mergeWith(getSrc(s.col, PIPS_POS));
 					}
 					if (s.shadow != 0) {
 						d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow - 1));
 					}
-					if (s.hidden) {
-						solid = true;
-						d.mergeWith(getSrc(0, HIDDEN_POS));
+					if (s.magic) {
+						blockInformation.put(pos, "magic");
+						d.mergeWith(getSrc(0, MAGIC_POS));
 					}
 				}
 				if (solid) {
@@ -346,6 +333,10 @@ public class ToyMaker {
 
 			pos++;
 		}
+	}
+	
+	public WorldInformation getWorldInformation() {
+		return new WorldInformation(new BlockAliasTable(), new BlockAliasTable(), blockInformation, null);
 	}
 
 	static private int compose(int... d) {
@@ -362,22 +353,93 @@ public class ToyMaker {
 		return colouredSources[col].getBlock(i);
 	}
 
-	private void recordMapping(S d) {
-		System.out.println(String.format("%03d %s", pos, d));
-		int f = d.flattern();
+	private void recordMapping(S s) {
+		System.out.println(String.format("%03d %s", pos, s));
+		flatternedToPos.put(s.flattern(), pos);
+	}
 
-		S d2 = d.copy();
-		if (d2.reduce()) {
-			int backTo = d2.flattern();
-			Integer b = mapIn.get(backTo);
-			assert b!=null;
-			System.out.println(String.format("maps back to %s %03d", d2, b));
+	public int get(S s) {
+		Integer answer = flatternedToPos.get(s.flattern());
+		assert answer != null;
+		return answer;
+	}
+
+	private int a(int b, int x) {
+		if (b >= x && b < x + WIDTH) {
+			return b - x;
 		}
+		return -1;
+	}
 
-		assert !mapIn.containsKey(f);
-		mapIn.put(f, pos);
+	private int isWall(int b) {
+		return a(b, NPOS_BLOCKS);
+	}
 
-		assert !mapOut.containsKey(pos);
-		mapIn.put(pos, f);
+	private int isSpace(int b) {
+		return a(b, NPOS_STYLE);
+	}
+
+	private boolean testWall(Coord coord, int i, int j) {
+		int b = blockAccess2.get(coord.copyAndAdd(i, j));
+		return isWall(b) >= 0;
+	}
+
+	public void generateToyland(BlockAccess blockAccess) {
+		this.blockAccess2 = blockAccess;
+
+		System.out.println("Generating Intricacies Of Toyland");
+		for (int y = 0; y < blockAccess.width(); y++) {
+			for (int x = 0; x < blockAccess.height(); x++) {
+				Coord coord = new Coord(x, y);
+
+				int checkers = (x ^ y) & 1;
+
+				boolean wallEast = testWall(coord, 1, 0);
+				boolean wallWest = testWall(coord, -1, 0);
+				boolean wallNorthWest = testWall(coord, -1, -1);
+				boolean wallNorth = testWall(coord, 0, -1);
+				boolean wallSouth = testWall(coord, 0, 1);
+
+				int walls[] = { 3, 2, 0, 1 };
+				int shadows[] = { 0, 5, 3, 2, 4, -1, 6, 1 };
+
+				int b = blockAccess.get(coord);
+				int wallColour = isWall(b);
+				int spaceNumber = isSpace(b);
+				int n = -1;
+
+				if (wallColour >= 0) {
+					int v = 0;
+					if (wallWest) v |= 1;
+					if (wallEast) v |= 2;
+					v = walls[v];
+					n = get(s().wall(v).col(wallColour));
+				}
+				else if (spaceNumber >= 0) {
+					int v = 0;
+					if (wallNorth) v |= 1;
+					if (wallNorthWest) v |= 2;
+					if (wallWest) v |= 4;
+					v = shadows[v];
+					if (v>=0) {
+						n = get(s().style(spaceNumber, checkers).shadow(v).pips(wallSouth));
+					}
+				}
+				else if (b == NPOS_HIDDEN) {
+					int b2 = blockAccess.get(coord.copyAndAdd(0, 1));
+					b2 = isSpace(b2);
+					if (b2 >= 0) {
+						n = get(s().style(b2, checkers).magic(true));
+					}
+				}
+				else {
+					System.out.println(String.format("Something else: %s at %s", b, coord));
+				}
+
+				if (n >= 0) {
+					blockAccess.set(coord, n);
+				}
+			}
+		}
 	}
 }

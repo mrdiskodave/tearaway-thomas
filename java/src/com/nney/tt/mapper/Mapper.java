@@ -137,11 +137,11 @@ public class Mapper implements ButtonPressServices {
 	private static final int KEY_SEE_HIDDEN = Locks.LOCK_CONTROL + Keyboard.KEY_H;
 
 	private static final int KEY_SEE_MASKS = Locks.LOCK_CONTROL + Keyboard.KEY_M;
-	
+
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
 	// prop panel layout:
-	
+
 	private static final int PROPS_FIRST_LINE = 2;
 
 	private static final int PROPS_X_NAME = 0;
@@ -153,7 +153,6 @@ public class Mapper implements ButtonPressServices {
 	private static final int PROPS_W_NAME = PROPS_X_VALUE - PROPS_X_NAME;
 
 	private static final int PROPS_W_VALUE = PROPS_X_BUTTONS - PROPS_X_VALUE;
-
 
 	interface AlienPredicate {
 		boolean is(Alien t);
@@ -190,7 +189,25 @@ public class Mapper implements ButtonPressServices {
 
 	private final SavedAlienSlot[] alienSlots = new SavedAlienSlot[SLOT_COUNT];
 
-	private EditConsolidator edit;
+	private EditConsolidator blockEdit;
+
+	class BlockAccess {
+		public void set(Coord c, int b) {
+			blockEdit.setBlock(c, b);
+		}
+
+		public int get(Coord c) {
+			return gameMap.safeGetBlock(c);
+		}
+
+		public int width() {
+			return gameMap.width();
+		}
+
+		public int height() {
+			return gameMap.height();
+		}
+	}
 
 	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
 	private final CollidableList<ButtonRecord> buttonRecords = new CollidableList<ButtonRecord>();
@@ -481,10 +498,10 @@ public class Mapper implements ButtonPressServices {
 					count++;
 					LegacyAlien la = (LegacyAlien) a;
 					byte[] d = la.getLegacyData();
-					
-					int typeCode = d[0]&0xff;
+
+					int typeCode = d[0] & 0xff;
 					String tcName = AlienInfoMap.typeCodeToName(typeCode);
-					System.out.println("Enliven: "+tcName);
+					System.out.println("Enliven: " + tcName);
 					if (alienInfoMap.nameExists(tcName)) {
 						System.out.println("yes");
 						Alien alien = alienInfoMap.instantiateAttach(alienInfoMap.getByName(tcName));
@@ -511,7 +528,7 @@ public class Mapper implements ButtonPressServices {
 		if (mode == Mode.SPECIFICATION) {
 			drawProps();
 		}
-		if (mode==Mode.PLAYERSIMULATION) {
+		if (mode == Mode.PLAYERSIMULATION) {
 			Coord c = sim.get().sub2(getScreenPosition());
 			mgc.drawSight(c.x, c.y, 40, sim.isStanding() ? 0xff00ff00 : 0xffff0000);
 		}
@@ -568,7 +585,7 @@ public class Mapper implements ButtonPressServices {
 			startPen(k, new Pen() {
 				@Override
 				public void stroke() {
-					edit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
+					blockEdit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
 					drawBlockCursor();
 				}
 
@@ -669,7 +686,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private Box getRectInBlocks() {
-		assert marker!=null;
+		assert marker != null;
 		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
 	}
 
@@ -737,22 +754,20 @@ public class Mapper implements ButtonPressServices {
 			handleButtonPress(k, button);
 		}
 	}
-	
 
 	public void simulationModeInit() {
 		sim = new PlayerPosition(mmp.worldPixels(), new PlayerPositionServices() {
 			@Override
 			public boolean inTheGround(int x, int y) {
-				int block = gameMap.fastGetBlock(x>>Const.BLOCK_SHIFT, y>>Const.BLOCK_SHIFT);
+				int block = gameMap.fastGetBlock(x >> Const.BLOCK_SHIFT, y >> Const.BLOCK_SHIFT);
 				return loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
 			}
 		});
 	}
 
-	
 	private void simulationMode(int k) {
 		flagSelectionKeys(k);
-		
+
 		if (keyboard.isDown(Pointer.KEY_LEFT)) {
 			Coord d = mmp.worldPixels();
 			Coord s = sim.get();
@@ -760,21 +775,20 @@ public class Mapper implements ButtonPressServices {
 			diff.signum();
 			simDiff(diff);
 		}
-		
-		if (k == Pointer.KEY_RIGHT){
+
+		if (k == Pointer.KEY_RIGHT) {
 			simulationModeInit();
 		}
-		
+
 		Coord diff = getNudge(k);
-		if (diff!=null) simDiff(diff);
+		if (diff != null) simDiff(diff);
 	}
 
-	
 	public void simDiff(Coord diff) {
 		Coord c = sim.get().copy();
 		sim.move(diff.x, diff.y);
 		if (!sim.get().equals(c)) {
-			System.out.println("Now at "+sim.get());
+			System.out.println("Now at " + sim.get());
 		}
 	}
 
@@ -841,7 +855,7 @@ public class Mapper implements ButtonPressServices {
 		}
 		else {
 			Coord nudge = getNudge(k);
-			if (nudge != null && bat!= null) {
+			if (nudge != null && bat != null) {
 				startObjectEdit();
 				Coord firstBatPos = bat.box().centre();
 				nudge.add(firstBatPos);
@@ -1077,15 +1091,15 @@ public class Mapper implements ButtonPressServices {
 
 	private void startBlockEdit() {
 		System.out.println("startBlockEdit");
-		assert edit == null;
-		edit = new EditConsolidator(gameMap);
+		assert blockEdit == null;
+		blockEdit = new EditConsolidator(gameMap);
 	}
 
 	private void endBlockEdit() {
 		System.out.println("endBlockEdit");
-		assert edit != null;
-		submitMapEdit(edit.endEdit());
-		edit = null;
+		assert blockEdit != null;
+		submitMapEdit(blockEdit.endEdit());
+		blockEdit = null;
 	}
 
 	private void scroll(Coord delta) {
@@ -1535,15 +1549,6 @@ public class Mapper implements ButtonPressServices {
 	// TODO: that wiggly bug with block shuffling
 	// it's coz of undrawn stop blocks! (draw them?)
 
-	boolean isWall(int b) {
-		return b >= 1 && b <= 4;
-	}
-
-	private boolean testWall(Coord coord, int i, int j) {
-		int b = gameMap.safeGetBlock(coord.copyAndAdd(i, j));
-		return isWall(b);
-	}
-
 	interface BlockTest {
 		boolean test(int b);
 	}
@@ -1559,8 +1564,8 @@ public class Mapper implements ButtonPressServices {
 		while (!positions.isEmpty()) {
 			ArrayList<Coord> nextPositions = new ArrayList<Coord>();
 			for (Coord s : positions) {
-				if (!edit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
-					edit.setBlock(s, getCurrentBlock());
+				if (!blockEdit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
+					blockEdit.setBlock(s, getCurrentBlock());
 					nextPositions.add(s.copyAndAdd(1, 0));
 					nextPositions.add(s.copyAndAdd(-1, 0));
 					nextPositions.add(s.copyAndAdd(0, 1));
@@ -1570,7 +1575,7 @@ public class Mapper implements ButtonPressServices {
 			positions = nextPositions;
 		}
 
-		sayf("%s blocks filled", edit.size());
+		sayf("%s blocks filled", blockEdit.size());
 		endBlockEdit();
 	}
 
@@ -1581,13 +1586,20 @@ public class Mapper implements ButtonPressServices {
 	// two different kinds of checker
 	// *
 	// colours of pips + 1 for "no pips"
-	
+
 	// 4*7*2*4 R G B Y = 224
-	
-	
+
 	// empty/light/dark/RGBY/1234
-	
-	
+
+	private boolean isWall(int b) {
+		return b <= ToyMaker.WIDTH;
+	}
+
+	private boolean testWall(Coord coord, int i, int j) {
+		int b = gameMap.safeGetBlock(coord.copyAndAdd(i, j));
+		return isWall(b);
+	}
+
 	private void generateToyland() {
 		int pc = 0;
 		int pw = 0;
@@ -1605,7 +1617,7 @@ public class Mapper implements ButtonPressServices {
 				boolean wallNorth = testWall(coord, 0, -1);
 				boolean wallSouth = testWall(coord, 0, 1);
 
-				int walls[] = { 4, 3, 1, 2 };
+				int walls[] = { 3, 2, 0, 1 };
 				int spaces[] = { 0, 5, 3, 2, 4, -1, 6, 1 };
 
 				int n = -1;
@@ -1701,8 +1713,9 @@ public class Mapper implements ButtonPressServices {
 		unflatten(as);
 		return lost;
 	}
-	
+
 	// problem:
 	// bring something from the Fridge
-	// then it is onScreen (you see it's properties) but still frozen (it doesn't draw) 
+	// then it is onScreen (you see it's properties) but still frozen (it
+	// doesn't draw)
 }

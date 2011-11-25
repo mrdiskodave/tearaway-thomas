@@ -11,6 +11,10 @@ public class BlockAliasTable {
 	private final HashMap<Integer, Integer> compress = new HashMap<Integer, Integer>(1, 0.1f);
 
 	private final Random r = new Random();
+	
+	public BlockAliasTable() {
+		
+	}
 
 	public BlockAliasTable(Node di) {
 		for (Node line : di.requireList()) {
