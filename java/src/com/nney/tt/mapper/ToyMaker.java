@@ -14,19 +14,12 @@ import com.nney.utils.Math2;
 import com.nney.utils.OpenableTools;
 
 public class ToyMaker {
-	public static final int WIDTH = 20;
-
-	private static final int WALL_COUNT = 4;
+	private static final int SPACE_BASE = 6;
 	private static final int MAGIC_POS = 5;
 	private static final int SOLID_POS = 1;
 	private static final int PIPS_POS = 4;
-
-	private static final int STYLE_SIZE = 2;
-	private static final int STYLE_BASE = 6;
-	private static final int STYLE_COUNT = 5;
-
+	private static final int SPACE_SIZE = 2;
 	private static final int SHADOW_BASE = 16;
-	private static final int SHADOW_COUNT = 7;
 
 	private static final int COLOUR_MAX = 20;
 
@@ -82,8 +75,8 @@ public class ToyMaker {
 		colourCount = c;
 
 		gen();
-		int rowsNeeded = Math2.roundUpDiv(pos, WIDTH);
-		int w = Const.BLOCK_SIZE * WIDTH;
+		int rowsNeeded = Math2.roundUpDiv(pos, S.WIDTH);
+		int w = Const.BLOCK_SIZE * S.WIDTH;
 		int h = Const.BLOCK_SIZE * rowsNeeded;
 
 		SimpleImage blocksImage = SimpleImage.createEmpty(w, h);
@@ -105,12 +98,12 @@ public class ToyMaker {
 		// basic stuff for drawing with
 		//
 		pos = S.rEmpty.start;
-		copy(s().shadow(0).space(STYLE_COUNT - 1));
+		copy(s().space(S.SPACE_COUNT - 1));
 		for (int col = 0; col < colourCount; col++) {
 			copy(s().col(col).wall(SOLID_POS)); // solid
 		}
 		pos = S.rSpaces.start;
-		for (int style = 0; style < STYLE_COUNT; style++) {
+		for (int style = 0; style < S.SPACE_COUNT; style++) {
 			// empty (in various styles)
 			copy(s().space(style));
 		}
@@ -126,20 +119,20 @@ public class ToyMaker {
 		// coloured stuff
 		for (int col = 0; col < colourCount; col++) {
 			// rest of wall
-			for (int x = 0; x < WALL_COUNT; x++) {
+			for (int x = 0; x < S.WALL_COUNT; x++) {
 				copy(s().col(col).wall(x));
 			}
 			// coloured pips
-			for (int style = 0; style < STYLE_COUNT; style++) {
-				for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
+			for (int style = 0; style < S.SPACE_COUNT; style++) {
+				for (int shadow = 0; shadow < S.SHADOW_COUNT; shadow++) {
 					copyBoth(s().col(col).shadow(shadow).pips(true).space(style));
 				}
 		}
 
 		}
 		// plain stuff
-		for (int style = 0; style < STYLE_COUNT; style++) {
-			for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
+		for (int style = 0; style < S.SPACE_COUNT; style++) {
+			for (int shadow = 0; shadow < S.SHADOW_COUNT; shadow++) {
 				copyBoth(s().shadow(shadow).space(style));
 			}
 			copyBoth(s().space(style).special(S.HIDDEN));
@@ -240,7 +233,7 @@ public class ToyMaker {
 				}
 				else {
 					if (s.space() >= 0) {
-						int sp = STYLE_BASE + s.space() * STYLE_SIZE;
+						int sp = SPACE_BASE + s.space() * SPACE_SIZE;
 						if (s.which()) sp++;
 						d.mergeWith(getSrc(0, sp));
 					}
@@ -284,6 +277,9 @@ public class ToyMaker {
 		if (where.containsKey(f)) {
 			System.out.println("SEEN ALREADY!");
 			return false;
+		}
+		if (f==0) {
+			System.out.println(String.format("%08x %s", f, s));
 		}
 		where.put(f, pos);
 		return true;

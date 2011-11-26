@@ -1,8 +1,9 @@
 package com.nney.tt.mapper;
 
 class S {
-	public static final int FIRST = 0;
-	public static final int SECOND = 1;
+	public static final int SPACE_COUNT = 5;
+	public static final int WALL_COUNT = 4;
+	public static final int SHADOW_COUNT = 7;
 
 	final static public int WIDTH = 20;
 	final static public Range rEmpty = new Range(0, 1);
@@ -53,11 +54,12 @@ class S {
 	static S fromBlock(int b) {
 		S s = new S();
 		if (b<0) return s;
-		if (rEmpty.in(b)) return s;
+		if (rEmpty.in(b)) return s.space(SPACE_COUNT - 1);
 		int x;
 		x = rWalls.much(b);
 		if (x>=0) {
-			s.wall(x);
+			s.wall(1); // anything will do
+			s.col(x);
 			return s;
 		}
 		else {
@@ -82,8 +84,7 @@ class S {
 		if (wall >= 0) {
 			return String.format("wall%s col%s", wall, col);
 		}
-		// assert style >= 0;
-		return String.format("wall%s space%s special%s col%s which%s pips%s shaddow%s", wall, space, special, col,
+		return String.format("space%s special%s col%s which%s pips%s shaddow%s", wall, space, special, col,
 				which, pips, shadow);
 	}
 

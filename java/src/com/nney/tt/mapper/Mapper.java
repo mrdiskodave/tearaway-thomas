@@ -1576,7 +1576,8 @@ public class Mapper implements ButtonPressServices {
 	// empty/light/dark/RGBY/1234
 
 	private boolean isWall(int b) {
-		return b <= ToyMaker.WIDTH;
+		assert false;
+		return b <= 0;
 	}
 
 	private boolean testWall(Coord coord, int i, int j) {

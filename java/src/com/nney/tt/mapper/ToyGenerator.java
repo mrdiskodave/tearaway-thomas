@@ -104,7 +104,7 @@ public class ToyGenerator {
 					// System.out.println("WALL:"+v);
 					v = walls[v];
 					// System.out.println("WALL2:"+v);
-					n = get(s().wall(v).col(here.wall()));
+					n = get(s().wall(v).col(here.col()));
 				}
 				else if (here.special() == S.HIDDEN) {
 					int b2 = blockAccess.get(coord.copyAndAdd(0, 1));
@@ -125,15 +125,13 @@ public class ToyGenerator {
 					if (v >= 0) {
 						S soFar = s().space(here.space()).which(checkers).shadow(v);
 						if (south.isWall()) {
-							soFar.pips(true).col(south.wall());
+							soFar.pips(true).col(south.col());
 						}
 						n = get(soFar);
 					}
 				}
 				else {
-					if (b != 0) {
-						System.out.println(String.format("Something else: %s at %s", b, coord));
-					}
+					System.out.println(String.format("Something else: %s '%s' at %s", b, here, coord));
 				}
 
 				if (n >= 0) {
