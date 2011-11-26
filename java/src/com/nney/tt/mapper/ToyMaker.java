@@ -15,7 +15,7 @@ import com.nney.utils.OpenableTools;
 
 public class ToyMaker {
 	private static final int SPACE_BASE = 6;
-	private static final int MAGIC_POS = 5;
+	private static final int SPECIAL_POS = 5;
 	private static final int SOLID_POS = 1;
 	private static final int PIPS_POS = 4;
 	private static final int SPACE_SIZE = 2;
@@ -97,19 +97,18 @@ public class ToyMaker {
 		//
 		// basic stuff for drawing with
 		//
-		pos = S.rEmpty.start;
-		copy(s().space(S.SPACE_COUNT - 1));
-		for (int col = 0; col < colourCount; col++) {
-			copy(s().col(col).wall(SOLID_POS)); // solid
-		}
 		pos = S.rSpaces.start;
 		for (int style = 0; style < S.SPACE_COUNT; style++) {
 			// empty (in various styles)
 			copy(s().space(style));
 		}
+		pos = S.rWalls.start;
+		for (int col = 0; col < colourCount; col++) {
+			copy(s().col(col).wall(SOLID_POS)); // solid
+		}
 		pos = S.rSpecial.start;
 		// hidden (in various styles)
-		copy(s().special(S.HIDDEN));
+		copy(s().special(S.SPECIAL_MAGIC));
 		pos = S.rSpecial.end;
 
 		//
@@ -135,7 +134,7 @@ public class ToyMaker {
 			for (int shadow = 0; shadow < S.SHADOW_COUNT; shadow++) {
 				copyBoth(s().shadow(shadow).space(style));
 			}
-			copyBoth(s().space(style).special(S.HIDDEN));
+			copyBoth(s().space(style).special(S.SPECIAL_MAGIC));
 		}
 	}
 
@@ -214,7 +213,7 @@ public class ToyMaker {
 		if (recordMapping(s)) {
 			if (blocks != null) {
 
-				if (s.special()==S.HIDDEN) {
+				if (s.special()==S.SPECIAL_MAGIC) {
 					System.out.println("MAGIC:" + pos);
 					blockInformation.put(pos, "magic");
 					S s2 = s.copy().special(S.NONE);
@@ -233,19 +232,24 @@ public class ToyMaker {
 				}
 				else {
 					if (s.space() >= 0) {
-						int sp = SPACE_BASE + s.space() * SPACE_SIZE;
-						if (s.which()) sp++;
-						d.mergeWith(getSrc(0, sp));
+						int z = s.space();
+						if (z!=0) {
+							z--;
+							z = SPACE_BASE + z * SPACE_SIZE;
+							if (s.isWhich()) z++;
+							d.mergeWith(getSrc(0, z));
+						}
 					}
 					if (s.shadow() != 0) {
 						d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow() - 1));
 					}
-					if (s.pips()) {
+					if (s.isPips()) {
 						d.mergeWith(getSrc(s.col(), PIPS_POS));
 					}
-					if (s.special()==S.HIDDEN) {
-						d.mergeWith(getSrc(0, MAGIC_POS));
-						solid = true;
+					if (s.isSpecial()) {
+						int z = s.special();
+						d.mergeWith(getSrc(0, SPECIAL_POS + z));
+						solid |= z==S.SPECIAL_MAGIC;
 					}
 				}
 				if (solid) {

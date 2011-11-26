@@ -20,31 +20,26 @@ public class ToyGenerator {
 		return new S();
 	}
 
-	private int get(S s) {
-		Integer answer = where.get(s.flattern());
-		assert answer != null;
+	private S read(Coord coord, int i, int j) {
+		Coord t = coord.copyAndAdd(i, j);
+		S answer = S.fromBlock(blockAccess.get(t));
+		if (answer == null) {
+			System.out.println(String.format("Bad block at %s", t));
+			answer = s();
+		}
 		return answer;
 	}
 
-	private int isWall(int b) {
-		return S.rWalls.much(b);
-	}
-
-	private int isSpace(int b) {
-		return S.rSpaces.much(b);
-	}
-
-	private int isSpecial(int b) {
-		return S.rSpecial.much(b);
-	}
-
-	private S testWall(Coord coord, int i, int j) {
-		return S.fromBlock(blockAccess.get(coord.copyAndAdd(i, j)));
-	}
-
+	/**
+	 * When computing a block {@link ToyGenerator#run()} needs to read the
+	 * surrounding original blocks as input. If do we do this entirely in-place
+	 * then, as we compute every block, we'll end up reading our output back in
+	 * as input. One way around would be a full double-buffer but we only really
+	 * need two rows of lee-way.
+	 */
 	static class DelayedWriter {
-		private static final int CAPACITY = 2;
-		private int[][] queue = new int[CAPACITY][];
+		private static final int CAPACITY_IN_ROWS = 2;
+		private int[][] queue = new int[CAPACITY_IN_ROWS][];
 		private final BlockAccess ba;
 		private int y;
 
@@ -60,60 +55,47 @@ public class ToyGenerator {
 				}
 				y++;
 			}
-			System.arraycopy(queue, 1, queue, 0, CAPACITY - 1);
-			queue[CAPACITY - 1] = row;
+			System.arraycopy(queue, 1, queue, 0, CAPACITY_IN_ROWS - 1);
+			queue[CAPACITY_IN_ROWS - 1] = row;
 		}
 
 		void flush() {
-			while (y < ba.height()) {
-				put(null);
-			}
+			while (y < ba.height()) put(null);
 		}
 	}
 
 	public void run() {
-		System.out.println("Generating Intricacies Of Toyland");
+		System.out.println("Generating the intricacies of toyland");
 		DelayedWriter dw = new DelayedWriter(blockAccess);
 		for (int y = 0; y < blockAccess.height(); y++) {
-			int[] out = new int[blockAccess.width()];
+			int[] row = new int[blockAccess.width()];
 			for (int x = 0; x < blockAccess.width(); x++) {
 				Coord coord = new Coord(x, y);
 
-				boolean checkers = ((x ^ y) & 1)==0;
+				boolean checkers = ((x ^ y) & 1) == 0;
 
-				S east = testWall(coord, 1, 0);
-				S west = testWall(coord, -1, 0);
-				S northWest = testWall(coord, -1, -1);
-				S north = testWall(coord, 0, -1);
-				S south = testWall(coord, 0, 1);
-				S here = testWall(coord, 0, 0);
-				// boolean wallSouth = testWall(coord, 0, 1);
+				S here = read(coord, 0, 0);
+				S northWest = read(coord, -1, -1);
+				S north = read(coord, 0, -1);
+				S west = read(coord, -1, 0);
+				S east = read(coord, 1, 0);
+				S south = read(coord, 0, 1);
 
-				int walls[] = WALL_TABLE;
-				int shadows[] = SHADOW_TABLE;
+				S out = null;
 
-				int b = blockAccess.get(coord);
-				out[x] = b;
-				
-				int n = -1;
-				
 				if (here.isWall()) {
 					int v = 0;
 					if (west.isWall()) v |= 1;
 					if (east.isWall()) v |= 2;
-					// System.out.println("WALL:"+v);
-					v = walls[v];
-					// System.out.println("WALL2:"+v);
-					n = get(s().wall(v).col(here.col()));
+					v = WALL_TABLE[v];
+					out = s().wall(v).col(here.col());
 				}
-				else if (here.special() == S.HIDDEN) {
-					int b2 = blockAccess.get(coord.copyAndAdd(0, 1));
-					b2 = isSpace(b2);
-					if (b2 >= 0) {
-						S s = s().space(b2).which(checkers).special(S.HIDDEN);
-						n = get(s);
-						System.out.println(String.format("Special! %03d %08x %s ", n, s.flattern(), s));
-						// 00002f01??????
+				else if (here.isSpecial()) {
+					int s = here.special(); 
+					S spaceFrom = null;
+					if (s == S.SPECIAL_MAGIC) spaceFrom = south;
+					if (spaceFrom!=null && spaceFrom.isSpace()) {
+						out = s().space(spaceFrom.space()).which(checkers).special(s);
 					}
 				}
 				else if (here.isSpace()) {
@@ -121,26 +103,28 @@ public class ToyGenerator {
 					if (north.isWall()) v |= 1;
 					if (northWest.isWall()) v |= 2;
 					if (west.isWall()) v |= 4;
-					v = shadows[v];
+					v = SHADOW_TABLE[v];
 					if (v >= 0) {
-						S soFar = s().space(here.space()).which(checkers).shadow(v);
+						out = s().space(here.space()).which(checkers).shadow(v);
 						if (south.isWall()) {
-							soFar.pips(true).col(south.col());
+							out.pips(true).col(south.col());
 						}
-						n = get(soFar);
 					}
 				}
-				else {
-					System.out.println(String.format("Something else: %s '%s' at %s", b, here, coord));
-				}
 
-				if (n >= 0) {
-					out[x] = n;
+				if (out == null) {
+					int in = blockAccess.get(coord);
+					System.out.println(String.format("Something else: %s '%s' at %s", in, here, coord));
+					row[x] = in;
+				}
+				else {
+					Integer answer = where.get(out.flattern());
+					assert answer != null;
+					row[x] = answer;
 				}
 			}
-			dw.put(out);
+			dw.put(row);
 		}
 		dw.flush();
 	}
-
 }

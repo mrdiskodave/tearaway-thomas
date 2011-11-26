@@ -3,16 +3,17 @@ package com.nney.tt.mapper;
 class S {
 	public static final int SPACE_COUNT = 5;
 	public static final int WALL_COUNT = 4;
-	public static final int SHADOW_COUNT = 7;
+	public static final int SPECIAL_COUNT = 1;
 
 	final static public int WIDTH = 20;
-	final static public Range rEmpty = new Range(0, 1);
-	final static public Range rWalls = new Range(1, WIDTH);
-	final static public Range rSpaces = new Range(WIDTH, WIDTH * 2);
+	final static public Range rSpaces = new Range(0, WIDTH);
+	final static public Range rWalls = new Range(WIDTH, WIDTH * 2);
 	final static public Range rSpecial = new Range(WIDTH * 2, WIDTH * 3);
 
+	public static final int SHADOW_COUNT = 7;
+
 	final static public int NONE = -1;
-	final static public int HIDDEN = 0;
+	final static public int SPECIAL_MAGIC = 0;
 
 	private int wall = NONE;
 	private int space = NONE;
@@ -39,11 +40,23 @@ class S {
 		return col;
 	}
 	
-	boolean which() {
+	public boolean isWall() {
+		return wall>=0;
+	}
+	
+	public boolean isSpace() {
+		return space>=0;
+	}
+
+	public boolean isSpecial() {
+		return special>=0;
+	}
+
+	boolean isWhich() {
 		return which;
 	}
 	
-	boolean pips() {
+	boolean isPips() {
 		return pips;
 	}
 	
@@ -54,7 +67,6 @@ class S {
 	static S fromBlock(int b) {
 		S s = new S();
 		if (b<0) return s;
-		if (rEmpty.in(b)) return s.space(SPACE_COUNT - 1);
 		int x;
 		x = rWalls.much(b);
 		if (x>=0) {
@@ -154,14 +166,6 @@ class S {
 		a.pips = pips;
 		a.shadow = shadow;
 		return a;
-	}
-
-	public boolean isWall() {
-		return wall>=0;
-	}
-	
-	public boolean isSpace() {
-		return space>=0;
 	}
 
 }
