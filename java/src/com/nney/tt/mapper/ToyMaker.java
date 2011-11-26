@@ -50,7 +50,6 @@ public class ToyMaker {
 
 	private static final int FIRST = 0;
 	private static final int SECOND = 1;
-	private static final int BOTH = 2;
 
 	private static final int COLOUR_MAX = 20;
 
@@ -73,9 +72,9 @@ public class ToyMaker {
 	final static public Range rSpaces = new Range(WIDTH, WIDTH * 2);
 	final static public Range rSpecial = new Range(WIDTH * 2, WIDTH * 3);
 
-	public static void main(String[] args) {
-		new ToyMaker().generate();
-	}
+//	public static void main(String[] args) {
+//		new ToyMaker().generate();
+//	}
 
 	// TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
 
@@ -161,7 +160,7 @@ public class ToyMaker {
 			// coloured pips
 			for (int style = 0; style < STYLE_COUNT; style++) {
 				for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
-					copy(s().col(col).shadow(shadow).pips(true).style(style, BOTH));
+					copyBoth(s().col(col).shadow(shadow).pips(true).style(style, FIRST));
 				}
 			}
 		}
@@ -169,9 +168,9 @@ public class ToyMaker {
 		// plain stuff
 		for (int style = 0; style < STYLE_COUNT; style++) {
 			for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
-				copy(s().shadow(shadow).style(style, BOTH));
+				copyBoth(s().shadow(shadow).style(style, FIRST));
 			}
-			copy(s().style(style, BOTH).magic(true));
+			copyBoth(s().style(style, FIRST).magic(true));
 		}
 	}
 
@@ -241,57 +240,56 @@ public class ToyMaker {
 		}
 	}
 
+	private void copyBoth(S s) {
+		S s2 = s.copy();
+		s.which = FIRST;
+		s2.which = SECOND;
+		copy(s);
+		copy(s2);
+	}
+
 	private void copy(S s) {
-		if (s.which == BOTH) {
-			S s2 = s.copy();
-			s.which = FIRST;
-			s2.which = SECOND;
-			copy(s);
-			copy(s2);
-		}
-		else {
-			if (recordMapping(s)) {
-				if (blocks != null) {
+		if (recordMapping(s)) {
+			if (blocks != null) {
 
-					if (s.magic) {
-						System.out.println("MAGIC:"+pos);
-						blockInformation.put(pos, "magic");
-						S s2 = s.copy().magic(false);
-						Integer nonMagic = where.get(s2.flattern());
-						if (nonMagic != null) {
-							System.out.println(String.format("HIDE: %s -> %s", pos, nonMagic));
-							hiding.registerCompression(pos, nonMagic);
-						}
-					}
-
-					
-					boolean solid = false;
-					SimpleImage d = blocks.getBlock(pos);
-					if (s.wall >= 0) {
-						d.mergeWith(getSrc(s.col, s.wall));
-						solid = true;
-					}
-					else {
-						if (s.style >= 0) {
-							int sp = STYLE_BASE + s.style * STYLE_SIZE;
-							d.mergeWith(getSrc(0, sp + s.which));
-						}
-						if (s.pips) {
-							d.mergeWith(getSrc(s.col, PIPS_POS));
-						}
-						if (s.shadow != 0) {
-							d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow - 1));
-						}
-						if (s.magic) {
-							d.mergeWith(getSrc(0, MAGIC_POS));
-						}
-					}
-					if (solid) {
-						masks.getBlock(pos).fill(0xff000000);
+				if (s.magic) {
+					System.out.println("MAGIC:" + pos);
+					blockInformation.put(pos, "magic");
+					S s2 = s.copy().magic(false);
+					Integer nonMagic = where.get(s2.flattern());
+					if (nonMagic != null) {
+						System.out.println(String.format("HIDE: %s -> %s", pos, nonMagic));
+						hiding.registerCompression(pos, nonMagic);
 					}
 				}
-				pos++;
+
+				boolean solid = false;
+				SimpleImage d = blocks.getBlock(pos);
+				if (s.wall >= 0) {
+					d.mergeWith(getSrc(s.col, s.wall));
+					solid = true;
+				}
+				else {
+					if (s.style >= 0) {
+						int sp = STYLE_BASE + s.style * STYLE_SIZE;
+						d.mergeWith(getSrc(0, sp + s.which));
+					}
+					if (s.shadow != 0) {
+						d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow - 1));
+					}
+					if (s.pips) {
+						d.mergeWith(getSrc(s.col, PIPS_POS));
+					}
+					if (s.magic) {
+						d.mergeWith(getSrc(0, MAGIC_POS));
+						solid = true;
+					}
+				}
+				if (solid) {
+					masks.getBlock(pos).fill(0xff000000);
+				}
 			}
+			pos++;
 		}
 	}
 
