@@ -158,4 +158,9 @@ class S {
 	public boolean isWall() {
 		return wall>=0;
 	}
+	
+	public boolean isSpace() {
+		return space>=0;
+	}
+
 }

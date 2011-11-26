@@ -86,6 +86,7 @@ public class ToyGenerator {
 				S northWest = testWall(coord, -1, -1);
 				S north = testWall(coord, 0, -1);
 				S south = testWall(coord, 0, 1);
+				S here = testWall(coord, 0, 0);
 				// boolean wallSouth = testWall(coord, 0, 1);
 
 				int walls[] = WALL_TABLE;
@@ -94,21 +95,18 @@ public class ToyGenerator {
 				int b = blockAccess.get(coord);
 				out[x] = b;
 				
-				int wallColour = isWall(b);
-				int spaceNumber = isSpace(b);
-				int specialNumber = isSpecial(b);
 				int n = -1;
 				
-				if (wallColour >= 0) {
+				if (here.isWall()) {
 					int v = 0;
 					if (west.isWall()) v |= 1;
 					if (east.isWall()) v |= 2;
 					// System.out.println("WALL:"+v);
 					v = walls[v];
 					// System.out.println("WALL2:"+v);
-					n = get(s().wall(v).col(wallColour));
+					n = get(s().wall(v).col(here.wall()));
 				}
-				else if (specialNumber == S.HIDDEN) {
+				else if (here.special() == S.HIDDEN) {
 					int b2 = blockAccess.get(coord.copyAndAdd(0, 1));
 					b2 = isSpace(b2);
 					if (b2 >= 0) {
@@ -118,14 +116,14 @@ public class ToyGenerator {
 						// 00002f01??????
 					}
 				}
-				else if (spaceNumber >= 0) {
+				else if (here.isSpace()) {
 					int v = 0;
 					if (north.isWall()) v |= 1;
 					if (northWest.isWall()) v |= 2;
 					if (west.isWall()) v |= 4;
 					v = shadows[v];
 					if (v >= 0) {
-						S soFar = s().space(spaceNumber).which(checkers).shadow(v);
+						S soFar = s().space(here.space()).which(checkers).shadow(v);
 						if (south.isWall()) {
 							soFar.pips(true).col(south.wall());
 						}
