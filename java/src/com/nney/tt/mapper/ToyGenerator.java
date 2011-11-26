@@ -78,7 +78,7 @@ public class ToyGenerator {
 			for (int x = 0; x < blockAccess.width(); x++) {
 				Coord coord = new Coord(x, y);
 
-				int checkers = (x ^ y) & 1;
+				boolean checkers = ((x ^ y) & 1)==0;
 
 				boolean wallEast = testWall(coord, 1, 0);
 				boolean wallWest = testWall(coord, -1, 0);

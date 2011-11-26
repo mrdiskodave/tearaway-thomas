@@ -18,7 +18,7 @@ class S {
 	private int special = NONE;
 
 	private int col = 0;
-	private int which = 0; // which
+	private boolean which;
 	private boolean pips = false;
 	private int shadow = 0;
 
@@ -38,7 +38,7 @@ class S {
 		return col;
 	}
 	
-	int which() {
+	boolean which() {
 		return which;
 	}
 	
@@ -90,7 +90,7 @@ class S {
 	int flattern() {
 		int f = 0;
 		f = merge(f, wall + 1);
-		f = merge(f, (space + 1)*2+which);
+		f = merge(f, (space + 1)*2+(which?1:0));
 		f = merge(f, special + 1);
 		f = merge(f, col);
 		f = merge(f, pips ? 1 : 0);
@@ -127,7 +127,7 @@ class S {
 		return this;
 	}
 
-	public S which(int x) {
+	public S which(boolean x) {
 		which = x;
 		return this;
 	}

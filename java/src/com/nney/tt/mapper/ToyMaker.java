@@ -213,11 +213,8 @@ public class ToyMaker {
 	}
 
 	private void copyBoth(S s) {
-		S s2 = s.copy();
-		s.which(S.FIRST);
-		s2.which(S.SECOND);
 		copy(s);
-		copy(s2);
+		copy(s.copy().which(true));
 	}
 
 	private void copy(S s) {
@@ -244,7 +241,8 @@ public class ToyMaker {
 				else {
 					if (s.space() >= 0) {
 						int sp = STYLE_BASE + s.space() * STYLE_SIZE;
-						d.mergeWith(getSrc(0, sp + s.which()));
+						if (s.which()) sp++;
+						d.mergeWith(getSrc(0, sp));
 					}
 					if (s.shadow() != 0) {
 						d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow() - 1));
