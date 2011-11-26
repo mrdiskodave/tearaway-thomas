@@ -9,32 +9,12 @@ import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.SimpleImage.ChangePixel;
 import com.nney.tt.map.BlockAliasTable;
 import com.nney.tt.map.BlockInformation;
-import com.nney.tt.mapper.ToyMaker.Range;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.Math2;
 import com.nney.utils.OpenableTools;
 
 public class ToyMaker {
 	public static final int WIDTH = 20;
-
-	static class Range {
-		public final int start;
-		public final int end;
-
-		public Range(int start, int end) {
-			this.start = start;
-			this.end = end;
-		}
-
-		boolean in(int x) {
-			return start <= x && x < end;
-		}
-
-		int much(int x) {
-			if (!in(x)) return -1;
-			return x - start;
-		}
-	}
 
 	private static final int WALL_COUNT = 4;
 	private static final int MAGIC_POS = 5;
@@ -47,9 +27,6 @@ public class ToyMaker {
 
 	private static final int SHADOW_BASE = 16;
 	private static final int SHADOW_COUNT = 7;
-
-	private static final int FIRST = 0;
-	private static final int SECOND = 1;
 
 	private static final int COLOUR_MAX = 20;
 
@@ -66,11 +43,6 @@ public class ToyMaker {
 	private BlockAliasTable hiding = new BlockAliasTable();
 
 	private Map<Integer, Integer> where;
-
-	final static public Range rEmpty = new Range(0, 1);
-	final static public Range rWalls = new Range(1, WIDTH);
-	final static public Range rSpaces = new Range(WIDTH, WIDTH * 2);
-	final static public Range rSpecial = new Range(WIDTH * 2, WIDTH * 3);
 
 //	public static void main(String[] args) {
 //		new ToyMaker().generate();
@@ -132,20 +104,20 @@ public class ToyMaker {
 		//
 		// basic stuff for drawing with
 		//
-		pos = rEmpty.start;
-		copy(s().shadow(0).style(STYLE_COUNT - 1, FIRST));
+		pos = S.rEmpty.start;
+		copy(s().shadow(0).space(STYLE_COUNT - 1));
 		for (int col = 0; col < colourCount; col++) {
 			copy(s().col(col).wall(SOLID_POS)); // solid
 		}
-		pos = rSpaces.start;
+		pos = S.rSpaces.start;
 		for (int style = 0; style < STYLE_COUNT; style++) {
 			// empty (in various styles)
-			copy(s().style(style, FIRST));
+			copy(s().space(style));
 		}
-		pos = rSpecial.start;
+		pos = S.rSpecial.start;
 		// hidden (in various styles)
-		copy(s().magic(true));
-		pos = rSpecial.end;
+		copy(s().special(S.HIDDEN));
+		pos = S.rSpecial.end;
 
 		//
 		// extended stuff for generating with
@@ -160,17 +132,17 @@ public class ToyMaker {
 			// coloured pips
 			for (int style = 0; style < STYLE_COUNT; style++) {
 				for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
-					copyBoth(s().col(col).shadow(shadow).pips(true).style(style, FIRST));
+					copyBoth(s().col(col).shadow(shadow).pips(true).space(style));
 				}
-			}
 		}
 
+		}
 		// plain stuff
 		for (int style = 0; style < STYLE_COUNT; style++) {
 			for (int shadow = 0; shadow < SHADOW_COUNT; shadow++) {
-				copyBoth(s().shadow(shadow).style(style, FIRST));
+				copyBoth(s().shadow(shadow).space(style));
 			}
-			copyBoth(s().style(style, FIRST).magic(true));
+			copyBoth(s().space(style).special(S.HIDDEN));
 		}
 	}
 
@@ -242,8 +214,8 @@ public class ToyMaker {
 
 	private void copyBoth(S s) {
 		S s2 = s.copy();
-		s.which = FIRST;
-		s2.which = SECOND;
+		s.which(S.FIRST);
+		s2.which(S.SECOND);
 		copy(s);
 		copy(s2);
 	}
@@ -252,10 +224,10 @@ public class ToyMaker {
 		if (recordMapping(s)) {
 			if (blocks != null) {
 
-				if (s.magic) {
+				if (s.special()==S.HIDDEN) {
 					System.out.println("MAGIC:" + pos);
 					blockInformation.put(pos, "magic");
-					S s2 = s.copy().magic(false);
+					S s2 = s.copy().special(S.NONE);
 					Integer nonMagic = where.get(s2.flattern());
 					if (nonMagic != null) {
 						System.out.println(String.format("HIDE: %s -> %s", pos, nonMagic));
@@ -265,22 +237,22 @@ public class ToyMaker {
 
 				boolean solid = false;
 				SimpleImage d = blocks.getBlock(pos);
-				if (s.wall >= 0) {
-					d.mergeWith(getSrc(s.col, s.wall));
+				if (s.wall() >= 0) {
+					d.mergeWith(getSrc(s.col(), s.wall()));
 					solid = true;
 				}
 				else {
-					if (s.style >= 0) {
-						int sp = STYLE_BASE + s.style * STYLE_SIZE;
-						d.mergeWith(getSrc(0, sp + s.which));
+					if (s.space() >= 0) {
+						int sp = STYLE_BASE + s.space() * STYLE_SIZE;
+						d.mergeWith(getSrc(0, sp + s.which()));
 					}
-					if (s.shadow != 0) {
-						d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow - 1));
+					if (s.shadow() != 0) {
+						d.mergeWith(getSrc(0, SHADOW_BASE + s.shadow() - 1));
 					}
-					if (s.pips) {
-						d.mergeWith(getSrc(s.col, PIPS_POS));
+					if (s.pips()) {
+						d.mergeWith(getSrc(s.col(), PIPS_POS));
 					}
-					if (s.magic) {
+					if (s.special()==S.HIDDEN) {
 						d.mergeWith(getSrc(0, MAGIC_POS));
 						solid = true;
 					}

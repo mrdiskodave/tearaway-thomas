@@ -25,15 +25,15 @@ public class ToyGenerator {
 	}
 
 	private int isWall(int b) {
-		return ToyMaker.rWalls.much(b);
+		return S.rWalls.much(b);
 	}
 
 	private int isSpace(int b) {
-		return ToyMaker.rSpaces.much(b);
+		return S.rSpaces.much(b);
 	}
 
 	private int isSpecial(int b) {
-		return ToyMaker.rSpecial.much(b);
+		return S.rSpecial.much(b);
 	}
 
 	private boolean testWall(Coord coord, int i, int j) {
@@ -105,12 +105,11 @@ public class ToyGenerator {
 					// System.out.println("WALL2:"+v);
 					n = get(s().wall(v).col(wallColour));
 				}
-				else if (specialNumber >= 0) {
-					System.out.println("Special");
+				else if (specialNumber == S.HIDDEN) {
 					int b2 = blockAccess.get(coord.copyAndAdd(0, 1));
 					b2 = isSpace(b2);
 					if (b2 >= 0) {
-						S s = s().style(b2, checkers).magic(true);
+						S s = s().space(b2).which(checkers).special(S.HIDDEN);
 						n = get(s);
 						System.out.println(String.format("Special! %03d %08x %s ", n, s.flattern(), s));
 						// 00002f01??????
@@ -125,7 +124,7 @@ public class ToyGenerator {
 					if (v >= 0) {
 						int below = blockAccess.get(coord.copyAndAdd(0, 1));
 						int col = isWall(below);
-						S soFar = s().style(spaceNumber, checkers).shadow(v);
+						S soFar = s().space(spaceNumber).which(checkers).shadow(v);
 						if (col>=0) {
 							soFar.pips(true).col(col);
 						}

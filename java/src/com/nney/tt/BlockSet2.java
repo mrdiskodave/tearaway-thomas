@@ -19,7 +19,7 @@ public abstract class BlockSet2 implements Disposable {
 
 	private BlockInformation blockInformation;
 	
-	static final private boolean CTC_CAN_HIDE = false;
+	static final private boolean CTC_CAN_HIDE = true;
 
 	public static class Config {
 		final String worldName;
