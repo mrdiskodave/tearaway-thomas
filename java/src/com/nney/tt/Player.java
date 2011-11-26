@@ -839,7 +839,7 @@ public class Player {
 		perhapsStartSlideMode();
 
 		if (mode == Mode.WALK) {
-			if (srv.frameTest(2) && srv.blockInfoIs(c, "magic")) {
+			if (srv.frameTest(2) && srv.blockInfoIs(c.copyAndAdd(0, 1), "magic")) {
 				srv.magicDust(c.copyAndAdd(srv.randomness(17) - 8, 0));
 			}
 		}

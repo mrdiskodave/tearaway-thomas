@@ -6,6 +6,7 @@ import com.nney.tt.sprites.Sprite;
 public class MagicDustAlien extends AlienWithLocation {
 	public MagicDustAlien(Coord where) {
 		c = where;
+		depth = DEPTH_FG_SCENARY; 
 	}
 
 	@Override
