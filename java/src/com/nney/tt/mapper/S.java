@@ -51,8 +51,8 @@ class S {
 	}
 	
 	static S fromBlock(int b) {
-		if (b<0) return null;
 		S s = new S();
+		if (b<0) return s;
 		if (rEmpty.in(b)) return s;
 		int x;
 		x = rWalls.much(b);
@@ -153,5 +153,9 @@ class S {
 		a.pips = pips;
 		a.shadow = shadow;
 		return a;
+	}
+
+	public boolean isWall() {
+		return wall>=0;
 	}
 }

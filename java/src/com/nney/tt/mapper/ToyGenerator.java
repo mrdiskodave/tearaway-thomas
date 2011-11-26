@@ -6,6 +6,8 @@ import com.nney.tt.BlockAccess;
 import com.nney.tt.geom.Coord;
 
 public class ToyGenerator {
+	private static final int[] WALL_TABLE = { 3, 2, 0, 1 };
+	private static final int[] SHADOW_TABLE = { 0, 5, 3, 2, 4, -1, 6, 1 };
 	private final Map<Integer, Integer> where;
 	private final BlockAccess blockAccess;
 
@@ -36,9 +38,8 @@ public class ToyGenerator {
 		return S.rSpecial.much(b);
 	}
 
-	private boolean testWall(Coord coord, int i, int j) {
-		int b = blockAccess.get(coord.copyAndAdd(i, j));
-		return isWall(b) >= 0;
+	private S testWall(Coord coord, int i, int j) {
+		return S.fromBlock(blockAccess.get(coord.copyAndAdd(i, j)));
 	}
 
 	static class DelayedWriter {
@@ -80,17 +81,19 @@ public class ToyGenerator {
 
 				boolean checkers = ((x ^ y) & 1)==0;
 
-				boolean wallEast = testWall(coord, 1, 0);
-				boolean wallWest = testWall(coord, -1, 0);
-				boolean wallNorthWest = testWall(coord, -1, -1);
-				boolean wallNorth = testWall(coord, 0, -1);
+				S east = testWall(coord, 1, 0);
+				S west = testWall(coord, -1, 0);
+				S northWest = testWall(coord, -1, -1);
+				S north = testWall(coord, 0, -1);
+				S south = testWall(coord, 0, 1);
 				// boolean wallSouth = testWall(coord, 0, 1);
 
-				int walls[] = { 3, 2, 0, 1 };
-				int shadows[] = { 0, 5, 3, 2, 4, -1, 6, 1 };
+				int walls[] = WALL_TABLE;
+				int shadows[] = SHADOW_TABLE;
 
 				int b = blockAccess.get(coord);
 				out[x] = b;
+				
 				int wallColour = isWall(b);
 				int spaceNumber = isSpace(b);
 				int specialNumber = isSpecial(b);
@@ -98,8 +101,8 @@ public class ToyGenerator {
 				
 				if (wallColour >= 0) {
 					int v = 0;
-					if (wallWest) v |= 1;
-					if (wallEast) v |= 2;
+					if (west.isWall()) v |= 1;
+					if (east.isWall()) v |= 2;
 					// System.out.println("WALL:"+v);
 					v = walls[v];
 					// System.out.println("WALL2:"+v);
@@ -117,16 +120,14 @@ public class ToyGenerator {
 				}
 				else if (spaceNumber >= 0) {
 					int v = 0;
-					if (wallNorth) v |= 1;
-					if (wallNorthWest) v |= 2;
-					if (wallWest) v |= 4;
+					if (north.isWall()) v |= 1;
+					if (northWest.isWall()) v |= 2;
+					if (west.isWall()) v |= 4;
 					v = shadows[v];
 					if (v >= 0) {
-						int below = blockAccess.get(coord.copyAndAdd(0, 1));
-						int col = isWall(below);
 						S soFar = s().space(spaceNumber).which(checkers).shadow(v);
-						if (col>=0) {
-							soFar.pips(true).col(col);
+						if (south.isWall()) {
+							soFar.pips(true).col(south.wall());
 						}
 						n = get(soFar);
 					}
