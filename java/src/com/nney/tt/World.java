@@ -189,7 +189,7 @@ public class World implements AlienServices, Disposable {
 
 	private Coord teleportDestination;
 
-	private BlockSet2 blockSet;
+	private BlockSet blockSet;
 
 	private boolean seeMasks;
 
@@ -930,7 +930,7 @@ public class World implements AlienServices, Disposable {
 
 		horizon = ow.getHorizon(levelInfo.horizon);
 
-		blockSet = ow.loadBlockSet(new BlockSet2.Config(worldName, seeMasks, seeHidden));
+		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
 
 		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
 

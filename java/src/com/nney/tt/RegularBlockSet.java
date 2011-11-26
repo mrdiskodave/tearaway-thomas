@@ -7,7 +7,7 @@ import com.nney.tt.map.GameMap.BlockFunc;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.OpenableTools;
 
-public class RegularBlockSet extends BlockSet2 {
+public class RegularBlockSet extends BlockSet {
 	private WorldInformation wi;
 
 	public RegularBlockSet(GraphicsContext gc, Config config) {

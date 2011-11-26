@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.toygen;
 
 import java.util.HashMap;
 import java.util.Map;

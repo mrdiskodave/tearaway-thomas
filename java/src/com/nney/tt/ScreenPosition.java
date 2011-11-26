@@ -115,7 +115,7 @@ public class ScreenPosition {
 	// just working out where the screen and borders are located
 	//
 
-	public void drawTheMap(GameMap gameMap, BlockSet2 blockSet) {
+	public void drawTheMap(GameMap gameMap, BlockSet blockSet) {
 		ScreenOrdinate ox = scrOrdX;
 		ScreenOrdinate oy = scrOrdY;
 

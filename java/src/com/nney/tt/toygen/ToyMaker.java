@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.toygen;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -143,23 +143,16 @@ public class ToyMaker {
 	}
 
 	public SimpleImage colouriseCanvas(SimpleImage canvas, int n1, int n2, int n3) {
-		//
-		//
-		// original wall has this palette
-		// ff000000
-		// ff660000
-		// ffaa1100
-		// ffdd3300
-		//
-
-		SimpleImage si = canvas.copy();
+		// the original palette:
 		int red1 = 0xff660000;
 		int red2 = 0xffaa1100;
 		int red3 = 0xffdd3300;
+
 		PaletteChanger pc = new PaletteChanger();
 		pc.add(red1, n1);
 		pc.add(red2, n2);
 		pc.add(red3, n3);
+		SimpleImage si = canvas.copy();
 		si.changePixels(pc);
 		return si;
 	}

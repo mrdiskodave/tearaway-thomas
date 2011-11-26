@@ -3,7 +3,7 @@ package com.nney.tt.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nney.tt.BlockSet2;
+import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
 import com.nney.tt.geom.Coord;
 import com.nney.utils.Math2;
@@ -47,7 +47,7 @@ public class BlockPalette {
 	private final int bigBlockPaletteHeight;
 	private final MapperGC mgc;
 
-	private BlockSet2 blockSet;
+	private BlockSet blockSet;
 
 	private class BlockPos {
 		public final int x;
@@ -76,7 +76,7 @@ public class BlockPalette {
 		return answer;
 	}
 
-	public BlockPalette(MapperGC mgc, BlockSet2 blockSet) {
+	public BlockPalette(MapperGC mgc, BlockSet blockSet) {
 		this.mgc = mgc;
 		this.blockSet = blockSet;
 		this.blockCount = blockSet.getBlockCount();

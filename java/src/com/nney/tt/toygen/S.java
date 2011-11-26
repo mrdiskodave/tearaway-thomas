@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.toygen;
 
 class S {
 	public static final int SPACE_COUNT = 5;

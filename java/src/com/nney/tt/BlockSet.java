@@ -12,7 +12,7 @@ import com.nney.tt.map.GameMap;
 import com.nney.tt.map.GameMap.BlockFunc;
 import com.nney.tt.map.MasksHolder;
 
-public abstract class BlockSet2 implements Disposable {
+public abstract class BlockSet implements Disposable {
 	protected Config config;
 	public BlocksHolder blocksHolder;
 	public MasksHolder maskHolder;
@@ -118,7 +118,7 @@ public abstract class BlockSet2 implements Disposable {
 	abstract public LadderInformation getLadderInfo();
 
 
-	public static BlockSet2 createBlockSet(GraphicsContext gc, Config c) {
+	public static BlockSet createBlockSet(GraphicsContext gc, Config c) {
 		if (c.worldName.equals("t")) {
 			return new ToyBlockSet(gc, c);
 		}

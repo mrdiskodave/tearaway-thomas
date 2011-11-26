@@ -1,4 +1,4 @@
-package com.nney.tt.mapper;
+package com.nney.tt.toygen;
 
 class Range {
 	public final int start;

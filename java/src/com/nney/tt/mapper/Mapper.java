@@ -8,7 +8,7 @@ import com.nney.tt.AlienFactory;
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienInfoMap;
 import com.nney.tt.AlienServices;
-import com.nney.tt.BlockSet2;
+import com.nney.tt.BlockSet;
 import com.nney.tt.Const;
 import com.nney.tt.LevelInfo;
 import com.nney.tt.OuterWorld;
@@ -1505,8 +1505,8 @@ public class Mapper implements ButtonPressServices {
 		return answer;
 	}
 
-	public BlockSet2 loadBlockSet() {
-		return ow.loadBlockSet(new BlockSet2.Config(levelInfo.worldName, testFlag(FLAG_SEE_MASKS),
+	public BlockSet loadBlockSet() {
+		return ow.loadBlockSet(new BlockSet.Config(levelInfo.worldName, testFlag(FLAG_SEE_MASKS),
 				testFlag(FLAG_SEE_HIDDEN)));
 	}
 

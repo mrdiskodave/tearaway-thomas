@@ -3,11 +3,11 @@ package com.nney.tt;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.mapper.ToyGenerator;
-import com.nney.tt.mapper.ToyMaker;
-import com.nney.tt.mapper.ToyMaker.Result;
+import com.nney.tt.toygen.ToyGenerator;
+import com.nney.tt.toygen.ToyMaker;
+import com.nney.tt.toygen.ToyMaker.Result;
 
-public class ToyBlockSet extends BlockSet2 {
+public class ToyBlockSet extends BlockSet {
 	private Result r;
 
 	public ToyBlockSet(GraphicsContext gc, Config config) {
