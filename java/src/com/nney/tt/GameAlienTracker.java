@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
-import com.nney.utils.ListUtil;
 
 /**
  * An {@link AlienTracker} optimised for speed. It keeps it's on-screen lists

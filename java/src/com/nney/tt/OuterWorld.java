@@ -14,7 +14,6 @@ import com.nney.tt.sounds.AudioContext;
 import com.nney.tt.sounds.AudioHub;
 import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
-import com.nney.utils.Math2;
 
 public class OuterWorld implements Runnable, Disposable {
 	static public class ExitException extends RuntimeException {

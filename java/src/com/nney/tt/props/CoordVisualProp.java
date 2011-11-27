@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
-import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 

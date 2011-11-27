@@ -2,11 +2,8 @@ package com.nney.tt.toygen;
 
 import java.util.Map;
 
-import javax.swing.text.rtf.RTFEditorKit;
-
 import com.nney.tt.BlockAccess;
 import com.nney.tt.geom.Coord;
-import com.nney.tt.toygen.ToyGenerator.Fail;
 
 public class ToyGenerator {
 	private static final int[] WALL_TABLE = { 3, 2, 0, 1 };

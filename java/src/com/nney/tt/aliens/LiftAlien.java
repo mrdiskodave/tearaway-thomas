@@ -1,9 +1,7 @@
 package com.nney.tt.aliens;
 
-import com.nney.tt.Player;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
-import com.nney.tt.tinytools.Latch;
 
 public abstract class LiftAlien extends Alien {
 	private static final int EXTRA_WIDTH = 4;

@@ -1,7 +1,6 @@
 package com.nney.tt.lwjgl;
 
 import java.io.File;
-import java.util.HashSet;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;

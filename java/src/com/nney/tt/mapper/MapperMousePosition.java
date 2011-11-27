@@ -1,7 +1,6 @@
 package com.nney.tt.mapper;
 
 import com.nney.tt.Const;
-import com.nney.tt.World;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 
