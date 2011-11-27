@@ -45,24 +45,24 @@ class UndoControler {
 			System.out.println("Nothing changed");
 		}
 	}
-	
+
 	/**
 	 * Drop a marker in the undo chain.
 	 */
 	public void mark() {
-		mark = undo.size(); 
+		mark = undo.size();
 	}
-	
+
 	/**
 	 * Fold all the undo events between the marker and now into a single event.
 	 */
 	public void fold() {
-		assert mark>=0;
-		int distance = undo.size()-mark;
-		System.out.println("FOLD:"+distance);
-		if (distance>1) {
-			List<UndoRedo> items = new	ArrayList<UndoRedo>(); 
-			while (undo.size()>mark) {
+		assert mark >= 0;
+		int distance = undo.size() - mark;
+		System.out.println("FOLD:" + distance);
+		if (distance > 1) {
+			List<UndoRedo> items = new ArrayList<UndoRedo>();
+			while (undo.size() > mark) {
 				items.add(undo.pop());
 			}
 			undo.push(new MetaUndoRedo(items));
@@ -97,5 +97,14 @@ class UndoControler {
 			u.redo();
 			undo.push(u);
 		}
+	}
+
+	public int changes() {
+		return undo.size();
+	}
+
+	public void saved() {
+		undo.clear();
+		redo.clear();
 	}
 }

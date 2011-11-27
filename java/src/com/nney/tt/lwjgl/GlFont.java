@@ -57,7 +57,7 @@ public final class GlFont extends PartialFontImpl {
 	@Override
 	public PrerenderedText preRender(int fg, int kern, String text) {
 
-		if (Main.GL_EXT_framebuffer_object) {
+		if (LwjglMain.GL_EXT_framebuffer_object) {
 			int w = computeWidth(kern, text);
 			int h = charHeight();
 //			System.out.println("Pre-rendering into FBO "+w+","+h);

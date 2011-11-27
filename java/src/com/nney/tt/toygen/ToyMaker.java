@@ -37,9 +37,9 @@ public class ToyMaker {
 
 	private Map<Integer, Integer> where;
 
-//	public static void main(String[] args) {
-//		new ToyMaker().generate();
-//	}
+	// public static void main(String[] args) {
+	// new ToyMaker().generate();
+	// }
 
 	// TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
 
@@ -126,7 +126,7 @@ public class ToyMaker {
 				for (int shadow = 0; shadow < S.SHADOW_COUNT; shadow++) {
 					copyBoth(s().col(col).shadow(shadow).pips(true).space(style));
 				}
-		}
+			}
 
 		}
 		// plain stuff
@@ -206,13 +206,14 @@ public class ToyMaker {
 		if (recordMapping(s)) {
 			if (blocks != null) {
 
-				if (s.special()==S.SPECIAL_MAGIC) {
-					System.out.println("MAGIC:" + pos);
+				if (s.special() == S.SPECIAL_MAGIC) {
+					// System.out.println("MAGIC:" + pos);
 					blockInformation.put(pos, "magic");
 					S s2 = s.copy().special(S.NONE);
 					Integer nonMagic = where.get(s2.flattern());
 					if (nonMagic != null) {
-						System.out.println(String.format("HIDE: %s -> %s", pos, nonMagic));
+						// System.out.println(String.format("HIDE: %s -> %s",
+						// pos, nonMagic));
 						hiding.registerCompression(pos, nonMagic);
 					}
 				}
@@ -226,7 +227,7 @@ public class ToyMaker {
 				else {
 					if (s.space() >= 0) {
 						int z = s.space();
-						if (z!=0) {
+						if (z != 0) {
 							z--;
 							z = SPACE_BASE + z * SPACE_SIZE;
 							if (s.isWhich()) z++;
@@ -242,7 +243,7 @@ public class ToyMaker {
 					if (s.isSpecial()) {
 						int z = s.special();
 						d.mergeWith(getSrc(0, SPECIAL_POS + z));
-						solid |= z==S.SPECIAL_MAGIC;
+						solid |= z == S.SPECIAL_MAGIC;
 					}
 				}
 				if (solid) {
@@ -262,21 +263,12 @@ public class ToyMaker {
 		return colouredSources[col].getBlock(i);
 	}
 
-	private int get(S s) {
-		Integer answer = where.get(s.flattern());
-		assert answer != null;
-		return answer;
-	}
-
 	private boolean recordMapping(S s) {
 		int f = s.flattern();
-		System.out.println(String.format("%03d %08x %s", pos, f, s));
+		// System.out.println(String.format("%03d %08x %s", pos, f, s));
 		if (where.containsKey(f)) {
-			System.out.println("SEEN ALREADY!");
+			// System.out.println("SEEN ALREADY!");
 			return false;
-		}
-		if (f==0) {
-			System.out.println(String.format("%08x %s", f, s));
 		}
 		where.put(f, pos);
 		return true;

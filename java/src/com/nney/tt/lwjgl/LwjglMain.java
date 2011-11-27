@@ -6,6 +6,7 @@ import java.util.HashSet;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -20,7 +21,11 @@ import com.nney.tt.input.PointerAdaptor;
 import com.nney.tt.mapper.Mapper;
 import com.nney.tt.resources.TTResource;
 
-public class Main {
+public class LwjglMain {
+	static public class ExitException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+	}
+
 	static final int ZOOM = 2;
 
 	public static final int SCREEN_WIDTH = 400;
@@ -43,24 +48,10 @@ public class Main {
 			Keyboard.enableRepeatEvents(true);
 			Mouse.create();
 
-			HashSet<String> capabilities = new HashSet<String>();
-			for (String ext : GL11.glGetString(GL11.GL_EXTENSIONS).split(" ")) {
-				capabilities.add(ext);
-			}
-
-			if (capabilities.contains("GL_ARB_texture_rectangle")) {
-				GL_ARB_texture_rectangle = true;
-			}
-			if (capabilities.contains("GL_ARB_texture_non_power_of_two")) {
-				GL_ARB_texture_non_power_of_two = true;
-			}
-			if (capabilities.contains("GL_EXT_framebuffer_object")) {
-				GL_EXT_framebuffer_object = true;
-			}
-			assert GLContext.getCapabilities().GL_ARB_texture_rectangle == GL_ARB_texture_rectangle;
-			assert GLContext.getCapabilities().GL_ARB_texture_non_power_of_two == GL_ARB_texture_non_power_of_two;
-			assert GLContext.getCapabilities().GL_EXT_framebuffer_object == GL_EXT_framebuffer_object;
-
+			ContextCapabilities cap = GLContext.getCapabilities();
+			GL_ARB_texture_rectangle = cap.GL_ARB_texture_rectangle;
+			GL_ARB_texture_non_power_of_two = cap.GL_ARB_texture_non_power_of_two;
+			GL_EXT_framebuffer_object = cap.GL_EXT_framebuffer_object;
 		}
 		catch (LWJGLException e) {
 			throw new RuntimeException(e);
@@ -127,18 +118,18 @@ public class Main {
 			@Override
 			public void launch(OuterWorld outerWorld) {
 				new Mapper(outerWorld).run();
-//				 World w = new World(outerWorld);
-//				 w.playLevel();
+				// World w = new World(outerWorld);
+				// w.playLevel();
 			}
 		};
 
 		try {
 			ow.run();
 		}
-		catch (ApplicationClosedException x) {
+		catch (ExitException x) {
 		}
-		;
 
+		ow.dispose();
 		audioContext.dispose();
 		Mouse.destroy();
 		Keyboard.destroy();
@@ -146,6 +137,6 @@ public class Main {
 	}
 
 	public static void main(String[] argv) {
-		new Main().run();
+		new LwjglMain().run();
 	}
 }

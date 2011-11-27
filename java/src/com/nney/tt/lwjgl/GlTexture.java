@@ -40,7 +40,7 @@ public final class GlTexture implements Blitable, PrerenderedText {
 		imageW = w;
 		imageH = h;
 
-		if (Main.GL_ARB_texture_non_power_of_two) {
+		if (LwjglMain.GL_ARB_texture_non_power_of_two) {
 			textureW = imageW;
 			textureH = imageH;
 		}
@@ -71,7 +71,7 @@ public final class GlTexture implements Blitable, PrerenderedText {
 	 */
 	@Override
 	public void draw(int screenX, int screenY) {
-		if (Main.GL_ARB_texture_non_power_of_two) {
+		if (LwjglMain.GL_ARB_texture_non_power_of_two) {
 			int screenRight = screenX + textureW;
 			int screenBottom = screenY + textureH;
 			bindTexture();

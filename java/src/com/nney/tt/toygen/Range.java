@@ -4,9 +4,9 @@ class Range {
 	public final int start;
 	public final int end;
 
-	public Range(int start, int end) {
+	public Range(int start, int length) {
 		this.start = start;
-		this.end = end;
+		this.end = start + length;
 	}
 
 	boolean in(int x) {

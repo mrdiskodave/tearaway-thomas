@@ -93,6 +93,8 @@ import com.nney.utils.SortKeyGenerator;
  *   [Ctrl+M] toggle seeing block masks
  *   [Ctrl+H] toggle seeing hidden blocks
  *   {Ctrl+G] toggle seeing the grid
+ *   [Ctrl+Alt+Shift+C] capture a legacy toyland level
+ *   (by renumbering all the blocks into the new system)
  * 
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
@@ -124,6 +126,10 @@ import com.nney.utils.SortKeyGenerator;
  * </pre>
  */
 public class Mapper implements ButtonPressServices {
+	static public class ExitException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+	}
+
 	private static final int KEY_SELECT_ALL = Locks.LOCK_CONTROL + Keyboard.KEY_A;
 
 	private static final int KEY_REDO = Locks.LOCK_CONTROL + Keyboard.KEY_Y;
@@ -296,7 +302,6 @@ public class Mapper implements ButtonPressServices {
 		gameMap = pl.getMap();
 		constraints = gameMap.boundsInPixels();
 		loadBlockSet().compressMap(gameMap);
-		
 
 		Box mapBoundsInPixels = gameMap.boundsInPixels();
 		mmp = new MapperMousePosition(mapBoundsInPixels);
@@ -435,8 +440,7 @@ public class Mapper implements ButtonPressServices {
 				moveMouse(convertNumCoord(nc));
 			}
 			if (k == KEY_WHERE) {
-				int gemCount = ListUtil.count(GemAlien.class, alienTracker);
-				sayf("Position: %spixels %sblocks | Gems: %s", mmp.worldPixels(), mmp.worldBlocks(), gemCount);
+				where(true);
 			}
 
 			if (k == KEY_UNDO) undoControler.undo();
@@ -468,8 +472,28 @@ public class Mapper implements ButtonPressServices {
 			else {
 				saveMap(false);
 				sayf("Saved: %s", levelInfo.filename);
+				undoControler.saved();
 			}
 		}
+
+		if (Math2.maskTest(k, Locks.LOCK_MENU)) {
+			int pureKey = k & (~Locks.LOCK_ALL);
+			int sl = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
+			boolean sure = (k & sl) == sl;
+
+			if (pureKey == Keyboard.KEY_Q && mustBeSure(sure, "Quit")) {
+				throw new OuterWorld.ExitException();
+			}
+			if (pureKey == Keyboard.KEY_N && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
+				ow.levelNumber++;
+				throw new ExitException();
+			}
+			if (pureKey == Keyboard.KEY_P && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
+				ow.levelNumber--;
+				throw new ExitException();
+			}
+		}
+
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) {
 			// enliven
 			List<Alien> all = flatten();
@@ -504,6 +528,31 @@ public class Mapper implements ButtonPressServices {
 			ListUtil.copy(all, n);
 			unflatten(all);
 		}
+	}
+
+	private void where(boolean more) {
+		int u = countAliens(LegacyAlien.class);
+		int g = countAliens(GemAlien.class);
+		String s = String.format("Level: %s %s | Gems: %s", ow.levelNumber, levelInfo.filename, g);
+		if (u != 0) {
+			s += String.format(" | Legacy: %s", u);
+		}
+		if (more) {
+			s += String.format(" | Position: %spixels %sblocks | Changes made: %s", mmp.worldPixels(),
+					mmp.worldBlocks(), undoControler.changes());
+		}
+		say(s);
+	}
+
+	public int countAliens(Class<? extends Alien> t) {
+		return ListUtil.count(t, alienTracker);
+	}
+
+	private boolean mustBeSure(boolean sure, String task) {
+		int changes = undoControler.changes();
+		if (sure || changes == 0) return true;
+		sayf("%s: Abandon %s unsaved changes? +Ctrl+Shift if certain", task, changes);
+		return false;
 	}
 
 	public void drawOverlays() {
@@ -629,8 +678,8 @@ public class Mapper implements ButtonPressServices {
 
 		blockSelectionKeys(k);
 
-		if (k == Keyboard.KEY_H) {
-			generateToyland();
+		if (k == Locks.LOCK_ALL + Keyboard.KEY_C) {
+			loadBlockSet().legacyCapture(gameMap);
 		}
 	}
 
@@ -1361,7 +1410,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void submitMapEdit(MapEdit u) {
-		assert u!=null;
+		assert u != null;
 		undoControler.redoThenAdd(u);
 	}
 
@@ -1563,125 +1612,14 @@ public class Mapper implements ButtonPressServices {
 		endBlockEdit();
 	}
 
-	// 4 different background styles
-	//
-	// 7or8 different kinds of shadow
-	// *
-	// two different kinds of checker
-	// *
-	// colours of pips + 1 for "no pips"
-
-	// 4*7*2*4 R G B Y = 224
-
-	// empty/light/dark/RGBY/1234
-
-	private boolean isWall(int b) {
-		assert false;
-		return b <= 0;
-	}
-
-	private boolean testWall(Coord coord, int i, int j) {
-		int b = gameMap.safeGetBlock(coord.copyAndAdd(i, j));
-		return isWall(b);
-	}
-
-	private void generateToyland() {
-		int pc = 0;
-		int pw = 0;
-		System.out.println("Generating Intricacies Of Toyland");
-		for (int y = 0; y < gameMap.width(); y++) {
-			for (int x = 0; x < gameMap.height(); x++) {
-				Coord coord = new Coord(x, y);
-				int b = gameMap.safeGetBlock(coord);
-
-				boolean checkers = Math2.maskTest(x ^ y, 1);
-
-				boolean wallEast = testWall(coord, 1, 0);
-				boolean wallWest = testWall(coord, -1, 0);
-				boolean wallNorthWest = testWall(coord, -1, -1);
-				boolean wallNorth = testWall(coord, 0, -1);
-				boolean wallSouth = testWall(coord, 0, 1);
-
-				int walls[] = { 3, 2, 0, 1 };
-				int spaces[] = { 0, 5, 3, 2, 4, -1, 6, 1 };
-
-				int n = -1;
-				if (isWall(b)) {
-					int v = 0;
-					if (wallWest) v |= 1;
-					if (wallEast) v |= 2;
-					n = walls[v];
-				}
-				else if (b >= 80 && b < 240) {
-					if ((b % 20) < 14) {
-						int v = 0;
-						if (wallNorth) v |= 1;
-						if (wallNorthWest) v |= 2;
-						if (wallWest) v |= 4;
-						n = spaces[v];
-
-						// four blocks of style
-						// 1) 80 eyes - exit 48
-						// 2) 87 diagonals - exit 52
-						// 3) 160 grid - exit 51x4
-						// 4) 167 waves - exit 54
-						// magical blocks start at 46,
-						// two for each, in order
-
-						// 11 1
-						// 12 3
-						// 13 2
-						// 14 4
-						// 15 1!
-						// 16 3
-						// 17 2
-						// 18 4
-						// 19 3
-
-						// does the width have to be 20?
-
-						if (n >= 0) {
-							// n += 167;
-							n += 160;
-							// n += 80;
-							// n += 87;
-							if (!checkers) {
-								n += 40;
-							}
-							if (wallSouth) {
-								n += 20;
-							}
-						}
-						else {
-							System.out.println("Bad wall placement: " + b + " at " + coord);
-						}
-					}
-					if (n < 0) System.out.println("Mystery space: " + b + " at " + coord);
-				}
-				else if (b == 0) {
-
-				}
-				else {
-					System.out.println("Something else: " + b + " at " + coord);
-				}
-
-				if (n >= 0) {
-					if (n != b) {
-						System.out.println("Predicted " + n + " but saw " + b + " at " + coord);
-						pw++;
-					}
-					else {
-						pc++;
-					}
-				}
+	public void run() {
+		try {
+			where(false);
+			for (;;) {
+				drawFrame();
 			}
 		}
-		System.out.println("Done! Correct:" + pc + " wrong:" + pw);
-	}
-
-	public void run() {
-		for (;;) {
-			drawFrame();
+		catch (ExitException ex) {
 		}
 	}
 

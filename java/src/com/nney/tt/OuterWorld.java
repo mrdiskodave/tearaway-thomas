@@ -14,8 +14,13 @@ import com.nney.tt.sounds.AudioContext;
 import com.nney.tt.sounds.AudioHub;
 import com.nney.tt.sprites.AnimsDefPool;
 import com.nney.tt.sprites.AnimsPool;
+import com.nney.utils.Math2;
 
 public class OuterWorld implements Runnable, Disposable {
+	static public class ExitException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+	}
+
 	public final AudioHub ah;
 
 	public final Fonts fonts;
@@ -41,11 +46,9 @@ public class OuterWorld implements Runnable, Disposable {
 	public int score = 0;
 
 	public int lives = 3;
-	
-	public int horizonNumber;
 
 	private MultiDisposable md = new MultiDisposable();
-	
+
 	public ArrayList<Horizon> horizons = new ArrayList<Horizon>();
 
 	public OuterWorld(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
@@ -58,14 +61,14 @@ public class OuterWorld implements Runnable, Disposable {
 		fonts = new Fonts(gc);
 		animsPool = new AnimsPool(gc, new AnimsDefPool());
 		md.addMany(fonts, animsPool, blockSet);
-		
-		for (int x=0; x<8; x++) {
+
+		for (int x = 0; x < 8; x++) {
 			Horizon h = gc.loadHorizon(TTResource.horizon(x));
 			horizons.add(h);
 			md.add(h);
 		}
 	}
-	
+
 	public void reset() {
 		levelNumber = 0;
 		score = 0;
@@ -78,23 +81,34 @@ public class OuterWorld implements Runnable, Disposable {
 		}
 		return blockSet.get();
 	}
-	
+
 	public Horizon getHorizon(int n) {
 		return horizons.get(n);
 	}
-
 
 	public Launcher bootstrap;
 
 	@Override
 	public void run() {
-		for (;;) {
-			bootstrap.launch(this);
+		try {
+			for (;;) {
+				bootstrap.launch(this);
+			}
+		}
+		catch (ExitException ex) {
 		}
 	}
 
 	@Override
 	public void dispose() {
 		md.dispose();
+	}
+
+	public boolean firstLevel() {
+		return levelNumber == 0;
+	}
+
+	public boolean lastLevel() {
+		return levelNumber == PersistedLevel.levelCount() - 1;
 	}
 }

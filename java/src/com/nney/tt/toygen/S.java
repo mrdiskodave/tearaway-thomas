@@ -6,9 +6,9 @@ class S {
 	public static final int SPECIAL_COUNT = 1;
 
 	final static public int WIDTH = 20;
-	final static public Range rSpaces = new Range(0, WIDTH);
-	final static public Range rWalls = new Range(WIDTH, WIDTH * 2);
-	final static public Range rSpecial = new Range(WIDTH * 2, WIDTH * 3);
+	final static public Range rSpaces = new Range(0, SPACE_COUNT);
+	final static public Range rWalls = new Range(WIDTH, WALL_COUNT);
+	final static public Range rSpecial = new Range(WIDTH * 2, SPECIAL_COUNT);
 
 	public static final int SHADOW_COUNT = 7;
 
@@ -27,62 +27,62 @@ class S {
 	int wall() {
 		return wall;
 	}
-	
+
 	int space() {
 		return space;
 	}
-	
+
 	int special() {
 		return special;
 	}
-	
+
 	int col() {
 		return col;
 	}
-	
+
 	public boolean isWall() {
-		return wall>=0;
+		return wall >= 0;
 	}
-	
+
 	public boolean isSpace() {
-		return space>=0;
+		return space >= 0;
 	}
 
 	public boolean isSpecial() {
-		return special>=0;
+		return special >= 0;
 	}
 
 	boolean isWhich() {
 		return which;
 	}
-	
+
 	boolean isPips() {
 		return pips;
 	}
-	
+
 	int shadow() {
 		return shadow;
 	}
-	
+
 	static S fromBlock(int b) {
 		S s = new S();
-		if (b<0) return s;
+		if (b < 0) return s;
 		int x;
 		x = rWalls.much(b);
-		if (x>=0) {
+		if (x >= 0) {
 			s.wall(1); // anything will do
 			s.col(x);
 			return s;
 		}
 		else {
 			x = rSpaces.much(b);
-			if (x>=0) {
+			if (x >= 0) {
 				s.space(x);
 				return s;
 			}
 			else {
 				x = rSpecial.much(b);
-				if (x>=0) {
+				if (x >= 0) {
 					s.special(x);
 					return s;
 				}
@@ -90,20 +90,20 @@ class S {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		if (wall >= 0) {
 			return String.format("wall%s col%s", wall, col);
 		}
-		return String.format("space%s special%s col%s which%s pips%s shaddow%s", wall, space, special, col,
-				which, pips, shadow);
+		return String.format("space%s special%s col%s which%s pips%s shaddow%s", wall, space, special, col, which,
+				pips, shadow);
 	}
 
 	int flattern() {
 		int f = 0;
 		f = merge(f, wall + 1);
-		f = merge(f, (space + 1)*2+(which?1:0));
+		f = merge(f, (space + 1) * 2 + (which ? 1 : 0));
 		f = merge(f, special + 1);
 		f = merge(f, col);
 		f = merge(f, pips ? 1 : 0);

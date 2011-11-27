@@ -44,7 +44,7 @@ import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
 
 public class World implements AlienServices, Disposable {
-	public class ExitException extends RuntimeException {
+	static public class ExitException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 	}
 
@@ -231,12 +231,10 @@ public class World implements AlienServices, Disposable {
 
 	private String configuredScriptDestination;
 
-
 	static final private boolean CTC_MEASURE_JUMP_HEIGHT = false;
 
 	private int smallestY;
 
-	
 	public World(OuterWorld ow) {
 		this.ow = ow;
 		this.gc = ow.gc;
@@ -266,10 +264,10 @@ public class World implements AlienServices, Disposable {
 	public boolean inTheGround(Coord c) {
 		return inTheGround(c.x, c.y);
 	}
-	
+
 	@Override
 	public boolean inTheGround(int x, int y) {
-		int block = gameMap.fastGetBlock(x>>Const.BLOCK_SHIFT, y>>Const.BLOCK_SHIFT);
+		int block = gameMap.fastGetBlock(x >> Const.BLOCK_SHIFT, y >> Const.BLOCK_SHIFT);
 		return blockSet.maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
 	}
 
@@ -391,12 +389,12 @@ public class World implements AlienServices, Disposable {
 	@Override
 	public void validatePlayerPosition(Coord c) {
 		// TODO: 000 look at where this is called from
-		
+
 		// it also keeps the player from going off the bottom (a bit)
 		// which we need to trap
 		scr.keepPlayerInMap(c);
 	}
-	
+
 	@Override
 	public boolean keepInMap(Coord c) {
 		return scr.keepInMap(c);
@@ -446,7 +444,6 @@ public class World implements AlienServices, Disposable {
 		return false;
 	}
 
-	
 	private boolean hbCollide(Coord alienPos, Sprite alienSprite, int h) {
 		int dx = alienPos.x - alienSprite.handleX - playerSpriteTopLeft.x;
 		if (dx < ttSprite.w && dx > (-alienSprite.w)) {
@@ -464,7 +461,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private boolean hbCollides(Coord alienPos, Sprite[] alienSprites, int h) {
-		for (Sprite alienSprite: alienSprites) {
+		for (Sprite alienSprite : alienSprites) {
 			if (hbCollide(alienPos, alienSprite, h)) return true;
 		}
 		return false;
@@ -473,7 +470,7 @@ public class World implements AlienServices, Disposable {
 	@Override
 	public boolean headBounce(Alien alien, Sprite... alienSprites) {
 		Coord alienPos = alien.getLocation();
-		
+
 		// this can surely be optimised
 		// e.g. if hbCollide() just ran bottom-up rather
 		// than top-down that would help
@@ -481,7 +478,7 @@ public class World implements AlienServices, Disposable {
 		while (hbCollides(alienPos, alienSprites, h)) {
 			h++;
 		}
-		
+
 		if (player.isHeadBouncePossible(h)) {
 			playSoundEffect("headbounce");
 			Anim frightAnim = alien.anims.mightFind("fright");
@@ -503,7 +500,6 @@ public class World implements AlienServices, Disposable {
 		player.stun();
 		return false;
 	}
-
 
 	@Override
 	public boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite) {
@@ -561,12 +557,11 @@ public class World implements AlienServices, Disposable {
 	public void magicDust(Coord location) {
 		attachConnectLoad(new MagicDustAlien(location.copy()));
 	}
-	
+
 	@Override
 	public void addAlien(Alien a) {
 		attachConnectLoad(a);
 	}
-	
 
 	// ---------------------------------------------------------------------------
 	// ALIEN LIFECYCLE
@@ -596,12 +591,13 @@ public class World implements AlienServices, Disposable {
 			alien.freezeBounds = null;
 			alien.update();
 
-//			Box fb = alien.freezeBounds;
-//			if (fb!=null) {
-//				Box s = fb.sub2(getScreenPosition());
-//				gc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
-//			}
-			
+			// Box fb = alien.freezeBounds;
+			// if (fb!=null) {
+			// Box s = fb.sub2(getScreenPosition());
+			// gc.fillRectangle(s.left, s.top, s.width(), s.height(),
+			// 0x80ff0000);
+			// }
+
 			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
 				alienIterator.remove();
 			}
@@ -829,7 +825,7 @@ public class World implements AlienServices, Disposable {
 		// the main game doesn't use events so this is just to drain them
 		// i.e. stop them piling up
 		keyboard.nextEvent();
-		
+
 		if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
 			throw new ExitException();
 		}
@@ -1047,7 +1043,6 @@ public class World implements AlienServices, Disposable {
 			end();
 		} while (!player.onArse() || didScroll);
 
-		
 		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
 		hole.setCentre(t);
 		hole.current(Curtain.OPEN);
@@ -1115,20 +1110,18 @@ public class World implements AlienServices, Disposable {
 
 		parsedJoystick.set(joystickPosition);
 		player.move(parsedJoystick);
-		
 
-		
 		if (CTC_MEASURE_JUMP_HEIGHT) {
 			smallestY = Math.min(smallestY, player.c.y);
-			System.out.println(String.format("Player: %s (smallesty:%s height:%s)", player.c, smallestY, player.c.y-smallestY));
+			System.out.println(String.format("Player: %s (smallesty:%s height:%s)", player.c, smallestY, player.c.y
+					- smallestY));
 			if (keyboard.isDown(Keyboard.KEY_R)) {
 				smallestY = Integer.MAX_VALUE;
 			}
 		}
-		
+
 		// JUMP HEIGHT: 66 .. 68 with the bug (of course)
 
-		
 		scrollTheScreen();
 		drawTheMap();
 		updateTheAliens();
@@ -1254,7 +1247,6 @@ public class World implements AlienServices, Disposable {
 	public void configureMapText(String s) {
 		configuredMapText = s;
 	}
-
 
 	public void configurePerformIntro(boolean b) {
 		configuredPerformIntro = b;

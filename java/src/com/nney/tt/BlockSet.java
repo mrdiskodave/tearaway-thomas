@@ -13,13 +13,15 @@ import com.nney.tt.map.GameMap.BlockFunc;
 import com.nney.tt.map.MasksHolder;
 
 public abstract class BlockSet implements Disposable {
+	private static final boolean CTC_EXCEPTIONAL_TOYLAND = true;
+	
+	static final private boolean CTC_CAN_HIDE = true;
+
 	protected Config config;
 	public BlocksHolder blocksHolder;
 	public MasksHolder maskHolder;
 
 	private BlockInformation blockInformation;
-	
-	static final private boolean CTC_CAN_HIDE = true;
 
 	public static class Config {
 		final String worldName;
@@ -119,10 +121,17 @@ public abstract class BlockSet implements Disposable {
 
 
 	public static BlockSet createBlockSet(GraphicsContext gc, Config c) {
-		if (c.worldName.equals("t")) {
-			return new ToyBlockSet(gc, c);
+		if (CTC_EXCEPTIONAL_TOYLAND) {
+			if (c.worldName.equals("t")) {
+				return new ToyBlockSet(gc, c);
+			}
 		}
 		return new RegularBlockSet(gc, c);
+	}
+
+
+	public void legacyCapture(GameMap gameMap) {
+		
 	}
 
 }

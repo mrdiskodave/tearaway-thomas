@@ -24,7 +24,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 		this.updateInputs = updateInputs;
 		this.onActivate = onActivate;
 	}
-	
+
 	@Override
 	public void fillRectangle(int x, int y, int w, int h, int col) {
 		GlTools.configureFor2dRect(col);
@@ -41,7 +41,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 		return new Horizon() {
 			@Override
 			public void draw() {
-				gt.stretchDraw(0, 0, Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT, 0, 0, gt.width(), gt.height());
+				gt.stretchDraw(0, 0, LwjglMain.SCREEN_WIDTH, LwjglMain.SCREEN_HEIGHT, 0, 0, gt.width(), gt.height());
 			}
 
 			@Override
@@ -68,14 +68,14 @@ public final class GlGraphicsContext implements GraphicsContext {
 
 	@Override
 	public int screenWidth() {
-		return Main.SCREEN_WIDTH;
+		return LwjglMain.SCREEN_WIDTH;
 	}
 
 	@Override
 	public int screenHeight() {
-		return Main.SCREEN_HEIGHT;
+		return LwjglMain.SCREEN_HEIGHT;
 	}
-	
+
 	@Override
 	public void aperture(int radius, int x, int y, int c) {
 		GlTools.configureFor2dRect(c);
@@ -100,19 +100,19 @@ public final class GlGraphicsContext implements GraphicsContext {
 		// it gets pointy at the top bottom left and right
 		// because cos and sin truncated spikes into one just at 0deg only
 		// the Math.round is there to stop that.
-		
-//		for (int a = 0; a <= steps; a++) {
-//			System.out.println(String.format("%s,%s,%s", a, v[a*2], v[a*2+1]));
-//		}
-//		System.out.println("---");
-		
+
+		// for (int a = 0; a <= steps; a++) {
+		// System.out.println(String.format("%s,%s,%s", a, v[a*2], v[a*2+1]));
+		// }
+		// System.out.println("---");
+
 		// TODO: teach it to GL then replay it under different rotations?
 		drawFan(v, x, y, 1, 1);
 		drawFan(v, x, y, -1, 1);
 		drawFan(v, x, y, 1, -1);
 		drawFan(v, x, y, -1, -1);
 
-//		GlTools.configureFor2dRect(0xffff0000);
+		// GlTools.configureFor2dRect(0xffff0000);
 
 		// everything above
 		boxFill(0, 0, w, y - radius);
@@ -140,10 +140,9 @@ public final class GlGraphicsContext implements GraphicsContext {
 		GL11.glEnd();
 	}
 
-	
 	boolean inside;
 	boolean active = true;
-	
+
 	@Override
 	public void beginDrawing() {
 		assert !inside;
@@ -159,7 +158,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 		inside = false;
 		Display.update();
 		if (Display.isCloseRequested()) {
-			throw new ApplicationClosedException();
+			throw new LwjglMain.ExitException();
 		}
 		if (Display.isActive()) {
 			if (!active) {
