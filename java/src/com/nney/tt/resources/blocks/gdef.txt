@@ -13,11 +13,12 @@
     ],
 "invisibleBlockHiding":
     [
-        [ 0,296 ],
+        [ 0,296 ], #invisible blocks
         [ 40,297 ],
         [ 234,298 ],
-        [ 52,88 ],
-        [ 53,89 ]
+        [ 52,88 ], #stop blocks
+        [ 53,89 ],
+        [ 112, 148 ] #a special floor block
     ],
 "ladder":
 	{

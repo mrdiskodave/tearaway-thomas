@@ -2,8 +2,10 @@ package com.nney.tt.map;
 
 public class BitArray {
 	private final int[] content;
+	private final int length;
 
 	public BitArray(int length) {
+		this.length = length;
 		content = new int[(length + 31) >> 5];
 	}
 
@@ -19,11 +21,15 @@ public class BitArray {
 		return (content[offset] & mask) != 0;
 	}
 
-	public long count() {
+	public int count() {
 		int answer = 0;
 		for (int c : content) {
 			answer += Integer.bitCount(c);
 		}
 		return answer;
+	}
+
+	public int length() {
+		return length;
 	}
 }

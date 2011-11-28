@@ -3,11 +3,16 @@ package com.nney.tt.map;
 import com.nney.tt.Const;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.SimpleImage;
+import com.nney.tt.gfx.SimpleImage.ChangePixel;
 
 public final class MasksHolder {
 	final private BitArray maskSettings;
 
 	public MasksHolder(SimpleImage msi) {
+		for (int c : msi.collectPalette()) {
+			System.out.println(String.format("mask colour %08x", c));
+		}
+
 		BlockSource t = new BlockSource(msi, Const.BLOCK_SIZE);
 		maskSettings = new BitArray(Const.BLOCK_SIZE * Const.BLOCK_SIZE * t.getBlockCount());
 
@@ -15,29 +20,46 @@ public final class MasksHolder {
 			SimpleImage si = t.getBlock(block);
 			for (int y = 0; y < Const.BLOCK_SIZE; y++) {
 				for (int x = 0; x < Const.BLOCK_SIZE; x++) {
-					boolean itg = pixelTest(si, y, x);
+					boolean itg = colourTest(si.get(x, y));
 					if (itg) {
 						maskSettings.set(pos(block, x, y));
 					}
 					// self test
-					assert inTheGround(block, x, y)==itg;
+					assert inTheGround(block, x, y) == itg;
 				}
 			}
 		}
+		System.out.println(String.format("Masks: %s/%s", maskSettings.count(), maskSettings.length()));
 	}
 
-	private static boolean pixelTest(SimpleImage si, int y, int x) {
-		return si.get(x, y)==0xff000000;
+	private static boolean colourTest(int c) {
+		return c == 0xff000000;
 	}
 
 	public boolean inTheGround(int block, int x, int y) {
 		assert x < Const.BLOCK_SIZE;
 		assert y < Const.BLOCK_SIZE;
 		// pixelTest is inlined here:
-		return maskSettings.test(((((block << Const.BLOCK_SHIFT) + y )<< Const.BLOCK_SHIFT) + x));
+		return maskSettings.test(((((block << Const.BLOCK_SHIFT) + y) << Const.BLOCK_SHIFT) + x));
 	}
 
 	private int pos(int block, int x, int y) {
-		return (((block << Const.BLOCK_SHIFT) + y )<< Const.BLOCK_SHIFT) + x;
+		return (((block << Const.BLOCK_SHIFT) + y) << Const.BLOCK_SHIFT) + x;
+	}
+
+	public static SimpleImage renderMask(SimpleImage msi, SimpleImage originalBsi) {
+		SimpleImage bsi = msi.copy();
+		bsi.changePixels(new ChangePixel() {
+			@Override
+			public int change(int col) {
+				if (colourTest(col)) {
+					// how we want to display ground?
+					return 0xff000000;
+				}
+				// how we want to display sky?
+				return 0;
+			}
+		});
+		return bsi;
 	}
 }

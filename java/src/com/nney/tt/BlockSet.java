@@ -14,7 +14,7 @@ import com.nney.tt.map.MasksHolder;
 
 public abstract class BlockSet implements Disposable {
 	private static final boolean CTC_EXCEPTIONAL_TOYLAND = true;
-	
+
 	static final private boolean CTC_CAN_HIDE = true;
 
 	protected Config config;
@@ -45,43 +45,30 @@ public abstract class BlockSet implements Disposable {
 			return toString().equals(that.toString());
 		}
 	}
-	
-	
-	public void init(GraphicsContext gc, Config config, BlockAliasTable hiddenHiding, BlockInformation blockInformation, SimpleImage bsi, SimpleImage msi) {
+
+	public void init(GraphicsContext gc, Config config, BlockAliasTable hiddenHiding,
+			BlockInformation blockInformation, SimpleImage bsi, SimpleImage msi) {
 		this.blockInformation = blockInformation;
-		
+
 		if (config.seeMasks) {
-			bsi = msi.copy();
-			bsi.changePixels(new ChangePixel() {
-				@Override
-				public int change(int col) {
-					// the same test that is in MasksHolder:
-					if (col == 0xff000000) {
-						// how we want to display ground?
-						return 0xff000000;
-					}
-					// how we want to display sky?
-					return 0;
-				}
-			});
+			bsi = MasksHolder.renderMask(msi, bsi);
 		}
 
 		BlockSource bs = new BlockSource(bsi, Const.BLOCK_SIZE);
 		if (CTC_CAN_HIDE) {
-		if (!config.showHidden) {
+			if (!config.showHidden) {
 				if (hiddenHiding != null) {
-				for (int b = 0; b < bs.getBlockCount(); b++) {
-					bs.hideBlock(hiddenHiding.compress(b), b);
+					for (int b = 0; b < bs.getBlockCount(); b++) {
+						bs.hideBlock(hiddenHiding.compress(b), b);
+					}
 				}
 			}
 		}
-		}
-		
+
 		this.blocksHolder = gc.createBlocksHolder(bs);
 		this.maskHolder = new MasksHolder(msi);
 		this.config = config;
 	}
-
 
 	@Override
 	public void dispose() {
@@ -91,7 +78,7 @@ public abstract class BlockSet implements Disposable {
 	public boolean isSame(Config config2) {
 		return config.equals(config2);
 	}
-	
+
 	public int getBlockCount() {
 		return blocksHolder.getBlockCount();
 	}
@@ -114,11 +101,11 @@ public abstract class BlockSet implements Disposable {
 		gameMap.apply(f);
 	}
 
-	
 	abstract public int compressBlock(int currentBlock);
-	abstract public void expandMap(GameMap gameMap);
-	abstract public LadderInformation getLadderInfo();
 
+	abstract public void expandMap(GameMap gameMap);
+
+	abstract public LadderInformation getLadderInfo();
 
 	public static BlockSet createBlockSet(GraphicsContext gc, Config c) {
 		if (CTC_EXCEPTIONAL_TOYLAND) {
@@ -129,9 +116,8 @@ public abstract class BlockSet implements Disposable {
 		return new RegularBlockSet(gc, c);
 	}
 
-
 	public void legacyCapture(GameMap gameMap) {
-		
+
 	}
 
 }

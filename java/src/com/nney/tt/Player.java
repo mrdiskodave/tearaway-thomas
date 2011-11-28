@@ -148,13 +148,23 @@ public class Player {
 	 * zero.
 	 * 
 	 * You see, we are tolerant and give the player a few frames to jump even
-	 * after they've run off an edge. This resolves any graphical ambiguity
-	 * (edges that <b>look</b> rounded) or timing ambiguity (<b>I pressed
-	 * it!</b>) in the player's favour - making the whole thing play smoother.
+	 * after they've run off an edge. This resolves any graphical ambiguity or
+	 * timing ambiguity ("I pressed it!!") in the player's favour - making the
+	 * whole thing play smoother.
 	 */
 	private int airJumpTimer;
 
+	/**
+	 * The player flashes between regular display and all whited out while this
+	 * is non-zero.
+	 */
 	private int flashTimer;
+
+	/**
+	 * The player run's faster while this is non-zero. See
+	 * {@link PlayerVelocityTable}.
+	 */
+	private int turboTimer;
 
 	/**
 	 * A lift, if we are standing on one, otherwise <code>null</code>.
@@ -179,7 +189,7 @@ public class Player {
 
 	private Latch monkeyLatch = new Latch();
 	private Latch ropeLatch = new Latch();
-	private Latch ladderLatch = new Latch();
+	private Latch ladderLatch = new Latch(3);
 
 	private int slideVel;
 
@@ -335,8 +345,8 @@ public class Player {
 	private boolean normalVerticalMovement() {
 		vely = applyGravity(vely);
 
-		int yMove = yFraction.set(yFraction.get()+vely);
-		
+		int yMove = yFraction.set(yFraction.get() + vely);
+
 		MovementSlicer yslicer = new MovementSlicer(yMove);
 		while (yslicer.more()) {
 			int n = yslicer.next(1);
@@ -505,31 +515,40 @@ public class Player {
 			// alignment: [ ... 12 13 14] *15* [0 1 2 ... ]
 			// snap: [ maxSnap ... 3 2 1] *0* [-1 -2 -3 ... -maxSnap ]
 
-			int maxSnap;
-			if (moveStick()) {
-				// work out maxSnap from our maximum speed
-				// to ensure the player get's at least one
-				// shot at getting on the ladder as he runs by
-				maxSnap = (pvt.max() - 1) / 2;
-				// TODO: thats wrong as it comes out at 0 given input of 1
-			}
-			else {
-				maxSnap = LADDER_XSNAP_STATIONARY;
+			int start = lc.x;
+			int end = c.x;
+			if (!moveStick()) {
+				start = c.x - LADDER_XSNAP_STATIONARY - 1;
+				end = c.x + LADDER_XSNAP_STATIONARY;
 			}
 
-			int snap = c.x;
-			snap += maxSnap + 1;
-			snap &= 15;
-			snap = maxSnap - snap;
-
-			if (jdy != 0 && snap >= -maxSnap && snap <= maxSnap && testLadder(snap, 0)
-					&& ladderLatch.can(srv.getFrameNumber())) {
-				reset(Mode.LADDER);
-				c.x += snap;
-				System.out.println("Ladder: on board!");
+			// System.out.println(String.format("ladder: %s-%s %s", start, end,
+			// lo));
+			if (jdy != 0) {
+				System.out.println(String.format("%s Ladder: want", srv.getFrameNumber()));
+				int lo = computeLadderOption(start, end);
+				int dx = lo - c.x;
+				if (lo > 0 && testLadder(dx, 0) && testLadder(dx, getLadderVerticalDelta())) {
+					System.out.println(String.format("%s Ladder: can", srv.getFrameNumber()));
+					if (ladderLatch.can(srv.getFrameNumber())) {
+						System.out.println(String.format("%s Ladder: do", srv.getFrameNumber()));
+						reset(Mode.LADDER);
+						c.x = lo;
+						System.out.println("Ladder: on board!");
+					}
+				}
 			}
-			// System.out.println("Ladder: run straight past");
 		}
+	}
+
+	private int computeLadderOption(int start, int end) {
+		// TODO: this can be done with math not repetition
+		MovementSlicer ms = new MovementSlicer(end - start);
+		while (ms.more()) {
+			start += ms.next(1);
+			if ((start & 15) == 15) return start;
+		}
+		return -1;
 	}
 
 	private boolean moveStick() {
@@ -542,8 +561,7 @@ public class Player {
 
 			// do ladder!
 			boolean moving = false;
-			int delta = jdy * 2;
-			MovementSlicer yslicer = new MovementSlicer(delta);
+			MovementSlicer yslicer = new MovementSlicer(getLadderVerticalDelta());
 			while (yslicer.more()) {
 				int n = yslicer.next(1);
 				if (testLadder(0, n)) {
@@ -563,6 +581,10 @@ public class Player {
 
 			setAnim("climb", moving);
 		}
+	}
+
+	public int getLadderVerticalDelta() {
+		return jdy * 2;
 	}
 
 	private boolean canWalkOffLadder() {
@@ -622,7 +644,7 @@ public class Player {
 				}
 			}
 
-			int delta = jdy * 2;
+			int delta = getLadderVerticalDelta();
 			boolean moving = false;
 			if (delta != 0 && testForVerticalRope(delta)) {
 				c.y += delta;
@@ -830,6 +852,8 @@ public class Player {
 		if (proofTimer != 0) proofTimer--;
 		if (flashTimer != 0) flashTimer--;
 		if (airJumpTimer != 0) airJumpTimer--;
+		pvt.setSprint(turboTimer != 0);
+		if (turboTimer != 0) turboTimer--;
 
 		drawInWhite = (flashTimer & 15) > 9;
 
@@ -1041,6 +1065,11 @@ public class Player {
 		// copy the content over because 'pp' holds a reference to that
 		// particular 'c'
 		c.copyFieldsFrom(teleportDestination);
+	}
+
+	public void giveTurbo() {
+		// TODO Auto-generated method stub
+
 	}
 }
 
