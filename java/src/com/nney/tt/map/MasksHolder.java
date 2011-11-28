@@ -6,6 +6,7 @@ import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.SimpleImage.ChangePixel;
 
 public final class MasksHolder {
+	private static final boolean CTC_COLOURED_MASK = true;
 	final private BitArray maskSettings;
 
 	public MasksHolder(SimpleImage msi) {
@@ -48,18 +49,35 @@ public final class MasksHolder {
 	}
 
 	public static SimpleImage renderMask(SimpleImage msi, SimpleImage originalBsi) {
-		SimpleImage bsi = msi.copy();
-		bsi.changePixels(new ChangePixel() {
-			@Override
-			public int change(int col) {
-				if (colourTest(col)) {
-					// how we want to display ground?
-					return 0xff000000;
+		if (CTC_COLOURED_MASK) {
+			SimpleImage bsi = originalBsi.copy();
+			int w = bsi.width();
+			int h = bsi.height();
+			assert w == msi.width();
+			assert h == msi.height();
+			for (int y = 0; y < h; y++) {
+				for (int x = 0; x < w; x++) {
+					if (colourTest(msi.get(x, y))) {
+						bsi.put(x, y, 0xffff00ff);
+					}
 				}
-				// how we want to display sky?
-				return 0;
 			}
-		});
-		return bsi;
+			return bsi;
+		}
+		else {
+			SimpleImage bsi = msi.copy();
+			bsi.changePixels(new ChangePixel() {
+				@Override
+				public int change(int col) {
+					if (colourTest(col)) {
+						// how we want to display ground?
+						return 0xff000000;
+					}
+					// how we want to display sky?
+					return 0;
+				}
+			});
+			return bsi;
+		}
 	}
 }

@@ -803,11 +803,13 @@ public class Mapper implements ButtonPressServices {
 		flagSelectionKeys(k);
 
 		if (keyboard.isDown(Pointer.KEY_LEFT)) {
-			Coord d = mmp.worldPixels();
-			Coord s = sim.get();
-			Coord diff = d.sub2(s);
-			diff.signum();
-			simDiff(diff);
+			for (int x = 0; x < 5; x++) {
+				Coord d = mmp.worldPixels();
+				Coord s = sim.get();
+				Coord diff = d.sub2(s);
+				diff.signum();
+				simDiff(diff);
+			}
 		}
 
 		if (k == Pointer.KEY_RIGHT) {

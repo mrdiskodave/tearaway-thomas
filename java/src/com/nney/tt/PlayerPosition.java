@@ -10,6 +10,8 @@ import com.nney.tt.geom.Coord;
  * Bigger things based upon this will then also be guaranteed to be valid.
  */
 public class PlayerPosition {
+	private static final int MAX_SUCK_OR_CLIMB = 4;
+
 	/**
 	 * <p>
 	 * There was a bug in the original where the player would get kicked up the
@@ -95,29 +97,28 @@ public class PlayerPosition {
 
 				// except for a special case for standing:
 				if (isStanding()) {
-					if (!ig(ncx, c.y - 1)) {
-						// climb!
-						c.y--;
-						xSuccess(ncx);
-					}
-					else if (!ig(ncx, c.y - 2)) {
-						// climb more!
-						c.y -= 2;
-						xSuccess(ncx);
+					for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
+						if (!ig(ncx, c.y - t)) {
+							// climb!
+							c.y -= t;
+							xSuccess(ncx);
+							break;
+						}
 					}
 				}
 			}
 			else {
+				// air->air: YES
+
+				// a special case for standing:
 				if (isStanding()) {
+					// if we've walked off into space
 					if (!ig(ncx, c.y + 1)) {
-						// no longer standing?
-						if (ig(ncx, c.y + 2)) {
-							// suck!
-							c.y++;
-						}
-						else if (ig(ncx, c.y + 3)) {
-							// suck more!
-							c.y += 2;
+						for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
+							if (ig(ncx, c.y + t + 1)) {
+								c.y += t;
+								break;
+							}
 						}
 					}
 				}
