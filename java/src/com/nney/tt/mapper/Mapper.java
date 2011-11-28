@@ -591,7 +591,9 @@ public class Mapper implements ButtonPressServices {
 		if (!bigTest) {
 			w.configurePerformIntro(false);
 			w.configurePlayerStart(mmp.worldPixels());
-			w.configureScriptRecording(levelInfo.filename);
+			// w.configureScriptRecording(levelInfo.filename);
+			w.configureSeeHidden(testFlag(FLAG_SEE_HIDDEN));
+			w.configureSeeMasks(testFlag(FLAG_SEE_MASKS));
 		}
 		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, alienTracker));
 		w.testLevelFromMapper();

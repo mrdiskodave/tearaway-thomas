@@ -33,20 +33,20 @@ public class EditConsolidator {
 	public void setBlock(Coord c, int b) {
 		if (!isChangeAt(c)) {
 			int originalBlock = gameMap.getBlock(c);
-			
+
 			// when drawing we could save the need for this
 			// when b==originalBlock
 			// (because drawing doesn't need isChangeAt() to work)
 			// then we'd save some memory but this whole
 			// object is very temporary anyway so meh
-			
+
 			originalBlocks.put(c, originalBlock);
 			gameMap.setBlock(c, b);
 		}
 	}
 
 	public MapEdit endEdit() {
-		MapEdit answer = null;
+		MapEdit answer = MapEdit.createEmpty();
 		Box b = sizeUpEdits();
 		if (b != null) {
 			System.out.println("SAVING");
@@ -89,6 +89,7 @@ public class EditConsolidator {
 
 	/**
 	 * How many blocks did we change?
+	 * 
 	 * @return The number calls made to {@link #setBlock(Coord, int)}.
 	 */
 	public int size() {

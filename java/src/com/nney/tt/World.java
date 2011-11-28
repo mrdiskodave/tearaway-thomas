@@ -191,10 +191,6 @@ public class World implements AlienServices, Disposable {
 
 	private BlockSet blockSet;
 
-	private boolean seeMasks;
-
-	private boolean seeHidden;
-
 	private OuterWorld ow;
 
 	private GraphicsContext gc;
@@ -230,6 +226,10 @@ public class World implements AlienServices, Disposable {
 	private boolean configuredPerformIntro = true;
 
 	private String configuredScriptDestination;
+
+	private boolean configuredSeeMasks;
+
+	private boolean configuredSeeHidden;
 
 	static final private boolean CTC_MEASURE_JUMP_HEIGHT = false;
 
@@ -926,7 +926,7 @@ public class World implements AlienServices, Disposable {
 
 		horizon = ow.getHorizon(levelInfo.horizon);
 
-		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, seeMasks, seeHidden));
+		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, configuredSeeMasks, configuredSeeHidden));
 
 		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
 
@@ -1264,6 +1264,14 @@ public class World implements AlienServices, Disposable {
 	public void testLevelFromMapper() {
 		configuredCalledFromMapper = true;
 		playLevel();
+	}
+
+	public void configureSeeHidden(boolean b) {
+		configuredSeeHidden = b;
+	}
+
+	public void configureSeeMasks(boolean b) {
+		configuredSeeMasks = b;
 	}
 
 	public void playLevel() {
