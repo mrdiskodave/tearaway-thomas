@@ -7,9 +7,15 @@ package com.nney.tt.tinytools;
  */
 public final class Latch {
 	private int last;
-	
-	public Latch() {
+	private int tolerance;
+
+	public Latch(int tolerance) {
 		clear();
+		this.tolerance = tolerance;
+	}
+
+	public Latch() {
+		this(1);
 	}
 
 	public boolean can(int now) {
@@ -20,12 +26,13 @@ public final class Latch {
 
 	private boolean test(int now) {
 		int diff = now - last;
-//		System.out.println(String.format("test:now%s last%s diff%s", now, last, diff));
-		return diff > 1;
+		// System.out.println(String.format("test:now%s last%s diff%s", now,
+		// last, diff));
+		return diff > tolerance;
 	}
-	
+
 	public void set(int now) {
-		System.out.println("set:now"+now);
+		// System.out.println("set:now"+now);
 		last = now;
 	}
 
