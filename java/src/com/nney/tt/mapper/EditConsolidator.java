@@ -59,7 +59,6 @@ public class EditConsolidator {
 		}
 		originalBlocks.clear();
 		return answer;
-		// TODO 000000 shouldn't return null ever
 	}
 
 	private Box sizeUpEdits() {

@@ -11,13 +11,13 @@ public class LevelInfo implements HasProps {
 
 	@PropAnn(doc = "How many seconds is the player given to complete the level?")
 	public int timeGiven;
-	
-	@PropAnn(doc = "What horizon sits behind the level?", min=0, max=7)
+
+	@PropAnn(doc = "What horizon sits behind the level?", min = 0, max = 7)
 	public int horizon;
-	
+
 	@PropAnn(doc = "What is the title of this level?")
 	public String title;
-	
+
 	@PropAnn(doc = "What is the filename of this level?")
 	public String filename;
 
@@ -31,7 +31,7 @@ public class LevelInfo implements HasProps {
 		this.title = title;
 		this.worldName = worldName;
 	}
-	
+
 	public LevelInfo(String mapName0, Node di) {
 		gemsNeeded = di.requireField("gemsNeeded").requireInt();
 		horizon = di.requireField("horizon").requireInt();
@@ -40,7 +40,7 @@ public class LevelInfo implements HasProps {
 		worldName = di.requireField("world").requireString();
 		filename = mapName0;
 	}
-	
+
 	void save(DataDestination d) {
 		d.beginObject();
 		d.write("gemsNeeded");
@@ -58,7 +58,6 @@ public class LevelInfo implements HasProps {
 
 	@Override
 	public void onPropUpdate() {
-		// TODO Auto-generated method stub
-		
+		// do nothing
 	}
 }

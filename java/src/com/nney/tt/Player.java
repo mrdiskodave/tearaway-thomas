@@ -1068,11 +1068,6 @@ public class Player {
 	}
 
 	public void giveTurbo() {
-		// TODO Auto-generated method stub
-
+		turboTimer = proofTimer = flashTimer = Integer.MAX_VALUE;
 	}
 }
-
-// TODO: 99: it does look like I can land on stuff (from the side)
-// while still planly going upwards ..
-// take vely into account...?
