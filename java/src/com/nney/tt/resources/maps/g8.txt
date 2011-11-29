@@ -63,32 +63,6 @@
 			]
 		}, 
 		{
-			"type": "stop", 
-			"location": [
-				1369, 
-				0
-			], 
-			"pushBox": [
-				1302, 
-				0, 
-				1432, 
-				2047
-			]
-		}, 
-		{
-			"type": "stop", 
-			"location": [
-				992, 
-				51
-			], 
-			"pushBox": [
-				949, 
-				0, 
-				1064, 
-				2047
-			]
-		}, 
-		{
 			"type": "torch", 
 			"location": [
 				1095, 
