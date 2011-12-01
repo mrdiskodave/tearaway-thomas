@@ -55,12 +55,6 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		return answer;
 	}
 
-	public Coord copyAndDiv(int z) {
-		Coord answer = copy();
-		answer.div(z);
-		return answer;
-	}
-
 	public Coord add2(Coord c) {
 		Coord a = copy();
 		a.add(c);
@@ -77,6 +71,17 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		Coord a = copy();
 		a.div(z);
 		return a;
+	}
+
+	public Coord asr2(int z) {
+		Coord a = copy();
+		a.asr(z);
+		return a;
+	}
+
+	private void asr(int z) {
+		x >>= z;
+		y >>= z;
 	}
 
 	public Coord mul2(int z) {
@@ -170,7 +175,7 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		long y = this.y;
 		return x * x + y * y;
 	}
-	
+
 	public void signum() {
 		x = Integer.signum(x);
 		y = Integer.signum(y);
