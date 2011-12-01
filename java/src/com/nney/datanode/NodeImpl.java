@@ -48,7 +48,7 @@ public abstract class NodeImpl implements Node {
 
 	@Override
 	public boolean fieldExists(String fieldName) throws DataException {
-		throw new DataException("object expected");
+		return false;
 	}
 
 	@Override

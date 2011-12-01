@@ -14,22 +14,22 @@ public class SimpleJsonFormatter {
 	SimpleJsonFormatter(SafeWriter sw) {
 		this.sw = sw;
 	}
-	
+
 	private Stack<String> term = new Stack<String>();
 	private boolean sepNext;
-	
+
 	public void spaciousBrackets() {
 		stringArrayBegin = "[ ";
 		stringArrayEnd = " ]";
 		stringDictBegin = "{ ";
 		stringDictEnd = " }";
 	}
-	
+
 	public void spaciousSeperators() {
 		stringListSep = ", ";
 		stringDictSep = ": ";
 	}
-	
+
 	private void put(String s) {
 		if (sepNext) {
 			sw.write(stringListSep);
@@ -66,7 +66,7 @@ public class SimpleJsonFormatter {
 		sepNext = false;
 		value(term.pop());
 	}
-	
+
 	protected int depth() {
 		return term.size();
 	}

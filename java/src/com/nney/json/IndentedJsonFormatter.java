@@ -8,7 +8,16 @@ public class IndentedJsonFormatter extends SimpleJsonFormatter {
 		super(sw);
 	}
 
-	private boolean eolNext; 
+	@Override
+	public void spaciousBrackets() {
+	}
+
+	@Override
+	public void spaciousSeperators() {
+		stringDictSep = ": ";
+	}
+
+	private boolean eolNext;
 
 	private void eol() {
 		eolNext = true;
@@ -19,7 +28,7 @@ public class IndentedJsonFormatter extends SimpleJsonFormatter {
 		super.beginArray();
 		eol();
 	}
-	
+
 	@Override
 	public void beginDict() {
 		super.beginDict();
@@ -36,13 +45,11 @@ public class IndentedJsonFormatter extends SimpleJsonFormatter {
 	protected void makeOutput(String s) {
 		if (eolNext) {
 			super.makeOutput(stringNewLine);
-			for (int x=0; x<depth(); x++) {
+			for (int x = 0; x < depth(); x++) {
 				super.makeOutput(stringIndent);
 			}
 			eolNext = false;
 		}
 		super.makeOutput(s);
 	}
-	
-	// TODO: configure with things that don't indent?
 }

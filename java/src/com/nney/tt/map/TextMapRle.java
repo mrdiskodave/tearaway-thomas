@@ -4,10 +4,14 @@ public class TextMapRle {
 	public static String pack(short[] map, int offset, int length) {
 		StringBuilder sb = new StringBuilder();
 		int end = offset + length;
-		while (offset < end) {
+		for (;;) {
 			int r = BinaryMapRle.countRun(map, offset, end);
-			String o1 = String.format("%x,", map[offset]);
-			String o2 = String.format("%x*%x,", r, map[offset]);
+			short b = map[offset];
+			offset += r;
+			String o1 = String.format("%x,", b);
+			String o2 = String.format("%x*%x,", r, b);
+			boolean done = offset >= end;
+			if (done && b == 0) break;
 			int l1 = o1.length() * r;
 			int l2 = o2.length();
 			if (l1 <= l2) {
@@ -18,9 +22,9 @@ public class TextMapRle {
 			else {
 				sb.append(o2);
 			}
-			offset += r;
+			if (done) break;
 		}
-		sb.deleteCharAt(sb.length() - 1);
+		if (sb.length() != 0) sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
 
@@ -51,8 +55,8 @@ public class TextMapRle {
 				map[offset++] = (short) v;
 			}
 		}
-		if (offset < limit) {
-			throw new RuntimeException("Text packed map too small - it finished on " + offset + " not " + limit);
+		while (offset < limit) {
+			map[offset++] = 0;
 		}
 	}
 

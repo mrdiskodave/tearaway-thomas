@@ -2,12 +2,11 @@ package com.nney.datanode;
 
 import java.util.Stack;
 
-
 public class NodeDataDestination implements DataDestination {
 	Stack<Builder> stack = new Stack<Builder>();
-	
+
 	Node answer;
-	
+
 	@Override
 	public void beginArray() {
 		stack.add(new ArrayBuilder(new ArrayNode()));
@@ -22,10 +21,10 @@ public class NodeDataDestination implements DataDestination {
 	public void end() {
 		add(stack.pop().value());
 	}
-	
-	void add(Node v) {
+
+	private void add(Node v) {
 		if (stack.isEmpty()) {
-			if (answer!=null) {
+			if (answer != null) {
 				throw new IllegalArgumentException("More than one top level item - array or object needed?");
 			}
 			answer = v;
