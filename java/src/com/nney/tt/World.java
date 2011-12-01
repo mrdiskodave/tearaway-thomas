@@ -255,8 +255,8 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private int getBlock(Coord c) {
-		int x = c.x / Const.BLOCK_SIZE;
-		int y = c.y / Const.BLOCK_SIZE;
+		int x = c.x >> Const.BLOCK_SHIFT;
+		int y = c.y >> Const.BLOCK_SHIFT;
 		return gameMap.fastGetBlock(x, y);
 	}
 
@@ -388,11 +388,8 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void validatePlayerPosition(Coord c) {
-		// TODO: 000 look at where this is called from
+		c.x = scr.keepPlayerXInMap(c.x);
 
-		// it also keeps the player from going off the bottom (a bit)
-		// which we need to trap
-		scr.keepPlayerInMap(c);
 	}
 
 	@Override
@@ -765,7 +762,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void applyMapEdits(Coord c, int[][] mapEdits) {
-		c = c.div2(Const.BLOCK_SIZE);
+		c = c.asr2(Const.BLOCK_SHIFT);
 		for (int[] line : mapEdits) {
 			for (int block : line) {
 				gameMap.setBlock(c, block);

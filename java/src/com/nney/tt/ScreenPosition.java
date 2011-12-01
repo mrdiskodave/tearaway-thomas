@@ -27,6 +27,10 @@ public class ScreenPosition {
 
 	private Box mapLimits;
 
+	private int leftLimit;
+
+	private int rightLimit;
+
 	public ScreenPosition(int screenWidth, int screenHeight, Coord centre) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
@@ -41,6 +45,11 @@ public class ScreenPosition {
 				"X");
 		scrOrdY.setConstraints(screenHeight, mapLimits.top, mapLimits.height(), scrollLimits.top,
 				scrollLimits.height(), "Y");
+		leftLimit = mapLimits.left + 6;
+		rightLimit = mapLimits.right - 6;
+
+		// refresh scrOrdY and scrOrdY
+		setPosition(screen);
 	}
 
 	public void setPosition(Coord c) {
@@ -88,12 +97,10 @@ public class ScreenPosition {
 		setPosition(screenDest(c));
 	}
 
-	public void keepPlayerInMap(Coord c) {
-		Box m = mapLimits.copy();
-		m.shrink(6);
-		m.constrain(c);
+	public int keepPlayerXInMap(int x) {
+		return Math2.limit(leftLimit, rightLimit, x);
 	}
-	
+
 	public boolean keepInMap(Coord c) {
 		return mapLimits.constrain(c);
 	}
@@ -118,6 +125,9 @@ public class ScreenPosition {
 	public void drawTheMap(GameMap gameMap, BlockSet blockSet) {
 		ScreenOrdinate ox = scrOrdX;
 		ScreenOrdinate oy = scrOrdY;
+
+		// ox.show();
+		// System.out.println(gameMap.boundsInBlocks());
 
 		int[] blockRow = new int[ox.blockCount];
 		int pixelDestY = oy.initialPixelDestination;

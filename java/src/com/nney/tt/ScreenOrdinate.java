@@ -1,12 +1,12 @@
 package com.nney.tt;
 
-import com.nney.tt.map.GameMap;
 import com.nney.utils.Math2;
 
 /**
- * Before drawing the {@link GameMap} we generate one of these per ordinate
- * (i.e. one for X and one for Y). They've everything in common there is no
- * sense in coding it twice.
+ * There will be two instances of this class - one for the X ordinate and one
+ * for the Y ordinate. It deals with per-ordinate position validation and
+ * per-ordinate calculations required for drawing the map. They've everything in
+ * common there is no sense in coding it twice.
  */
 public class ScreenOrdinate {
 	/**
@@ -24,91 +24,91 @@ public class ScreenOrdinate {
 	 */
 	public int blockCount;
 
+	void show() {
+		System.out.println(String.format("%s initialPixelDestination=%d mapSourceInBlocks=%d blockCount=%d", name,
+				initialPixelDestination, mapSourceInBlocks, blockCount));
+	}
+
 	/**
-	 * initialPixelDestination + blockCount * Const.BLOCK_SIZE 
+	 * initialPixelDestination + blockCount * Const.BLOCK_SIZE
 	 */
 	public int highBorderStart;
-	
-	
-	
-	
+
 	private int inScreenSize;
 
 	private int inMapStart;
 
 	private int inMapSize;
 
-	@SuppressWarnings("unused")
-	private final String name;
-
-
 	private int inScrollStart;
 
 	private int inScrollSpare;
+
+	@SuppressWarnings("unused")
+	private final String name;
 
 	public ScreenOrdinate(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * Make sure given current position is valid and also generate the other
-	 * field data in this object. There will be two instances of this class -
-	 * one for the X ordinate and one for the Y ordinate. <b>All parameters are
-	 * in pixels</b>.
+	 * Limit the given ordinate.
 	 * 
 	 * @param current
-	 *            The current position (a map ordinate).
-	 * @param inScreenSize
-	 *            How big is the screen?
-	 * @param inMapStart
-	 *            Where does the viewable map begin?
-	 * @param inMapSize
-	 *            How big is the map?
-	 * @param name
-	 *            The name of this ordinate (for debug purposes).
-	 * @return A validated position to use in place of the first parameter.
+	 *            The ordinate as we'd like it.
+	 * @return The ordinate cropped so it doesn't go outside of the visible
+	 *         area.
 	 */
-	public int limit(int current) {
-		if (inScrollSpare<0) {
+	private int limit(int current) {
+		if (inScrollSpare < 0) {
 			// less than the screen ... so we see all of it (centered)
 			// the given position is ignored!
-			current = inMapStart + inScrollSpare/2;
+			current = inMapStart + inScrollSpare / 2;
 		}
 		else {
 			// more than the screen ... so we see some of it
-			// we check the given position to make sure it is within given constraints.
-			current = Math2.limit(inScrollStart, inScrollStart + inScrollSpare, current); 
+			// we check the given position to make sure it is within given
+			// constraints.
+			current = Math2.limit(inScrollStart, inScrollStart + inScrollSpare, current);
 		}
 		return current;
 	}
 
-	public void calc(int current) {
+	/**
+	 * Generate our public fields. These are exposed to support drawing of our
+	 * map on the screen.
+	 * 
+	 * @param current
+	 *            A valid ordinate i.e one has been through {@link #limit(int)}
+	 */
+	private void calculate(int current) {
+		// how would we draw the map if we had endless space?
 		initialPixelDestination = inMapStart - current;
-		mapSourceInBlocks = inMapStart / Const.BLOCK_SIZE;
-		blockCount = inMapSize / Const.BLOCK_SIZE;
+		mapSourceInBlocks = inMapStart >> Const.BLOCK_SHIFT;
+		blockCount = inMapSize >> Const.BLOCK_SHIFT;
 
+		// clip it low
 		int l = initialPixelDestination / Const.BLOCK_SIZE;
 		if (l < 0) {
 			initialPixelDestination -= l * Const.BLOCK_SIZE;
 			mapSourceInBlocks -= l;
 			blockCount += l;
 		}
-		
+
+		// clip to high
 		int r = initialPixelDestination - inScreenSize + blockCount * Const.BLOCK_SIZE;
 		r /= Const.BLOCK_SIZE;
-		if (r>0) {
+		if (r > 0) {
 			blockCount -= r;
 		}
 
+		// compute a useful derived value
 		highBorderStart = initialPixelDestination + blockCount * Const.BLOCK_SIZE;
-
-//		System.out.println(String.format("%s dest%d map%d-%d (cl%d cr%d)", name, initialPixelDestination, mapSourceInBlocks,
-//				blockCount, l, r));
 	}
 
 	public int generate(int current) {
 		current = limit(current);
-		calc(current);
+		calculate(current);
 		return current;
 	}
 
