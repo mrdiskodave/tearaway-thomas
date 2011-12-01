@@ -56,12 +56,6 @@ public class Player {
 	private static final int STUN_VELOCITY = -10;
 	private static final float JUMP_VELOCITY = -12.245f;
 
-	// TODO: hollow out the masks for sign posts and trees.
-	// We just want a single pixel running along the top of
-	// each place where the player can stand.
-	// Then the only issue is other platforms which doesn't happen much
-	// so we can crank FLOOR_DEFINITION_DISTANCE up a bit?
-
 	// TODO: reset the level if the player does manage to fall through
 	// (not something we ever did in the original)
 	// and there is a place where you can jump out of the level

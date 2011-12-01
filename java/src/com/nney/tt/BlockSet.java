@@ -5,7 +5,6 @@ import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.tt.gfx.SimpleImage.ChangePixel;
 import com.nney.tt.map.BlockAliasTable;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
