@@ -83,6 +83,7 @@ import com.nney.utils.SortKeyGenerator;
  *     [DELETE] delete those blocks (i.e. fill rectangle with block 0) 
  *   [F1-12] paste blocks from numbered slot
  *   [F] flood fill with the current block
+ *   [NUMPAD+/-] jump to the next/previous occurrence of the current block
  *   
  *   In Drawing Mode (even though it is an alien function) [F1-F12] and [DELETE]
  *   work on aliens instead of blocks when you hold down Ctrl
@@ -99,7 +100,11 @@ import com.nney.utils.SortKeyGenerator;
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
  *     [CURSOR KEYS], [CTRL+M] and [CTRL+I] work in here too
- *     
+ * 
+ * [P] Player simulation mode:
+ *   [LMB] move the player towards the mouse
+ *   [RMB] jump the player to the mouse
+ * 
  * [S] Specification mode:
  *   Level properties are displayed (e.g. level title e.g. horizon number)
  *   and they can be set in the same way as the properties of aliens durnig
@@ -109,7 +114,7 @@ import com.nney.utils.SortKeyGenerator;
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
  * [NUMPAD5] jump to the middle of the level
  *           (and the eight numbered keys around it work as expected)
- * [Ctrl+W] where am I?
+ * [W] where am I?
  * [Ctrl+Z] endless undo
  * [Ctrl+Y] endless redo
  * [ESCAPE] reset
@@ -136,7 +141,7 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int KEY_UNDO = Locks.LOCK_CONTROL + Keyboard.KEY_Z;
 
-	private static final int KEY_WHERE = Locks.LOCK_CONTROL + Keyboard.KEY_W;
+	private static final int KEY_WHERE = Keyboard.KEY_W;
 
 	private static final int KEY_SEE_GRID = Locks.LOCK_CONTROL + Keyboard.KEY_G;
 
@@ -179,7 +184,7 @@ public class Mapper implements ButtonPressServices {
 
 	private final MapperGC mgc;
 	private final Pointer mouse;
-	private final GameMap gameMap;
+	private GameMap gameMap;
 
 	class SavedAlienSlot {
 		public final Coord corner;
@@ -206,7 +211,7 @@ public class Mapper implements ButtonPressServices {
 	private final HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
 	private Alien selectedAlien;
 
-	private final MapperMousePosition mmp;
+	private MapperMousePosition mmp;
 
 	private StatusLayer topDownStatusLayer;
 
@@ -299,20 +304,10 @@ public class Mapper implements ButtonPressServices {
 			animsPool.load(a);
 		}
 
-		gameMap = pl.getMap();
-		constraints = gameMap.boundsInPixels();
-		loadBlockSet().compressMap(gameMap);
+		GameMap g = pl.getMap();
+		setGameMap(g);
 
-		Box mapBoundsInPixels = gameMap.boundsInPixels();
-		mmp = new MapperMousePosition(mapBoundsInPixels);
-		Box scrollBounds = mapBoundsInPixels.copy();
-		int w = mgc.screenWidth() - 1;
-		int h = mgc.screenHeight() - 1;
-		scrollBounds.left -= w;
-		scrollBounds.top -= h;
-		scrollBounds.right += w;
-		scrollBounds.bottom += h;
-		scr.setMapBoundsInPixels(scrollBounds, mapBoundsInPixels);
+		loadBlockSet().compressMap(gameMap);
 
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
@@ -331,6 +326,21 @@ public class Mapper implements ButtonPressServices {
 		List<AlienInfo> ais = alienInfoMap.getExternal();
 		alienPalette = new AlienPalette(ais, mgc, animsPool);
 		sendCensusToAlienPalette();
+	}
+
+	public void setGameMap(GameMap g) {
+		gameMap = g;
+		constraints = gameMap.boundsInPixels();
+		Box mapBoundsInPixels = gameMap.boundsInPixels();
+		mmp = new MapperMousePosition(mapBoundsInPixels);
+		Box scrollBounds = mapBoundsInPixels.copy();
+		int w = mgc.screenWidth() - 1;
+		int h = mgc.screenHeight() - 1;
+		scrollBounds.left -= w;
+		scrollBounds.top -= h;
+		scrollBounds.right += w;
+		scrollBounds.bottom += h;
+		scr.setMapBoundsInPixels(scrollBounds, mapBoundsInPixels);
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
@@ -379,7 +389,7 @@ public class Mapper implements ButtonPressServices {
 		// at();
 		// System.exit(1);
 
-		mmp.update(new Coord(mouse.getX(), mouse.getY()), getScreenPosition());
+		readMouse();
 
 		topDownStatusLayer = new TopDownStatusLayer(mgc);
 		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
@@ -438,6 +448,7 @@ public class Mapper implements ButtonPressServices {
 			Coord nc = numCoord(k);
 			if (nc != null) {
 				moveMouse(convertNumCoord(nc));
+				sayf("Moved to " + nc);
 			}
 			if (k == KEY_WHERE) {
 				where(true);
@@ -494,40 +505,68 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 
-		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) {
-			// enliven
-			List<Alien> all = flatten();
-			List<Alien> n = new ArrayList<Alien>();
-			int count = 0;
-			for (Iterator<Alien> iterator = all.iterator(); iterator.hasNext();) {
-				Alien a = iterator.next();
-				if (a instanceof LegacyAlien) {
-					count++;
-					LegacyAlien la = (LegacyAlien) a;
-					byte[] d = la.getLegacyData();
+		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
 
-					int typeCode = d[0] & 0xff;
-					String tcName = AlienInfoMap.typeCodeToName(typeCode);
-					System.out.println("Enliven: " + tcName);
-					if (alienInfoMap.nameExists(tcName)) {
-						System.out.println("yes");
-						Alien alien = alienInfoMap.instantiateAttach(alienInfoMap.getByName(tcName));
-						if (alien instanceof AlienWithLocation) {
-							AlienWithLocation awl = (AlienWithLocation) alien;
-							awl.c = la.getLocation();
-						}
-						alien.legacyData = d;
-						alien.loadFromLegacyData();
-						alien.connect(animsPool);
-						n.add(alien);
-						iterator.remove();
+		growAndShrinkMap(k);
+
+	}
+
+	public void growAndShrinkMap(int k) {
+		if (k == 0) return;
+		int more = Locks.LOCK_CONTROL;
+		int less = Locks.LOCK_CONTROL + Locks.LOCK_MENU;
+
+		int l = k & Locks.LOCK_ALL;
+		k -= l;
+
+		System.out.println(String.format("k%x l%x more%x less%x", k, l, more, less));
+		if (l == more || l == less) {
+			boolean grow = l == more;
+			if (k == Keyboard.KEY_NUMPAD4) changeMapPlace(grow, 1, 0, 0, 0);
+			if (k == Keyboard.KEY_NUMPAD6) changeMapPlace(grow, 0, 1, 0, 0);
+			if (k == Keyboard.KEY_NUMPAD8) changeMapPlace(grow, 0, 0, 1, 0);
+			if (k == Keyboard.KEY_NUMPAD2) changeMapPlace(grow, 0, 0, 0, 1);
+		}
+	}
+
+	public void readMouse() {
+		Coord mousePos = new Coord(mouse.getX(), mouse.getY());
+		mmp.update2(mousePos, getScreenPosition().add2(mousePos));
+	}
+
+	public void enliven() {
+		// enliven
+		List<Alien> all = flatten();
+		List<Alien> n = new ArrayList<Alien>();
+		int count = 0;
+		for (Iterator<Alien> iterator = all.iterator(); iterator.hasNext();) {
+			Alien a = iterator.next();
+			if (a instanceof LegacyAlien) {
+				count++;
+				LegacyAlien la = (LegacyAlien) a;
+				byte[] d = la.getLegacyData();
+
+				int typeCode = d[0] & 0xff;
+				String tcName = AlienInfoMap.typeCodeToName(typeCode);
+				System.out.println("Enliven: " + tcName);
+				if (alienInfoMap.nameExists(tcName)) {
+					System.out.println("yes");
+					Alien alien = alienInfoMap.instantiateAttach(alienInfoMap.getByName(tcName));
+					if (alien instanceof AlienWithLocation) {
+						AlienWithLocation awl = (AlienWithLocation) alien;
+						awl.c = la.getLocation();
 					}
+					alien.legacyData = d;
+					alien.loadFromLegacyData();
+					alien.connect(animsPool);
+					n.add(alien);
+					iterator.remove();
 				}
 			}
-			sayf("%s out of %s legacy aliens enlivened", n.size(), count);
-			ListUtil.copy(all, n);
-			unflatten(all);
 		}
+		sayf("%s out of %s legacy aliens enlivened", n.size(), count);
+		ListUtil.copy(all, n);
+		unflatten(all);
 	}
 
 	private void where(boolean more) {
@@ -578,8 +617,9 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private Coord convertNumCoord(Coord nc) {
-		int x = Math2.fracMult(nc.x, gameMap.width() * Const.BLOCK_SIZE - 1, 2);
-		int y = Math2.fracMult(nc.y, gameMap.height() * Const.BLOCK_SIZE - 1, 2);
+		Box p = gameMap.boundsInPixels();
+		int x = p.left + Math2.fracMult(nc.x, p.width() - 1, 2);
+		int y = p.top + Math2.fracMult(nc.y, p.height() - 1, 2);
 		Coord c = new Coord(x, y);
 		return c;
 	}
@@ -655,6 +695,8 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 
+		if (k == Keyboard.KEY_ADD) findBlock(1);
+		if (k == Keyboard.KEY_SUBTRACT) findBlock(-1);
 		if (k == Keyboard.KEY_DELETE) fillRect(0);
 		if (k == ALIENS_LOCK + Keyboard.KEY_DELETE && marker != null) {
 			removePredicatedAliensWithUndo(getRectPredicate());
@@ -745,6 +787,27 @@ public class Mapper implements ButtonPressServices {
 				return !lost.isEmpty();
 			}
 		});
+	}
+
+	private void findBlock(int dir) {
+		int s = gameMap.area();
+		Coord c = mmp.worldBlocks();
+		int p = gameMap.ungenerate(c);
+
+		for (int i = 1; i < s; i++) {
+			int z = (p + i * dir + s) % s;
+			Coord q = gameMap.generate(z);
+			System.out.println(String.format("%s test %s", c, q));
+			if (gameMap.getBlock(q) == currentBlock) {
+				sayf("Block found");
+				q.mul(Const.BLOCK_SIZE);
+				q.add(new Coord(Const.BLOCK_SIZE / 2, Const.BLOCK_SIZE / 2));
+				moveMouse(q);
+				return;
+			}
+		}
+		sayf("Block not found");
+
 	}
 
 	private void findType(int dir) {
@@ -1440,19 +1503,24 @@ public class Mapper implements ButtonPressServices {
 		if (slot != null) {
 			Coord c = mmp.worldBlocks();
 			// does it fit?
-			int xs = c.x + slot.w - gameMap.width();
-			int ys = c.y + slot.h - gameMap.height();
-			if (xs > 0) {
-				sayf("Move left by at least %s blocks", xs);
-			}
-			else if (ys > 0) {
-				sayf("Move up by at least %s blocks", ys);
-			}
-			else {
+			Coord bottomRight = c.copyAndAdd(slot.w - 1, slot.h - 1);
+			if (gameMap.boundsInBlocks().inside(bottomRight)) {
 				// paste it!
 				MapEdit edit = MapEdit.create(gameMap, c, slot.copy());
 				submitMapEdit(edit);
 				sayf("Pasted %s blocks from slot %s", slot.size(), slotNumber);
+			}
+			else {
+				say("Does not fit!");
+				// int xs = c.x + slot.w - gameMap.width();
+				// int ys = c.y + slot.h - gameMap.height();
+				// if (xs > 0) {
+				// sayf("Move left by at least %s blocks", xs);
+				// }
+				// else if (ys > 0) {
+				// sayf("Move up by at least %s blocks", ys);
+				// }
+
 			}
 		}
 	}
@@ -1506,6 +1574,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void setScreenPosition(Coord c) {
 		scr.setPosition(c);
+		readMouse();
 	}
 
 	private void updateAliens() {
@@ -1568,7 +1637,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public boolean inTheGround(Coord c) {
-		int block = gameMap.getBlock(c.div2(Const.BLOCK_SIZE));
+		int block = gameMap.getBlock(c.asr2(Const.BLOCK_SHIFT));
 		return loadBlockSet().maskHolder.inTheGround(block, c.x & Const.BLOCK_MASK, c.y & Const.BLOCK_MASK);
 	}
 
@@ -1581,6 +1650,36 @@ public class Mapper implements ButtonPressServices {
 				return;
 			}
 		}
+	}
+
+	public void changeMapPlace(boolean grow, int l, int r, int t, int b) {
+		if (!grow) {
+			System.out.println("SHRINK");
+
+			l = -l;
+			r = -r;
+			t = -t;
+			b = -b;
+		}
+		else {
+			System.out.println("GROW");
+		}
+		Box box = gameMap.boundsInBlocks().copy();
+		box.left -= l;
+		box.right += r;
+		box.top -= t;
+		box.bottom += b;
+		changeMapPlace(box);
+	}
+
+	public void changeMapPlace(Box nBounds) {
+		GameMap sm = gameMap;
+		GameMap dm = new GameMap(nBounds);
+		for (Coord c : dm) {
+			dm.setBlock(c, sm.safeGetBlock(c));
+		}
+		setGameMap(dm);
+		sayf("Map changed from %s to %s", sm.boundsInBlocks(), dm.boundsInBlocks());
 	}
 
 	// TODO: that wiggly bug with block shuffling

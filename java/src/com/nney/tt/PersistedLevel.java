@@ -80,9 +80,7 @@ public class PersistedLevel {
 		dd.write("objects");
 		staticSaveAliens(aliens, dd);
 		dd.write("blocks");
-		dd.beginArray();
 		gameMap.save(dd);
-		dd.end();
 		dd.end();
 
 		return sw.toString();

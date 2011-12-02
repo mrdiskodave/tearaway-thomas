@@ -14,20 +14,19 @@ public class MapperMousePosition {
 	private Coord worldBlockPosDelta;
 	private Coord lastWorldBlockPos = new Coord();
 	private final Box worldLimits;
-	
+
 	public MapperMousePosition(Box worldLimits) {
 		this.worldLimits = worldLimits;
 	}
 
-	void update(Coord mouseInScreen, Coord screenInWorld) {
+	void update2(Coord mouseInScreen, Coord mouseInWorld) {
 		pos = mouseInScreen.copy();
-		
 		delta = pos.sub2(last);
 		last = pos.copy();
-		
-		worldPos = pos.add2(screenInWorld);
+
+		worldPos = mouseInWorld.copy();
 		worldLimits.constrain(worldPos);
-		worldBlockPos = worldPos.div2(Const.BLOCK_SIZE);
+		worldBlockPos = worldPos.asr2(Const.BLOCK_SHIFT);
 		worldBlockPosDelta = worldBlockPos.sub2(lastWorldBlockPos);
 		lastWorldBlockPos = worldBlockPos.copy();
 	}
@@ -39,7 +38,7 @@ public class MapperMousePosition {
 	public Coord pixelsDelta() {
 		return delta.copy();
 	}
-	
+
 	public Coord worldPixels() {
 		return worldPos.copy();
 	}
@@ -52,5 +51,4 @@ public class MapperMousePosition {
 		return worldBlockPosDelta.copy();
 	}
 
-	
 }

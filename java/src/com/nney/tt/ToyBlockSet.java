@@ -47,12 +47,12 @@ public class ToyBlockSet extends BlockSet {
 
 			@Override
 			public void set(Coord c, int b) {
-				gameMap.setBlock(c, b);
+				gameMap.setBlock(gameMap.move(c), b);
 			}
 
 			@Override
 			public int get(Coord c) {
-				return gameMap.safeGetBlock(c);
+				return gameMap.safeGetBlock(gameMap.move(c));
 			}
 		};
 		return ba;
