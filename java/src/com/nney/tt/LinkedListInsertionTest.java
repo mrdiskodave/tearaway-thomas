@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Random;
 
+import com.nney.utils.ListUtil;
+
 import junit.framework.TestCase;
 
 public class LinkedListInsertionTest extends TestCase {
@@ -26,10 +28,7 @@ public class LinkedListInsertionTest extends TestCase {
 			insert(repeatableData.nextInt(5));
 		}
 
-		StringBuffer expect = new StringBuffer();
-		for (Integer i : fixture) {
-			expect.append(i);
-		}
-		assertEquals("0000000000000001111111111112222222222222222222233333333333334444444444", expect.toString());
+		String actual = ListUtil.toString(fixture, "");
+		assertEquals("0000000000000001111111111112222222222222222222233333333333334444444444", actual);
 	}
 }

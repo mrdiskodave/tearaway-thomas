@@ -1,6 +1,7 @@
 package com.nney.tt.mapper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -69,8 +70,9 @@ import com.nney.utils.SortKeyGenerator;
  *   [DELETE] delete the selected alien
  *   [F] find: jump to the selected alien
  *   [NUMPAD+/-] jump to the next/previous occurrence of the current alien type
- *   [Alt+E] Enliven this level (i.e. breath life into LegacyAliens
- *                                that have since been implemented)
+ *   [Alt+E] Enliven this level
+ *           (i.e. breath life into LegacyAliens that have since been implemented)
+ *           This isn't undoable.
  * 
  * [D] Drawing Mode:
  *   [LMB] draw with the current block
@@ -97,7 +99,8 @@ import com.nney.utils.SortKeyGenerator;
  *   [Ctrl+H] toggle seeing hidden blocks
  *   {Ctrl+G] toggle seeing the grid
  *   [Ctrl+Alt+Shift+C] capture a legacy toyland level
- *                      (by renumbering all the blocks into the new system) [*]
+ *                      (by renumbering all the blocks into the new system)
+ *                      This isn't undoable.
  * 
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
@@ -116,6 +119,9 @@ import com.nney.utils.SortKeyGenerator;
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
  * [NUMPAD5] jump to the middle of the level
  *           (and the eight numbered keys around it work as expected)
+ * [Ctrl+NUMPAD8,2,4,6]     grow the level by one block
+ *                          (8=north 2=south 4=west 6=east)
+ * [Ctrl+Alt+NUMPAD8,2,4,6] shrink the level by one block
  * [W] where am I?
  * [Ctrl+Z] endless undo
  * [Ctrl+Y] endless redo
@@ -1780,11 +1786,11 @@ public class Mapper implements ButtonPressServices {
 
 		// naive implementation but at least it is breadth first
 		// so doesn't keep too many false leads
-		ArrayList<Coord> positions = new ArrayList<Coord>();
+		HashSet<Coord> positions = new HashSet<Coord>();
 		positions.add(mmp.worldBlocks());
 
 		while (!positions.isEmpty()) {
-			ArrayList<Coord> nextPositions = new ArrayList<Coord>();
+			HashSet<Coord> nextPositions = new HashSet<Coord>();
 			for (Coord s : positions) {
 				if (!blockEdit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
 					blockEdit.setBlock(s, getCurrentBlock());

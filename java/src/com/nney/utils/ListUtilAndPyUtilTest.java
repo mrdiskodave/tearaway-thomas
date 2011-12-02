@@ -1,17 +1,12 @@
 package com.nney.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import junit.framework.TestCase;
 
 public class ListUtilAndPyUtilTest extends TestCase {
 	public void testBackwards() throws Exception {
-		List<Integer> l = new ArrayList<Integer>();
-		l.add(4);
-		l.add(6);
-		l.add(7);
-		assertListMatches("7,6,4", ListUtil.reversed(l));
+		assertListMatches("7,6,4", ListUtil.reversed(Arrays.asList(4, 6, 7)));
 	}
 
 	public void testRange() throws Exception {
