@@ -57,7 +57,7 @@ class UndoControler {
 	 * Fold all the undo events between the marker and now into a single event.
 	 */
 	public void fold() {
-		assert mark >= 0;
+		if (mark < 0) throw new IllegalStateException("you must call mark() first");
 		int distance = undo.size() - mark;
 		System.out.println("FOLD:" + distance);
 		if (distance > 1) {
