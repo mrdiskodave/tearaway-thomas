@@ -75,13 +75,12 @@ class UndoControler {
 	 * {@link #redo()}. This method can be called repeatedly to undo as many
 	 * actions as we have memory for.
 	 */
-	public void undo() {
-		if (!undo.isEmpty()) {
-			System.out.println("undo");
-			UndoRedo u = undo.pop();
-			u.undo();
-			redo.push(u);
-		}
+	public boolean undo() {
+		if (undo.isEmpty()) return false;
+		UndoRedo u = undo.pop();
+		u.undo();
+		redo.push(u);
+		return true;
 	}
 
 	/**
@@ -90,13 +89,12 @@ class UndoControler {
 	 * the redo "future-history" has been truncated by a call to
 	 * {@link #redoThenAdd(UndoRedo)}.
 	 */
-	public void redo() {
-		if (!redo.isEmpty()) {
-			System.out.println("redo");
-			UndoRedo u = redo.pop();
-			u.redo();
-			undo.push(u);
-		}
+	public boolean redo() {
+		if (redo.isEmpty()) return false;
+		UndoRedo u = redo.pop();
+		u.redo();
+		undo.push(u);
+		return true;
 	}
 
 	public int changes() {

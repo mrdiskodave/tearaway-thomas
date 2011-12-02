@@ -33,7 +33,8 @@ class DelayedBlockWriter {
 	}
 
 	void flush() {
-		while (y < ba.height())
+		while (y < ba.height()) {
 			put(null);
+		}
 	}
 }

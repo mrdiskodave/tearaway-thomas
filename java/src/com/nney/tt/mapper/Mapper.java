@@ -69,6 +69,8 @@ import com.nney.utils.SortKeyGenerator;
  *   [DELETE] delete the selected alien
  *   [F] find: jump to the selected alien
  *   [NUMPAD+/-] jump to the next/previous occurrence of the current alien type
+ *   [Alt+E] Enliven this level (i.e. breath life into LegacyAliens
+ *                                that have since been implemented)
  * 
  * [D] Drawing Mode:
  *   [LMB] draw with the current block
@@ -95,7 +97,7 @@ import com.nney.utils.SortKeyGenerator;
  *   [Ctrl+H] toggle seeing hidden blocks
  *   {Ctrl+G] toggle seeing the grid
  *   [Ctrl+Alt+Shift+C] capture a legacy toyland level
- *   (by renumbering all the blocks into the new system)
+ *                      (by renumbering all the blocks into the new system) [*]
  * 
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
@@ -107,8 +109,8 @@ import com.nney.utils.SortKeyGenerator;
  * 
  * [S] Specification mode:
  *   Level properties are displayed (e.g. level title e.g. horizon number)
- *   and they can be set in the same way as the properties of aliens durnig
- *   Alien Mode.
+ *   and they can be set in the same way as the properties of aliens during
+ *   Alien mode.
  * 
  * Always:
  * hold [SPACE] to pan around with the [LMB] (hold [SHIFT] to go faster)
@@ -119,9 +121,15 @@ import com.nney.utils.SortKeyGenerator;
  * [Ctrl+Y] endless redo
  * [ESCAPE] reset
  *          (removes temporary floating palettes and other statefulness)
- * [Alt+T] small test (test the level from the mouse position without the intro)
- * [Alt+Shift+T] big test (test the whole level as the player would experience it)
+ * [Alt+T] small test
+ *         test the level from the mouse position without the intro
+ *         (causes an autosave before launching)
+ * [Alt+Shift+T] big test
+ *               test the whole level as the player would experience it
+ *               (causes an autosave before launching)
  * [Alt+S] save the level
+ * [Alt+N] next level
+ * [Alt+P] previous level
  * 
  * Notes:
  * The editor never moves the mouse pointer. This means "jump" operations above
@@ -456,8 +464,12 @@ public class Mapper implements ButtonPressServices {
 				where(true);
 			}
 
-			if (k == KEY_UNDO) undoControler.undo();
-			if (k == KEY_REDO) undoControler.redo();
+			if (k == KEY_UNDO) {
+				if (!undoControler.undo()) say("Nothing more to undo");
+			}
+			if (k == KEY_REDO) {
+				if (!undoControler.redo()) say("Nothing more to redo");
+			}
 			if (k == Keyboard.KEY_ESCAPE) {
 				paletteTimer = 0;
 				messTimer = 0;
@@ -506,8 +518,6 @@ public class Mapper implements ButtonPressServices {
 				throw new ExitException();
 			}
 		}
-
-		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
 
 		growAndShrinkMap(k);
 
@@ -974,6 +984,8 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_N) createAlien();
 		keyboardAlienChoice(k);
 		flagSelectionKeys(k);
+
+		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
 	}
 
 	public void checkPropMouseOver() {

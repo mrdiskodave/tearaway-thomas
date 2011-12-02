@@ -2,6 +2,8 @@ package com.nney.tt.mapper;
 
 import java.util.List;
 
+import com.nney.utils.ListUtil;
+
 public class MetaUndoRedo implements UndoRedo {
 	private final List<UndoRedo> items;
 
@@ -12,9 +14,8 @@ public class MetaUndoRedo implements UndoRedo {
 	@Override
 	public boolean redo() {
 		boolean doneSomething = false;
-		int x = items.size();
-		while (--x >= 0) {
-			doneSomething |= items.get(x).redo();
+		for (UndoRedo item : ListUtil.reversed(items)) {
+			doneSomething |= item.redo();
 		}
 		return doneSomething;
 	}

@@ -1,7 +1,9 @@
 package com.nney.utils;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class ListUtil {
@@ -51,4 +53,41 @@ public class ListUtil {
 			src.add(kt.t);
 		}
 	}
+
+	public static <T> Iterable<T> reversed(final List<T> l) {
+		final ReadOnlyIterator<T> i = new ReadOnlyIterator<T>() {
+			// could use a ListIterator but why?
+			int pos = l.size();
+
+			@Override
+			public boolean hasNext() {
+				return pos != 0;
+			}
+
+			@Override
+			public T next() {
+				return l.get(--pos);
+			}
+		};
+		return iteratorToIteratable(i);
+	}
+
+	public static <T> Iterable<T> iteratorToIteratable(final Iterator<T> i) {
+		return new Iterable<T>() {
+			@Override
+			public Iterator<T> iterator() {
+				return i;
+			}
+		};
+	}
+
+	public static <T> String toString(Iterable<T> iterable) {
+		StringBuffer sb = new StringBuffer();
+		for (T item : iterable) {
+			if (sb.length() != 0) sb.append(',');
+			sb.append(item);
+		}
+		return sb.toString();
+	}
+
 }
