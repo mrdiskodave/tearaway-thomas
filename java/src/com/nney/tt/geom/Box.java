@@ -30,7 +30,7 @@ public class Box implements Copyable<Box>, Cloneable {
 	public static Box fromTopLeftAndSize(Coord c, int width, int height) {
 		return Box.fromTopLeftAndSize(c.x, c.y, width, height);
 	}
-	
+
 	public static Box fromTwoCorners(Coord corner1, Coord corner2) {
 		int smallX = Math.min(corner1.x, corner2.x);
 		int bigX = Math.max(corner1.x, corner2.x);
@@ -50,12 +50,11 @@ public class Box implements Copyable<Box>, Cloneable {
 	public static Box around(Coord c, int i) {
 		return around(c, i, i);
 	}
-	
+
 	public static Box around(Coord c) {
 		return around(c, 0);
 	}
 
-	
 	public boolean constrain(Coord c) {
 		boolean changed = false;
 		if (c.x < left) {
@@ -84,7 +83,7 @@ public class Box implements Copyable<Box>, Cloneable {
 		top = Math.min(top, c.y);
 		bottom = Math.max(bottom, c.y);
 	}
-	
+
 	public void accommodate(Box c) {
 		left = Math.min(left, c.left);
 		right = Math.max(right, c.right);
@@ -187,7 +186,6 @@ public class Box implements Copyable<Box>, Cloneable {
 		bottom = Math.max(top + border, i);
 	}
 
-
 	@Override
 	public Box copy() {
 		return new Box(this);
@@ -230,35 +228,32 @@ public class Box implements Copyable<Box>, Cloneable {
 		}
 	}
 
-	public void resideInside(Box bigger) {
-		int spareX = bigger.width() - width();
-		int spareY = bigger.height() - height();
-		assert spareX>=0;
-		assert spareY>=0;
-
-		if (!bigger.insideX(left) || !bigger.insideX(right)) {
-			if (left<bigger.left) {
-				left = bigger.left;
-				right = bigger.right - spareX;
+	public void resideInside(Box container) {
+		int spareX = Math.max(0, container.width() - width());
+		if (!container.insideX(left) || !container.insideX(right) || spareX == 0) {
+			if (left < container.left) {
+				left = container.left;
+				right = container.right - spareX;
 			}
 			else {
-				left = bigger.left + spareX;
-				right = bigger.right;
+				left = container.left + spareX;
+				right = container.right;
 			}
 		}
-		
-		if (!bigger.insideY(top) || !bigger.insideY(bottom)) {
-			if (top<bigger.top) {
-				top = bigger.top;
-				bottom = bigger.bottom - spareY;
+
+		int spareY = Math.max(0, container.height() - height());
+		if (!container.insideY(top) || !container.insideY(bottom) || spareY == 0) {
+			if (top < container.top) {
+				top = container.top;
+				bottom = container.bottom - spareY;
 			}
 			else {
-				top = bigger.top + spareY;
-				bottom = bigger.bottom;
+				top = container.top + spareY;
+				bottom = container.bottom;
 			}
 		}
 	}
-	
+
 	public XRange toXRange() {
 		return new XRange(left, right);
 	}
@@ -266,13 +261,13 @@ public class Box implements Copyable<Box>, Cloneable {
 	public void mult(int z) {
 		left *= z;
 		right *= z;
-		right += z-1;
-		
+		right += z - 1;
+
 		top *= z;
 		bottom *= z;
-		bottom += z-1;
+		bottom += z - 1;
 	}
-	
+
 	public void save(DataDestination d) {
 		d.beginArray();
 		d.write(left);
@@ -291,20 +286,22 @@ public class Box implements Copyable<Box>, Cloneable {
 	}
 
 	/**
-	 * Snap to some grid. We snap outwards: only ever getting bigger, never smaller.
+	 * Snap to some grid. We snap outwards: only ever getting bigger, never
+	 * smaller.
 	 * 
-	 * @param gridSize Grid size which must be a power of two.
+	 * @param gridSize
+	 *            Grid size which must be a power of two.
 	 */
 	public void snapOutTo(int gridSize) {
 		left &= -gridSize;
 		top &= -gridSize;
-		
+
 		right &= -gridSize;
 		right += gridSize - 1;
 		bottom &= -gridSize;
 		bottom += gridSize - 1;
 	}
-	
+
 	public long area() {
 		long a = width();
 		a *= height();
@@ -312,10 +309,17 @@ public class Box implements Copyable<Box>, Cloneable {
 	}
 
 	public Coord centre() {
-		int x = left+right;
-		int y = top+bottom;
-		assert x%2==0;
-		assert y%2==0;
-		return new Coord(x/2, y/2);
+		int x = left + right;
+		int y = top + bottom;
+		assert x % 2 == 0;
+		assert y % 2 == 0;
+		return new Coord(x / 2, y / 2);
 	}
+
+	public Box resideInside2(Box bigger) {
+		Box c = copy();
+		c.resideInside(bigger);
+		return c;
+	}
+
 }
