@@ -34,7 +34,7 @@ public class XRange implements Copyable<XRange>, Cloneable {
 		left += i;
 		right += i;
 	}
-	
+
 	public void sub(int delta) {
 		add(-delta);
 	}
@@ -63,12 +63,11 @@ public class XRange implements Copyable<XRange>, Cloneable {
 	public String toString() {
 		return String.format("XRange(%d, %d)", left, right);
 	}
-	
+
 	public void resideInside(XRange bigger) {
-		int spare = bigger.width() - width();
-		assert spare>=0;
-		if (!bigger.inside(left) || !bigger.inside(right)) {
-			if (left<bigger.left) {
+		int spare = Math.max(0, bigger.width() - width());
+		if (!bigger.inside(left) || !bigger.inside(right) || spare == 0) {
+			if (left < bigger.left) {
 				left = bigger.left;
 				right = bigger.right - spare;
 			}
@@ -80,7 +79,7 @@ public class XRange implements Copyable<XRange>, Cloneable {
 	}
 
 	private boolean inside(int x) {
-		return x>=left && x<=right;
+		return x >= left && x <= right;
 	}
 
 	public void save(DataDestination d) {
@@ -96,5 +95,4 @@ public class XRange implements Copyable<XRange>, Cloneable {
 		return new XRange(left, right);
 	}
 
-	
 }
