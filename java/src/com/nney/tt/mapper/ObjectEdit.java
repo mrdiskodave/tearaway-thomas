@@ -69,4 +69,8 @@ class ObjectEdit extends SymmetricalUndoRedo {
 		object.onPropUpdate();
 		return true;
 	}
+
+	HasProps beingEditted() {
+		return object;
+	}
 }

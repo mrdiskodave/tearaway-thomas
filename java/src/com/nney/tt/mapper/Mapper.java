@@ -333,6 +333,8 @@ public class Mapper implements ButtonPressServices {
 		constraints = gameMap.boundsInPixels();
 		Box mapBoundsInPixels = gameMap.boundsInPixels();
 		mmp = new MapperMousePosition(mapBoundsInPixels);
+		readMouse();
+
 		Box scrollBounds = mapBoundsInPixels.copy();
 		int w = mgc.screenWidth() - 1;
 		int h = mgc.screenHeight() - 1;
@@ -344,7 +346,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	void createAlienWithUndoRedo(final Alien alien) {
-		OPS.validate(alien, constraints);
+		validateAlien(alien);
 		load(alien);
 		setSelectedAlien(alien);
 		UndoRedo u = new UndoRedo() {
@@ -522,10 +524,10 @@ public class Mapper implements ButtonPressServices {
 		System.out.println(String.format("k%x l%x more%x less%x", k, l, more, less));
 		if (l == more || l == less) {
 			boolean grow = l == more;
-			if (k == Keyboard.KEY_NUMPAD4) changeMapPlace(grow, 1, 0, 0, 0);
-			if (k == Keyboard.KEY_NUMPAD6) changeMapPlace(grow, 0, 1, 0, 0);
-			if (k == Keyboard.KEY_NUMPAD8) changeMapPlace(grow, 0, 0, 1, 0);
-			if (k == Keyboard.KEY_NUMPAD2) changeMapPlace(grow, 0, 0, 0, 1);
+			if (k == Keyboard.KEY_NUMPAD4) changeMapBounds(grow, 1, 0, 0, 0);
+			if (k == Keyboard.KEY_NUMPAD6) changeMapBounds(grow, 0, 1, 0, 0);
+			if (k == Keyboard.KEY_NUMPAD8) changeMapBounds(grow, 0, 0, 1, 0);
+			if (k == Keyboard.KEY_NUMPAD2) changeMapBounds(grow, 0, 0, 0, 1);
 		}
 	}
 
@@ -1395,26 +1397,30 @@ public class Mapper implements ButtonPressServices {
 		return null;
 	}
 
-	private void startObjectEdit() {
-		assert alienEdit == null;
-		HasProps a = getSelectedObject();
-		alienEdit = new ObjectEdit(a);
-	}
-
-	private void endObjectEdit() {
-		HasProps a = getSelectedObject();
-		validateAlien(a);
-		alienEdit.removeMatching();
-		alienEdit.swap();
-		undoControler.redoThenAdd(alienEdit);
-		alienEdit = null;
-	}
-
 	private HasProps getSelectedObject() {
 		if (mode == Mode.ALIEN) return getSelectedAlien();
 		if (mode == Mode.SPECIFICATION) return levelInfo;
 		assert false;
 		return null;
+	}
+
+	private void startObjectEdit() {
+		startObjectEdit(getSelectedObject());
+	}
+
+	public void startObjectEdit(HasProps a) {
+		assert alienEdit == null;
+		alienEdit = new ObjectEdit(a);
+	}
+
+	private void endObjectEdit() {
+		assert alienEdit != null;
+		HasProps a = alienEdit.beingEditted();
+		validateAlien(a);
+		alienEdit.removeMatching();
+		alienEdit.swap();
+		undoControler.redoThenAdd(alienEdit);
+		alienEdit = null;
 	}
 
 	public void validateAlien(HasProps a) {
@@ -1652,7 +1658,21 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	public void changeMapPlace(boolean grow, int l, int r, int t, int b) {
+	static class SavedMapBlockWithPosition {
+		final private Coord c;
+		final private SavedMapBlock s;
+
+		SavedMapBlockWithPosition(Box from, GameMap gameMap) {
+			c = from.topLeft();
+			s = SavedMapBlock.fromMap(from, gameMap);
+		}
+
+		void restore(GameMap gameMap) {
+			s.write(c, gameMap);
+		}
+	}
+
+	public void changeMapBounds(boolean grow, int l, int r, int t, int b) {
 		if (!grow) {
 			System.out.println("SHRINK");
 
@@ -1664,22 +1684,76 @@ public class Mapper implements ButtonPressServices {
 		else {
 			System.out.println("GROW");
 		}
-		Box box = gameMap.boundsInBlocks().copy();
-		box.left -= l;
-		box.right += r;
-		box.top -= t;
-		box.bottom += b;
-		changeMapPlace(box);
+
+		final Box oBounds = gameMap.boundsInBlocks().copy();
+		final Box nBounds = oBounds.copy();
+		nBounds.left -= l;
+		nBounds.right += r;
+		nBounds.top -= t;
+		nBounds.bottom += b;
+
+		if (nBounds.area() == 0) {
+			say("Map cannot be shrunk out of existence!");
+			return;
+		}
+
+		undoControler.mark();
+
+		// capture anything strips of blocks that we are loosing from the edge
+		Box cap = null;
+		if (l < 0) {
+			cap = Box.fromTopLeftAndSize(oBounds.topLeft(), 1, oBounds.height());
+		}
+		if (r < 0) {
+			cap = Box.fromTopLeftAndSize(oBounds.topRight(), 1, oBounds.height());
+		}
+		if (t < 0) {
+			cap = Box.fromTopLeftAndSize(oBounds.topLeft(), oBounds.width(), 1);
+		}
+		if (b < 0) {
+			cap = Box.fromTopLeftAndSize(oBounds.bottomLeft(), oBounds.width(), 1);
+		}
+		final SavedMapBlockWithPosition capture = cap == null ? null : new SavedMapBlockWithPosition(cap, gameMap);
+
+		// now here is we change the map:
+		undoControler.redoThenAdd(new UndoRedo() {
+			@Override
+			public boolean redo() {
+				changeMapBounds(nBounds);
+				return true;
+			}
+
+			@Override
+			public void undo() {
+				changeMapBounds(oBounds);
+				if (capture != null) {
+					capture.restore(gameMap);
+				}
+			}
+		});
+
+		// lastly re-validate all the aliens
+		// generating undo/redo events as we go.
+		List<Alien> as = flatten();
+		for (Alien a : as) {
+			startObjectEdit(a);
+			validateAlien(a);
+			endObjectEdit();
+		}
+		unflatten(as);
+
+		// merge anything we've done into a single undo/redo event
+		undoControler.fold();
 	}
 
-	public void changeMapPlace(Box nBounds) {
-		GameMap sm = gameMap;
-		GameMap dm = new GameMap(nBounds);
-		for (Coord c : dm) {
-			dm.setBlock(c, sm.safeGetBlock(c));
+	public void changeMapBounds(Box nBounds) {
+		GameMap sourceMap = gameMap;
+		GameMap destinationMap = new GameMap(nBounds);
+		for (Coord c : destinationMap) {
+			destinationMap.setBlock(c, sourceMap.safeGetBlock(c));
 		}
-		setGameMap(dm);
-		sayf("Map changed from %s to %s", sm.boundsInBlocks(), dm.boundsInBlocks());
+		setGameMap(destinationMap);
+		sayf("Map changed from %s to %s", sourceMap.boundsInBlocks(), destinationMap.boundsInBlocks());
 	}
 
 	// TODO: that wiggly bug with block shuffling

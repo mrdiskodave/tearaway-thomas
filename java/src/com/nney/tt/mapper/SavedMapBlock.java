@@ -20,10 +20,10 @@ public class SavedMapBlock {
 		answer.read(rectangle.topLeft(), gameMap);
 		return answer;
 	}
-	
+
 	public static SavedMapBlock fromSolid(int w, int h, int b) {
 		SavedMapBlock answer = new SavedMapBlock(w, h);
-		if (b!=0) answer.fill(b);
+		if (b != 0) answer.fill(b);
 		return answer;
 	}
 
@@ -34,7 +34,7 @@ public class SavedMapBlock {
 	private void set(int x, int y, int s) {
 		z[y][x] = (short) s;
 	}
-	
+
 	private void read(Coord mapPos, GameMap gameMap) {
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
@@ -43,29 +43,38 @@ public class SavedMapBlock {
 			}
 		}
 	}
-	
+
+	public void write(Coord mapPos, GameMap gameMap) {
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				Coord m = mapPos.copyAndAdd(x, y);
+				gameMap.setBlock(m, get(x, y));
+			}
+		}
+	}
+
 	public void eorUs(Coord mapPos, GameMap gameMap) {
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				Coord m = mapPos.copyAndAdd(x, y);
-				set(x, y, gameMap.getBlock(m)^get(x, y));
+				set(x, y, gameMap.getBlock(m) ^ get(x, y));
 			}
 		}
 	}
-	
+
 	public boolean eorMap(Coord mapPos, GameMap gameMap) {
 		int r = 0;
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				Coord m = mapPos.copyAndAdd(x, y);
 				int edit = get(x, y);
-				gameMap.setBlock(m, gameMap.getBlock(m)^edit);
+				gameMap.setBlock(m, gameMap.getBlock(m) ^ edit);
 				r |= edit;
 			}
 		}
 		return r != 0;
 	}
-	
+
 	public SavedMapBlock copy() {
 		SavedMapBlock answer = new SavedMapBlock(w, h);
 		for (int y = 0; y < h; y++) {
@@ -83,20 +92,20 @@ public class SavedMapBlock {
 			}
 		}
 	}
-	
+
 	public int size() {
-		return w*h;
+		return w * h;
 	}
 
-//	public void dump() {
-//		for (int y = 0; y < h; y++) {
-//			StringBuffer sb = new StringBuffer();
-//			for (int x = 0; x < w; x++) {
-//				if (x!=0) sb.append(',');
-//				sb.append(get(x, y));
-//			}
-//			System.out.println(sb);
-//		}
-//	}
+	// public void dump() {
+	// for (int y = 0; y < h; y++) {
+	// StringBuffer sb = new StringBuffer();
+	// for (int x = 0; x < w; x++) {
+	// if (x!=0) sb.append(',');
+	// sb.append(get(x, y));
+	// }
+	// System.out.println(sb);
+	// }
+	// }
 
 }
