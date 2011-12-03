@@ -383,7 +383,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public Coord getPlayerPosition() {
-		return player.c;
+		return player.readOnlyPlayerPosition();
 	}
 
 	@Override
@@ -404,8 +404,8 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public boolean collideBoxWithPlayer(Box box) {
-		int diffX = player.c.x;
-		int diffY = player.c.y;
+		int diffX = player.readOnlyPlayerPosition().x;
+		int diffY = player.readOnlyPlayerPosition().y;
 
 		// drawAbsoluteDebugText(new Coord(0, 50), String.format("%s %s,%s",
 		// box, diffX, diffY));
@@ -427,8 +427,8 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public boolean collideBoxWithPlayerHandle(Box box) {
-		int diffX = player.c.x;
-		int diffY = player.c.y;
+		int diffX = player.readOnlyPlayerPosition().x;
+		int diffY = player.readOnlyPlayerPosition().y;
 		if (diffX >= box.left) {
 			if (diffX <= box.right) {
 				if (diffY >= box.top) {
@@ -712,7 +712,7 @@ public class World implements AlienServices, Disposable {
 			Box box = a.bounds.copy();
 			box.snapOutTo(Const.BLOCK_SIZE);
 			// what is the smallest one that has the player in it?
-			if (box.inside(player.c) && box.area() < bestArea) {
+			if (box.inside(player.readOnlyPlayerPosition()) && box.area() < bestArea) {
 				bounds = box;
 				bestArea = box.area();
 			}
@@ -930,7 +930,7 @@ public class World implements AlienServices, Disposable {
 		pickTheBestBounds();
 
 		player.move(parsedJoystick);
-		scr.snapTo(player.c);
+		scr.snapTo(player.readOnlyPlayerPosition());
 
 		blockSet.expandMap(gameMap);
 
@@ -995,6 +995,7 @@ public class World implements AlienServices, Disposable {
 		}
 
 		int timeDec = player.isStunned() ? 3 : 1;
+		if (configuredPlayerStart != null) timeDec = 0;
 		timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
 		if (timeRemainingInFrames == 0) {
 			performLifeDec();
@@ -1109,9 +1110,9 @@ public class World implements AlienServices, Disposable {
 		player.move(parsedJoystick);
 
 		if (CTC_MEASURE_JUMP_HEIGHT) {
-			smallestY = Math.min(smallestY, player.c.y);
-			System.out.println(String.format("Player: %s (smallesty:%s height:%s)", player.c, smallestY, player.c.y
-					- smallestY));
+			smallestY = Math.min(smallestY, player.readOnlyPlayerPosition().y);
+			System.out.println(String.format("Player: %s (smallesty:%s height:%s)", player.readOnlyPlayerPosition(),
+					smallestY, player.readOnlyPlayerPosition().y - smallestY));
 			if (keyboard.isDown(Keyboard.KEY_R)) {
 				smallestY = Integer.MAX_VALUE;
 			}
@@ -1127,10 +1128,10 @@ public class World implements AlienServices, Disposable {
 	private void scrollTheScreen() {
 		Coord orig = scr.position().copy();
 		if (CTC_HARD_SCROLLING) {
-			scr.snapTo(player.c);
+			scr.snapTo(player.readOnlyPlayerPosition());
 		}
 		else {
-			scr.scrollTo(player.c);
+			scr.scrollTo(player.readOnlyPlayerPosition());
 		}
 		didScroll = !orig.equals(scr.position());
 	}
@@ -1144,7 +1145,7 @@ public class World implements AlienServices, Disposable {
 			if (teleportTimer == TELEPORT_TIME / 2) {
 				player.teleportTo(teleportDestination);
 				pickTheBestBounds();
-				scr.snapTo(player.c);
+				scr.snapTo(player.readOnlyPlayerPosition());
 			}
 			end();
 		}

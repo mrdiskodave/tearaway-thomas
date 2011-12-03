@@ -22,14 +22,15 @@ public class StopAlien extends AlienWithLocation {
 
 	@Override
 	public void update() {
+		// PPUPDATE!
 		Coord pp = srv.getPlayerPosition();
 		boolean collide = pushBox.inside(pp);
 		if (collide) {
 			if (c.x < pp.x) {
-				pp.x = pushBox.right + 1;
+				srv.getThePlayer().teleportTo(new Coord(pushBox.right + 1, pp.y));
 			}
 			else {
-				pp.x = pushBox.left - 1;
+				srv.getThePlayer().teleportTo(new Coord(pushBox.left - 1, pp.y));
 			}
 			System.out.println("Pushed by a StopAlien of width " + pushBox.width());
 		}

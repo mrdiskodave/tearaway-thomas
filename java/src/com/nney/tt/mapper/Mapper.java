@@ -537,7 +537,6 @@ public class Mapper implements ButtonPressServices {
 		int l = k & Locks.LOCK_ALL;
 		k -= l;
 
-		System.out.println(String.format("k%x l%x more%x less%x", k, l, more, less));
 		if (l == more || l == less) {
 			boolean grow = l == more;
 			if (k == Keyboard.KEY_NUMPAD4) changeMapBounds(grow, 1, 0, 0, 0);
@@ -618,8 +617,13 @@ public class Mapper implements ButtonPressServices {
 			drawProps();
 		}
 		if (mode == Mode.PLAYERSIMULATION) {
+			if (sim.ceiling != null) {
+				Coord d = sim.ceiling.sub2(getScreenPosition());
+				mgc.drawSight(d.x, d.y, 40, 0xffffffff);
+			}
+
 			Coord c = sim.get().sub2(getScreenPosition());
-			mgc.drawSight(c.x, c.y, 40, sim.isStanding() ? 0xff00ff00 : 0xffff0000);
+			mgc.drawSight(c.x, c.y, 10, sim.isStanding() ? 0xff00ff00 : 0xffff0000);
 		}
 		drawPalettes();
 

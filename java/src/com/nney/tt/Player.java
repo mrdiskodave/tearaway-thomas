@@ -16,13 +16,14 @@ import com.nney.tt.tinytools.Latch;
  * 
  */
 public class Player {
-	public Player(AlienServices srv, Anims playerAnims, Coord playerStart, boolean goLeft) {
+	public Player(AlienServices srv, Anims playerAnims, Coord initialPosition, boolean initialGoLeft) {
 		this.srv = srv;
 		this.playersAnimations = playerAnims;
-		this.c = playerStart.copy();
-		this.goLeft = goLeft;
-		this.lc = playerStart.copy();
-		this.pp = new PlayerPosition(c, srv);
+		this.cr = initialPosition.copy();
+		this.goLeft = initialGoLeft;
+		this.lc = initialPosition.copy();
+		this.pp = new PlayerPosition(cr, srv);
+		this.crw = cr;
 	}
 
 	private void setAnim(String name, boolean animate) {
@@ -30,7 +31,7 @@ public class Player {
 		Anim anim = playersAnimations.find(name);
 		animPlayer.changeAnimation(anim);
 		Sprite s = animate ? animPlayer.nextFrame() : animPlayer.currentFrame();
-		srv.registerPlayerSpriteForAlienColisions(c, s);
+		srv.registerPlayerSpriteForAlienColisions(cr, s);
 		playerSprite = s;
 	}
 
@@ -54,6 +55,20 @@ public class Player {
 	private static final int STUN_TIME = 33;
 	private static final int RESTUN_PROOF_TIME = 25;
 	private static final int STUN_VELOCITY = -10;
+
+	/**
+	 * <p>
+	 * There was a bug in the original where the player would get kicked up the
+	 * screen by two pixels when moving upward from air to ground. This means
+	 * jumps through ground (e.g. jumping through a tree-branch in order to land
+	 * on it) would reach to 68 up pixels from the floor. A normal jump only
+	 * reaches 66 pixels from the floor.
+	 * 
+	 * <p>
+	 * I've decided <b>not</b> to include this bug but, instead, to give the
+	 * player a JUMP_VELOCITY of -12.245f rather than -12. This means <b>all</b>
+	 * jumps now reach 68 pixels.
+	 */
 	private static final float JUMP_VELOCITY = -12.245f;
 
 	// TODO: reset the level if the player does manage to fall through
@@ -73,14 +88,24 @@ public class Player {
 	// FIELDS
 
 	/**
-	 * Where we are at. We expose this, for speed, and require/trust that other
-	 * classes will only read it.
+	 * Where we are at. We expose this. We could copy it but, for speed we
+	 * return it directly and require/trust that other classes only read it.
 	 */
-	public Coord c;
+	private Coord cr;
+
+	public Coord readOnlyPlayerPosition() {
+		return cr;
+	}
 
 	/**
-	 * We don't move {@link #c} much mostly relying on this object to move it
-	 * for us.
+	 * Internally, the few times we change the player position we do through so
+	 * this. It refers to the same thing that {@link #cr} does -- so this is
+	 * only a kind of annotation.
+	 */
+	private Coord crw;
+
+	/**
+	 * Has a reference to {@link #cr} and handles most moving of it.
 	 */
 	private PlayerPosition pp;
 
@@ -329,10 +354,10 @@ public class Player {
 	}
 
 	private int keepXDeltaOnScreen(int xdelta) {
-		Coord tp = c.copy();
+		Coord tp = cr.copy();
 		tp.x += xdelta;
 		srv.validatePlayerPosition(tp);
-		xdelta = tp.x - c.x;
+		xdelta = tp.x - cr.x;
 		return xdelta;
 	}
 
@@ -376,7 +401,7 @@ public class Player {
 
 	private void doLiftModeX(MovementSlicer xslicer) {
 		int n = xslicer.next(1);
-		c.x += n;
+		crw.x += n;
 		if (!horizontalOverlap(standingOn)) {
 			fallOff();
 		}
@@ -433,7 +458,7 @@ public class Player {
 	 *         delta that the slide imparts per frame if they are on a slide.
 	 */
 	private int testSlide() {
-		String s = srv.blockInfoHas(c, "slide:");
+		String s = srv.blockInfoHas(cr, "slide:");
 		if (s == null) return NO_SLIDE;
 		return Integer.parseInt(s);
 	}
@@ -501,7 +526,8 @@ public class Player {
 
 	private boolean testLadder(int dx, int dy) {
 		LadderInformation li = srv.getLadderInfo();
-		return li != null && testLadder(c.copyAndAdd(dx, dy + li.top)) && testLadder(c.copyAndAdd(dx, dy + li.bottom));
+		return li != null && testLadder(cr.copyAndAdd(dx, dy + li.top))
+				&& testLadder(cr.copyAndAdd(dx, dy + li.bottom));
 	}
 
 	private void perhapsStartLadderMode() {
@@ -510,10 +536,10 @@ public class Player {
 			// snap: [ maxSnap ... 3 2 1] *0* [-1 -2 -3 ... -maxSnap ]
 
 			int start = lc.x;
-			int end = c.x;
+			int end = cr.x;
 			if (!moveStick()) {
-				start = c.x - LADDER_XSNAP_STATIONARY - 1;
-				end = c.x + LADDER_XSNAP_STATIONARY;
+				start = cr.x - LADDER_XSNAP_STATIONARY - 1;
+				end = cr.x + LADDER_XSNAP_STATIONARY;
 			}
 
 			// System.out.println(String.format("ladder: %s-%s %s", start, end,
@@ -521,13 +547,13 @@ public class Player {
 			if (jdy != 0) {
 				System.out.println(String.format("%s Ladder: want", srv.getFrameNumber()));
 				int lo = computeLadderOption(start, end);
-				int dx = lo - c.x;
+				int dx = lo - cr.x;
 				if (lo > 0 && testLadder(dx, 0) && testLadder(dx, getLadderVerticalDelta())) {
 					System.out.println(String.format("%s Ladder: can", srv.getFrameNumber()));
 					if (ladderLatch.can(srv.getFrameNumber())) {
 						System.out.println(String.format("%s Ladder: do", srv.getFrameNumber()));
 						reset(Mode.LADDER);
-						c.x = lo;
+						crw.x = lo;
 						System.out.println("Ladder: on board!");
 					}
 				}
@@ -559,7 +585,7 @@ public class Player {
 			while (yslicer.more()) {
 				int n = yslicer.next(1);
 				if (testLadder(0, n)) {
-					c.y += n;
+					crw.y += n;
 					moving = true;
 				}
 			}
@@ -582,11 +608,11 @@ public class Player {
 	}
 
 	private boolean canWalkOffLadder() {
-		return !srv.inTheGround(c) && srv.inTheGround(c.copyAndAdd(0, 1));
+		return !srv.inTheGround(cr) && srv.inTheGround(cr.copyAndAdd(0, 1));
 	}
 
 	private boolean testForVerticalRope(int dy) {
-		Coord where = c.copyAndAdd(0, dy + VROPE_SNIFF_Y);
+		Coord where = cr.copyAndAdd(0, dy + VROPE_SNIFF_Y);
 		if (!srv.blockInfoIs(where, "vrope")) return false;
 		where.y += VROPE_SNIFF_YPLUS;
 		return srv.blockInfoIs(where, "vrope");
@@ -604,15 +630,15 @@ public class Player {
 				// i.e. goLeft means the opposite to us (in this mode)
 
 				// block align:
-				c.x &= -Const.BLOCK_SIZE;
-				c.x += (Const.BLOCK_SIZE / 2);
+				crw.x &= -Const.BLOCK_SIZE;
+				crw.x += (Const.BLOCK_SIZE / 2);
 				reset(Mode.ROPE);
 			}
 		}
 	}
 
 	private boolean testForHorizontalRope(int dx) {
-		Coord where = c.copyAndAdd(dx, HROPE_SNIFF_Y);
+		Coord where = cr.copyAndAdd(dx, HROPE_SNIFF_Y);
 		return srv.blockInfoIs(where, "hrope");
 	}
 
@@ -641,7 +667,7 @@ public class Player {
 			int delta = getLadderVerticalDelta();
 			boolean moving = false;
 			if (delta != 0 && testForVerticalRope(delta)) {
-				c.y += delta;
+				crw.y += delta;
 				moving = true;
 			}
 
@@ -684,9 +710,9 @@ public class Player {
 					if (monkeyLatch.can(srv.getFrameNumber())) {
 						if (!wantsToDrop()) {
 							// block align:
-							c.y -= 2;
-							c.y &= -Const.BLOCK_SIZE;
-							c.y += 2;
+							crw.y -= 2;
+							crw.y &= -Const.BLOCK_SIZE;
+							crw.y += 2;
 							reset(Mode.MONKEY);
 							System.out.println("Monkey: Start");
 						}
@@ -707,7 +733,7 @@ public class Player {
 			return false;
 		}
 		goLeft = left;
-		c.x += directionalMovement(left, 3);
+		crw.x += directionalMovement(left, 3);
 		setAnim(directionalAnimName("monkey"), true);
 		return true;
 	}
@@ -753,7 +779,7 @@ public class Player {
 
 		if (mode == Mode.LIFT) {
 			assert standingOn != null;
-			c.add(standingOn.lastFrameDelta());
+			crw.add(standingOn.lastFrameDelta());
 		}
 
 		// These all run off the same MovementSlicer.
@@ -841,7 +867,7 @@ public class Player {
 		flyingFlap = false;
 
 		// remember our initial coordinate
-		ic = c.copy();
+		ic = cr.copy();
 
 		if (proofTimer != 0) proofTimer--;
 		if (flashTimer != 0) flashTimer--;
@@ -857,8 +883,8 @@ public class Player {
 		perhapsStartSlideMode();
 
 		if (mode == Mode.WALK) {
-			if (srv.frameTest(2) && srv.blockInfoIs(c.copyAndAdd(0, 1), "magic")) {
-				srv.magicDust(c.copyAndAdd(srv.randomness(17) - 8, 0));
+			if (srv.frameTest(2) && srv.blockInfoIs(cr.copyAndAdd(0, 1), "magic")) {
+				srv.magicDust(cr.copyAndAdd(srv.randomness(17) - 8, 0));
 			}
 		}
 
@@ -902,7 +928,7 @@ public class Player {
 	}
 
 	public void draw() {
-		srv.drawSprite(c, playerSprite, drawInWhite);
+		srv.drawSprite(cr, playerSprite, drawInWhite);
 	}
 
 	// gifts
@@ -947,7 +973,7 @@ public class Player {
 	private void startLiftMode(LiftAlien lift, int height) {
 		reset(Mode.LIFT);
 		standingOn = lift;
-		c.y = height;
+		crw.y = height;
 		onSomething();
 	}
 
@@ -986,7 +1012,7 @@ public class Player {
 	 */
 	public boolean checkReveal(Coord hidden) {
 		// SCC1
-		Coord diff = c.copy();
+		Coord diff = cr.copy();
 		diff.sub(hidden);
 		// diff = player - hidden
 		// (i.e. positive if hidden thing is above or left of the player)
@@ -1042,11 +1068,11 @@ public class Player {
 
 	private boolean horizontalOverlap(LiftAlien lift) {
 		int s = lift.left;
-		return c.x >= s && c.x < (s + lift.width);
+		return cr.x >= s && cr.x < (s + lift.width);
 	}
 
 	private boolean verticalCrossing(int landOn) {
-		return lc.y < landOn && c.y >= landOn;
+		return lc.y < landOn && cr.y >= landOn;
 	}
 
 	public void performLiftBoarding(LiftAlien caller, int landOn) {
@@ -1055,10 +1081,19 @@ public class Player {
 		}
 	}
 
+	/**
+	 * Change the player's position.
+	 * 
+	 * This is the <b>only</b> way to change the player's position from outside
+	 * of this class.
+	 * 
+	 * @param teleportDestination
+	 *            A new place to move the player to.
+	 */
 	public void teleportTo(Coord teleportDestination) {
-		// copy the content over because 'pp' holds a reference to that
-		// particular 'c'
-		c.copyFieldsFrom(teleportDestination);
+		// copy the content over because 'pp' also holds a
+		// reference to that particular 'c'
+		cr.copyFieldsFrom(teleportDestination);
 	}
 
 	public void giveTurbo() {
