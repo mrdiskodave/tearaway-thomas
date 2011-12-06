@@ -5,6 +5,14 @@ import java.util.List;
 
 import com.nney.tt.geom.Box;
 
+/**
+ * A Square Fridge.
+ * 
+ * It's 2D so it keeps four {@link Fridge}s internally: top, bottom, left and
+ * right.
+ * 
+ * @param <T>
+ */
 public class SquareFridge<T extends Bounded> implements Iterable<T> {
 	final private Fridge<T> freezeTop = new Fridge<T>("top");
 	final private Fridge<T> freezeBottom = new Fridge<T>("bottom");
@@ -42,15 +50,33 @@ public class SquareFridge<T extends Bounded> implements Iterable<T> {
 		}
 	}
 
-	public void defrostAny(List<T> got, Box screenBox) {
-		defrostFrom(got, freezeLeft, -screenBox.left);
-		defrostFrom(got, freezeTop, -screenBox.top);
-		defrostFrom(got, freezeRight, screenBox.right);
-		defrostFrom(got, freezeBottom, screenBox.bottom);
+	/**
+	 * Defrost any objects that have come back on-screen.
+	 * 
+	 * @param current
+	 *            A list of objects to which on-screen ones will be added (and
+	 *            removed from this object).
+	 * @param screenBox
+	 *            The bounds of the screen.
+	 */
+	public void defrostAny(List<T> current, Box screenBox) {
+		defrostFrom(current, freezeLeft, -screenBox.left);
+		defrostFrom(current, freezeTop, -screenBox.top);
+		defrostFrom(current, freezeRight, screenBox.right);
+		defrostFrom(current, freezeBottom, screenBox.bottom);
 	}
 
-	public void freezeAny(List<T> got, Box screenBox) {
-		for (Iterator<T> iterator = got.iterator(); iterator.hasNext();) {
+	/**
+	 * Freeze any objects that are off-screen.
+	 * 
+	 * @param current
+	 *            A list of objects from which off-screen ones will be removed
+	 *            and stored in this object.
+	 * @param screenBox
+	 *            The bounds of the screen.
+	 */
+	public void freezeAny(List<T> current, Box screenBox) {
+		for (Iterator<T> iterator = current.iterator(); iterator.hasNext();) {
 			T alien = iterator.next();
 			if (froze(alien, screenBox)) {
 				iterator.remove();
