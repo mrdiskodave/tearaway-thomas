@@ -24,7 +24,7 @@ public abstract class AlienTracker implements Iterable<Alien> {
 	}
 
 	public void add(Iterable<Alien> l) {
-		for (Alien a: l) {
+		for (Alien a : l) {
 			add(a);
 		}
 	}
@@ -63,20 +63,20 @@ public abstract class AlienTracker implements Iterable<Alien> {
 	@Override
 	public Iterator<Alien> iterator() {
 		ConcatenatedIterator<Alien> ci = new ConcatenatedIterator<Alien>();
-		for (Iterable<Alien> it: lists()) {
+		for (Iterable<Alien> it : lists()) {
 			ci.add(it);
 		}
 		return ReadOnlyIterator.wrap(ci);
 	}
-	
+
 	public List<Alien> getAll() {
 		List<Alien> answer = new ArrayList<Alien>();
-		for (Iterable<Alien> it: lists()) {
+		for (Iterable<Alien> it : lists()) {
 			ListUtil.copy(answer, it);
 		}
 		return answer;
 	}
-	
+
 	private List<Iterable<Alien>> lists() {
 		ArrayList<Iterable<Alien>> answer = new ArrayList<Iterable<Alien>>();
 		getExtraLists(answer);
@@ -88,5 +88,6 @@ public abstract class AlienTracker implements Iterable<Alien> {
 	}
 
 	protected abstract void getExtraLists(ArrayList<Iterable<Alien>> answer);
+
 	public abstract void add(Alien a);
 }

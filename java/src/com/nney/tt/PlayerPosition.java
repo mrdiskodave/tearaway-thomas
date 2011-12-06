@@ -94,6 +94,8 @@ public class PlayerPosition {
 		int ncx = c.x + dx;
 
 		if (now) {
+			// LIMITS: ???
+
 			// now: ground
 			assert ceiling != null;
 
@@ -101,9 +103,14 @@ public class PlayerPosition {
 			if (cg) {
 				// ceiling is in the ground
 				// it needs to go down a bit
-				// (because the ceiling may be sloped)
+				// (the ceiling may be sloped)
+				//
+				// we find the new ceiling and we move
 				// OR
-				// we cannot go there
+				// if it needs to go down more than
+				// a bit then we give up (assuming
+				// we've found a wall that ends the ceiling
+				// and that we cannot move).
 				for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
 					if (!ig(ncx, ceiling.y + t)) {
 						xSuccess(ncx);
@@ -126,33 +133,9 @@ public class PlayerPosition {
 			if (!ig(c.x, c.y)) {
 				ceiling = null;
 			}
-
-			// int y = c.y;
-			// int patience = 5;
-			// for (;;) {
-			// y++;
-			// if (!ig(ncx, y)) {
-			// // System.out.println("Success at " + new Coord(tcx, y));
-			// // air below us in the new location.
-			// // yes! somewhere to fall onto.
-			// xSuccess(ncx);
-			// break;
-			// }
-			// if (!ig(c.x, y) && --patience == 0) {
-			// // System.out.println("Gave up at " + new Coord(c.x, y));
-			// // air below us in the old location
-			// // give up looking
-			// // (but not right away to allow for sloped undersides)
-			// break;
-			// }
-			//
-			// // so:
-			// // effectively when we are in the ground we track the ceiling
-			// // below us to make sure we don't go past an upper corner
-			//
-			// }
 		}
 		else {
+
 			assert ceiling == null;
 
 			// now: air
@@ -162,6 +145,10 @@ public class PlayerPosition {
 
 				// except for a special case for standing:
 				if (isStanding()) {
+					// LIMITS: this is easy enough - we
+					// just have to track ahead on the line
+					// that is the floor
+
 					for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
 						if (!ig(ncx, c.y - t)) {
 							// climb!
@@ -177,6 +164,10 @@ public class PlayerPosition {
 
 				// a special case for standing:
 				if (isStanding()) {
+					// LIMITS: this is easy enough - we
+					// just have to track ahead on the line
+					// that is the floor
+
 					// if we've walked off into space
 					if (!ig(ncx, c.y + 1)) {
 						for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
@@ -186,6 +177,9 @@ public class PlayerPosition {
 							}
 						}
 					}
+				}
+				else {
+					// LIMITS: ???
 				}
 				xSuccess(ncx);
 			}

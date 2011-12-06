@@ -6,13 +6,13 @@ import java.util.NoSuchElementException;
 
 public class ConcatenatedIterator<T> implements Iterator<T> {
 	ArrayList<Iterator<T>> content = new ArrayList<Iterator<T>>();
-	
-	void add(Iterator<T> t) {
+
+	public void add(Iterator<T> t) {
 		content.add(t);
 	}
 
-	void add(Iterable<T> t) {
-		add(t.iterator());
+	public void add(Iterable<T> it) {
+		add(it.iterator());
 	}
 
 	@Override

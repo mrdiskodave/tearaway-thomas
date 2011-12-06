@@ -280,6 +280,8 @@ public class Mapper implements ButtonPressServices {
 
 	private SlowBoolean editManagerStartObjectEdit = new SlowBoolean();
 
+	private SlowBoolean squashNext = new SlowBoolean();
+
 	private Box constraints;
 
 	private PlayerPosition sim;
@@ -496,7 +498,7 @@ public class Mapper implements ButtonPressServices {
 			testLevel(true);
 		}
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-			int playerCount = ListUtil.count(PlayerAlien.class, alienTracker);
+			int playerCount = ListUtil.count(PlayerAlien.class, alienTracker.get());
 			if (playerCount != 1) {
 				sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
 			}
@@ -583,7 +585,6 @@ public class Mapper implements ButtonPressServices {
 		}
 		sayf("%s out of %s legacy aliens enlivened", n.size(), count);
 		ListUtil.copy(all, n);
-		unflatten(all);
 	}
 
 	private void where(boolean more) {
@@ -601,7 +602,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public int countAliens(Class<? extends Alien> t) {
-		return ListUtil.count(t, alienTracker);
+		return ListUtil.count(t, alienTracker.get());
 	}
 
 	private boolean mustBeSure(boolean sure, String task) {
@@ -634,7 +635,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void saveMap(boolean autoSave) {
-		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker);
+		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker.get());
 		TTResource.saveMap(levelInfo.filename, levelText, autoSave);
 	}
 
@@ -657,7 +658,7 @@ public class Mapper implements ButtonPressServices {
 			w.configureSeeHidden(testFlag(FLAG_SEE_HIDDEN));
 			w.configureSeeMasks(testFlag(FLAG_SEE_MASKS));
 		}
-		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, alienTracker));
+		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, alienTracker.get()));
 		w.testLevelFromMapper();
 		setScreenPosition(w.getScreenPosition());
 	}
@@ -835,7 +836,7 @@ public class Mapper implements ButtonPressServices {
 	private void findType(int dir) {
 		ArrayList<Alien> candidates = new ArrayList<Alien>();
 		AlienInfo t = alienPalette.get();
-		for (Alien a : alienTracker) {
+		for (Alien a : alienTracker.get()) {
 			if (a.alienInfo == t) {
 				candidates.add(a);
 			}
@@ -1099,7 +1100,7 @@ public class Mapper implements ButtonPressServices {
 		scr.drawBorders(mgc.gc());
 		scr.drawTheMap(gameMap, loadBlockSet());
 		drawRect();
-		updateAliens();
+		drawAliens();
 		if (mode == Mode.DRAW) {
 			drawBlockCursor();
 		}
@@ -1154,7 +1155,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void sendCensusToAlienPalette() {
 		CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
-		for (Alien a : alienTracker) {
+		for (Alien a : alienTracker.get()) {
 			census.inc(a.alienInfo);
 		}
 		alienPalette.sendCenus(census);
@@ -1390,19 +1391,11 @@ public class Mapper implements ButtonPressServices {
 	private void deleteAlien(Alien a) {
 		List<Alien> all = flatten();
 		all.remove(a);
-		unflatten(all);
 		setSelectedAlien(null);
 	}
 
 	private List<Alien> flatten() {
-		List<Alien> all = alienTracker.getAll();
-		alienTracker = new MapperAlienTracker();
-		// APS.orderAlienList(all);
-		return all;
-	}
-
-	private void unflatten(List<Alien> all) {
-		alienTracker.add(all);
+		return alienTracker.get();
 	}
 
 	private Coord getNudge(int k) {
@@ -1443,6 +1436,8 @@ public class Mapper implements ButtonPressServices {
 		alienEdit.swap();
 		undoControler.redoThenAdd(alienEdit);
 		alienEdit = null;
+
+		squashNext.set(true);
 	}
 
 	public void validateAlien(HasProps a) {
@@ -1557,7 +1552,7 @@ public class Mapper implements ButtonPressServices {
 		Box rectangle = getRectInBlocks();
 		rectangle.mult(Const.BLOCK_SIZE);
 		List<Alien> captured = new ArrayList<Alien>();
-		for (Alien a : alienTracker) {
+		for (Alien a : alienTracker.get()) {
 			if (rectangle.inside(a.getLocation())) {
 				captured.add(copyAlien(a));
 			}
@@ -1605,32 +1600,21 @@ public class Mapper implements ButtonPressServices {
 		readMouse();
 	}
 
-	private void updateAliens() {
-		Box screenBox = scr.box();
-		alienTracker.begin(screenBox);
-		List<Alien> a = alienTracker.getOnScreen();
-		updateList(a, Alien.DEPTH_BG_SCENARY, screenBox);
-		updateList(a, Alien.DEPTH_LIFTS_AND_COLLECTABLES, screenBox);
-		updateList(a, Alien.DEPTH_ALIENS, screenBox);
-		updateList(a, Alien.DEPTH_FG_SCENARY, screenBox);
+	private void drawAliens() {
+		List<Alien> a = squashNext.set(false) ? alienTracker.get() : alienTracker.startDrawing(scr.box());
+		updateList(a, Alien.DEPTH_BG_SCENARY);
+		updateList(a, Alien.DEPTH_LIFTS_AND_COLLECTABLES);
+		updateList(a, Alien.DEPTH_ALIENS);
+		updateList(a, Alien.DEPTH_FG_SCENARY);
+		alienTracker.endDrawing(scr.box());
 	}
 
-	private void updateList(List<Alien> alienList, int depth, Box screenBox) {
+	private void updateList(List<Alien> alienList, int depth) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			if (alien.depth == depth) {
 				alien.freezeBounds = null;
 				alien.mapperUpdate();
-				Box fb = alien.freezeBounds;
-				if (fb != null) {
-					Box s = fb.sub2(getScreenPosition());
-					mgc.fillRectangle(s.left, s.top, s.width(), s.height(), 0x80ff0000);
-				}
-
-				if (alienTracker.perhapsFreeze(alien, screenBox)) {
-					alienIterator.remove();
-					// System.out.println("Froze!!");
-				}
 			}
 		}
 	}
@@ -1644,7 +1628,7 @@ public class Mapper implements ButtonPressServices {
 	public Alien findNearestAlien(Coord c) {
 		long dist = Long.MAX_VALUE;
 		Alien answer = null;
-		for (Alien a : alienTracker) {
+		for (Alien a : alienTracker.get()) {
 			Coord diff = a.getLocation().sub2(c);
 			long ndist = diff.squareOfLength();
 			if (ndist < dist) {
@@ -1762,7 +1746,6 @@ public class Mapper implements ButtonPressServices {
 			validateAlien(a);
 			endObjectEdit();
 		}
-		unflatten(as);
 
 		// merge anything we've done into a single undo/redo event
 		undoControler.fold();
@@ -1832,7 +1815,6 @@ public class Mapper implements ButtonPressServices {
 				lost.add(alien);
 			}
 		}
-		unflatten(as);
 		return lost;
 	}
 

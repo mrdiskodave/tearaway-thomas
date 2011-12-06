@@ -2,6 +2,7 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.AlienInfo;
 import com.nney.tt.AlienServices;
+import com.nney.tt.Bounded;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.props.HasProps;
@@ -16,7 +17,7 @@ import com.nney.tt.sprites.Sprite;
  * It's because the first game I wrote was set in space - it had "aliens" - and
  * the name stuck.
  */
-public abstract class Alien implements HasProps {
+public abstract class Alien implements HasProps, Bounded {
 	enum LifeCycle {
 		INSTANTIATED, ATTACH, READY, UNLOAD
 	}
@@ -38,6 +39,12 @@ public abstract class Alien implements HasProps {
 	public static final int DEPTH_MAX = 4;
 
 	public Box freezeBounds;
+
+	@Override
+	public Box getBounds() {
+		return freezeBounds;
+	}
+
 	public AlienServices srv;
 
 	protected static final int OBbase = 8;
@@ -95,11 +102,10 @@ public abstract class Alien implements HasProps {
 	protected Box spriteBounds(Sprite s) {
 		return s.box().add2(getLocation());
 	}
-	
+
 	protected Box boxAroundUs(int size) {
 		return Box.around(getLocation(), size);
 	}
-
 
 	protected Sprite nextFrame() {
 		return animPlayer.nextFrame();
@@ -122,8 +128,6 @@ public abstract class Alien implements HasProps {
 
 	public void onLoaded() {
 	}
-	
-	
 
 	public void loadFromLegacyData() {
 
@@ -200,7 +204,7 @@ public abstract class Alien implements HasProps {
 		assert lifeCycle == pre;
 		lifeCycle = post;
 	}
-	
+
 	void pseudoAlienUpdate() {
 		freezeBounds = Box.around(getLocation());
 	}
