@@ -7,30 +7,32 @@ import java.util.List;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 
-/**
- * An {@link AlienTracker} optimised for speed. It keeps it's on-screen lists
- * separated by depth and it supports delayed additions.
- */
-public class GameAlienTracker extends AlienTracker {
-	final private List<List<Alien>> alienLists;
+public class GameAlienTracker {
+	final private List<List<Alien>> alienListss = new ArrayList<List<Alien>>();
 
 	final private List<Alien> delayedAdditions = new LinkedList<Alien>();
 
+	final private SquareFridge<Alien> squareFridge = new SquareFridge<Alien>();
+
 	public GameAlienTracker() {
-		alienLists = new ArrayList<List<Alien>>();
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
-			alienLists.add(new LinkedList<Alien>());
+			alienListss.add(new LinkedList<Alien>());
 		}
 	}
 
 	public List<Alien> getOnScreen(int x) {
-		return alienLists.get(x);
+		return alienListss.get(x);
 	}
 
-	@Override
 	public void add(Alien alien) {
 		assert !alien.remove;
-		alienLists.get(alien.depth).add(alien);
+		alienListss.get(alien.depth).add(alien);
+	}
+
+	public void add(Iterable<Alien> l) {
+		for (Alien a : l) {
+			add(a);
+		}
 	}
 
 	public void delayedAdd(Alien alien) {
@@ -45,15 +47,15 @@ public class GameAlienTracker extends AlienTracker {
 		}
 		delayedAdditions.clear();
 
-		// defrosted
-		defrostAny(screenBox);
+		// do defrosting
+		ArrayList<Alien> df = new ArrayList<Alien>();
+		squareFridge.defrostAny(df, screenBox);
+		add(df);
 	}
 
-	@Override
-	protected void getExtraLists(ArrayList<Iterable<Alien>> answer) {
-		answer.add(delayedAdditions);
-		for (List<Alien> aliens : alienLists) {
-			answer.add(aliens);
+	public void freezeAny(Box screenBox) {
+		for (List<Alien> alienList : alienListss) {
+			squareFridge.freezeAny(alienList, screenBox);
 		}
 	}
 }

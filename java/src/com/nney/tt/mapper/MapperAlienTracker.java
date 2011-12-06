@@ -9,31 +9,33 @@ import com.nney.tt.geom.Box;
 import com.nney.utils.ListUtil;
 
 public class MapperAlienTracker {
-	private SquareFridge<Alien> sf = new SquareFridge<Alien>();
+	private SquareFridge<Alien> squareFridge = new SquareFridge<Alien>();
 	final private List<Alien> alienList = new ArrayList<Alien>();
 
 	private void createFridge() {
-		if (sf == null) {
-			sf = new SquareFridge<Alien>();
+		if (squareFridge == null) {
+			System.out.println("create fridge");
+			squareFridge = new SquareFridge<Alien>();
 		}
 	}
 
 	private void destroyFridge() {
-		if (sf != null) {
-			ListUtil.copy(alienList, sf);
-			sf = null;
+		if (squareFridge != null) {
+			System.out.println("destroy fridge");
+			ListUtil.copy(alienList, squareFridge);
+			squareFridge = null;
 		}
 	}
 
 	public List<Alien> startDrawing(Box screenBox) {
 		createFridge();
-		sf.defrostAny(alienList, screenBox);
+		squareFridge.defrostAny(alienList, screenBox);
 		return alienList;
 	}
 
 	public void endDrawing(Box screenBox) {
 		createFridge();
-		sf.freezeAny(alienList, screenBox);
+		squareFridge.freezeAny(alienList, screenBox);
 	}
 
 	public List<Alien> get() {

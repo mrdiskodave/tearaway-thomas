@@ -235,6 +235,8 @@ public class World implements AlienServices, Disposable {
 
 	private int smallestY;
 
+	private List<MapBoundsAlien> mbas;
+
 	public World(OuterWorld ow) {
 		this.ow = ow;
 		this.gc = ow.gc;
@@ -582,7 +584,7 @@ public class World implements AlienServices, Disposable {
 
 	// ---------------------------------------------------------------------------
 
-	private void updateList(List<Alien> alienList, Box screenBox) {
+	private void updateList(List<Alien> alienList) {
 		for (Iterator<Alien> alienIterator = alienList.iterator(); alienIterator.hasNext();) {
 			Alien alien = alienIterator.next();
 			alien.freezeBounds = null;
@@ -595,7 +597,7 @@ public class World implements AlienServices, Disposable {
 			// 0x80ff0000);
 			// }
 
-			if (alien.remove || alienTracker.perhapsFreeze(alien, screenBox)) {
+			if (alien.remove) {
 				alienIterator.remove();
 			}
 		}
@@ -607,13 +609,15 @@ public class World implements AlienServices, Disposable {
 		// add fresh aliens
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
-		updateList(alienTracker.getOnScreen(Alien.DEPTH_BG_SCENARY), screenBox);
-		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS_AND_COLLECTABLES), screenBox);
-		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS), screenBox);
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_BG_SCENARY));
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS_AND_COLLECTABLES));
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS));
 		if (drawPlayer) {
 			player.draw();
 		}
-		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY), screenBox);
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY));
+
+		alienTracker.freezeAny(screenBox);
 
 		//
 		// Caveat1: only background Aliens get to move the player around.
@@ -708,7 +712,7 @@ public class World implements AlienServices, Disposable {
 	private void pickTheBestBounds() {
 		Box bounds = gameMap.boundsInPixels();
 		long bestArea = Long.MAX_VALUE;
-		for (MapBoundsAlien a : ListUtil.findMany(MapBoundsAlien.class, alienTracker)) {
+		for (MapBoundsAlien a : mbas) {
 			Box box = a.bounds.copy();
 			box.snapOutTo(Const.BLOCK_SIZE);
 			// what is the smallest one that has the player in it?
@@ -914,6 +918,12 @@ public class World implements AlienServices, Disposable {
 			animsPool.unloadReload(animsNeeded);
 		}
 
+		gemsTotal = ListUtil.count(GemAlien.class, aliens);
+		gemsNeeded = levelInfo.gemsNeeded;
+		gemsCollected = 0;
+
+		mbas = ListUtil.findMany(MapBoundsAlien.class, aliens);
+
 		// connect the anims to the aliens
 		// and load the aliens into the world
 		for (Alien alien : aliens) {
@@ -933,10 +943,6 @@ public class World implements AlienServices, Disposable {
 		scr.snapTo(player.readOnlyPlayerPosition());
 
 		blockSet.expandMap(gameMap);
-
-		gemsTotal = ListUtil.count(GemAlien.class, alienTracker);
-		gemsNeeded = levelInfo.gemsNeeded;
-		gemsCollected = 0;
 
 		timeRemainingInFrames = levelInfo.timeGiven * Const.FPS + Const.FPS - 1;
 

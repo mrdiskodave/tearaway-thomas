@@ -34,15 +34,6 @@ public class SquareFridge<T extends Bounded> implements Iterable<T> {
 		return false;
 	}
 
-	public void freezeAny(List<T> got, Box screenBox) {
-		for (Iterator<T> iterator = got.iterator(); iterator.hasNext();) {
-			T alien = iterator.next();
-			if (froze(alien, screenBox)) {
-				iterator.remove();
-			}
-		}
-	}
-
 	private void defrostFrom(List<T> got, Fridge<T> fridge, int restore) {
 		for (;;) {
 			T a = fridge.pop(restore);
@@ -56,6 +47,15 @@ public class SquareFridge<T extends Bounded> implements Iterable<T> {
 		defrostFrom(got, freezeTop, -screenBox.top);
 		defrostFrom(got, freezeRight, screenBox.right);
 		defrostFrom(got, freezeBottom, screenBox.bottom);
+	}
+
+	public void freezeAny(List<T> got, Box screenBox) {
+		for (Iterator<T> iterator = got.iterator(); iterator.hasNext();) {
+			T alien = iterator.next();
+			if (froze(alien, screenBox)) {
+				iterator.remove();
+			}
+		}
 	}
 
 	@Override
