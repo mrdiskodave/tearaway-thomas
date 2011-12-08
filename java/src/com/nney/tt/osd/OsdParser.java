@@ -16,7 +16,7 @@ public class OsdParser {
 		int pos = 0;
 		Matcher m = OSD_CONTENT_PATTERN.matcher(text.substring(pos));
 		while (m.find()) {
-			td.addText(text.substring(pos, m.start()));
+			sendAddText(text.substring(pos, m.start()));
 			String cmd = m.group(1);
 			String param = m.group(2);
 			if (cmd.equals("n")) {
@@ -37,7 +37,7 @@ public class OsdParser {
 			else if (cmd.equals("t")) {
 				Matcher m2 = OSD_TABLE_ARGS.matcher(param);
 				if (!m2.matches()) {
-					throw new RuntimeException("Bad table param: "+param);
+					throw new RuntimeException("Bad table param: " + param);
 				}
 				String[] z = param.split(",");
 				int w = i(z[0]);
@@ -51,17 +51,21 @@ public class OsdParser {
 				td.setHorizontalPadding(i(param));
 			}
 			else {
-				assert false: "Unknown command:"+cmd;
+				assert false : "Unknown command:" + cmd;
 			}
 			pos = m.end();
 		}
-		td.addText(text.substring(pos));
+		sendAddText(text.substring(pos));
+	}
+
+	public void sendAddText(String s) {
+		if (s.length() != 0) td.addText(s);
 	}
 
 	private static int i(String s) {
 		return Integer.parseInt(s);
 	}
-	
+
 	private int optN(String param) {
 		return param.length() != 0 ? Integer.parseInt(param) : 0;
 	}
