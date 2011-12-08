@@ -146,13 +146,13 @@ public interface AlienServices extends PlayerPositionServices {
 	 *            first one is used to place the head-bounce score-notification
 	 *            above caller).
 	 * @return Did a head-bounce happen? <code>true</code> meaning
-	 *         "yes, it happened". Score is added, score notification is displayed.
-	 *         If the caller has an animation named "fright" then that will be
-	 *         used create a new FallingAlien in place of the caller. This is
-	 *         the counted as a fatal head-bounce and will give cumulative score
-	 *         if the player can keep doing them. <code>false</code> meaning "no
-	 *         it didn't -- the player wasn't in the right place so was stunned
-	 *         instead".
+	 *         "yes, it happened". Score is added, score notification is
+	 *         displayed. If the caller has an animation named "fright" then
+	 *         that will be used create a new FallingAlien in place of the
+	 *         caller. This is the counted as a fatal head-bounce and will give
+	 *         cumulative score if the player can keep doing them.
+	 *         <code>false</code> meaning "no it didn't -- the player wasn't in
+	 *         the right place so was stunned instead".
 	 */
 	boolean headBounce(Alien alien, Sprite... alienSprites);
 }

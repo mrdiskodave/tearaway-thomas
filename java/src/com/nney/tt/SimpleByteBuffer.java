@@ -15,8 +15,7 @@ public class SimpleByteBuffer {
 
 	public void add(byte x) {
 		if (p >= b.length) {
-			byte[] a = moveInto(b.length * 2);
-			b = a;
+			b = moveInto(b.length * 2);
 		}
 		b[p++] = x;
 	}

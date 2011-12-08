@@ -1,6 +1,6 @@
 package com.nney.tt;
 
-// TODO: we could work this out by messuring the graphics
+// TODO: we could work this out by measuring the graphics
 public class LadderInformation {
 	final int top;
 	final int bottom;

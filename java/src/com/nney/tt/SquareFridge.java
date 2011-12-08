@@ -12,6 +12,7 @@ import com.nney.tt.geom.Box;
  * right.
  * 
  * @param <T>
+ *            The type that we contain.
  */
 public class SquareFridge<T extends Bounded> implements Iterable<T> {
 	final private Fridge<T> freezeTop = new Fridge<T>("top");
