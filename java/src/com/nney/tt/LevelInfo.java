@@ -18,6 +18,9 @@ public class LevelInfo implements HasProps {
 	@PropAnn(doc = "What is the title of this level?")
 	public String title;
 
+	@PropAnn(doc = "Any special mode for this level? (e.g. 'race' or 'fruit')")
+	public String mode;
+
 	@PropAnn(doc = "What is the filename of this level?")
 	public String filename;
 
@@ -38,6 +41,7 @@ public class LevelInfo implements HasProps {
 		timeGiven = di.requireField("timeGiven").requireInt();
 		title = di.requireField("title").requireString();
 		worldName = di.requireField("world").requireString();
+		mode = di.fieldExists("mode") ? di.requireField("mode").requireString() : "";
 		filename = mapName0;
 	}
 
@@ -53,6 +57,10 @@ public class LevelInfo implements HasProps {
 		d.write(title);
 		d.write("world");
 		d.write(worldName);
+		if (mode.length() > 0) {
+			d.write("mode");
+			d.write(mode);
+		}
 		d.end();
 	}
 

@@ -37,6 +37,7 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.LineInfo;
 import com.nney.tt.sprites.Sprite;
+import com.nney.tt.tinytools.Countdown;
 import com.nney.tt.tinytools.EdgeDetector;
 import com.nney.tt.tinytools.Latch;
 import com.nney.tt.tinytools.SlowBoolean;
@@ -237,6 +238,14 @@ public class World implements AlienServices, Disposable {
 
 	private List<MapBoundsAlien> mbas;
 
+	private Countdown delayedFinish = new Countdown();
+
+	enum Mode {
+		NORMAL, RACE
+	}
+
+	private Mode mode = Mode.NORMAL;
+
 	public World(OuterWorld ow) {
 		this.ow = ow;
 		this.gc = ow.gc;
@@ -347,7 +356,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public boolean isExitOpen() {
-		return gemsCollected >= gemsNeeded;
+		return mode == Mode.NORMAL && gemsCollected >= gemsNeeded;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -727,7 +736,11 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private Coord getPlayerCentreOnScreen() {
-		return getPlayerPosition().copyAndAdd(0, (ttSprite.h / 2) - ttSprite.handleY).sub2(scr.position());
+		return getPlayerCentre().sub2(scr.position());
+	}
+
+	public Coord getPlayerCentre() {
+		return getPlayerPosition().copyAndAdd(0, (ttSprite.h / 2) - ttSprite.handleY);
 	}
 
 	private void captureRecording() {
@@ -810,7 +823,17 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void levelCompleted(Coord exit) {
-		whereWeExitedTheLevel = exit.copy();
+		if (whereWeExitedTheLevel == null) {
+			if (exit == null) {
+				whereWeExitedTheLevel = getPlayerCentre();
+			}
+			else {
+				whereWeExitedTheLevel = exit.copy();
+			}
+			if (mode == Mode.RACE) {
+				delayedFinish.set(40);
+			}
+		}
 	}
 
 	@Override
@@ -972,9 +995,7 @@ public class World implements AlienServices, Disposable {
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
 
-		String text = Messages.levelStart(ow.levelNumber + 1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal,
-				levelInfo.timeGiven);
-		createStatusScreen(text);
+		createStatusScreen(getIntroText());
 
 		//
 		// MODE START
@@ -989,6 +1010,19 @@ public class World implements AlienServices, Disposable {
 		ah.startMusic(1);
 
 		clearRecording();
+	}
+
+	public String getIntroText() {
+		String text;
+		if (levelInfo.title.equals("challenge:race")) {
+			text = Messages.raceChallenge(ow.levelNumber + 1, levelInfo.timeGiven);
+			mode = Mode.RACE;
+		}
+		else {
+			text = Messages.levelStart(ow.levelNumber + 1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal,
+					levelInfo.timeGiven);
+		}
+		return text;
 	}
 
 	private void oneMainFrame() {
@@ -1028,7 +1062,9 @@ public class World implements AlienServices, Disposable {
 			end();
 
 			if (whereWeExitedTheLevel != null) {
-				performOutro();
+				if (!delayedFinish.testAndRun()) {
+					performOutro();
+				}
 			}
 		}
 	}
@@ -1158,13 +1194,18 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void performMain() {
+		getIntroText();
+
 		while (!complete) {
 			oneMainFrame();
 		}
 	}
 
 	private void performOutro() {
-		drawPlayer = false;
+		if (mode == Mode.NORMAL) {
+			// because he's gone into the exit
+			drawPlayer = false;
+		}
 		captureRecording();
 		dimFade.target(Curtain.CLOSED);
 
@@ -1172,8 +1213,14 @@ public class World implements AlienServices, Disposable {
 		hole.target(Curtain.CLOSED);
 		hole.setRate(4);
 
-		String text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
-				- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+		String text;
+		if (mode == Mode.NORMAL) {
+			text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected,
+					gemsTotal - gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+		}
+		else {
+			text = Messages.challengeComplete(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
+		}
 		createStatusScreen(text);
 
 		cr = new Coroutine("timeBonus") {

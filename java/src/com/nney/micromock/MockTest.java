@@ -21,6 +21,6 @@ public class MockTest extends TestCase {
 		e.a(3);
 		e.b();
 		assertEquals(4, e.c());
-		m.done();
+		m.expectDone();
 	}
 }

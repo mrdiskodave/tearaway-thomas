@@ -14,7 +14,7 @@ final class TestingIH implements InvocationHandler {
 	public Object invoke(Object arg0, Method method, Object[] args) throws Throwable {
 		if (args == null) args = new Object[0];
 		if (!rih.hasNext()) {
-			throw new AssertionError("Too many calls");
+			throw new AssertionError("Expected fewer calls");
 		}
 		Event e = rih.next();
 		{
@@ -46,9 +46,9 @@ final class TestingIH implements InvocationHandler {
 		return e.rc;
 	}
 
-	public void done() {
+	public void expectDone() {
 		if (rih.hasNext()) {
-			throw new AssertionError("Not enough calls");
+			throw new AssertionError("Expected more calls");
 		}
 	}
 }

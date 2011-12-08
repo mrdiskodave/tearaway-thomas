@@ -872,8 +872,9 @@ public class Player {
 		if (proofTimer != 0) proofTimer--;
 		if (flashTimer != 0) flashTimer--;
 		if (airJumpTimer != 0) airJumpTimer--;
-		pvt.setSprint(turboTimer != 0);
 		if (turboTimer != 0) turboTimer--;
+
+		pvt.setSprint(turboTimer != 0);
 
 		drawInWhite = (flashTimer & 15) > 9;
 

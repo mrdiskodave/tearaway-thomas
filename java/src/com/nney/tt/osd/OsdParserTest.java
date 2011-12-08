@@ -48,6 +48,6 @@ public class OsdParserTest extends TestCase {
 	private void send(String input, Mock<TextDest> m) {
 		OsdParser p = new OsdParser(m.test());
 		p.parse(input);
-		m.done();
+		m.expectDone();
 	}
 }

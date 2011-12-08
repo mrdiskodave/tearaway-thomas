@@ -47,6 +47,7 @@ import com.nney.tt.aliens.StopAlien;
 import com.nney.tt.aliens.TankAlien;
 import com.nney.tt.aliens.TeleportAlien;
 import com.nney.tt.aliens.TrampolineAlien;
+import com.nney.tt.aliens.TurboAlien;
 import com.nney.tt.aliens.WingsAlien;
 import com.nney.tt.aliens.WobbleGemAlien;
 import com.nney.tt.aliens.YellowBirdAlien;
@@ -82,6 +83,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(7, "clock", "0clok", ClockAlien.class));
 		add(new AlienInfo(12, "teleport", "0tele", TeleportAlien.class));
 		add(new AlienInfo(22, "extraLife", "0life", ExtraLifeAlien.class));
+		add(new AlienInfo(23, "turbo", "0burg", TurboAlien.class));
 		add(new AlienInfo(14, "wings", "0wing", WingsAlien.class));
 		add(new AlienInfo(15, "floorFailure", null, FloorFailureAlien.class)); // special1
 		// for w6.map

@@ -31,8 +31,8 @@ public class Mock<T> {
 		return (T) testingProxy;
 	}
 
-	public void done() {
-		tih.done();
+	public void expectDone() {
+		tih.expectDone();
 	}
 
 	@SuppressWarnings("unchecked")
