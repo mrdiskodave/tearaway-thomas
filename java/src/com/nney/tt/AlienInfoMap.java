@@ -21,6 +21,7 @@ import com.nney.tt.aliens.DebugTextAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.ExtraLifeAlien;
 import com.nney.tt.aliens.FallingAlien;
+import com.nney.tt.aliens.EndZoneAlien;
 import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
@@ -57,7 +58,7 @@ public class AlienInfoMap {
 	 * Full list of {@link AlienInfo}s.
 	 */
 	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
-	
+
 	private final List<AlienInfo> present = new ArrayList<AlienInfo>();
 
 	/**
@@ -66,14 +67,14 @@ public class AlienInfoMap {
 	 */
 	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
-	private final CountingMap<Class<? extends Alien>> classUseCount = new CountingMap<Class<? extends Alien>>(); 
+	private final CountingMap<Class<? extends Alien>> classUseCount = new CountingMap<Class<? extends Alien>>();
 
 	private final List<String> animList = new ArrayList<String>();
 
 	private String worldName;
 
 	private final AlienServices srv;
-	
+
 	public AlienInfoMap(String worldName, AlienServices srv) {
 		this.srv = srv;
 		add(new AlienInfo(4, "exit", "0exit", ExitAlien.class));
@@ -101,9 +102,10 @@ public class AlienInfoMap {
 		add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
 		add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
 		add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
-//		add(new AlienInfo(204, "bird2", "?bird", Bird2Alien.class)); // poly
+		// add(new AlienInfo(204, "bird2", "?bird", Bird2Alien.class)); // poly
 		add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
 		// add(new AlienInfo(78, null, ScreenLimiterAlien.class));
+		add(new AlienInfo(94, "endZone", null, EndZoneAlien.class));
 		add(new AlienInfo(95, "star", "0star", StarAlien.class));
 		add(new AlienInfo(13, "stop", "0stop", StopAlien.class));
 
@@ -111,7 +113,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(201, "player", "0tt", PlayerAlien.class));
 		add(new AlienInfo(202, "mapBounds", null, MapBoundsAlien.class));
 		add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
-//		add(new AlienInfo(204, "levelInfo", null, LevelInfoAlien.class));
+		// add(new AlienInfo(204, "levelInfo", null, LevelInfoAlien.class));
 
 		// use of annotations to make this easier
 		addFromAnnotation(FlameAlien.class);
@@ -185,22 +187,22 @@ public class AlienInfoMap {
 					// TODO: why not use a Set?
 					if (!animList.contains(name)) animList.add(name);
 				}
-				
+
 				present.add(ai);
-				
+
 			}
-			
+
 		}
 		Collections.sort(animList);
 	}
-	
+
 	public String getWorldName() {
 		return worldName;
 	}
 
 	private void addToIndex(AlienInfo ai, String k) {
 		if (nameToAlienInfo.containsKey(k)) {
-			throw new RuntimeException(k+" present twice");
+			throw new RuntimeException(k + " present twice");
 		}
 		nameToAlienInfo.put(k, ai);
 	}
@@ -220,7 +222,6 @@ public class AlienInfoMap {
 		}
 		return classToAlienInfo.get(c);
 	}
-
 
 	/**
 	 * @return A read only list of all the anims we'll ever need.
@@ -251,21 +252,19 @@ public class AlienInfoMap {
 	public static String typeCodeToName(int typeCode) {
 		return AlienInfo.makeInternalName("tc" + typeCode);
 	}
-	
+
 	public ArrayList<AlienInfo> getExternal() {
 		ArrayList<AlienInfo> answer = new ArrayList<AlienInfo>();
-		for (AlienInfo ai: present) {
+		for (AlienInfo ai : present) {
 			if (!ai.internal()) answer.add(ai);
 		}
 		return answer;
 	}
 
-	
-
 	/**
 	 * There are two ways to make a correctly wired up {@link Alien}. 1) use
-	 * {@link AlienInfo#instantiateAttach()} 2) Construct it with <code>new</code>
-	 * then pass it here.
+	 * {@link AlienInfo#instantiateAttach()} 2) Construct it with
+	 * <code>new</code> then pass it here.
 	 * 
 	 * @param alien
 	 *            The {@link Alien} that you just constructed.
