@@ -4,13 +4,13 @@ import java.lang.reflect.Proxy;
 
 public class Mock<T> {
 	private Object recordingProxy;
-	private RecordingIH rih;
+	private RecordingInvocationHandler rih;
 	private Object testingProxy;
-	private TestingIH tih;
+	private TestingInvocationHandler tih;
 
 	public Mock(Class<?> c) {
-		rih = new RecordingIH();
-		tih = new TestingIH(rih);
+		rih = new RecordingInvocationHandler();
+		tih = new TestingInvocationHandler(rih);
 		recordingProxy = Proxy.newProxyInstance(c.getClassLoader(), new Class[] { c }, rih);
 		testingProxy = Proxy.newProxyInstance(c.getClassLoader(), new Class[] { c }, tih);
 	}
@@ -35,7 +35,6 @@ public class Mock<T> {
 		tih.expectDone();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> Mock<T> mock(Class<T> c) {
 		return new Mock<T>(c);
 	}

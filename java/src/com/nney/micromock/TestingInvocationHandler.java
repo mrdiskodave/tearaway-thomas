@@ -3,10 +3,10 @@ package com.nney.micromock;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-final class TestingIH implements InvocationHandler {
-	private final RecordingIH rih;
+final class TestingInvocationHandler implements InvocationHandler {
+	private final RecordingInvocationHandler rih;
 
-	public TestingIH(RecordingIH rih) {
+	public TestingInvocationHandler(RecordingInvocationHandler rih) {
 		this.rih = rih;
 	}
 
