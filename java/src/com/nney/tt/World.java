@@ -1061,13 +1061,14 @@ public class World implements AlienServices, Disposable {
 
 			if (whereWeExitedTheLevel != null) {
 				if (!delayedFinish.testAndRun()) {
-					String text;
+					String text = "?";
 					if (mode == Mode.NORMAL) {
 						text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
 								- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+						// coz he went out the exit:
 						drawPlayer = false;
 					}
-					else {
+					if (mode == Mode.RACE) {
 						text = Messages.challengeComplete(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
 					}
 					createStatusScreen(text);
@@ -1102,7 +1103,7 @@ public class World implements AlienServices, Disposable {
 		hole.target(Curtain.CLOSED);
 		hole.setRate(3);
 
-		if (mode != Mode.RACE) {
+		if (mode == Mode.RACE) {
 			String text = Messages.challengeFailed(ow.levelNumber + 1);
 			createStatusScreen(text);
 			performOutro();

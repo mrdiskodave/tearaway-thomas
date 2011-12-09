@@ -117,14 +117,51 @@ public class AlienInfoMap {
 		add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
 		// add(new AlienInfo(204, "levelInfo", null, LevelInfoAlien.class));
 
+		add(new AlienInfo(46, "flameRight", "glflm", FlameAlien.class));
+		add(new AlienInfo(47, "flameLeft", "grflm", FlameAlien.class));
+		add(new AlienInfo(2, "yellowGem", "0ygem", 50, WobbleGemAlien.class));
+		add(new AlienInfo(3, "purpleGem", "0pgem", 100, WobbleGemAlien.class));
+		add(new AlienInfo(86, "gemHuge", "0hgem", 2500, GemAlien.class));
+		add(new AlienInfo(6, "gemBig", "0bgem", 500, GemAlien.class));
+		add(new AlienInfo(8, "arrowUp", "0arru", ArrowAlien.class));
+		add(new AlienInfo(9, "arrowDown", "0arrd", ArrowAlien.class));
+		add(new AlienInfo(10, "arrowLeft", "0arrl", ArrowAlien.class));
+		add(new AlienInfo(11, "arrowRight", "0arrr", ArrowAlien.class));
+		add(new AlienInfo(40, "portrait1", "gpic0", PortraitAlien.class));
+		add(new AlienInfo(41, "portrait2", "gpic1", PortraitAlien.class));
+		add(new AlienInfo(43, "portrait3", "gpic3", PortraitAlien.class));
+		add(new AlienInfo(35, "portrait4", "gpic4", PortraitAlien.class));
+		add(new AlienInfo(18, "cloud0", "0cld0", SpriteAlien.class));
+		add(new AlienInfo(19, "cloud1", "0cld1", SpriteAlien.class));
+		add(new AlienInfo(20, "cloud2", "0cld2", SpriteAlien.class));
+		add(new AlienInfo(31, "magicwall", "gwall", SpriteAlien.class));
+		add(new AlienInfo(45, "torch", "gtrch", SpriteAlien.class));
+		add(new AlienInfo(42, "portrait5", "gpic2", SpriteAlien.class));
+		add(new AlienInfo(65, "face0", "wfce0", SpriteAlien.class));
+		add(new AlienInfo(66, "face1", "wfce1", SpriteAlien.class));
+		add(new AlienInfo(67, "face2", "wfce2", SpriteAlien.class));
+		add(new AlienInfo(68, "flower0", "wflr0", SpriteAlien.class));
+		add(new AlienInfo(69, "flower1", "wflr1", SpriteAlien.class));
+		add(new AlienInfo(70, "trunk0", "wtrk0", SpriteAlien.class));
+		add(new AlienInfo(71, "trunk1", "wtrk1", SpriteAlien.class));
+		add(new AlienInfo(93, "finish", "0finisha", SpriteAlien.class));
+		add(new AlienInfo(301, "finishB", "0finishb", SpriteAlien.class));
+		add(new AlienInfo(80, "fruit0", "0frt0", 100, ScoreCollectableAlien.class));
+		add(new AlienInfo(81, "fruit1", "0frt1", 200, ScoreCollectableAlien.class));
+		add(new AlienInfo(82, "fruit2", "0frt2", 300, ScoreCollectableAlien.class));
+		add(new AlienInfo(83, "fruit3", "0frt3", 400, ScoreCollectableAlien.class));
+		add(new AlienInfo(84, "fruit4", "0frt4", 500, ScoreCollectableAlien.class));
+		add(new AlienInfo(85, "fruit5", "0frt5", 600, ScoreCollectableAlien.class));
+		add(new AlienInfo(62, "fruit6", "whone", 500, ScoreCollectableAlien.class));
+
 		// use of annotations to make this easier
-		addFromAnnotation(FlameAlien.class);
-		addFromAnnotation(WobbleGemAlien.class);
-		addFromAnnotation(GemAlien.class);
-		addFromAnnotation(ArrowAlien.class);
-		addFromAnnotation(PortraitAlien.class);
-		addFromAnnotation(SpriteAlien.class);
-		addFromAnnotation(ScoreCollectableAlien.class);
+		// addFromAnnotation(FlameAlien.class);
+		// addFromAnnotation(WobbleGemAlien.class);
+		// addFromAnnotation(GemAlien.class);
+		// addFromAnnotation(ArrowAlien.class);
+		// addFromAnnotation(PortraitAlien.class);
+		// addFromAnnotation(SpriteAlien.class);
+		// addFromAnnotation(ScoreCollectableAlien.class);
 
 		// internal things
 		// * no typeCode
@@ -163,7 +200,22 @@ public class AlienInfoMap {
 	}
 
 	private void addFromAnnotation(Class<? extends Alien> c, AlienInfoAnn a) {
+		// add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
+		if (a.score() == 0) {
+			System.out.println(String.format("add(new AlienInfo(%s, %s, %s, %s.class));", a.type(), q(a.name()),
+					q(a.gfx()), c.getSimpleName()));
+		}
+		else {
+			System.out.println(String.format("add(new AlienInfo(%s, %s, %s, %s, %s.class));", a.type(), q(a.name()),
+					q(a.gfx()), a.score(), c.getSimpleName()));
+		}
+
 		add(new AlienInfo(a.type(), a.name(), a.gfx(), a.score(), c));
+	}
+
+	private String q(String s) {
+		if (s == null) return s;
+		return '"' + s + '"';
 	}
 
 	private void setWorld(String worldName) {
