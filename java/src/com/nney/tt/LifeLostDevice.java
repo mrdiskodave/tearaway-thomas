@@ -1,9 +1,7 @@
 package com.nney.tt;
 
 public interface LifeLostDevice {
+	void update();
 
-	public abstract void update();
-
-	public abstract boolean isDone();
-
+	boolean isDone();
 }

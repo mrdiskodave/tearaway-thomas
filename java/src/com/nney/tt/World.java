@@ -212,8 +212,6 @@ public class World implements AlienServices, Disposable {
 
 	private boolean drawPlayer = true;
 
-	private boolean complete;
-
 	private Coord whereWeExitedTheLevel;
 
 	private LevelInfo levelInfo;
@@ -1038,7 +1036,7 @@ public class World implements AlienServices, Disposable {
 		if (configuredPlayerStart != null) timeDec = 0;
 		timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
 		if (timeRemainingInFrames == 0) {
-			performLifeDec();
+			performLevelFailure();
 		}
 		else {
 			//
@@ -1063,13 +1061,28 @@ public class World implements AlienServices, Disposable {
 
 			if (whereWeExitedTheLevel != null) {
 				if (!delayedFinish.testAndRun()) {
+					String text;
+					if (mode == Mode.NORMAL) {
+						text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
+								- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+						drawPlayer = false;
+					}
+					else {
+						text = Messages.challengeComplete(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
+					}
+					createStatusScreen(text);
+
+					hole.setCentre(whereWeExitedTheLevel.sub2(scr.position()));
+					hole.target(Curtain.CLOSED);
+					hole.setRate(4);
+
 					performOutro();
 				}
 			}
 		}
 	}
 
-	private void performLifeDec() {
+	private void performLevelFailure() {
 		collisionDetection = false;
 
 		player.kill();
@@ -1088,6 +1101,13 @@ public class World implements AlienServices, Disposable {
 		hole.current(Curtain.OPEN);
 		hole.target(Curtain.CLOSED);
 		hole.setRate(3);
+
+		if (mode != Mode.RACE) {
+			String text = Messages.challengeFailed(ow.levelNumber + 1);
+			createStatusScreen(text);
+			performOutro();
+			// doesn't return
+		}
 
 		boolean gameOver = ow.lives <= 1;
 		LifeLostDevice lifeLostDevice;
@@ -1139,7 +1159,7 @@ public class World implements AlienServices, Disposable {
 			end();
 		} while (!fadeOut.isDone());
 
-		complete = true;
+		throw new ExitException();
 	}
 
 	// gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
@@ -1196,32 +1216,15 @@ public class World implements AlienServices, Disposable {
 	private void performMain() {
 		getIntroText();
 
-		while (!complete) {
+		for (;;) {
 			oneMainFrame();
 		}
 	}
 
 	private void performOutro() {
-		if (mode == Mode.NORMAL) {
-			// because he's gone into the exit
-			drawPlayer = false;
-		}
-		captureRecording();
+		collisionDetection = false;
+
 		dimFade.target(Curtain.CLOSED);
-
-		hole.setCentre(whereWeExitedTheLevel.sub2(scr.position()));
-		hole.target(Curtain.CLOSED);
-		hole.setRate(4);
-
-		String text;
-		if (mode == Mode.NORMAL) {
-			text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected,
-					gemsTotal - gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
-		}
-		else {
-			text = Messages.challengeComplete(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
-		}
-		createStatusScreen(text);
 
 		cr = new Coroutine("timeBonus") {
 			@Override
@@ -1273,7 +1276,12 @@ public class World implements AlienServices, Disposable {
 		boolean done = false;
 		while (!done) {
 			begin();
-			drawTitles(true);
+
+			mainActions(0);
+			hole.update();
+			statusScreen.get().update();
+			totalFade.update();
+			drawHudAndBorders(true);
 
 			try {
 				cr.step();
@@ -1283,9 +1291,8 @@ public class World implements AlienServices, Disposable {
 			}
 			end();
 		}
-
 		ow.levelNumber++;
-		complete = true;
+		throw new ExitException();
 	}
 
 	// ---------------------------------------------------------------------------

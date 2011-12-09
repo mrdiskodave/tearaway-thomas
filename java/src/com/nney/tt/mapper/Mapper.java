@@ -650,6 +650,9 @@ public class Mapper implements ButtonPressServices {
 	private void testLevel(boolean bigTest) {
 		saveMap(true);
 
+		ow.lives = 3;
+		ow.score = 0;
+
 		World w = new World(ow);
 		if (!bigTest) {
 			w.configurePerformIntro(false);
