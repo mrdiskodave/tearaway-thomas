@@ -5,8 +5,6 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 import com.nney.tt.sprites.Sprite;
 
-@AlienInfoAnns({ @AlienInfoAnn(type = 8, gfx = "0arru", name = "arrowUp"), @AlienInfoAnn(type = 9, gfx = "0arrd", name = "arrowDown"),
-		@AlienInfoAnn(type = 10, gfx = "0arrl", name = "arrowLeft"), @AlienInfoAnn(type = 11, gfx = "0arrr", name = "arrowRight") })
 public class ArrowAlien extends AlienWithLocation {
 	private int repeatCounter;
 

@@ -2,11 +2,6 @@ package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Box;
 
-
-@AlienInfoAnns({
-	@AlienInfoAnn(type = 46, gfx = "glflm", name = "flameRight"),
-	@AlienInfoAnn(type = 47, gfx = "grflm", name = "flameLeft")
-})
 public class FlameAlien extends AlienWithLocation {
 	private int pause;
 
@@ -14,10 +9,10 @@ public class FlameAlien extends AlienWithLocation {
 	public void onLoaded() {
 		changeAnimation(0);
 	}
-	
+
 	@Override
 	public void update() {
-		if (pause>0) {
+		if (pause > 0) {
 			pause--;
 			freezeBounds = Box.around(c, 100, 50);
 		}
@@ -25,7 +20,7 @@ public class FlameAlien extends AlienWithLocation {
 			animateDrawAndStun(c);
 			if (animPlayer.hasAnimEnded()) {
 				animPlayer.rewind();
-				pause = srv.randomness(64)+25;
+				pause = srv.randomness(64) + 25;
 			}
 		}
 	}

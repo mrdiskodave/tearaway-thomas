@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.nney.tt.aliens.Alien;
-import com.nney.tt.aliens.AlienInfoAnn;
-import com.nney.tt.aliens.AlienInfoAnns;
 import com.nney.tt.aliens.ArrowAlien;
 import com.nney.tt.aliens.BatAlien;
 import com.nney.tt.aliens.BearAlien;
@@ -18,10 +16,10 @@ import com.nney.tt.aliens.BirdAlien;
 import com.nney.tt.aliens.CarAlien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.DebugTextAlien;
+import com.nney.tt.aliens.EndZoneAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.ExtraLifeAlien;
 import com.nney.tt.aliens.FallingAlien;
-import com.nney.tt.aliens.EndZoneAlien;
 import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
@@ -145,7 +143,6 @@ public class AlienInfoMap {
 		add(new AlienInfo(70, "trunk0", "wtrk0", SpriteAlien.class));
 		add(new AlienInfo(71, "trunk1", "wtrk1", SpriteAlien.class));
 		add(new AlienInfo(93, "finish", "0finisha", SpriteAlien.class));
-		add(new AlienInfo(301, "finishB", "0finishb", SpriteAlien.class));
 		add(new AlienInfo(80, "fruit0", "0frt0", 100, ScoreCollectableAlien.class));
 		add(new AlienInfo(81, "fruit1", "0frt1", 200, ScoreCollectableAlien.class));
 		add(new AlienInfo(82, "fruit2", "0frt2", 300, ScoreCollectableAlien.class));
@@ -153,6 +150,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(84, "fruit4", "0frt4", 500, ScoreCollectableAlien.class));
 		add(new AlienInfo(85, "fruit5", "0frt5", 600, ScoreCollectableAlien.class));
 		add(new AlienInfo(62, "fruit6", "whone", 500, ScoreCollectableAlien.class));
+		add(new AlienInfo(301, "finishB", "0finishb", SpriteAlien.class));
 
 		// use of annotations to make this easier
 		// addFromAnnotation(FlameAlien.class);
@@ -180,42 +178,6 @@ public class AlienInfoMap {
 
 	private void add(AlienInfo a) {
 		aim.add(a);
-	}
-
-	private void addFromAnnotation(Class<? extends Alien> c) {
-		AlienInfoAnns a = c.getAnnotation(AlienInfoAnns.class);
-		if (a != null) {
-			addFromAnnotation(c, a);
-		}
-		AlienInfoAnn b = c.getAnnotation(AlienInfoAnn.class);
-		if (b != null) {
-			addFromAnnotation(c, b);
-		}
-	}
-
-	private void addFromAnnotation(Class<? extends Alien> c, AlienInfoAnns a) {
-		for (AlienInfoAnn v : a.value()) {
-			addFromAnnotation(c, v);
-		}
-	}
-
-	private void addFromAnnotation(Class<? extends Alien> c, AlienInfoAnn a) {
-		// add(new AlienInfo(203, "legacy", null, LegacyAlien.class));
-		if (a.score() == 0) {
-			System.out.println(String.format("add(new AlienInfo(%s, %s, %s, %s.class));", a.type(), q(a.name()),
-					q(a.gfx()), c.getSimpleName()));
-		}
-		else {
-			System.out.println(String.format("add(new AlienInfo(%s, %s, %s, %s, %s.class));", a.type(), q(a.name()),
-					q(a.gfx()), a.score(), c.getSimpleName()));
-		}
-
-		add(new AlienInfo(a.type(), a.name(), a.gfx(), a.score(), c));
-	}
-
-	private String q(String s) {
-		if (s == null) return s;
-		return '"' + s + '"';
 	}
 
 	private void setWorld(String worldName) {

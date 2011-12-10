@@ -3,8 +3,6 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-@AlienInfoAnns({ @AlienInfoAnn(type = 40, gfx = "gpic0", name = "portrait1"), @AlienInfoAnn(type = 41, gfx = "gpic1", name = "portrait2"),
-		@AlienInfoAnn(type = 43, gfx = "gpic3", name = "portrait3"), @AlienInfoAnn(type = 35, gfx = "gpic4", name = "portrait4") })
 public class PortraitAlien extends AlienWithLocation {
 	@Override
 	public void update() {
