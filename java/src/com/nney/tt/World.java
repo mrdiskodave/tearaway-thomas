@@ -819,9 +819,13 @@ public class World implements AlienServices, Disposable {
 		return c.y > offY;
 	}
 
+	private boolean isLevelCompleted() {
+		return whereWeExitedTheLevel != null;
+	}
+
 	@Override
 	public void levelCompleted(Coord exit) {
-		if (whereWeExitedTheLevel == null) {
+		if (!isLevelCompleted()) {
 			if (exit == null) {
 				whereWeExitedTheLevel = getPlayerCentre();
 			}
@@ -844,13 +848,20 @@ public class World implements AlienServices, Disposable {
 	//
 
 	private void begin() {
-		// the main game doesn't use events so this is just to drain them
-		// i.e. stop them piling up
+		// the main game doesn't use key events so
+		// this is just to drain them
+		// i.e. to stop them piling up
 		keyboard.nextEvent();
 
-		if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
-			throw new ExitException();
+		if (configuredCalledFromMapper) {
+			if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
+				throw new ExitException();
+			}
+			if (keyboard.isDown(Keyboard.KEY_D)) {
+				timeRemainingInFrames = 0;
+			}
 		}
+
 		firePressed |= Math2.maskTest(joystick.get(), Joystick.FIRE);
 
 		gc.beginDrawing();
@@ -906,7 +917,19 @@ public class World implements AlienServices, Disposable {
 		alienInfoMap = new AlienInfoMap(worldName, this);
 		AlienFactory af = new AlienFactory(alienInfoMap);
 		List<Alien> aliens = pl.getAliens(af);
+
+		// load the map
 		gameMap = pl.getMap();
+
+		// pad it top and bottom to avoid the player jumping or falling
+		// and reading outside of the array
+		// (this "sentinel" padding means we don't have to have
+		// code for constantly checking so is a performance win)
+		Box b = gameMap.boundsInBlocks().copy();
+		b.top -= 8;
+		b.bottom += 8;
+		gameMap = new GameMap(b, gameMap);
+
 		pl = null;
 
 		Coord playerWhere = null;
@@ -1028,13 +1051,10 @@ public class World implements AlienServices, Disposable {
 
 		maybePause();
 
-		if (keyboard.isDown(Keyboard.KEY_D)) {
-			timeRemainingInFrames = 0;
+		if (configuredPlayerStart == null && !isLevelCompleted()) {
+			int timeDec = player.isStunned() ? 3 : 1;
+			timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
 		}
-
-		int timeDec = player.isStunned() ? 3 : 1;
-		if (configuredPlayerStart != null) timeDec = 0;
-		timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
 		if (timeRemainingInFrames == 0) {
 			performLevelFailure();
 		}
@@ -1059,7 +1079,7 @@ public class World implements AlienServices, Disposable {
 
 			end();
 
-			if (whereWeExitedTheLevel != null) {
+			if (isLevelCompleted()) {
 				if (!delayedFinish.testAndRun()) {
 					String text = "?";
 					if (mode == Mode.NORMAL) {

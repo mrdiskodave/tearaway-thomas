@@ -1756,10 +1756,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void changeMapBounds(Box nBounds) {
 		GameMap sourceMap = gameMap;
-		GameMap destinationMap = new GameMap(nBounds);
-		for (Coord c : destinationMap) {
-			destinationMap.setBlock(c, sourceMap.safeGetBlock(c));
-		}
+		GameMap destinationMap = new GameMap(nBounds, gameMap);
 		setGameMap(destinationMap);
 		sayf("Map changed from %s to %s", sourceMap.boundsInBlocks(), destinationMap.boundsInBlocks());
 	}

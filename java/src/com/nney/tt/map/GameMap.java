@@ -47,6 +47,13 @@ public final class GameMap implements Iterable<Coord> {
 		map = new short[h][w];
 	}
 
+	public GameMap(Box boundsInBlocks, GameMap oldMap) {
+		this(boundsInBlocks);
+		for (Coord c : this) {
+			setBlock(c, oldMap.safeGetBlock(c));
+		}
+	}
+
 	public Box boundsInPixels() {
 		return boundsInPixels;
 	}
