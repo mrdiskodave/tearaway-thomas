@@ -312,6 +312,7 @@
 		},
 		{
 			"type": "sineLift",
+			"phase": 0,
 			"box": [
 				2000,
 				1344,
@@ -321,6 +322,7 @@
 		},
 		{
 			"type": "sineLift",
+			"phase": 50,
 			"box": [
 				2240,
 				1344,

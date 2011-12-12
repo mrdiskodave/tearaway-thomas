@@ -3,13 +3,14 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
+import com.nney.utils.Math2;
 
 public class SineLiftAlien extends LiftAlien {
-	// need to think about what the props are here! could have signal generators
-	// :O
-
 	@PropAnn(doc = "The area we move within.")
 	public Box box;
+
+	@PropAnn(doc = "Our movement in relation to other lifts (0-99)")
+	public int phase;
 
 	@Override
 	public void resetTo(Coord c) {
@@ -31,7 +32,8 @@ public class SineLiftAlien extends LiftAlien {
 
 	@Override
 	protected Coord currentPosition() {
-		int angle = srv.getFrameNumber() * 8;
+		int f = srv.getFrameNumber() + Math2.percent2(128, phase);
+		int angle = (f % 128) * 8;
 		Coord origin = new Coord((box.left + box.right) / 2, box.top);
 		int spin = sine(angle) / 4 + 256;
 		int xo = sine(spin + 256) * box.width();
