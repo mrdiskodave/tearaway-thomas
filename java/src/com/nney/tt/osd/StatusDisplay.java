@@ -61,7 +61,7 @@ public class StatusDisplay implements Disposable {
 
 	private void drawLow(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
-		t.centredDraw(midX, Math2.percent(gc.screenHeight(), 8));
+		t.centredDraw(midX, Math2.percent(gc.screenHeight(), 80));
 	}
 
 	private void drawHigh(AbstractText t) {
