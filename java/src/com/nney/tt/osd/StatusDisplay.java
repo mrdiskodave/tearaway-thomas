@@ -28,28 +28,36 @@ public class StatusDisplay implements Disposable {
 		pausedText = new StaticText(font, 0xff00ffff, 0, "paused");
 		lifeLostText = new StaticText(font, COL_BAD, 0, "out of time");
 		pressJumpText = new StaticText(font, 0xffffff00, 0, "press jump");
-		
+
 		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText, pressJumpText);
 	}
-	
+
 	public void drawExitOpen() {
 		drawHigh(exitOpenText);
 	}
-	
+
 	public void drawHurryUp() {
 		drawLow(hurryUpText);
 	}
-	
+
 	public void drawPaused() {
 		drawLow(pausedText);
 	}
-	
+
 	public void drawLifeLost(Coord c) {
-		lifeLostText.centredDraw(c.x, c.y);
+		// where is it?
+		int w = lifeLostText.width();
+		int nx = c.x - w / 2;
+
+		// make sure it hasn't gone off screen to the left or right
+		// (which it will if the player is against the edge)
+		int minx = 1;
+		int maxx = gc.screenWidth() - minx - w;
+		nx = Math2.limit(minx, maxx, nx);
+
+		// draw it!
+		lifeLostText.draw(nx, c.y);
 	}
-	
-	
-	
 
 	private void drawLow(AbstractText t) {
 		int midX = gc.screenWidth() / 2;
