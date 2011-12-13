@@ -16,9 +16,12 @@ import com.nney.tt.tinytools.Latch;
  * 
  */
 public class Player {
-	public Player(AlienServices srv, Anims playerAnims, Coord initialPosition, boolean initialGoLeft) {
+	private final int lowerEdge;
+
+	public Player(AlienServices srv, Anims playerAnims, Coord initialPosition, boolean initialGoLeft, int lowerEdge) {
 		this.srv = srv;
 		this.playersAnimations = playerAnims;
+		this.lowerEdge = lowerEdge;
 		this.cr = initialPosition.copy();
 		this.goLeft = initialGoLeft;
 		this.lc = initialPosition.copy();
@@ -921,11 +924,20 @@ public class Player {
 
 	public void move(ParsedJoystick parsedJoystick) {
 		playerSprite = null;
-		jdx = parsedJoystick.x();
-		jdy = parsedJoystick.y();
-		jfire.next(parsedJoystick.fire());
-		move2();
+		if (isLostOffTheBottom()) {
+			setAnim(directionalAnimName(""), true);
+		}
+		else {
+			jdx = parsedJoystick.x();
+			jdy = parsedJoystick.y();
+			jfire.next(parsedJoystick.fire());
+			move2();
+		}
 		assert playerSprite != null;
+	}
+
+	public boolean isLostOffTheBottom() {
+		return cr.y >= lowerEdge;
 	}
 
 	public void draw() {
@@ -964,7 +976,10 @@ public class Player {
 	}
 
 	public void kill() {
-		startStunMode(Integer.MAX_VALUE);
+		if (CTC_STUNABLE) {
+			reset(Mode.STUN);
+			stunTimer = Integer.MAX_VALUE;
+		}
 	}
 
 	public boolean onArse() {

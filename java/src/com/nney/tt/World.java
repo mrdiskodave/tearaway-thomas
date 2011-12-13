@@ -244,6 +244,8 @@ public class World implements AlienServices, Disposable {
 
 	private Mode mode = Mode.NORMAL;
 
+	private int lowerEdge;
+
 	public World(OuterWorld ow) {
 		this.ow = ow;
 		this.gc = ow.gc;
@@ -927,25 +929,26 @@ public class World implements AlienServices, Disposable {
 		// code for constantly checking so is a performance win)
 		Box b = gameMap.boundsInBlocks().copy();
 		b.top -= 8;
+		lowerEdge = Const.BLOCK_SIZE * (b.bottom + 3);
 		b.bottom += 8;
 		gameMap = new GameMap(b, gameMap);
 
 		pl = null;
 
-		Coord playerWhere = null;
-		boolean playerLeft = false;
+		Coord playerStart = null;
+		boolean playerFacesLeft = false;
 		if (configuredPlayerStart == null) {
 			PlayerAlien palien = ListUtil.findOne(PlayerAlien.class, aliens);
 			if (palien != null) {
-				playerWhere = palien.c;
-				playerLeft = palien.goLeft;
+				playerStart = palien.c;
+				playerFacesLeft = palien.goLeft;
 			}
 			else {
 				throw new RuntimeException("Need a PlayerAlien to establish player's starting position!");
 			}
 		}
 		else {
-			playerWhere = configuredPlayerStart;
+			playerStart = configuredPlayerStart;
 		}
 
 		if (!configuredCalledFromMapper) {
@@ -979,7 +982,7 @@ public class World implements AlienServices, Disposable {
 
 		blockSet = ow.loadBlockSet(new BlockSet.Config(worldName, configuredSeeMasks, configuredSeeHidden));
 
-		player = new Player(this, animsPool.expect("0tt"), playerWhere, playerLeft);
+		player = new Player(this, animsPool.expect("0tt"), playerStart, playerFacesLeft, lowerEdge);
 
 		pickTheBestBounds();
 
@@ -1055,8 +1058,12 @@ public class World implements AlienServices, Disposable {
 			int timeDec = player.isStunned() ? 3 : 1;
 			timeRemainingInFrames = Math.max(timeRemainingInFrames - timeDec, 0);
 		}
-		if (timeRemainingInFrames == 0) {
+
+		if (player.isLostOffTheBottom()) {
 			performLevelFailure();
+		}
+		if (timeRemainingInFrames == 0) {
+			performTheatricalLevelFailure();
 		}
 		else {
 			//
@@ -1103,11 +1110,10 @@ public class World implements AlienServices, Disposable {
 		}
 	}
 
-	private void performLevelFailure() {
+	private void performTheatricalLevelFailure() {
 		collisionDetection = false;
 
 		player.kill();
-		// so that twangs him up in the air
 		// we need to keep waiting until
 		// he is on his arse and the screen has stopped scrolling
 		do {
@@ -1116,6 +1122,10 @@ public class World implements AlienServices, Disposable {
 			drawHudAndBorders(false);
 			end();
 		} while (!player.onArse() || didScroll);
+		performLevelFailure();
+	}
+
+	private void performLevelFailure() {
 
 		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
 		hole.setCentre(t);
