@@ -23,9 +23,11 @@ public class JsonParserTest extends TestCase {
 
 		v = JsonParser.parse("42");
 		assertEquals(42, v.requireInt());
-		
+
+		// this used to explode on longs that
+		// wouldn't go cleanly into a double and back
 		Random r = new Random(1);
-		for (int x=0; x<99999; x++) {
+		for (int x = 0; x < 99999; x++) {
 			long t = r.nextLong();
 			v = JsonParser.parse(Long.toString(t));
 			assertEquals(t, v.requireLong());
