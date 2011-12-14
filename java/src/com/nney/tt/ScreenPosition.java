@@ -12,8 +12,8 @@ public class ScreenPosition {
 	private final int screenWidth;
 	private final int screenHeight;
 
-	private final ScreenOrdinate scrOrdX = new ScreenOrdinate("X");
-	private final ScreenOrdinate scrOrdY = new ScreenOrdinate("Y");
+	private final ScreenOrdinate scrOrdX;
+	private final ScreenOrdinate scrOrdY;
 
 	private Box mapLimits;
 
@@ -24,8 +24,8 @@ public class ScreenPosition {
 	public ScreenPosition(int screenWidth, int screenHeight, Coord centre) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
-		scrOrdX.setCentre(screenWidth, centre.x);
-		scrOrdY.setCentre(screenHeight, centre.y);
+		this.scrOrdX = new ScreenOrdinate("X", screenWidth, centre.x);
+		this.scrOrdY = new ScreenOrdinate("Y", screenHeight, centre.y);
 	}
 
 	public void setMapBoundsInPixels(Box scrollLimits, Box mapLimits) {
@@ -35,21 +35,28 @@ public class ScreenPosition {
 		leftLimit = mapLimits.left + 6;
 		rightLimit = mapLimits.right - 6;
 
-		// refresh scrOrdY and scrOrdY
-		// snapTo(screen);
+		calculateScreenDisplayInformation();
 	}
 
 	private void calculateScreenDisplayInformation() {
-		screen.x = scrOrdX.calculate();
-		screen.y = scrOrdY.calculate();
+		screen.x = scrOrdX.calculateScreenDrawingInformation();
+		screen.y = scrOrdY.calculateScreenDrawingInformation();
 	}
 
-	// player:
-
+	/**
+	 * Get where the top left of the screen is.
+	 * 
+	 * @return
+	 */
 	public Coord position() {
 		return screen;
 	}
 
+	/**
+	 * Set where the top left of the screen is.
+	 * 
+	 * @param c
+	 */
 	public void position(Coord c) {
 		scrOrdX.set(c.x);
 		scrOrdY.set(c.y);
@@ -57,7 +64,7 @@ public class ScreenPosition {
 	}
 
 	/**
-	 * Scroll the screen gently towards the given position.
+	 * Scroll the centre of the screen gently towards the given position.
 	 */
 	public void scrollTo(Coord c) {
 		scrOrdX.scrollTo(c.x);
@@ -66,7 +73,7 @@ public class ScreenPosition {
 	}
 
 	/**
-	 * Snap the screen instantly to the given position.
+	 * Snap the centre of the screen screen instantly to the given position.
 	 */
 	public void snapTo(Coord c) {
 		scrOrdX.snapTo(c.x);
@@ -89,10 +96,10 @@ public class ScreenPosition {
 	// ----------------------------------------------------------------------------------------------------
 	// DRAWING
 	//
-	// not convinced these screen-drawing routines belong here
+	// not convinced these screen-drawing routines belong here.
 	//
-	// the whole rest of this class is otherwise concerned with
-	// just working out where the screen and borders are located
+	// the methods above are just concerned with tracking
+	// the screen position.
 	//
 
 	public void drawTheMap(GameMap gameMap, BlockSet blockSet) {
@@ -102,13 +109,14 @@ public class ScreenPosition {
 		// ox.show();
 		// System.out.println(gameMap.boundsInBlocks());
 
-		int[] blockRow = new int[ox.outBlockCount];
-		int pixelDestY = oy.outInitialPixelDestination;
-		for (int loopY = 0; loopY < oy.outBlockCount; loopY++) {
-			for (int loopX = 0; loopX < ox.outBlockCount; loopX++) {
-				blockRow[loopX] = gameMap.fastGetBlock(ox.outMapSourceInBlocks + loopX, oy.outMapSourceInBlocks + loopY);
+		int[] blockRow = new int[ox.sdiBlockCount];
+		int pixelDestY = oy.sdiInitialPixelDestination;
+		for (int loopY = 0; loopY < oy.sdiBlockCount; loopY++) {
+			for (int loopX = 0; loopX < ox.sdiBlockCount; loopX++) {
+				blockRow[loopX] = gameMap
+						.fastGetBlock(ox.sdiMapSourceInBlocks + loopX, oy.sdiMapSourceInBlocks + loopY);
 			}
-			blockSet.blocksHolder.draw(blockRow, ox.outInitialPixelDestination, pixelDestY);
+			blockSet.blocksHolder.draw(blockRow, ox.sdiInitialPixelDestination, pixelDestY);
 			pixelDestY += Const.BLOCK_SIZE;
 		}
 	}
@@ -120,20 +128,20 @@ public class ScreenPosition {
 		int sh = gc.screenHeight();
 		{
 			ScreenOrdinate ox = scrOrdX;
-			if (ox.outInitialPixelDestination > 0) {
-				gc.fillRectangle(0, 0, ox.outInitialPixelDestination, sh, BORDER_COLOR);
+			if (ox.sdiInitialPixelDestination > 0) {
+				gc.fillRectangle(0, 0, ox.sdiInitialPixelDestination, sh, BORDER_COLOR);
 			}
-			if (ox.outHighBorderStart < sw) {
-				gc.fillRectangle(ox.outHighBorderStart, 0, sw, sh, BORDER_COLOR);
+			if (ox.sdiHighBorderStart < sw) {
+				gc.fillRectangle(ox.sdiHighBorderStart, 0, sw, sh, BORDER_COLOR);
 			}
 		}
 		{
 			ScreenOrdinate oy = scrOrdY;
-			if (oy.outInitialPixelDestination > 0) {
-				gc.fillRectangle(0, 0, sw, oy.outInitialPixelDestination, BORDER_COLOR);
+			if (oy.sdiInitialPixelDestination > 0) {
+				gc.fillRectangle(0, 0, sw, oy.sdiInitialPixelDestination, BORDER_COLOR);
 			}
-			if (oy.outHighBorderStart < sh) {
-				gc.fillRectangle(0, oy.outHighBorderStart, sw, sh, BORDER_COLOR);
+			if (oy.sdiHighBorderStart < sh) {
+				gc.fillRectangle(0, oy.sdiHighBorderStart, sw, sh, BORDER_COLOR);
 			}
 		}
 	}
@@ -144,19 +152,19 @@ public class ScreenPosition {
 		int col = 0x40ffffff;
 
 		{
-			int dx = ox.outInitialPixelDestination;
-			int s = ox.outBlockCount * Const.BLOCK_SIZE;
-			for (int q = 0; q < oy.outBlockCount; q++) {
-				int dy = oy.outInitialPixelDestination + q * Const.BLOCK_SIZE;
+			int dx = ox.sdiInitialPixelDestination;
+			int s = ox.sdiBlockCount * Const.BLOCK_SIZE;
+			for (int q = 0; q < oy.sdiBlockCount; q++) {
+				int dy = oy.sdiInitialPixelDestination + q * Const.BLOCK_SIZE;
 				gc.fillRectangle(dx, dy, s, 1, col);
 				gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
 			}
 		}
 		{
-			int dy = oy.outInitialPixelDestination;
-			int s = oy.outBlockCount * Const.BLOCK_SIZE;
-			for (int q = 0; q < ox.outBlockCount; q++) {
-				int dx = ox.outInitialPixelDestination + q * Const.BLOCK_SIZE;
+			int dy = oy.sdiInitialPixelDestination;
+			int s = oy.sdiBlockCount * Const.BLOCK_SIZE;
+			for (int q = 0; q < ox.sdiBlockCount; q++) {
+				int dx = ox.sdiInitialPixelDestination + q * Const.BLOCK_SIZE;
 				gc.fillRectangle(dx, dy, 1, s, col);
 				gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
 			}
