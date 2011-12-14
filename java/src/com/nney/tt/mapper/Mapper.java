@@ -498,7 +498,7 @@ public class Mapper implements ButtonPressServices {
 			testLevel(true);
 		}
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-			int playerCount = ListUtil.count(PlayerAlien.class, alienTracker.get());
+			int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
 			if (playerCount != 1) {
 				sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
 			}
@@ -555,7 +555,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void enliven() {
 		// enliven
-		List<Alien> all = flatten();
+		List<Alien> all = getAliens();
 		List<Alien> n = new ArrayList<Alien>();
 		int count = 0;
 		for (Iterator<Alien> iterator = all.iterator(); iterator.hasNext();) {
@@ -602,7 +602,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public int countAliens(Class<? extends Alien> t) {
-		return ListUtil.count(t, alienTracker.get());
+		return ListUtil.count(t, getAliensReadOnly());
 	}
 
 	private boolean mustBeSure(boolean sure, String task) {
@@ -635,7 +635,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void saveMap(boolean autoSave) {
-		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, alienTracker.get());
+		String levelText = PersistedLevel.staticSave(levelInfo, gameMap, getAliensReadOnly());
 		TTResource.saveMap(levelInfo.filename, levelText, autoSave);
 	}
 
@@ -661,7 +661,7 @@ public class Mapper implements ButtonPressServices {
 			w.configureSeeHidden(testFlag(FLAG_SEE_HIDDEN));
 			w.configureSeeMasks(testFlag(FLAG_SEE_MASKS));
 		}
-		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, alienTracker.get()));
+		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, getAliensReadOnly()));
 		w.testLevelFromMapper();
 		setScreenPosition(w.getScreenPosition());
 	}
@@ -839,26 +839,31 @@ public class Mapper implements ButtonPressServices {
 	private void findType(int dir) {
 		ArrayList<Alien> candidates = new ArrayList<Alien>();
 		AlienInfo t = alienPalette.get();
-		for (Alien a : alienTracker.get()) {
+		for (Alien a : getAliensReadOnly()) {
 			if (a.alienInfo == t) {
 				candidates.add(a);
 			}
 		}
-		ListUtil.sort(candidates, new SortKeyGenerator<Alien, Coord>() {
-			@Override
-			public Coord gen(Alien t) {
-				return t.getLocation();
-			}
-		});
-		if (candidates.size() != 0) {
+		if (candidates.size() > 0) {
+			// sort the candidates by their position
+			ListUtil.sort(candidates, new SortKeyGenerator<Alien, Coord>() {
+				@Override
+				public Coord gen(Alien t) {
+					return t.getLocation();
+				}
+			});
 			int z = candidates.indexOf(getSelectedAlien());
+			// did we find the current one?
 			if (z < 0) {
+				// no: so we'll start at the first one
 				z = 0;
 			}
 			else {
+				// yes: go forward or back as requested (wrapping around)
 				z += candidates.size() + dir;
 				z %= candidates.size();
 			}
+			// jump to that alien
 			Alien a = candidates.get(z);
 			setSelectedAlien(a);
 			moveMouse(a.getLocation());
@@ -1158,7 +1163,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void sendCensusToAlienPalette() {
 		CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
-		for (Alien a : alienTracker.get()) {
+		for (Alien a : getAliensReadOnly()) {
 			census.inc(a.alienInfo);
 		}
 		alienPalette.sendCenus(census);
@@ -1391,14 +1396,17 @@ public class Mapper implements ButtonPressServices {
 		return s.substring(0, Math.min(x, s.length()));
 	}
 
-	private void deleteAlien(Alien a) {
-		List<Alien> all = flatten();
-		all.remove(a);
+	private void deleteAlien(Alien alien) {
+		getAliens().remove(alien);
 		setSelectedAlien(null);
 	}
 
-	private List<Alien> flatten() {
+	private List<Alien> getAliens() {
 		return alienTracker.get();
+	}
+
+	private Iterable<Alien> getAliensReadOnly() {
+		return alienTracker;
 	}
 
 	private Coord getNudge(int k) {
@@ -1555,7 +1563,7 @@ public class Mapper implements ButtonPressServices {
 		Box rectangle = getRectInBlocks();
 		rectangle.mult(Const.BLOCK_SIZE);
 		List<Alien> captured = new ArrayList<Alien>();
-		for (Alien a : alienTracker.get()) {
+		for (Alien a : getAliensReadOnly()) {
 			if (rectangle.inside(a.getLocation())) {
 				captured.add(copyAlien(a));
 			}
@@ -1633,7 +1641,7 @@ public class Mapper implements ButtonPressServices {
 	public Alien findNearestAlien(Coord c) {
 		long dist = Long.MAX_VALUE;
 		Alien answer = null;
-		for (Alien a : alienTracker.get()) {
+		for (Alien a : getAliensReadOnly()) {
 			Coord diff = a.getLocation().sub2(c);
 			long ndist = diff.squareOfLength();
 			if (ndist < dist) {
@@ -1653,7 +1661,10 @@ public class Mapper implements ButtonPressServices {
 		alienTracker.add(alien);
 	}
 
-	public boolean inTheGround(Coord c) {
+	private boolean inTheGround(Coord c) {
+		// outside of the map it is ground
+		// (stops things falling outside of the map!)
+		if (gameMap.boundsInBlocks().inside(c)) return true;
 		int block = gameMap.getBlock(c.asr2(Const.BLOCK_SHIFT));
 		return loadBlockSet().maskHolder.inTheGround(block, c.x & Const.BLOCK_MASK, c.y & Const.BLOCK_MASK);
 	}
@@ -1743,10 +1754,7 @@ public class Mapper implements ButtonPressServices {
 			}
 		});
 
-		// lastly re-validate all the aliens
-		// generating undo/redo events as we go.
-		List<Alien> as = flatten();
-		for (Alien a : as) {
+		for (Alien a : getAliens()) {
 			startObjectEdit(a);
 			validateAlien(a);
 			endObjectEdit();
@@ -1809,7 +1817,7 @@ public class Mapper implements ButtonPressServices {
 
 	public List<Alien> removePredicatedAliens(AlienPredicate ap) {
 		List<Alien> lost = new ArrayList<Alien>();
-		List<Alien> as = flatten();
+		List<Alien> as = getAliens();
 		for (Iterator<Alien> iterator = as.iterator(); iterator.hasNext();) {
 			Alien alien = iterator.next();
 			if (ap.is(alien)) {
