@@ -10,45 +10,63 @@ import com.nney.utils.Math2;
  */
 public class ScreenOrdinate {
 	/**
+	 * A curve of sorts that dictates how much to {@link #scrollTo(int)} pulls
+	 * an orderinate back into the centre (given its distance from the centre).
+	 */
+	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
+			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
+			16 };
+
+	/**
+	 * Where is this screen ordinate now?
+	 */
+	private int current;
+
+	/**
 	 * Where to start writing the graphics block? (a screen ordinate in pixels)
 	 */
-	public int initialPixelDestination;
+	public int outInitialPixelDestination;
 
 	/**
 	 * Where to start reading the block numbers? (a map ordinate in blocks)
 	 */
-	public int mapSourceInBlocks;
+	public int outMapSourceInBlocks;
 
 	/**
 	 * How many blocks to process? (a count in blocks)
 	 */
-	public int blockCount;
-
-	void show() {
-		System.out.println(String.format("%s initialPixelDestination=%d mapSourceInBlocks=%d blockCount=%d", name,
-				initialPixelDestination, mapSourceInBlocks, blockCount));
-	}
+	public int outBlockCount;
 
 	/**
 	 * initialPixelDestination + blockCount * Const.BLOCK_SIZE
 	 */
-	public int highBorderStart;
+	public int outHighBorderStart;
 
-	private int inScreenSize;
+	private int screenSize;
 
-	private int inMapStart;
+	private int mapStart;
 
-	private int inMapSize;
+	private int mapSize;
 
-	private int inScrollStart;
+	private int scrollStart;
 
-	private int inScrollSpare;
+	private int scrollSpare;
+
+	private int screenCentre;
 
 	@SuppressWarnings("unused")
 	private final String name;
 
 	public ScreenOrdinate(String name) {
 		this.name = name;
+	}
+
+	public void snapTo(int dest) {
+		set(dest - screenCentre);
+	}
+
+	public void scrollTo(int dest) {
+		set(current + shrinkDelta(dest - screenCentre - current));
 	}
 
 	/**
@@ -59,19 +77,23 @@ public class ScreenOrdinate {
 	 * @return The ordinate cropped so it doesn't go outside of the visible
 	 *         area.
 	 */
-	private int limit(int current) {
-		if (inScrollSpare < 0) {
+	public void set(int position) {
+		if (scrollSpare < 0) {
 			// less than the screen ... so we see all of it (centered)
 			// the given position is ignored!
-			current = inMapStart + inScrollSpare / 2;
+			current = mapStart + scrollSpare / 2;
 		}
 		else {
 			// more than the screen ... so we see some of it
 			// we check the given position to make sure it is within given
 			// constraints.
-			current = Math2.limit(inScrollStart, inScrollStart + inScrollSpare, current);
+			// System.out.println(String.format("%s = %s-%s result %s", name,
+			// inScrollStart,
+			// inScrollStart + inScrollSpare, current));
+			current = Math2.limit(scrollStart, scrollStart + scrollSpare, position);
+			// System.out.println(String.format("%s answer %s", name, current));
+
 		}
-		return current;
 	}
 
 	/**
@@ -80,43 +102,51 @@ public class ScreenOrdinate {
 	 * 
 	 * @param current
 	 *            A valid ordinate i.e one has been through {@link #limit(int)}
+	 * @return
 	 */
-	private void calculate(int current) {
+	public int calculate() {
 		// how would we draw the map if we had endless space?
-		initialPixelDestination = inMapStart - current;
-		mapSourceInBlocks = inMapStart >> Const.BLOCK_SHIFT;
-		blockCount = inMapSize >> Const.BLOCK_SHIFT;
+		outInitialPixelDestination = mapStart - current;
+		outMapSourceInBlocks = mapStart >> Const.BLOCK_SHIFT;
+		outBlockCount = mapSize >> Const.BLOCK_SHIFT;
 
 		// clip it low
-		int l = initialPixelDestination / Const.BLOCK_SIZE;
+		int l = outInitialPixelDestination / Const.BLOCK_SIZE;
 		if (l < 0) {
-			initialPixelDestination -= l * Const.BLOCK_SIZE;
-			mapSourceInBlocks -= l;
-			blockCount += l;
+			outInitialPixelDestination -= l * Const.BLOCK_SIZE;
+			outMapSourceInBlocks -= l;
+			outBlockCount += l;
 		}
 
 		// clip to high
-		int r = initialPixelDestination - inScreenSize + blockCount * Const.BLOCK_SIZE;
+		int r = outInitialPixelDestination - screenSize + outBlockCount * Const.BLOCK_SIZE;
 		r /= Const.BLOCK_SIZE;
 		if (r > 0) {
-			blockCount -= r;
+			outBlockCount -= r;
 		}
 
 		// compute a useful derived value
-		highBorderStart = initialPixelDestination + blockCount * Const.BLOCK_SIZE;
-	}
+		outHighBorderStart = outInitialPixelDestination + outBlockCount * Const.BLOCK_SIZE;
 
-	public int generate(int current) {
-		current = limit(current);
-		calculate(current);
 		return current;
 	}
 
-	public void setConstraints(int screenSize, int mapStart, int mapSize, int scrollStart, int scrollSize, String name) {
-		this.inScreenSize = screenSize;
-		this.inMapStart = mapStart;
-		this.inMapSize = mapSize;
-		this.inScrollStart = scrollStart;
-		this.inScrollSpare = scrollSize - screenSize;
+	public void setConstraints(int mapStart, int mapSize, int scrollStart, int scrollSize) {
+		this.mapStart = mapStart;
+		this.mapSize = mapSize;
+		this.scrollStart = scrollStart;
+		this.scrollSpare = scrollSize - screenSize;
 	}
+
+	public void setCentre(int screenSize, int percent) {
+		this.screenSize = screenSize;
+		this.screenCentre = Math2.percent(screenSize, percent);
+	}
+
+	private static int shrinkDelta(int delta) {
+		int sign = Integer.signum(delta);
+		delta = Math.min(Math.abs(delta), SCROLLING_TABLE.length - 1);
+		return sign * SCROLLING_TABLE[delta];
+	}
+
 }

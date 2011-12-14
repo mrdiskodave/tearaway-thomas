@@ -7,14 +7,6 @@ import com.nney.tt.map.GameMap;
 import com.nney.utils.Math2;
 
 public class ScreenPosition {
-	/**
-	 * A curve of sorts that dictates how much to {@link #scrollTo(Coord)} pulls
-	 * the given {@link Coord} back into the centre (given its distance from the
-	 * centre).
-	 */
-	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
-			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
-			16 };
 
 	private final Coord screen = new Coord();
 	private final int screenWidth;
@@ -22,8 +14,6 @@ public class ScreenPosition {
 
 	private final ScreenOrdinate scrOrdX = new ScreenOrdinate("X");
 	private final ScreenOrdinate scrOrdY = new ScreenOrdinate("Y");
-
-	private Coord centre;
 
 	private Box mapLimits;
 
@@ -34,67 +24,54 @@ public class ScreenPosition {
 	public ScreenPosition(int screenWidth, int screenHeight, Coord centre) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
-		int cx = Math2.percent(screenWidth, centre.x);
-		int cy = Math2.percent(screenHeight, centre.y);
-		this.centre = new Coord(cx, cy);
+		scrOrdX.setCentre(screenWidth, centre.x);
+		scrOrdY.setCentre(screenHeight, centre.y);
 	}
 
 	public void setMapBoundsInPixels(Box scrollLimits, Box mapLimits) {
 		this.mapLimits = mapLimits.copy();
-		scrOrdX.setConstraints(screenWidth, mapLimits.left, mapLimits.width(), scrollLimits.left, scrollLimits.width(),
-				"X");
-		scrOrdY.setConstraints(screenHeight, mapLimits.top, mapLimits.height(), scrollLimits.top,
-				scrollLimits.height(), "Y");
+		scrOrdX.setConstraints(mapLimits.left, mapLimits.width(), scrollLimits.left, scrollLimits.width());
+		scrOrdY.setConstraints(mapLimits.top, mapLimits.height(), scrollLimits.top, scrollLimits.height());
 		leftLimit = mapLimits.left + 6;
 		rightLimit = mapLimits.right - 6;
 
 		// refresh scrOrdY and scrOrdY
-		setPosition(screen);
+		// snapTo(screen);
 	}
 
-	public void setPosition(Coord c) {
-		screen.x = scrOrdX.generate(c.x);
-		screen.y = scrOrdY.generate(c.y);
-	}
-
-	private static int shrinkDelta(int delta) {
-		boolean neg = false;
-		if (delta < 0) {
-			neg = true;
-			delta = -delta;
-		}
-		delta = Math.min(delta, SCROLLING_TABLE.length - 1);
-		int shrunkDelta = SCROLLING_TABLE[delta];
-		if (neg) {
-			shrunkDelta = -shrunkDelta;
-		}
-		return shrunkDelta;
-
-	}
-
-	private Coord screenDest(Coord c) {
-		return c.sub2(centre);
-	}
-
-	private static int scrollOrd(int current, int dest) {
-		return current + shrinkDelta(dest - current);
+	private void calculateScreenDisplayInformation() {
+		screen.x = scrOrdX.calculate();
+		screen.y = scrOrdY.calculate();
 	}
 
 	// player:
+
+	public Coord position() {
+		return screen;
+	}
+
+	public void position(Coord c) {
+		scrOrdX.set(c.x);
+		scrOrdY.set(c.y);
+		calculateScreenDisplayInformation();
+	}
 
 	/**
 	 * Scroll the screen gently towards the given position.
 	 */
 	public void scrollTo(Coord c) {
-		Coord sd = screenDest(c);
-		setPosition(new Coord(scrollOrd(screen.x, sd.x), scrollOrd(screen.y, sd.y)));
+		scrOrdX.scrollTo(c.x);
+		scrOrdY.scrollTo(c.y);
+		calculateScreenDisplayInformation();
 	}
 
 	/**
 	 * Snap the screen instantly to the given position.
 	 */
 	public void snapTo(Coord c) {
-		setPosition(screenDest(c));
+		scrOrdX.snapTo(c.x);
+		scrOrdY.snapTo(c.y);
+		calculateScreenDisplayInformation();
 	}
 
 	public int keepPlayerXInMap(int x) {
@@ -103,10 +80,6 @@ public class ScreenPosition {
 
 	public boolean keepInMap(Coord c) {
 		return mapLimits.constrain(c);
-	}
-
-	public Coord position() {
-		return screen;
 	}
 
 	public Box box() {
@@ -129,13 +102,13 @@ public class ScreenPosition {
 		// ox.show();
 		// System.out.println(gameMap.boundsInBlocks());
 
-		int[] blockRow = new int[ox.blockCount];
-		int pixelDestY = oy.initialPixelDestination;
-		for (int loopY = 0; loopY < oy.blockCount; loopY++) {
-			for (int loopX = 0; loopX < ox.blockCount; loopX++) {
-				blockRow[loopX] = gameMap.fastGetBlock(ox.mapSourceInBlocks + loopX, oy.mapSourceInBlocks + loopY);
+		int[] blockRow = new int[ox.outBlockCount];
+		int pixelDestY = oy.outInitialPixelDestination;
+		for (int loopY = 0; loopY < oy.outBlockCount; loopY++) {
+			for (int loopX = 0; loopX < ox.outBlockCount; loopX++) {
+				blockRow[loopX] = gameMap.fastGetBlock(ox.outMapSourceInBlocks + loopX, oy.outMapSourceInBlocks + loopY);
 			}
-			blockSet.blocksHolder.draw(blockRow, ox.initialPixelDestination, pixelDestY);
+			blockSet.blocksHolder.draw(blockRow, ox.outInitialPixelDestination, pixelDestY);
 			pixelDestY += Const.BLOCK_SIZE;
 		}
 	}
@@ -147,20 +120,20 @@ public class ScreenPosition {
 		int sh = gc.screenHeight();
 		{
 			ScreenOrdinate ox = scrOrdX;
-			if (ox.initialPixelDestination > 0) {
-				gc.fillRectangle(0, 0, ox.initialPixelDestination, sh, BORDER_COLOR);
+			if (ox.outInitialPixelDestination > 0) {
+				gc.fillRectangle(0, 0, ox.outInitialPixelDestination, sh, BORDER_COLOR);
 			}
-			if (ox.highBorderStart < sw) {
-				gc.fillRectangle(ox.highBorderStart, 0, sw, sh, BORDER_COLOR);
+			if (ox.outHighBorderStart < sw) {
+				gc.fillRectangle(ox.outHighBorderStart, 0, sw, sh, BORDER_COLOR);
 			}
 		}
 		{
 			ScreenOrdinate oy = scrOrdY;
-			if (oy.initialPixelDestination > 0) {
-				gc.fillRectangle(0, 0, sw, oy.initialPixelDestination, BORDER_COLOR);
+			if (oy.outInitialPixelDestination > 0) {
+				gc.fillRectangle(0, 0, sw, oy.outInitialPixelDestination, BORDER_COLOR);
 			}
-			if (oy.highBorderStart < sh) {
-				gc.fillRectangle(0, oy.highBorderStart, sw, sh, BORDER_COLOR);
+			if (oy.outHighBorderStart < sh) {
+				gc.fillRectangle(0, oy.outHighBorderStart, sw, sh, BORDER_COLOR);
 			}
 		}
 	}
@@ -171,19 +144,19 @@ public class ScreenPosition {
 		int col = 0x40ffffff;
 
 		{
-			int dx = ox.initialPixelDestination;
-			int s = ox.blockCount * Const.BLOCK_SIZE;
-			for (int q = 0; q < oy.blockCount; q++) {
-				int dy = oy.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int dx = ox.outInitialPixelDestination;
+			int s = ox.outBlockCount * Const.BLOCK_SIZE;
+			for (int q = 0; q < oy.outBlockCount; q++) {
+				int dy = oy.outInitialPixelDestination + q * Const.BLOCK_SIZE;
 				gc.fillRectangle(dx, dy, s, 1, col);
 				gc.fillRectangle(dx, dy + Const.BLOCK_SIZE - 1, s, 1, col);
 			}
 		}
 		{
-			int dy = oy.initialPixelDestination;
-			int s = oy.blockCount * Const.BLOCK_SIZE;
-			for (int q = 0; q < ox.blockCount; q++) {
-				int dx = ox.initialPixelDestination + q * Const.BLOCK_SIZE;
+			int dy = oy.outInitialPixelDestination;
+			int s = oy.outBlockCount * Const.BLOCK_SIZE;
+			for (int q = 0; q < ox.outBlockCount; q++) {
+				int dx = ox.outInitialPixelDestination + q * Const.BLOCK_SIZE;
 				gc.fillRectangle(dx, dy, 1, s, col);
 				gc.fillRectangle(dx + Const.BLOCK_SIZE - 1, dy, 1, s, col);
 			}

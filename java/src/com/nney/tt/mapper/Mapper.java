@@ -1599,7 +1599,9 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void setScreenPosition(Coord c) {
-		scr.setPosition(c);
+		Coord s = scr.position().copy();
+		scr.position(c);
+		System.out.println(String.format("before %s set %s after %s", s, c, scr.position()));
 		readMouse();
 	}
 
