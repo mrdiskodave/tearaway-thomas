@@ -8,7 +8,7 @@ def load_defs(s):
 	sprites = {}
 	for line in s.split('\n'):
 		line = line.strip()
-		if line!='':
+		if line!='' and not line.startswith("#"):
 			m = re.match(r'"(.*)"\s*(\S+)?', line)
 			if m:
 				name, comment = m.group(1, 2)
