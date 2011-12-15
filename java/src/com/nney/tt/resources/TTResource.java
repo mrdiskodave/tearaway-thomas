@@ -39,8 +39,12 @@ public class TTResource {
 		}
 
 		Openable openable() {
-			if (local) return new FileOpenable(new File(localResourcePath, path));
+			if (local) return new FileOpenable(local());
 			return nonLocal();
+		}
+
+		private File local() {
+			return new File(localResourcePath, path);
 		}
 
 		private ClassResourceOpenable nonLocal() {
@@ -74,7 +78,7 @@ public class TTResource {
 		return Ref.createf(format, args).openable();
 	}
 
-	private static Ref bareSpritePath(String spriteName) {
+	private static Ref bareSpriteRef(String spriteName) {
 		return Ref.createf("anims/%s.png", spriteName);
 	}
 
@@ -202,7 +206,7 @@ public class TTResource {
 
 	public static boolean animExists(String spriteName) {
 		assert spriteName != null;
-		return animDef(spriteName) != null || bareSpritePath(spriteName).exists();
+		return animDef(spriteName) != null || bareSpriteRef(spriteName).exists();
 	}
 
 	public static Openable animDef(String spriteName) {
@@ -212,7 +216,7 @@ public class TTResource {
 	}
 
 	public static Openable bareSprite(String spriteName) {
-		return bareSpritePath(spriteName).openable();
+		return bareSpriteRef(spriteName).openable();
 	}
 
 	public static Node asNode(Openable o) {
