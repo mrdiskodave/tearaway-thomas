@@ -10,9 +10,6 @@ import json
 import re
 
 s = """
-
-
-
 	; WOOD MAPS
 	dc.b	"w0.map",0	1 <SKIP>
 	dc.b	"fast things first",0
@@ -31,6 +28,10 @@ s = """
 	dc.b	"the worm that turned",0
 	dc.b	70-25,40+20,1,14
 
+	dc.b	"w8.map",0	5 FRUIT
+	dc.b	"fruit em up",0
+	dc.b	0,30,5,00
+
 	dc.b	"w3.map",0	6
 	dc.b	"famous five",0
 	dc.b	55-10,40+20,3,15
@@ -47,6 +48,52 @@ s = """
 	dc.b	"number 9 - the larch",0
 	dc.b	60-5,45,3,18
 
+	dc.b	"w4.map",0	10
+	dc.b	"r u challenged?",0
+	dc.b	00,20,6,01
+
+*>
+	; TOY MAPS
+
+	dc.b	"t5.map",0	11
+	dc.b	"the car ferry",0
+	dc.b	30-5,55+20,0,21
+
+	dc.b	"t1.map",0	12
+	dc.b	"the choice is yours",0
+	dc.b	75-15,75+20,0,22
+
+	dc.b	"t2.map",0	13 <SKIP>
+	dc.b	"this way up",0
+	dc.b	70-15,55+15,0,23
+
+	dc.b	"t10.map",0	14
+	dc.b	"the big wheel",0
+	dc.b	20-5,60,0,24
+
+	dc.b	"t8.map",0	15 FRUIT
+	dc.b	"fruit em up",0
+	dc.b	0,30,0,00
+
+	dc.b	"t4.map",0	16
+	dc.b	"the crazy maze",0
+	dc.b	40-5,70+20,0,25
+
+	dc.b	"t7.map",0	17
+	dc.b	"the choice is still yours",0
+	dc.b	80-20,85+10,0,26
+
+	dc.b	"t6.map",0	18
+	dc.b	"up, up and (tear)away",0
+	dc.b	70-5,65+10,0,27
+
+	dc.b	"t3.map",0	19
+	dc.b	"gems in high places",0
+	dc.b	40-15,50+20,0,28
+
+	dc.b	"t9.map",0	20
+	dc.b	"r u challenged?",0
+	dc.b	55,20,0,02
 
 *>
 	; GHOST MAPS
@@ -67,6 +114,10 @@ s = """
 	dc.b	"haunted hijinx",0
 	dc.b	60-15,50+15,3,34
 
+	dc.b	"g9.map",0	25 FRUIT
+	dc.b	"fruit em up!",0
+	dc.b	0,25,0,00
+
 	dc.b	"g3.map",0	26
 	dc.b	"ghosted then roasted",0
 	dc.b	65-10,35+20,4,35
@@ -82,6 +133,10 @@ s = """
 	dc.b	"g7.map",0	29
 	dc.b	"the gallery",0
 	dc.b	95-29,99,7,38
+
+	dc.b	"g8.map",0	30
+	dc.b	"r u challenged?",0
+	dc.b	0,99,0,03
 
 *>
 	; ICE MAPS
@@ -102,6 +157,10 @@ s = """
 	dc.b	"ice is nice !not!",0
 	dc.b	99-9,70+15,2,44
 
+	dc.b	"i9.map",0	35 FRUIT
+	dc.b	"fruit em up",0
+	dc.b	0,25,5,00
+
 	dc.b	"i6.map",0	36
 	dc.b	"wheel of fortune",0
 	dc.b	45-5,40-15,7,45
@@ -118,24 +177,16 @@ s = """
 	dc.b	"strange loop",0
 	dc.b	99-19,99,6,48
 
-
-"""
-
-
-
-
-
-
-
-
-IGNORED_FOR_NOW = """
+	dc.b	"i2.map",0	40 << falling challenge
+	dc.b	"r u challenged?",0
+	dc.b	0,30,2,04
 
 *>
 	; FUTURE MAPS
 
 	dc.b	"f8.map",0	41 <SKIP>
 	dc.b	"back to the future",0
-	dc.b	33,80,6,51	.
+	dc.b	33,80,6,51
 
 	dc.b	"f9.map",0	42
 	dc.b	"lift city",0
@@ -147,7 +198,7 @@ IGNORED_FOR_NOW = """
 
 	dc.b	"f6.map",0	44
 	dc.b	"teleport city",0
-	dc.b	70,50,4,54	.
+	dc.b	70,50,4,54
 
 	dc.b	"f2.map",0	45 FRUIT
 	dc.b	"fruit em up",0
@@ -155,7 +206,7 @@ IGNORED_FOR_NOW = """
 
 	dc.b	"f7.map",0	46
 	dc.b	"laser blazer",0
-	dc.b	55,99,0,55	.
+	dc.b	55,99,0,55
 
 	dc.b	"f0.map",0	47
 	dc.b	"i feel the need...",0
@@ -173,6 +224,16 @@ IGNORED_FOR_NOW = """
 	dc.b	"r u challenged?",0
 	dc.b	0,60,3,05
 
+"""
+
+
+
+
+
+
+
+
+IGNORED_FOR_NOW = """
 skiptab	; skiponlevel,tolevel
 	dc.b	1,6
 	dc.b	4,9
@@ -279,13 +340,24 @@ for l in s.split('\n'):
 		if cycle==1:
 			m = re.match(r'"(.*?)"', l)
 			assert m
-			level['title'] = m.group(1)
+			title = m.group(1)
+			level['title'] = title
 		if cycle==2:
+			#print "ITEMS:"+l
 			items = l.split(',')
 			items = [ eval(x) for x in items ]
 			level['gemsNeeded'] = items[0]
 			level['timeGiven'] = items[1]
 			level['horizon'] = items[2]
+			s = items[3]
+			level['world'] = s/10
+			level['stage'] = s%10
+
+			if level['world']==0:
+				level['world'] = level['stage']
+				level['stage'] = 9
+				level['title'] = "challenge"
+
 			levels.append(level)
 		cycle += 1
 		cycle %= 3
