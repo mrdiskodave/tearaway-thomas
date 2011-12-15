@@ -512,6 +512,9 @@ def convert_bob(name):
 						sprite.put(xd, y, c)
 			offset += rastlen
 
+		if name=='ttrrt':
+			addy -= 15
+
 		exporter.save(sprite, addx, addy)
 	exporter.done()
 
@@ -663,8 +666,8 @@ class Exporter:
 
 def convert_bobs():
 	for name in graphics_definitions:
-		if name=="0scor":
-			convert_bob(name)
+		skip = name in ['0ygem', '0pgem']
+		if not skip: convert_bob(name)
 
 def convert_horizons():
 	def convert_color(s):
