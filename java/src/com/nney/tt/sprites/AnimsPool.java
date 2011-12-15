@@ -19,11 +19,11 @@ public class AnimsPool implements Disposable {
 		this.sdp = sdp;
 		this.gc = gc;
 	}
-	
+
 	public Anims expect(String k) {
 		return get(k, false);
 	}
-	
+
 	public Anims load(String k) {
 		return get(k, true);
 	}
@@ -32,7 +32,7 @@ public class AnimsPool implements Disposable {
 		Anims answer = pool.get(k);
 		if (answer == null) {
 			if (!loadingPermitted) {
-				throw new RuntimeException("Graphic "+k+" should have been loaded already");
+				throw new RuntimeException("Graphic " + k + " should have been loaded already");
 			}
 			answer = loadAnims(k);
 			pool.put(k, answer);
@@ -41,9 +41,6 @@ public class AnimsPool implements Disposable {
 	}
 
 	private Anims loadAnims(final String animsName) {
-		ArrayList<Anim> an = new ArrayList<Anim>();
-
-		Node diRoot = sdp.load(animsName);
 		final boolean makeWhiteVersion = animsName == "0tt";
 		// TODO: fix ^this^ hack?
 
@@ -52,33 +49,42 @@ public class AnimsPool implements Disposable {
 		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
 			@Override
 			protected Sprite internalLoad(Integer k) {
-				return LargeImageFrameLoader.load(gc, TTResource.spriteFrame(animsName, k), makeWhiteVersion);
+				return LargeImageFrameLoader.load(gc, TTResource.spriteMultiFrame(animsName, k), makeWhiteVersion);
 			}
 		};
 
-		for (Node diAnim : diRoot.requireField("anims").requireList()) {
-			Node[] diFrames = diAnim.requireField("frames").requireList();
-			Sprite[] frames = new Sprite[diFrames.length];
-			for (int x = 0; x < frames.length; x++) {
-				int fno = diFrames[x].requireInt();
-				frames[x] = frameLoader.load(fno);
+		ArrayList<Anim> an = new ArrayList<Anim>();
+		Node diRoot = sdp.load(animsName);
+		if (diRoot == null) {
+			Sprite[] frames = new Sprite[] { LargeImageFrameLoader.load(gc, TTResource.spriteSingleFrame(animsName),
+					makeWhiteVersion) };
+			an.add(new Anim(0, frames, 0, null));
+		}
+		else {
+			for (Node diAnim : diRoot.requireField("anims").requireList()) {
+				Node[] diFrames = diAnim.requireField("frames").requireList();
+				Sprite[] frames = new Sprite[diFrames.length];
+				for (int x = 0; x < frames.length; x++) {
+					int fno = diFrames[x].requireInt();
+					frames[x] = frameLoader.load(fno);
+				}
+				String name = null;
+				if (diAnim.fieldExists("name")) {
+					name = diAnim.requireField("name").requireString();
+				}
+				int rate = 0;
+				if (diAnim.fieldExists("rate")) {
+					rate = diAnim.requireField("rate").requireInt();
+				}
+				int repeatPos = -1;
+				if (diAnim.fieldExists("repeatPos")) {
+					repeatPos = diAnim.requireField("repeatPos").requireInt();
+				}
+				if (repeatPos < 0 && frames.length > 1) {
+					System.out.println("ODD: " + name + " has " + frames.length + "frames but doesn't repeat");
+				}
+				an.add(new Anim(rate, frames, repeatPos, name));
 			}
-			String name = null;
-			if (diAnim.fieldExists("name")) {
-				name = diAnim.requireField("name").requireString();
-			}
-			int rate = 0;
-			if (diAnim.fieldExists("rate")) {
-				rate = diAnim.requireField("rate").requireInt();
-			}
-			int repeatPos = -1;
-			if (diAnim.fieldExists("repeatPos")) {
-				repeatPos = diAnim.requireField("repeatPos").requireInt();
-			}
-			if (repeatPos<0 && frames.length>1) {
-				System.out.println("ODD: "+name+" has "+frames.length+"frames but doesn't repeat");
-			}
-			an.add(new Anim(rate, frames, repeatPos, name));
 		}
 		return new Anims(an);
 	}
@@ -88,20 +94,20 @@ public class AnimsPool implements Disposable {
 		Set<String> removes = new TreeSet<String>();
 
 		Set<String> haves = pool.keySet();
-		for (String have: haves) {
+		for (String have : haves) {
 			if (!needs.contains(have)) {
 				removes.add(have);
 			}
 		}
-		for (String remove: removes) {
+		for (String remove : removes) {
 			pool.get(remove).dispose();
 			pool.remove(remove);
 		}
 		// ^ done in two passes to avoid changing a structure
 		// while we read it (keySet just returns a live view)
-		
+
 		// then load the ones we do
-		for (String need: needs) {
+		for (String need : needs) {
 			load(need);
 		}
 	}

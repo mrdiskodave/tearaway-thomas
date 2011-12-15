@@ -18,6 +18,7 @@ import com.nney.utils.OpenableTools;
  * PNG definitely works.
  */
 public class LargeImageFrameLoader {
+
 	public static Sprite load(GraphicsContext gc, Openable data, boolean makeWhiteVersion) {
 		byte[] someRawGraphicsFile = OpenableTools.mustLoad(data);
 		SimpleImage si = new SimpleImage(someRawGraphicsFile);
@@ -40,4 +41,5 @@ public class LargeImageFrameLoader {
 		// and that is us!
 		return new Sprite(gc, si, handleX, handleY, makeWhiteVersion);
 	}
+
 }

@@ -35,7 +35,10 @@ public class TTResource {
 	}
 
 	private static Openable formatted(String format, Object... args) {
-		String formattedName = String.format(format, args);
+		return plain(String.format(format, args));
+	}
+
+	public static Openable plain(String formattedName) {
 		if (resourcePath != null) {
 			File f = new File(resourcePath, formattedName);
 			if (f.exists()) {
@@ -117,7 +120,7 @@ public class TTResource {
 			finally {
 				fos.close();
 			}
-			
+
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
@@ -146,22 +149,33 @@ public class TTResource {
 		}
 	}
 
-	public static Openable spriteFrame(String spriteName, int frameNumber) {
+	public static boolean spriteExists(String spriteName) {
+		assert spriteName != null;
+		return spriteDef(spriteName) != null || openableExists(spriteSingleFrame(spriteName));
+	}
+
+	public static Openable spriteDef(String spriteName) {
+		Openable answer = TTResource.formatted("anims/%s/def.txt", spriteName);
+		if (!openableExists(answer)) return null;
+		return answer;
+	}
+
+	public static Openable spriteSingleFrame(String spriteName) {
+		return TTResource.formatted("anims/%s.png", spriteName);
+	}
+
+	public static Openable spriteMultiFrame(String spriteName, int frameNumber) {
 		return TTResource.formatted("anims/%s/%03d.png", spriteName, frameNumber);
 	}
 
-	public static boolean spriteExists(String spriteName) {
+	public static boolean openableExists(Openable openable) {
 		try {
-			spriteDef(spriteName).open().close();
+			openable.open().close();
 			return true;
 		}
 		catch (IOException e) {
 			return false;
 		}
-	}
-
-	public static Openable spriteDef(String spriteName) {
-		return TTResource.formatted("anims/%s/def.txt", spriteName);
 	}
 
 	public static Openable music(String s) {
@@ -183,7 +197,7 @@ public class TTResource {
 	public static Node asNode(String text) {
 		return JsonParser.mustParse(text);
 	}
-	
+
 	public static String asText(Openable o) {
 		return StringIO.mustLoadText(o, null);
 	}
