@@ -19,83 +19,76 @@ import com.nney.utils.StringIO;
  * All the knowledge about how to open our external resources.
  */
 public class TTResource {
-	private static final String FORMAT_FOR_MAP_PATH = "maps/%s.txt";
-	private static final String FORMAT_FOR_SCRIPT_PATH = "scripts/%s.txt";
-	static private File resourcePath;
+	static private File localResourcePath;
+
+	static class Ref {
+		private final boolean local;
+		private final String path;
+
+		private Ref(boolean local, String path) {
+			this.local = local;
+			this.path = path;
+		}
+
+		static Ref createf(String format, Object... args) {
+			return create(String.format(format, args));
+		}
+
+		public static Ref create(String p) {
+			return new Ref(localResourcePath != null && new File(localResourcePath, p).exists(), p);
+		}
+
+		Openable openable() {
+			if (local) return new FileOpenable(new File(localResourcePath, path));
+			return nonLocal();
+		}
+
+		private ClassResourceOpenable nonLocal() {
+			return new ClassResourceOpenable(TTResource.class, path);
+		}
+
+		public boolean exists() {
+			if (local) return true;
+			try {
+				nonLocal().open().close();
+				return true;
+			}
+			catch (IOException e) {
+				return false;
+			}
+		}
+	}
 
 	/**
 	 * This is used during development when we want to read resources from local
 	 * disk rather than from our classpath.
 	 * 
-	 * @param resourcePath
+	 * @param localResourcePath
 	 */
-	static public void setResourcePath(File resourcePath) {
-		TTResource.resourcePath = resourcePath;
-		requireResourcePath();
+	static public void setResourcePath(File localResourcePath) {
+		TTResource.localResourcePath = localResourcePath;
+		requireLocalResourcePath();
 	}
 
-	private static Openable formatted(String format, Object... args) {
-		return plain(String.format(format, args));
+	private static Openable simple(String format, Object... args) {
+		return Ref.createf(format, args).openable();
 	}
 
-	public static Openable plain(String formattedName) {
-		if (resourcePath != null) {
-			File f = new File(resourcePath, formattedName);
-			if (f.exists()) {
-				System.out.println("Loading from resource path: " + f);
-				return new FileOpenable(f);
-			}
-		}
-		return new ClassResourceOpenable(TTResource.class, formattedName);
+	private static Ref bareSpritePath(String spriteName) {
+		return Ref.createf("anims/%s.png", spriteName);
 	}
 
-	public static Openable blockDef(String worldName) {
-		return TTResource.formatted("blocks/%sdef.txt", worldName);
+	private static String scriptPath(String name) {
+		return String.format("scripts/%s.txt", name);
 	}
 
-	public static Openable blockMask(String worldName) {
-		return TTResource.formatted("blocks/%sm.png", worldName);
-	}
-
-	public static Openable blocks(String worldName) {
-		return TTResource.formatted("blocks/%s.png", worldName);
-	}
-
-	public static Openable font(String name) {
-		return TTResource.formatted("fonts/%s.png", name);
-	}
-
-	public static Openable config(String name) {
-		return TTResource.formatted("config/%s", name);
-	}
-
-	// public static Openable legacyMap(String name) {
-	// String filename =
-	// String.format("C:/Users/david/Desktop/newdata/maps/%s.map", name);
-	// return new FileOpenable(filename);
-	// }
-
-	public static Openable script(String name) {
-		return TTResource.formatted(FORMAT_FOR_SCRIPT_PATH, name);
-	}
-
-	public static void saveScript(String name, String content) {
-		String formattedName = String.format(FORMAT_FOR_SCRIPT_PATH, name);
-		saveResource(formattedName, content, false);
-	}
-
-	public static Openable map(String name) {
-		return TTResource.formatted(FORMAT_FOR_MAP_PATH, name);
-	}
-
-	public static void saveMap(String name, String content, boolean autoSave) {
-		String formattedName = String.format(FORMAT_FOR_MAP_PATH, name);
-		saveResource(formattedName, content, autoSave);
+	private static String mapPath(String name) {
+		return String.format("maps/%s.txt", name);
 	}
 
 	private static void saveResource(String formattedName, String content, boolean autoSave) {
-		requireResourcePath();
-		File f = new File(resourcePath, formattedName);
+		requireLocalResourcePath();
+		File f = new File(localResourcePath, formattedName);
 		try {
 			if (autoSave) {
 				f = uniqueName("autosave", f);
@@ -140,54 +133,86 @@ public class TTResource {
 		return dest;
 	}
 
-	static void requireResourcePath() {
-		if (resourcePath == null) {
+	private static void requireLocalResourcePath() {
+		if (localResourcePath == null) {
 			throw new RuntimeException("Resource path not configured");
 		}
-		if (!resourcePath.isDirectory()) {
-			throw new RuntimeException("Resource path not a directory: " + resourcePath);
+		if (!localResourcePath.isDirectory()) {
+			throw new RuntimeException("Resource path not a directory: " + localResourcePath);
 		}
+	}
+
+	public static Openable blockDef(String worldName) {
+		return simple("blocks/%sdef.txt", worldName);
+	}
+
+	public static Openable blockMask(String worldName) {
+		return simple("blocks/%sm.png", worldName);
+	}
+
+	public static Openable blocks(String worldName) {
+		return simple("blocks/%s.png", worldName);
+	}
+
+	public static Openable font(String name) {
+		return simple("fonts/%s.png", name);
+	}
+
+	public static Openable config(String name) {
+		return simple("config/%s", name);
+	}
+
+	public static Openable animSprite(String spriteName, int frameNumber) {
+		return simple("anims/%s/%03d.png", spriteName, frameNumber);
+	}
+
+	public static Openable music(String s) {
+		return simple("sounds/music/%s", s);
+	}
+
+	public static Openable fx(String s) {
+		return simple("sounds/fx/%s", s);
+	}
+
+	public static Openable horizon(int name) {
+		return simple("horizons/%d.png", name);
+	}
+
+	// public static Openable legacyMap(String name) {
+	// String filename =
+	// String.format("C:/Users/david/Desktop/newdata/maps/%s.map", name);
+	// return new FileOpenable(filename);
+	// }
+
+	public static Openable script(String name) {
+		return Ref.create(scriptPath(name)).openable();
+	}
+
+	public static void saveScript(String name, String content) {
+		saveResource(scriptPath(name), content, false);
+	}
+
+	public static Openable map(String name) {
+		return Ref.create(mapPath(name)).openable();
+	}
+
+	public static void saveMap(String name, String content, boolean autoSave) {
+		saveResource(mapPath(name), content, autoSave);
 	}
 
 	public static boolean animExists(String spriteName) {
 		assert spriteName != null;
-		return animDef(spriteName) != null || openableExists(bareSprite(spriteName));
+		return animDef(spriteName) != null || bareSpritePath(spriteName).exists();
 	}
 
 	public static Openable animDef(String spriteName) {
-		Openable answer = TTResource.formatted("anims/%s/def.txt", spriteName);
-		if (!openableExists(answer)) return null;
-		return answer;
+		Ref answer = Ref.createf("anims/%s/def.txt", spriteName);
+		if (!answer.exists()) return null;
+		return answer.openable();
 	}
 
 	public static Openable bareSprite(String spriteName) {
-		return TTResource.formatted("anims/%s.png", spriteName);
-	}
-
-	public static Openable animSprite(String spriteName, int frameNumber) {
-		return TTResource.formatted("anims/%s/%03d.png", spriteName, frameNumber);
-	}
-
-	public static boolean openableExists(Openable openable) {
-		try {
-			openable.open().close();
-			return true;
-		}
-		catch (IOException e) {
-			return false;
-		}
-	}
-
-	public static Openable music(String s) {
-		return TTResource.formatted("sounds/music/%s", s);
-	}
-
-	public static Openable fx(String s) {
-		return TTResource.formatted("sounds/fx/%s", s);
-	}
-
-	public static Openable horizon(int name) {
-		return TTResource.formatted("horizons/%d.png", name);
+		return bareSpritePath(spriteName).openable();
 	}
 
 	public static Node asNode(Openable o) {
