@@ -62,7 +62,7 @@ public class AlienInfoMap {
 
 	/**
 	 * Various indexes that all ignore aliens that are not available according
-	 * to {@link TTResource#spriteExists(String)}.
+	 * to {@link TTResource#animExists(String)}.
 	 */
 	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
 	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();

@@ -49,14 +49,14 @@ public class AnimsPool implements Disposable {
 		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
 			@Override
 			protected Sprite internalLoad(Integer k) {
-				return LargeImageFrameLoader.load(gc, TTResource.spriteMultiFrame(animsName, k), makeWhiteVersion);
+				return LargeImageFrameLoader.load(gc, TTResource.animSprite(animsName, k), makeWhiteVersion);
 			}
 		};
 
 		ArrayList<Anim> an = new ArrayList<Anim>();
 		Node diRoot = sdp.load(animsName);
 		if (diRoot == null) {
-			Sprite[] frames = new Sprite[] { LargeImageFrameLoader.load(gc, TTResource.spriteSingleFrame(animsName),
+			Sprite[] frames = new Sprite[] { LargeImageFrameLoader.load(gc, TTResource.bareSprite(animsName),
 					makeWhiteVersion) };
 			an.add(new Anim(0, frames, 0, null));
 		}

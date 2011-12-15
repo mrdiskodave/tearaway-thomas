@@ -57,9 +57,9 @@ public class AlienInfo {
 		if (animBaseName.charAt(0) == '?') {
 			String rest = animBaseName.substring(1);
 			animsName = worldName + rest;
-			if (TTResource.spriteExists(animsName)) return true;
+			if (TTResource.animExists(animsName)) return true;
 			animsName = '0' + rest;
-			return TTResource.spriteExists(animsName);
+			return TTResource.animExists(animsName);
 		}
 		// just assume it exists!
 		return true; 

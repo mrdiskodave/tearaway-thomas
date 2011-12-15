@@ -149,22 +149,22 @@ public class TTResource {
 		}
 	}
 
-	public static boolean spriteExists(String spriteName) {
+	public static boolean animExists(String spriteName) {
 		assert spriteName != null;
-		return spriteDef(spriteName) != null || openableExists(spriteSingleFrame(spriteName));
+		return animDef(spriteName) != null || openableExists(bareSprite(spriteName));
 	}
 
-	public static Openable spriteDef(String spriteName) {
+	public static Openable animDef(String spriteName) {
 		Openable answer = TTResource.formatted("anims/%s/def.txt", spriteName);
 		if (!openableExists(answer)) return null;
 		return answer;
 	}
 
-	public static Openable spriteSingleFrame(String spriteName) {
+	public static Openable bareSprite(String spriteName) {
 		return TTResource.formatted("anims/%s.png", spriteName);
 	}
 
-	public static Openable spriteMultiFrame(String spriteName, int frameNumber) {
+	public static Openable animSprite(String spriteName, int frameNumber) {
 		return TTResource.formatted("anims/%s/%03d.png", spriteName, frameNumber);
 	}
 
