@@ -1,0 +1,58 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1, 
+                2, 
+                3
+            ], 
+            "name": "fuzz", 
+            "rate": 128, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                4, 
+                5, 
+                6, 
+                4, 
+                5, 
+                6
+            ], 
+            "name": "ready4arrow", 
+            "rate": 128
+        }, 
+        {
+            "frames": [
+                9
+            ], 
+            "name": "up"
+        }, 
+        {
+            "frames": [
+                7
+            ], 
+            "name": "right"
+        }, 
+        {
+            "frames": [
+                10
+            ], 
+            "name": "down"
+        }, 
+        {
+            "frames": [
+                8
+            ], 
+            "name": "left"
+        }, 
+        {
+            "frames": [
+                11
+            ], 
+            "name": "bonus"
+        }
+    ], 
+    "comment": "GFXfuzz"
+}

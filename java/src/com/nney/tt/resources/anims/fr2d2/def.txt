@@ -1,0 +1,31 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0, 
+                1, 
+                2, 
+                3, 
+                4, 
+                5, 
+                6, 
+                7, 
+                8, 
+                9, 
+                10, 
+                11, 
+                12
+            ], 
+            "name": "open", 
+            "rate": 100, 
+            "repeatPos": 0
+        }, 
+        {
+            "frames": [
+                13
+            ], 
+            "name": "shut"
+        }
+    ], 
+    "comment": "GFXr2d2"
+}

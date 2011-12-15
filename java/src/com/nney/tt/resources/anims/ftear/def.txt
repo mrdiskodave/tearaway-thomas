@@ -1,0 +1,76 @@
+{
+    "anims": [
+        {
+            "frames": [
+                0
+            ], 
+            "name": "t0"
+        }, 
+        {
+            "frames": [
+                1
+            ], 
+            "name": "t1"
+        }, 
+        {
+            "frames": [
+                2
+            ], 
+            "name": "e0"
+        }, 
+        {
+            "frames": [
+                3
+            ], 
+            "name": "e1"
+        }, 
+        {
+            "frames": [
+                4
+            ], 
+            "name": "a0"
+        }, 
+        {
+            "frames": [
+                5
+            ], 
+            "name": "a1"
+        }, 
+        {
+            "frames": [
+                6
+            ], 
+            "name": "r0"
+        }, 
+        {
+            "frames": [
+                7
+            ], 
+            "name": "r1"
+        }, 
+        {
+            "frames": [
+                8
+            ], 
+            "name": "w0"
+        }, 
+        {
+            "frames": [
+                9
+            ], 
+            "name": "w1"
+        }, 
+        {
+            "frames": [
+                10
+            ], 
+            "name": "y0"
+        }, 
+        {
+            "frames": [
+                11
+            ], 
+            "name": "y1"
+        }
+    ]
+}
