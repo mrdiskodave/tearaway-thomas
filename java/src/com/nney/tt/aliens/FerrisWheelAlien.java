@@ -6,17 +6,23 @@ import com.nney.tt.props.PropAnn;
 public class FerrisWheelAlien extends LiftAlien {
 	private static final int COUNT = 8;
 
-	@PropAnn(doc = "Where are we?", label = "location")
-	public Coord c = new Coord();
+	@PropAnn(doc = "What is our centre?")
+	public Coord centre = new Coord();
+
+	@PropAnn(doc = "What is our radius in pixels?", min = 1)
+	int radius = 50;
+
+	@PropAnn(doc = "How many frames does one revolution take?", min = 10)
+	int cycleLength = 200;
 
 	@Override
 	public void resetTo(Coord p) {
-		c = p;
+		centre = p;
 	}
 
 	@Override
 	public Coord getLocation() {
-		return c;
+		return centre;
 	}
 
 	@Override
@@ -26,17 +32,18 @@ public class FerrisWheelAlien extends LiftAlien {
 
 	@Override
 	protected Coord[] currentPosition() {
-		int radius = 50;
-		int cycleLength = 50;
-
 		Coord[] answer = new Coord[COUNT];
 		for (int n = 0; n < COUNT; n++) {
-			double angle = ((double) n) / COUNT;
-			angle += ((double) (srv.getFrameNumber() % cycleLength)) / cycleLength;
+			double angle = n;
+			angle /= COUNT;
+
+			double where = srv.getFrameNumber() % cycleLength;
+			angle += where / cycleLength;
+
 			angle *= 2 * Math.PI;
 			double x = Math.sin(angle) * radius;
 			double y = Math.cos(angle) * radius;
-			answer[n] = c.copyAndAdd((int) x, (int) y);
+			answer[n] = centre.copyAndAdd((int) x, (int) y);
 		}
 		return answer;
 	}
