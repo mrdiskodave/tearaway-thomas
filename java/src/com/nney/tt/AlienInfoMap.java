@@ -20,6 +20,7 @@ import com.nney.tt.aliens.EndZoneAlien;
 import com.nney.tt.aliens.ExitAlien;
 import com.nney.tt.aliens.ExtraLifeAlien;
 import com.nney.tt.aliens.FallingAlien;
+import com.nney.tt.aliens.FerrisWheelAlien;
 import com.nney.tt.aliens.FlameAlien;
 import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
@@ -151,6 +152,8 @@ public class AlienInfoMap {
 		add(new AlienInfo(85, "fruit5", "0frt5", 600, ScoreCollectableAlien.class));
 		add(new AlienInfo(62, "fruit6", "whone", 500, ScoreCollectableAlien.class));
 		add(new AlienInfo(301, "finishB", "0finishb", SpriteAlien.class));
+
+		add(new AlienInfo(305, "ferrisWheel", "?lift", FerrisWheelAlien.class));
 
 		// use of annotations to make this easier
 		// addFromAnnotation(FlameAlien.class);
