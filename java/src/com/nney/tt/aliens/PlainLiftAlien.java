@@ -4,10 +4,10 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 
 public class PlainLiftAlien extends LiftAlien {
-	@PropAnn(doc="Where the lift starts from")
+	@PropAnn(doc = "Where the lift starts from")
 	public Coord start;
 
-	@PropAnn(doc="Where the lift ends up")
+	@PropAnn(doc = "Where the lift ends up")
 	public Coord end;
 
 	@PropAnn(doc = "Our movement in relation to other identical things (0-99)")
@@ -25,26 +25,26 @@ public class PlainLiftAlien extends LiftAlien {
 	}
 
 	@Override
-	protected Coord currentPosition() {
+	protected Coord[] currentPosition() {
 		Coord delta = end.sub2(start);
 		Coord absDelta = new Coord(Math.abs(delta.x), Math.abs(delta.y));
-		
-		boolean majorX = absDelta.x>absDelta.y;
+
+		boolean majorX = absDelta.x > absDelta.y;
 		int big = majorX ? absDelta.x : absDelta.y;
-		
+
 		int pos = Wave.sawToothWaveWithPauseAndPhase(big, pause, phase, srv.getFrameNumber()).pos;
 		float frac = pos;
 		frac /= big;
 		if (majorX) {
-			delta.x = pos*Integer.signum(delta.x);
-			delta.y = Math.round(delta.y*frac);
+			delta.x = pos * Integer.signum(delta.x);
+			delta.y = Math.round(delta.y * frac);
 		}
 		else {
-			delta.x = Math.round(delta.x*frac);
-			delta.y = pos*Integer.signum(delta.y);
+			delta.x = Math.round(delta.x * frac);
+			delta.y = pos * Integer.signum(delta.y);
 		}
-		
+
 		delta.add(start);
-		return delta;
+		return new Coord[] { delta };
 	}
 }

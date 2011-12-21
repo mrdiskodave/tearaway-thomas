@@ -3,7 +3,7 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Sprite;
 
-public class XLift implements Lift {
+public class LiftImpl implements Lift {
 	private static final int EXTRA_WIDTH = 4;
 
 	Sprite ourSprite;
@@ -11,16 +11,12 @@ public class XLift implements Lift {
 
 	private Coord lastPlace = new Coord();
 
-	private final LiftAlien parent;
-
-	public XLift(Sprite firstFrame, LiftAlien parent) {
+	public LiftImpl(Sprite firstFrame) {
 		ourSprite = firstFrame;
-		this.parent = parent;
 	}
 
 	@Override
 	public Coord lastFrameDelta() {
-		parent.generateInternalStateFromFrameNumber();
 		Coord delta = ourPlace.copy();
 		delta.sub(lastPlace);
 		return delta;

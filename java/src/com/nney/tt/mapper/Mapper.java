@@ -1616,7 +1616,8 @@ public class Mapper implements ButtonPressServices {
 	private void drawAliens() {
 		List<Alien> a = squashNext.set(false) ? alienTracker.get() : alienTracker.startDrawing(scr.box());
 		updateList(a, Alien.DEPTH_BG_SCENARY);
-		updateList(a, Alien.DEPTH_LIFTS_AND_COLLECTABLES);
+		updateList(a, Alien.DEPTH_LIFTS);
+		updateList(a, Alien.DEPTH_COLLECTABLES);
 		updateList(a, Alien.DEPTH_ALIENS);
 		updateList(a, Alien.DEPTH_FG_SCENARY);
 		alienTracker.endDrawing(scr.box());

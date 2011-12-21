@@ -3,44 +3,59 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Coord;
 
 public abstract class LiftAlien extends Alien {
-	private int lastFrameMoved = -100;
-
-	XLift xl;
+	// if this is null it suggests the subclass forgot to dimension()
+	// itself during onPropUpdate()
+	LiftImpl[] lifts;
 
 	@Override
 	public void onLoaded() {
-		xl = new XLift(firstFrame(), this);
-		depth = DEPTH_LIFTS_AND_COLLECTABLES;
+		depth = DEPTH_LIFTS;
+		// default dimension
+		dimension(1);
 	}
 
-	abstract protected Coord currentPosition();
-
-	/**
-	 * This lift moves itself but when the player is on it then the player (who
-	 * moves first, in the order of things) needs to move it in order to
-	 * establish how to move himself. To simplify this: any method that needs "a
-	 * lift that has been moved once this frame" just calls this method. The
-	 * risk of moving this lift twice is then zero.
-	 */
-	void generateInternalStateFromFrameNumber() {
-		int f = srv.getFrameNumber();
-		if (f != lastFrameMoved) {
-			lastFrameMoved = f;
+	void dimension(int d) {
+		lifts = new LiftImpl[d];
+		for (int n = 0; n < lifts.length; n++) {
+			lifts[n] = new LiftImpl(firstFrame());
 		}
-		xl.setPos(currentPosition());
+	}
+
+	abstract protected Coord[] currentPosition();
+
+	Coord[] validatedCurrentPosition() {
+		Coord[] answer = currentPosition();
+		assert answer.length == lifts.length;
+		return answer;
+	}
+
+	public void move() {
+		Coord[] pos = validatedCurrentPosition();
+		for (int n = 0; n < lifts.length; n++) {
+			lifts[n].setPos(pos[n]);
+		}
 	}
 
 	@Override
 	public void update() {
-		generateInternalStateFromFrameNumber();
+		// only draw
+		for (LiftImpl lift : lifts) {
+			srv.drawSprite(lift.ourPlace, lift.ourSprite);
+			srv.getThePlayer().performLiftBoarding(lift, lift.landOn());
+		}
+	}
 
-		srv.drawSprite(xl.ourPlace, xl.ourSprite);
-		srv.getThePlayer().performLiftBoarding(xl, xl.landOn());
+	@Override
+	public void mapperUpdate() {
+		Coord[] pos = validatedCurrentPosition();
+		for (int n = 0; n < lifts.length; n++) {
+			srv.drawSprite(pos[n], firstFrame());
+		}
 	}
 
 	@Override
 	public Coord getLocation() {
-		generateInternalStateFromFrameNumber();
-		return xl.ourPlace;
+		Coord[] pos = validatedCurrentPosition();
+		return pos[0];
 	}
 }

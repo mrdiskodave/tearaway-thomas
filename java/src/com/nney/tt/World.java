@@ -12,6 +12,7 @@ import com.nney.coroutines.Coroutine;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
 import com.nney.tt.aliens.PlayerAlien;
@@ -623,7 +624,8 @@ public class World implements AlienServices, Disposable {
 		Box screenBox = scr.box();
 		alienTracker.begin(screenBox);
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_BG_SCENARY));
-		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS_AND_COLLECTABLES));
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS));
+		updateList(alienTracker.getOnScreen(Alien.DEPTH_COLLECTABLES));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS));
 		if (drawPlayer) {
 			player.draw();
@@ -1203,6 +1205,8 @@ public class World implements AlienServices, Disposable {
 	private void mainActions(int joystickPosition) {
 		frameNumber++;
 
+		moveLifts();
+
 		parsedJoystick.set(joystickPosition);
 		player.move(parsedJoystick);
 
@@ -1220,6 +1224,13 @@ public class World implements AlienServices, Disposable {
 		scrollTheScreen();
 		drawTheMap();
 		updateTheAliens();
+	}
+
+	private void moveLifts() {
+		for (Alien a : alienTracker.getOnScreen(Alien.DEPTH_LIFTS)) {
+			LiftAlien l = (LiftAlien) a;
+			l.move();
+		}
 	}
 
 	private void scrollTheScreen() {

@@ -32,11 +32,12 @@ public abstract class Alien implements HasProps, Bounded {
 	public int depth = DEPTH_ALIENS;
 
 	public static final int DEPTH_BG_SCENARY = 0;
-	public static final int DEPTH_LIFTS_AND_COLLECTABLES = 1;
-	public static final int DEPTH_ALIENS = 2;
+	public static final int DEPTH_LIFTS = 1;
+	public static final int DEPTH_COLLECTABLES = 2;
+	public static final int DEPTH_ALIENS = 3;
 	// <-- player!
-	public static final int DEPTH_FG_SCENARY = 3;
-	public static final int DEPTH_MAX = 4;
+	public static final int DEPTH_FG_SCENARY = 4;
+	public static final int DEPTH_MAX = 5;
 
 	public Box freezeBounds;
 

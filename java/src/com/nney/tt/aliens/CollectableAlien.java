@@ -7,15 +7,15 @@ public abstract class CollectableAlien extends AppearingAlien {
 	@Override
 	public void onLoaded() {
 		super.onLoaded();
-		depth = DEPTH_LIFTS_AND_COLLECTABLES;
+		depth = DEPTH_COLLECTABLES;
 	}
-	
+
 	@Override
 	protected void normalUpdate() {
 		Sprite s = sameFrame();
 		srv.drawSprite(c, s);
 		handleCollison(c, s);
-		
+
 		if (!isFalling()) {
 			freezeBounds = spriteBounds(s);
 		}
