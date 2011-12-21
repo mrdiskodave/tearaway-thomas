@@ -11,11 +11,12 @@ import com.nney.utils.Math2;
 public class ScreenOrdinate {
 	/**
 	 * A curve of sorts that dictates how much to {@link #scrollTo(int)} pulls
-	 * an orderinate back into the centre (given its distance from the centre).
+	 * an ordinate back into the centre (given its distance from the centre).
 	 */
-	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
-			3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12, 13, 14, 15,
-			16 };
+	static private final int SCROLLING_TABLE[] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
+			2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 12, 12,
+			13, 14, 15, 16 };
+	// TODO: half pixel scrolling????
 
 	/**
 	 * Where is this screen ordinate now?

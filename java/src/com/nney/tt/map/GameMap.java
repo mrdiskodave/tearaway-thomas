@@ -10,12 +10,12 @@ import com.nney.tt.geom.Coord;
 import com.nney.utils.ReadOnlyIterator;
 
 public final class GameMap implements Iterable<Coord> {
-	// use of these private constants are the only place
-	// where map size is still hard-wired
-	private final static int OMAP_WIDTH = 256;
-	private final static int OMAP_HEIGHT = 128;
-	// this opens up the possibility of megamaps!!!
-	private static final Box DEFAULT_BOUNDS = Box.fromTopLeftAndSize(0, 0, OMAP_WIDTH, OMAP_HEIGHT);
+	/**
+	 * Default bounds of a map. These days we can have arbitrary bounds. The top
+	 * left doesn't need to be 0,0. This means the map can be extended in all
+	 * directions without moving the Aliens.
+	 */
+	private static final Box DEFAULT_BOUNDS = Box.fromTopLeftAndSize(0, 0, 256, 128);
 
 	private final Box boundsInPixels;
 

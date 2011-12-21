@@ -1,24 +1,15 @@
 package com.nney.tt.aliens;
 
 import com.nney.tt.geom.Coord;
-import com.nney.tt.sprites.Sprite;
 
 public abstract class LiftAlien extends Alien {
-	private static final int EXTRA_WIDTH = 4;
 	private int lastFrameMoved = -100;
 
-	private Coord ourPlace = new Coord();
-	private Coord lastPlace = new Coord();
-
-	private Sprite ourSprite;
-
-	public int left;
-	public int width;
+	XLift xl;
 
 	@Override
 	public void onLoaded() {
-		ourSprite = firstFrame();
-		width = ourSprite.liftWidth() + EXTRA_WIDTH * 2;
+		xl = new XLift(firstFrame(), this);
 		depth = DEPTH_LIFTS_AND_COLLECTABLES;
 	}
 
@@ -31,36 +22,25 @@ public abstract class LiftAlien extends Alien {
 	 * lift that has been moved once this frame" just calls this method. The
 	 * risk of moving this lift twice is then zero.
 	 */
-	private void generateInternalStateFromFrameNumber() {
+	void generateInternalStateFromFrameNumber() {
 		int f = srv.getFrameNumber();
 		if (f != lastFrameMoved) {
 			lastFrameMoved = f;
-			lastPlace = ourPlace.copy();
-			ourPlace = currentPosition();
-			left = ourPlace.x - EXTRA_WIDTH;
 		}
-	}
-
-	public Coord lastFrameDelta() {
-		generateInternalStateFromFrameNumber();
-		Coord delta = ourPlace.copy();
-		delta.sub(lastPlace);
-		return delta;
+		xl.setPos(currentPosition());
 	}
 
 	@Override
 	public void update() {
 		generateInternalStateFromFrameNumber();
 
-		srv.drawSprite(ourPlace, ourSprite);
-
-		int landOn = ourPlace.y - 1;
-		srv.getThePlayer().performLiftBoarding(this, landOn);
+		srv.drawSprite(xl.ourPlace, xl.ourSprite);
+		srv.getThePlayer().performLiftBoarding(xl, xl.landOn());
 	}
 
 	@Override
 	public Coord getLocation() {
 		generateInternalStateFromFrameNumber();
-		return ourPlace;
+		return xl.ourPlace;
 	}
 }

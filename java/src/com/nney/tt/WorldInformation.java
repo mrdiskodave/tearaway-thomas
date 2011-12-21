@@ -19,10 +19,10 @@ public class WorldInformation {
 	}
 
 	static public WorldInformation load(String worldName) {
-		System.out.println("Loading WorldInformation "+worldName);
+		System.out.println("Loading WorldInformation " + worldName);
 		Node v = TTResource.asNode(TTResource.blockDef(worldName));
 		BlockInformation bi = new BlockInformation(v.requireField("spec"));
-		
+
 		// TODO: no! measure this out of the block masks :) OAOO
 		LadderInformation ladderInfo = null;
 		if (v.fieldExists("ladder")) {
@@ -35,4 +35,5 @@ public class WorldInformation {
 		BlockAliasTable ih = new BlockAliasTable(v.requireField("invisibleBlockHiding"));
 		return new WorldInformation(rt, ih, bi, ladderInfo);
 	}
+
 }

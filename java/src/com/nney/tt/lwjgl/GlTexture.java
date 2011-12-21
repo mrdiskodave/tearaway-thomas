@@ -36,7 +36,6 @@ public final class GlTexture implements Blitable, PrerenderedText {
 	private GlTexture(SimpleImage si, int w, int h, boolean mono) {
 		int theirFormat = mono ? GL11.GL_ALPHA : GL11.GL_RGBA8;
 
-		// TODO: maybe don't store image dimensions here
 		imageW = w;
 		imageH = h;
 

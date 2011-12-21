@@ -34,17 +34,16 @@ public class TTResource {
 			return create(String.format(format, args));
 		}
 
-		public static Ref create(String p) {
+		static Ref create(String p) {
 			return new Ref(localResourcePath != null && new File(localResourcePath, p).exists(), p);
 		}
 
 		Openable openable() {
-			if (local) return new FileOpenable(local());
-			return nonLocal();
+			return local ? local() : nonLocal();
 		}
 
-		private File local() {
-			return new File(localResourcePath, path);
+		private FileOpenable local() {
+			return new FileOpenable(new File(localResourcePath, path));
 		}
 
 		private ClassResourceOpenable nonLocal() {

@@ -1,6 +1,6 @@
 package com.nney.tt;
 
-import com.nney.tt.aliens.LiftAlien;
+import com.nney.tt.aliens.Lift;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.input.ParsedJoystick;
 import com.nney.tt.sprites.Anim;
@@ -16,6 +16,11 @@ import com.nney.tt.tinytools.Latch;
  * 
  */
 public class Player {
+	/**
+	 * If we fall below the line Y=lowerEdge then we're dead. The map has enough
+	 * of a border on it that we do not have to detect this immediately. One
+	 * test per frame is more than adequate.
+	 */
 	private final int lowerEdge;
 
 	public Player(AlienServices srv, Anims playerAnims, Coord initialPosition, boolean initialGoLeft, int lowerEdge) {
@@ -191,7 +196,7 @@ public class Player {
 	/**
 	 * A lift, if we are standing on one, otherwise <code>null</code>.
 	 */
-	private LiftAlien standingOn;
+	private Lift standingOn;
 
 	/**
 	 * Our Y velocity.
@@ -986,7 +991,7 @@ public class Player {
 		return stunTimer < Integer.MAX_VALUE;
 	}
 
-	private void startLiftMode(LiftAlien lift, int height) {
+	private void startLiftMode(Lift lift, int height) {
 		reset(Mode.LIFT);
 		standingOn = lift;
 		crw.y = height;
@@ -1082,16 +1087,15 @@ public class Player {
 		return answer;
 	}
 
-	private boolean horizontalOverlap(LiftAlien lift) {
-		int s = lift.left;
-		return cr.x >= s && cr.x < (s + lift.width);
+	private boolean horizontalOverlap(Lift lift) {
+		return lift.horizontalOverlap(cr.x);
 	}
 
 	private boolean verticalCrossing(int landOn) {
 		return lc.y < landOn && cr.y >= landOn;
 	}
 
-	public void performLiftBoarding(LiftAlien caller, int landOn) {
+	public void performLiftBoarding(Lift caller, int landOn) {
 		if (mode == Mode.AIR && horizontalOverlap(caller) && verticalCrossing(landOn)) {
 			startLiftMode(caller, landOn);
 		}

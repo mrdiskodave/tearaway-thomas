@@ -49,6 +49,10 @@ public class World implements AlienServices, Disposable {
 		private static final long serialVersionUID = 1L;
 	}
 
+	// 36 0x38,3c 3a 00
+	//
+	// lvl13 : 0x32 spinning lift
+
 	// 8 map+code: needs lift 0
 	// 9 map+code: needs lift 0
 	// 10 ok
