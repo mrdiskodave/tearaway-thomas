@@ -12,15 +12,18 @@ public class FerrisWheelAlien extends LiftAlien {
 	@PropAnn(doc = "What is our centre?")
 	public Coord centre = new Coord();
 
-	@PropAnn(doc = "What is our radius in pixels?", min = 1)
-	public int radius = 50;
+	@PropAnn(doc = "Any point on our edge (to define the radius).", min = 1)
+	public Coord edge;
 
 	@PropAnn(doc = "How many frames does one revolution take?", min = 10)
 	public int cycleLength = 200;
 
+	private int radius;
+
 	@Override
 	public void resetTo(Coord p) {
-		centre = p;
+		centre = p.copy();
+		edge = p.copyAndAdd(50, 0);
 	}
 
 	@Override
@@ -30,6 +33,7 @@ public class FerrisWheelAlien extends LiftAlien {
 
 	@Override
 	public void onPropUpdate() {
+		radius = centre.sub2(edge).length();
 		dimension(spokes);
 	}
 

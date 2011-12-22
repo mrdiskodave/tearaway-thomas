@@ -176,6 +176,10 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		return x * x + y * y;
 	}
 
+	public int length() {
+		return (int) Math.sqrt(squareOfLength());
+	}
+
 	public void signum() {
 		x = Integer.signum(x);
 		y = Integer.signum(y);
@@ -185,4 +189,5 @@ public class Coord implements Copyable<Coord>, Cloneable, Comparable<Coord> {
 		x = other.x;
 		y = other.y;
 	}
+
 }
