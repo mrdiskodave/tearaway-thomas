@@ -13,6 +13,7 @@ import com.nney.tt.aliens.BatAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
+import com.nney.tt.aliens.BouncingFerrisWheelAlien;
 import com.nney.tt.aliens.CarAlien;
 import com.nney.tt.aliens.ClockAlien;
 import com.nney.tt.aliens.DebugTextAlien;
@@ -154,6 +155,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(301, "finishB", "0finishb", SpriteAlien.class));
 
 		add(new AlienInfo(305, "ferrisWheel", "?lift", FerrisWheelAlien.class));
+		add(new AlienInfo(306, "bouncingFerrisWheel", "?lift", BouncingFerrisWheelAlien.class));
 
 		// use of annotations to make this easier
 		// addFromAnnotation(FlameAlien.class);

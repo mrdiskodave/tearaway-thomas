@@ -7,9 +7,9 @@ public class LiftImpl implements Lift {
 	private static final int EXTRA_WIDTH = 4;
 
 	Sprite ourSprite;
-	Coord ourPlace = new Coord();
+	final Coord ourPlace = new Coord();
 
-	private Coord lastPlace = new Coord();
+	final private Coord lastPlace = new Coord();
 
 	public LiftImpl(Sprite firstFrame) {
 		ourSprite = firstFrame;
@@ -17,14 +17,12 @@ public class LiftImpl implements Lift {
 
 	@Override
 	public Coord lastFrameDelta() {
-		Coord delta = ourPlace.copy();
-		delta.sub(lastPlace);
-		return delta;
+		return ourPlace.sub2(lastPlace);
 	}
 
 	public void setPos(Coord c) {
-		lastPlace = ourPlace.copy();
-		ourPlace = c;
+		lastPlace.copyFieldsFrom(ourPlace);
+		ourPlace.copyFieldsFrom(c);
 	}
 
 	@Override
@@ -36,5 +34,9 @@ public class LiftImpl implements Lift {
 
 	public int landOn() {
 		return ourPlace.y - 1;
+	}
+
+	public void centre(Coord coord) {
+		coord.x -= ourSprite.liftWidth() / 2;
 	}
 }

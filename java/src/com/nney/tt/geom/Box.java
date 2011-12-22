@@ -95,11 +95,11 @@ public class Box implements Copyable<Box>, Cloneable {
 		return insideX(c.x) && insideY(c.y);
 	}
 
-	private boolean insideY(int y) {
+	public boolean insideY(int y) {
 		return y >= top && y <= bottom;
 	}
 
-	private boolean insideX(int x) {
+	public boolean insideX(int x) {
 		return x >= left && x <= right;
 	}
 

@@ -9,7 +9,7 @@ public class AlienInfo {
 	private final String animBaseName;
 	public final int score;
 	public final Class<? extends Alien> alienClass;
-	
+
 	private String animsName;
 
 	public String animsName() {
@@ -62,14 +62,14 @@ public class AlienInfo {
 			return TTResource.animExists(animsName);
 		}
 		// just assume it exists!
-		return true; 
+		return true;
 	}
 
 	static String makeInternalName(String s) {
-		return "#"+s;
+		return "#" + s;
 	}
-	
+
 	public boolean internal() {
-		return name.charAt(0)=='#';
+		return name.charAt(0) == '#';
 	}
 }

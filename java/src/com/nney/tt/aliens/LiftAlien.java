@@ -26,6 +26,9 @@ public abstract class LiftAlien extends Alien {
 	Coord[] validatedCurrentPosition() {
 		Coord[] answer = currentPosition();
 		assert answer.length == lifts.length;
+		for (int x = 0; x < answer.length; x++) {
+			lifts[x].centre(answer[x]);
+		}
 		return answer;
 	}
 
