@@ -43,52 +43,51 @@ public class LiftImpl implements Lift {
 	@Override
 	public boolean isScoopingUp(Coord obLast, Coord obNow) {
 		// if there isn't a horizontal overlap now
-		// then NO
 		if (!horizontalOverlap(obNow.x)) {
+			// then NO
+			// System.out.println("Scoop: No (horiz)");
 			return false;
 		}
 
-		int ls = liftLast.y - 1;
-		int le = liftNow.y - 1;
+		int ls = liftNow.y - 1;
+		int le = liftLast.y - 1;
+		int os = obNow.y;
+		int oe = obLast.y;
 
-		// consider the lift
-		// if it is going upwards then
+		// System.out.println(String.format("lift %d->%d object %d->%d", le, ls,
+		// oe, os));
+
+		// if the object is above the lift
+		if (os < ls) {
+			// then NO
+			// System.out.println("Scoop: No (above)");
+			return false;
+		}
+
+		// otherwise we need to do something
+		// smart enough to avoid any tunnelling
+		//
+		// a comparison of ranges:
+
+		// get the two ranges in order
 		if (ls > le) {
-			// swap the two values so 'ls'
-			// is the lesser
 			int t = ls;
 			ls = le;
 			le = t;
 		}
-
-		// consider the given object
-		// if it is going upwards then
-		int os = obLast.y;
-		int oe = obNow.y;
 		if (os > oe) {
-			// swap the two values so 'os'
-			// is the lesser
 			int t = os;
 			os = oe;
 			oe = t;
-
-			// we know the object is going up
-			// if it also above the lift ..
-			if (os < ls) {
-				// .. then NO
-				return false;
-			}
 		}
-
-		// otherwise ...
-		// we do a (tunnelling proof) test of range overlap
-
 		assert ls <= le; // lift range
 		assert os <= oe; // object range
 
 		// return: do the two ranges overlap?
-		boolean rangesOverlap = !(le < os || oe < ls);
-		return rangesOverlap;
+		boolean answer = !(le < os || oe < ls);
+		// System.out.println(String.format("Scoop: lift%d-%d object%d-%d %s)",
+		// ls, le, os, oe, answer));
+		return answer;
 	}
 
 	@Override
