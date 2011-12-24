@@ -287,6 +287,7 @@ public class Player {
 		vely = 0;
 		airJumpTimer = 0;
 		stunTimer = 0;
+		if (standingOn != null) standingOn.leave();
 		standingOn = null;
 		airSpin = false;
 		flying = false;
@@ -298,7 +299,6 @@ public class Player {
 		reset(Mode.AIR);
 
 		airJumpTimer = AIRJUMP_TIME;
-		standingOn = null;
 	}
 
 	private void startModeWalk() {

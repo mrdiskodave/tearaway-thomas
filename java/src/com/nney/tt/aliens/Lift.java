@@ -8,4 +8,6 @@ public interface Lift {
 	boolean horizontalOverlap(int x);
 
 	boolean isScoopingUp(Coord lc, Coord cr);
+
+	void leave();
 }
