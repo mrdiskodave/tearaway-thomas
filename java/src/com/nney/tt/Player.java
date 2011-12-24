@@ -1091,12 +1091,8 @@ public class Player {
 		return lift.horizontalOverlap(cr.x);
 	}
 
-	private boolean verticalCrossing(int landOn) {
-		return lc.y < landOn && cr.y >= landOn;
-	}
-
 	public void performLiftBoarding(Lift caller, int landOn) {
-		if (mode == Mode.AIR && horizontalOverlap(caller) && verticalCrossing(landOn)) {
+		if ((mode == Mode.AIR || mode == Mode.WALK) && caller.isScoopingUp(lc, cr)) {
 			startLiftMode(caller, landOn);
 		}
 	}

@@ -43,7 +43,7 @@ public abstract class LiftAlien extends Alien {
 	public void update() {
 		// only draw
 		for (LiftImpl lift : lifts) {
-			srv.drawSprite(lift.ourPlace, lift.ourSprite);
+			srv.drawSprite(lift.liftNow, lift.ourSprite);
 			srv.getThePlayer().performLiftBoarding(lift, lift.landOn());
 		}
 	}

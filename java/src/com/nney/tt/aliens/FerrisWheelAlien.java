@@ -3,7 +3,6 @@ package com.nney.tt.aliens;
 import com.nney.tt.geom.Coord;
 import com.nney.tt.props.PropAnn;
 
-// TODO: BouncingFerrisWheelAlien
 public class FerrisWheelAlien extends LiftAlien {
 
 	@PropAnn(doc = "How many spokes do we have?", min = 1, max = 50)
