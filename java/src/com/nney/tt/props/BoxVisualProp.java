@@ -90,6 +90,25 @@ public class BoxVisualProp extends VisualProp<Box> {
 	}
 
 	@Override
+	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
+		super.getButtons(buttons, bps);
+		buttons.add(new Button() {
+			@Override
+			public String name() {
+				return "make square";
+			}
+
+			@Override
+			public void press() {
+				Box b = read();
+				int d = (b.width() + b.height()) / 2;
+				write(Box.fromTopLeftAndSize(b.topLeft(), d, d));
+			}
+		});
+
+	}
+
+	@Override
 	public void drawAuxBatStuff(VisualPropGC rt) {
 		Box t = read();
 		rt.drawBox(t);
