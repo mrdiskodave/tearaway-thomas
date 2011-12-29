@@ -3,6 +3,7 @@ package com.nney.tt.geom;
 import com.nney.datanode.DataDestination;
 import com.nney.datanode.Node;
 import com.nney.utils.Copyable;
+import com.nney.utils.Math2;
 
 public class Box implements Copyable<Box>, Cloneable {
 	public int left;
@@ -311,9 +312,15 @@ public class Box implements Copyable<Box>, Cloneable {
 	public Coord centre() {
 		int x = left + right;
 		int y = top + bottom;
-		assert x % 2 == 0;
-		assert y % 2 == 0;
 		return new Coord(x / 2, y / 2);
+	}
+
+	public boolean hasExactCentre() {
+		int x = left + right;
+		int y = top + bottom;
+		if (Math2.maskTest(x, 1)) return false;
+		if (Math2.maskTest(y, 1)) return false;
+		return true;
 	}
 
 	public Box resideInside2(Box bigger) {
