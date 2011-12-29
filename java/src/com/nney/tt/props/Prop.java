@@ -9,7 +9,7 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.mapper.FieldAccessor;
 
 /**
- * Meta information and operations on an object property (AKA an object field). 
+ * Meta information and operations on an object property (AKA an object field).
  */
 public abstract class Prop {
 	private PropPack pp;
@@ -17,11 +17,11 @@ public abstract class Prop {
 	public Prop(PropPack pp) {
 		this.pp = pp;
 	}
-	
+
 	public FieldAccessor getFieldAccessor() {
 		return pp.access();
 	}
-	
+
 	public String name() {
 		return pp.name();
 	}
@@ -33,7 +33,7 @@ public abstract class Prop {
 	public String label() {
 		return pp.label();
 	}
-	
+
 	public void copyFrom(Prop other) {
 		getFieldAccessor().put(other.getFieldAccessor().getCopy());
 	}
@@ -42,27 +42,34 @@ public abstract class Prop {
 	}
 
 	// ---------------------------------------------------------------------------
-	// TEXT UI 
+	// TEXT UI
 
 	abstract public String text();
-	
+
 	public void getButtons(List<Button> buttons, ButtonPressServices bps) {
 	}
-	
+
 	// ---------------------------------------------------------------------------
-	// GRAPHICAL UI 
+	// GRAPHICAL UI
 
 	public void getBats(List<Bat> bats) {
 	}
-	
-	public void drawAuxBatStuff(VisualPropGC bt) {}
+
+	public void drawAuxBatStuff(VisualPropGC bt) {
+	}
 
 	public void moveBy(Coord delta) {
 	}
 
 	// ---------------------------------------------------------------------------
 	// LOAD AND SAVE
-	
+
 	abstract void save(DataDestination d);
+
 	abstract void load(Node d);
+
+	@Override
+	public String toString() {
+		return pp.name();
+	}
 }
