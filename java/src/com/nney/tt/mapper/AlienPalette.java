@@ -1,10 +1,13 @@
 package com.nney.tt.mapper;
 
+import java.nio.channels.SelectableChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.nney.tt.AlienInfo;
 import com.nney.tt.geom.Box;
+import com.nney.tt.geom.Coord;
 import com.nney.tt.sprites.Anim;
 import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.AnimsPool;
@@ -14,14 +17,43 @@ import com.nney.utils.ListUtil;
 import com.nney.utils.SortKeyGenerator;
 
 public class AlienPalette {
-	class AnimAndPlayer {
-		public final AnimPlayer animPlayer;
-		public final Box box;
+	static class AlienSelectable implements Selectable {
+		private static final int ALIENS_TAB_BOX_RADIUS = 90;
+		private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
+		private static final int ALIENS_TAB_BOX_TEXT_GAP = -2;
+		private static final int ALIENS_TAB_BOX_MARGIN = 5;
 
-		public AnimAndPlayer(Anim anim) {
-			this.animPlayer = new AnimPlayer();
-			animPlayer.changeAnimation(anim);
-			box = anim.box();
+		final public AnimPlayer animPlayer;
+		final public Box animBox;
+		final private Box ourBox;
+		private final String name;
+
+		static AlienSelectable create(AlienInfo ai, AnimsPool pool, MapperGC mgc, Coord cursor) {
+			String a = ai.animsName();
+			AnimPlayer animPlayer = null;
+			Box animBox = null;
+			if (a != null) {
+				Anim anim;
+				anim = pool.load(a).find(0);
+				animPlayer = new AnimPlayer();
+				animPlayer.changeAnimation(anim);
+				animBox = anim.box();
+			}
+			int ourHieght = ALIENS_TAB_BOX_MARGIN * 2 + ALIENS_TAB_BOX_TEXT_GAP + mgc.charHeight() + ourHeight(animBox);
+			Box ourBox = Box.fromTopLeftAndSize(cursor, mgc.screenWidth(), ourHieght);
+			cursor.y += ourHieght;
+			return new AlienSelectable(animPlayer, animBox, ourBox, ai.name);
+		}
+
+		static private int ourHeight(Box animBox) {
+			return animBox != null ? animBox.height() : 20;
+		}
+
+		AlienSelectable(AnimPlayer animPlayer, Box animBox, Box ourBox, String name) {
+			this.animPlayer = animPlayer;
+			this.animBox = animBox;
+			this.ourBox = ourBox;
+			this.name = name;
 		}
 
 		public Sprite nextFrame() {
@@ -29,109 +61,77 @@ public class AlienPalette {
 			if (animPlayer.hasAnimEnded()) animPlayer.rewind();
 			return answer;
 		}
-	}
 
-	private final HashMap<AlienInfo, AnimAndPlayer> animPlayers = new HashMap<AlienInfo, AnimAndPlayer>();
+		@Override
+		public Box where() {
+			return ourBox;
+		}
+
+		@Override
+		public void draw(MapperGC mgc, Box where) {
+			int sx = where.left;
+			int sy = where.top;
+
+			int sp = ourHeight(animBox);
+			if (animPlayer != null) {
+				Sprite sprite = animPlayer.nextFrame();
+
+				Box b = animBox;
+				int cex = sx;
+				int cey = sy + (sp + ALIENS_TAB_BOX_MARGIN) / 2;
+				cex -= b.left;
+				cey -= b.top;
+				cex -= b.width() / 2;
+				cey -= b.height() / 2;
+				// mgc.fillRectangle(cex+b.left, cey+b.top, b.width(),
+				// b.height(),
+				// 0xffff0000);
+				sprite.drawByHandle(cex, cey, false);
+			}
+
+			// String t = ai.name;
+			// int c = census.get(ai);
+			// if (c != 0) t += "(" + c + ")";
+			mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp + ALIENS_TAB_BOX_MARGIN + ALIENS_TAB_BOX_TEXT_GAP),
+					0xffffff, name);
+
+		}
+	}
 
 	private static final int ALIENS_TAB_BOX_RADIUS = 90;
 	private static final int ALIENS_TAB_BOX_DIAMETER = ALIENS_TAB_BOX_RADIUS * 2 + 1;
 	private static final int ALIENS_TAB_BOX_TEXT_GAP = -2;
 	private static final int ALIENS_TAB_BOX_MARGIN = 5;
 
-	private Carousel<AlienInfo> carousel;
-
 	private final MapperGC mgc;
 
 	private CountingMap<AlienInfo> census;
 
 	private final List<AlienInfo> alienTypes;
+	private SelectionScreen selectionScreen;
 
-	public AlienPalette(List<AlienInfo> alienTypes, MapperGC mgc, AnimsPool animsPool) {
+	public void start() {
+		selectionScreen.start();
+	}
+
+	public void end() {
+		selectionScreen.end();
+	}
+
+	public AlienPalette(List<AlienInfo> alienTypes, MapperGC mgc, MapperMousePosition mmp, AnimsPool animsPool) {
 		this.mgc = mgc;
 
+		ArrayList<Selectable> l = new ArrayList<Selectable>();
+		Coord cursor = new Coord(0, 0);
 		for (AlienInfo ai : alienTypes) {
-			String a = ai.animsName();
-			if (a != null) {
-				animPlayers.put(ai, new AnimAndPlayer(animsPool.load(a).find(0)));
-			}
+			l.add(AlienSelectable.create(ai, animsPool, mgc, cursor));
 		}
-		this.carousel = new Carousel<AlienInfo>(alienTypes);
 		this.alienTypes = alienTypes;
+		this.selectionScreen = new SelectionScreen(mgc, mmp, l);
 	}
 
-	public void showAlienPalette() {
-		int sx = mgc.screenWidth() / 2;
-		int osy = mgc.screenHeight() / 2;
-
-		Carousel<AlienInfo> c = carousel.copy();
-		osy -= alienTabHeight(c.get());
-
-		int sy = osy;
-		while (sy < mgc.screenHeight()) {
-			AlienInfo ai = c.get();
-			drawAlienTab(sx, sy, ai, sy == osy);
-			sy += alienTabHeight(ai);
-			c.next();
-		}
-
-		sy = osy;
-		c = carousel.copy();
-
-		while (sy > 0) {
-			c.prev();
-			AlienInfo ai = c.get();
-			sy -= alienTabHeight(ai);
-			drawAlienTab(sx, sy, ai, false);
-		}
-	}
-
-	private int alienTabHeight(AlienInfo ai) {
-		return more() + graphicHeight(ai);
-	}
-
-	private int more() {
-		return ALIENS_TAB_BOX_MARGIN * 2 + ALIENS_TAB_BOX_TEXT_GAP + mgc.charHeight();
-	}
-
-	private int graphicHeight(AlienInfo ai) {
-		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer == null) return 20;
-		return animAndPlayer.box.height();
-	}
-
-	private void drawAlienTab(int sx, int sy, AlienInfo ai, boolean live) {
-		if (live) {
-			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER, alienTabHeight(ai),
-					mgc.process(0xff00ff00), 0xff0020ff);
-		}
-
-		int sp = graphicHeight(ai);
-		AnimAndPlayer animAndPlayer = animPlayers.get(ai);
-		if (animAndPlayer != null) {
-			Sprite sprite = animAndPlayer.nextFrame();
-
-			Box b = animAndPlayer.box;
-			int cex = sx;
-			int cey = sy + (sp + ALIENS_TAB_BOX_MARGIN) / 2;
-			cex -= b.left;
-			cey -= b.top;
-			cex -= b.width() / 2;
-			cey -= b.height() / 2;
-			// mgc.fillRectangle(cex+b.left, cey+b.top, b.width(), b.height(),
-			// 0xffff0000);
-			sprite.drawByHandle(cex, cey, false);
-		}
-
-		String t = ai.name;
-		int c = census.get(ai);
-		if (c != 0) t += "(" + c + ")";
-		mgc.drawText(sx - ALIENS_TAB_BOX_RADIUS + 5, sy + (sp + ALIENS_TAB_BOX_MARGIN + ALIENS_TAB_BOX_TEXT_GAP),
-				0xffffff, t);
-
-		if (!live) {
-			mgc.drawTransBox(sx - ALIENS_TAB_BOX_RADIUS, sy, ALIENS_TAB_BOX_DIAMETER, alienTabHeight(ai), 0xff000000,
-					0xb00020ff);
-		}
+	public void draw() {
+		selectionScreen.draw();
 	}
 
 	public void sendCenus(CountingMap<AlienInfo> c) {
@@ -151,27 +151,27 @@ public class AlienPalette {
 	}
 
 	public AlienInfo get() {
-		return carousel.get();
+		return alienTypes.get(0);
 	}
 
 	public void next() {
-		carousel.next();
+		// carousel.next();
 	}
 
 	public void prev() {
-		carousel.prev();
+		// carousel.prev();
 	}
 
 	public void find(AlienInfo typeCode) {
-		carousel.find(typeCode);
+		// carousel.find(typeCode);
 	}
 
-	public void jumpTo(char c) {
-		for (int x = 0; x < carousel.size(); x++) {
-			carousel.next();
-			if (get().name.charAt(0) == c) {
-				return;
-			}
-		}
-	}
+	// public void jumpTo(char c) {
+	// for (int x = 0; x < carousel.size(); x++) {
+	// carousel.next();
+	// if (get().name.charAt(0) == c) {
+	// return;
+	// }
+	// }
+	// }
 }

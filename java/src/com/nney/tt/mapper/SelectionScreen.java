@@ -62,7 +62,7 @@ public class SelectionScreen {
 		}
 	}
 
-	void start() {
+	public void start() {
 		savePosition = mmp.setScreenPixels(ourPosition);
 	}
 
@@ -75,7 +75,7 @@ public class SelectionScreen {
 		ourPosition = new Coord(canvasPos.x, swm.screenPosFromCanvasPos(canvasPos.y));
 	}
 
-	void end() {
+	public void end() {
 		ourPosition = mmp.setScreenPixels(savePosition);
 	}
 }

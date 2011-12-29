@@ -348,32 +348,38 @@ public class Mapper implements ButtonPressServices {
 
 		// build the AlienPalette
 		List<AlienInfo> ais = alienInfoMap.getExternal();
-		alienPalette = new AlienPalette(ais, mgc, animsPool);
+		alienPalette = new AlienPalette(ais, mgc, mmp, animsPool);
 		sendCensusToAlienPalette();
 		blockPalette = new BlockPalette(mgc, loadBlockSet());
 
-		BlockSet bs = loadBlockSet();
-		ArrayList<Selectable> content = new ArrayList<Selectable>();
-		for (int b = 0; b < bs.getBlockCount(); b++) {
-			final int fb = b;
-			int x = b % 20;
-			int y = b / 20;
-			final Box box = Box.fromTopLeftAndSize(x, y, 1, 1);
-			box.mult(Const.BLOCK_SIZE);
-			content.add(new Selectable() {
+		{
 
-				@Override
-				public Box where() {
-					return box;
-				}
-
-				@Override
-				public void draw(MapperGC mgc, Box where) {
-					loadBlockSet().draw(fb, where.left, where.top);
-				}
-			});
 		}
-		blockSelectionScreen = new SelectionScreen(mgc, mmp, content);
+
+		{
+			BlockSet bs = loadBlockSet();
+			ArrayList<Selectable> content = new ArrayList<Selectable>();
+			for (int b = 0; b < bs.getBlockCount(); b++) {
+				final int fb = b;
+				int x = b % 20;
+				int y = b / 20;
+				final Box box = Box.fromTopLeftAndSize(x, y, 1, 1);
+				box.mult(Const.BLOCK_SIZE);
+				content.add(new Selectable() {
+
+					@Override
+					public Box where() {
+						return box;
+					}
+
+					@Override
+					public void draw(MapperGC mgc, Box where) {
+						loadBlockSet().draw(fb, where.left, where.top);
+					}
+				});
+			}
+			blockSelectionScreen = new SelectionScreen(mgc, mmp, content);
+		}
 	}
 
 	public void setGameMap(GameMap g) {
@@ -510,6 +516,29 @@ public class Mapper implements ButtonPressServices {
 						currentBlock = b;
 					}
 					blockSelectionScreen.end();
+				}
+			});
+		}
+		else if (mode == Mode.ALIEN && keyboard.isDown(Pointer.KEY_MIDDLE)) {
+			alienPalette.start();
+			startPen(Pointer.KEY_MIDDLE, new Pen() {
+				@Override
+				boolean fullScreen() {
+					return true;
+				}
+
+				@Override
+				void stroke() {
+					alienPalette.draw();
+				}
+
+				@Override
+				void up() {
+					// int b = blockSelectionScreen.getHover();
+					// if (b >= 0) {
+					// currentBlock = b;
+					// }
+					alienPalette.end();
 				}
 			});
 		}
@@ -1149,7 +1178,7 @@ public class Mapper implements ButtonPressServices {
 	private void drawPalettes() {
 		if (paletteTimer != 0) {
 			paletteTimer--;
-			if (mode == Mode.ALIEN) alienPalette.showAlienPalette();
+			// if (mode == Mode.ALIEN) alienPalette.showAlienPalette();
 			if (mode == Mode.DRAW) makeBP().showSmallPalette(getCurrentBlock());
 		}
 	}
@@ -1209,10 +1238,10 @@ public class Mapper implements ButtonPressServices {
 			showAlienPalette();
 			alienPalette.find(getSelectedAlien().alienInfo);
 		}
-		if (keyboard.isDown(Pointer.KEY_MIDDLE) && keypress != null) {
-			char c = keypress.keyChar;
-			alienPalette.jumpTo(c);
-		}
+		// if (keyboard.isDown(Pointer.KEY_MIDDLE) && keypress != null) {
+		// char c = keypress.keyChar;
+		// alienPalette.jumpTo(c);
+		// }
 	}
 
 	public void showAlienPalette() {
