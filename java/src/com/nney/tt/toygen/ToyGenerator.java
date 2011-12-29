@@ -16,12 +16,12 @@ public class ToyGenerator {
 		this.where = where;
 	}
 
-	private S s() {
+	static private S s() {
 		return new S();
 	}
 
-	private S readOrDefault(Coord coord, int i, int j) {
-		Coord t = coord.copyAndAdd(i, j);
+	private S readOrDefault(Coord coord, int dx, int dy) {
+		Coord t = coord.copyAndAdd(dx, dy);
 		S answer = read(t);
 		if (answer == null) answer = s();
 		return answer;

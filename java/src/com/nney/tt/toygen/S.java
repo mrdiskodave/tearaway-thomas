@@ -2,7 +2,7 @@ package com.nney.tt.toygen;
 
 class S {
 	public static final int SPACE_COUNT = 5;
-	public static final int WALL_COUNT = 4;
+	public static final int WALL_COUNT = 6;
 	public static final int SPECIAL_COUNT = 1;
 
 	final static public int WIDTH = 20;

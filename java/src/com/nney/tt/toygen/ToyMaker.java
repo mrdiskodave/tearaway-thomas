@@ -74,7 +74,7 @@ public class ToyMaker {
 		addColour(c++, colouriseCanvas(canvas, 0xff444444, 0xff888888, 0xffdddddd));
 		colourCount = c;
 
-		gen();
+		generateBlocks();
 		int rowsNeeded = Math2.roundUpDiv(pos, S.WIDTH);
 		int w = Const.BLOCK_SIZE * S.WIDTH;
 		int h = Const.BLOCK_SIZE * rowsNeeded;
@@ -84,14 +84,14 @@ public class ToyMaker {
 		masksImage.fill(0xffffffff);
 		blocks = new BlockSource(blocksImage, Const.BLOCK_SIZE);
 		masks = new BlockSource(masksImage, Const.BLOCK_SIZE);
-		gen();
+		generateBlocks();
 		return new Result(blocksImage, masksImage, blockInformation, where, hiding);
 
 		// saveForExamination(blocksImage, "blocks");
 		// saveForExamination(masksImage, "masks");
 	}
 
-	private void gen() {
+	private void generateBlocks() {
 		where = new HashMap<Integer, Integer>();
 
 		//
@@ -142,7 +142,7 @@ public class ToyMaker {
 		colouredSources[i] = new BlockSource(si, Const.BLOCK_SIZE);
 	}
 
-	public SimpleImage colouriseCanvas(SimpleImage canvas, int n1, int n2, int n3) {
+	private SimpleImage colouriseCanvas(SimpleImage canvas, int n1, int n2, int n3) {
 		// the original palette:
 		int red1 = 0xff660000;
 		int red2 = 0xffaa1100;
@@ -173,7 +173,7 @@ public class ToyMaker {
 	// }
 	// }
 
-	static public S s() {
+	static private S s() {
 		return new S();
 	}
 

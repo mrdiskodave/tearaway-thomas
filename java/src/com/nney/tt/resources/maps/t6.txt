@@ -1,915 +1,980 @@
 {
 	"info": {
-		"gemsNeeded": 65, 
-		"timeGiven": 75, 
-		"horizon": 0, 
-		"title": "up, up and (tear)away", 
+		"gemsNeeded": 65,
+		"timeGiven": 75,
+		"horizon": 0,
+		"title": "up, up and (tear)away",
 		"world": "t"
-	}, 
+	},
 	"objects": [
 		{
-			"type": "exit", 
+			"type": "car",
 			"location": [
-				143, 
+				192,
+				1247
+			],
+			"goLeft": false,
+			"range": [
+				175,
+				256
+			]
+		},
+		{
+			"type": "car",
+			"location": [
+				198,
+				1487
+			],
+			"goLeft": false,
+			"range": [
+				175,
+				256
+			]
+		},
+		{
+			"type": "car",
+			"location": [
+				237,
+				1183
+			],
+			"goLeft": false,
+			"range": [
+				175,
+				256
+			]
+		},
+		{
+			"type": "car",
+			"location": [
+				51,
+				1183
+			],
+			"goLeft": false,
+			"range": [
+				31,
+				112
+			]
+		},
+		{
+			"type": "car",
+			"location": [
+				88,
+				1487
+			],
+			"goLeft": false,
+			"range": [
+				31,
+				112
+			]
+		},
+		{
+			"type": "car",
+			"location": [
+				96,
+				1247
+			],
+			"goLeft": false,
+			"range": [
+				31,
+				112
+			]
+		},
+		{
+			"type": "exit",
+			"location": [
+				143,
 				367
 			]
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				143, 
+				143,
 				1382
-			], 
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				144, 
+				144,
 				1716
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				207, 
+				207,
 				1668
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				208, 
+				208,
 				1764
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				80, 
+				80,
 				1668
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				80, 
+				80,
 				1764
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "hiddenScoreGift", 
+			"type": "hiddenScoreGift",
 			"location": [
-				239, 
+				239,
 				1520
 			]
-		}, 
+		},
 		{
-			"type": "hiddenScoreGift", 
+			"type": "hiddenScoreGift",
 			"location": [
-				30, 
+				30,
 				416
 			]
-		}, 
+		},
 		{
-			"type": "legacy", 
+			"type": "jumboJet",
 			"location": [
-				120, 
+				120,
 				539
-			], 
-			"legacyData": "1c05000e02190110021a060408000100000000000000"
-		}, 
+			],
+			"goLeft": false,
+			"range": [
+				14,
+				272
+			]
+		},
 		{
-			"type": "legacy", 
+			"type": "jumboJet",
 			"location": [
-				192, 
-				1247
-			], 
-			"legacyData": "1d0500af04d9010004da010c80000100000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				198, 
-				1487
-			], 
-			"legacyData": "1d0500af05c6010005cb000c80000100000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				216, 
+				216,
 				602
-			], 
-			"legacyData": "1c05000e025c0110025a0204e0000100000000000000"
-		}, 
+			],
+			"goLeft": false,
+			"range": [
+				14,
+				272
+			]
+		},
 		{
-			"type": "legacy", 
+			"type": "jumboJet",
 			"location": [
-				237, 
-				1183
-			], 
-			"legacyData": "1d0500af049b01000499020680000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				255, 
-				959
-			], 
-			"legacyData": "190900ff03bf00ff03bf0006cf0001041f0000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				256, 
-				847
-			], 
-			"legacyData": "190900ff034e00ff034e02065e000004270000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				32, 
-				1023
-			], 
-			"legacyData": "1909002003ff002003ff0206fe000000430000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				32, 
-				895
-			], 
-			"legacyData": "19090020037f0020037f0106a10001001f0000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				38, 
+				38,
 				474
-			], 
-			"legacyData": "1c05000e01da011001dc020430000100000000000000"
-		}, 
+			],
+			"goLeft": false,
+			"range": [
+				14,
+				272
+			]
+		},
 		{
-			"type": "legacy", 
-			"location": [
-				51, 
-				1183
-			], 
-			"legacyData": "1d05001f049700700497020680000100000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				88, 
-				1487
-			], 
-			"legacyData": "1d05001f05c9007005c5010680000000000000000000"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				96, 
-				1247
-			], 
-			"legacyData": "1d05001f04d6007004d6010600000000000000000000"
-		}, 
-		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				0, 
-				0, 
-				287, 
+				0,
+				0,
+				287,
 				2047
 			]
-		}, 
+		},
 		{
-			"type": "player", 
+			"type": "player",
 			"location": [
-				143, 
+				143,
 				1967
-			], 
+			],
 			"goLeft": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				111, 
+				111,
 				1021
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				112, 
+				112,
 				893
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				119, 
+				119,
 				796
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				121, 
+				121,
 				1292
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				143, 
+				143,
 				957
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				167, 
+				167,
 				1292
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				168, 
+				168,
 				796
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				176, 
+				176,
 				1021
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				176, 
+				176,
 				892
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				187, 
+				187,
 				1836
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				208, 
+				208,
 				1563
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				212, 
+				212,
 				1341
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				1585
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				1672
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				1756
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				1837
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				259, 
+				259,
 				1179
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				260, 
+				260,
 				1243
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				263, 
+				263,
 				622
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				1583
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				1675
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				1758
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				1837
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				27, 
+				27,
 				1179
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				27, 
+				27,
 				1243
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				28, 
+				28,
 				493
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				28, 
+				28,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				280, 
+				280,
 				557
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				75, 
+				75,
 				1341
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				8, 
+				8,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				82, 
+				82,
 				1563
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				99, 
+				99,
 				1836
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "shield", 
+			"type": "shield",
 			"location": [
-				263, 
+				263,
 				1939
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "tank",
 			"location": [
-				104, 
+				255,
+				959
+			],
+			"goLeft": false,
+			"range": [
+				255,
+				255
+			],
+			"canMove": false
+		},
+		{
+			"type": "tank",
+			"location": [
+				256,
+				847
+			],
+			"goLeft": false,
+			"range": [
+				255,
+				255
+			],
+			"canMove": false
+		},
+		{
+			"type": "tank",
+			"location": [
+				32,
+				1023
+			],
+			"goLeft": false,
+			"range": [
+				32,
+				32
+			],
+			"canMove": false
+		},
+		{
+			"type": "tank",
+			"location": [
+				32,
+				895
+			],
+			"goLeft": false,
+			"range": [
+				32,
+				32
+			],
+			"canMove": false
+		},
+		{
+			"type": "yellowGem",
+			"location": [
+				104,
 				557
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				115, 
+				115,
 				1243
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				116, 
+				116,
 				1179
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				119, 
+				119,
 				1563
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				119, 
+				119,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				119, 
+				119,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				120, 
+				120,
 				1341
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				143, 
+				143,
 				846
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				144, 
+				144,
 				1070
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				144, 
+				144,
 				764
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				167, 
+				167,
 				1341
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				167, 
+				167,
 				493
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				167, 
+				167,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				170, 
+				170,
 				1564
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				171, 
+				171,
 				1179
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				171, 
+				171,
 				1243
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				186, 
+				186,
 				557
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				228, 
+				228,
 				1837
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				23, 
+				23,
 				1387
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				24, 
+				24,
 				1631
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				24, 
+				24,
 				1712
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				24, 
+				24,
 				1799
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				244, 
+				244,
 				1563
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				264, 
+				264,
 				1628
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				264, 
+				264,
 				1713
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				264, 
+				264,
 				1799
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				265, 
+				265,
 				1388
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				265, 
+				265,
 				796
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				33, 
+				33,
 				795
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				44, 
+				44,
 				1564
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				62, 
+				62,
 				1837
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
 		}
-	], 
-	"blocks": [
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3,7*14,3,3,7*14,3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"7*14,4*3,7*14,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3,7*14,3,3,7*14,3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3,3,2*14,a*3,2*14,3,3,ee*0", 
-		"12*3,ee*0", 
-		"4*3,2*14,6*3,2*14,4*3,ee*0", 
-		"12*3,ee*0", 
-		"6*3,2*14,3,3,2*14,6*3,ee*0", 
-		"12*3,ee*0", 
-		"8*3,2*14,8*3,ee*0", 
-		"12*3,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,7*3,2*14,5*3,3*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"3*14,3*3,2*14,3,3,2*14,5*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,7*3,2*14,5*3,3*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"3*14,3*3,2*14,3,3,2*14,5*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,7*3,2*14,7*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3*3,c*14,3*3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3,10*14,3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3*14,c*3,3*14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"3*14,c*3,3*14,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3,7*14,3,3,7*14,3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"14,3,6*14,3,3,6*14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,5*3,2*14,5*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,3,2*14,6*3,2*14,3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,5*3,2*14,5*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,3,2*14,6*3,2*14,3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,14,c*3,14,3,14,ee*0", 
-		"14,3,e*14,3,14,ee*0", 
-		"14,10*3,14,ee*0", 
-		"8*14,3,3,8*14,ee*0", 
-		"12*3,ee*0", 
-		"5*3,8*14,5*3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"3,5*14,6*3,5*14,3,ee*0", 
-		"12*3,ee*0", 
-		"12*3,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0"
-	]
+	],
+	"blocks": {
+		"version": 1,
+		"place": [
+			0,
+			0,
+			255,
+			127
+		],
+		"content": [
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"8*14,3,3,8*14",
+			"12*3",
+			"12*3",
+			"12*3",
+			"3,7*14,3,3,7*14,3",
+			"12*3",
+			"12*3",
+			"12*3",
+			"7*14,4*3,7*14",
+			"12*3",
+			"12*3",
+			"12*3",
+			"3,7*14,3,3,7*14,3",
+			"12*3",
+			"12*3",
+			"3,3,2*14,a*3,2*14,3,3",
+			"12*3",
+			"4*3,2*14,6*3,2*14,4*3",
+			"12*3",
+			"6*3,2*14,3,3,2*14,6*3",
+			"12*3",
+			"8*3,2*14,8*3",
+			"12*3",
+			"8*14,3,3,8*14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,7*3,2*14,5*3,3*14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"3*14,3*3,2*14,3,3,2*14,5*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,7*3,2*14,5*3,3*14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"3*14,3*3,2*14,3,3,2*14,5*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,7*3,2*14,7*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"8*14,3,3,8*14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"8*14,3,3,8*14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"14,10*3,14",
+			"8*14,3,3,8*14",
+			"12*3",
+			"12*3",
+			"3*3,c*14,3*3",
+			"12*3",
+			"12*3",
+			"3,10*14,3",
+			"12*3",
+			"12*3",
+			"3*14,c*3,3*14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"3*14,c*3,3*14",
+			"12*3",
+			"12*3",
+			"3,7*14,3,3,7*14,3",
+			"12*3",
+			"12*3",
+			"8*14,3,3,8*14",
+			"14,10*3,14",
+			"14,3,6*14,3,3,6*14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,5*3,2*14,5*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,3,2*14,6*3,2*14,3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,5*3,2*14,5*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,3,2*14,6*3,2*14,3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,14,c*3,14,3,14",
+			"14,3,e*14,3,14",
+			"14,10*3,14",
+			"8*14,3,3,8*14",
+			"12*3",
+			"5*3,8*14,5*3",
+			"12*3",
+			"12*3",
+			"3,5*14,6*3,5*14,3",
+			"12*3",
+			"12*3",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14"
+		]
+	}
 }

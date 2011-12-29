@@ -24,7 +24,7 @@ public class TankAlien extends LeftRightAlien {
 		super.loadFromLegacyData();
 		System.out.println(String.format("Tank flag %02x", loadByte(OBflags)));
 		canMove = !Math2.bitTest(loadByte(OBflags), FLAG_CAN_MOVE);
-		
+
 	}
 
 	@Override
@@ -47,16 +47,19 @@ public class TankAlien extends LeftRightAlien {
 				}
 			}
 			else {
-				boolean faceLeft = srv.getPlayerPosition().x < c.x;
+				int px = srv.getPlayerPosition().x;
+				boolean faceLeft = px < c.x;
 				int desiredTargetAngle = faceLeft ? 4 : 0;
 				// System.out.println("Target:"+target);
 				if (currentTurretAngle == desiredTargetAngle) {
 					if (!fireTimer.testAndRun()) {
-						reloadFireTimer();
-						int sign = faceLeft ? -1 : 1;
-						Coord shellVelocity = new Coord(sign*4, 0);
-						Coord shellStart = c.copyAndAdd(sign*28, -20);
-						srv.addAlien(new ShellAlien(shellStart, shellVelocity));
+						if (Math.abs(c.x - px) < 150) {
+							reloadFireTimer();
+							int sign = faceLeft ? -1 : 1;
+							Coord shellVelocity = new Coord(sign * 4, 0);
+							Coord shellStart = c.copyAndAdd(sign * 28, -20);
+							srv.addAlien(new ShellAlien(shellStart, shellVelocity));
+						}
 					}
 				}
 				else {
@@ -66,10 +69,10 @@ public class TankAlien extends LeftRightAlien {
 				}
 			}
 		}
-		
+
 		Sprite sprite = nextFrame();
 		srv.drawSprite(c, sprite);
-		
+
 		Sprite turretSprite = anims.find("turret").sprites[currentTurretAngle];
 		srv.drawSprite(c, turretSprite);
 
