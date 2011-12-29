@@ -197,7 +197,7 @@ public class Mapper implements ButtonPressServices {
 	private int paletteTimer;
 
 	private final MapperGC mgc;
-	private final Pointer mouse;
+	private final Pointer mouse2;
 	private GameMap gameMap;
 
 	class SavedAlienSlot {
@@ -286,6 +286,14 @@ public class Mapper implements ButtonPressServices {
 
 	private PlayerPosition sim;
 
+	private KeyEvent keypress;
+
+	private boolean penFullScreen;
+
+	private BlockPalette blockPalette;
+
+	private SelectionScreen blockSelectionScreen;
+
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
@@ -306,7 +314,7 @@ public class Mapper implements ButtonPressServices {
 		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight(), new Coord(50, 50));
 
 		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
-		mouse = ow.mouse;
+		mouse2 = ow.mouse;
 		animsPool = ow.animsPool;
 
 		PersistedLevel pl = new PersistedLevel(ow.levelNumber, null);
@@ -342,13 +350,37 @@ public class Mapper implements ButtonPressServices {
 		List<AlienInfo> ais = alienInfoMap.getExternal();
 		alienPalette = new AlienPalette(ais, mgc, animsPool);
 		sendCensusToAlienPalette();
+		blockPalette = new BlockPalette(mgc, loadBlockSet());
+
+		BlockSet bs = loadBlockSet();
+		ArrayList<Selectable> content = new ArrayList<Selectable>();
+		for (int b = 0; b < bs.getBlockCount(); b++) {
+			final int fb = b;
+			int x = b % 20;
+			int y = b / 20;
+			final Box box = Box.fromTopLeftAndSize(x, y, 1, 1);
+			box.mult(Const.BLOCK_SIZE);
+			content.add(new Selectable() {
+
+				@Override
+				public Box where() {
+					return box;
+				}
+
+				@Override
+				public void draw(MapperGC mgc, Box where) {
+					loadBlockSet().draw(fb, where.left, where.top);
+				}
+			});
+		}
+		blockSelectionScreen = new SelectionScreen(mgc, mmp, content);
 	}
 
 	public void setGameMap(GameMap g) {
 		gameMap = g;
 		constraints = gameMap.boundsInPixels();
 		Box mapBoundsInPixels = gameMap.boundsInPixels();
-		mmp = new MapperMousePosition(mapBoundsInPixels);
+		mmp = new MapperMousePosition(mouse2, mapBoundsInPixels);
 		readMouse();
 
 		Box scrollBounds = mapBoundsInPixels.copy();
@@ -386,7 +418,8 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public BlockPalette makeBP() {
-		return new BlockPalette(mgc, loadBlockSet());
+		blockPalette.changeBlockSet(loadBlockSet());
+		return blockPalette;
 	}
 
 	/**
@@ -434,7 +467,8 @@ public class Mapper implements ButtonPressServices {
 		boolean showPalettes = true;
 
 		KeyEvent e = keyboard.nextEvent();
-		int k = e == null ? 0 : e.keyCode;
+		keypress = e == null ? new KeyEvent(0, '\0') : e;
+		int k = keypress.keyCode;
 
 		if (mode == Mode.DRAW && keyboard.isDown(Keyboard.KEY_C)) {
 			Coord c = mmp.worldBlocksDelta();
@@ -443,7 +477,12 @@ public class Mapper implements ButtonPressServices {
 
 		if (pen != null) {
 			pen.run();
-			drawLevel();
+			if (penFullScreen) {
+				showPalettes = false;
+			}
+			else {
+				drawLevel();
+			}
 		}
 		else if (keyboard.isDown(Keyboard.KEY_SPACE)) {
 			if (keyboard.isDown(Pointer.KEY_LEFT)) {
@@ -452,9 +491,27 @@ public class Mapper implements ButtonPressServices {
 			drawLevel();
 		}
 		else if (mode == Mode.DRAW && keyboard.isDown(Pointer.KEY_RIGHT)) {
-			blockSelectionKeys(k);
-			blockChoosingMode();
-			showPalettes = false;
+			blockSelectionScreen.start();
+			startPen(Pointer.KEY_RIGHT, new Pen() {
+				@Override
+				boolean fullScreen() {
+					return true;
+				}
+
+				@Override
+				void stroke() {
+					blockSelectionScreen.draw();
+				}
+
+				@Override
+				void up() {
+					int b = blockSelectionScreen.getHover();
+					if (b >= 0) {
+						currentBlock = b;
+					}
+					blockSelectionScreen.end();
+				}
+			});
 		}
 		else {
 			if (mode == Mode.ALIEN) alienMode(k);
@@ -549,8 +606,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void readMouse() {
-		Coord mousePos = new Coord(mouse.getX(), mouse.getY());
-		mmp.update2(mousePos, getScreenPosition().add2(mousePos));
+		mmp.update(getScreenPosition());
 	}
 
 	public void enliven() {
@@ -1075,6 +1131,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void startPen(final int k, final Pen p) {
+		penFullScreen = p.fullScreen();
 		pen = new Runnable() {
 			@Override
 			public void run() {
@@ -1140,17 +1197,21 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_Q) {
 			showAlienPalette();
 		}
-		if (k == Keyboard.KEY_NEXT) {
+		if (k == Pointer.KEY_DOWN) {
 			showAlienPalette();
 			alienPalette.next();
 		}
-		if (k == Keyboard.KEY_PRIOR) {
+		if (k == Pointer.KEY_UP) {
 			showAlienPalette();
 			alienPalette.prev();
 		}
 		if (k == Keyboard.KEY_I && haveAlien()) {
 			showAlienPalette();
 			alienPalette.find(getSelectedAlien().alienInfo);
+		}
+		if (keyboard.isDown(Pointer.KEY_MIDDLE) && keypress != null) {
+			char c = keypress.keyChar;
+			alienPalette.jumpTo(c);
 		}
 	}
 
@@ -1204,13 +1265,6 @@ public class Mapper implements ButtonPressServices {
 
 	private String testFlagAsString(int test) {
 		return testFlag(test) ? "ON " : "OFF";
-	}
-
-	private void blockChoosingMode() {
-		int hoverBlock = makeBP().showBigPalette(getCurrentBlock(), mmp.screenPixels());
-		if (keyboard.isDown(Pointer.KEY_LEFT) && hoverBlock >= 0) {
-			setCurrentBlock(hoverBlock);
-		}
 	}
 
 	private void changeCurrentBlock(int dx, int dy) {
@@ -1597,7 +1651,9 @@ public class Mapper implements ButtonPressServices {
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
 		paletteTimer = 100;
-		sayf("block=%s", currentBlock);
+		sayf("block=%s", getCompressedCurrentBlock());
+
+		blockSelectionScreen.setHover(currentBlock);
 	}
 
 	// ---------------------------------------------------------------------------

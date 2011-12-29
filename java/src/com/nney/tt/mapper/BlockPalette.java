@@ -29,7 +29,7 @@ public class BlockPalette {
 	 * turning up <b>just</b> as the mouse reaches the top (or bottom) of the
 	 * screen.
 	 */
-	private static final int SCROLL_MARGIN = 64;
+	private static final int SCROLL_MARGIN2 = 64;
 
 	/**
 	 * The number of blocks we present per line. This should be the same number
@@ -48,6 +48,10 @@ public class BlockPalette {
 	private final MapperGC mgc;
 
 	private BlockSet blockSet;
+
+	private ScrollingWithMargin swm;
+
+	private int hoverBlock;
 
 	private class BlockPos {
 		public final int x;
@@ -81,6 +85,14 @@ public class BlockPalette {
 		this.blockSet = blockSet;
 		this.blockCount = blockSet.getBlockCount();
 		this.bigBlockPaletteHeight = Math2.roundUpDiv(blockCount, BLOCKS_PER_LINE);
+		int screen = mgc.screenHeight();
+		int canvas = bigBlockPaletteHeight * Const.BLOCK_SIZE;
+		this.swm = new ScrollingWithMargin(screen, canvas, SCROLL_MARGIN2);
+	}
+
+	void changeBlockSet(BlockSet blockSet) {
+		this.blockSet = blockSet;
+		assert blockSet.getBlockCount() == blockCount;
 	}
 
 	public void showSmallPalette(int currentBlock) {
@@ -91,20 +103,19 @@ public class BlockPalette {
 		int sx = 0; // mgc.screenWidth() - db;
 		int sy = 0;
 		mgc.fillRectangle(sx, sy, db, db, COL_BACKGROUND);
-		drawIt(false, currentBlock, currentBlock, createBlockPosList(x, y, d, d, sx, sy));
+		drawIt(false, currentBlock, createBlockPosList(x, y, d, d, sx, sy));
 	}
 
 	private int c(int x) {
 		return blockSet.compressBlock(x);
 	}
 
-	public int showBigPalette(int currentBlock, Coord mouse) {
-		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
+	public void showBigPalette(int currentBlock, Coord mouse) {
+		int screen = mgc.screenHeight();
+		mgc.fillRectangle(0, 0, mgc.screenWidth(), screen, COL_BACKGROUND);
 
-		int protrusion = Math.max(bigBlockPaletteHeight * Const.BLOCK_SIZE - mgc.screenHeight(), 0);
-		int vscroll = computeVerticalScrollAmount(mouse.y, protrusion);
-		int hoverBlock = -1;
-
+		int vscroll = swm.scrollPosFromScreenPos(mouse.y);
+		hoverBlock = -1;
 		List<BlockPos> ps = createBlockPosList(0, 0, BLOCKS_PER_LINE, bigBlockPaletteHeight, 0, -vscroll);
 		for (BlockPos p : ps) {
 			if (mouse.y >= p.y && mouse.y <= p.y + 15 && mouse.x >= p.x && mouse.x <= p.x + 15) {
@@ -112,45 +123,50 @@ public class BlockPalette {
 			}
 		}
 
-		drawIt(true, currentBlock, hoverBlock, ps);
-		return hoverBlock;
+		drawIt(true, hoverBlock, ps);
 	}
 
-	private void drawIt(boolean labels, int currentBlock, int hoverBlock, List<BlockPos> ps) {
+	private void drawIt(boolean labels, int currentBlock, List<BlockPos> ps) {
 		currentBlock = c(currentBlock);
 
 		for (BlockPos p : ps) {
 			blockSet.draw(p.b, p.x, p.y);
 			if (currentBlock == c(p.b)) {
-				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
-				if (labels && currentBlock == p.b) {
-					mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE, p.y, COL_CURRENT_BLOCK,
-							String.format("%4d", currentBlock));
-				}
+				boolean real = currentBlock == p.b;
+				mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE,
+						mgc.process(real ? COL_CURRENT_BLOCK : COL_HOVER_BLOCK));
 			}
-			if (hoverBlock == p.b) {
-				if (c(hoverBlock) == currentBlock) {
-					mgc.drawBox(p.x + 1, p.y + 1, Const.BLOCK_SIZE - 2, Const.BLOCK_SIZE - 2,
-							mgc.process(COL_HOVER_BLOCK));
-				}
-				else {
-					mgc.drawBox(p.x, p.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_HOVER_BLOCK));
-				}
+			if (currentBlock == p.b) {
+				// if (c(currentBlock) == currentBlock) {
+				// mgc.drawBox(p.x + 1, p.y + 1, Const.BLOCK_SIZE - 2,
+				// Const.BLOCK_SIZE - 2,
+				// mgc.process(COL_HOVER_BLOCK));
+				// }
+				// else {
+				// }
 				if (labels) {
 					mgc.drawText(BLOCKS_PER_LINE * Const.BLOCK_SIZE + 8 * 4, p.y, COL_HOVER_BLOCK,
-							String.format("%4d", c(hoverBlock)));
+							String.format("%4d", c(currentBlock)));
 				}
 			}
 		}
 	}
 
-	private int computeVerticalScrollAmount(int mousePos, int protrusion) {
-		int scrollZoneSize = mgc.screenHeight() - 1 - SCROLL_MARGIN * 2;
-		int mousePositionWithinScrollZone = Math2.limit(0, scrollZoneSize, mousePos - SCROLL_MARGIN);
-		return (protrusion * mousePositionWithinScrollZone) / scrollZoneSize;
-	}
-
 	public static int getPaletteDelta(int dx, int dy) {
 		return dy * BLOCKS_PER_LINE + dx;
+	}
+
+	public int getHoverBlock() {
+		return hoverBlock;
+	}
+
+	public Coord blockPosition(int currentBlock) {
+		int x = currentBlock % BLOCKS_PER_LINE;
+		int y = currentBlock / BLOCKS_PER_LINE;
+		x *= Const.BLOCK_SIZE;
+		y *= Const.BLOCK_SIZE;
+		x += Const.BLOCK_SIZE / 2;
+		y += Const.BLOCK_SIZE / 2;
+		return new Coord(x, swm.screenPosFromCanvasPos(y));
 	}
 }

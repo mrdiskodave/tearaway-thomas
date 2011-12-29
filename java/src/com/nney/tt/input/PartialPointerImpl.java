@@ -2,7 +2,7 @@ package com.nney.tt.input;
 
 import com.nney.utils.Math2;
 
-public class PartialPointerImpl extends PartialHasKeysImpl implements Pointer {
+public abstract class PartialPointerImpl extends PartialHasKeysImpl implements Pointer {
 	private int currentPosition;
 	private int x;
 	private int y;

@@ -96,6 +96,14 @@ public class LwjglMain {
 			public int getY() {
 				return SCREEN_HEIGHT - 1 - super.getY() / 2;
 			}
+
+			@Override
+			public void set(int x, int y) {
+				x *= 2;
+				y = SCREEN_HEIGHT - 1 - y;
+				y *= 2;
+				super.set(x, y);
+			}
 		};
 
 		GlGraphicsContext gc = new GlGraphicsContext(Const.FPS, new Runnable() {

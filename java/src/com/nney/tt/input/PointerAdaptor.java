@@ -3,6 +3,11 @@ package com.nney.tt.input;
 public class PointerAdaptor implements Pointer {
 	private final Pointer target;
 
+	@Override
+	public void set(int x, int y) {
+		target.set(x, y);
+	}
+
 	public PointerAdaptor(Pointer target) {
 		this.target = target;
 	}

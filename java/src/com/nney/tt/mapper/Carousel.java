@@ -74,4 +74,8 @@ public class Carousel<T> {
 		current = typeCode;
 		getPos();
 	}
+
+	public int size() {
+		return list.size();
+	}
 }

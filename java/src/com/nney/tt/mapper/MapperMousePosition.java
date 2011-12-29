@@ -3,6 +3,7 @@ package com.nney.tt.mapper;
 import com.nney.tt.Const;
 import com.nney.tt.geom.Box;
 import com.nney.tt.geom.Coord;
+import com.nney.tt.input.Pointer;
 
 public class MapperMousePosition {
 	private Coord pos;
@@ -14,12 +15,14 @@ public class MapperMousePosition {
 	private Coord worldBlockPosDelta;
 	private Coord lastWorldBlockPos = new Coord();
 	private final Box worldLimits;
+	private final Pointer mouse;
 
-	public MapperMousePosition(Box worldLimits) {
+	public MapperMousePosition(Pointer mouse, Box worldLimits) {
+		this.mouse = mouse;
 		this.worldLimits = worldLimits;
 	}
 
-	void update2(Coord mouseInScreen, Coord mouseInWorld) {
+	private void update2(Coord mouseInScreen, Coord mouseInWorld) {
 		pos = mouseInScreen.copy();
 		delta = pos.sub2(last);
 		last = pos.copy();
@@ -51,4 +54,14 @@ public class MapperMousePosition {
 		return worldBlockPosDelta.copy();
 	}
 
+	public void update(Coord screenPosition) {
+		Coord mousePos = new Coord(mouse.getX(), mouse.getY());
+		update2(mousePos, screenPosition.add2(mousePos));
+	}
+
+	public Coord setScreenPixels(Coord c) {
+		Coord answer = screenPixels();
+		mouse.set(c.x, c.y);
+		return answer;
+	}
 }

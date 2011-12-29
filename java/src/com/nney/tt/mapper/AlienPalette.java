@@ -139,11 +139,13 @@ public class AlienPalette {
 		ListUtil.sort(alienTypes, new SortKeyGenerator<AlienInfo, String>() {
 			@Override
 			public String gen(AlienInfo t) {
-				// Order first by quantity and then by name.
-				//
-				// one could make a nice Comparable class but this hack works
-				// just as well...
-				return String.format("%08d%s", 99999999 - census.get(t), t.name);
+				return t.name;
+				// // Order first by quantity and then by name.
+				// //
+				// // one could make a nice Comparable class but this hack works
+				// // just as well...
+				// return String.format("%08d%s", 99999999 - census.get(t),
+				// t.name);
 			}
 		});
 	}
@@ -162,5 +164,14 @@ public class AlienPalette {
 
 	public void find(AlienInfo typeCode) {
 		carousel.find(typeCode);
+	}
+
+	public void jumpTo(char c) {
+		for (int x = 0; x < carousel.size(); x++) {
+			carousel.next();
+			if (get().name.charAt(0) == c) {
+				return;
+			}
+		}
 	}
 }

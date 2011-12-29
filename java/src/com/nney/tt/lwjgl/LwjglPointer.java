@@ -21,4 +21,8 @@ public class LwjglPointer extends PartialPointerImpl {
 		setNext(x, y, w, b);
 	}
 
+	@Override
+	public void set(int x, int y) {
+		Mouse.setCursorPosition(x, y);
+	}
 }

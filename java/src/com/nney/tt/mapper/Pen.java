@@ -1,9 +1,13 @@
 package com.nney.tt.mapper;
 
-public abstract class Pen {
+public class Pen {
 	void stroke() {
 	}
 
 	void up() {
+	}
+
+	boolean fullScreen() {
+		return false;
 	}
 }
