@@ -33,17 +33,17 @@ public final class MapperGC {
 	}
 
 	public void drawSight(int x, int y, int i, int col) {
-		int i2 = i*2+1;
+		int i2 = i * 2 + 1;
 		gc.fillRectangle(x - i, y, i2, 1, col);
 		gc.fillRectangle(x, y - i, 1, i2, col);
 	}
 
 	public void drawSight2(int x, int y, int i, int col, int j, int col2) {
-		int i2 = i*2+1;
+		int i2 = i * 2 + 1;
 		gc.fillRectangle(x - i, y, i2, 1, col);
 		gc.fillRectangle(x, y - i, 1, i2, col);
-		int j2 = j*2+1;
-		drawTransBox(x-j, y-j, j2, j2, col, col2);
+		int j2 = j * 2 + 1;
+		drawTransBox(x - j, y - j, j2, j2, col, col2);
 	}
 
 	public int charWidth() {
@@ -57,25 +57,24 @@ public final class MapperGC {
 	public void drawText(int x, int y, int fg, String text) {
 		debugFont.draw(x, y, fg, 0, text);
 	}
-	
+
 	public void drawText(int x, int y, int fg, int bg, String text) {
 		gc.fillRectangle(x, y, charWidth() * text.length(), charHeight(), bg);
 		debugFont.draw(x, y, fg, 0, text);
 	}
-	
+
 	public int process(int col) {
 		return cycler.process(col);
 	}
-	
+
 	public Coord centreDisplacement() {
 		return new Coord(screenWidth() / 2, screenHeight() / 2);
 	}
-	
+
 	public void beginDrawing() {
 		gc.beginDrawing();
 		cycler.advance();
 	}
-
 
 	// plain old delegates
 	public void endDrawing() {
@@ -93,7 +92,7 @@ public final class MapperGC {
 	public int screenHeight() {
 		return gc.screenHeight();
 	}
-	
+
 	public GraphicsContext gc() {
 		return gc;
 	}

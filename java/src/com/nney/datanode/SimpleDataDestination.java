@@ -2,12 +2,13 @@ package com.nney.datanode;
 
 /**
  * This {@link DataDestination} is sloppy because different unique input
- * sequences might make the same output string. This means it is non-reversible so
- * you can make your data into a String but cannot get it back. On the upside it is fast.
+ * sequences might make the same output string. This means it is non-reversible
+ * so you can make your data into a String but cannot get it back. On the upside
+ * it is fast.
  */
 public final class SimpleDataDestination implements DataDestination {
 	StringBuffer sb = new StringBuffer();
-	
+
 	private void sep() {
 		sb.append('\u0000');
 	}

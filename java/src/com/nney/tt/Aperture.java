@@ -5,7 +5,8 @@ import com.nney.tt.gfx.GraphicsContext;
 import com.nney.utils.Math2;
 
 /**
- * Hide the screen contents with an aperture that closes around the screen from the outside in.
+ * Hide the screen contents with an aperture that closes around the screen from
+ * the outside in.
  */
 public class Aperture extends CurtainImpl {
 	private final GraphicsContext gc;
@@ -27,7 +28,7 @@ public class Aperture extends CurtainImpl {
 
 	public Aperture(GraphicsContext gc) {
 		this.gc = gc;
-		setCentre(new Coord(gc.screenWidth()/2, gc.screenHeight()/2));
+		setCentre(new Coord(gc.screenWidth() / 2, gc.screenHeight() / 2));
 		current(OPEN);
 		target(OPEN);
 		rate = 2;
@@ -57,8 +58,7 @@ public class Aperture extends CurtainImpl {
 		maxRadius = (int) Math.sqrt(largestSquareDistanceToEdge);
 		currentValue = maxRadius;
 	}
-	
-	
+
 	@Override
 	public void draw() {
 		if (currentValue < maxRadius) {

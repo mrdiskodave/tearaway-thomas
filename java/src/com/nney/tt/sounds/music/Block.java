@@ -9,7 +9,7 @@ public class Block {
 		assert data.length % 12 == 0;
 		lines = data.length / 12;
 	}
-	
+
 	int lineOffset(int line) {
 		return line * 12;
 	}

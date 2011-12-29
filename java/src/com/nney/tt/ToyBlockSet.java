@@ -27,7 +27,7 @@ public class ToyBlockSet extends BlockSet {
 		ToyGenerator t = new ToyGenerator(getBa(gameMap), r.where);
 		t.run();
 	}
-	
+
 	@Override
 	public void legacyCapture(GameMap gameMap) {
 		ToyLegacyCapture.capture(getBa(gameMap), r.where);

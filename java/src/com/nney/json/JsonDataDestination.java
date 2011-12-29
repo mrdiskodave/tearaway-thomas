@@ -8,9 +8,7 @@ public class JsonDataDestination implements DataDestination {
 	private SimpleJsonFormatter target;
 
 	private enum State {
-		LIST_ITEM,
-		DICT_KEY,
-		DICT_VALUE,
+		LIST_ITEM, DICT_KEY, DICT_VALUE,
 	}
 
 	public JsonDataDestination(SimpleJsonFormatter target) {
@@ -42,9 +40,9 @@ public class JsonDataDestination implements DataDestination {
 		target.value(s);
 
 	}
-	
+
 	private void outputValueString(String s) {
-		boolean w = waitingForKey(); 
+		boolean w = waitingForKey();
 		stateChange();
 		if (w) {
 			target.key(s);
@@ -53,7 +51,7 @@ public class JsonDataDestination implements DataDestination {
 			target.value(s);
 		}
 	}
-	
+
 	@Override
 	public void end() {
 		if (state == State.DICT_VALUE) {

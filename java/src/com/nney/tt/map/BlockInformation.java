@@ -29,8 +29,9 @@ public class BlockInformation {
 		assert !specs.containsKey(block);
 		specs.put(block, name);
 	}
-	
-	public BlockInformation() {}
+
+	public BlockInformation() {
+	}
 
 	public String get(int block) {
 		return specs.get(block);

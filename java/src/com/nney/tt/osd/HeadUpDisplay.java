@@ -16,14 +16,13 @@ public class HeadUpDisplay implements Disposable {
 
 	private static final int COL_GEM_HAPPY = COL_GOOD;
 
-//	private static final int COL_EXIT_OPEN = COL_GOOD;
+	// private static final int COL_EXIT_OPEN = COL_GOOD;
 
-//	private static final int COL_HURRY_UP = COL_BAD;
+	// private static final int COL_HURRY_UP = COL_BAD;
 
 	private static final int GAP = 3;
 
 	private final GraphicsContext gc;
-
 
 	class ReadOut implements Disposable {
 		private final StaticText headingText;
@@ -78,7 +77,6 @@ public class HeadUpDisplay implements Disposable {
 		SmartText xText = new SmartText(font, COL_HEADING, 0, "x");
 		md.addMany(scoreReadOut, gemsReadOut, timeReadOut, livesText, xText);
 
-
 		livesRow = new RowComponent(Justify.CENTRED);
 		livesRow.add(new SpriteComponent(lifeSprite));
 		livesRow.add(new SpacerComponent(4, 1));
@@ -109,7 +107,6 @@ public class HeadUpDisplay implements Disposable {
 
 		gemsReadOut.centredDraw(middleFromEdgeX, bottomY);
 		timeReadOut.centredDraw(gc.screenWidth() - middleFromEdgeX, bottomY);
-
 
 		//
 		// lives

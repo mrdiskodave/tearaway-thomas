@@ -16,7 +16,7 @@ public class AlSource implements Disposable {
 		AL10.alSource(name, AL10.AL_VELOCITY, AlTools.ORIGIN);
 		AlTools.alCheck();
 	}
-	
+
 	void attach(AlBuffer buffer) {
 		AL10.alSourcei(name, AL10.AL_BUFFER, buffer.name);
 	}

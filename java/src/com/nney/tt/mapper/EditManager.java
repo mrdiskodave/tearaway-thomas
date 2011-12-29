@@ -7,33 +7,33 @@ import com.nney.tt.props.TakeTextBack;
 
 class EditManager {
 	private final Prop prop;
-	
+
 	private final StringEditor editor;
 
 	private final TakeTextBack callback;
-	
+
 	private int cursorTimer;
-	
+
 	EditManager(Prop prop, StringEditor editor, TakeTextBack callback) {
 		this.prop = prop;
 		this.editor = editor;
 		this.callback = callback;
 	}
-	
+
 	boolean isCursorOn() {
 		int rate = 70;
 		cursorTimer++;
 		cursorTimer %= rate;
-		return cursorTimer<(rate*2/3);
+		return cursorTimer < (rate * 2 / 3);
 	}
-	
+
 	public void keyboardInput(KeyEvent key) {
 		cursorTimer = 0;
 		editor.keyboardInput(key);
 	}
 
 	public void done() {
-		callback.take(editor.toString());		
+		callback.take(editor.toString());
 	}
 
 	public State state() {
@@ -41,6 +41,6 @@ class EditManager {
 	}
 
 	public boolean isUs(Prop p) {
-		return p==prop;
+		return p == prop;
 	}
 }

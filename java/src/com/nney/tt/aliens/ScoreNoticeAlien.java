@@ -9,7 +9,7 @@ public class ScoreNoticeAlien extends AlienWithLocation {
 	private int vely;
 
 	public ScoreNoticeAlien(int amount, Coord where) {
-		assert amount>=0;
+		assert amount >= 0;
 		this.amount = amount;
 		c = where;
 		timer = 40;

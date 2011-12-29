@@ -5,20 +5,20 @@ public class HoverStatus<T> {
 	private T pressed;
 
 	private void neverNone(T name) {
-		assert name!=null;
+		assert name != null;
 	}
-	
+
 	public void move(T name) {
 		hover = name;
 	}
-	
+
 	public void down(T name) {
 		neverNone(name);
 		pressed = name;
 	}
-	
+
 	public boolean up(T name) {
-		boolean activation = name!=null && status(name)==ButtonState.PRESSED;
+		boolean activation = name != null && status(name) == ButtonState.PRESSED;
 		pressed = null;
 		return activation;
 	}
@@ -37,7 +37,7 @@ public class HoverStatus<T> {
 				return ButtonState.PRESSED;
 			}
 			else {
-				boolean isPressedOnSomethingElse = pressed!=null;
+				boolean isPressedOnSomethingElse = pressed != null;
 				if (isPressedOnSomethingElse) {
 					return ButtonState.PASSIVE;
 				}

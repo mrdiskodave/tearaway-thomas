@@ -4,8 +4,8 @@ import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.PrerenderedText;
 
 /**
- * Text that never changes and that needs a call to {@link #render()} before
- * it can be used.
+ * Text that never changes and that needs a call to {@link #render()} before it
+ * can be used.
  */
 public class PreText extends AbstractText {
 	private final Font font;
@@ -46,13 +46,13 @@ public class PreText extends AbstractText {
 	}
 
 	private void mustHaveContent() {
-		if (content==null) {
+		if (content == null) {
 			throw new IllegalStateException("Needed a call to render() first");
 		}
 	}
-	
+
 	public void render() {
-//		System.out.println("RENDERING:"+text+"k"+kern);
+		// System.out.println("RENDERING:"+text+"k"+kern);
 		content = font.preRender(col, kern, text);
 	}
 }

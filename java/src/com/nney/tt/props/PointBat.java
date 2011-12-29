@@ -8,6 +8,6 @@ public abstract class PointBat implements Bat {
 	public Box box() {
 		return Box.around(point(), 4);
 	}
-	
+
 	abstract Coord point();
 }

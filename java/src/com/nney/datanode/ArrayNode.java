@@ -34,7 +34,7 @@ import java.util.Vector;
 
 public class ArrayNode extends NodeImpl implements List<Node> {
 	Vector<Node> content = new Vector<Node>();
-	
+
 	// ---------------------------------------------------------------------------
 	// Support for DataItem
 
@@ -59,7 +59,6 @@ public class ArrayNode extends NodeImpl implements List<Node> {
 	public Node[] requireList() throws DataException {
 		return content.toArray(new Node[content.size()]);
 	}
-
 
 	// ---------------------------------------------------------------------------
 	// Delegates for interface List

@@ -12,7 +12,6 @@ public class SongSaver {
 	SongSaver(MusicPlayer mp) {
 		this.mp = mp;
 	}
-	
 
 	private void load(String s) {
 		mp.setUpSong(s);
@@ -24,7 +23,7 @@ public class SongSaver {
 		System.out.println("=== " + saveName);
 		WaveWriter.saveWave(saveName, mp.generate(slice));
 	}
-	
+
 	private void saveSong(String s) {
 		load(s);
 		// saveSongSlice(new EntireSongSlice(), "");
@@ -48,7 +47,7 @@ public class SongSaver {
 		saveSongSlice(new JingleSlice(2), "-levelcomplete");
 		saveSongSlice(new JingleSlice(3), "-levelbegin");
 	}
-	
+
 	public static void main(String[] args) {
 		new SongSaver(new MusicPlayer()).execute();
 	}

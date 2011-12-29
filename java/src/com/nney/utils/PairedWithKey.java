@@ -20,4 +20,3 @@ class PairedWithKey<T, K extends Comparable<? super K>> implements Comparable<Pa
 		return k.compareTo(o.k);
 	}
 }
-

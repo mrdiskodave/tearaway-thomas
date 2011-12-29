@@ -18,7 +18,7 @@ class ObjectBuilder implements Builder {
 			key = null;
 		}
 	}
-	
+
 	@Override
 	public NodeImpl value() {
 		return target;

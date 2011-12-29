@@ -24,7 +24,7 @@ public class SquareModifier {
 	}
 
 	private void safePoke(int offset, byte value) {
-		if (offset<localLoop.length) localLoop[offset] = value;
+		if (offset < localLoop.length) localLoop[offset] = value;
 	}
 
 	void modify() {
@@ -46,9 +46,9 @@ public class SquareModifier {
 				sqrPos--;
 			}
 		}
-//		System.out.println(DebugTools.showBin(localLoop));
+		// System.out.println(DebugTools.showBin(localLoop));
 	}
-	
+
 	byte[] read() {
 		return localLoop;
 	}

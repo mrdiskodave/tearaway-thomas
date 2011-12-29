@@ -61,7 +61,7 @@ public class ChannelController {
 	private SquareModifier sqr;
 
 	private int aprPos;
-	
+
 	private int arpSelected;
 
 	private int portSpeed;
@@ -83,7 +83,7 @@ public class ChannelController {
 	}
 
 	void startNote(Instr i, int n) {
-		boolean changeOfInstrument = i!=instr;
+		boolean changeOfInstrument = i != instr;
 		instr = i;
 		assert instr != null;
 
@@ -95,8 +95,8 @@ public class ChannelController {
 			audioChannel.volume(AudioChannel.MAXIMUM_VOLUME);
 		}
 		else {
-//			System.out.println("START NOTE " + n);
-//			instr.dump();
+			// System.out.println("START NOTE " + n);
+			// instr.dump();
 
 			tonePause = instr.tonePause;
 			tonePosition = 0;
@@ -122,7 +122,7 @@ public class ChannelController {
 	}
 
 	void update() {
-		if (instr==null || !instr.isSynthasized()) return;
+		if (instr == null || !instr.isSynthasized()) return;
 
 		// period is wiggled /or/ ported
 		int p = period;
@@ -132,8 +132,8 @@ public class ChannelController {
 			p = period = Math2.closer(p, portDestination, portSpeed);
 		}
 		else {
-			p = NOTES[note+ARPEGGIOS[arpSelected][aprPos]];
-			aprPos ++;
+			p = NOTES[note + ARPEGGIOS[arpSelected][aprPos]];
+			aprPos++;
 			aprPos %= 12;
 		}
 
@@ -154,20 +154,21 @@ public class ChannelController {
 		}
 
 		if (asdrTime.isTime()) {
-//			System.out.println("yes");
+			// System.out.println("yes");
 			int dest = instr.asdr[asdrPosition] & 255;
 			dest *= 4;
 			int rate = instr.asdr[asdrPosition + 1] & 255;
 			int nvol = Math2.closer(vol, dest, rate);
-//			System.out.println(String
-//					.format("asdrPosition%d dest%d rate%d %d->%d", asdrPosition, dest, rate, vol, nvol));
+			// System.out.println(String
+			// .format("asdrPosition%d dest%d rate%d %d->%d", asdrPosition,
+			// dest, rate, vol, nvol));
 			vol = nvol;
 			if (vol == dest && asdrPosition != 6) {
 				asdrPosition += 2;
 			}
 		}
 		else {
-//			System.out.println("no");
+			// System.out.println("no");
 		}
 
 		audioChannel.period(p);
@@ -175,7 +176,7 @@ public class ChannelController {
 	}
 
 	public void chooseArp(int param) {
-		if (param>=ARPEGGIOS.length) {
+		if (param >= ARPEGGIOS.length) {
 			param = 0;
 		}
 		arpSelected = param;

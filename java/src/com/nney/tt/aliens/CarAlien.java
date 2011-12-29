@@ -10,7 +10,7 @@ public class CarAlien extends LeftRightAlien {
 		srv.drawSprite(c, s);
 		if (srv.collideAlienWithPlayerHiRes(c, s)) {
 			if (srv.headBounce(this, s)) {
-				if (anims.mightFind("movingFright")!=null) {
+				if (anims.mightFind("movingFright") != null) {
 					movingFright = 32;
 				}
 			}

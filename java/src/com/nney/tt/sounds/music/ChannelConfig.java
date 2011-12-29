@@ -10,6 +10,6 @@ public class ChannelConfig {
 	}
 
 	public boolean onTheLeft() {
-		return position<0.5f;
+		return position < 0.5f;
 	}
 }

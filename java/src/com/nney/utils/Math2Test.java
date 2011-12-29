@@ -1,6 +1,5 @@
 package com.nney.utils;
 
-
 import junit.framework.TestCase;
 
 public class Math2Test extends TestCase {
@@ -33,7 +32,7 @@ public class Math2Test extends TestCase {
 		System.out.println("percent2:" + s.readMillisecondsFloat());
 		System.out.println(z);
 	}
-	
+
 	public void testBits() throws Exception {
 		assertBits(0x55, "01010101");
 		assertBits(0x33, "00110011");
@@ -45,9 +44,9 @@ public class Math2Test extends TestCase {
 
 	private void assertBits(int value, String expectedBits) {
 		int len = expectedBits.length();
-		for (int bit=0; bit<len; bit++) {
+		for (int bit = 0; bit < len; bit++) {
 			boolean actual = Math2.bitTest(value, bit);
-			boolean expected = expectedBits.charAt(len-1-bit)=='1';
+			boolean expected = expectedBits.charAt(len - 1 - bit) == '1';
 			assertEquals(expected, actual);
 		}
 	}

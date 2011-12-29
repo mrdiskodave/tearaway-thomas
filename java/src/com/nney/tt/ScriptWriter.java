@@ -9,7 +9,7 @@ import com.nney.tt.input.JoystickTools;
 
 public class ScriptWriter {
 	SimpleByteBuffer b = new SimpleByteBuffer();
-	
+
 	void put(int x) {
 		b.add((byte) x);
 	}

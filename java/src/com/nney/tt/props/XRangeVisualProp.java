@@ -10,14 +10,13 @@ import com.nney.tt.geom.XRange;
 
 public class XRangeVisualProp extends VisualProp<XRange> {
 	private static final int BORDER = 10;
-	
+
 	private static final int BAT_WIDTH = 3;
 
 	public XRangeVisualProp(PropPack pp) {
 		super(pp);
 	}
 
-	
 	@Override
 	public void getBats(List<Bat> bats) {
 		bats.add(new Bat() {
@@ -25,7 +24,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 			public Box box() {
 				XRange t = read();
 				int x = t.middle();
-				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
+				return new Box(x - BAT_WIDTH, 0, x + BAT_WIDTH, Integer.MAX_VALUE / 2 + 1);
 			}
 
 			@Override
@@ -34,13 +33,12 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 			}
 		});
 
-
 		bats.add(new Bat() {
 			@Override
 			public Box box() {
 				XRange t = read();
 				int x = t.left;
-				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
+				return new Box(x - BAT_WIDTH, 0, x + BAT_WIDTH, Integer.MAX_VALUE / 2 + 1);
 			}
 
 			@Override
@@ -55,7 +53,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 			public Box box() {
 				XRange t = read();
 				int x = t.right;
-				return new Box(x-BAT_WIDTH, 0, x+BAT_WIDTH, Integer.MAX_VALUE/2+1);
+				return new Box(x - BAT_WIDTH, 0, x + BAT_WIDTH, Integer.MAX_VALUE / 2 + 1);
 			}
 
 			@Override
@@ -65,7 +63,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 			}
 		});
 	}
-		
+
 	@Override
 	public void drawAuxBatStuff(VisualPropGC rt) {
 		XRange t = read();
@@ -98,7 +96,7 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 		XRange t = read();
 		t.resideInside(constraints.toXRange());
 	}
-	
+
 	@Override
 	public void moveBy(Coord delta) {
 		XRange t = read();
@@ -110,9 +108,9 @@ public class XRangeVisualProp extends VisualProp<XRange> {
 		XRange t = read();
 		t.save(d);
 	}
-	
+
 	@Override
 	void load(Node d) {
 		write(XRange.load(d));
-	}	
+	}
 }

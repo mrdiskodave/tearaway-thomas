@@ -25,13 +25,13 @@ public class LocksKeyAdaptor implements HasKeys {
 	@Override
 	public KeyEvent nextEvent() {
 		KeyEvent e = target.nextEvent();
-		if (e==null) return null;
+		if (e == null) return null;
 		int k = 0;
 		if (target.isDown(Keyboard.KEY_SHIFT)) k |= Locks.LOCK_SHIFT;
 		if (target.isDown(Keyboard.KEY_CONTROL)) k |= Locks.LOCK_CONTROL;
 		if (target.isDown(Keyboard.KEY_MENU)) k |= Locks.LOCK_MENU;
-		if (k!=0) {
-			e = new KeyEvent(e.keyCode|k, e.keyChar);
+		if (k != 0) {
+			e = new KeyEvent(e.keyCode | k, e.keyChar);
 		}
 		return e;
 	}

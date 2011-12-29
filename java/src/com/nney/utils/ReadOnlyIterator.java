@@ -7,7 +7,7 @@ public abstract class ReadOnlyIterator<T> implements Iterator<T> {
 	public void remove() {
 		throw new UnsupportedOperationException("remove() forbidden by ReadOnlyIterator");
 	}
-	
+
 	public static <T> ReadOnlyIterator<T> wrap(final Iterator<T> target) {
 		return new ReadOnlyIterator<T>() {
 			@Override

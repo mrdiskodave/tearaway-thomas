@@ -1,6 +1,5 @@
 package com.nney.tt.sounds.music;
 
-
 public class AudioChannel {
 	/**
 	 * Used to give us more precision when dealing with Amiga audio periods.
@@ -25,9 +24,10 @@ public class AudioChannel {
 	 * So we can read Amiga samples at the right speed.
 	 */
 	private static final int MAGIC_RATIO = (int) (((1.0 / MusicPlayer.FREQUENCY) / AMIGA_BUS_RATE) * PERIOD_BOOSTER);
-	
+
 	/**
-	 * Maximum volume. I've raised it to 256 when the Amiga used 64. This is easy as my play routine used 256 internally.
+	 * Maximum volume. I've raised it to 256 when the Amiga used 64. This is
+	 * easy as my play routine used 256 internally.
 	 */
 	public static final int MAXIMUM_VOLUME = 256;
 
@@ -67,7 +67,7 @@ public class AudioChannel {
 	 * Used by the low pass filter.
 	 */
 	private double lastResult;
-	
+
 	void wave(byte[] w, boolean r) {
 		wave = w;
 		repeat = r;
@@ -84,7 +84,7 @@ public class AudioChannel {
 		//
 		// volume
 		//
-		
+
 		int volumeAdjustedSample = (rawSample * volume) / MAXIMUM_VOLUME;
 
 		//
@@ -96,7 +96,7 @@ public class AudioChannel {
 		// lastResult;
 		// i.e.
 		lastResult = lastResult + LOWPASS_FILTER_FACTOR * (currentResult - lastResult);
-		
+
 		//
 		// advance our position for next time
 		//
@@ -113,8 +113,7 @@ public class AudioChannel {
 			}
 		}
 		acc -= MAGIC_RATIO;
-		
-		
+
 		return (int) lastResult;
 	}
 

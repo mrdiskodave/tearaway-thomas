@@ -48,9 +48,11 @@ public interface Curtain {
 	 *            Either {@link #OPEN} or {@link #CLOSED}.
 	 */
 	void current(int state);
-	
+
 	/**
-	 * Get the current state. Use {@link #isDone()} to check for arrival at the target.
+	 * Get the current state. Use {@link #isDone()} to check for arrival at the
+	 * target.
+	 * 
 	 * @return The current state.
 	 */
 	int current();

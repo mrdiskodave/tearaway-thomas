@@ -145,18 +145,19 @@ public class KeyboardTest {
 		while (Keyboard.next()) {
 			int keyCode = Keyboard.getEventKey();
 			boolean down = Keyboard.getEventKeyState();
-			System.out.println(String.format("Received : %s %s", down ? "Press  " : "Release", Keyboard.getKeyName(keyCode)));
+			System.out.println(String.format("Received : %s %s", down ? "Press  " : "Release",
+					Keyboard.getKeyName(keyCode)));
 
 			StringBuffer b = new StringBuffer();
 			int keys[] = { Keyboard.KEY_LSHIFT, Keyboard.KEY_RSHIFT };
-			for (int key: keys) {
-				if (b.length()!=0) b.append(", ");
+			for (int key : keys) {
+				if (b.length() != 0) b.append(", ");
 				b.append(String.format("%s %s", Keyboard.getKeyName(key), Keyboard.isKeyDown(key) ? "Down" : "Up  "));
 			}
-			System.out.println("Now      : "+b);
-			
+			System.out.println("Now      : " + b);
+
 			char c = Keyboard.getEventCharacter();
-			System.out.println(String.format("Pressed  : %s (%s)", c, (int)c));
+			System.out.println(String.format("Pressed  : %s (%s)", c, (int) c));
 		}
 	}
 

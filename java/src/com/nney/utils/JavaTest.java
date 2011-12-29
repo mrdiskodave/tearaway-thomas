@@ -498,7 +498,7 @@ public class JavaTest extends TestCase {
 			// expected
 		}
 	}
-	
+
 	public void testCollectionsCopyClearsFirst() throws Exception {
 		ArrayList<Integer> d = new ArrayList<Integer>();
 		Collections.addAll(d, 1, 2, 3);

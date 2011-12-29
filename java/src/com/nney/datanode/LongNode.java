@@ -37,7 +37,7 @@ public class LongNode extends NodeImpl {
 	public double requireDouble() {
 		return value;
 	}
-	
+
 	@Override
 	public long requireLong() throws DataException {
 		return value;

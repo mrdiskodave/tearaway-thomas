@@ -42,9 +42,9 @@ public final class Anims implements Disposable {
 
 	public Box box() {
 		Box answer = null;
-		for (Anim anim: anims) {
+		for (Anim anim : anims) {
 			Box b = anim.box();
-			if (answer==null) {
+			if (answer == null) {
 				answer = b;
 			}
 			else {
@@ -53,7 +53,7 @@ public final class Anims implements Disposable {
 		}
 		return answer;
 	}
-	
+
 	static public String directionalAnimName(boolean goLeft, String base) {
 		return base + (goLeft ? "left" : "right");
 	}

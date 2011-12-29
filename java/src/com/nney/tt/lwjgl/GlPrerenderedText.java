@@ -6,7 +6,7 @@ import com.nney.tt.gfx.PrerenderedText;
 import com.nney.utils.mbr.MustBeReleased;
 
 public final class GlPrerenderedText implements PrerenderedText {
-	private MustBeReleased mbr = new MustBeReleased(); 
+	private MustBeReleased mbr = new MustBeReleased();
 	private final int width;
 	private final int id;
 	private final int height;

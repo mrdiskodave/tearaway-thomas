@@ -21,7 +21,7 @@ public class PointerAdaptor implements Pointer {
 	public boolean isDown(int key) {
 		return target.isDown(key);
 	}
-	
+
 	@Override
 	public KeyEvent nextEvent() {
 		return target.nextEvent();

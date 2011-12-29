@@ -1,7 +1,5 @@
 package com.nney.tt.osd;
 
-
-
 public class SpacerComponent implements Component {
 	private final int width;
 	private final int height;

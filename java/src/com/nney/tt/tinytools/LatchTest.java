@@ -7,7 +7,7 @@ public class LatchTest extends TestCase {
 		Latch l = new Latch();
 		assertTrue(l.can(0));
 		assertFalse(l.can(1));
-		
+
 		assertTrue(l.can(5));
 		assertFalse(l.can(5));
 		assertFalse(l.can(5));
@@ -18,8 +18,6 @@ public class LatchTest extends TestCase {
 		assertFalse(l.can(8));
 		assertFalse(l.can(9));
 		assertTrue(l.can(11));
-		
-		
-		
+
 	}
 }

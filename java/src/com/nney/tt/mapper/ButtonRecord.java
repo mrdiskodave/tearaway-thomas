@@ -10,7 +10,6 @@ public class ButtonRecord implements Collidable {
 	public final String label;
 	public final Coord position;
 
-
 	public ButtonRecord(Button who, Box collisionBox, String label, Coord position) {
 		this.who = who;
 		this.collisionBox = collisionBox;

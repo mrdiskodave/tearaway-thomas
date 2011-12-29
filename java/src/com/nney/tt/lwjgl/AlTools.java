@@ -41,7 +41,7 @@ public class AlTools {
 			throw new RuntimeException(le);
 		}
 		alCheck();
-		
+
 		// Set Listener Position
 		AL10.alListener(AL10.AL_POSITION, AlTools.ORIGIN);
 		AL10.alListener(AL10.AL_VELOCITY, AlTools.ORIGIN);

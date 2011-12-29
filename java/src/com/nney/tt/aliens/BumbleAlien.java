@@ -7,14 +7,14 @@ import com.nney.tt.props.PropAnn;
 public abstract class BumbleAlien extends AlienWithLocation {
 	@PropAnn(name = "Area", doc = "The area we're confined to")
 	public Box box;
-	
+
 	protected Coord d;
 
 	@Override
 	public void loadFromLegacyData() {
 		box = new Box(loadShort(OBleft), loadShort(OBtop), loadShort(OBright), loadShort(OBbottom));
 	}
-	
+
 	@Override
 	public void resetTo(Coord p) {
 		super.resetTo(p);
@@ -22,13 +22,12 @@ public abstract class BumbleAlien extends AlienWithLocation {
 		c.y += 50;
 	}
 
-	
 	@Override
 	public void onLoaded() {
 		changeAnimation(0);
 		d = c.copy();
 	}
-	
+
 	@Override
 	public void update() {
 		Coord lc = c.copy();
@@ -39,19 +38,19 @@ public abstract class BumbleAlien extends AlienWithLocation {
 		bumbleAnimation(lc);
 
 		animateDrawAndStun(c);
-		
+
 		freezeBounds = box.copy();
-		int grow = 50+travelBeyondBox(); // TODO: measure all sprites?
-		freezeBounds.shrink(-grow); 
-		
+		int grow = 50 + travelBeyondBox(); // TODO: measure all sprites?
+		freezeBounds.shrink(-grow);
+
 	}
 
 	public int travelBeyondBox() {
 		return 0;
 	}
 
-	public  void bumbleAnimation(Coord lc) {
+	public void bumbleAnimation(Coord lc) {
 	}
-	
+
 	abstract public void nextDestination();
 }

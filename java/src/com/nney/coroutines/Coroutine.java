@@ -43,14 +43,14 @@ public abstract class Coroutine implements Runnable {
 		// wait until it has finished the last bit
 		waiting.acquireUninterruptibly();
 	}
-	
+
 	protected void pause() {
 		stop();
 		start();
 	}
-	
+
 	protected void pause(int n) {
-		while (--n>=0) {
+		while (--n >= 0) {
 			pause();
 		}
 	}

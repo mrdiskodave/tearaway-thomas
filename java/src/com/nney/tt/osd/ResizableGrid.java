@@ -22,25 +22,25 @@ public class ResizableGrid<T> {
 	public int height() {
 		return grid.height();
 	}
-	
+
 	public void setSize(int w, int h) {
 		Grid<T> ng = new Grid<T>(w, h);
-		for (int y=0; y<h; y++) {
-			for (int x=0; x<w; x++) {
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
 				T t = null;
-				if (x<width() && y<height()) t=get(x, y);
+				if (x < width() && y < height()) t = get(x, y);
 				ng.set(x, y, t);
 			}
 		}
 		grid = ng;
 	}
-	
+
 	public String dump() {
 		StringBuffer sb = new StringBuffer();
-		for (int y=0; y<height(); y++) {
-			if (y!=0) sb.append('|');
-			for (int x=0; x<width(); x++) {
-				if (x!=0) sb.append(',');
+		for (int y = 0; y < height(); y++) {
+			if (y != 0) sb.append('|');
+			for (int x = 0; x < width(); x++) {
+				if (x != 0) sb.append(',');
 				sb.append(get(x, y));
 			}
 		}

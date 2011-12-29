@@ -6,11 +6,11 @@ public class JsonDataDestinationTest extends TestCase {
 	SafeWriter sw;
 	SimpleJsonFormatter dest;
 	JsonDataDestination f;
-	
+
 	public JsonDataDestinationTest() {
 		sw = new StringSafeWriter();
 		dest = new IndentedJsonFormatter(sw);
-//		dest.spaciousBrackets();
+		// dest.spaciousBrackets();
 		dest.spaciousSeperators();
 		f = new JsonDataDestination(dest);
 	}
@@ -18,7 +18,7 @@ public class JsonDataDestinationTest extends TestCase {
 	private void assertResult(String expected) {
 		String actual = sw.toString();
 		System.out.println(actual);
-//		assertEquals(expected, actual);
+		// assertEquals(expected, actual);
 	}
 
 	public void testSimple() {
@@ -26,7 +26,7 @@ public class JsonDataDestinationTest extends TestCase {
 		f.write(true);
 		assertResult("false, true");
 	}
-	
+
 	public void testValues() throws Exception {
 		f.write(false);
 		f.write(true);
@@ -55,7 +55,7 @@ public class JsonDataDestinationTest extends TestCase {
 		f.end();
 		assertResult("[ 1, 2, 3 ]");
 	}
-	
+
 	public void testNestedDict() throws Exception {
 		f.beginObject();
 		f.write("hello");
@@ -70,7 +70,7 @@ public class JsonDataDestinationTest extends TestCase {
 		f.end();
 		assertResult("{ \"hello\": true, \"yeah\": { \"A\": \"B\" }, \"a\": 5 }");
 	}
-	
+
 	public void testNestedArray() throws Exception {
 		f.beginArray();
 		f.write(1);

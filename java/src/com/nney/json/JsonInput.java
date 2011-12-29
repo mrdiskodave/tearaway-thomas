@@ -176,7 +176,6 @@ class JsonInput {
 		}
 	}
 
-
 	void back() {
 		pos--;
 	}

@@ -11,23 +11,23 @@ public class ToyLegacyCapture {
 			for (int lx = 0; lx < blockAccess.width(); lx++) {
 				Coord coord = new Coord(lx, ly);
 				int b = blockAccess.get(coord);
-				int x = b%20;
-				int y = b/20;
+				int x = b % 20;
+				int y = b / 20;
 				S out = null;
-				if (y==0 && 1<=x && x<=4) {
+				if (y == 0 && 1 <= x && x <= 4) {
 					out = new S().wall(1);
 				}
 				else {
-					if (4<= y&& y<12) {
+					if (4 <= y && y < 12) {
 						y -= 4;
 						int v = 0;
-						if (y>=4) v|=1;
-						if (x>=7) v|=2;
+						if (y >= 4) v |= 1;
+						if (x >= 7) v |= 2;
 						int[] space_table = { 0, 1, 2, 3 };
-						out = new S().space(space_table[v]+1);
+						out = new S().space(space_table[v] + 1);
 					}
 				}
-				if (out!=null) {
+				if (out != null) {
 					Integer answer = where.get(out.flattern());
 					assert answer != null;
 					blockAccess.set(coord, answer);

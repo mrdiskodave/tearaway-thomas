@@ -1,6 +1,5 @@
 package com.nney.tt.gfx;
 
-
 public class BlockSource {
 	private final int blockWidth;
 	private final int blocksHorizontally;
@@ -20,7 +19,6 @@ public class BlockSource {
 		int blocksVertically = allBlocksHeight / miniH;
 		blockCount = blocksHorizontally * blocksVertically;
 	}
-	
 
 	public BlockSource(SimpleImage si, int blockSize) {
 		this(si, blockSize, blockSize);
@@ -32,7 +30,8 @@ public class BlockSource {
 
 	public void hideBlock(int src, int dest) {
 		if (src != dest) {
-//			System.out.println(String.format("Hiding %d with %d", src, dest));
+			// System.out.println(String.format("Hiding %d with %d", src,
+			// dest));
 			getBlock(dest).overwriteWith(getBlock(src));
 		}
 	}
@@ -57,6 +56,5 @@ public class BlockSource {
 		assert blockWidth == blockHeight;
 		return blockWidth;
 	}
-
 
 }

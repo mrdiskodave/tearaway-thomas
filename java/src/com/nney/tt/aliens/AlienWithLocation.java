@@ -11,7 +11,6 @@ public abstract class AlienWithLocation extends Alien {
 	public void resetTo(Coord p) {
 		c = p;
 	}
-	
 
 	@Override
 	public Coord getLocation() {

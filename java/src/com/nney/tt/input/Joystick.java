@@ -6,6 +6,6 @@ public interface Joystick {
 	public static final int UP = 4;
 	public static final int LEFT = 8;
 	public static final int FIRE = 16;
-	
+
 	int get();
 }

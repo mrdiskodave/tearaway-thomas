@@ -2,7 +2,6 @@ package com.nney.tt.gfx;
 
 import java.util.Set;
 
-
 public abstract class PartialFontImpl implements Font {
 	private static final int ABSENT = 0xffff0101;
 
@@ -17,12 +16,12 @@ public abstract class PartialFontImpl implements Font {
 
 	@Override
 	public int charWidth() {
-		return proportional ? -1 : miniW/scaleDown;
+		return proportional ? -1 : miniW / scaleDown;
 	}
 
 	@Override
 	public int charHeight() {
-		return miniH/scaleDown;
+		return miniH / scaleDown;
 	}
 
 	public PartialFontImpl(RawFont rf) {
@@ -33,15 +32,15 @@ public abstract class PartialFontImpl implements Font {
 		SimpleImage content = new SimpleImage(rf.data);
 		BlockSource bs = new BlockSource(content, miniW, miniH);
 		int count = bs.getBlockCount();
-		while (count!=0 && bs.isEntirely(count-1, ABSENT)) {
+		while (count != 0 && bs.isEntirely(count - 1, ABSENT)) {
 			count--;
 		}
-		
+
 		boxes = new Bounds[count];
-		
+
 		this.characters = rf.characters;
 		this.missingChar = rf.characters.indexOf(rf.missingChar);
-		assert missingChar>=0: "Missing char is, itself, missing!";
+		assert missingChar >= 0 : "Missing char is, itself, missing!";
 
 		assert characters.length() == count : "difference " + characters.length() + " " + count;
 
@@ -53,11 +52,11 @@ public abstract class PartialFontImpl implements Font {
 			}
 			boxes[x] = box;
 		}
-		
+
 		Set<Integer> palette = content.collectPalette();
 		palette.remove(ABSENT);
 		mono = palette.size() == 2;
-		System.out.println("MONO is "+mono);
+		System.out.println("MONO is " + mono);
 		renderContent(content);
 	}
 
@@ -70,13 +69,13 @@ public abstract class PartialFontImpl implements Font {
 		}
 		return glyphWidth;
 	}
-	
+
 	private int map(char c) {
 		int p = characters.indexOf(c);
 		if (p >= 0) return p;
 		return missingChar;
 	}
-	
+
 	@Override
 	public int draw(int dx, int dy, int fg, int kern, String text) {
 		// configure the texture system
@@ -86,7 +85,7 @@ public abstract class PartialFontImpl implements Font {
 			int p = map(text.charAt(x));
 			Bounds z = boxes[p];
 			drawChar(dx, dy, z);
-			dx += (z.width/scaleDown) + kern;
+			dx += (z.width / scaleDown) + kern;
 		}
 
 		stopDrawing();
@@ -99,8 +98,8 @@ public abstract class PartialFontImpl implements Font {
 		int dx = 0;
 		for (int x = 0; x < text.length(); x++) {
 			int p = map(text.charAt(x));
-			if (x!=0) dx += kern;
-			dx += boxes[p].width/scaleDown;
+			if (x != 0) dx += kern;
+			dx += boxes[p].width / scaleDown;
 		}
 		return dx;
 	}

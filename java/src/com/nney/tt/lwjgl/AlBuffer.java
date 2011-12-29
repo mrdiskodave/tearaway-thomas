@@ -25,8 +25,8 @@ public class AlBuffer implements Disposable {
 		AL10.alBufferData(buffer, AL10.AL_FORMAT_STEREO16, bb, sound.freq);
 		AlTools.alCheck();
 		name = buffer;
-		
-		assert name!=0;
+
+		assert name != 0;
 	}
 
 	@Override

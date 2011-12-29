@@ -5,12 +5,12 @@ public class Loop {
 	public final Sound loop;
 
 	Loop(Sound begin, Sound loop) {
-		if (begin==null) throw new IllegalArgumentException();
+		if (begin == null) throw new IllegalArgumentException();
 		this.begin = begin;
 		this.loop = loop;
 	}
 
 	public boolean hasLoop() {
-		return loop!=null;
+		return loop != null;
 	}
 }

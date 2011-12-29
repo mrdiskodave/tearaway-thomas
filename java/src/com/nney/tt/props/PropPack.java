@@ -46,10 +46,11 @@ public class PropPack {
 	}
 
 	/**
-	 * Transform the given string a Java identifier to something more human readable.
-	 * e.g. from "aJavaIdentifier" to "A Java Identifier".
+	 * Transform the given string a Java identifier to something more human
+	 * readable. e.g. from "aJavaIdentifier" to "A Java Identifier".
 	 * 
-	 * @param s The java identifier.
+	 * @param s
+	 *            The java identifier.
 	 * @return The human readable.
 	 */
 	private static String humaniseIdentifier(String s) {

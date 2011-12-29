@@ -23,10 +23,10 @@ public class AudioHub {
 		for (Node n : TTResource.asNode(TTResource.fx("def.txt")).requireList()) {
 			String name = n.requireField("name").requireString();
 			String data = n.requireField("data").requireString();
-			
+
 			byte[] d = OpenableTools.mustLoad(TTResource.fx(data));
 			Sound sound = WavTools.read(d);
-			
+
 			float vol = (float) n.requireField("vol").requireDouble();
 			if (n.fieldExists("freq")) {
 				sound = new Sound(sound.data, n.requireField("freq").requireInt());
@@ -46,7 +46,7 @@ public class AudioHub {
 			System.out.println("SFX:" + name);
 		}
 	}
-	
+
 	public void loadMusic(int slot, String name) {
 		if (name.equals(slotContents[slot])) return;
 		ac.loadMusic(slot, renderMusic(name));
@@ -58,16 +58,15 @@ public class AudioHub {
 			ac.startMusic(slot);
 		}
 	}
-	
+
 	public void stopMusic() {
 		ac.stopMusic();
 	}
-	
 
 	private Loop renderMusic(String name) {
-//		System.out.println("Rendering "+name);
+		// System.out.println("Rendering "+name);
 		Loop loop = mp.getSong(name);
-//		System.out.println("Done!");
+		// System.out.println("Done!");
 		return loop;
 	}
 
@@ -92,7 +91,7 @@ public class AudioHub {
 		for (;;) {
 			pause();
 			ac.update();
-//			z.playEffect("tink");
+			// z.playEffect("tink");
 		}
 	}
 

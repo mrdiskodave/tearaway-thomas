@@ -2,7 +2,6 @@ package com.nney.tt.props;
 
 import java.util.List;
 
-
 public abstract class SpecificProp<T> extends Prop {
 	SpecificProp(PropPack pp) {
 		super(pp);
@@ -16,12 +15,10 @@ public abstract class SpecificProp<T> extends Prop {
 	public void write(T n) {
 		getFieldAccessor().put(n);
 	}
-	
+
 	public void writeText(String text) {
 	}
-	
-	
-	
+
 	public void addEditButton(List<Button> buttons, final ButtonPressServices bps) {
 		buttons.add(new Button() {
 			@Override
@@ -35,7 +32,8 @@ public abstract class SpecificProp<T> extends Prop {
 					@Override
 					public void take(String text) {
 						writeText(text);
-					}});
+					}
+				});
 			}
 		});
 	}

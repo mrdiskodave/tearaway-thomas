@@ -13,7 +13,7 @@ public class SpikeAlien extends AlienWithLocation {
 
 	@PropAnn(doc = "Our poking out frequency (20-1000)", min = 20, max = 1000)
 	public int frequency = 100;
-	
+
 	@Override
 	public void onLoaded() {
 		ourAnim = anims.find(0);

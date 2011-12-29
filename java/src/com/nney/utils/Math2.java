@@ -2,18 +2,18 @@ package com.nney.utils;
 
 public final class Math2 {
 	public static final int fracMult(int x, int top, int bottom) {
-		return x*top/bottom;
+		return x * top / bottom;
 	}
 
 	public static final int percent(int x, int percent) {
 		return fracMult(x, percent, 100);
 	}
-	
+
 	public static final int percent2(int x, int percent) {
 		// slightly slower, on my machine, than percent()
-		return (int) (x*(percent*0.01f));
+		return (int) (x * (percent * 0.01f));
 	}
-	
+
 	public static final int roundUpDiv(int x, int y) {
 		return (x + y - 1) / y;
 	}
@@ -23,11 +23,11 @@ public final class Math2 {
 	}
 
 	public static final boolean maskTest(int x, int mask) {
-		return (x&mask)!=0;
+		return (x & mask) != 0;
 	}
-	
+
 	public static final boolean bitTest(int x, int bit) {
-		return maskTest(x, 1<<bit);
+		return maskTest(x, 1 << bit);
 	}
 
 	public static int findPowerOfTwo(int v) {
@@ -35,19 +35,19 @@ public final class Math2 {
 			int a = 1 << x;
 			if (a == v) return x;
 		}
-		throw new RuntimeException(v+" was supposed to be a power of two");
+		throw new RuntimeException(v + " was supposed to be a power of two");
 	}
 
 	public static final int closer(int x, int target, int amount) {
-		if (x<target) {
+		if (x < target) {
 			x += amount;
-			if (x>target) {
+			if (x > target) {
 				x = target;
 			}
 		}
-		else if (x>target) {
+		else if (x > target) {
 			x -= amount;
-			if (x<target) {
+			if (x < target) {
 				x = target;
 			}
 		}

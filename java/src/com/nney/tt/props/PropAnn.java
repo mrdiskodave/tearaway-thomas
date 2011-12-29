@@ -13,12 +13,10 @@ public @interface PropAnn {
 	String doc();
 
 	String xtraDef() default "";
-	
+
 	String label() default "";
-	
+
 	int min() default 0;
-	
+
 	int max() default Integer.MAX_VALUE;
 }
-
-

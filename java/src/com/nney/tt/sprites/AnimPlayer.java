@@ -18,19 +18,19 @@ public class AnimPlayer {
 	private int rate;
 
 	private boolean animEnded;
-	
+
 	private int rateScale = 100;
 
 	public AnimPlayer() {
 	}
-	
+
 	public void setRateScale(int rs) {
 		rateScale = rs;
 	}
 
 	public void changeAnimation(Anim freshAnim) {
-		assert freshAnim!=null;
-		
+		assert freshAnim != null;
+
 		if (anim != freshAnim) {
 			setAnimation(freshAnim);
 		}
@@ -42,14 +42,14 @@ public class AnimPlayer {
 		setRate(freshAnim.defaultRate);
 		rewind();
 	}
-	
+
 	public void customiseRate(int customRate) {
 		setRate(customRate);
 	}
 
 	private void setRate(int r) {
 		rate = Math2.percent(r, rateScale);
-		
+
 	}
 
 	public void rewind() {
@@ -67,7 +67,7 @@ public class AnimPlayer {
 	public Sprite currentFrame() {
 		return anim.sprites[pos];
 	}
-	
+
 	private void advance() {
 		assert anim != null;
 		acc += rate;

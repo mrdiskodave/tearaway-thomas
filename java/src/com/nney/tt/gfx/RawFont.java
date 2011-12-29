@@ -9,7 +9,8 @@ public class RawFont {
 	public final String characters;
 	public final char missingChar;
 
-	public RawFont(int scaleDown, byte[] data, int miniW, int miniH, boolean proportional, String characters, char missingChar) {
+	public RawFont(int scaleDown, byte[] data, int miniW, int miniH, boolean proportional, String characters,
+			char missingChar) {
 		this.scaleDown = scaleDown;
 		this.data = data;
 		this.miniW = miniW;

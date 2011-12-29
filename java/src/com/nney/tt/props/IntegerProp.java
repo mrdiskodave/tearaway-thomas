@@ -16,10 +16,10 @@ public class IntegerProp extends SpecificProp<Integer> {
 		ourMin = pp.getAnn().min();
 		ourMax = pp.getAnn().max();
 	}
-	
+
 	@Override
 	public void write(Integer n) {
-//		n = Math2.limit(ourMin, ourMax, n);
+		// n = Math2.limit(ourMin, ourMax, n);
 		super.write(n);
 	}
 
@@ -27,7 +27,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 	public String text() {
 		return Integer.toString(read());
 	}
-	
+
 	@Override
 	public void writeText(String text) {
 		try {
@@ -74,7 +74,7 @@ public class IntegerProp extends SpecificProp<Integer> {
 	void load(Node d) {
 		write(d.requireInt());
 	}
-	
+
 	@Override
 	public void validate(Box constraints) {
 		write(Math2.limit(ourMin, ourMax, read()));

@@ -77,12 +77,13 @@ public class AlStrange {
 			throw new RuntimeException("Unrecoverable OpenAL error code: " + e);
 		}
 	}
-	
+
 	interface WaveCreator {
 		short[] makeWave(int waveLength);
+
 		String waveName();
 	}
-	
+
 	int counter = 0;
 
 	private void playTone(WaveCreator wc, int waveLengthInBytes) {
@@ -92,15 +93,16 @@ public class AlStrange {
 		short[] waveForm = wc.makeWave(waveLengthInBytes);
 
 		StringBuffer sb = new StringBuffer();
-		for (int x=0; x<waveForm.length; x++) {
-			if (x!=0) {
+		for (int x = 0; x < waveForm.length; x++) {
+			if (x != 0) {
 				sb.append(',');
 			}
 			sb.append(waveForm[x]);
 		}
-		String name = String.format("%02d-%s-%shz-%ssamplesPerCycle.wav", counter++, wc.waveName(), frequencyInHz, waveLengthInBytes);
+		String name = String.format("%02d-%s-%shz-%ssamplesPerCycle.wav", counter++, wc.waveName(), frequencyInHz,
+				waveLengthInBytes);
 		System.out.println("Filename  : " + name);
-		System.out.println("Waveform  : "+sb+" (length="+waveLengthInBytes+")");
+		System.out.println("Waveform  : " + sb + " (length=" + waveLengthInBytes + ")");
 		System.out.println();
 
 		short[] sample = new short[frequencyInHz * timeInSeconds];
@@ -132,8 +134,8 @@ public class AlStrange {
 		public short[] makeWave(int waveLength) {
 			short[] answer = new short[waveLength];
 			for (int x = 0; x < waveLength; x++) {
-				double d = Math.sin(((Math.PI * 2 * x)/waveLength))*20000;
-				answer[x] = (short) d; 
+				double d = Math.sin(((Math.PI * 2 * x) / waveLength)) * 20000;
+				answer[x] = (short) d;
 			}
 			return answer;
 		}
@@ -219,7 +221,7 @@ public class AlStrange {
 
 	private void outputWaves(WaveCreator wave) {
 		int waveLengthInBytes = 2;
-		for (int x = 0; x <9 ; x++) {
+		for (int x = 0; x < 9; x++) {
 			playTone(wave, waveLengthInBytes);
 			waveLengthInBytes *= 2;
 		}

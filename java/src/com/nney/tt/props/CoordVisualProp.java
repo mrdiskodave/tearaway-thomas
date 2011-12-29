@@ -12,7 +12,6 @@ public class CoordVisualProp extends VisualProp<Coord> {
 		super(pp);
 	}
 
-	
 	@Override
 	public void getBats(List<Bat> bats) {
 		bats.add(new PointBat() {
@@ -50,17 +49,17 @@ public class CoordVisualProp extends VisualProp<Coord> {
 		Coord t = read();
 		return t.copy();
 	}
-	
+
 	@Override
 	void save(DataDestination d) {
 		read().save(d);
 	}
-	
+
 	@Override
 	void load(Node d) {
 		write(Coord.load(d));
 	}
-	
+
 	@Override
 	public void getButtons(List<Button> buttons, final ButtonPressServices bps) {
 		super.getButtons(buttons, bps);
@@ -77,7 +76,7 @@ public class CoordVisualProp extends VisualProp<Coord> {
 			}
 		});
 	}
-	
+
 	@Override
 	public void validate(Box constraints) {
 		constraints.constrain(read());

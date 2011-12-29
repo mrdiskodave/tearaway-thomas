@@ -4,7 +4,7 @@ import com.nney.utils.Openable;
 
 public interface GraphicsContext {
 	void beginDrawing();
-	
+
 	void endDrawing();
 
 	void fillRectangle(int x, int y, int w, int h, int col);
@@ -19,8 +19,7 @@ public interface GraphicsContext {
 	int screenWidth();
 
 	int screenHeight();
-	
-	
+
 	Horizon loadHorizon(Openable ho);
 
 	void aperture(int radius, int x, int y, int c);

@@ -20,32 +20,32 @@ public class Bird2Alien extends Alien {
 	@PropAnn(name = "Facing", doc = "Do we face left or right?", xtraDef = "leftright", label = "goLeft")
 	public boolean goLeft;
 
-	@PropAnn(doc="How fast do we move?", max=400)
+	@PropAnn(doc = "How fast do we move?", max = 400)
 	public int speed = 200;
-	
+
 	private Coord c2;
 
 	private String animName;
 
 	private Box box;
-	
+
 	@Override
 	public void onLoaded() {
 		box = anims.box();
 		box.add(new Coord(range.left, c1.y));
 		box.right += range.width();
-		animPlayer.setRateScale(speed/2);
+		animPlayer.setRateScale(speed / 2);
 		// if we halve the base rate of bird anim this fudge factor can go
 	}
-	
+
 	void generateInternalStateFromFrameNumber() {
 		int phase = c1.x - range.left;
 		int span = range.width();
 		if (goLeft) {
-			phase = span*2 - phase;
+			phase = span * 2 - phase;
 		}
 		Result r = Wave.z(span, 0, Math2.percent(srv.getFrameNumber(), speed), phase);
-		c2 = new Coord(range.left+r.pos, c1.y);
+		c2 = new Coord(range.left + r.pos, c1.y);
 		animName = Anims.directionalAnimName(r.goLeft(), "");
 	}
 

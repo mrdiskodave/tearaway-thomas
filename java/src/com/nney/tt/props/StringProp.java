@@ -14,13 +14,13 @@ public class StringProp extends SpecificProp<String> {
 	public String text() {
 		return read();
 	}
-	
+
 	@Override
 	public void writeText(String text) {
 		// no parsing required!
 		write(text);
 	}
-	
+
 	@Override
 	void save(DataDestination d) {
 		d.write(read());
@@ -30,7 +30,7 @@ public class StringProp extends SpecificProp<String> {
 	void load(Node d) {
 		write(d.requireString());
 	}
-	
+
 	@Override
 	public void getButtons(List<Button> buttons, final ButtonPressServices bps) {
 		addEditButton(buttons, bps);

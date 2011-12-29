@@ -16,7 +16,7 @@ public class CountingMap<T> {
 		counts.put(t, useCount);
 		return useCount;
 	}
-	
+
 	public void zero(T t) {
 		counts.remove(t);
 	}

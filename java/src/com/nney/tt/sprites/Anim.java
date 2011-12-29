@@ -18,39 +18,38 @@ public final class Anim implements Disposable {
 		this.repeatPos = repeatPos;
 		this.name = name;
 	}
-	
+
 	public Box box() {
 		Box b = sprites[0].box();
-		for (int x=1; x<sprites.length; x++) {
+		for (int x = 1; x < sprites.length; x++) {
 			b.accommodate(sprites[x].box());
 		}
 		return b;
 	}
-	
+
 	public Sprite randomAccessByFrameNumber(int rate, int f) {
 		f *= rate;
 		f /= Anim.MAX_RATE;
-		if (f<sprites.length) return sprites[f];
+		if (f < sprites.length) return sprites[f];
 		return null;
 	}
 
 	public int lengthInFrames(int rate) {
-		return Math2.roundUpDiv(Anim.MAX_RATE*sprites.length, rate);
+		return Math2.roundUpDiv(Anim.MAX_RATE * sprites.length, rate);
 	}
-	
-	
+
 	public Sprite randomAccessByFrameNumber(int f) {
 		return randomAccessByFrameNumber(defaultRate, f);
 	}
 
 	public int lengthInFrames() {
 		return lengthInFrames(defaultRate);
-		
+
 	}
 
 	@Override
 	public void dispose() {
-		for (Sprite sprite: sprites) {
+		for (Sprite sprite : sprites) {
 			sprite.dispose();
 		}
 	}

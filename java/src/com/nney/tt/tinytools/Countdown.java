@@ -15,18 +15,17 @@ public final class Countdown {
 	}
 
 	public void run() {
-		if (t!=0) t--;
+		if (t != 0) t--;
 	}
-	
+
 	public boolean test() {
 		return t != 0;
 	}
-	
+
 	public boolean testAndRun() {
-		if (t==0) return false;
+		if (t == 0) return false;
 		t--;
 		return true;
 	}
-	
-	
+
 }

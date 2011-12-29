@@ -25,7 +25,7 @@ public class Fonts implements Disposable {
 
 		font = gc.createFont(new RawFont(1, OpenableTools.mustLoad(TTResource.font("font2")), 16, 11, true,
 				"abcdefghijklmnopqrstuvwxyz1234567890.-!?,<>/()' ", '?'));
-	
+
 	}
 
 	@Override

@@ -18,16 +18,18 @@ public abstract class Pool<V> {
 	public boolean cached(String k) {
 		return pool.containsKey(k);
 	}
-	
+
 	public Set<String> keySet() {
 		return pool.keySet();
 		// TODO: who is doing the GC here?
-		// if the animPool releases an animation -- all the sprites get decremented
+		// if the animPool releases an animation -- all the sprites get
+		// decremented
 		// and some are removed but how does the spritePool learn about this?
 		// gah!!
 		// they are owned at the SpritePool level
 		// the Anim has a list of numbers
-		// and then temporarilly establishes a list of Sprites for in game action!
+		// and then temporarilly establishes a list of Sprites for in game
+		// action!
 	}
 
 	protected abstract V internalLoad(String k);

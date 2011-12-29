@@ -147,7 +147,7 @@ public class AlienPalette {
 			}
 		});
 	}
-	
+
 	public AlienInfo get() {
 		return carousel.get();
 	}

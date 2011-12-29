@@ -12,7 +12,7 @@ import com.nney.utils.OpenableTools;
 public class MusicPlayer {
 	static abstract class Slice {
 		void getRunningOrder(List<Integer> destination, int length) {
-			for (int x=0; x<length; x++) {
+			for (int x = 0; x < length; x++) {
 				destination.add(x);
 			}
 		}
@@ -36,12 +36,12 @@ public class MusicPlayer {
 		@Override
 		void getRunningOrder(List<Integer> destination, int length) {
 			// all blocks after the first block then the first block again
-			for (int x=1; x<length; x++) {
+			for (int x = 1; x < length; x++) {
 				destination.add(x);
 			}
 			destination.add(0);
-		}	
-			
+		}
+
 		@Override
 		boolean isContinuing() {
 			// we're continuing from the first block
@@ -62,10 +62,6 @@ public class MusicPlayer {
 		}
 	}
 
-
-
-	
-	
 	static final int FREQUENCY = 44100;
 
 	private static final int SEGMENT_SIZE = FREQUENCY / 52;
@@ -80,11 +76,11 @@ public class MusicPlayer {
 	private ChannelPlayer[] players;
 
 	private Song song;
-	
+
 	public void setUpSong(String s) {
-		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.music(s+ ".song"))));
+		song = new Song(new DataSrc(OpenableTools.mustLoad(TTResource.music(s + ".song"))));
 	}
-	
+
 	public Sound generate(Slice bn) {
 		if (!bn.isContinuing()) {
 			generatePlayers();
@@ -93,7 +89,7 @@ public class MusicPlayer {
 
 		ArrayList<Integer> order = new ArrayList<Integer>();
 		bn.getRunningOrder(order, sequence.length);
-		
+
 		int steps = 0;
 		for (int b = 0; b < order.size(); b++) {
 			steps += new Block(song, sequence[order.get(b)]).lines;
@@ -118,7 +114,7 @@ public class MusicPlayer {
 			}
 		}
 
-//		sampleStore.dumpRange();
+		// sampleStore.dumpRange();
 
 		return new Sound(sampleStore.collect(), FREQUENCY);
 	}
@@ -148,7 +144,7 @@ public class MusicPlayer {
 						right += s * pos;
 					}
 				}
-				
+
 				int ileft = Math2.limit(Short.MIN_VALUE + 2, Short.MAX_VALUE - 2, (int) (left * 170));
 				int iright = Math2.limit(Short.MIN_VALUE + 2, Short.MAX_VALUE - 2, (int) (right * 170));
 				sampleStore.add((short) ileft, (short) iright);
@@ -196,7 +192,6 @@ public class MusicPlayer {
 				new ChannelConfig(0.25f, true), // 3
 		};
 	}
-
 
 	public MusicPlayer() {
 		loadInstruments();

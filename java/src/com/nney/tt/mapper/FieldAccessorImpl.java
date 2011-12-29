@@ -111,6 +111,6 @@ public class FieldAccessorImpl implements FieldAccessor {
 	}
 
 	public String fieldName() {
-		return f.getDeclaringClass().getCanonicalName()+" "+f.getName();
+		return f.getDeclaringClass().getCanonicalName() + " " + f.getName();
 	}
 }

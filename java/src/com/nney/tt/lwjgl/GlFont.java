@@ -44,7 +44,7 @@ public final class GlFont extends PartialFontImpl {
 
 	@Override
 	protected void drawChar(int dx, int dy, Bounds z) {
-		texture.drawQuad(dx, dy, z.width/scaleDown, z.height/scaleDown, z.left, z.top, z.width, z.height);
+		texture.drawQuad(dx, dy, z.width / scaleDown, z.height / scaleDown, z.left, z.top, z.width, z.height);
 	}
 
 	@Override
@@ -60,20 +60,19 @@ public final class GlFont extends PartialFontImpl {
 		if (LwjglMain.GL_EXT_framebuffer_object) {
 			int w = computeWidth(kern, text);
 			int h = charHeight();
-//			System.out.println("Pre-rendering into FBO "+w+","+h);
-			
-//			SimpleImage si = SimpleImage.createEmpty(w, h);
-//			si.fill(0xffff00ff);
-//			GlTexture t = new GlTexture(si);
-			
+			// System.out.println("Pre-rendering into FBO "+w+","+h);
+
+			// SimpleImage si = SimpleImage.createEmpty(w, h);
+			// si.fill(0xffff00ff);
+			// GlTexture t = new GlTexture(si);
+
 			GlTexture t = new GlTexture(w, h);
 			GlFrameBufferObject fbo = new GlFrameBufferObject(t);
 			draw(0, 0, fg, kern, text);
 			fbo.dispose();
 			return t;
 		}
-		
-		
+
 		int id = GL11.glGenLists(1);
 		GL11.glNewList(id, GL11.GL_COMPILE);
 		int width = draw(0, 0, fg, kern, text) - kern;

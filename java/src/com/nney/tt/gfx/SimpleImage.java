@@ -277,11 +277,10 @@ public class SimpleImage {
 		}
 	}
 
-
 	//
 	// extract different components
 	//
-	
+
 	static private int xb(int i) {
 		return i & 0xff;
 	}
@@ -297,7 +296,7 @@ public class SimpleImage {
 	static private int xa(int i) {
 		return (i >> 24) & 0xff;
 	}
-	
+
 	//
 	// repack components
 	//

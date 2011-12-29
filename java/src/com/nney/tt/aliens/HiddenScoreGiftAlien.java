@@ -12,7 +12,7 @@ public class HiddenScoreGiftAlien extends AlienWithLocation {
 	public void update() {
 		Box b = boxAroundUs(7);
 		freezeBounds = b;
-		if (count>0 && srv.collideBoxWithPlayer(b)) {
+		if (count > 0 && srv.collideBoxWithPlayer(b)) {
 			srv.awardScore(SCORE_GIVEN, null);
 			count--;
 		}

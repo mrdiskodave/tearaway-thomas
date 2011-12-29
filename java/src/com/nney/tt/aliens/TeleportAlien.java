@@ -10,12 +10,12 @@ public class TeleportAlien extends AlienWithLocation {
 
 	@PropAnn(doc = "Where do we teleport the player to?")
 	public Coord destination;
-	
+
 	@PropAnn(doc = "Are we hidden from view?")
 	public boolean hidden;
 
 	private Box ourFreezeBounds;
-	
+
 	@Override
 	public void loadFromLegacyData() {
 		destination = new Coord(loadShort(OBleft), loadShort(OBtop));
@@ -27,7 +27,7 @@ public class TeleportAlien extends AlienWithLocation {
 		super.resetTo(p);
 		destination = p.copyAndAdd(0, -40);
 	}
-	
+
 	@Override
 	public void onLoaded() {
 		changeAnimation(0);
@@ -45,7 +45,7 @@ public class TeleportAlien extends AlienWithLocation {
 
 		Box b = boxAroundUs(5);
 		if (srv.collideBoxWithPlayer(b)) {
-//			srv.drawDebugText(new Coord(10, 10), "hit");
+			// srv.drawDebugText(new Coord(10, 10), "hit");
 			srv.teleportTo(destination);
 		}
 	}

@@ -12,12 +12,12 @@ public class ShellAlien extends AlienWithLocation {
 		this.c = c;
 		this.velocity = velocity;
 	}
-	
+
 	@Override
 	public void onLoaded() {
-		changeAnimation(Anims.directionalAnimName(velocity.x<0, ""));
+		changeAnimation(Anims.directionalAnimName(velocity.x < 0, ""));
 	}
-	
+
 	@Override
 	public void update() {
 		Sprite s = nextFrame();

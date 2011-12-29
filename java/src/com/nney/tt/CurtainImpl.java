@@ -9,17 +9,19 @@ public abstract class CurtainImpl implements Curtain {
 	public void current(int state) {
 		currentValue = stateToValue(state);
 	}
-	
+
 	@Override
 	public int current() {
 		return valueToState(currentValue);
 	}
 
 	protected abstract int stateToValue(int state);
+
 	protected abstract int valueToState(int value);
+
 	protected abstract void move();
+
 	protected abstract void draw();
-	
 
 	@Override
 	public void target(int state) {
@@ -31,10 +33,10 @@ public abstract class CurtainImpl implements Curtain {
 	public int target() {
 		return targetState;
 	}
-	
+
 	@Override
 	public boolean isDone() {
-		return currentValue==targetValue;
+		return currentValue == targetValue;
 	}
 
 	@Override

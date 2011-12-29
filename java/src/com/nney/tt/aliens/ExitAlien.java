@@ -8,7 +8,7 @@ public class ExitAlien extends AlienWithLocation {
 	public void onLoaded() {
 		depth = DEPTH_FG_SCENARY;
 	}
-	
+
 	@Override
 	public void update() {
 		boolean isOpen = srv.isExitOpen();

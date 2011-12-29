@@ -11,7 +11,7 @@ public class PaletteChanger implements ChangePixel {
 	PaletteChanger() {
 		this.map = new HashMap<Integer, Integer>();
 	}
-	
+
 	void add(int s, int d) {
 		map.put(s, d);
 	}
@@ -19,7 +19,7 @@ public class PaletteChanger implements ChangePixel {
 	@Override
 	public int change(int c) {
 		Integer nc = map.get(c);
-		if (nc==null) return c;
+		if (nc == null) return c;
 		return nc;
 	}
 }

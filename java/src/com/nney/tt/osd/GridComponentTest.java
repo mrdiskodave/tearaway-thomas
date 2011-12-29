@@ -3,13 +3,13 @@ package com.nney.tt.osd;
 import junit.framework.TestCase;
 
 public class GridComponentTest extends TestCase {
-	
+
 	public void testEmpty() throws Exception {
 		GridComponent g = new GridComponent(3, 7);
 		assertEquals(0, g.width());
 		assertEquals(0, g.height());
 	}
-	
+
 	public void testJustify() {
 		GridComponent g = new GridComponent(3, 3);
 		g.setContent(1, 0, new SpacerComponent(40, 0));

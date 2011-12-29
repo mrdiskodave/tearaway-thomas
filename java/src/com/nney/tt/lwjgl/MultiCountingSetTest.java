@@ -11,7 +11,7 @@ public class MultiCountingSetTest extends TestCase {
 		assertTrue(cs.contains(5));
 		cs.remove(5, 3);
 		assertFalse(cs.contains(5));
-		
+
 		cs.add(5, 3);
 		cs.add(5, 4);
 		assertTrue(cs.contains(5));

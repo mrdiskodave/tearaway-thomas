@@ -148,7 +148,8 @@ public class LwjglKeyboard extends PartialHasKeysImpl implements Keyboard {
 						//
 						// i'd like to track presses and releases of theirKey
 						// (in a MultiCountingSet) then our KEY_SHIFT would be
-						// down if either their shifts were down. However, theirKey
+						// down if either their shifts were down. However,
+						// theirKey
 						// is borked for the various Lock keys ...
 						// http://lwjgl.org/forum/index.php?msg=23104;topic=4268.0
 						//
@@ -159,7 +160,7 @@ public class LwjglKeyboard extends PartialHasKeysImpl implements Keyboard {
 	}
 
 	private boolean nonRepeating(int k) {
-		return k>=KEYBEGIN_SHIFTS && k<=KEYEND_SHIFTS;
+		return k >= KEYBEGIN_SHIFTS && k <= KEYEND_SHIFTS;
 	}
 
 	public void clear() {

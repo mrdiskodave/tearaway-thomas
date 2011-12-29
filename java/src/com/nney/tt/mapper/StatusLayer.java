@@ -53,16 +53,16 @@ public abstract class StatusLayer {
 		draw(x, y, text);
 
 		// draw the cursor block
-		int sx = cx(x+cursorX);
+		int sx = cx(x + cursorX);
 		int sy = cy(y);
 		mgc.fillRectangle(sx, sy, characterWidthInPixels, characterHeightInPixels, 0xffffffff);
 		// reinstate anything we've overwritten
-		if (cursorX<text.length()) {
-			String s = text.substring(cursorX, cursorX+1);
+		if (cursorX < text.length()) {
+			String s = text.substring(cursorX, cursorX + 1);
 			mgc.drawText(sx, sy, 0xff000000, s);
 		}
 	}
-	
+
 	public void draw(int x, int y, ButtonState status, String text) {
 		touch(y);
 		int sx = cx(x);
@@ -95,20 +95,19 @@ public abstract class StatusLayer {
 			mgc.fillRectangle(0, sy, screenWidthInPixels, characterHeightInPixels, col);
 		}
 	}
-	
+
 	public Box getBox(int x, int y, int w, int h) {
 		int sx = cx(x);
 		int sy = cy(y);
-		if (w<0) w = screenWidthInCharacters;
-		if (h<0) h = screenHeightInCharacters;
+		if (w < 0) w = screenWidthInCharacters;
+		if (h < 0) h = screenHeightInCharacters;
 		return Box.fromTopLeftAndSize(sx, sy, characterWidthInPixels * w, characterHeightInPixels * h);
 	}
-	
-	
+
 	public Box getBox(int x, int y, String text) {
 		return getBox(x, y, text.length(), 1);
 	}
-	
+
 	public int width() {
 		return screenWidthInCharacters;
 	}

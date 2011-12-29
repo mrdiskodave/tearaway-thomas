@@ -10,8 +10,8 @@ public class JoystickToolsTest extends TestCase {
 		t(Joystick.LEFT);
 		t(Joystick.RIGHT);
 		t(Joystick.FIRE);
-		t(Joystick.LEFT + Joystick.FIRE); 
-		
+		t(Joystick.LEFT + Joystick.FIRE);
+
 	}
 
 	private void t(int j1) {

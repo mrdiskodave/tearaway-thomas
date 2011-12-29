@@ -54,7 +54,7 @@ public class SampleStore {
 			vMin = Math.min(s, vMin);
 			vMax = Math.max(s, vMax);
 		}
-		System.out.println(pos+" samples between " + vMin + " and " + vMax);
+		System.out.println(pos + " samples between " + vMin + " and " + vMax);
 	}
 
 }

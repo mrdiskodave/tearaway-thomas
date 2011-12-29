@@ -11,19 +11,19 @@ public class Fade extends CurtainImpl {
 	private final GraphicsContext gc;
 	private final int darkest;
 	private final int rate;
-	
+
 	public Fade(GraphicsContext gc, int darkest, float time) {
 		this.gc = gc;
-		this.darkest = darkest*PADDING;
-		this.rate = (int) ((this.darkest)/(Const.FPS*time));
+		this.darkest = darkest * PADDING;
+		this.rate = (int) ((this.darkest) / (Const.FPS * time));
 		current(OPEN);
 		target(OPEN);
 	}
-	
+
 	public Fade(GraphicsContext gc) {
 		this(gc, 0, 1);
 	}
-	
+
 	@Override
 	protected int stateToValue(int state) {
 		return Math2.fracMult(state, darkest, CLOSED);
@@ -38,12 +38,12 @@ public class Fade extends CurtainImpl {
 	public void move() {
 		currentValue = Math2.closer(currentValue, targetValue, rate);
 	}
-	
+
 	@Override
 	public void draw() {
-		int c = currentValue>>8;
-		if (c!=0) {
-			gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), c<<24);
+		int c = currentValue >> 8;
+		if (c != 0) {
+			gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), c << 24);
 		}
 	}
 

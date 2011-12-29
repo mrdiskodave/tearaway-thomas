@@ -7,10 +7,10 @@ public class StringEditorTest extends TestCase {
 
 	public void testScrolling() {
 		se = new StringEditor("", 12);
-		
-		for (int x=0; x<26; x++) {
-			char c = (char)('a'+x);
-			System.out.println("Type:"+c);
+
+		for (int x = 0; x < 26; x++) {
+			char c = (char) ('a' + x);
+			System.out.println("Type:" + c);
 			se.opType(c);
 		}
 		expect("pqrstuvwxyz_");
@@ -31,7 +31,7 @@ public class StringEditorTest extends TestCase {
 		se.opDeleteHere();
 		expect("abcdefghijk_m");
 	}
-	
+
 	public void bestOps() throws Exception {
 		se = new StringEditor("f", 1000);
 		expect("f_");
@@ -62,7 +62,7 @@ public class StringEditorTest extends TestCase {
 		expect("7_12");
 		se.opDeleteBack();
 		expect("_12");
-		se.opDeleteBack();  // illegal action
+		se.opDeleteBack(); // illegal action
 		expect("_12");
 		se.opRight();
 		se.opDeleteToEnd();
@@ -78,9 +78,9 @@ public class StringEditorTest extends TestCase {
 		expect("_3");
 		se.opDeleteToEnd();
 		expect("_");
-		se.opDeleteHere();  // illegal action
+		se.opDeleteHere(); // illegal action
 		expect("_");
-		se.opDeleteBack();  // illegal action
+		se.opDeleteBack(); // illegal action
 		expect("_");
 	}
 

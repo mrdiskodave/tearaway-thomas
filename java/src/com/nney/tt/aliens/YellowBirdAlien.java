@@ -1,14 +1,9 @@
 package com.nney.tt.aliens;
 
-
 public class YellowBirdAlien extends AlienWithLocation {
-	private final static BirdTableEntry[] BIRD_TABLE = new BirdTableEntry[] { 
-		new BirdTableEntry(0, 100, 75),
-		new BirdTableEntry(-300, 20, 100),
-		new BirdTableEntry(-200, 20, 150),
-		new BirdTableEntry(-100, 30, 200),
-		new BirdTableEntry(0, 50, 255),
-		new BirdTableEntry(100, 20, 200), new BirdTableEntry(200, 20, 150),
+	private final static BirdTableEntry[] BIRD_TABLE = new BirdTableEntry[] { new BirdTableEntry(0, 100, 75),
+			new BirdTableEntry(-300, 20, 100), new BirdTableEntry(-200, 20, 150), new BirdTableEntry(-100, 30, 200),
+			new BirdTableEntry(0, 50, 255), new BirdTableEntry(100, 20, 200), new BirdTableEntry(200, 20, 150),
 			new BirdTableEntry(300, Integer.MAX_VALUE, 100) };
 
 	private int timer;

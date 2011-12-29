@@ -11,22 +11,22 @@ public class BeeAlien extends BumbleAlien {
 	}
 
 	@Override
-	public  void bumbleAnimation(Coord lc) {
+	public void bumbleAnimation(Coord lc) {
 		int dx = c.x - lc.x;
-		if (dx>0) {
+		if (dx > 0) {
 			changeAnimation("right");
 		}
-		if (dx<0) {
+		if (dx < 0) {
 			changeAnimation("left");
 		}
 	}
-	
+
 	@Override
 	public void nextDestination() {
 		Coord p = srv.getPlayerPosition();
 		d.closer(p, 40);
 		box.constrain(d);
-		d.x += srv.randomness(BUMBLE*2+1)-BUMBLE;
-		d.y += srv.randomness(BUMBLE*2+1)-BUMBLE;
+		d.x += srv.randomness(BUMBLE * 2 + 1) - BUMBLE;
+		d.y += srv.randomness(BUMBLE * 2 + 1) - BUMBLE;
 	}
 }

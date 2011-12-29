@@ -110,14 +110,14 @@ public class JsonParser extends JsonInput {
 			throw syntaxError("Expected end of file");
 		}
 	}
-	
+
 	public static Node parse(String jsonInputString) throws JsonException {
 		NodeDataDestination builder = new NodeDataDestination();
 		JsonParser parser = new JsonParser(jsonInputString, builder);
 		parser.parse();
 		return builder.result();
 	}
-	
+
 	public static Node mustParse(String jsonString) {
 		try {
 			return parse(jsonString);

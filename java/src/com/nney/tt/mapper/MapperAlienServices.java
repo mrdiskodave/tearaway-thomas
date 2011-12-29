@@ -18,7 +18,7 @@ final class MapperAlienServices implements AlienServices {
 	private void ni() {
 		throw new UnsupportedOperationException("service not implemented by map editor");
 	}
-	
+
 	@Override
 	public void validatePlayerPosition(Coord c) {
 		ni();
@@ -207,11 +207,10 @@ final class MapperAlienServices implements AlienServices {
 	public void drawDebugText(Coord c, String text) {
 		mapper.drawDebugText(c, text);
 	}
-	
+
 	@Override
 	public int getFrameNumber() {
 		return 0;
 	}
-
 
 }

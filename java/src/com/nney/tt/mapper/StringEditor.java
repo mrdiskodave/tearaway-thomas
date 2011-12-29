@@ -35,7 +35,7 @@ public class StringEditor {
 		this.content = new StringBuffer(content);
 		cx = content.length();
 	}
-	
+
 	// the key operation of this is a separate concern that could be pulled out
 	public void keyboardInput(KeyEvent key) {
 		int k = key.keyCode;
@@ -55,17 +55,17 @@ public class StringEditor {
 	}
 
 	public void opType(int c) {
-		if (c>=32) {
-			content.insert(cx++, (char)c);
+		if (c >= 32) {
+			content.insert(cx++, (char) c);
 		}
 	}
 
 	public void opLeft() {
-		moveCursorTo(cx-1);
+		moveCursorTo(cx - 1);
 	}
 
 	public void opRight() {
-		moveCursorTo(cx+1);
+		moveCursorTo(cx + 1);
 	}
 
 	public void opBegin() {
@@ -107,7 +107,7 @@ public class StringEditor {
 		int cursor = cx - sx;
 		return new State(show, cursor);
 	}
-	
+
 	@Override
 	public String toString() {
 		return content.toString();

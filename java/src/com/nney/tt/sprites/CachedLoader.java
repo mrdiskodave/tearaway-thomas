@@ -14,10 +14,10 @@ public abstract class CachedLoader<K, V> {
 		return answer;
 	}
 
-//	public V loadUncached(K k) {
-//		assert pool.containsKey(k) : "expected to find key in cache " + k;
-//		return load(k);
-//	}
-	
+	// public V loadUncached(K k) {
+	// assert pool.containsKey(k) : "expected to find key in cache " + k;
+	// return load(k);
+	// }
+
 	protected abstract V internalLoad(K k);
 }

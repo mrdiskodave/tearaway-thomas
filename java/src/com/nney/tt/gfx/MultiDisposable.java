@@ -4,12 +4,12 @@ import java.util.Stack;
 
 public class MultiDisposable implements Disposable {
 	private Stack<Disposable> stack = new Stack<Disposable>();
-	
+
 	public MultiDisposable() {
 	}
 
 	public MultiDisposable(Disposable... ds) {
-		for (Disposable d: ds) {
+		for (Disposable d : ds) {
 			add(d);
 		}
 	}
@@ -19,7 +19,7 @@ public class MultiDisposable implements Disposable {
 	}
 
 	public void addMany(Disposable... ds) {
-		for (Disposable d: ds) {
+		for (Disposable d : ds) {
 			add(d);
 		}
 	}
@@ -30,7 +30,7 @@ public class MultiDisposable implements Disposable {
 			stack.pop().dispose();
 		}
 	}
-	
+
 	public static <T extends Disposable> T add(MultiDisposable md, T t) {
 		md.add(t);
 		return t;

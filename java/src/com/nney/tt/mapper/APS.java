@@ -16,11 +16,11 @@ import com.nney.utils.SortKeyGenerator;
  * Alien Property Services.
  */
 public class APS {
-	
+
 	//
 	// alien specific
 	//
-	
+
 	public static void moveAlienAbsolute(Alien a, Coord pos) {
 		Coord diff = pos.sub2(a.getLocation());
 		moveAlienRelative(a, diff);
@@ -32,7 +32,7 @@ public class APS {
 			prop.moveBy(delta);
 		}
 	}
-	
+
 	/**
 	 * Order a list of aliens in some approximately stable way. This is intended
 	 * to be used before saving the aliens to avoid thrashing the version
@@ -46,6 +46,7 @@ public class APS {
 				dd.write(t.alienInfo.name);
 				OPS.saveProps(t, dd);
 				return dd.toString();
-			}});
+			}
+		});
 	}
 }
