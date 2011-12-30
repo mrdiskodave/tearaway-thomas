@@ -21,7 +21,7 @@ public class SpikeAlien extends AlienWithLocation {
 
 	@Override
 	public void update() {
-		freezeBounds = ourAnim.box().add2(c);
+		freezeBounds = ourAnim.getBounds().add2(c);
 
 		int f = srv.getFrameNumber() + Math2.percent(frequency, phase);
 		f %= frequency;

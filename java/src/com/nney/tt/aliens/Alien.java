@@ -101,7 +101,7 @@ public abstract class Alien implements HasProps, Bounded {
 	}
 
 	protected Box spriteBounds(Sprite s) {
-		return s.box().add2(getLocation());
+		return s.getBounds().add2(getLocation());
 	}
 
 	protected Box boxAroundUs(int size) {
@@ -117,7 +117,7 @@ public abstract class Alien implements HasProps, Bounded {
 	}
 
 	protected Sprite firstFrame() {
-		return anims.find(0).sprites[0];
+		return anims.find(0).firstSprite();
 	}
 
 	protected void draw(Coord c2) {
@@ -141,9 +141,9 @@ public abstract class Alien implements HasProps, Bounded {
 	public void mapperUpdate() {
 		Coord c = getLocation();
 		if (anims != null) {
-			Sprite s = mapperAnim().sprites[0];
+			Sprite s = mapperAnim().firstSprite();
 			srv.drawSprite(c, s);
-			freezeBounds = s.box().add2(c);
+			freezeBounds = s.getBounds().add2(c);
 		}
 		else {
 			srv.drawDebugText(c, alienInfo.name);

@@ -255,6 +255,10 @@ public class Box implements Copyable<Box>, Cloneable {
 		}
 	}
 
+	boolean contains(Box littleBox) {
+		return left <= littleBox.left && top <= littleBox.top && right >= littleBox.right && bottom >= littleBox.bottom;
+	}
+
 	public XRange toXRange() {
 		return new XRange(left, right);
 	}

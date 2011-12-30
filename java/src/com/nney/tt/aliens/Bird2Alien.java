@@ -31,7 +31,7 @@ public class Bird2Alien extends Alien {
 
 	@Override
 	public void onLoaded() {
-		box = anims.box();
+		box = anims.getBounds();
 		box.add(new Coord(range.left, c1.y));
 		box.right += range.width();
 		animPlayer.setRateScale(speed / 2);

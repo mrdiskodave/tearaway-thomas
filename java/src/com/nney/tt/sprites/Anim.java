@@ -1,14 +1,18 @@
 package com.nney.tt.sprites;
 
+import java.util.ArrayList;
+
+import com.nney.tt.Bounded;
+import com.nney.tt.BoundedUtils;
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Disposable;
 import com.nney.utils.Math2;
 
-public final class Anim implements Disposable {
+public final class Anim implements Disposable, Bounded {
 	public static final int MAX_RATE = 256;
 
 	final public int defaultRate;
-	final public Sprite[] sprites;
+	final Sprite[] sprites;
 	final public int repeatPos;
 	final public String name;
 
@@ -19,12 +23,27 @@ public final class Anim implements Disposable {
 		this.name = name;
 	}
 
-	public Box box() {
-		Box b = sprites[0].box();
-		for (int x = 1; x < sprites.length; x++) {
-			b.accommodate(sprites[x].box());
+	public Sprite firstSprite() {
+		return sprites[0];
+	}
+
+	public Sprite getSprite(int x) {
+		return sprites[x];
+	}
+
+	@Override
+	public Box getBounds() {
+		// "sprites" isn't a list
+		// make it into one?
+		// no getBounds() isn't called on any fast paths
+		ArrayList<Sprite> s = new ArrayList<Sprite>();
+		for (Sprite sprite : sprites) {
+			s.add(sprite);
 		}
-		return b;
+
+		Box answer = BoundedUtils.collect(s);
+		assert answer != null;
+		return answer;
 	}
 
 	public Sprite randomAccessByFrameNumber(int rate, int f) {

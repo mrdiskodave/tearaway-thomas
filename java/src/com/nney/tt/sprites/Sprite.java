@@ -1,5 +1,6 @@
 package com.nney.tt.sprites;
 
+import com.nney.tt.Bounded;
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.Disposable;
@@ -8,7 +9,7 @@ import com.nney.tt.gfx.ShowBoundsSip;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.gfx.WhiteOutSip;
 
-public class Sprite implements Disposable {
+public class Sprite implements Disposable, Bounded {
 	public final int handleX;
 	public final int handleY;
 	public final int w;
@@ -87,7 +88,8 @@ public class Sprite implements Disposable {
 		}
 	}
 
-	public Box box() {
+	@Override
+	public Box getBounds() {
 		return Box.fromTopLeftAndSize(-handleX, -handleY, w, h);
 	}
 

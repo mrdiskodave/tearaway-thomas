@@ -31,7 +31,7 @@ public class TeleportAlien extends AlienWithLocation {
 	@Override
 	public void onLoaded() {
 		changeAnimation(0);
-		ourFreezeBounds = anims.box();
+		ourFreezeBounds = anims.getBounds();
 		ourFreezeBounds.add(c);
 	}
 

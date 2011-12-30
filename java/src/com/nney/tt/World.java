@@ -1002,7 +1002,7 @@ public class World implements AlienServices, Disposable {
 		assert hud == null;
 
 		Anims lifeAnims = animsPool.expect("0life");
-		hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).sprites[0]);
+		hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).firstSprite());
 		statusDisplay = new StatusDisplay(gc, fonts.font);
 	}
 

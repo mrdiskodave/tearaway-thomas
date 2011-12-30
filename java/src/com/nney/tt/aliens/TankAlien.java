@@ -73,7 +73,7 @@ public class TankAlien extends LeftRightAlien {
 		Sprite sprite = nextFrame();
 		srv.drawSprite(c, sprite);
 
-		Sprite turretSprite = anims.find("turret").sprites[currentTurretAngle];
+		Sprite turretSprite = anims.find("turret").getSprite(currentTurretAngle);
 		srv.drawSprite(c, turretSprite);
 
 		if (srv.collideAlienWithPlayerHiRes(c, sprite) || srv.collideAlienWithPlayerHiRes(c, turretSprite)) {

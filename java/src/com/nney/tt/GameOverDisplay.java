@@ -16,8 +16,8 @@ public class GameOverDisplay implements LifeLostDevice {
 
 	public GameOverDisplay(AnimsPool animsPool, GraphicsContext gc) {
 		Anims ago = animsPool.expect("0gameover");
-		game = ago.find("game").sprites[0];
-		over = ago.find("over").sprites[0];
+		game = ago.find("game").firstSprite();
+		over = ago.find("over").firstSprite();
 
 		mx = gc.screenWidth() / 2;
 		my = gc.screenHeight() / 2;

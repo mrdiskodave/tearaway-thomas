@@ -2,10 +2,12 @@ package com.nney.tt.sprites;
 
 import java.util.ArrayList;
 
+import com.nney.tt.Bounded;
+import com.nney.tt.BoundedUtils;
 import com.nney.tt.geom.Box;
 import com.nney.tt.gfx.Disposable;
 
-public final class Anims implements Disposable {
+public final class Anims implements Disposable, Bounded {
 	private final ArrayList<Anim> anims;
 
 	public Anims(ArrayList<Anim> animList) {
@@ -40,18 +42,9 @@ public final class Anims implements Disposable {
 		}
 	}
 
-	public Box box() {
-		Box answer = null;
-		for (Anim anim : anims) {
-			Box b = anim.box();
-			if (answer == null) {
-				answer = b;
-			}
-			else {
-				answer.accommodate(b);
-			}
-		}
-		return answer;
+	@Override
+	public Box getBounds() {
+		return BoundedUtils.collect(anims);
 	}
 
 	static public String directionalAnimName(boolean goLeft, String base) {

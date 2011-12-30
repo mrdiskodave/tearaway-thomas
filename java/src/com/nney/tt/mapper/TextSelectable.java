@@ -12,7 +12,7 @@ public class TextSelectable implements Selectable {
 	}
 
 	@Override
-	public Box where() {
+	public Box getBounds() {
 		return where;
 	}
 

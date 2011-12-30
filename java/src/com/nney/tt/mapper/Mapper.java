@@ -353,11 +353,8 @@ public class Mapper implements ButtonPressServices {
 		List<AlienInfo> ais = alienInfoMap.getExternal();
 		alienPalette = new AlienPalette(ais, mgc, mouse, animsPool);
 		sendCensusToAlienPalette();
+
 		blockPalette = new BlockPalette(mgc, loadBlockSet());
-
-		{
-
-		}
 
 		{
 			BlockSet bs = loadBlockSet();
@@ -371,7 +368,7 @@ public class Mapper implements ButtonPressServices {
 				content.add(new Selectable() {
 
 					@Override
-					public Box where() {
+					public Box getBounds() {
 						return box;
 					}
 
@@ -509,6 +506,7 @@ public class Mapper implements ButtonPressServices {
 
 				@Override
 				void stroke() {
+					flagSelectionKeys();
 					blockSelectionScreen.draw();
 				}
 
@@ -994,7 +992,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void simulationMode(int k) {
-		flagSelectionKeys(k);
+		flagSelectionKeys();
 
 		if (keyboard.isDown(Pointer.KEY_LEFT)) {
 			for (int x = 0; x < 5; x++) {
@@ -1053,19 +1051,19 @@ public class Mapper implements ButtonPressServices {
 				startPen(kns, new Pen() {
 					Coord origin;
 
-					public Coord where() {
+					public Coord getBounds() {
 						return mmp.worldPixels().sub2(batGrip);
 					}
 
 					private Coord whereSnapped() {
 						boolean isDown = keyboard.isDown(Locks.LOCK_SHIFT);
 						if (isDown) {
-							if (origin == null) origin = where();
+							if (origin == null) origin = getBounds();
 						}
 						else {
 							origin = null;
 						}
-						return computeSnap(where(), origin, 8);
+						return computeSnap(getBounds(), origin, 8);
 					}
 
 					@Override
@@ -1101,7 +1099,7 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_ADD) findType(1);
 		if (k == Keyboard.KEY_SUBTRACT) findType(-1);
 		if (k == Keyboard.KEY_N) createAlien();
-		flagSelectionKeys(k);
+		flagSelectionKeys();
 
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
 
@@ -1285,10 +1283,11 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
 		if (k == Keyboard.KEY_RIGHT) changeCurrentBlock(1, 0);
-		flagSelectionKeys(k);
+		flagSelectionKeys();
 	}
 
-	public void flagSelectionKeys(int k) {
+	public void flagSelectionKeys() {
+		int k = keypress.keyCode;
 		if (k == KEY_SEE_MASKS) flipFlag(FLAG_SEE_MASKS);
 		if (k == KEY_SEE_HIDDEN) flipFlag(FLAG_SEE_HIDDEN);
 		if (k == KEY_SEE_GRID) flipFlag(FLAG_SEE_GRID);
