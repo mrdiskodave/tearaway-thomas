@@ -47,7 +47,6 @@ import com.nney.tt.sprites.Anims;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
 import com.nney.tt.tinytools.SlowBoolean;
-import com.nney.utils.CountingMap;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
 import com.nney.utils.SortKeyGenerator;
@@ -163,6 +162,10 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int KEY_SEE_MASKS = Locks.LOCK_CONTROL + Keyboard.KEY_M;
 
+	private static final int KEY_SELECT_ALIEN = Pointer.KEY_MIDDLE;
+
+	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
+
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
 	// prop panel layout:
@@ -197,7 +200,7 @@ public class Mapper implements ButtonPressServices {
 	private int paletteTimer;
 
 	private final MapperGC mgc;
-	private final Pointer mouse2;
+	private final SimpleMouse mouse;
 	private GameMap gameMap;
 
 	class SavedAlienSlot {
@@ -314,7 +317,7 @@ public class Mapper implements ButtonPressServices {
 		scr = new ScreenPosition(mgc.screenWidth(), mgc.screenHeight(), new Coord(50, 50));
 
 		keyboard = new LocksKeyAdaptor(new TeeKeyAdaptor(ow.mouse, ow.keyboard));
-		mouse2 = ow.mouse;
+		mouse = new SimpleMouse(ow.mouse);
 		animsPool = ow.animsPool;
 
 		PersistedLevel pl = new PersistedLevel(ow.levelNumber, null);
@@ -348,7 +351,7 @@ public class Mapper implements ButtonPressServices {
 
 		// build the AlienPalette
 		List<AlienInfo> ais = alienInfoMap.getExternal();
-		alienPalette = new AlienPalette(ais, mgc, mmp, animsPool);
+		alienPalette = new AlienPalette(ais, mgc, mouse, animsPool);
 		sendCensusToAlienPalette();
 		blockPalette = new BlockPalette(mgc, loadBlockSet());
 
@@ -378,7 +381,7 @@ public class Mapper implements ButtonPressServices {
 					}
 				});
 			}
-			blockSelectionScreen = new SelectionScreen(mgc, mmp, content);
+			blockSelectionScreen = new SelectionScreen(mgc, mouse, content);
 		}
 	}
 
@@ -386,7 +389,7 @@ public class Mapper implements ButtonPressServices {
 		gameMap = g;
 		constraints = gameMap.boundsInPixels();
 		Box mapBoundsInPixels = gameMap.boundsInPixels();
-		mmp = new MapperMousePosition(mouse2, mapBoundsInPixels);
+		mmp = new MapperMousePosition(mapBoundsInPixels);
 		readMouse();
 
 		Box scrollBounds = mapBoundsInPixels.copy();
@@ -496,9 +499,9 @@ public class Mapper implements ButtonPressServices {
 			}
 			drawLevel();
 		}
-		else if (mode == Mode.DRAW && keyboard.isDown(Pointer.KEY_RIGHT)) {
-			blockSelectionScreen.start();
-			startPen(Pointer.KEY_RIGHT, new Pen() {
+		else if (mode == Mode.DRAW && k == KEY_CHANGE_TYPE) {
+			blockSelectionScreen.begin();
+			startPen(k, new Pen() {
 				@Override
 				boolean fullScreen() {
 					return true;
@@ -519,9 +522,9 @@ public class Mapper implements ButtonPressServices {
 				}
 			});
 		}
-		else if (mode == Mode.ALIEN && keyboard.isDown(Pointer.KEY_MIDDLE)) {
-			alienPalette.start();
-			startPen(Pointer.KEY_MIDDLE, new Pen() {
+		else if (mode == Mode.ALIEN && k == KEY_CHANGE_TYPE) {
+			alienPalette.begin();
+			startPen(k, new Pen() {
 				@Override
 				boolean fullScreen() {
 					return true;
@@ -529,6 +532,16 @@ public class Mapper implements ButtonPressServices {
 
 				@Override
 				void stroke() {
+					char c = keypress.keyChar;
+					alienPalette.jumpTo(c);
+
+					int k = keypress.keyCode;
+					if (k == Pointer.KEY_UP || k == Keyboard.KEY_PRIOR) {
+						alienPalette.moveBy(-1);
+					}
+					if (k == Pointer.KEY_DOWN || k == Keyboard.KEY_NEXT) {
+						alienPalette.moveBy(1);
+					}
 					alienPalette.draw();
 				}
 
@@ -577,44 +590,45 @@ public class Mapper implements ButtonPressServices {
 		}
 		mgc.endDrawing();
 
-		if (k == Locks.LOCK_MENU + Keyboard.KEY_T) {
-			testLevel(false);
-		}
-		if (k == Locks.LOCK_MENU + Locks.LOCK_SHIFT + Keyboard.KEY_T) {
-			testLevel(true);
-		}
-		if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
-			int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
-			if (playerCount != 1) {
-				sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
+		if (pen == null) {
+			if (k == Locks.LOCK_MENU + Keyboard.KEY_T) {
+				testLevel(false);
 			}
-			else {
-				saveMap(false);
-				sayf("Saved: %s", levelInfo.filename);
-				undoControler.saved();
+			if (k == Locks.LOCK_MENU + Locks.LOCK_SHIFT + Keyboard.KEY_T) {
+				testLevel(true);
 			}
-		}
+			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
+				int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
+				if (playerCount != 1) {
+					sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
+				}
+				else {
+					saveMap(false);
+					sayf("Saved: %s", levelInfo.filename);
+					undoControler.saved();
+				}
+			}
 
-		if (Math2.maskTest(k, Locks.LOCK_MENU)) {
-			int pureKey = k & (~Locks.LOCK_ALL);
-			int sl = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
-			boolean sure = (k & sl) == sl;
+			if (Math2.maskTest(k, Locks.LOCK_MENU)) {
+				int pureKey = k & (~Locks.LOCK_ALL);
+				int sl = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
+				boolean sure = (k & sl) == sl;
 
-			if (pureKey == Keyboard.KEY_Q && mustBeSure(sure, "Quit")) {
-				throw new OuterWorld.ExitException();
+				if (pureKey == Keyboard.KEY_Q && mustBeSure(sure, "Quit")) {
+					throw new OuterWorld.ExitException();
+				}
+				if (pureKey == Keyboard.KEY_N && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
+					ow.levelNumber++;
+					throw new ExitException();
+				}
+				if (pureKey == Keyboard.KEY_P && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
+					ow.levelNumber--;
+					throw new ExitException();
+				}
 			}
-			if (pureKey == Keyboard.KEY_N && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
-				ow.levelNumber++;
-				throw new ExitException();
-			}
-			if (pureKey == Keyboard.KEY_P && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
-				ow.levelNumber--;
-				throw new ExitException();
-			}
+
+			growAndShrinkMap(k);
 		}
-
-		growAndShrinkMap(k);
-
 	}
 
 	public void growAndShrinkMap(int k) {
@@ -635,7 +649,8 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void readMouse() {
-		mmp.update(getScreenPosition());
+		Coord m = mouse.get();
+		mmp.update(m, getScreenPosition().add2(m));
 	}
 
 	public void enliven() {
@@ -1010,7 +1025,7 @@ public class Mapper implements ButtonPressServices {
 	private void alienMode(int k) {
 		checkPropMouseOver();
 
-		if (k == Pointer.KEY_RIGHT) {
+		if (k == KEY_SELECT_ALIEN) {
 			startPen(k, new Pen() {
 				@Override
 				void stroke() {
@@ -1086,10 +1101,25 @@ public class Mapper implements ButtonPressServices {
 		if (k == Keyboard.KEY_ADD) findType(1);
 		if (k == Keyboard.KEY_SUBTRACT) findType(-1);
 		if (k == Keyboard.KEY_N) createAlien();
-		keyboardAlienChoice(k);
 		flagSelectionKeys(k);
 
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
+
+		if (k == Keyboard.KEY_I && haveAlien()) {
+			alienPalette.find(getSelectedAlien().alienInfo);
+		}
+		if (k == Keyboard.KEY_PRIOR) {
+			lmb(-1);
+		}
+		if (k == Keyboard.KEY_NEXT) {
+			lmb(1);
+		}
+	}
+
+	private void lmb(int i) {
+		alienPalette.moveBy(i);
+		AlienInfo ai = alienPalette.get();
+		sayf("alien=%s", ai.name);
 	}
 
 	public void checkPropMouseOver() {
@@ -1222,28 +1252,6 @@ public class Mapper implements ButtonPressServices {
 		say(String.format(f, a));
 	}
 
-	private void keyboardAlienChoice(int k) {
-		if (k == Keyboard.KEY_Q) {
-			showAlienPalette();
-		}
-		if (k == Pointer.KEY_DOWN) {
-			showAlienPalette();
-			alienPalette.next();
-		}
-		if (k == Pointer.KEY_UP) {
-			showAlienPalette();
-			alienPalette.prev();
-		}
-		if (k == Keyboard.KEY_I && haveAlien()) {
-			showAlienPalette();
-			alienPalette.find(getSelectedAlien().alienInfo);
-		}
-		// if (keyboard.isDown(Pointer.KEY_MIDDLE) && keypress != null) {
-		// char c = keypress.keyChar;
-		// alienPalette.jumpTo(c);
-		// }
-	}
-
 	public void showAlienPalette() {
 		if (paletteTimer == 0) {
 			sendCensusToAlienPalette();
@@ -1252,11 +1260,11 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void sendCensusToAlienPalette() {
-		CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
-		for (Alien a : getAliensReadOnly()) {
-			census.inc(a.alienInfo);
-		}
-		alienPalette.sendCenus(census);
+		// CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
+		// for (Alien a : getAliensReadOnly()) {
+		// census.inc(a.alienInfo);
+		// }
+		// alienPalette.sendCenus(census);
 	}
 
 	private Alien makeAlien(AlienInfo ai) {
