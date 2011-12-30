@@ -12,8 +12,8 @@ public abstract class PartialPointerImpl extends PartialHasKeysImpl implements P
 		currentPosition = b0;
 		x = x0;
 		y = y0;
-		if (w < 0) queueEvent(Pointer.KEY_UP);
-		if (w > 0) queueEvent(Pointer.KEY_DOWN);
+		if (w > 0) queueEvent(Pointer.KEY_UP);
+		if (w < 0) queueEvent(Pointer.KEY_DOWN);
 		int pressed = currentPosition & ~lastPosition;
 		if (Math2.bitTest(pressed, 0)) queueEvent(Pointer.KEY_LEFT);
 		if (Math2.bitTest(pressed, 1)) queueEvent(Pointer.KEY_RIGHT);
