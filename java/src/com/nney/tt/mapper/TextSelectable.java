@@ -1,6 +1,7 @@
 package com.nney.tt.mapper;
 
 import com.nney.tt.geom.Box;
+import com.nney.tt.geom.Coord;
 
 public class TextSelectable implements Selectable {
 	private final Box where;
@@ -17,7 +18,7 @@ public class TextSelectable implements Selectable {
 	}
 
 	@Override
-	public void draw(MapperGC mgc, Box where) {
-		mgc.drawText(where.left + 2, where.top + 2, 0xffffffff, text);
+	public void draw(MapperGC mgc, Coord where) {
+		mgc.drawText(where.x + 2, where.y + 2, 0xffffffff, text);
 	}
 }

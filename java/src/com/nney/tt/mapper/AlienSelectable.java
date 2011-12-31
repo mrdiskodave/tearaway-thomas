@@ -58,9 +58,9 @@ class AlienSelectable implements Selectable {
 	}
 
 	@Override
-	public void draw(MapperGC mgc, Box where) {
-		int sx = where.left;
-		int sy = where.top;
+	public void draw(MapperGC mgc, Coord where) {
+		int sx = where.x;
+		int sy = where.y;
 
 		int sp = ourHeight(animBox);
 		if (animPlayer != null) {

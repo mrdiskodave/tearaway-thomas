@@ -361,8 +361,8 @@ public class Mapper implements ButtonPressServices {
 			ArrayList<Selectable> content = new ArrayList<Selectable>();
 			for (int b = 0; b < bs.getBlockCount(); b++) {
 				final int fb = b;
-				int x = b % 20;
-				int y = b / 20;
+				int x = b % bs.widthInBlocks();
+				int y = b / bs.widthInBlocks();
 				final Box box = Box.fromTopLeftAndSize(x, y, 1, 1);
 				box.mult(Const.BLOCK_SIZE);
 				content.add(new Selectable() {
@@ -373,8 +373,8 @@ public class Mapper implements ButtonPressServices {
 					}
 
 					@Override
-					public void draw(MapperGC mgc, Box where) {
-						loadBlockSet().draw(fb, where.left, where.top);
+					public void draw(MapperGC mgc, Coord where) {
+						loadBlockSet().draw(fb, where.x, where.y);
 					}
 				});
 			}
@@ -1304,8 +1304,9 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void changeCurrentBlock(int dx, int dy) {
-		int delta = BlockPalette.getPaletteDelta(dx, dy);
-		int blockCount = loadBlockSet().getBlockCount();
+		int delta = blockPalette.getPaletteDelta(dx, dy);
+		BlockSet bs = loadBlockSet();
+		int blockCount = bs.getBlockCount();
 		int b = delta + getCurrentBlock() + blockCount;
 		b %= blockCount;
 		setCurrentBlock(b);

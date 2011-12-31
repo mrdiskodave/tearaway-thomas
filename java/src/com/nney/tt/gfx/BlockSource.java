@@ -57,4 +57,8 @@ public class BlockSource {
 		return blockWidth;
 	}
 
+	public int widthInBlocks() {
+		return blocksHorizontally;
+	}
+
 }

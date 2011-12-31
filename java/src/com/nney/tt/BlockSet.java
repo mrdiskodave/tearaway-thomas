@@ -22,6 +22,8 @@ public abstract class BlockSet implements Disposable {
 
 	private BlockInformation blockInformation;
 
+	private int widthInblocks;
+
 	public static class Config {
 		final String worldName;
 		final boolean seeMasks;
@@ -64,6 +66,7 @@ public abstract class BlockSet implements Disposable {
 			}
 		}
 
+		this.widthInblocks = bs.widthInBlocks();
 		this.blocksHolder = gc.createBlocksHolder(bs);
 		this.maskHolder = new MasksHolder(msi);
 		this.config = config;
@@ -119,4 +122,7 @@ public abstract class BlockSet implements Disposable {
 
 	}
 
+	public int widthInBlocks() {
+		return widthInblocks;
+	}
 }

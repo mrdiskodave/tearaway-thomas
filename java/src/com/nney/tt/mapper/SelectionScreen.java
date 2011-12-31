@@ -40,46 +40,34 @@ public class SelectionScreen {
 
 	private boolean active;
 
-	private Box bounds;
-
-	SelectionScreen(MapperGC mgc, SimpleMouse mouse, List<Selectable> content) {
+	public SelectionScreen(MapperGC mgc, SimpleMouse mouse, List<Selectable> content) {
 		this.mgc = mgc;
 		this.mouse = mouse;
 		this.content = content;
-		int h = 0;
-		for (Selectable item : content) {
-			h = Math.max(h, item.getBounds().bottom);
-		}
-		this.swm = new ScrollingWithMargin(mgc.screenHeight(), h, SCROLL_MARGIN);
-		bounds = BoundedUtils.collect(content);
+		Box bounds = BoundedUtils.collect(content);
+		this.swm = new ScrollingWithMargin(mgc.screenHeight(), bounds.bottom, SCROLL_MARGIN);
 	}
 
-	void draw() {
+	public void draw() {
 		ourPosition = mouse.get();
-
 		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
-
 		Coord scroll = new Coord(0, swm.scrollPosFromScreenPos(ourPosition.y));
-		// Coord canvasMouse = mousePosition.add2(scroll);
-		// System.out.println(String.format("mouse%s scroll%s canvas%s", mouse,
-		// scroll, canvasMouse));
-
-		idraw(scroll);
-	}
-
-	public void drawCorner(Box corner) {
-		// TODO: ??????????????????????????
-	}
-
-	public void idraw(Coord scroll) {
 		for (int p = 0; p < content.size(); p++) {
-			Selectable item = content.get(p);
-			Box where = item.getBounds().sub2(scroll);
-			item.draw(mgc, where);
-			if (where.inside(ourPosition)) {
-				mgc.drawBox(where.left, where.top, where.width(), where.height(), mgc.process(COL_CURRENT_BLOCK));
-				hover = p;
-			}
+			if (drawItem1(scroll, content.get(p))) hover = p;
+		}
+	}
+
+	private boolean drawItem1(Coord scroll, Selectable item) {
+		Box where = item.getBounds().sub2(scroll);
+		boolean on = where.inside(ourPosition);
+		drawItem2(item, where, on);
+		return on;
+	}
+
+	private void drawItem2(Selectable item, Box where, boolean on) {
+		item.draw(mgc, where.topLeft());
+		if (on) {
+			mgc.drawBox(where.left, where.top, where.width(), where.height(), mgc.process(COL_CURRENT_BLOCK));
 		}
 	}
 
@@ -115,9 +103,5 @@ public class SelectionScreen {
 		h += content.size() * 4 + i;
 		h %= content.size();
 		return h;
-	}
-
-	public boolean isActive() {
-		return active;
 	}
 }
