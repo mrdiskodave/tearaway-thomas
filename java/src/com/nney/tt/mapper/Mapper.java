@@ -293,8 +293,6 @@ public class Mapper implements ButtonPressServices {
 
 	private boolean penFullScreen;
 
-	private BlockPalette blockPalette;
-
 	private SelectionScreen blockSelectionScreen;
 
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
@@ -353,8 +351,6 @@ public class Mapper implements ButtonPressServices {
 		List<AlienInfo> ais = alienInfoMap.getExternal();
 		alienPalette = new AlienPalette(ais, mgc, mouse, animsPool);
 		sendCensusToAlienPalette();
-
-		blockPalette = new BlockPalette(mgc, loadBlockSet());
 
 		{
 			BlockSet bs = loadBlockSet();
@@ -421,11 +417,6 @@ public class Mapper implements ButtonPressServices {
 
 	public void load(Alien alien) {
 		alienTracker.add(alien);
-	}
-
-	public BlockPalette makeBP() {
-		blockPalette.changeBlockSet(loadBlockSet());
-		return blockPalette;
 	}
 
 	/**
@@ -1207,7 +1198,7 @@ public class Mapper implements ButtonPressServices {
 		if (paletteTimer != 0) {
 			paletteTimer--;
 			// if (mode == Mode.ALIEN) alienPalette.showAlienPalette();
-			if (mode == Mode.DRAW) makeBP().showSmallPalette(getCurrentBlock());
+			if (mode == Mode.DRAW) BlockPalette.showSmallPalette(mgc, loadBlockSet(), getCurrentBlock());
 		}
 	}
 
@@ -1304,8 +1295,8 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void changeCurrentBlock(int dx, int dy) {
-		int delta = blockPalette.getPaletteDelta(dx, dy);
 		BlockSet bs = loadBlockSet();
+		int delta = dy * bs.widthInBlocks() + dx;
 		int blockCount = bs.getBlockCount();
 		int b = delta + getCurrentBlock() + blockCount;
 		b %= blockCount;

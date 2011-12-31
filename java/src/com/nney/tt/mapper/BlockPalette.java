@@ -5,9 +5,15 @@ import com.nney.tt.Const;
 import com.nney.utils.Math2;
 
 /**
- * Everything about the palettes of map blocks that we display.
+ * The small-palette that pops up in the top left to show the current block.
  */
 public class BlockPalette {
+	private static final int SIZE_IN_BLOCKS = 5;
+
+	private static final int SIZE_IN_PIXELS = Const.BLOCK_SIZE * SIZE_IN_BLOCKS;
+
+	private static final int CENTRE = SIZE_IN_BLOCKS / 2;
+
 	/**
 	 * The colour we use to highlight the current block.
 	 */
@@ -16,38 +22,20 @@ public class BlockPalette {
 	/**
 	 * Our background colour.
 	 */
-	private static final int COL_BACKGROUND = 0xff0020ff;
+	private static final int COL_BACKGROUND = 0xff0020a0;
 
-	private final int blockCount;
-	private final int bigBlockPaletteHeight;
-	private final MapperGC mgc;
+	static public void showSmallPalette(MapperGC mgc, BlockSet blockSet, int currentBlock) {
+		int blockCount = blockSet.getBlockCount();
+		int bigBlockPaletteHeight = Math2.roundUpDiv(blockCount, blockSet.widthInBlocks());
+		int widthInBlocks = blockSet.widthInBlocks();
 
-	private BlockSet blockSet;
+		int sx = Math2.limit(0, widthInBlocks - SIZE_IN_BLOCKS, (currentBlock % widthInBlocks) - CENTRE);
+		int sy = Math2.limit(0, bigBlockPaletteHeight - SIZE_IN_BLOCKS, (currentBlock / widthInBlocks - CENTRE));
+		mgc.fillRectangle(0, 0, SIZE_IN_PIXELS + 4, SIZE_IN_PIXELS + 4, 0x80000000);
+		mgc.fillRectangle(0, 0, SIZE_IN_PIXELS, SIZE_IN_PIXELS, COL_BACKGROUND);
 
-	private int widthInBlocks;
-
-	public BlockPalette(MapperGC mgc, BlockSet blockSet) {
-		this.mgc = mgc;
-		this.blockSet = blockSet;
-		this.blockCount = blockSet.getBlockCount();
-		this.bigBlockPaletteHeight = Math2.roundUpDiv(blockCount, blockSet.widthInBlocks());
-		this.widthInBlocks = blockSet.widthInBlocks();
-	}
-
-	void changeBlockSet(BlockSet blockSet) {
-		this.blockSet = blockSet;
-		assert blockSet.getBlockCount() == blockCount;
-	}
-
-	public void showSmallPalette(int currentBlock) {
-		int d = 5;
-		int db = Const.BLOCK_SIZE * d;
-		int sx = Math2.limit(0, widthInBlocks - d, (currentBlock % widthInBlocks) - (d / 2));
-		int sy = Math2.limit(0, bigBlockPaletteHeight - d, (currentBlock / widthInBlocks - (d / 2)));
-		mgc.fillRectangle(0, 0, db, db, COL_BACKGROUND);
-
-		for (int by = 0; by < d; by++) {
-			for (int bx = 0; bx < d; bx++) {
+		for (int by = 0; by < SIZE_IN_BLOCKS; by++) {
+			for (int bx = 0; bx < SIZE_IN_BLOCKS; bx++) {
 				int b = (sy + by) * widthInBlocks + (sx + bx);
 				if (b < blockCount) {
 					int x = bx * Const.BLOCK_SIZE;
@@ -59,9 +47,5 @@ public class BlockPalette {
 				}
 			}
 		}
-	}
-
-	public int getPaletteDelta(int dx, int dy) {
-		return dy * widthInBlocks + dx;
 	}
 }
