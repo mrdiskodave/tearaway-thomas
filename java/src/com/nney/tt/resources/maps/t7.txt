@@ -1,1131 +1,1148 @@
 {
 	"info": {
-		"gemsNeeded": 60, 
-		"timeGiven": 95, 
-		"horizon": 0, 
-		"title": "the choice is still yours", 
+		"gemsNeeded": 60,
+		"timeGiven": 95,
+		"horizon": 0,
+		"title": "the choice is still yours",
 		"world": "t"
-	}, 
+	},
 	"objects": [
 		{
-			"type": "exit", 
+			"type": "exit",
 			"location": [
-				2511, 
+				2511,
 				463
 			]
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				1872, 
+				1872,
 				363
-			], 
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				2031, 
+				2031,
 				362
-			], 
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				2599, 
+				2599,
 				660
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemHuge", 
+			"type": "gemHuge",
 			"location": [
-				1951, 
+				1951,
 				377
-			], 
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "jackInTheBox", 
+			"type": "gemHuge",
 			"location": [
-				1792, 
+				2322,
+				644
+			],
+			"hidden": true
+		},
+		{
+			"type": "jackInTheBox",
+			"location": [
+				1792,
 				608
 			]
-		}, 
+		},
 		{
-			"type": "jackInTheBox", 
+			"type": "jackInTheBox",
 			"location": [
-				1887, 
+				1887,
 				608
 			]
-		}, 
+		},
 		{
-			"type": "jackInTheBox", 
+			"type": "jackInTheBox",
 			"location": [
-				1983, 
+				1983,
 				608
 			]
-		}, 
+		},
 		{
-			"type": "jackInTheBox", 
+			"type": "jackInTheBox",
 			"location": [
-				2079, 
+				2079,
 				608
 			]
-		}, 
+		},
 		{
-			"type": "jumboJet", 
+			"type": "jumboJet",
 			"location": [
-				1780, 
+				1780,
 				426
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1768, 
+				1768,
 				2138
 			]
-		}, 
+		},
 		{
-			"type": "jumboJet", 
+			"type": "jumboJet",
 			"location": [
-				2018, 
+				2018,
 				490
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1768, 
+				1768,
 				2138
 			]
-		}, 
+		},
 		{
-			"type": "lorry", 
+			"type": "lorry",
 			"location": [
-				148, 
+				148,
 				623
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				95, 
+				95,
 				448
 			]
-		}, 
+		},
 		{
-			"type": "lorry", 
+			"type": "lorry",
 			"location": [
-				358, 
+				358,
 				703
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				69, 
+				69,
 				474
 			]
-		}, 
+		},
 		{
-			"type": "lorry", 
+			"type": "lorry",
 			"location": [
-				370, 
+				370,
 				543
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				304, 
+				304,
 				480
 			]
-		}, 
+		},
 		{
-			"type": "lorry", 
+			"type": "lorry",
 			"location": [
-				382, 
+				382,
 				463
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				95, 
+				95,
 				448
 			]
-		}, 
+		},
 		{
-			"type": "lorry", 
+			"type": "lorry",
 			"location": [
-				75, 
+				75,
 				543
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				68, 
+				68,
 				240
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				1125, 
-				276, 
-				1657, 
+				1125,
+				276,
+				1657,
 				762
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				1682, 
-				274, 
-				2214, 
+				1682,
+				274,
+				2214,
 				760
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				2, 
-				275, 
-				534, 
+				2,
+				275,
+				534,
 				761
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				2246, 
-				277, 
-				2778, 
+				2246,
+				277,
+				2778,
 				763
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				563, 
-				276, 
-				1095, 
+				563,
+				276,
+				1095,
 				762
 			]
-		}, 
+		},
 		{
-			"type": "player", 
+			"type": "player",
 			"location": [
-				2543, 
+				2543,
 				639
-			], 
+			],
 			"goLeft": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1032, 
+				1032,
 				428
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1032, 
+				1032,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1271, 
+				1271,
 				524
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1272, 
+				1272,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1273, 
+				1273,
 				430
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				146, 
+				146,
 				541
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1511, 
+				1511,
 				525
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1512, 
+				1512,
 				429
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1512, 
+				1512,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1808, 
+				1808,
 				420
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1808, 
+				1808,
 				485
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1855, 
+				1855,
 				452
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				1953, 
+				1953,
 				452
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				2048, 
+				2048,
 				452
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				2095, 
+				2095,
 				483
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				2096, 
+				2096,
 				421
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				271, 
+				271,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				271, 
+				271,
 				701
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				272, 
+				272,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				295, 
+				295,
 				541
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				455, 
+				455,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				455, 
+				455,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				487, 
+				487,
 				541
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				647, 
+				647,
 				427
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				649, 
+				649,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				712, 
+				712,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				712, 
+				712,
 				619
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				775, 
+				775,
 				426
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				841, 
+				841,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				842, 
+				842,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				87, 
+				87,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				88, 
+				88,
 				460
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				904, 
+				904,
 				429
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				968, 
+				968,
 				619
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				969, 
+				969,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				1183, 
+				1183,
 				432
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1183, 
+				1183,
 				1216
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				1183, 
+				1183,
 				528
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1183, 
+				1183,
 				1216
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				1183, 
+				1183,
 				624
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1183, 
+				1183,
 				1216
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				1599, 
+				1599,
 				432
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1567, 
+				1567,
 				1600
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				1599, 
+				1599,
 				528
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1567, 
+				1567,
 				1600
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				1599, 
+				1599,
 				624
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				1567, 
+				1567,
 				1600
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "teleport", 
+			"type": "teleport",
 			"location": [
-				1391, 
+				1391,
 				365
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"destination": [
-				2511, 
+				2511,
 				618
 			]
-		}, 
+		},
 		{
-			"type": "teleport", 
+			"type": "teleport",
 			"location": [
-				1951, 
+				1951,
 				677
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"destination": [
-				2511, 
+				2511,
 				619
 			]
-		}, 
+		},
 		{
-			"type": "teleport", 
+			"type": "teleport",
 			"location": [
-				2624, 
+				2624,
 				591
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"destination": [
-				1390, 
+				1390,
 				658
 			]
-		}, 
+		},
 		{
-			"type": "teleport", 
+			"type": "teleport",
 			"location": [
-				271, 
+				271,
 				367
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"destination": [
-				2510, 
+				2510,
 				620
 			]
-		}, 
+		},
 		{
-			"type": "teleport", 
+			"type": "teleport",
 			"location": [
-				831, 
+				831,
 				687
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"destination": [
-				2511, 
+				2511,
 				619
 			]
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1031, 
+				1031,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1032, 
+				1032,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1343, 
+				1343,
 				477
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1343, 
+				1343,
 				573
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1351, 
+				1351,
 				396
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1352, 
+				1352,
 				651
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1392, 
+				1392,
 				525
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1431, 
+				1431,
 				396
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1431, 
+				1431,
 				651
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1440, 
+				1440,
 				476
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1440, 
+				1440,
 				573
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				160, 
+				160,
 				700
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				175, 
+				175,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				175, 
+				175,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1904, 
+				1904,
 				420
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1904, 
+				1904,
 				452
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				1904, 
+				1904,
 				483
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				2000, 
+				2000,
 				420
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				2000, 
+				2000,
 				484
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				2001, 
+				2001,
 				452
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				248, 
+				248,
 				541
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				360, 
+				360,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				366, 
+				366,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				383, 
+				383,
 				701
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				384, 
+				384,
 				542
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				59, 
+				59,
 				541
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				648, 
+				648,
 				619
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				649, 
+				649,
 				491
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				712, 
+				712,
 				427
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				714, 
+				714,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				775, 
+				775,
 				492
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				776, 
+				776,
 				619
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				840, 
+				840,
 				428
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				841, 
+				841,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				903, 
+				903,
 				619
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				968, 
+				968,
 				428
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				969, 
+				969,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
 		}
-	], 
-	"blocks": [
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,c*2,4*14,c*2,3*14,0,4*14,2,18*14,2,4*14,0,3*14,b*2,14,4*2,14,b*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,d*2,14,e*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,f*14,2,6*14,2,7*14,2,3*14,0,5*14,4*2,14,e*2,14,4*2,5*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,9*2,14,8*2,14,2,14,7*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,2,2,18*14,2,2,3*14,0,3*14,2,9*14,2,6*14,2,14,2,14,2,9*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,2,14,5*2,14,4*2,14,5*2,14,9*2,3*14,0,3*14,a*2,2*14,4*2,2*14,a*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,2,5*14,2,14,2,12*14,2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,d*2,2*14,d*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,5*2,14,2,14,6*2,14,d*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,9*14,16*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,7*14,2,14,2,4*14,2,7*14,2,b*14,0,5*14,4*2,14,6*2,2*14,6*2,14,4*2,5*14,0,3*14,1c*2,3*14,0,9*14,7*2,2*14,d*2,3*14,52*0", 
-		"10*14,2,2,10*14,0,3*14,5*2,14,4*2,14,7*2,14,2,14,7*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,9*14,16*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,2,8*14,2,9*14,2,7*14,2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,3*2,3*14,7*2,2*14,d*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,5*2,14,c*2,14,7*2,14,2,3*14,0,3*14,a*2,2*14,4*2,2*14,a*2,3*14,0,3*14,1c*2,3*14,0,3*14,3*2,4*14,15*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,7*14,2,14,2,7*14,2,c*14,2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,3*2,4*14,6*2,2*14,d*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,5*2,14,2,2,14,e*2,14,4*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,5*2,2*14,15*2,3*14,52*0", 
-		"3*14,2,2,18*14,2,2,3*14,0,a*14,2,14,2,e*14,2,6*14,0,5*14,4*2,14,e*2,14,4*2,5*14,0,3*14,1c*2,3*14,0,3*14,5*2,2*14,15*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,8*2,14,3*2,14,f*2,3*14,0,3*14,1c*2,3*14,0,3*14,4*2,14*14,4*2,3*14,0,3*14,4*2,14*14,4*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,10*14,2,2,10*14,0,3*14,b*2,14,4*2,14,b*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,0,3*14,1c*2,3*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"22*14,0,22*14,0,22*14,0,22*14,0,22*14,52*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0", 
-		"100*0"
-	]
+	],
+	"blocks": {
+		"version": 1,
+		"place": [
+			0,
+			0,
+			255,
+			127
+		],
+		"content": [
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"3*16,1c*2,3*16,0,3*18,1c*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,1c*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,1c*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,1c*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,c*2,4*15,c*2,3*16,0,4*18,2,18*18,2,4*18,0,3*17,b*2,15,4*2,15,b*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,d*2,18,e*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,f*18,2,6*18,2,7*18,2,3*18,0,5*17,4*2,15,e*2,15,4*2,5*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,9*2,18,8*2,18,2,18,7*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,2,2,18*15,2,2,3*16,0,3*18,2,9*18,2,6*18,2,18,2,18,2,9*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,2,18,5*2,18,4*2,18,5*2,18,9*2,3*18,0,3*17,a*28,2*15,4*28,2*15,a*28,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,2,5*18,2,18,2,12*18,2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,d*2,2*15,d*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,5*2,18,2,18,6*2,18,d*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,9*15,16*2,3*15",
+			"3*16,1c*2,3*16,0,7*18,2,18,2,4*18,2,7*18,2,b*18,0,5*17,4*2,15,6*2,2*15,6*2,15,4*2,5*17,0,3*16,1c*0,3*16,0,9*15,7*2,2*15,d*2,3*15",
+			"10*16,2,2,10*16,0,3*18,5*2,18,4*2,18,7*2,18,2,18,7*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,9*15,16*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,2,8*18,2,9*18,2,7*18,2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,3*2,3*15,7*2,2*15,d*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,5*2,18,c*2,18,7*2,18,2,3*18,0,3*17,a*2,2*15,4*2,2*15,a*2,3*17,0,3*16,1c*0,3*16,0,3*15,3*2,4*15,15*2,3*15",
+			"3*16,1c*2,3*16,0,7*18,2,18,2,7*18,2,c*18,2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,3*2,4*15,6*2,2*15,d*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,5*2,18,2,2,18,e*2,18,4*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,5*2,2*15,15*2,3*15",
+			"3*16,2,2,18*15,2,2,3*16,0,a*18,2,18,2,e*18,2,6*18,0,5*17,4*2,14,e*2,14,4*2,5*17,0,3*16,1c*0,3*16,0,3*15,5*2,2*15,15*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,8*2,18,3*2,18,f*2,3*18,0,3*17,1c*2,3*17,0,3*16,4*0,14*16,4*0,3*16,0,3*15,4*2,14*15,4*2,3*15",
+			"3*16,1c*2,3*16,0,10*18,2,2,10*18,0,3*17,b*2,14,4*2,14,b*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,1c*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"3*16,1c*2,3*16,0,3*18,1c*2,3*18,0,3*17,1c*2,3*17,0,3*16,1c*0,3*16,0,3*15,1c*2,3*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"22*16,0,22*18,0,22*17,0,22*16,0,22*15",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			""
+		]
+	}
 }

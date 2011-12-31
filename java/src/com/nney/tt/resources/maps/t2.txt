@@ -1,903 +1,936 @@
 {
 	"info": {
-		"gemsNeeded": 55, 
-		"timeGiven": 70, 
-		"horizon": 0, 
-		"title": "this way up", 
+		"gemsNeeded": 55,
+		"timeGiven": 70,
+		"horizon": 0,
+		"title": "this way up",
 		"world": "t"
-	}, 
+	},
 	"objects": [
 		{
-			"type": "arrowUp", 
+			"type": "arrowUp",
 			"location": [
-				144, 
+				144,
 				1886
-			], 
+			],
 			"adviceBox": [
-				85, 
-				1893, 
-				210, 
+				85,
+				1893,
+				210,
 				1990
 			]
-		}, 
+		},
 		{
-			"type": "arrowUp", 
+			"type": "arrowUp",
 			"location": [
-				145, 
+				145,
 				382
-			], 
+			],
 			"adviceBox": [
-				57, 
-				330, 
-				232, 
+				57,
+				330,
+				232,
 				448
 			]
-		}, 
+		},
 		{
-			"type": "car", 
+			"type": "car",
 			"location": [
-				147, 
+				147,
 				879
-			], 
-			"goLeft": true, 
+			],
+			"goLeft": true,
 			"range": [
-				79, 
+				79,
 				207
 			]
-		}, 
+		},
 		{
-			"type": "car", 
+			"type": "car",
 			"location": [
-				149, 
+				149,
 				879
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				79, 
+				79,
 				207
 			]
-		}, 
+		},
 		{
-			"type": "car", 
+			"type": "car",
 			"location": [
-				167, 
+				167,
 				1455
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				110, 
+				110,
 				175
 			]
-		}, 
+		},
 		{
-			"type": "car", 
+			"type": "car",
 			"location": [
-				92, 
+				92,
 				1775
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				82, 
+				82,
 				202
 			]
-		}, 
+		},
 		{
-			"type": "exit", 
+			"type": "cloud1",
 			"location": [
-				143, 
+				169,
+				460
+			],
+			"foreground": false
+		},
+		{
+			"type": "cloud2",
+			"location": [
+				254,
+				390
+			],
+			"foreground": false
+		},
+		{
+			"type": "cloud2",
+			"location": [
+				72,
+				248
+			],
+			"foreground": false
+		},
+		{
+			"type": "exit",
+			"location": [
+				143,
 				271
 			]
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				108, 
+				108,
 				1252
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				179, 
+				179,
 				1252
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				259, 
+				259,
 				1940
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				28, 
+				28,
 				1940
-			], 
+			],
 			"hidden": true
-		}, 
+		},
 		{
-			"type": "jackInTheBox", 
+			"type": "jackInTheBox",
 			"location": [
-				16, 
+				16,
 				1600
 			]
-		}, 
+		},
 		{
-			"type": "jackInTheBox", 
+			"type": "jackInTheBox",
 			"location": [
-				240, 
+				240,
 				1600
 			]
-		}, 
+		},
 		{
-			"type": "jumboJet", 
+			"type": "jumboJet",
 			"location": [
-				84, 
+				84,
 				475
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				78, 
+				78,
 				208
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				0, 
-				0, 
-				287, 
+				0,
+				0,
+				287,
 				2047
 			]
-		}, 
+		},
 		{
-			"type": "player", 
+			"type": "player",
 			"location": [
-				139, 
+				139,
 				1967
-			], 
+			],
 			"goLeft": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				103, 
+				103,
 				588
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				104, 
+				104,
 				396
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				111, 
+				111,
 				1453
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				119, 
+				119,
 				1580
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				135, 
+				135,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				135, 
+				135,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				144, 
+				144,
 				1004
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				15, 
+				15,
 				1796
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				152, 
+				152,
 				556
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				152, 
+				152,
 				620
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				16, 
+				16,
 				1852
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				167, 
+				167,
 				1580
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				176, 
+				176,
 				1453
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				183, 
+				183,
 				588
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				184, 
+				184,
 				396
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				231, 
+				231,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				1052
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				908
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				24, 
+				24,
 				972
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				256, 
+				256,
 				1373
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				1053
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				908
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				264, 
+				264,
 				972
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				272, 
+				272,
 				1794
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				272, 
+				272,
 				1854
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				32, 
+				32,
 				1372
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				54, 
+				54,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "star", 
+			"type": "star",
 			"location": [
-				143, 
+				143,
 				123
-			], 
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "tank", 
+			"type": "tank",
 			"location": [
-				151, 
+				151,
 				735
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				47, 
+				47,
 				240
-			], 
+			],
 			"canMove": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				10, 
+				10,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				104, 
+				104,
 				1629
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				135, 
+				135,
 				587
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				136, 
+				136,
 				652
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				144, 
+				144,
 				1068
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				144, 
+				144,
 				1676
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				144, 
+				144,
 				1724
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				145, 
+				145,
 				1404
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				145, 
+				145,
 				1500
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				15, 
+				15,
 				1775
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				153, 
+				153,
 				587
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				153, 
+				153,
 				651
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				16, 
+				16,
 				1823
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				16, 
+				16,
 				1878
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				183, 
+				183,
 				1629
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				208, 
+				208,
 				1132
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				208, 
+				208,
 				1228
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				215, 
+				215,
 				395
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				223, 
+				223,
 				1580
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				24, 
+				24,
 				1004
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				24, 
+				24,
 				876
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				24, 
+				24,
 				940
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				247, 
+				247,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				248, 
+				248,
 				797
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				256, 
+				256,
 				1420
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				264, 
+				264,
 				1004
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				264, 
+				264,
 				876
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				264, 
+				264,
 				940
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				272, 
+				272,
 				1772
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				272, 
+				272,
 				1881
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				273, 
+				273,
 				1824
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				280, 
+				280,
 				461
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				32, 
+				32,
 				1420
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				39, 
+				39,
 				621
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				39, 
+				39,
 				796
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				63, 
+				63,
 				1580
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				73, 
+				73,
 				396
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				79, 
+				79,
 				1132
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
 		}
-	], 
-	"blocks": [
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,5*2,2*14,2,2,2*14,5*2,14,ee*0", 
-		"14,4*2,2*14,4*2,2*14,4*2,14,ee*0", 
-		"14,3*2,2*14,6*2,2*14,3*2,14,ee*0", 
-		"5*14,8*2,5*14,ee*0", 
-		"14,2,2*14,a*2,2*14,2,14,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"3*14,5*2,2*33,5*2,3*14,ee*0", 
-		"14,2,14,5*2,2*33,5*2,14,2,14,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"8*14,2,2,8*14,ee*0", 
-		"7*2,14,2,2,14,7*2,ee*0", 
-		"7*2,14,2,2,14,7*2,ee*0", 
-		"4*2,4*14,2,2,4*14,4*2,ee*0", 
-		"5*2,14,6*2,14,5*2,ee*0", 
-		"5*2,14,6*2,14,5*2,ee*0", 
-		"12*2,ee*0", 
-		"4*14,a*2,4*14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,4*2,14,6*2,14,4*2,14,ee*0", 
-		"14,4*2,14,6*2,14,4*2,14,ee*0", 
-		"14,3*2,a*14,3*2,14,ee*0", 
-		"14,6*2,14,2,2,14,6*2,14,ee*0", 
-		"14,6*2,4*14,6*2,14,ee*0", 
-		"14,6*2,14,2,2,14,6*2,14,ee*0", 
-		"14,5*2,6*14,5*2,14,ee*0", 
-		"14,6*2,14,2,2,14,6*2,14,ee*0", 
-		"4*14,3*2,4*14,3*2,4*14,ee*0", 
-		"7*2,14,2,2,14,7*2,ee*0", 
-		"7*2,4*14,7*2,ee*0", 
-		"12*2,ee*0", 
-		"8*2,2*14,8*2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"2,2,e*14,2,2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"2,3*14,a*2,3*14,2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"3*14,2,a*14,2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,3*2,2*14,2,2,2*14,3*2,14,2,14,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"14,2,14,c*2,14,2,14,ee*0", 
-		"3*14,5*2,2*14,5*2,3*14,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"3*14,c*2,3*14,ee*0", 
-		"8*2,2*14,8*2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"4*2,a*14,4*2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"2,2*14,c*2,2*14,2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"4*2,a*14,4*2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"2,2*14,c*2,2*14,2,ee*0", 
-		"12*2,ee*0", 
-		"12*2,ee*0", 
-		"4*14,a*2,4*14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"4*14,a*2,4*14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,14,2,8*14,2,14,2,2,14,ee*0", 
-		"4*14,a*2,4*14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,14,2,8*14,2,14,2,2,14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,14,2,8*14,2,14,2,2,14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,14,a*2,14,2,2,14,ee*0", 
-		"14,2,2,4*14,4*2,4*14,2,2,14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"14,2,2,2*14,2,2,4*14,2,2,2*14,2,2,14,ee*0", 
-		"14,2,2,2*14,8*2,2*14,2,2,14,ee*0", 
-		"14,2,2,2*14,8*2,2*14,2,2,14,ee*0", 
-		"8*14,2,2,8*14,ee*0", 
-		"8*14,2,2,8*14,ee*0", 
-		"5*2,2*14,4*2,2*14,5*2,ee*0", 
-		"5*2,2*14,2,2*14,2,2*14,5*2,ee*0", 
-		"5*2,2*14,4*2,2*14,5*2,ee*0", 
-		"5*2,2*14,4*2,2*14,5*2,ee*0", 
-		"8*2,2*14,8*2,ee*0", 
-		"12*2,ee*0", 
-		"2,2,2*14,a*2,2*14,2,2,ee*0", 
-		"2,2,e*14,2,2,ee*0", 
-		"2,2,2*14,a*2,2*14,2,2,ee*0", 
-		"2,2,2*14,2,2,2*14,2,2,2*14,2,2,2*14,2,2,ee*0", 
-		"2,2,2*14,a*2,2*14,2,2,ee*0", 
-		"2,2,2*14,a*2,2*14,2,2,ee*0", 
-		"2,2,2*14,a*2,2*14,2,2,ee*0", 
-		"2,2,e*14,2,2,ee*0", 
-		"6*2,2*14,2,2,2*14,6*2,ee*0", 
-		"6*2,6*14,6*2,ee*0", 
-		"4*14,2,2,2*14,2,2,2*14,2,2,4*14,ee*0", 
-		"14,5*2,6*14,5*2,14,ee*0", 
-		"14,10*2,14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0", 
-		"12*14,ee*0"
-	]
+	],
+	"blocks": {
+		"version": 1,
+		"place": [
+			0,
+			0,
+			255,
+			127
+		],
+		"content": [
+			"12*14",
+			"12*14",
+			"12*14",
+			"12*14",
+			"14,10*0,14",
+			"14,10*0,14",
+			"14,10*0,14",
+			"14,10*0,14",
+			"14,10*0,14",
+			"14,5*0,2*14,0,0,2*14,5*0,14",
+			"14,4*0,2*14,4*0,2*14,4*0,14",
+			"14,3*0,2*14,6*0,2*14,3*0,14",
+			"5*14,8*0,5*14",
+			"14,0,2*14,a*0,2*14,0,14",
+			"3*14,c*0,3*14",
+			"14,0,14,c*0,14,0,14",
+			"3*14,c*0,3*14",
+			"14,0,14,c*0,14,0,14",
+			"3*14,c*0,3*14",
+			"14,0,14,c*0,14,0,14",
+			"3*14,c*0,3*14",
+			"14,0,14,c*0,14,0,14",
+			"8*14,0,0,8*14",
+			"7*0,14,0,0,14",
+			"7*0,14,0,0,14",
+			"4*0,4*14,0,0,4*14",
+			"5*0,14,6*0,14",
+			"5*0,14,6*0,14",
+			"",
+			"4*14,a*0,4*14",
+			"14,10*0,14",
+			"14,4*0,14,6*0,14,4*0,14",
+			"14,4*0,14,6*0,14,4*0,14",
+			"14,3*2,a*14,3*2,14",
+			"14,6*2,14,2,2,14,6*2,14",
+			"14,6*2,4*14,6*2,14",
+			"14,6*2,14,2,2,14,6*2,14",
+			"14,5*2,6*14,5*2,14",
+			"14,6*2,14,2,2,14,6*2,14",
+			"4*14,3*2,4*14,3*2,4*14",
+			"7*2,14,2,2,14,7*2",
+			"7*2,4*14,7*2",
+			"12*2",
+			"8*2,2*15,8*2",
+			"12*2",
+			"12*2",
+			"2,2,e*16,2,2",
+			"12*2",
+			"12*2",
+			"12*2",
+			"2,3*15,a*2,3*15,2",
+			"12*2",
+			"12*2",
+			"3*14,c*2,3*14",
+			"14,2,14,c*2,14,2,14",
+			"3*14,2,a*16,2,3*14",
+			"14,2,14,c*2,14,2,14",
+			"3*14,c*2,3*14",
+			"14,2,14,3*2,2*15,2,2,2*15,3*2,14,2,14",
+			"3*14,c*2,3*14",
+			"14,2,14,c*2,14,2,14",
+			"3*14,c*2,3*14",
+			"14,2,14,c*2,14,2,14",
+			"3*14,5*2,2*15,5*2,3*14",
+			"12*2",
+			"12*2",
+			"3*16,c*2,3*16",
+			"8*2,2*15,8*2",
+			"12*2",
+			"12*2",
+			"12*2",
+			"4*2,a*16,4*2",
+			"12*2",
+			"12*2",
+			"2,2*15,c*2,2*15,2",
+			"12*2",
+			"12*2",
+			"4*2,a*16,4*2",
+			"12*2",
+			"12*2",
+			"2,2*15,c*2,2*15,2",
+			"12*2",
+			"12*2",
+			"4*14,a*2,4*14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"4*14,a*2,4*14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,14,2,8*16,2,14,2,2,14",
+			"4*14,a*2,4*14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,14,2,8*16,2,14,2,2,14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,14,2,8*16,2,14,2,2,14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,14,a*2,14,2,2,14",
+			"14,2,2,4*14,4*2,4*14,2,2,14",
+			"14,10*2,14",
+			"14,2,2,2*14,2,2,4*16,2,2,2*14,2,2,14",
+			"14,2,2,2*14,8*2,2*14,2,2,14",
+			"14,2,2,2*14,8*2,2*14,2,2,14",
+			"8*14,2,2,8*14",
+			"8*14,2,2,8*14",
+			"5*2,2*14,4*2,2*14,5*2",
+			"5*2,2*14,2,2*16,2,2*14,5*2",
+			"5*2,2*14,4*2,2*14,5*2",
+			"5*2,2*14,4*2,2*14,5*2",
+			"8*2,2*16,8*2",
+			"12*2",
+			"2,2,2*14,a*2,2*14,2,2",
+			"2,2,e*14,2,2",
+			"2,2,2*14,a*2,2*14,2,2",
+			"2,2,2*14,2,2,2*15,2,2,2*15,2,2,2*14,2,2",
+			"2,2,2*14,a*2,2*14,2,2",
+			"2,2,2*14,a*2,2*14,2,2",
+			"2,2,2*14,a*2,2*14,2,2",
+			"2,2,e*14,2,2",
+			"6*2,2*14,2,2,2*14,6*2",
+			"6*2,6*14,6*2",
+			"4*15,2,2,2*14,2,2,2*14,2,2,4*15",
+			"15,5*2,6*14,5*2,15",
+			"15,10*2,15",
+			"12*15",
+			"12*15",
+			"12*15",
+			"12*15",
+			"12*15"
+		]
+	}
 }
