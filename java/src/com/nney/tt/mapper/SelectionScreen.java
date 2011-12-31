@@ -45,29 +45,24 @@ public class SelectionScreen {
 		this.mouse = mouse;
 		this.content = content;
 		Box bounds = BoundedUtils.collect(content);
-		this.swm = new ScrollingWithMargin(mgc.screenHeight(), bounds.bottom, SCROLL_MARGIN);
+		this.swm = new ScrollingWithMargin(mgc.screenHeight(), bounds.bottom + 1, SCROLL_MARGIN);
 	}
 
 	public void draw() {
 		ourPosition = mouse.get();
+
 		mgc.fillRectangle(0, 0, mgc.screenWidth(), mgc.screenHeight(), COL_BACKGROUND);
 		Coord scroll = new Coord(0, swm.scrollPosFromScreenPos(ourPosition.y));
 		for (int p = 0; p < content.size(); p++) {
-			if (drawItem1(scroll, content.get(p))) hover = p;
-		}
-	}
-
-	private boolean drawItem1(Coord scroll, Selectable item) {
-		Box where = item.getBounds().sub2(scroll);
-		boolean on = where.inside(ourPosition);
-		drawItem2(item, where, on);
-		return on;
-	}
-
-	private void drawItem2(Selectable item, Box where, boolean on) {
-		item.draw(mgc, where.topLeft());
-		if (on) {
-			mgc.drawBox(where.left, where.top, where.width(), where.height(), mgc.process(COL_CURRENT_BLOCK));
+			Selectable item = content.get(p);
+			Box where = item.getBounds().sub2(scroll);
+			item.draw(mgc, where.topLeft());
+			if (hover == p) {
+				mgc.drawBox(where.left, where.top, where.width(), where.height(), mgc.process(COL_CURRENT_BLOCK));
+			}
+			if (where.inside(ourPosition)) {
+				hover = p;
+			}
 		}
 	}
 

@@ -7,39 +7,51 @@ public class ScrollingWithMargin {
 	private final int screenSize;
 	private final int canvasSize;
 
-	private final int[] rev;
+	private final int protrusion;
+
+	private int[] rev;
+	private int spare;
 
 	ScrollingWithMargin(int screenSize, int canvasSize, int marginSize) {
+		// System.out.println(String.format(">>> screenSize%d canvasSize%d",
+		// screenSize, canvasSize));
 		this.screenSize = screenSize;
 		this.canvasSize = canvasSize;
 		this.marginSize = marginSize;
 
-		rev = new int[canvasSize];
+		protrusion = Math.max(canvasSize - screenSize, 0);
 
-		int p = 0;
-		for (int screenPos = 0; screenPos < screenSize; screenPos++) {
-			int scrollPos = scrollPosFromScreenPos(screenPos);
-			int here = scrollPos + screenPos;
-			while (p <= here) {
-				rev[p++] = screenPos;
+		if (protrusion != 0) {
+			spare = screenSize - marginSize * 2;
+			rev = new int[canvasSize];
+
+			int p = 0;
+			for (int screenPos = 0; screenPos < screenSize; screenPos++) {
+				int scrollPos = scrollPosFromScreenPos(screenPos);
+				int here = scrollPos + screenPos;
+				while (p <= here) {
+					rev[p++] = screenPos;
+				}
 			}
+			assert p == canvasSize;
 		}
-		assert p == canvasSize;
 	}
 
 	int scrollPosFromScreenPos(int screenPos) {
+		if (protrusion == 0) return 0;
 		if (screenPos < 0 || screenPos >= screenSize) {
 			throw new IllegalArgumentException();
 		}
 
-		int protrusion = Math.max(canvasSize - screenSize, 0);
-		int spare = screenSize - 1 - marginSize * 2;
-
 		int screenPosWithinScrollZone = Math2.limit(0, spare, screenPos - marginSize);
-		return (protrusion * screenPosWithinScrollZone) / spare;
+		int answer = (protrusion * screenPosWithinScrollZone) / spare;
+		assert answer <= protrusion;
+		// System.out.println(String.format("p%d a%d", protrusion, answer));
+		return answer;
 	}
 
 	public int screenPosFromCanvasPos(int canvasPos) {
+		if (protrusion == 0) return 0;
 		return rev[canvasPos];
 	}
 
