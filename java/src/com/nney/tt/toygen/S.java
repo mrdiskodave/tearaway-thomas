@@ -93,10 +93,16 @@ class S {
 
 	@Override
 	public String toString() {
-		if (wall >= 0) {
-			return String.format("wall%s col%s", wall, col);
+		int f = flattern();
+		if (isWall()) {
+			// assert !isSpace();
+			// assert !isSpecial();
+			// assert !which;
+			// assert !isPips();
+			// assert shadow == 0;
+			return String.format("%08x wall%s col%s", f, wall, col);
 		}
-		return String.format("space%s special%s col%s which%s pips%s shaddow%s", wall, space, special, col, which,
+		return String.format("%08x space%s special%s col%s which%s pips%s shaddow%s", f, space, special, col, which,
 				pips, shadow);
 	}
 

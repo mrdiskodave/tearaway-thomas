@@ -35,6 +35,8 @@ public class ToyMaker {
 
 	private BlockAliasTable hiding = new BlockAliasTable();
 
+	private BlockAliasTable compression = new BlockAliasTable();
+
 	private Map<Integer, Integer> where;
 
 	// public static void main(String[] args) {
@@ -49,14 +51,16 @@ public class ToyMaker {
 		public final BlockInformation blockInformation;
 		public final Map<Integer, Integer> where;
 		public final BlockAliasTable hiding;
+		public final BlockAliasTable compression;
 
 		public Result(SimpleImage blocks, SimpleImage masks, BlockInformation blockInformation,
-				Map<Integer, Integer> where, BlockAliasTable hiding) {
+				Map<Integer, Integer> where, BlockAliasTable hiding, BlockAliasTable compression) {
 			this.blocks = blocks;
 			this.masks = masks;
 			this.blockInformation = blockInformation;
 			this.where = where;
 			this.hiding = hiding;
+			this.compression = compression;
 		}
 	}
 
@@ -85,7 +89,7 @@ public class ToyMaker {
 		blocks = new BlockSource(blocksImage, Const.BLOCK_SIZE);
 		masks = new BlockSource(masksImage, Const.BLOCK_SIZE);
 		generateBlocks();
-		return new Result(blocksImage, masksImage, blockInformation, where, hiding);
+		return new Result(blocksImage, masksImage, blockInformation, where, hiding, compression);
 
 		// saveForExamination(blocksImage, "blocks");
 		// saveForExamination(masksImage, "masks");
@@ -205,6 +209,24 @@ public class ToyMaker {
 	private void copy(S s) {
 		if (recordMapping(s)) {
 			if (blocks != null) {
+				System.out.println(String.format("From %s (%s)", s, pos));
+
+				if (pos >= S.rSpecial.end) {
+					S compressed = s.copy().shadow(0).pips(false).which(false);
+					if (compressed.isWall()) {
+						compressed.wall(SOLID_POS);
+					}
+					if (compressed.isSpace()) {
+						compressed.col(0);
+					}
+					if (compressed.isSpecial()) {
+						compressed.wall(S.NONE);
+						compressed.space(S.NONE);
+					}
+					System.out.println(String.format("Made %s", compressed));
+					int compressedBlock = where.get(compressed.flattern());
+					compression.registerCompression(pos, compressedBlock);
+				}
 
 				if (s.special() == S.SPECIAL_MAGIC) {
 					// System.out.println("MAGIC:" + pos);

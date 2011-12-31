@@ -24,6 +24,8 @@ public abstract class BlockSet implements Disposable {
 
 	private int widthInblocks;
 
+	private BlockAliasTable blockRandomisationTable;
+
 	public static class Config {
 		final String worldName;
 		final boolean seeMasks;
@@ -48,8 +50,9 @@ public abstract class BlockSet implements Disposable {
 	}
 
 	public void init(GraphicsContext gc, Config config, BlockAliasTable hiddenHiding,
-			BlockInformation blockInformation, SimpleImage bsi, SimpleImage msi) {
+			BlockInformation blockInformation, SimpleImage bsi, SimpleImage msi, BlockAliasTable blockRandomisationTable) {
 		this.blockInformation = blockInformation;
+		this.blockRandomisationTable = blockRandomisationTable;
 
 		if (config.seeMasks) {
 			bsi = MasksHolder.renderMask(msi, bsi);
@@ -103,7 +106,9 @@ public abstract class BlockSet implements Disposable {
 		gameMap.apply(f);
 	}
 
-	abstract public int compressBlock(int currentBlock);
+	public int compressBlock(int currentBlock) {
+		return blockRandomisationTable.compress(currentBlock);
+	}
 
 	abstract public void expandMap(GameMap gameMap);
 

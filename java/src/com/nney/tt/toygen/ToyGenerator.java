@@ -91,7 +91,7 @@ public class ToyGenerator {
 
 					Integer answer = where.get(out.flattern());
 					if (answer == null) {
-						throw new Fail("Made something we cannot covert back");
+						throw new Fail("We've made something we cannot covert to a block!");
 					}
 					row[x] = answer.shortValue();
 				}
@@ -108,6 +108,6 @@ public class ToyGenerator {
 		for (S s : ss) {
 			if (s.isSpace()) return s.space();
 		}
-		throw new Fail("Cannot find an adjactent space");
+		throw new Fail("Cannot find an adjacent space");
 	}
 }

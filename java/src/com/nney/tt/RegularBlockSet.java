@@ -17,12 +17,7 @@ public class RegularBlockSet extends BlockSet {
 		SimpleImage bsi = new SimpleImage(OpenableTools.mustLoad(TTResource.blocks(config.worldName)));
 		SimpleImage msi = new SimpleImage(OpenableTools.mustLoad(TTResource.blockMask(config.worldName)));
 
-		init(gc, config, wi.invisibleBlockHiding, wi.blockInformation, bsi, msi);
-	}
-
-	@Override
-	public int compressBlock(int currentBlock) {
-		return wi.blockRandomisationTable.compress(currentBlock);
+		init(gc, config, wi.invisibleBlockHiding, wi.blockInformation, bsi, msi, wi.blockRandomisationTable);
 	}
 
 	@Override

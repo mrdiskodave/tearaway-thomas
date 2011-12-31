@@ -40,7 +40,8 @@ public class OuterWorld implements Runnable, Disposable {
 
 	// 31 "i0"
 	// 3 "worm"
-	public int levelNumber = 1;
+	// 10 car ferry
+	public int levelNumber = 10;
 
 	public int score = 0;
 

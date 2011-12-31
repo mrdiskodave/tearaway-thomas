@@ -14,12 +14,7 @@ public class ToyBlockSet extends BlockSet {
 	public ToyBlockSet(GraphicsContext gc, Config config) {
 		ToyMaker tm = new ToyMaker();
 		r = tm.generate();
-		init(gc, config, r.hiding, r.blockInformation, r.blocks, r.masks);
-	}
-
-	@Override
-	public int compressBlock(int currentBlock) {
-		return currentBlock;
+		init(gc, config, r.hiding, r.blockInformation, r.blocks, r.masks, r.compression);
 	}
 
 	@Override
@@ -33,7 +28,7 @@ public class ToyBlockSet extends BlockSet {
 		ToyLegacyCapture.capture(getBa(gameMap), r.where);
 	}
 
-	public BlockAccess getBa(final GameMap gameMap) {
+	private BlockAccess getBa(final GameMap gameMap) {
 		BlockAccess ba = new BlockAccess() {
 			@Override
 			public int width() {
