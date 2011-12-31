@@ -16,4 +16,9 @@ public class ScrollingWithMarginTest extends TestCase {
 		assertEquals(spare, swm.scrollPosFromScreenPos(screen - (margin - 1)));
 		assertEquals(spare, swm.scrollPosFromScreenPos(screen - 1));
 	}
+
+	public void test2() throws Exception {
+		// used to throw ArrayOutOfBounds ...
+		new ScrollingWithMargin(300, 256, 64);
+	}
 }
