@@ -1875,7 +1875,7 @@ public class Mapper implements ButtonPressServices {
 			HashSet<Coord> nextPositions = new HashSet<Coord>();
 			for (Coord s : positions) {
 				if (!blockEdit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
-					blockEdit.setBlock(s, getCurrentBlock());
+					blockEdit.setBlock(s, getCompressedCurrentBlock());
 					nextPositions.add(s.copyAndAdd(1, 0));
 					nextPositions.add(s.copyAndAdd(-1, 0));
 					nextPositions.add(s.copyAndAdd(0, 1));

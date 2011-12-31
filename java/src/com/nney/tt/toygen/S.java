@@ -1,5 +1,9 @@
 package com.nney.tt.toygen;
 
+/**
+ * All the different things that a Toyland block can be -- represented in a
+ * structured (machine read/writable) fashion.
+ */
 class S {
 	public static final int SPACE_COUNT = 5;
 	public static final int WALL_COUNT = 6;
@@ -91,15 +95,25 @@ class S {
 		return null;
 	}
 
+	public void checkInvariants() {
+		if (isWall()) {
+			assert !isSpace();
+			assert !isSpecial();
+			assert !which;
+			assert !isPips();
+			assert shadow == 0;
+		}
+		else {
+			if (!isPips()) {
+				assert col == 0;
+			}
+		}
+	}
+
 	@Override
 	public String toString() {
 		int f = flattern();
 		if (isWall()) {
-			// assert !isSpace();
-			// assert !isSpecial();
-			// assert !which;
-			// assert !isPips();
-			// assert shadow == 0;
 			return String.format("%08x wall%s col%s", f, wall, col);
 		}
 		return String.format("%08x space%s special%s col%s which%s pips%s shaddow%s", f, space, special, col, which,
@@ -107,6 +121,7 @@ class S {
 	}
 
 	int flattern() {
+		checkInvariants();
 		int f = 0;
 		f = merge(f, wall + 1);
 		f = merge(f, (space + 1) * 2 + (which ? 1 : 0));

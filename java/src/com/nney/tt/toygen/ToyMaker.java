@@ -209,23 +209,23 @@ public class ToyMaker {
 	private void copy(S s) {
 		if (recordMapping(s)) {
 			if (blocks != null) {
-				System.out.println(String.format("From %s (%s)", s, pos));
 
 				if (pos >= S.rSpecial.end) {
-					S compressed = s.copy().shadow(0).pips(false).which(false);
-					if (compressed.isWall()) {
-						compressed.wall(SOLID_POS);
+					// compression!
+					System.out.println(String.format("From %s (%s)", s, pos));
+					S c = s.copy().shadow(0).pips(false).which(false);
+					if (c.isWall()) {
+						c.wall(SOLID_POS);
 					}
-					if (compressed.isSpace()) {
-						compressed.col(0);
+					if (c.isSpace()) {
+						c.col(0);
 					}
-					if (compressed.isSpecial()) {
-						compressed.wall(S.NONE);
-						compressed.space(S.NONE);
+					if (c.isSpecial()) {
+						c.wall(S.NONE);
+						c.space(S.NONE);
 					}
-					System.out.println(String.format("Made %s", compressed));
-					int compressedBlock = where.get(compressed.flattern());
-					compression.registerCompression(pos, compressedBlock);
+					System.out.println(String.format("Made %s", c));
+					compression.registerCompression(pos, where.get(c.flattern()));
 				}
 
 				if (s.special() == S.SPECIAL_MAGIC) {
