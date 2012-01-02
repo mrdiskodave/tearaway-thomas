@@ -144,29 +144,97 @@ import com.nney.utils.SortKeyGenerator;
  * </pre>
  */
 public class Mapper implements ButtonPressServices {
-	static public class ExitException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-	}
+	// ---------------------------------------------------------------------------
+	// CONTROLS
 
-	private static final int KEY_SELECT_ALL = Locks.LOCK_CONTROL + Keyboard.KEY_A;
+	// modes:
 
-	private static final int KEY_REDO = Locks.LOCK_CONTROL + Keyboard.KEY_Y;
+	private static final int MODE_SPECIFICATION = Keyboard.KEY_S;
 
-	private static final int KEY_UNDO = Locks.LOCK_CONTROL + Keyboard.KEY_Z;
+	private static final int MODE_DRAWING = Keyboard.KEY_D;
+
+	private static final int MODE_ALIEN = Keyboard.KEY_A;
+
+	private static final int MODE_SIMULATION = Keyboard.KEY_P;
+
+	// actions:
+
+	private static final int ACTION_REDO = Locks.LOCK_CONTROL + Keyboard.KEY_Y;
+
+	private static final int ACTION_UNDO = Locks.LOCK_CONTROL + Keyboard.KEY_Z;
+
+	private static final int ACTION_TOGGLE_GRID = Locks.LOCK_CONTROL + Keyboard.KEY_G;
+
+	private static final int ACTION_TOGGLE_HIDDEN = Locks.LOCK_CONTROL + Keyboard.KEY_H;
+
+	private static final int ACTION_TOGGLE_MASKS = Locks.LOCK_CONTROL + Keyboard.KEY_M;
+
+	private static final int ACTION_SHRINK_DOWN = Locks.LOCK_CONTROL + Locks.LOCK_MENU + Keyboard.KEY_NUMPAD2;
+
+	private static final int ACTION_SHRINK_UP = Locks.LOCK_CONTROL + Locks.LOCK_MENU + Keyboard.KEY_NUMPAD8;
+
+	private static final int ACTION_SHRINK_RIGHT = Locks.LOCK_CONTROL + Locks.LOCK_MENU + Keyboard.KEY_NUMPAD6;
+
+	private static final int ACTION_SHRINK_LEFT = Locks.LOCK_CONTROL + Locks.LOCK_MENU + Keyboard.KEY_NUMPAD4;
+
+	private static final int ACTION_GROW_LEFT = Locks.LOCK_CONTROL + Keyboard.KEY_NUMPAD4;
+
+	private static final int ACTION_GROW_RIGHT = Locks.LOCK_CONTROL + Keyboard.KEY_NUMPAD6;
+
+	private static final int ACTION_GROW_UP = Locks.LOCK_CONTROL + Keyboard.KEY_NUMPAD8;
+
+	private static final int ACTION_GROW_DOWN = Locks.LOCK_CONTROL + Keyboard.KEY_NUMPAD2;
+
+	private static final int ACTION_NEXT_ALIEN_TYPE = Keyboard.KEY_NEXT;
+
+	private static final int ACTION_PREVIOUS_ALIEN_TYPE = Keyboard.KEY_PRIOR;
+
+	// block marking
+
+	private static final int ACTION_UNSELECT = Keyboard.KEY_ESCAPE;
+
+	// things that somehow involve the mouse position:
+
+	private static final int KEY_SELECT_ALL = Locks.LOCK_CONTROL + MODE_ALIEN;
+
+	private static final int KEY_BLOCK_DELETE = Keyboard.KEY_DELETE;
+
+	private static final int KEY_BLOCK_FILL = Keyboard.KEY_F;
+
+	private static final int KEY_SET_MARKER = Keyboard.KEY_M;
+
+	private static final int KEY_PANNING = Keyboard.KEY_SPACE;
+
+	private static final int KEY_EYE_DROPPER = Keyboard.KEY_I;
+
+	private static final int KEY_MOD_BLOCK_CHASE = Keyboard.KEY_C;
+
+	private static final int KEY_CREATE_ALIEN = Keyboard.KEY_N;
+
+	private static final int KEY_SEARCH_BACKWARD = Keyboard.KEY_SUBTRACT;
+
+	private static final int KEY_SEARCH_FORWARD = Keyboard.KEY_ADD;
+
+	private static final int KEY_ALIEN_DUPLICATE = Keyboard.KEY_C;
 
 	private static final int KEY_WHERE = Keyboard.KEY_W;
-
-	private static final int KEY_SEE_GRID = Locks.LOCK_CONTROL + Keyboard.KEY_G;
-
-	private static final int KEY_SEE_HIDDEN = Locks.LOCK_CONTROL + Keyboard.KEY_H;
-
-	private static final int KEY_SEE_MASKS = Locks.LOCK_CONTROL + Keyboard.KEY_M;
 
 	private static final int KEY_SELECT_ALIEN = Pointer.KEY_MIDDLE;
 
 	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
 
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
+
+	private static final int SLOT_COUNT = 12;
+
+	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
+	private final static int PASTE_BUFFER_END = PASTE_BUFFER_START + SLOT_COUNT - 1;
+
+	// ---------------------------------------------------------------------------
+
+	static public class ExitException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+	}
 
 	// prop panel layout:
 
@@ -185,11 +253,6 @@ public class Mapper implements ButtonPressServices {
 	interface AlienPredicate {
 		boolean is(Alien t);
 	}
-
-	private static final int SLOT_COUNT = 12;
-
-	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
-	private final static int PASTE_BUFFER_END = PASTE_BUFFER_START + SLOT_COUNT - 1;
 
 	private final static int COL_BACKGROUND = 0xff0080ff;
 
@@ -467,7 +530,7 @@ public class Mapper implements ButtonPressServices {
 		keypress = e == null ? new KeyEvent(0, '\0') : e;
 		int k = keypress.keyCode;
 
-		if (mode == Mode.DRAW && keyboard.isDown(Keyboard.KEY_C)) {
+		if (mode == Mode.DRAW && keyboard.isDown(KEY_MOD_BLOCK_CHASE)) {
 			Coord c = mmp.worldBlocksDelta();
 			changeCurrentBlock(c.x, c.y);
 		}
@@ -481,7 +544,7 @@ public class Mapper implements ButtonPressServices {
 				drawLevel();
 			}
 		}
-		else if (keyboard.isDown(Keyboard.KEY_SPACE)) {
+		else if (keyboard.isDown(KEY_PANNING)) {
 			if (keyboard.isDown(Pointer.KEY_LEFT)) {
 				scroll(mmp.pixelsDelta());
 			}
@@ -525,10 +588,10 @@ public class Mapper implements ButtonPressServices {
 					alienPalette.jumpTo(c);
 
 					int k = keypress.keyCode;
-					if (k == Pointer.KEY_UP || k == Keyboard.KEY_PRIOR) {
+					if (k == Pointer.KEY_UP || k == ACTION_PREVIOUS_ALIEN_TYPE) {
 						alienPalette.moveBy(-1);
 					}
-					if (k == Pointer.KEY_DOWN || k == Keyboard.KEY_NEXT) {
+					if (k == Pointer.KEY_DOWN || k == ACTION_NEXT_ALIEN_TYPE) {
 						alienPalette.moveBy(1);
 					}
 					alienPalette.draw();
@@ -560,15 +623,13 @@ public class Mapper implements ButtonPressServices {
 				where(true);
 			}
 
-			if (k == KEY_UNDO) {
+			if (k == ACTION_UNDO) {
 				if (!undoControler.undo()) say("Nothing more to undo");
 			}
-			if (k == KEY_REDO) {
+			if (k == ACTION_REDO) {
 				if (!undoControler.redo()) say("Nothing more to redo");
 			}
-			if (k == Keyboard.KEY_ESCAPE) {
-				paletteTimer = 0;
-				messTimer = 0;
+			if (k == ACTION_UNSELECT) {
 				marker = null;
 			}
 			drawLevel();
@@ -586,7 +647,7 @@ public class Mapper implements ButtonPressServices {
 			if (k == Locks.LOCK_MENU + Locks.LOCK_SHIFT + Keyboard.KEY_T) {
 				testLevel(true);
 			}
-			if (k == Locks.LOCK_MENU + Keyboard.KEY_S) {
+			if (k == Locks.LOCK_MENU + MODE_SPECIFICATION) {
 				int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
 				if (playerCount != 1) {
 					sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
@@ -606,11 +667,11 @@ public class Mapper implements ButtonPressServices {
 				if (pureKey == Keyboard.KEY_Q && mustBeSure(sure, "Quit")) {
 					throw new OuterWorld.ExitException();
 				}
-				if (pureKey == Keyboard.KEY_N && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
+				if (pureKey == KEY_CREATE_ALIEN && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
 					ow.levelNumber++;
 					throw new ExitException();
 				}
-				if (pureKey == Keyboard.KEY_P && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
+				if (pureKey == MODE_SIMULATION && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
 					ow.levelNumber--;
 					throw new ExitException();
 				}
@@ -621,20 +682,14 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void growAndShrinkMap(int k) {
-		if (k == 0) return;
-		int more = Locks.LOCK_CONTROL;
-		int less = Locks.LOCK_CONTROL + Locks.LOCK_MENU;
-
-		int l = k & Locks.LOCK_ALL;
-		k -= l;
-
-		if (l == more || l == less) {
-			boolean grow = l == more;
-			if (k == Keyboard.KEY_NUMPAD4) changeMapBounds(grow, 1, 0, 0, 0);
-			if (k == Keyboard.KEY_NUMPAD6) changeMapBounds(grow, 0, 1, 0, 0);
-			if (k == Keyboard.KEY_NUMPAD8) changeMapBounds(grow, 0, 0, 1, 0);
-			if (k == Keyboard.KEY_NUMPAD2) changeMapBounds(grow, 0, 0, 0, 1);
-		}
+		if (k == ACTION_GROW_LEFT) changeMapBounds(1, 0, 0, 0);
+		if (k == ACTION_GROW_RIGHT) changeMapBounds(0, 1, 0, 0);
+		if (k == ACTION_GROW_UP) changeMapBounds(0, 0, 1, 0);
+		if (k == ACTION_GROW_DOWN) changeMapBounds(0, 0, 0, 1);
+		if (k == ACTION_SHRINK_LEFT) changeMapBounds(-1, 0, 0, 0);
+		if (k == ACTION_SHRINK_RIGHT) changeMapBounds(0, -1, 0, 0);
+		if (k == ACTION_SHRINK_UP) changeMapBounds(0, 0, -1, 0);
+		if (k == ACTION_SHRINK_DOWN) changeMapBounds(0, 0, 0, -1);
 	}
 
 	public void readMouse() {
@@ -686,6 +741,9 @@ public class Mapper implements ButtonPressServices {
 		if (more) {
 			s += String.format(" | Position: %spixels %sblocks | Changes made: %s", mmp.worldPixels(),
 					mmp.worldBlocks(), undoControler.changes());
+		}
+		if (mode == Mode.DRAW) {
+			changeCurrentBlock(0, 0);
 		}
 		say(s);
 	}
@@ -784,17 +842,17 @@ public class Mapper implements ButtonPressServices {
 				}
 			});
 		}
-		if (k == Keyboard.KEY_I) {
+		if (k == KEY_EYE_DROPPER) {
 			setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
 		}
-		if (k == Keyboard.KEY_M) {
+		if (k == KEY_SET_MARKER) {
 			marker = marker == null ? mmp.worldBlocks() : null;
 		}
 		if (k == KEY_SELECT_ALL) {
 			marker = new Coord(0, 0);
 			moveMouse(convertNumCoord(new Coord(2, 2)));
 		}
-		if (k == Keyboard.KEY_F) {
+		if (k == KEY_BLOCK_FILL) {
 			if (marker == null) {
 				final int blk = gameMap.getBlock(mmp.worldBlocks());
 				BlockTest test = new BlockTest() {
@@ -810,10 +868,10 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 
-		if (k == Keyboard.KEY_ADD) findBlock(1);
-		if (k == Keyboard.KEY_SUBTRACT) findBlock(-1);
-		if (k == Keyboard.KEY_DELETE) fillRect(0);
-		if (k == ALIENS_LOCK + Keyboard.KEY_DELETE && marker != null) {
+		if (k == KEY_SEARCH_FORWARD) findBlock(1);
+		if (k == KEY_SEARCH_BACKWARD) findBlock(-1);
+		if (k == KEY_BLOCK_DELETE) fillRect(0);
+		if (k == ALIENS_LOCK + KEY_BLOCK_DELETE && marker != null) {
 			removePredicatedAliensWithUndo(getRectPredicate());
 		}
 		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
@@ -837,20 +895,20 @@ public class Mapper implements ButtonPressServices {
 
 		blockSelectionKeys(k);
 
-		if (k == Locks.LOCK_ALL + Keyboard.KEY_C) {
+		if (k == Locks.LOCK_ALL + KEY_MOD_BLOCK_CHASE) {
 			loadBlockSet().legacyCapture(gameMap);
 		}
 	}
 
 	public void changeMode(int k) {
-		if (changeMode(k, Keyboard.KEY_A, Mode.ALIEN, "Alien Mode")) {
+		if (changeMode(k, MODE_ALIEN, Mode.ALIEN, "Alien Mode")) {
 			generateButtons(selectedAlien);
 		}
-		changeMode(k, Keyboard.KEY_D, Mode.DRAW, "Drawing Mode");
-		if (changeMode(k, Keyboard.KEY_S, Mode.SPECIFICATION, "Specification Mode")) {
+		changeMode(k, MODE_DRAWING, Mode.DRAW, "Drawing Mode");
+		if (changeMode(k, MODE_SPECIFICATION, Mode.SPECIFICATION, "Specification Mode")) {
 			generateButtons(levelInfo);
 		}
-		if (changeMode(k, Keyboard.KEY_P, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
+		if (changeMode(k, MODE_SIMULATION, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
 			simulationModeInit();
 		}
 	}
@@ -1083,32 +1141,30 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 		if (haveAlien()) {
-			if (k == Keyboard.KEY_DELETE) deleteSelectedAlien();
-			if (k == Keyboard.KEY_C) copySelectedAlien();
-			if (k == Keyboard.KEY_F) moveMouse(getSelectedAlien().getLocation());
+			if (k == KEY_BLOCK_DELETE) deleteSelectedAlien();
+			if (k == KEY_ALIEN_DUPLICATE) copySelectedAlien();
 		}
-		if (k == Keyboard.KEY_ADD) findType(1);
-		if (k == Keyboard.KEY_SUBTRACT) findType(-1);
-		if (k == Keyboard.KEY_N) createAlien();
+		if (k == KEY_SEARCH_FORWARD) findType(1);
+		if (k == KEY_SEARCH_BACKWARD) findType(-1);
+		if (k == KEY_CREATE_ALIEN) createAlien();
 		flagSelectionKeys();
 
 		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
 
-		if (k == Keyboard.KEY_I && haveAlien()) {
+		if (k == KEY_EYE_DROPPER && haveAlien()) {
 			alienPalette.find(getSelectedAlien().alienInfo);
 		}
-		if (k == Keyboard.KEY_PRIOR) {
-			lmb(-1);
+		if (k == ACTION_PREVIOUS_ALIEN_TYPE) {
+			changeAlien(-1);
 		}
-		if (k == Keyboard.KEY_NEXT) {
-			lmb(1);
+		if (k == ACTION_NEXT_ALIEN_TYPE) {
+			changeAlien(1);
 		}
 	}
 
-	private void lmb(int i) {
+	private void changeAlien(int i) {
 		alienPalette.moveBy(i);
-		AlienInfo ai = alienPalette.get();
-		sayf("alien=%s", ai.name);
+		sayf("alien=%s", alienPalette.get().name); // SAYIT
 	}
 
 	public void checkPropMouseOver() {
@@ -1269,7 +1325,6 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	void blockSelectionKeys(int k) {
-		if (k == Keyboard.KEY_Q) changeCurrentBlock(0, 0);
 		if (k == Keyboard.KEY_UP) changeCurrentBlock(0, -1);
 		if (k == Keyboard.KEY_DOWN) changeCurrentBlock(0, 1);
 		if (k == Keyboard.KEY_LEFT) changeCurrentBlock(-1, 0);
@@ -1279,9 +1334,9 @@ public class Mapper implements ButtonPressServices {
 
 	public void flagSelectionKeys() {
 		int k = keypress.keyCode;
-		if (k == KEY_SEE_MASKS) flipFlag(FLAG_SEE_MASKS);
-		if (k == KEY_SEE_HIDDEN) flipFlag(FLAG_SEE_HIDDEN);
-		if (k == KEY_SEE_GRID) flipFlag(FLAG_SEE_GRID);
+		if (k == ACTION_TOGGLE_MASKS) flipFlag(FLAG_SEE_MASKS);
+		if (k == ACTION_TOGGLE_HIDDEN) flipFlag(FLAG_SEE_HIDDEN);
+		if (k == ACTION_TOGGLE_GRID) flipFlag(FLAG_SEE_GRID);
 	}
 
 	private void flipFlag(int flip) {
@@ -1679,7 +1734,7 @@ public class Mapper implements ButtonPressServices {
 	private void setCurrentBlock(int currentBlock) {
 		this.currentBlock = currentBlock;
 		paletteTimer = 100;
-		sayf("block=%s", getCompressedCurrentBlock());
+		sayf("block=%s", getCompressedCurrentBlock()); // SAYIT
 
 		blockSelectionScreen.setHover(currentBlock);
 	}
@@ -1779,19 +1834,7 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	public void changeMapBounds(boolean grow, int l, int r, int t, int b) {
-		if (!grow) {
-			System.out.println("SHRINK");
-
-			l = -l;
-			r = -r;
-			t = -t;
-			b = -b;
-		}
-		else {
-			System.out.println("GROW");
-		}
-
+	public void changeMapBounds(int l, int r, int t, int b) {
 		final Box oBounds = gameMap.boundsInBlocks().copy();
 		final Box nBounds = oBounds.copy();
 		nBounds.left -= l;
