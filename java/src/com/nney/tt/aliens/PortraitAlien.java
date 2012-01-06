@@ -5,6 +5,12 @@ import com.nney.tt.sprites.Sprite;
 
 public class PortraitAlien extends AlienWithLocation {
 	@Override
+	public void onLoaded() {
+		super.onLoaded();
+		depth = DEPTH_BG_SCENARY;
+	}
+
+	@Override
 	public void update() {
 		Coord ourNose = c.copyAndAdd(17, 17);
 		Coord diff = srv.getPlayerPosition().sub2(ourNose);
