@@ -37,19 +37,20 @@ public abstract class LeftRightAlien extends AlienWithLocation {
 		else {
 			changeAnimation(Anims.directionalAnimName(goLeft, ""));
 		}
+
 		if (!goLeft) {
-			c.x += speed;
-			if (c.x > range.right) {
+			if (c.x >= range.right) {
 				goLeft = true;
 				return true;
 			}
+			c.x += speed;
 		}
 		else {
-			c.x -= speed;
-			if (c.x < range.left) {
+			if (c.x <= range.left) {
 				goLeft = false;
 				return true;
 			}
+			c.x -= speed;
 		}
 		return false;
 	}
