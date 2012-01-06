@@ -207,6 +207,14 @@
 		{
 			"type": "gemBig",
 			"location": [
+				320,
+				1913
+			],
+			"hidden": false
+		},
+		{
+			"type": "gemBig",
+			"location": [
 				647,
 				1934
 			],

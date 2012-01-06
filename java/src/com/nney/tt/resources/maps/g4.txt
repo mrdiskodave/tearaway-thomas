@@ -1,1021 +1,1050 @@
 {
 	"info": {
-		"gemsNeeded": 60, 
-		"timeGiven": 60, 
-		"horizon": 2, 
-		"title": "the clock tower", 
+		"gemsNeeded": 60,
+		"timeGiven": 60,
+		"horizon": 2,
+		"title": "the clock tower",
 		"world": "g"
-	}, 
+	},
 	"objects": [
 		{
-			"type": "arrowRight", 
+			"type": "arrowRight",
 			"location": [
-				65, 
+				65,
 				1986
-			], 
+			],
 			"adviceBox": [
-				0, 
-				1858, 
-				97, 
+				0,
+				1858,
+				97,
 				1978
 			]
-		}, 
+		},
 		{
-			"type": "bat", 
+			"type": "bat",
 			"location": [
-				234, 
-				725
-			], 
+				185,
+				792
+			],
 			"box": [
-				155, 
-				619, 
-				264, 
+				178,
+				771,
+				276,
+				923
+			]
+		},
+		{
+			"type": "bat",
+			"location": [
+				221,
+				621
+			],
+			"box": [
+				69,
+				601,
+				260,
+				679
+			]
+		},
+		{
+			"type": "bat",
+			"location": [
+				234,
+				725
+			],
+			"box": [
+				155,
+				619,
+				264,
 				725
 			]
-		}, 
+		},
 		{
-			"type": "bat", 
+			"type": "clock",
 			"location": [
-				51, 
-				623
-			], 
-			"box": [
-				22, 
-				623, 
-				160, 
-				675
-			]
-		}, 
-		{
-			"type": "clock", 
-			"location": [
-				111, 
-				1183
-			], 
+				92,
+				1187
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "cloud0", 
+			"type": "cloud0",
 			"location": [
-				284, 
+				284,
 				96
-			], 
+			],
 			"foreground": false
-		}, 
+		},
 		{
-			"type": "exit", 
+			"type": "exit",
 			"location": [
-				231, 
+				231,
 				205
 			]
-		}, 
+		},
 		{
-			"type": "exit", 
+			"type": "exit",
 			"location": [
-				55, 
+				55,
 				205
 			]
-		}, 
+		},
 		{
-			"type": "flameLeft", 
+			"type": "flameLeft",
 			"location": [
-				26, 
+				26,
 				1495
 			]
-		}, 
+		},
 		{
-			"type": "flameLeft", 
+			"type": "flameLeft",
 			"location": [
-				27, 
+				27,
 				1686
 			]
-		}, 
+		},
 		{
-			"type": "flameLeft", 
+			"type": "flameLeft",
 			"location": [
-				27, 
+				27,
 				984
 			]
-		}, 
+		},
 		{
-			"type": "flameRight", 
+			"type": "flameRight",
 			"location": [
-				259, 
+				259,
 				983
 			]
-		}, 
+		},
 		{
-			"type": "flameRight", 
+			"type": "flameRight",
 			"location": [
-				260, 
+				260,
 				1639
 			]
-		}, 
+		},
 		{
-			"type": "gemBig", 
+			"type": "gemBig",
 			"location": [
-				240, 
-				1097
-			], 
+				152,
+				978
+			],
 			"hidden": false
-		}, 
+		},
 		{
-			"type": "ghost", 
+			"type": "ghost",
 			"location": [
-				126, 
+				126,
 				1609
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				99, 
+				99,
 				252
 			]
-		}, 
+		},
 		{
-			"type": "ghost", 
+			"type": "ghost",
 			"location": [
-				126, 
+				126,
 				1835
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				90, 
+				90,
 				207
 			]
-		}, 
+		},
 		{
-			"type": "ghost", 
+			"type": "ghost",
 			"location": [
-				144, 
+				144,
 				594
-			], 
-			"goLeft": true, 
+			],
+			"goLeft": true,
 			"range": [
-				87, 
+				87,
 				212
 			]
-		}, 
+		},
 		{
-			"type": "ghost", 
+			"type": "ghost",
 			"location": [
-				78, 
+				78,
 				914
-			], 
-			"goLeft": false, 
+			],
+			"goLeft": false,
 			"range": [
-				24, 
+				24,
 				86
 			]
-		}, 
+		},
 		{
-			"type": "hiddenScoreGift", 
+			"type": "hiddenScoreGift",
 			"location": [
-				259, 
-				1295
+				262,
+				1089
 			]
-		}, 
+		},
 		{
-			"type": "mapBounds", 
+			"type": "mapBounds",
 			"bounds": [
-				0, 
-				0, 
-				287, 
+				0,
+				0,
+				287,
 				2047
 			]
-		}, 
+		},
 		{
-			"type": "player", 
+			"type": "player",
 			"location": [
-				90, 
+				90,
 				1939
-			], 
+			],
 			"goLeft": false
-		}, 
+		},
 		{
-			"type": "portrait4", 
+			"type": "portrait2",
 			"location": [
-				132, 
+				180,
+				1460
+			]
+		},
+		{
+			"type": "portrait4",
+			"location": [
+				132,
 				1332
 			]
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				104, 
+				104,
 				519
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				105, 
+				105,
 				549
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				113, 
+				113,
 				1791
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				127, 
+				127,
 				1284
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				128, 
+				128,
 				994
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				131, 
+				131,
 				1504
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				134, 
+				134,
 				727
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				136, 
+				136,
 				842
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				137, 
+				137,
 				1522
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				161, 
+				161,
 				1792
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				164, 
+				164,
 				447
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				166, 
+				166,
 				1700
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				173, 
+				173,
 				1155
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				190, 
+				190,
 				1932
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				200, 
+				200,
 				519
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				201, 
+				201,
 				551
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				213, 
+				213,
 				1701
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				224, 
+				224,
 				994
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				228, 
+				228,
 				1175
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				232, 
+				232,
 				1238
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				259, 
+				259,
 				259
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				260, 
+				260,
 				745
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				27, 
+				27,
 				378
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				28, 
+				28,
 				1433
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				28, 
+				28,
 				714
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				46, 
+				46,
 				1855
-			], 
-			"hidden": true, 
+			],
+			"hidden": true,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				52, 
+				52,
 				800
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				54, 
+				54,
 				381
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				55, 
+				55,
 				1165
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				56, 
+				56,
 				1239
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				62, 
+				62,
 				899
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				70, 
+				70,
 				1412
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				81, 
+				81,
 				898
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				86, 
+				86,
 				1520
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				96, 
+				96,
 				1504
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "purpleGem", 
+			"type": "purpleGem",
 			"location": [
-				97, 
+				97,
 				710
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "spike", 
+			"type": "spike",
 			"location": [
-				172, 
+				172,
 				387
-			], 
-			"frequency": 100, 
+			],
+			"frequency": 100,
 			"phase": 0
-		}, 
+		},
 		{
-			"type": "spike", 
+			"type": "spike",
 			"location": [
-				180, 
+				180,
 				386
-			], 
-			"frequency": 100, 
+			],
+			"frequency": 100,
 			"phase": 0
-		}, 
+		},
 		{
-			"type": "spike", 
+			"type": "spike",
 			"location": [
-				211, 
+				211,
 				1938
-			], 
-			"frequency": 100, 
+			],
+			"frequency": 100,
 			"phase": 0
-		}, 
+		},
 		{
-			"type": "spike", 
+			"type": "spike",
 			"location": [
-				267, 
+				267,
 				1939
-			], 
-			"frequency": 100, 
+			],
+			"frequency": 100,
 			"phase": 0
-		}, 
+		},
 		{
-			"type": "torch", 
+			"type": "torch",
 			"location": [
-				139, 
+				139,
 				1473
-			], 
+			],
 			"foreground": false
-		}, 
+		},
 		{
-			"type": "torch", 
+			"type": "torch",
 			"location": [
-				239, 
+				239,
 				1149
-			], 
+			],
 			"foreground": false
-		}, 
+		},
 		{
-			"type": "torch", 
+			"type": "torch",
 			"location": [
-				55, 
+				55,
 				1149
-			], 
+			],
 			"foreground": false
-		}, 
+		},
 		{
-			"type": "torch", 
+			"type": "torch",
 			"location": [
-				55, 
+				55,
 				485
-			], 
+			],
 			"foreground": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				101, 
+				101,
 				1519
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				110, 
+				110,
 				1283
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				112, 
+				112,
 				1506
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				117, 
+				117,
 				714
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				120, 
+				120,
 				1654
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				120, 
+				120,
 				1879
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				122, 
+				122,
 				1520
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				141, 
+				141,
 				447
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				142, 
+				142,
 				1284
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				142, 
+				142,
 				1698
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				149, 
+				149,
 				738
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				152, 
+				152,
 				447
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				152, 
+				152,
 				519
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": false
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				153, 
+				153,
 				550
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				176, 
+				176,
 				994
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				190, 
+				190,
 				1700
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				198, 
+				198,
 				1158
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				209, 
+				209,
 				1792
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				213, 
+				213,
 				1368
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				234, 
+				234,
 				754
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				246, 
+				246,
 				1196
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				27, 
+				27,
 				1855
-			], 
-			"hidden": true, 
+			],
+			"hidden": true,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				29, 
+				29,
 				1164
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				32, 
+				32,
 				897
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				33, 
+				33,
 				800
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				36, 
+				36,
 				267
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				41, 
+				41,
 				379
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				46, 
+				46,
 				1428
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				46, 
+				46,
 				898
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				67, 
+				67,
 				1854
-			], 
-			"hidden": true, 
+			],
+			"hidden": true,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				69, 
+				69,
 				382
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				75, 
+				75,
 				709
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
-		}, 
+		},
 		{
-			"type": "yellowGem", 
+			"type": "yellowGem",
 			"location": [
-				80, 
+				80,
 				993
-			], 
-			"hidden": false, 
+			],
+			"hidden": false,
 			"wobble": true
 		}
-	], 
-	"blocks": [
-		"8*0,6,5,f6*0", 
-		"7*0,6,1a,19,5,f5*0", 
-		"6*0,6,1a,2*28,19,5,f4*0", 
-		"5*0,6,1a,4*28,19,5,f3*0", 
-		"4*0,6,1a,6*28,19,5,f2*0", 
-		"3*0,6,1a,8*28,19,5,f1*0", 
-		"0,0,6,1a,a*28,19,5,f0*0", 
-		"0,6,1a,c*28,19,5,ef*0", 
-		"6,1a,5*28,104,105,106,107,5*28,19,5,ee*0", 
-		"34,fe,4*28,108,109,10a,10b,10c,10d,5*28,35,ee*0", 
-		"34,ea,28,df,28,118,119,122,11b,11c,122,11e,11f,28,df,2*28,35,ee*0", 
-		"34,ea,e3,e4,e5,120,121,122,123,124,125,126,127,e3,e4,e5,28,35,ee*0", 
-		"34,ea,f7,f8,f9,12c,12d,122,12f,130,122,132,133,f7,f8,f9,28,35,ee*0", 
-		"34,ea,f7,f8,f9,28,10e,10f,110,111,112,113,28,f7,f8,f9,28,35,ee*0", 
-		"34,ea,e1,de,e2,2*28,134,135,136,137,2*28,e1,de,e2,28,35,ee*0", 
-		"34,ea,7*28,22,23,6*28,35,ee*0", 
-		"34,ea,7*28,36,37,28,29,30,31,2*28,35,ee*0", 
-		"34,1f,2c,85,5d,b,4*28,a,46,3d,44,45,46,2c,35,ee*0", 
-		"34,8e,2*91,93,25,26,10,12,4*28,6c,2*91,83,35,ee*0", 
-		"34,8*0,4b,5*28,3a,68,35,ee*0", 
-		"34,8*0,10,13,25,26,24,2*28,68,35,ee*0", 
-		"34,4*0,14,4,7*0,4b,28,68,35,ee*0", 
-		"34,4*0,4b,22,7*0,10,12,68,35,ee*0", 
-		"34,3*0,39,28,36,9*0,82,35,ee*0", 
-		"34,70,71,4,70,85,46,4,4,14,1e,4,5,4*0,35,ee*0", 
-		"34,ea,6*28,22,23,2*28,19,5,3*0,35,ee*0", 
-		"34,ea,6*28,36,37,3*28,19,5,a2,a3,35,ee*0", 
-		"34,ea,9*28,e,f,28,19,a6,a7,35,ee*0", 
-		"34,ea,6*28,e1,de,e2,28,12,2*28,a0,a1,35,ee*0", 
-		"34,ea,6*28,4a,4b,28,5e,0,4b,28,a0,a1,35,ee*0", 
-		"34,ea,5*28,4a,4b,2*28,72,3b,2*28,a0,a1,35,ee*0", 
-		"34,ea,4*28,df,2*28,df,2*28,df,2*28,a0,a1,35,ee*0", 
-		"34,ea,3*28,f2,f3,f4,f2,f3,f4,f2,f3,f4,28,a0,a1,35,ee*0", 
-		"34,ea,3*28,f0,0,f1,f0,0,f1,f0,0,f1,28,a0,a1,35,ee*0", 
-		"34,ea,3*28,f0,0,f1,f0,0,f1,f0,0,f1,28,a0,a1,35,ee*0", 
-		"34,ea,3*28,e1,de,e2,e1,de,e2,e1,de,e2,28,a0,a1,35,ee*0", 
-		"34,ea,a0,a1,5*28,29,2*2a,30,2b,46,d8,d9,35,ee*0", 
-		"34,1f,ac,ad,3c,2c,2*84,85,3d,2*16,1c,17,3*28,35,ee*0", 
-		"34,0,aa,ab,25,26,27,12,8*28,5e,35,ee*0", 
-		"34,0,a2,a3,4*0,10,13,27,12,13,25,27,28,36,35,ee*0", 
-		"34,0,a2,a3,b*0,4b,28,35,ee*0", 
-		"34,0,a2,a3,b*0,10,4a,35,ee*0", 
-		"34,0,a2,a3,c*0,24,35,ee*0", 
-		"34,0,a2,a3,d*0,35,ee*0", 
-		"34,0,a2,a3,d*0,35,ee*0", 
-		"34,71,d6,d7,49,c*0,35,ee*0", 
-		"34,8e,2*91,93,c*0,35,ee*0", 
-		"34,d*0,1,3,7,35,ee*0", 
-		"34,9*0,48,14,4,71,15,17,1b,35,ee*0", 
-		"34,9*0,68,6*28,35,ee*0", 
-		"34,71,1e,49,6*0,82,6*91,35,ee*0", 
-		"34,ea,28,6b,9*0,69,6a,0,82,35,ee*0", 
-		"34,ea,80,81,a*0,69,6a,0,35,ee*0", 
-		"34,eb,81,4*0,4,1e,6*0,69,6a,35,ee*0", 
-		"34,ff,38,4*0,24,26,7*0,69,35,ee*0", 
-		"34,ea,22,e*0,35,ee*0", 
-		"34,ea,36,e*0,35,ee*0", 
-		"34,1f,2c,1e,4,6f,70,71,1e,4,49,6*0,35,ee*0", 
-		"34,8e,8*91,93,6*0,35,ee*0", 
-		"34,eb,96,8*28,4c,4e,4f,4,2*6f,35,ee*0", 
-		"34,ff,4a,f,dc,dd,28,dc,dd,28,dc,dd,32,dc,dd,2*28,35,ee*0", 
-		"34,fa,2*28,f0,f1,28,f0,f1,28,f0,f1,28,f0,f1,28,e6,35,ee*0", 
-		"34,ea,2*28,f0,f1,28,f0,f1,18,f0,f1,28,f0,f1,2*28,35,ee*0", 
-		"34,ea,2*28,e1,e2,28,e1,e2,28,e1,e2,28,e1,e2,2*28,35,ee*0", 
-		"34,1f,b,e*28,35,ee*0", 
-		"34,ea,3*28,5e,5f,e,4b,8*28,35,ee*0", 
-		"34,ea,3*28,72,73,2*28,11,25,27,5*28,35,ee*0", 
-		"34,ea,3*28,36,37,40,28,3a,60,4d,5*28,35,ee*0", 
-		"34,1f,b,a*28,29,30,2a,31,35,ee*0", 
-		"34,ea,6*28,a0,a1,28,29,2b,3d,1c,16,45,35,ee*0", 
-		"34,ea,5*28,2e,ac,ad,3c,3d,3f,4*28,35,ee*0", 
-		"34,ea,4*28,2e,42,a0,a1,7*28,35,ee*0", 
-		"34,ea,2*28,29,2b,42,28,a0,a1,7*28,35,ee*0", 
-		"34,1f,2c,46,3d,3f,2*28,a0,a1,5*28,32,28,35,ee*0", 
-		"34,ea,40,18,4*28,a0,a1,4a,25,27,4*28,35,ee*0", 
-		"34,ea,6*28,12,2*28,38,3b,4*28,35,ee*0", 
-		"34,ea,28,df,3*28,4a,0,4b,4*28,df,a,46,35,ee*0", 
-		"34,ea,f2,f3,f4,2*28,11,0,24,27,2*28,f2,f3,f4,28,35,ee*0", 
-		"34,ea,f0,0,f1,28,22,73,38,0,3b,2*28,f0,0,f1,28,35,ee*0", 
-		"34,ea,f0,0,f1,28,36,37,28,4c,3*28,f0,0,f1,28,35,ee*0", 
-		"34,ea,e1,de,e2,8*28,e1,de,e2,28,35,ee*0", 
-		"34,ea,4*28,a,46,2c,b,2*28,5*129,35,ee*0", 
-		"34,ea,d*28,18,28,35,ee*0", 
-		"34,ea,6*28,ec,ed,ee,6*28,35,ee*0", 
-		"34,1f,b,5*28,100,101,102,6*28,35,ee*0", 
-		"34,ea,28,e,10,12,2*28,114,115,116,4*28,a0,a1,35,ee*0", 
-		"34,ea,2*28,4e,4f,f,5*28,a,84,85,ac,ad,35,ee*0", 
-		"34,ea,e,f,b*28,a0,a1,35,ee*0", 
-		"34,ea,2*28,29,2b,2c,b,7*28,a0,a1,35,ee*0", 
-		"34,ea,28,2e,3d,17,5*28,32,3*28,a0,a1,35,ee*0", 
-		"34,1f,46,42,b*28,a0,a1,35,ee*0", 
-		"34,ea,40,c*28,a0,a1,35,ee*0", 
-		"34,ea,d*28,a0,a1,35,ee*0", 
-		"34,fa,a*28,18,2*28,a0,a1,35,ee*0", 
-		"34,ea,d*28,a0,a1,35,ee*0", 
-		"34,ea,3*28,a,84,85,46,2c,70,85,46,2c,46,d8,d9,35,ee*0", 
-		"34,ea,3*28,40,3*28,22,f,2*28,13,10,2*28,35,ee*0", 
-		"34,ea,7*28,36,5f,2*28,4e,4d,2*28,35,ee*0", 
-		"34,1f,46,b,28,32,b*28,35,ee*0", 
-		"34,ea,c*28,a0,a1,28,35,ee*0", 
-		"34,ea,3*28,2c,46,2f,2a,30,2b,2c,84,85,ac,ad,46,35,ee*0", 
-		"34,ea,5*28,43,16,1c,3f,28,32,28,a0,a1,28,35,ee*0", 
-		"34,ea,28,18,3*28,df,6*28,a0,a1,e6,35,ee*0", 
-		"34,ea,28,4a,4b,28,f2,f3,f4,5*28,a0,a1,28,35,ee*0", 
-		"34,ea,4*28,f0,0,f1,5*28,a0,a1,28,35,ee*0", 
-		"34,fa,4*28,f0,0,f1,4*28,5a,a0,a1,5a,35,ee*0", 
-		"34,ea,a0,a1,2*28,e1,de,e2,4*28,6e,a0,a1,6e,35,ee*0", 
-		"34,1f,ac,ad,3c,2c,2*84,85,46,2*2c,84,85,d8,d9,2c,35,ee*0", 
-		"34,ea,a0,a1,8*28,86,87,88,89,ae,35,ee*0", 
-		"34,ea,a0,a1,8*28,9a,9b,9c,9d,c2,35,ee*0", 
-		"34,ea,a0,a1,28,18,dc,dd,28,dc,dd,28,dc,dd,2*28,32,35,ee*0", 
-		"34,ea,a0,a1,2*28,f0,f1,28,f0,f1,28,f0,f1,3*28,35,ee*0", 
-		"34,ea,a0,a1,2*28,f0,f1,28,f0,f1,18,f0,f1,3*28,35,ee*0", 
-		"34,ea,a0,a1,2*28,e1,e2,28,e1,e2,28,e1,e2,3*28,35,ee*0", 
-		"34,ea,a0,a1,3*28,29,2a,30,2a,31,2*28,a0,a1,28,35,ee*0", 
-		"70,1f,d8,d9,84,85,46,3d,2*1c,16,45,2*46,ac,ad,84,70,ee*0", 
-		"3*91,68,3*28,df,6*28,a0,a1,2*28,ee*0", 
-		"0,69,6a,68,32,28,f2,f3,f4,5*28,a0,a1,2*28,ee*0", 
-		"0,0,69,68,2*28,f0,0,f1,5*28,a0,a1,2*28,ee*0", 
-		"3*0,68,2*28,f0,0,f1,40,4*28,a0,a1,2*28,ee*0", 
-		"3*0,68,2*28,e1,de,e2,5*28,a0,a1,2*28,ee*0", 
-		"1e,4,6f,70,85,46,2*2c,3c,46,2c,85,46,2c,d8,d9,46,2c,ee*0", 
-		"28,18,28,18,e*28,ee*0", 
-		"28,78,79,4*28,12,28,32,5*28,78,79,28,ee*0", 
-		"28,8c,8d,e,f,28,e,0,10,3*28,22,5f,28,8c,8d,28,ee*0", 
-		"5*28,12,13,0,0,24,25,27,36,37,4*28,ee*0", 
-		"40,28,13,25,26,7*0,4b,5*28,ee*0", 
-		"28,11,9*0,3b,18,2*28,13,25,27,ee*0"
-	]
+	],
+	"blocks": {
+		"version": 1,
+		"place": [
+			0,
+			0,
+			255,
+			127
+		],
+		"content": [
+			"8*0,6,5",
+			"7*0,6,1a,19,5",
+			"6*0,6,1a,2*28,19,5",
+			"5*0,6,1a,4*28,19,5",
+			"4*0,6,1a,6*28,19,5",
+			"3*0,6,1a,8*28,19,5",
+			"0,0,6,1a,a*28,19,5",
+			"0,6,1a,c*28,19,5",
+			"6,1a,5*28,104,105,106,107,5*28,19,5",
+			"34,fe,4*28,108,109,10a,10b,10c,10d,5*28,35",
+			"34,ea,28,df,28,118,119,122,11b,11c,122,11e,11f,28,df,2*28,35",
+			"34,ea,e3,e4,e5,120,121,122,123,124,125,126,127,e3,e4,e5,28,35",
+			"34,ea,f7,f8,f9,12c,12d,122,12f,130,122,132,133,f7,f8,f9,28,35",
+			"34,ea,f7,f8,f9,28,10e,10f,110,111,112,113,28,f7,f8,f9,28,35",
+			"34,ea,e1,de,e2,2*28,134,135,136,137,2*28,e1,de,e2,28,35",
+			"34,ea,7*28,22,23,6*28,35",
+			"34,ea,7*28,36,37,28,29,30,31,2*28,35",
+			"34,1f,2c,85,5d,b,4*28,a,46,3d,44,45,46,2c,35",
+			"34,8e,2*91,93,25,26,10,12,4*28,6c,2*91,83,35",
+			"34,8*0,4b,5*28,3a,68,35",
+			"34,8*0,10,13,25,26,24,2*28,68,35",
+			"34,4*0,14,4,7*0,4b,28,68,35",
+			"34,4*0,4b,22,7*0,10,12,68,35",
+			"34,3*0,39,28,36,9*0,82,35",
+			"34,70,71,4,70,85,46,4,4,14,1e,4,5,4*0,35",
+			"34,ea,6*28,22,23,2*28,19,5,3*0,35",
+			"34,ea,6*28,36,37,3*28,19,5,a2,a3,35",
+			"34,ea,9*28,e,f,28,19,a6,a7,35",
+			"34,ea,6*28,e1,de,e2,28,12,2*28,a0,a1,35",
+			"34,ea,6*28,4a,4b,28,5e,0,4b,28,a0,a1,35",
+			"34,ea,5*28,4a,4b,2*28,72,3b,2*28,a0,a1,35",
+			"34,ea,4*28,df,2*28,df,2*28,df,2*28,a0,a1,35",
+			"34,ea,3*28,f2,f3,f4,f2,f3,f4,f2,f3,f4,28,a0,a1,35",
+			"34,ea,3*28,f0,0,f1,f0,0,f1,f0,0,f1,28,a0,a1,35",
+			"34,ea,3*28,f0,0,f1,f0,0,f1,f0,0,f1,28,a0,a1,35",
+			"34,ea,3*28,e1,de,e2,e1,de,e2,e1,de,e2,28,a0,a1,35",
+			"34,ea,a0,a1,5*28,29,2*2a,30,2b,46,d8,d9,35",
+			"34,1f,ac,ad,3c,2c,2*84,85,3d,2*16,1c,17,3*28,35",
+			"34,0,aa,ab,25,26,27,12,8*28,5e,35",
+			"34,0,a2,a3,4*0,10,13,27,12,13,25,27,28,36,35",
+			"34,0,a2,a3,b*0,4b,28,35",
+			"34,0,a2,a3,b*0,10,4a,35",
+			"34,0,a2,a3,c*0,24,35",
+			"34,0,a2,a3,d*0,35",
+			"34,0,a2,a3,d*0,35",
+			"34,71,d6,d7,49,c*0,35",
+			"34,8e,2*91,93,c*0,35",
+			"34,d*0,1,3,7,35",
+			"34,9*0,48,14,4,71,15,17,1b,35",
+			"34,9*0,68,6*28,35",
+			"34,71,1e,49,6*0,82,6*91,35",
+			"34,ea,28,6b,9*0,69,6a,0,82,35",
+			"34,ea,80,81,a*0,69,6a,0,35",
+			"34,eb,81,4*0,4,1e,6*0,69,6a,35",
+			"34,ff,38,4*0,24,26,7*0,69,35",
+			"34,ea,22,e*0,35",
+			"34,ea,36,e*0,35",
+			"34,1f,2c,1e,4,6f,70,71,1e,4,49,6*0,35",
+			"34,8e,8*91,93,6*0,35",
+			"34,eb,96,8*28,4c,4e,4f,4,2*6f,35",
+			"34,ff,4a,f,dc,dd,28,dc,dd,28,dc,dd,32,dc,dd,2*28,35",
+			"34,fa,2*28,f0,f1,28,f0,f1,28,f0,f1,28,f0,f1,28,e6,35",
+			"34,ea,2*28,f0,f1,28,f0,f1,18,f0,f1,28,f0,f1,2*28,35",
+			"34,ea,2*28,e1,e2,28,e1,e2,28,e1,e2,28,e1,e2,2*28,35",
+			"34,1f,b,e*28,35",
+			"34,ea,3*28,5e,5f,e,4b,8*28,35",
+			"34,ea,3*28,72,73,2*28,11,25,27,5*28,35",
+			"34,ea,3*28,36,37,40,28,3a,60,4d,5*28,35",
+			"34,1f,b,a*28,29,30,2a,31,35",
+			"34,ea,6*28,a0,a1,28,29,2b,3d,1c,16,45,35",
+			"34,ea,5*28,2e,ac,ad,3c,3d,3f,4*28,35",
+			"34,ea,4*28,2e,42,a0,a1,7*28,35",
+			"34,ea,2*28,29,2b,42,28,a0,a1,7*28,35",
+			"34,1f,2c,46,3d,3f,2*28,a0,a1,5*28,32,28,35",
+			"34,ea,40,18,4*28,a0,a1,4a,25,27,4*28,35",
+			"34,ea,6*28,12,2*28,38,3b,4*28,35",
+			"34,12a,5*129,4a,0,4b,4*28,df,a,46,35",
+			"34,ea,f2,f3,f4,2*28,11,0,24,27,2*28,f2,f3,f4,28,35",
+			"34,ea,f0,0,f1,28,22,73,38,0,3b,2*28,f0,0,f1,28,35",
+			"34,ea,f0,0,f1,28,36,37,28,4c,3*28,f0,0,f1,28,35",
+			"34,ea,e1,de,e2,6*28,32,28,e1,de,e2,28,35",
+			"34,ea,4*28,a,46,2c,b,7*28,35",
+			"34,ea,d*28,18,28,35",
+			"34,ea,6*28,ec,ed,ee,6*28,35",
+			"34,1f,b,5*28,100,101,102,6*28,35",
+			"34,ea,28,e,10,12,2*28,114,115,116,4*28,a0,a1,35",
+			"34,ea,2*28,4e,4f,f,5*28,a,84,85,ac,ad,35",
+			"34,ea,e,f,b*28,a0,a1,35",
+			"34,ea,2*28,29,2b,2c,b,7*28,a0,a1,35",
+			"34,ea,28,2e,3d,17,5*28,32,3*28,a0,a1,35",
+			"34,1f,46,42,b*28,a0,a1,35",
+			"34,ea,40,8*28,ec,ed,ee,28,a0,a1,35",
+			"34,ea,9*28,100,101,102,28,a0,a1,35",
+			"34,fa,9*28,114,115,116,28,a0,a1,35",
+			"34,ea,d*28,a0,a1,35",
+			"34,ea,3*28,a,84,85,46,2c,70,85,46,2c,46,d8,d9,35",
+			"34,ea,3*28,40,3*28,22,f,2*28,13,10,2*28,35",
+			"34,ea,7*28,36,5f,2*28,4e,4d,2*28,35",
+			"34,1f,46,b,28,32,b*28,35",
+			"34,ea,c*28,a0,a1,28,35",
+			"34,ea,3*28,2c,46,2f,2a,30,2b,2c,84,85,ac,ad,46,35",
+			"34,ea,5*28,43,16,1c,3f,28,32,28,a0,a1,28,35",
+			"34,ea,28,18,3*28,df,6*28,a0,a1,e6,35",
+			"34,ea,28,4a,4b,28,f2,f3,f4,5*28,a0,a1,28,35",
+			"34,ea,4*28,f0,0,f1,5*28,a0,a1,28,35",
+			"34,fa,4*28,f0,0,f1,4*28,5a,a0,a1,5a,35",
+			"34,ea,a0,a1,2*28,e1,de,e2,4*28,6e,a0,a1,6e,35",
+			"34,1f,ac,ad,3c,2c,2*84,85,46,2*2c,84,85,d8,d9,2c,35",
+			"34,ea,a0,a1,8*28,86,87,88,89,ae,35",
+			"34,ea,a0,a1,8*28,9a,9b,9c,9d,c2,35",
+			"34,ea,a0,a1,28,18,dc,dd,28,dc,dd,28,dc,dd,2*28,32,35",
+			"34,ea,a0,a1,2*28,f0,f1,28,f0,f1,28,f0,f1,3*28,35",
+			"34,ea,a0,a1,2*28,f0,f1,28,f0,f1,18,f0,f1,3*28,35",
+			"34,ea,a0,a1,2*28,e1,e2,28,e1,e2,28,e1,e2,3*28,35",
+			"34,ea,a0,a1,3*28,29,2a,30,2a,31,2*28,a0,a1,28,35",
+			"70,1f,d8,d9,84,85,46,3d,2*1c,16,45,2*46,ac,ad,84,70",
+			"3*91,68,3*28,df,6*28,a0,a1,2*28",
+			"0,69,6a,68,32,28,f2,f3,f4,5*28,a0,a1,2*28",
+			"0,0,69,68,2*28,f0,0,f1,5*28,a0,a1,2*28",
+			"3*0,68,2*28,f0,0,f1,40,4*28,a0,a1,2*28",
+			"3*0,68,2*28,e1,de,e2,5*28,a0,a1,2*28",
+			"1e,4,6f,70,85,46,2*2c,3c,46,2c,85,46,2c,d8,d9,46,2c",
+			"28,18,28,18,e*28",
+			"28,78,79,4*28,12,28,32,5*28,78,79,28",
+			"28,8c,8d,e,f,28,e,0,10,3*28,22,5f,28,8c,8d,28",
+			"5*28,12,13,0,0,24,25,27,36,37,4*28",
+			"40,28,13,25,26,7*0,4b,5*28",
+			"28,11,9*0,3b,18,2*28,13,25,27"
+		]
+	}
 }
