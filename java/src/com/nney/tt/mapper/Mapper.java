@@ -189,11 +189,13 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int ACTION_PREVIOUS_ALIEN_TYPE = Keyboard.KEY_PRIOR;
 
-	// block marking
-
-	private static final int ACTION_UNSELECT = Keyboard.KEY_ESCAPE;
-
 	// things that somehow involve the mouse position:
+
+	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
+
+	private static final int KEY_SEARCH_BACKWARD = Keyboard.KEY_SUBTRACT;
+
+	private static final int KEY_SEARCH_FORWARD = Keyboard.KEY_ADD;
 
 	private static final int KEY_SELECT_ALL = Locks.LOCK_CONTROL + MODE_ALIEN;
 
@@ -203,25 +205,21 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int KEY_SET_MARKER = Keyboard.KEY_M;
 
+	private static final int ACTION_UNSELECT = Keyboard.KEY_ESCAPE;
+
+	private static final int KEY_MOD_BLOCK_CHASE = Keyboard.KEY_C;
+
 	private static final int KEY_PANNING = Keyboard.KEY_SPACE;
 
 	private static final int KEY_EYE_DROPPER = Keyboard.KEY_I;
 
-	private static final int KEY_MOD_BLOCK_CHASE = Keyboard.KEY_C;
-
 	private static final int KEY_CREATE_ALIEN = Keyboard.KEY_N;
-
-	private static final int KEY_SEARCH_BACKWARD = Keyboard.KEY_SUBTRACT;
-
-	private static final int KEY_SEARCH_FORWARD = Keyboard.KEY_ADD;
 
 	private static final int KEY_ALIEN_DUPLICATE = Keyboard.KEY_C;
 
 	private static final int KEY_WHERE = Keyboard.KEY_W;
 
 	private static final int KEY_SELECT_ALIEN = Pointer.KEY_MIDDLE;
-
-	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
 
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
@@ -741,9 +739,9 @@ public class Mapper implements ButtonPressServices {
 		if (more) {
 			s += String.format(" | Position: %spixels %sblocks | Changes made: %s", mmp.worldPixels(),
 					mmp.worldBlocks(), undoControler.changes());
-		}
-		if (mode == Mode.DRAW) {
-			changeCurrentBlock(0, 0);
+			if (mode == Mode.DRAW) {
+				changeCurrentBlock(0, 0);
+			}
 		}
 		say(s);
 	}
@@ -755,7 +753,7 @@ public class Mapper implements ButtonPressServices {
 	private boolean mustBeSure(boolean sure, String task) {
 		int changes = undoControler.changes();
 		if (sure || changes == 0) return true;
-		sayf("%s: Abandon %s unsaved changes? +Ctrl+Shift if certain", task, changes);
+		sayf("%s: Abandon %s unsaved changes? Add Ctrl+Shift if certain", task, changes);
 		return false;
 	}
 
