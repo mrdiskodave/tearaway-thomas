@@ -189,4 +189,8 @@ class S {
 		return a;
 	}
 
+	public boolean isWallOfSameCol(S o) {
+		return o.isWall() && col() == o.col();
+	}
+
 }

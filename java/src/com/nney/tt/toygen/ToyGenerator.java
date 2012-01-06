@@ -60,8 +60,8 @@ public class ToyGenerator {
 					S out;
 					if (here.isWall()) {
 						int v = 0;
-						if (west.isWall()) v |= 1;
-						if (east.isWall()) v |= 2;
+						if (here.isWallOfSameCol(west)) v |= 1;
+						if (here.isWallOfSameCol(east)) v |= 2;
 						v = WALL_TABLE[v];
 						out = s().wall(v).col(here.col());
 					}
