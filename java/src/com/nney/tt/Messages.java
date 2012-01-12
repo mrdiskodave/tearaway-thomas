@@ -1,6 +1,10 @@
 package com.nney.tt;
 
 public class Messages {
+	private static final String PRESS_FIRE = "[p][c4]press jump";
+
+	private static final String GOOD_LUCK = "[p][c5]good luck!" + PRESS_FIRE;
+
 	private final static String LEVEL_TEXT = "[c1]level %s";
 
 	private final static String CHAL_TEXT = LEVEL_TEXT + "[p][c5][k4]--challenge level--[k]";
@@ -12,7 +16,7 @@ public class Messages {
 						"[c0]gems required[e][c4]%d[e]" + //
 						"[c0]gems on level[e][c4]%d[e]" + //
 						"[c0]time[e][c4]%d[e]" + //
-						"[p][c5]good luck![p][c4]press jump", //
+						GOOD_LUCK, //
 				level, name, gemsRequired, gemsAvailable, time);
 	}
 
@@ -21,7 +25,7 @@ public class Messages {
 				CHAL_TEXT + //
 						"[p][c]you have [c4]%s[c] seconds[n]" + //
 						"to race to the finish" + //
-						"[p][c5]good luck![p][c4]press jump", //
+						GOOD_LUCK, //
 				level, time);
 	}
 
@@ -44,7 +48,7 @@ public class Messages {
 			t += "[c2][k5]star skip[n]collected![k][n]";
 		}
 
-		t += "[p][c4]press jump";
+		t += PRESS_FIRE;
 
 		return t;
 	}
@@ -53,7 +57,7 @@ public class Messages {
 		return String.format(//
 				CHAL_TEXT + "[p][c5]challenge completed!" + //
 						"[p][k][c]bonus [c2]10,000[c] awared!" + //
-						"[p][c4]press jump", //
+						PRESS_FIRE, //
 				level, timeLeft);
 	}
 
@@ -61,7 +65,19 @@ public class Messages {
 		return String.format(//
 				CHAL_TEXT + "[p][c1]challenge failed!" + //
 						"[p][k][c]no bonus awarded" + //
-						"[p][c4]press jump", //
+						PRESS_FIRE, //
 				level);
+	}
+
+	public static String fruit(int levelNum, int timeGiven) {
+		return String.format(//
+				LEVEL_TEXT + "[p][c5][k4]--bonus stage--[k]" + //
+						"[p][c]you have [c4]%s[c] seconds[n]" + //
+						"to grab loadsa points!" + GOOD_LUCK, levelNum, timeGiven);
+	}
+
+	public static String fruitComplete(int levelNum) {
+		return String.format(LEVEL_TEXT + "[p][c5][k4]--bonus stage--[k]" + //
+				"[p][c]stage completed" + PRESS_FIRE, levelNum);
 	}
 }

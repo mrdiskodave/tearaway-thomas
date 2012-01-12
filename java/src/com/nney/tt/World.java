@@ -244,7 +244,7 @@ public class World implements AlienServices, Disposable {
 	private Countdown delayedFinish = new Countdown();
 
 	enum Mode {
-		NORMAL, RACE
+		NORMAL, RACE, FRUIT
 	}
 
 	private Mode mode = Mode.NORMAL;
@@ -693,7 +693,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void drawHud(boolean supressHurryUp) {
-		int showGems = gemsNeeded - gemsCollected;
+		int showGems = Math.max(0, gemsNeeded - gemsCollected);
 		if (isExitOpen()) {
 			showGems = gemsTotal - gemsCollected;
 		}
@@ -1044,13 +1044,20 @@ public class World implements AlienServices, Disposable {
 
 	public String getIntroText() {
 		String text;
-		if (levelInfo.title.equals("challenge:race")) {
-			text = Messages.raceChallenge(ow.levelNumber + 1, levelInfo.timeGiven);
+
+		int levelNum = ow.levelNumber + 1;
+		String levelTitle = levelInfo.title;
+
+		if (levelTitle.equals("challenge:race")) {
+			text = Messages.raceChallenge(levelNum, levelInfo.timeGiven);
 			mode = Mode.RACE;
 		}
+		else if (levelTitle.equals(":fruit")) {
+			text = Messages.fruit(levelNum, levelInfo.timeGiven);
+			mode = Mode.FRUIT;
+		}
 		else {
-			text = Messages.levelStart(ow.levelNumber + 1, levelInfo.title, levelInfo.gemsNeeded, gemsTotal,
-					levelInfo.timeGiven);
+			text = Messages.levelStart(levelNum, levelTitle, levelInfo.gemsNeeded, gemsTotal, levelInfo.timeGiven);
 		}
 		return text;
 	}
@@ -1068,7 +1075,8 @@ public class World implements AlienServices, Disposable {
 		if (player.isLostOffTheBottom()) {
 			performLevelFailure();
 		}
-		if (timeRemainingInFrames == 0) {
+
+		if (timeRemainingInFrames == 0 && mode != Mode.FRUIT) {
 			performTheatricalLevelFailure();
 		}
 		else {
@@ -1092,6 +1100,10 @@ public class World implements AlienServices, Disposable {
 
 			end();
 
+			if (mode == Mode.FRUIT && timeRemainingInFrames == 0) {
+				levelCompleted(null);
+			}
+
 			if (isLevelCompleted()) {
 				if (!delayedFinish.testAndRun()) {
 					String text = "?";
@@ -1103,6 +1115,9 @@ public class World implements AlienServices, Disposable {
 					}
 					if (mode == Mode.RACE) {
 						text = Messages.challengeComplete(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
+					}
+					if (mode == Mode.FRUIT) {
+						text = Messages.fruitComplete(ow.levelNumber + 1);
 					}
 					createStatusScreen(text);
 
