@@ -215,7 +215,7 @@ public class World implements AlienServices, Disposable {
 
 	private String configuredMapText;
 
-	private boolean drawPlayer = true;
+	private boolean isPlayerPresent = true;
 
 	private Coord whereWeExitedTheLevel;
 
@@ -625,7 +625,7 @@ public class World implements AlienServices, Disposable {
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_COLLECTABLES));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS));
-		if (drawPlayer) {
+		if (isPlayerPresent) {
 			player.draw();
 		}
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY));
@@ -843,7 +843,7 @@ public class World implements AlienServices, Disposable {
 			if (mode.delayedSuccess()) {
 				delayedFinish.set(40);
 			}
-			drawPlayer = !mode.hasExit();
+			isPlayerPresent = !mode.hasExit();
 		}
 	}
 
@@ -1290,7 +1290,7 @@ public class World implements AlienServices, Disposable {
 
 		moveLifts();
 
-		if (drawPlayer) {
+		if (isPlayerPresent) {
 			parsedJoystick.set(joystickPosition);
 			player.move(parsedJoystick);
 		}
@@ -1320,7 +1320,7 @@ public class World implements AlienServices, Disposable {
 
 	private void scrollTheScreen() {
 		Coord orig = scr.position().copy();
-		if (drawPlayer) {
+		if (isPlayerPresent) {
 			if (CTC_HARD_SCROLLING) {
 				scr.snapTo(player.readOnlyPlayerPosition());
 			}
