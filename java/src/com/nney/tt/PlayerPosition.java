@@ -92,45 +92,48 @@ public class PlayerPosition {
 		// System.out.println("MoveX:"+dx);
 		boolean now = ig(c.x, c.y);
 		int ncx = c.x + dx;
+		boolean after = ig(ncx, c.y);
 
 		if (now) {
 			// LIMITS: ???
 
-			// now: ground
-			assert ceiling != null;
+			if (after) {
+				// now: ground
+				assert ceiling != null;
 
-			boolean cg = ig(ncx, ceiling.y);
-			if (cg) {
-				// ceiling is in the ground
-				// it needs to go down a bit
-				// (the ceiling may be sloped)
-				//
-				// we find the new ceiling and we move
-				// OR
-				// if it needs to go down more than
-				// a bit then we give up (assuming
-				// we've found a wall that ends the ceiling
-				// and that we cannot move).
-				for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
-					if (!ig(ncx, ceiling.y + t)) {
-						xSuccess(ncx);
-						ceiling.x = ncx;
-						ceiling.y += t;
-						break;
+				boolean cg = ig(ncx, ceiling.y);
+				if (cg) {
+					// ceiling is in the ground
+					// it needs to go down a bit
+					// (the ceiling may be sloped)
+					//
+					// we find the new ceiling and we move
+					// OR
+					// if it needs to go down more than
+					// a bit then we give up (assuming
+					// we've found a wall that ends the ceiling
+					// and that we cannot move).
+					for (int t = 1; t <= MAX_SUCK_OR_CLIMB; t++) {
+						if (!ig(ncx, ceiling.y + t)) {
+							xSuccess(ncx);
+							ceiling.x = ncx;
+							ceiling.y += t;
+							break;
+						}
 					}
+				}
+				else {
+					// ceiling is in the air
+					// take it up til to the ceiling
+					while (!ig(ncx, ceiling.y - 1)) {
+						ceiling.y--;
+					}
+					ceiling.x = ncx;
+					xSuccess(ncx);
 				}
 			}
 			else {
-				// ceiling is in the air
-				// take it up til to the ceiling
-				while (!ig(ncx, ceiling.y - 1)) {
-					ceiling.y--;
-				}
-				ceiling.x = ncx;
 				xSuccess(ncx);
-			}
-
-			if (!ig(c.x, c.y)) {
 				ceiling = null;
 			}
 		}
@@ -139,7 +142,6 @@ public class PlayerPosition {
 			assert ceiling == null;
 
 			// now: air
-			boolean after = ig(ncx, c.y);
 			if (after) {
 				// air->ground: NO
 
