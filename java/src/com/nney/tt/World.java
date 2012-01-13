@@ -243,13 +243,11 @@ public class World implements AlienServices, Disposable {
 
 	private Countdown delayedFinish = new Countdown();
 
-	enum Mode {
-		NORMAL, RACE, FRUIT
-	}
-
-	private Mode mode = Mode.NORMAL;
+	private Mode mode;
 
 	private int lowerEdge;
+
+	private boolean levelCompleted;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -361,7 +359,7 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public boolean isExitOpen() {
-		return mode == Mode.NORMAL && gemsCollected >= gemsNeeded;
+		return mode.hasExit() && gemsCollected >= gemsNeeded;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -666,10 +664,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void drawTitles(boolean textOverHole) {
-		drawTheMap();
-		for (SpriteRecord sr : recording) {
-			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
-		}
+		drawRecording();
 		dimFade.update();
 		if (textOverHole) {
 			hole.update();
@@ -681,6 +676,13 @@ public class World implements AlienServices, Disposable {
 		}
 		totalFade.update();
 		drawHudAndBorders(true);
+	}
+
+	public void drawRecording() {
+		drawTheMap();
+		for (SpriteRecord sr : recording) {
+			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
+		}
 	}
 
 	private boolean pauseAntiAutofire() {
@@ -828,21 +830,20 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private boolean isLevelCompleted() {
-		return whereWeExitedTheLevel != null;
+		return levelCompleted;
 	}
 
 	@Override
 	public void levelCompleted(Coord exit) {
 		if (!isLevelCompleted()) {
-			if (exit == null) {
-				whereWeExitedTheLevel = getPlayerCentre();
-			}
-			else {
+			levelCompleted = true;
+			if (exit != null) {
 				whereWeExitedTheLevel = exit.copy();
 			}
-			if (mode == Mode.RACE) {
+			if (mode.delayedSuccess()) {
 				delayedFinish.set(40);
 			}
+			drawPlayer = !mode.hasExit();
 		}
 	}
 
@@ -887,10 +888,7 @@ public class World implements AlienServices, Disposable {
 			captureRecording();
 			while (!pauseAntiAutofire()) {
 				begin();
-				drawTheMap();
-				for (SpriteRecord sr : recording) {
-					directDrawSprite(sr.c, sr.s, sr.drawInWhite);
-				}
+				drawRecording();
 				if (isExitOpen()) statusDisplay.drawExitOpen();
 				hole.draw();
 				statusDisplay.drawPaused();
@@ -1004,9 +1002,12 @@ public class World implements AlienServices, Disposable {
 		Anims lifeAnims = animsPool.expect("0life");
 		hud = new HeadUpDisplay(gc, fonts.font, lifeAnims.find(0).firstSprite());
 		statusDisplay = new StatusDisplay(gc, fonts.font);
+
+		createGameMode();
 	}
 
 	private void performIntro() {
+		assert mode != null;
 		captureRecording();
 
 		hole.setCentre(getPlayerCentreOnScreen());
@@ -1025,7 +1026,7 @@ public class World implements AlienServices, Disposable {
 		ah.loadMusic(0, "levelbegin");
 		ah.startMusic(0);
 
-		createStatusScreen(getIntroText());
+		createStatusScreen(mode.introText());
 
 		//
 		// MODE START
@@ -1042,24 +1043,95 @@ public class World implements AlienServices, Disposable {
 		clearRecording();
 	}
 
-	public String getIntroText() {
-		String text;
-
-		int levelNum = ow.levelNumber + 1;
-		String levelTitle = levelInfo.title;
+	public void createGameMode() {
+		final int levelNum = ow.levelNumber + 1;
+		final String levelTitle = levelInfo.title;
 
 		if (levelTitle.equals("challenge:race")) {
-			text = Messages.raceChallenge(levelNum, levelInfo.timeGiven);
-			mode = Mode.RACE;
+			final String text = Messages.raceChallenge(levelNum, levelInfo.timeGiven);
+			mode = new Mode() {
+				@Override
+				public boolean delayedSuccess() {
+					return true;
+				}
+
+				@Override
+				public String successMessage() {
+					return Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
+							- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+				}
+
+				@Override
+				public String failMessage() {
+					return Messages.challengeFailed(ow.levelNumber + 1);
+				};
+
+				@Override
+				public void onTimeOut() {
+					performSlowLevelFailure();
+				}
+
+				@Override
+				public String introText() {
+					return text;
+				}
+
+				@Override
+				public boolean hasExit() {
+					return false;
+				}
+			};
 		}
 		else if (levelTitle.equals(":fruit")) {
-			text = Messages.fruit(levelNum, levelInfo.timeGiven);
-			mode = Mode.FRUIT;
+			final String text = Messages.fruit(levelNum, levelInfo.timeGiven);
+			mode = new Mode() {
+				@Override
+				public String successMessage() {
+					return Messages.fruitComplete(ow.levelNumber + 1);
+				}
+
+				@Override
+				public boolean hasExit() {
+					return false;
+				}
+
+				@Override
+				public void onTimeOut() {
+					levelCompleted(null);
+				}
+
+				@Override
+				public String introText() {
+					return text;
+				}
+
+				@Override
+				public boolean pauseInOutro() {
+					return true;
+				};
+			};
 		}
 		else {
-			text = Messages.levelStart(levelNum, levelTitle, levelInfo.gemsNeeded, gemsTotal, levelInfo.timeGiven);
+			final String text = Messages.levelStart(levelNum, levelTitle, levelInfo.gemsNeeded, gemsTotal,
+					levelInfo.timeGiven);
+			mode = new Mode() {
+				@Override
+				public String successMessage() {
+					return Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
+							- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+				}
+
+				@Override
+				public void onTimeOut() {
+					performSlowLevelFailure();
+				}
+
+				@Override
+				public String introText() {
+					return text;
+				}
+			};
 		}
-		return text;
 	}
 
 	private void oneMainFrame() {
@@ -1073,65 +1145,53 @@ public class World implements AlienServices, Disposable {
 		}
 
 		if (player.isLostOffTheBottom()) {
-			performLevelFailure();
+			performFastLevelFailure();
 		}
 
-		if (timeRemainingInFrames == 0 && mode != Mode.FRUIT) {
-			performTheatricalLevelFailure();
+		if (timeRemainingInFrames == 0) {
+			mode.onTimeOut();
 		}
-		else {
-			//
-			// MODE MAIN
-			//
-			begin();
 
-			int j = joystick.get();
-			if (scriptReader != null) j = scriptReader.get();
-			if (scriptWriter != null) scriptWriter.put(j);
-			mainActions(j);
+		//
+		// MODE MAIN
+		//
+		begin();
 
-			dimFade.update();
+		int j = joystick.get();
+		if (scriptReader != null) j = scriptReader.get();
+		if (scriptWriter != null) scriptWriter.put(j);
+		mainActions(j);
 
-			if (isExitOpen()) statusDisplay.drawExitOpen();
-			drawHurryUp();
+		dimFade.update();
 
-			hole.update();
-			drawHudAndBorders(false);
+		if (isExitOpen()) statusDisplay.drawExitOpen();
+		drawHurryUp();
 
-			end();
+		hole.update();
+		drawHudAndBorders(false);
 
-			if (mode == Mode.FRUIT && timeRemainingInFrames == 0) {
-				levelCompleted(null);
-			}
+		end();
 
-			if (isLevelCompleted()) {
-				if (!delayedFinish.testAndRun()) {
-					String text = "?";
-					if (mode == Mode.NORMAL) {
-						text = Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
-								- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
-						// coz he went out the exit:
-						drawPlayer = false;
-					}
-					if (mode == Mode.RACE) {
-						text = Messages.challengeComplete(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
-					}
-					if (mode == Mode.FRUIT) {
-						text = Messages.fruitComplete(ow.levelNumber + 1);
-					}
-					createStatusScreen(text);
+		if (isLevelCompleted()) {
+			if (!delayedFinish.testAndRun()) {
+				if (!didScroll || mode.pauseInOutro()) {
+					createStatusScreen(mode.successMessage());
 
-					hole.setCentre(whereWeExitedTheLevel.sub2(scr.position()));
+					Coord closeAround = whereWeExitedTheLevel;
+					if (closeAround == null) closeAround = getPlayerCentre();
+					closeAround.sub(scr.position());
+					hole.setCentre(closeAround);
 					hole.target(Curtain.CLOSED);
 					hole.setRate(4);
 
+					// happy outro
 					performOutro();
 				}
 			}
 		}
 	}
 
-	private void performTheatricalLevelFailure() {
+	private void performSlowLevelFailure() {
 		collisionDetection = false;
 
 		player.kill();
@@ -1143,24 +1203,32 @@ public class World implements AlienServices, Disposable {
 			drawHudAndBorders(false);
 			end();
 		} while (!player.onArse() || didScroll);
-		performLevelFailure();
+
+		performFastLevelFailure();
 	}
 
-	private void performLevelFailure() {
+	private void performFastLevelFailure() {
+		collisionDetection = false;
 
+		// the magic 2 and -6 compensate for the player sitting down!
 		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
 		hole.setCentre(t);
 		hole.current(Curtain.OPEN);
 		hole.target(Curtain.CLOSED);
 		hole.setRate(3);
 
-		if (mode == Mode.RACE) {
-			String text = Messages.challengeFailed(ow.levelNumber + 1);
-			createStatusScreen(text);
+		String failMessage = mode.failMessage();
+		if (failMessage != null) {
+			createStatusScreen(failMessage);
+			// sad outro
 			performOutro();
-			// doesn't return
 		}
+		else {
+			performLifeLost(t);
+		}
+	}
 
+	public void performLifeLost(final Coord t) {
 		boolean gameOver = ow.lives <= 1;
 		LifeLostDevice lifeLostDevice;
 
@@ -1222,8 +1290,10 @@ public class World implements AlienServices, Disposable {
 
 		moveLifts();
 
-		parsedJoystick.set(joystickPosition);
-		player.move(parsedJoystick);
+		if (drawPlayer) {
+			parsedJoystick.set(joystickPosition);
+			player.move(parsedJoystick);
+		}
 
 		if (CTC_MEASURE_JUMP_HEIGHT) {
 			smallestY = Math.min(smallestY, player.readOnlyPlayerPosition().y);
@@ -1250,11 +1320,13 @@ public class World implements AlienServices, Disposable {
 
 	private void scrollTheScreen() {
 		Coord orig = scr.position().copy();
-		if (CTC_HARD_SCROLLING) {
-			scr.snapTo(player.readOnlyPlayerPosition());
-		}
-		else {
-			scr.scrollTo(player.readOnlyPlayerPosition());
+		if (drawPlayer) {
+			if (CTC_HARD_SCROLLING) {
+				scr.snapTo(player.readOnlyPlayerPosition());
+			}
+			else {
+				scr.scrollTo(player.readOnlyPlayerPosition());
+			}
 		}
 		didScroll = !orig.equals(scr.position());
 	}
@@ -1275,8 +1347,6 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void performMain() {
-		getIntroText();
-
 		for (;;) {
 			oneMainFrame();
 		}
@@ -1330,15 +1400,36 @@ public class World implements AlienServices, Disposable {
 			}
 		};
 
+		// captureRecording();
+		// while (!pauseAntiAutofire()) {
+		// begin();
+		// drawTheMap();
+		// for (SpriteRecord sr : recording) {
+		// directDrawSprite(sr.c, sr.s, sr.drawInWhite);
+		// }
+		// if (isExitOpen()) statusDisplay.drawExitOpen();
+		// hole.draw();
+		// statusDisplay.drawPaused();
+		// drawHudAndBorders(false);
+		// end();
+		// }
+
 		ah.startMusic(2);
 
 		firePressed = false;
 
+		if (mode.pauseInOutro()) {
+			captureRecording();
+		}
 		boolean done = false;
 		while (!done) {
 			begin();
-
-			mainActions(0);
+			if (mode.pauseInOutro()) {
+				drawRecording();
+			}
+			else {
+				mainActions(0);
+			}
 			hole.update();
 			statusScreen.get().update();
 			totalFade.update();
