@@ -984,6 +984,8 @@ public class Player {
 		if (CTC_STUNABLE) {
 			reset(Mode.STUN);
 			stunTimer = Integer.MAX_VALUE;
+			proofTimer = 0;
+			flashTimer = 0;
 		}
 	}
 
