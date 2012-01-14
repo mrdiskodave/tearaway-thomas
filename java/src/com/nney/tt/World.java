@@ -1068,7 +1068,7 @@ public class World implements AlienServices, Disposable {
 
 				@Override
 				public void onTimeOut() {
-					performSlowLevelFailure();
+					performLevelFailure();
 				}
 
 				@Override
@@ -1123,7 +1123,7 @@ public class World implements AlienServices, Disposable {
 
 				@Override
 				public void onTimeOut() {
-					performSlowLevelFailure();
+					performLevelFailure();
 				}
 
 				@Override
@@ -1145,7 +1145,7 @@ public class World implements AlienServices, Disposable {
 		}
 
 		if (player.isLostOffTheBottom()) {
-			performFastLevelFailure();
+			performLevelFailure();
 		}
 
 		if (timeRemainingInFrames == 0) {
@@ -1191,26 +1191,23 @@ public class World implements AlienServices, Disposable {
 		}
 	}
 
-	private void performSlowLevelFailure() {
+	private void performLevelFailure() {
 		collisionDetection = false;
 
-		player.kill();
-		// we need to keep waiting until
-		// he is on his arse and the screen has stopped scrolling
-		do {
-			begin();
-			mainActions(0);
-			drawHudAndBorders(false);
-			end();
-		} while (!player.onArse() || didScroll);
+		if (!player.isLostOffTheBottom()) {
+			player.kill();
+			// we need to keep waiting until
+			// he is on his arse and the screen has stopped scrolling
+			do {
+				if (player.isLostOffTheBottom()) break;
+				begin();
+				mainActions(0);
+				drawHudAndBorders(false);
+				end();
+			} while (!player.onArse() || didScroll);
+		}
 
-		performFastLevelFailure();
-	}
-
-	private void performFastLevelFailure() {
-		collisionDetection = false;
-
-		// the magic 2 and -6 compensate for the player sitting down!
+		// the magic 2 and -6 compensate for the player sitting down
 		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
 		hole.setCentre(t);
 		hole.current(Curtain.OPEN);
