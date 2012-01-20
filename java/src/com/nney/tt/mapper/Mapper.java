@@ -781,20 +781,21 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void where(boolean more) {
+		List<String> items = new ArrayList<String>();
+		items.add(String.format("Level: %s %s", ow.levelNumber, levelInfo.filename));
+		items.add(String.format("Gems: %s", countAliens(GemAlien.class)));
 		int u = countAliens(LegacyAlien.class);
-		int g = countAliens(GemAlien.class);
-		String s = String.format("Level: %s %s | Gems: %s", ow.levelNumber, levelInfo.filename, g);
 		if (u != 0) {
-			s += String.format(" | Legacy: %s", u);
+			items.add(String.format("Legacy: %s", u));
 		}
 		if (more) {
-			s += String.format(" | Position: %spixels %sblocks | Changes made: %s", mmp.worldPixels(),
-					mmp.worldBlocks(), undoControler.changes());
+			items.add(String.format("Position: %spixels %sblocks", mmp.worldPixels(), mmp.worldBlocks()));
+			items.add(String.format("Changes made: %s", undoControler.changes()));
 			if (mode == Mode.DRAW) {
 				changeCurrentBlock(0, 0);
 			}
 		}
-		say(s);
+		say(ListUtil.toString(items, " | "));
 	}
 
 	public int countAliens(Class<? extends Alien> t) {
