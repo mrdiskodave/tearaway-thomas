@@ -12,15 +12,16 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 
 import com.nney.tt.Const;
-import com.nney.tt.Launcher;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdaptor;
-import com.nney.tt.mapper.Mapper;
 import com.nney.tt.resources.TTResource;
 
 public class LwjglMain {
+	/**
+	 * Throw when LWJGL closes us. e.g. when the window is closed
+	 */
 	static public class ExitException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 	}
@@ -121,14 +122,8 @@ public class LwjglMain {
 		});
 
 		OuterWorld ow = new OuterWorld(gc, audioContext, joystick, keys, correctMouse);
-		ow.bootstrap = new Launcher() {
-			@Override
-			public void launch(OuterWorld outerWorld) {
-				new Mapper(outerWorld).run();
-				// World w = new World(outerWorld);
-				// w.playLevel();
-			}
-		};
+		ow.devMode = true;
+		ow.launchGame();
 
 		try {
 			ow.run();
