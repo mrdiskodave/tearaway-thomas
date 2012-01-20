@@ -64,7 +64,7 @@ public class World implements AlienServices, Disposable {
 	// 15 the gallery:
 	// -- map: wall priority
 
-	// TODO: code ballon man
+	// TODO: code balloon man
 
 	// Disposable:
 	private HeadUpDisplay hud;
@@ -147,8 +147,13 @@ public class World implements AlienServices, Disposable {
 	 * 
 	 * <p>
 	 * ORRR.... we use this recording mechanism all the time perhaps? That would
-	 * decouple updating and actually drawing and leaving a recording sitting
-	 * around for whenever we needed it.
+	 * decouple updating and actually drawing. Aliens would need to be
+	 * update()ed in Alien.depth order and we'd have a recording sitting around
+	 * for whenever we needed it.
+	 * 
+	 * <p>
+	 * ORRRR..... we change the calling model so that we are not expected to
+	 * draw the screen every frame!
 	 * 
 	 * <p>
 	 * This is where we store the recording.
@@ -862,8 +867,12 @@ public class World implements AlienServices, Disposable {
 		// i.e. to stop them piling up
 		keyboard.nextEvent();
 
-		if (configuredCalledFromMapper) {
+		if (ow.devMode) {
 			if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
+				if (!configuredCalledFromMapper) {
+					// called from OuterWorld
+					ow.launchMapper(scr.position());
+				}
 				throw new ExitException();
 			}
 			if (keyboard.isDown(Keyboard.KEY_D)) {
@@ -1106,7 +1115,7 @@ public class World implements AlienServices, Disposable {
 				}
 
 				@Override
-				public boolean pauseInOutro() {
+				public boolean pauseGameDuringOutro() {
 					return true;
 				};
 			};
@@ -1157,8 +1166,7 @@ public class World implements AlienServices, Disposable {
 		//
 		begin();
 
-		int j = joystick.get();
-		if (scriptReader != null) j = scriptReader.get();
+		int j = (scriptReader == null) ? joystick.get() : scriptReader.get();
 		if (scriptWriter != null) scriptWriter.put(j);
 		mainActions(j);
 
@@ -1174,7 +1182,7 @@ public class World implements AlienServices, Disposable {
 
 		if (isLevelCompleted()) {
 			if (!delayedFinish.testAndRun()) {
-				if (!didScroll || mode.pauseInOutro()) {
+				if (!didScroll || mode.pauseGameDuringOutro()) {
 					createStatusScreen(mode.successMessage());
 
 					Coord closeAround = whereWeExitedTheLevel;
@@ -1415,13 +1423,13 @@ public class World implements AlienServices, Disposable {
 
 		firePressed = false;
 
-		if (mode.pauseInOutro()) {
+		if (mode.pauseGameDuringOutro()) {
 			captureRecording();
 		}
 		boolean done = false;
 		while (!done) {
 			begin();
-			if (mode.pauseInOutro()) {
+			if (mode.pauseGameDuringOutro()) {
 				drawRecording();
 			}
 			else {

@@ -97,9 +97,6 @@ import com.nney.utils.SortKeyGenerator;
  *   [Ctrl+M] toggle seeing block masks
  *   [Ctrl+H] toggle seeing hidden blocks
  *   {Ctrl+G] toggle seeing the grid
- *   [Ctrl+Alt+Shift+C] capture a legacy toyland level
- *                      (by renumbering all the blocks into the new system)
- *                      This isn't undoable.
  * 
  *   hold [RMB] for full screen block chooser:
  *     [LMB] to pick.
@@ -137,27 +134,41 @@ import com.nney.utils.SortKeyGenerator;
  * [Alt+P] previous level
  * 
  * Notes:
- * The editor never moves the mouse pointer. This means "jump" operations above
- * just place the jumped-to-location under the mouse pointer. If you
- * are making heavy use of jumping you'll get less dizzy if you place the
- * mouse pointer in the middle of the screen.
+ * The editor doesn't move the mouse pointer while it is in the level-screen.
+ * This means "jump" operations above just place the jumped-to-location under
+ * the mouse pointer. If you are making heavy use of jumping you'll get less
+ * dizzy if you place the mouse pointer in the middle of the screen.
  * </pre>
  */
 public class Mapper implements ButtonPressServices {
 	// ---------------------------------------------------------------------------
 	// CONTROLS
 
-	// modes:
+	// commands:
 
-	private static final int MODE_SPECIFICATION = Keyboard.KEY_S;
+	private static final int ACTION_ENLIVEN = Locks.LOCK_MENU + Keyboard.KEY_E;
 
-	private static final int MODE_DRAWING = Keyboard.KEY_D;
+	private static final int ACTION_MODE_SPECIFICATION = Keyboard.KEY_S;
 
-	private static final int MODE_ALIEN = Keyboard.KEY_A;
+	private static final int ACTION_MODE_DRAWING = Keyboard.KEY_D;
 
-	private static final int MODE_SIMULATION = Keyboard.KEY_P;
+	private static final int ACTION_MODE_ALIEN = Keyboard.KEY_A;
 
-	// actions:
+	private static final int ACTION_MODE_SIMULATION = Keyboard.KEY_P;
+
+	private static final int ACTION_SMALL_TEST = Keyboard.KEY_T;
+
+	private static final int ACTION_BIG_TEST = Locks.LOCK_SHIFT + ACTION_SMALL_TEST;
+
+	private static final int MACTION_PLAY = Keyboard.KEY_P;
+
+	private static final int MACTION_QUIT = Keyboard.KEY_Q;
+
+	private static final int MACTION_REVERT = Keyboard.KEY_R;
+
+	private static final int MACTION_NEXT_LEVEL = Keyboard.KEY_N;
+
+	private static final int MACTION_PREV_LEVEL = Keyboard.KEY_P;
 
 	private static final int ACTION_REDO = Locks.LOCK_CONTROL + Keyboard.KEY_Y;
 
@@ -189,6 +200,10 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int ACTION_PREVIOUS_ALIEN_TYPE = Keyboard.KEY_PRIOR;
 
+	private static final int ACTION_SELECT_ALL = Locks.LOCK_CONTROL + Keyboard.KEY_A;
+
+	private static final int ACTION_UNSELECT = Keyboard.KEY_ESCAPE;
+
 	// things that somehow involve the mouse position:
 
 	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
@@ -197,15 +212,11 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int KEY_SEARCH_FORWARD = Keyboard.KEY_ADD;
 
-	private static final int KEY_SELECT_ALL = Locks.LOCK_CONTROL + MODE_ALIEN;
-
 	private static final int KEY_BLOCK_DELETE = Keyboard.KEY_DELETE;
 
 	private static final int KEY_BLOCK_FILL = Keyboard.KEY_F;
 
 	private static final int KEY_SET_MARKER = Keyboard.KEY_M;
-
-	private static final int ACTION_UNSELECT = Keyboard.KEY_ESCAPE;
 
 	private static final int KEY_MOD_BLOCK_CHASE = Keyboard.KEY_C;
 
@@ -368,7 +379,7 @@ public class Mapper implements ButtonPressServices {
 		mgc.drawText(a.x, a.y, 0xff00ff00, 0xff000000, text);
 	}
 
-	public Mapper(OuterWorld ow) {
+	public Mapper(OuterWorld ow, Coord screenStart) {
 		this.ow = ow;
 		ColorCycler colorCycler = new ColorCycler();
 		mgc = new MapperGC(ow.gc, ow.fonts.debugFont, colorCycler);
@@ -399,8 +410,13 @@ public class Mapper implements ButtonPressServices {
 		List<Alien> aliens = pl.getAliens(af);
 
 		// player start position
-		PlayerAlien pa = ListUtil.findOne(PlayerAlien.class, aliens);
-		if (pa != null) scr.snapTo(pa.c);
+		if (screenStart != null) {
+			scr.position(screenStart);
+		}
+		else {
+			PlayerAlien pa = ListUtil.findOne(PlayerAlien.class, aliens);
+			if (pa != null) scr.snapTo(pa.c);
+		}
 
 		// load the aliens
 		for (Alien alien : aliens) {
@@ -413,30 +429,32 @@ public class Mapper implements ButtonPressServices {
 		alienPalette = new AlienPalette(ais, mgc, mouse, animsPool);
 		sendCensusToAlienPalette();
 
-		{
-			BlockSet bs = loadBlockSet();
-			ArrayList<Selectable> content = new ArrayList<Selectable>();
-			for (int b = 0; b < bs.getBlockCount(); b++) {
-				final int fb = b;
-				int x = b % bs.widthInBlocks();
-				int y = b / bs.widthInBlocks();
-				final Box box = Box.fromTopLeftAndSize(x, y, 1, 1);
-				box.mult(Const.BLOCK_SIZE);
-				content.add(new Selectable() {
+		createBlockSelectionScreen();
+	}
 
-					@Override
-					public Box getBounds() {
-						return box;
-					}
+	public void createBlockSelectionScreen() {
+		BlockSet bs = loadBlockSet();
+		ArrayList<Selectable> content = new ArrayList<Selectable>();
+		for (int b = 0; b < bs.getBlockCount(); b++) {
+			final int fb = b;
+			int x = b % bs.widthInBlocks();
+			int y = b / bs.widthInBlocks();
+			final Box box = Box.fromTopLeftAndSize(x, y, 1, 1);
+			box.mult(Const.BLOCK_SIZE);
+			content.add(new Selectable() {
 
-					@Override
-					public void draw(MapperGC mgc, Coord where) {
-						loadBlockSet().draw(fb, where.x, where.y);
-					}
-				});
-			}
-			blockSelectionScreen = new SelectionScreen(mgc, mouse, content);
+				@Override
+				public Box getBounds() {
+					return box;
+				}
+
+				@Override
+				public void draw(MapperGC mgc, Coord where) {
+					loadBlockSet().draw(fb, where.x, where.y);
+				}
+			});
 		}
+		blockSelectionScreen = new SelectionScreen(mgc, mouse, content);
 	}
 
 	public void setGameMap(GameMap g) {
@@ -639,13 +657,13 @@ public class Mapper implements ButtonPressServices {
 		mgc.endDrawing();
 
 		if (pen == null) {
-			if (k == Locks.LOCK_MENU + Keyboard.KEY_T) {
+			if (k == Locks.LOCK_MENU + ACTION_SMALL_TEST) {
 				testLevel(false);
 			}
-			if (k == Locks.LOCK_MENU + Locks.LOCK_SHIFT + Keyboard.KEY_T) {
+			if (k == Locks.LOCK_MENU + ACTION_BIG_TEST) {
 				testLevel(true);
 			}
-			if (k == Locks.LOCK_MENU + MODE_SPECIFICATION) {
+			if (k == Locks.LOCK_MENU + ACTION_MODE_SPECIFICATION) {
 				int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
 				if (playerCount != 1) {
 					sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
@@ -658,18 +676,28 @@ public class Mapper implements ButtonPressServices {
 			}
 
 			if (Math2.maskTest(k, Locks.LOCK_MENU)) {
-				int pureKey = k & (~Locks.LOCK_ALL);
-				int sl = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
-				boolean sure = (k & sl) == sl;
+				int justKey = k & (~Locks.LOCK_ALL);
+				int sureLocks = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
+				boolean sure = (k & sureLocks) == sureLocks;
 
-				if (pureKey == Keyboard.KEY_Q && mustBeSure(sure, "Quit")) {
+				if (justKey == MACTION_QUIT && mustBeSure(sure, "Quit")) {
 					throw new OuterWorld.ExitException();
 				}
-				if (pureKey == KEY_CREATE_ALIEN && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
+				if (justKey == MACTION_REVERT && mustBeSure(sure, "Revert")) {
+					if (undoControler.changes() != 0) {
+						throw new ExitException();
+					}
+				}
+				if (justKey == MACTION_PLAY && mustBeSure(sure, "Play")) {
+					ow.resetStats();
+					ow.launchGame();
+					throw new ExitException();
+				}
+				if (justKey == MACTION_NEXT_LEVEL && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
 					ow.levelNumber++;
 					throw new ExitException();
 				}
-				if (pureKey == MODE_SIMULATION && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
+				if (justKey == MACTION_PREV_LEVEL && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
 					ow.levelNumber--;
 					throw new ExitException();
 				}
@@ -751,9 +779,8 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private boolean mustBeSure(boolean sure, String task) {
-		int changes = undoControler.changes();
-		if (sure || changes == 0) return true;
-		sayf("%s: Abandon %s unsaved changes? Add Ctrl+Shift if certain", task, changes);
+		if (sure || undoControler.changes() == 0) return true;
+		sayf("%s: Abandon %s unsaved changes? Add Ctrl+Shift if certain", task, undoControler.changes());
 		return false;
 	}
 
@@ -788,15 +815,13 @@ public class Mapper implements ButtonPressServices {
 		Box p = gameMap.boundsInPixels();
 		int x = p.left + Math2.fracMult(nc.x, p.width() - 1, 2);
 		int y = p.top + Math2.fracMult(nc.y, p.height() - 1, 2);
-		Coord c = new Coord(x, y);
-		return c;
+		return new Coord(x, y);
 	}
 
 	private void testLevel(boolean bigTest) {
 		saveMap(true);
 
-		ow.lives = 3;
-		ow.score = 0;
+		ow.resetStats();
 
 		World w = new World(ow);
 		if (!bigTest) {
@@ -809,6 +834,8 @@ public class Mapper implements ButtonPressServices {
 		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, getAliensReadOnly()));
 		w.testLevelFromMapper();
 		setScreenPosition(w.getScreenPosition());
+
+		System.out.println("DONE TESTING");
 	}
 
 	private Coord numCoord(int k) {
@@ -846,20 +873,13 @@ public class Mapper implements ButtonPressServices {
 		if (k == KEY_SET_MARKER) {
 			marker = marker == null ? mmp.worldBlocks() : null;
 		}
-		if (k == KEY_SELECT_ALL) {
+		if (k == ACTION_SELECT_ALL) {
 			marker = new Coord(0, 0);
 			moveMouse(convertNumCoord(new Coord(2, 2)));
 		}
 		if (k == KEY_BLOCK_FILL) {
 			if (marker == null) {
-				final int blk = gameMap.getBlock(mmp.worldBlocks());
-				BlockTest test = new BlockTest() {
-					@Override
-					public boolean test(int b) {
-						return b == blk;
-					}
-				};
-				floodFill(test);
+				floodFill(gameMap.getBlock(mmp.worldBlocks()));
 			}
 			else {
 				fillRect(getCompressedCurrentBlock());
@@ -899,14 +919,14 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void changeMode(int k) {
-		if (changeMode(k, MODE_ALIEN, Mode.ALIEN, "Alien Mode")) {
+		if (changeMode(k, ACTION_MODE_ALIEN, Mode.ALIEN, "Alien Mode")) {
 			generateButtons(selectedAlien);
 		}
-		changeMode(k, MODE_DRAWING, Mode.DRAW, "Drawing Mode");
-		if (changeMode(k, MODE_SPECIFICATION, Mode.SPECIFICATION, "Specification Mode")) {
+		changeMode(k, ACTION_MODE_DRAWING, Mode.DRAW, "Drawing Mode");
+		if (changeMode(k, ACTION_MODE_SPECIFICATION, Mode.SPECIFICATION, "Specification Mode")) {
 			generateButtons(levelInfo);
 		}
-		if (changeMode(k, MODE_SIMULATION, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
+		if (changeMode(k, ACTION_MODE_SIMULATION, Mode.PLAYERSIMULATION, "Player Simulation Mode")) {
 			simulationModeInit();
 		}
 	}
@@ -1147,7 +1167,7 @@ public class Mapper implements ButtonPressServices {
 		if (k == KEY_CREATE_ALIEN) createAlien();
 		flagSelectionKeys();
 
-		if (k == Locks.LOCK_MENU + Keyboard.KEY_E) enliven();
+		if (k == ACTION_ENLIVEN) enliven();
 
 		if (k == KEY_EYE_DROPPER && haveAlien()) {
 			alienPalette.find(getSelectedAlien().alienInfo);
@@ -1900,11 +1920,7 @@ public class Mapper implements ButtonPressServices {
 	// TODO: that wiggly bug with block shuffling
 	// it's coz of undrawn stop blocks! (draw them?)
 
-	interface BlockTest {
-		boolean test(int b);
-	}
-
-	private void floodFill(BlockTest fillable) {
+	private void floodFill(int fillable) {
 		startBlockEdit();
 
 		// naive implementation but at least it is breadth first
@@ -1915,7 +1931,7 @@ public class Mapper implements ButtonPressServices {
 		while (!positions.isEmpty()) {
 			HashSet<Coord> nextPositions = new HashSet<Coord>();
 			for (Coord s : positions) {
-				if (!blockEdit.isChangeAt(s) && fillable.test(gameMap.safeGetBlock(s))) {
+				if (!blockEdit.isChangeAt(s) && gameMap.safeGetBlock(s) == fillable) {
 					blockEdit.setBlock(s, getCompressedCurrentBlock());
 					nextPositions.add(s.copyAndAdd(1, 0));
 					nextPositions.add(s.copyAndAdd(-1, 0));

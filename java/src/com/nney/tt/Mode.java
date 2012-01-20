@@ -1,8 +1,6 @@
 package com.nney.tt;
 
 public abstract class Mode {
-	abstract public String successMessage();
-
 	public String failMessage() {
 		return null;
 	}
@@ -15,11 +13,13 @@ public abstract class Mode {
 		return false;
 	}
 
-	public boolean pauseInOutro() {
+	public boolean pauseGameDuringOutro() {
 		return false;
 	}
 
 	abstract public void onTimeOut();
 
 	abstract public String introText();
+
+	abstract public String successMessage();
 }

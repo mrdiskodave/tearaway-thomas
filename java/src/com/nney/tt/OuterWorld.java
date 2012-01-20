@@ -2,6 +2,7 @@ package com.nney.tt;
 
 import java.util.ArrayList;
 
+import com.nney.tt.geom.Coord;
 import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
@@ -9,6 +10,7 @@ import com.nney.tt.gfx.MultiDisposable;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.Pointer;
+import com.nney.tt.mapper.Mapper;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sounds.AudioContext;
 import com.nney.tt.sounds.AudioHub;
@@ -42,7 +44,7 @@ public class OuterWorld implements Runnable, Disposable {
 	// 3 "worm"
 	// 10 car ferry
 	// 14 toy fruit
-	public int levelNumber = 14;
+	public int levelNumber = 0;
 
 	public int score = 0;
 
@@ -89,6 +91,13 @@ public class OuterWorld implements Runnable, Disposable {
 
 	public Launcher bootstrap;
 
+	public boolean devMode;
+
+	public void resetStats() {
+		lives = 3;
+		score = 0;
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -112,4 +121,28 @@ public class OuterWorld implements Runnable, Disposable {
 	public boolean lastLevel() {
 		return levelNumber == PersistedLevel.levelCount() - 1;
 	}
+
+	public void launchMapper(Coord initialScreenStart) {
+		final Coord c2 = initialScreenStart.copy();
+		bootstrap = new Launcher() {
+			private Coord c = c2.copy();
+
+			@Override
+			public void launch(OuterWorld outerWorld) {
+				new Mapper(outerWorld, c).run();
+				c = null;
+			}
+		};
+	}
+
+	public void launchGame() {
+		bootstrap = new Launcher() {
+			@Override
+			public void launch(OuterWorld outerWorld) {
+				World w = new World(outerWorld);
+				w.playLevel();
+			}
+		};
+	}
+
 }

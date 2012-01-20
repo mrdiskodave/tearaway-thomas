@@ -3,6 +3,11 @@ package com.nney.tt.input;
 import java.util.ArrayList;
 
 public abstract class PartialHasKeysImpl implements HasKeys {
+	/**
+	 * The maximum number of events we queue. Big, but not infinite.
+	 */
+	private static final int MAX_EVENTS = 2048;
+
 	private ArrayList<KeyEvent> events = new ArrayList<KeyEvent>();
 
 	protected void queueEvent(int k) {
@@ -10,7 +15,9 @@ public abstract class PartialHasKeysImpl implements HasKeys {
 	}
 
 	protected void queueEvent(int k, char c) {
-		events.add(new KeyEvent(k, c));
+		if (events.size() < MAX_EVENTS) {
+			events.add(new KeyEvent(k, c));
+		}
 	}
 
 	@Override

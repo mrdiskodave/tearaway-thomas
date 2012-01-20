@@ -22,7 +22,7 @@ public class ParsedJoystickImpl implements ParsedJoystick {
 		return fire;
 	}
 
-	private int getStickDelta(int stick, int less, int more) {
+	static private int getStickDelta(int stick, int less, int more) {
 		int delta = 0;
 		if (Math2.maskTest(stick, less)) delta--;
 		if (Math2.maskTest(stick, more)) delta++;
