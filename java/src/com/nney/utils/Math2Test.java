@@ -51,4 +51,18 @@ public class Math2Test extends TestCase {
 		}
 	}
 
+	public void testRounding() {
+		assertEquals(0, Math2.roundUp(0, 10));
+		assertEquals(10, Math2.roundUp(1, 10));
+		assertEquals(10, Math2.roundUp(9, 10));
+		assertEquals(10, Math2.roundUp(10, 10));
+		assertEquals(20, Math2.roundUp(11, 10));
+
+		assertEquals(0, Math2.roundDown(0, 10));
+		assertEquals(0, Math2.roundDown(1, 10));
+		assertEquals(0, Math2.roundDown(9, 10));
+		assertEquals(10, Math2.roundDown(10, 10));
+		assertEquals(10, Math2.roundDown(11, 10));
+	}
+
 }

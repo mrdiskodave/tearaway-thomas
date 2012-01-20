@@ -231,6 +231,10 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int ACTION_GO_NW = Keyboard.KEY_NUMPAD7;
 
+	private static final int KEY_COPY = Locks.LOCK_CONTROL + Keyboard.KEY_C;
+
+	private static final int KEY_PASTE = Locks.LOCK_CONTROL + Keyboard.KEY_P;
+
 	// -- things that could become a mode:
 
 	private static final int KEY_PANNING = Keyboard.KEY_SPACE;
@@ -258,10 +262,11 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
-	private static final int SLOT_COUNT = 12;
+	private static final int SLOT_COUNT = 10;
 
-	private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
-	private final static int PASTE_BUFFER_END = PASTE_BUFFER_START + SLOT_COUNT - 1;
+	// private final static int PASTE_BUFFER_START = Keyboard.KEY_F1;
+	// private final static int PASTE_BUFFER_END = PASTE_BUFFER_START +
+	// SLOT_COUNT - 1;
 
 	// ---------------------------------------------------------------------------
 
@@ -313,6 +318,8 @@ public class Mapper implements ButtonPressServices {
 
 	private final SavedAlienSlot[] alienSlots = new SavedAlienSlot[SLOT_COUNT];
 
+	private int slotNumber;
+
 	private EditConsolidator blockEdit;
 
 	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
@@ -334,7 +341,12 @@ public class Mapper implements ButtonPressServices {
 
 	private Runnable pen;
 
-	private Coord marker;
+	/**
+	 * Pixel start of marking (while we are marking).
+	 */
+	private Coord marking;
+
+	private Box marked;
 
 	enum Mode {
 		DRAW, ALIEN, SPECIFICATION, PLAYERSIMULATION
@@ -669,7 +681,7 @@ public class Mapper implements ButtonPressServices {
 				if (!undoControler.redo()) say("Nothing more to redo");
 			}
 			if (k == ACTION_UNSELECT) {
-				marker = null;
+				marking = null;
 			}
 			drawLevel();
 		}
@@ -894,51 +906,49 @@ public class Mapper implements ButtonPressServices {
 		if (k == KEY_EYE_DROPPER) {
 			setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
 		}
-		if (k == KEY_SET_MARKER) {
-			marker = marker == null ? mmp.worldBlocks() : null;
-		}
 		if (k == ACTION_SELECT_ALL) {
-			marker = new Coord(0, 0);
+			marking = new Coord(0, 0);
 			moveMouse(convertNumCoord(new Coord(2, 2)));
 		}
 		if (k == KEY_BLOCK_FILL) {
-			if (marker == null) {
-				floodFill(gameMap.getBlock(mmp.worldBlocks()));
+			if (hasMarked()) {
+				fillRect(getCompressedCurrentBlock());
 			}
 			else {
-				fillRect(getCompressedCurrentBlock());
+				floodFill(gameMap.getBlock(mmp.worldBlocks()));
 			}
 		}
 
 		if (k == KEY_SEARCH_FORWARD) findBlock(1);
 		if (k == KEY_SEARCH_BACKWARD) findBlock(-1);
 		if (k == KEY_BLOCK_DELETE) fillRect(0);
-		if (k == ALIENS_LOCK + KEY_BLOCK_DELETE && marker != null) {
+		if (k == ALIENS_LOCK + KEY_BLOCK_DELETE && hasMarked()) {
 			removePredicatedAliensWithUndo(getRectPredicate());
 		}
-		if (k >= PASTE_BUFFER_START && k <= PASTE_BUFFER_END) {
-			int slotNumber = k - PASTE_BUFFER_START;
-			if (marker == null) {
-				pasteBlocks(slotNumber);
-			}
-			else {
-				copyBlocks(slotNumber);
-			}
+		if (k == KEY_PASTE) {
+			pasteBlocks();
 		}
-		if (k >= ALIENS_LOCK + PASTE_BUFFER_START && k <= ALIENS_LOCK + PASTE_BUFFER_END) {
-			int slotNumber = k - (ALIENS_LOCK + PASTE_BUFFER_START);
-			if (marker == null) {
-				pasteAliens(slotNumber);
-			}
-			else {
-				copyAliens(slotNumber);
-			}
+		if (k == KEY_COPY && hasMarked()) {
+			copyBlocks();
 		}
 
 		blockSelectionKeys(k);
+		blockMarking(k);
 
 		if (k == Locks.LOCK_ALL + KEY_MOD_BLOCK_CHASE) {
 			loadBlockSet().legacyCapture(gameMap);
+		}
+	}
+
+	public void blockMarking(int k) {
+		if (k == KEY_SET_MARKER) {
+			if (marking == null) {
+				marking = mmp.worldPixels();
+			}
+			else {
+				marked = getMarkedInPixels();
+				marking = null;
+			}
 		}
 	}
 
@@ -959,7 +969,7 @@ public class Mapper implements ButtonPressServices {
 		boolean answer = mode != m && k == r;
 		if (answer) {
 			mode = m;
-			marker = null;
+			marking = null;
 			paletteTimer = 0;
 			say(d);
 		}
@@ -967,7 +977,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public AlienPredicate getRectPredicate() {
-		final Box rectangle = getRectInPixels();
+		final Box rectangle = getMarkedInPixels();
 		return new AlienPredicate() {
 			@Override
 			public boolean is(Alien a) {
@@ -976,13 +986,34 @@ public class Mapper implements ButtonPressServices {
 		};
 	}
 
-	private Box getRectInBlocks() {
-		assert marker != null;
-		return Box.fromTwoCorners(mmp.worldBlocks(), marker);
+	public boolean hasMarked() {
+		return marking != null || marked != null;
 	}
 
-	public Box getRectInPixels() {
-		return getRectInBlocks().mult2(Const.BLOCK_SIZE);
+	private Box getMarkedInBlocks() {
+		Box r = getMarkedInDisplayPixels();
+		return Box.fromTopLeftAndSize(r.left / Const.BLOCK_SIZE, r.top / Const.BLOCK_SIZE,
+				r.width() / Const.BLOCK_SIZE, r.height() / Const.BLOCK_SIZE);
+	}
+
+	public Box getMarkedInDisplayPixels() {
+		Box r = getMarkedInPixels();
+		if (mode == Mode.DRAW) {
+			r = r.gridLock2(Const.BLOCK_SIZE);
+		}
+		return r;
+	}
+
+	public Box getMarkedInPixels() {
+		assert hasMarked();
+		if (marking != null) {
+			Coord b = mmp.worldPixels();
+			Box r = Box.fromTwoCorners(marking, b);
+			System.out.println(String.format("BLOCK: %s<-->%s == %s (%s x %s)", marking, b, r, r.width(), r.height()));
+			return r;
+		}
+		assert marked != null;
+		return marked.copy();
 	}
 
 	public void removePredicatedAliensWithUndo(final AlienPredicate ap) {
@@ -1022,7 +1053,6 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 		sayf("Block not found");
-
 	}
 
 	private void findType(int dir) {
@@ -1189,6 +1219,15 @@ public class Mapper implements ButtonPressServices {
 		if (k == KEY_SEARCH_FORWARD) findType(1);
 		if (k == KEY_SEARCH_BACKWARD) findType(-1);
 		if (k == KEY_CREATE_ALIEN) createAlien();
+		if (k == KEY_PASTE) {
+			pasteAliens();
+		}
+		if (k == KEY_COPY && hasMarked()) {
+			copyAliens();
+		}
+
+		blockMarking(k);
+
 		flagSelectionKeys();
 
 		if (k == ACTION_ENLIVEN) enliven();
@@ -1322,11 +1361,12 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void drawRect() {
-		if (marker != null) {
-			Box box = getRectInPixels();
-			box.shrink(1);
-			box.sub(getScreenPosition());
-			mgc.drawBox(box.left, box.top, box.width(), box.height(), mgc.process(0xff00ffff));
+		System.out.println(String.format("DR: %s %s", marking, marked));
+		if (hasMarked()) {
+			Box r = getMarkedInDisplayPixels();
+			r.sub(getScreenPosition());
+			// if (mode == Mode.DRAW) r.shrink(1);
+			mgc.drawBox(r.left, r.top, r.width(), r.height(), mgc.process(0xff00ffff));
 		}
 	}
 
@@ -1683,7 +1723,7 @@ public class Mapper implements ButtonPressServices {
 		undoControler.redoThenAdd(u);
 	}
 
-	public void pasteAliens(int slotNumber) {
+	public void pasteAliens() {
 		SavedAlienSlot slot = alienSlots[slotNumber];
 		if (slot != null) {
 			undoControler.mark();
@@ -1700,7 +1740,7 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	public void pasteBlocks(int slotNumber) {
+	public void pasteBlocks() {
 		SavedMapBlock slot = blockSlots[slotNumber];
 		if (slot != null) {
 			Coord c = mmp.worldBlocks();
@@ -1727,9 +1767,8 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	public void copyAliens(int slotNumber) {
-		Box rectangle = getRectInBlocks();
-		rectangle.mult(Const.BLOCK_SIZE);
+	public void copyAliens() {
+		Box rectangle = getMarkedInPixels();
 		List<Alien> captured = new ArrayList<Alien>();
 		for (Alien a : getAliensReadOnly()) {
 			if (rectangle.inside(a.getLocation())) {
@@ -1740,15 +1779,15 @@ public class Mapper implements ButtonPressServices {
 		sayf("Copied %s aliens to slot %s", captured.size(), slotNumber);
 	}
 
-	public void copyBlocks(int slotNumber) {
-		Box rectangle = getRectInBlocks();
+	public void copyBlocks() {
+		Box rectangle = getMarkedInBlocks();
 		SavedMapBlock captured = SavedMapBlock.fromMap(rectangle, gameMap);
 		blockSlots[slotNumber] = captured;
 		sayf("Copied %s blocks to slot %s", captured.size(), slotNumber);
 	}
 
 	private void fillRect(int block) {
-		Box rectangle = getRectInBlocks();
+		Box rectangle = getMarkedInBlocks();
 		SavedMapBlock s = SavedMapBlock.fromSolid(rectangle.width(), rectangle.height(), block);
 		MapEdit edit = MapEdit.create(gameMap, rectangle.topLeft(), s);
 		submitMapEdit(edit);

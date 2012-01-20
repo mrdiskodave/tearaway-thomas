@@ -18,6 +18,18 @@ public final class Math2 {
 		return (x + y - 1) / y;
 	}
 
+	public static int roundUp(int x, int m) {
+		int j = x % m;
+		if (j != 0) {
+			x += m - j;
+		}
+		return x;
+	}
+
+	public static int roundDown(int x, int m) {
+		return x - (x % m);
+	}
+
 	public static final int limit(int min, int max, int value) {
 		return Math.min(max, Math.max(min, value));
 	}

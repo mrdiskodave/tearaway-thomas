@@ -333,4 +333,11 @@ public class Box implements Copyable<Box>, Cloneable {
 		return c;
 	}
 
+	public Box gridLock2(int b) {
+		int nleft = Math2.roundDown(left, b);
+		int ntop = Math2.roundDown(top, b);
+		int nright = Math2.roundUp(right + 1, b) - 1;
+		int nbottom = Math2.roundUp(bottom + 1, b) - 1;
+		return new Box(nleft, ntop, nright, nbottom);
+	}
 }
