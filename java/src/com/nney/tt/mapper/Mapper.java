@@ -141,6 +141,7 @@ import com.nney.utils.SortKeyGenerator;
  * </pre>
  */
 public class Mapper implements ButtonPressServices {
+
 	// ---------------------------------------------------------------------------
 	// CONTROLS
 
@@ -206,31 +207,54 @@ public class Mapper implements ButtonPressServices {
 
 	// things that somehow involve the mouse position:
 
-	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
+	// -- things that set the screen position
 
 	private static final int KEY_SEARCH_BACKWARD = Keyboard.KEY_SUBTRACT;
 
 	private static final int KEY_SEARCH_FORWARD = Keyboard.KEY_ADD;
 
-	private static final int KEY_BLOCK_DELETE = Keyboard.KEY_DELETE;
+	private static final int ACTION_GO_SE = Keyboard.KEY_NUMPAD3;
 
-	private static final int KEY_BLOCK_FILL = Keyboard.KEY_F;
+	private static final int ACTION_GO_S = Keyboard.KEY_NUMPAD2;
 
-	private static final int KEY_SET_MARKER = Keyboard.KEY_M;
+	private static final int ACTION_GO_SW = Keyboard.KEY_NUMPAD1;
 
-	private static final int KEY_MOD_BLOCK_CHASE = Keyboard.KEY_C;
+	private static final int ACTION_GO_E = Keyboard.KEY_NUMPAD6;
+
+	private static final int ACTION_GO_C = Keyboard.KEY_NUMPAD5;
+
+	private static final int ACTION_GO_W = Keyboard.KEY_NUMPAD4;
+
+	private static final int ACTION_GO_NE = Keyboard.KEY_NUMPAD9;
+
+	private static final int ACTION_GO_N = Keyboard.KEY_NUMPAD8;
+
+	private static final int ACTION_GO_NW = Keyboard.KEY_NUMPAD7;
+
+	// -- things that could become a mode:
 
 	private static final int KEY_PANNING = Keyboard.KEY_SPACE;
 
 	private static final int KEY_EYE_DROPPER = Keyboard.KEY_I;
 
+	private static final int KEY_BLOCK_FILL = Keyboard.KEY_F; // 2!
+
+	private static final int KEY_BLOCK_DELETE = Keyboard.KEY_DELETE;
+
+	private static final int KEY_SET_MARKER = Keyboard.KEY_M;
+
 	private static final int KEY_CREATE_ALIEN = Keyboard.KEY_N;
 
 	private static final int KEY_ALIEN_DUPLICATE = Keyboard.KEY_C;
 
+	private static final int KEY_SELECT_ALIEN = Pointer.KEY_MIDDLE;
+
 	private static final int KEY_WHERE = Keyboard.KEY_W;
 
-	private static final int KEY_SELECT_ALIEN = Pointer.KEY_MIDDLE;
+	// -- things that must forever remain a keypress:
+	private static final int KEY_MOD_BLOCK_CHASE = Keyboard.KEY_C;
+
+	private static final int KEY_CHANGE_TYPE = Pointer.KEY_RIGHT;
 
 	private static final int ALIENS_LOCK = Locks.LOCK_CONTROL;
 
@@ -427,7 +451,6 @@ public class Mapper implements ButtonPressServices {
 		// build the AlienPalette
 		List<AlienInfo> ais = alienInfoMap.getExternal();
 		alienPalette = new AlienPalette(ais, mgc, mouse, animsPool);
-		sendCensusToAlienPalette();
 
 		createBlockSelectionScreen();
 	}
@@ -839,15 +862,15 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private Coord numCoord(int k) {
-		if (k == Keyboard.KEY_NUMPAD7) return new Coord(0, 0);
-		if (k == Keyboard.KEY_NUMPAD8) return new Coord(1, 0);
-		if (k == Keyboard.KEY_NUMPAD9) return new Coord(2, 0);
-		if (k == Keyboard.KEY_NUMPAD4) return new Coord(0, 1);
-		if (k == Keyboard.KEY_NUMPAD5) return new Coord(1, 1);
-		if (k == Keyboard.KEY_NUMPAD6) return new Coord(2, 1);
-		if (k == Keyboard.KEY_NUMPAD1) return new Coord(0, 2);
-		if (k == Keyboard.KEY_NUMPAD2) return new Coord(1, 2);
-		if (k == Keyboard.KEY_NUMPAD3) return new Coord(2, 2);
+		if (k == ACTION_GO_NW) return new Coord(0, 0);
+		if (k == ACTION_GO_N) return new Coord(1, 0);
+		if (k == ACTION_GO_NE) return new Coord(2, 0);
+		if (k == ACTION_GO_W) return new Coord(0, 1);
+		if (k == ACTION_GO_C) return new Coord(1, 1);
+		if (k == ACTION_GO_E) return new Coord(2, 1);
+		if (k == ACTION_GO_SW) return new Coord(0, 2);
+		if (k == ACTION_GO_S) return new Coord(1, 2);
+		if (k == ACTION_GO_SE) return new Coord(2, 2);
 		return null;
 	}
 
@@ -1316,18 +1339,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void showAlienPalette() {
-		if (paletteTimer == 0) {
-			sendCensusToAlienPalette();
-		}
 		paletteTimer = 100;
-	}
-
-	public void sendCensusToAlienPalette() {
-		// CountingMap<AlienInfo> census = new CountingMap<AlienInfo>();
-		// for (Alien a : getAliensReadOnly()) {
-		// census.inc(a.alienInfo);
-		// }
-		// alienPalette.sendCenus(census);
 	}
 
 	private Alien makeAlien(AlienInfo ai) {
