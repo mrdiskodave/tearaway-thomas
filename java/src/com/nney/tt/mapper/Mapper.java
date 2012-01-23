@@ -402,8 +402,6 @@ public class Mapper implements ButtonPressServices {
 
 	private SelectionScreen blockSelectionScreen;
 
-	private boolean penFullScreen;
-
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
@@ -582,69 +580,6 @@ public class Mapper implements ButtonPressServices {
 			return;
 		}
 
-		if (mode == Mode.DRAW && k() == KEY_CHANGE_TYPE) {
-			blockSelectionScreen.begin();
-			startPen(new Pen() {
-				@Override
-				boolean fullScreen() {
-					return true;
-				}
-
-				@Override
-				void stroke() {
-					flagSelectionKeys();
-					blockSelectionScreen.draw();
-				}
-
-				@Override
-				void up() {
-					int b = blockSelectionScreen.getHover();
-					if (b >= 0) {
-						currentBlock = b;
-					}
-					blockSelectionScreen.end();
-				}
-			});
-			doPen();
-			return;
-		}
-
-		if (mode == Mode.ALIEN && k() == KEY_CHANGE_TYPE) {
-			alienPalette.begin();
-			startPen(new Pen() {
-				@Override
-				boolean fullScreen() {
-					return true;
-				}
-
-				@Override
-				void stroke() {
-					char c = keypress.keyChar;
-					alienPalette.jumpTo(c);
-
-					int k = keypress.keyCode;
-					if (k == Pointer.KEY_UP || k == ACTION_PREVIOUS_ALIEN_TYPE) {
-						alienPalette.moveBy(-1);
-					}
-					if (k == Pointer.KEY_DOWN || k == ACTION_NEXT_ALIEN_TYPE) {
-						alienPalette.moveBy(1);
-					}
-					alienPalette.draw();
-				}
-
-				@Override
-				void up() {
-					// int b = blockSelectionScreen.getHover();
-					// if (b >= 0) {
-					// currentBlock = b;
-					// }
-					alienPalette.end();
-				}
-			});
-			doPen();
-			return;
-		}
-
 		// dispatch the current mode
 		if (mode == Mode.ALIEN) alienMode();
 		if (mode == Mode.DRAW) drawMode();
@@ -730,15 +665,8 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void doPen() {
-		if (penFullScreen) {
-			mgc.beginDrawing();
-			pen.run();
-			mgc.endDrawing();
-		}
-		else {
-			pen.run();
-			draw();
-		}
+		pen.run();
+		draw();
 	}
 
 	public void controlsAfterEnd() {
@@ -948,6 +876,21 @@ public class Mapper implements ButtonPressServices {
 
 	private void drawMode() {
 		int k = k();
+
+		if (k == KEY_CHANGE_TYPE) {
+			blockSelectionScreen.begin();
+			while (keyboard.isDown(k)) {
+				mgc.beginDrawing();
+				flagSelectionKeys();
+				blockSelectionScreen.draw();
+				mgc.endDrawing();
+			}
+			int b = blockSelectionScreen.getHover();
+			if (b >= 0) {
+				currentBlock = b;
+			}
+			blockSelectionScreen.end();
+		}
 
 		if (keyboard.isDown(KEY_MOD_BLOCK_CHASE)) {
 			Coord c = mmp.worldBlocksDelta();
@@ -1221,6 +1164,26 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void alienMode() {
+		if (k() == KEY_CHANGE_TYPE) {
+			alienPalette.begin();
+			while (keyboard.isDown(KEY_CHANGE_TYPE)) {
+				mgc.beginDrawing();
+				char c = keypress.keyChar;
+				alienPalette.jumpTo(c);
+
+				int k = keypress.keyCode;
+				if (k == Pointer.KEY_UP || k == ACTION_PREVIOUS_ALIEN_TYPE) {
+					alienPalette.moveBy(-1);
+				}
+				if (k == Pointer.KEY_DOWN || k == ACTION_NEXT_ALIEN_TYPE) {
+					alienPalette.moveBy(1);
+				}
+				alienPalette.draw();
+				mgc.endDrawing();
+			}
+			alienPalette.end();
+		}
+
 		checkPropMouseOver();
 
 		if (k() == KEY_SELECT_ALIEN) {
@@ -1402,7 +1365,6 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void startPen(final int k, final Pen p) {
-		penFullScreen = p.fullScreen();
 		pen = new Runnable() {
 			@Override
 			public void run() {

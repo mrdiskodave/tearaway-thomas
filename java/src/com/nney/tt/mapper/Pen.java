@@ -6,8 +6,4 @@ public class Pen {
 
 	void up() {
 	}
-
-	boolean fullScreen() {
-		return false;
-	}
 }
