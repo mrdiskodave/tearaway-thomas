@@ -33,6 +33,7 @@ import com.nney.tt.input.LocksKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
+import com.nney.tt.mapper.Mapper.ExitException;
 import com.nney.tt.mapper.StringEditor.State;
 import com.nney.tt.props.Bat;
 import com.nney.tt.props.Button;
@@ -203,7 +204,7 @@ public class Mapper implements ButtonPressServices {
 
 	private static final int ACTION_SELECT_ALL = Locks.LOCK_CONTROL + Keyboard.KEY_A;
 
-	private static final int ACTION_UNSELECT = Keyboard.KEY_ESCAPE;
+	private static final int ACTION_UNSELECT = Locks.LOCK_CONTROL + Keyboard.KEY_D;
 
 	// things that somehow involve the mouse position:
 
@@ -399,9 +400,9 @@ public class Mapper implements ButtonPressServices {
 
 	private KeyEvent keypress;
 
-	private boolean penFullScreen;
-
 	private SelectionScreen blockSelectionScreen;
+
+	private boolean penFullScreen;
 
 	void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
 		Coord screen = scr.position();
@@ -545,65 +546,45 @@ public class Mapper implements ButtonPressServices {
 		mgc.drawBox(box.x, box.y, Const.BLOCK_SIZE, Const.BLOCK_SIZE, mgc.process(COL_CURRENT_BLOCK));
 	}
 
+	private int k() {
+		return keypress.keyCode;
+	}
+
 	public void drawFrame() {
-		mgc.beginDrawing();
-
-		// at();
-		// System.exit(1);
-
-		readMouse();
-
-		topDownStatusLayer = new TopDownStatusLayer(mgc);
-		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
-
 		if (editManager != null) {
+			init();
 			if (editManagerStartObjectEdit.set(false)) {
 				startObjectEdit();
 			}
-			drawLevel();
-			drawOverlays();
-			KeyEvent e = keyboard.nextEvent();
-			if (e != null) {
-				editManager.keyboardInput(e);
-				if (e.keyCode == Keyboard.KEY_RETURN) {
+			if (k() != 0) {
+				editManager.keyboardInput(keypress);
+				if (k() == Keyboard.KEY_RETURN) {
 					editManager.done();
 					endObjectEdit();
 					editManager = null;
 				}
 			}
-			mgc.endDrawing();
+			draw();
 			return;
 		}
 
-		boolean showPalettes = true;
-
-		KeyEvent e = keyboard.nextEvent();
-		keypress = e == null ? new KeyEvent(0, '\0') : e;
-		int k = keypress.keyCode;
-
-		if (mode == Mode.DRAW && keyboard.isDown(KEY_MOD_BLOCK_CHASE)) {
-			Coord c = mmp.worldBlocksDelta();
-			changeCurrentBlock(c.x, c.y);
-		}
-
+		init();
 		if (pen != null) {
-			pen.run();
-			if (penFullScreen) {
-				showPalettes = false;
-			}
-			else {
-				drawLevel();
-			}
+			doPen();
+			return;
 		}
-		else if (keyboard.isDown(KEY_PANNING)) {
+
+		if (keyboard.isDown(KEY_PANNING)) {
 			if (keyboard.isDown(Pointer.KEY_LEFT)) {
 				scroll(mmp.pixelsDelta());
 			}
-			drawLevel();
+			draw();
+			return;
 		}
-		else if (mode == Mode.DRAW && k == KEY_CHANGE_TYPE) {
+
+		if (mode == Mode.DRAW && k() == KEY_CHANGE_TYPE) {
 			blockSelectionScreen.begin();
-			startPen(k, new Pen() {
+			startPen(new Pen() {
 				@Override
 				boolean fullScreen() {
 					return true;
@@ -624,10 +605,13 @@ public class Mapper implements ButtonPressServices {
 					blockSelectionScreen.end();
 				}
 			});
+			doPen();
+			return;
 		}
-		else if (mode == Mode.ALIEN && k == KEY_CHANGE_TYPE) {
+
+		if (mode == Mode.ALIEN && k() == KEY_CHANGE_TYPE) {
 			alienPalette.begin();
-			startPen(k, new Pen() {
+			startPen(new Pen() {
 				@Override
 				boolean fullScreen() {
 					return true;
@@ -657,89 +641,164 @@ public class Mapper implements ButtonPressServices {
 					alienPalette.end();
 				}
 			});
+			doPen();
+			return;
+		}
+
+		// dispatch the current mode
+		if (mode == Mode.ALIEN) alienMode();
+		if (mode == Mode.DRAW) drawMode();
+		if (mode == Mode.SPECIFICATION) specificationMode();
+		if (mode == Mode.PLAYERSIMULATION) simulationMode();
+	}
+
+	public void draw() {
+		mgc.beginDrawing();
+		drawLevel();
+		drawOverlays();
+		mgc.endDrawing();
+	}
+
+	public void globalActions() {
+		changeMode();
+
+		int k = k();
+
+		Coord nc = numCoord(k);
+		if (nc != null) {
+			moveMouse(convertNumCoord(nc));
+			sayf("Moved to " + nc);
+		}
+		if (k == KEY_WHERE) {
+			where(true);
+		}
+
+		if (k == ACTION_UNDO) {
+			if (!undoControler.undo()) say("Nothing more to undo");
+		}
+		if (k == ACTION_REDO) {
+			if (!undoControler.redo()) say("Nothing more to redo");
+		}
+
+		if (k == Locks.LOCK_MENU + ACTION_SMALL_TEST) {
+			testLevel(false);
+		}
+		if (k == Locks.LOCK_MENU + ACTION_BIG_TEST) {
+			testLevel(true);
+		}
+		if (k == Locks.LOCK_MENU + ACTION_MODE_SPECIFICATION) {
+			int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
+			if (playerCount != 1) {
+				sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
+			}
+			else {
+				saveMap(false);
+				sayf("Saved: %s", levelInfo.filename);
+				undoControler.saved();
+			}
+		}
+
+		if (Math2.maskTest(k, Locks.LOCK_MENU)) {
+			int justKey = k & (~Locks.LOCK_ALL);
+			int sureLocks = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
+			boolean sure = (k & sureLocks) == sureLocks;
+
+			if (justKey == MACTION_QUIT && mustBeSure(sure, "Quit")) {
+				throw new OuterWorld.ExitException();
+			}
+			if (justKey == MACTION_REVERT && mustBeSure(sure, "Revert")) {
+				if (undoControler.changes() != 0) {
+					throw new ExitException();
+				}
+			}
+			if (justKey == MACTION_PLAY && mustBeSure(sure, "Play")) {
+				ow.resetStats();
+				ow.launchGame();
+				throw new ExitException();
+			}
+			if (justKey == MACTION_NEXT_LEVEL && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
+				ow.levelNumber++;
+				throw new ExitException();
+			}
+			if (justKey == MACTION_PREV_LEVEL && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
+				ow.levelNumber--;
+				throw new ExitException();
+			}
+		}
+
+		growAndShrinkMap(k);
+	}
+
+	public void doPen() {
+		if (penFullScreen) {
+			mgc.beginDrawing();
+			pen.run();
+			mgc.endDrawing();
 		}
 		else {
-			if (mode == Mode.ALIEN) alienMode(k);
-			if (mode == Mode.DRAW) drawMode(k);
-			if (mode == Mode.SPECIFICATION) specificationMode(k);
-			if (mode == Mode.PLAYERSIMULATION) simulationMode(k);
-			changeMode(k);
+			pen.run();
+			draw();
+		}
+	}
 
-			Coord nc = numCoord(k);
-			if (nc != null) {
-				moveMouse(convertNumCoord(nc));
-				sayf("Moved to " + nc);
+	public void controlsAfterEnd() {
+		int k = k();
+		if (k == Locks.LOCK_MENU + ACTION_SMALL_TEST) {
+			testLevel(false);
+		}
+		if (k == Locks.LOCK_MENU + ACTION_BIG_TEST) {
+			testLevel(true);
+		}
+		if (k == Locks.LOCK_MENU + ACTION_MODE_SPECIFICATION) {
+			int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
+			if (playerCount != 1) {
+				sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
 			}
-			if (k == KEY_WHERE) {
-				where(true);
+			else {
+				saveMap(false);
+				sayf("Saved: %s", levelInfo.filename);
+				undoControler.saved();
 			}
-
-			if (k == ACTION_UNDO) {
-				if (!undoControler.undo()) say("Nothing more to undo");
-			}
-			if (k == ACTION_REDO) {
-				if (!undoControler.redo()) say("Nothing more to redo");
-			}
-			if (k == ACTION_UNSELECT) {
-				marking = null;
-			}
-			drawLevel();
 		}
 
-		if (showPalettes) {
-			drawOverlays();
-		}
-		mgc.endDrawing();
+		if (Math2.maskTest(k, Locks.LOCK_MENU)) {
+			int justKey = k & (~Locks.LOCK_ALL);
+			int sureLocks = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
+			boolean sure = (k & sureLocks) == sureLocks;
 
-		if (pen == null) {
-			if (k == Locks.LOCK_MENU + ACTION_SMALL_TEST) {
-				testLevel(false);
+			if (justKey == MACTION_QUIT && mustBeSure(sure, "Quit")) {
+				throw new OuterWorld.ExitException();
 			}
-			if (k == Locks.LOCK_MENU + ACTION_BIG_TEST) {
-				testLevel(true);
-			}
-			if (k == Locks.LOCK_MENU + ACTION_MODE_SPECIFICATION) {
-				int playerCount = ListUtil.count(PlayerAlien.class, getAliensReadOnly());
-				if (playerCount != 1) {
-					sayf("Can't save an invalid map: needs one player (not %s)", playerCount);
-				}
-				else {
-					saveMap(false);
-					sayf("Saved: %s", levelInfo.filename);
-					undoControler.saved();
-				}
-			}
-
-			if (Math2.maskTest(k, Locks.LOCK_MENU)) {
-				int justKey = k & (~Locks.LOCK_ALL);
-				int sureLocks = Locks.LOCK_CONTROL | Locks.LOCK_SHIFT;
-				boolean sure = (k & sureLocks) == sureLocks;
-
-				if (justKey == MACTION_QUIT && mustBeSure(sure, "Quit")) {
-					throw new OuterWorld.ExitException();
-				}
-				if (justKey == MACTION_REVERT && mustBeSure(sure, "Revert")) {
-					if (undoControler.changes() != 0) {
-						throw new ExitException();
-					}
-				}
-				if (justKey == MACTION_PLAY && mustBeSure(sure, "Play")) {
-					ow.resetStats();
-					ow.launchGame();
-					throw new ExitException();
-				}
-				if (justKey == MACTION_NEXT_LEVEL && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
-					ow.levelNumber++;
-					throw new ExitException();
-				}
-				if (justKey == MACTION_PREV_LEVEL && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
-					ow.levelNumber--;
+			if (justKey == MACTION_REVERT && mustBeSure(sure, "Revert")) {
+				if (undoControler.changes() != 0) {
 					throw new ExitException();
 				}
 			}
-
-			growAndShrinkMap(k);
+			if (justKey == MACTION_PLAY && mustBeSure(sure, "Play")) {
+				ow.resetStats();
+				ow.launchGame();
+				throw new ExitException();
+			}
+			if (justKey == MACTION_NEXT_LEVEL && !ow.lastLevel() && mustBeSure(sure, "Next level")) {
+				ow.levelNumber++;
+				throw new ExitException();
+			}
+			if (justKey == MACTION_PREV_LEVEL && !ow.firstLevel() && mustBeSure(sure, "Previous level")) {
+				ow.levelNumber--;
+				throw new ExitException();
+			}
 		}
+
+		growAndShrinkMap(k);
+	}
+
+	public void init() {
+		KeyEvent e = keyboard.nextEvent();
+		keypress = e == null ? new KeyEvent(0, '\0') : e;
+
+		readMouse();
+		topDownStatusLayer = new TopDownStatusLayer(mgc);
+		bottomUpStatusLayer = new BottomUpStatusLayer(mgc);
 	}
 
 	public void growAndShrinkMap(int k) {
@@ -887,14 +946,20 @@ public class Mapper implements ButtonPressServices {
 		return null;
 	}
 
-	private void drawMode(int k) {
+	private void drawMode() {
+		int k = k();
+
+		if (keyboard.isDown(KEY_MOD_BLOCK_CHASE)) {
+			Coord c = mmp.worldBlocksDelta();
+			changeCurrentBlock(c.x, c.y);
+		}
+
 		if (k == Pointer.KEY_LEFT) {
 			startBlockEdit();
-			startPen(k, new Pen() {
+			startPen(new Pen() {
 				@Override
 				public void stroke() {
 					blockEdit.setBlock(mmp.worldBlocks(), getCompressedCurrentBlock());
-					drawBlockCursor();
 				}
 
 				@Override
@@ -907,8 +972,7 @@ public class Mapper implements ButtonPressServices {
 			setCurrentBlock(gameMap.getBlock(mmp.worldBlocks()));
 		}
 		if (k == ACTION_SELECT_ALL) {
-			marking = new Coord(0, 0);
-			moveMouse(convertNumCoord(new Coord(2, 2)));
+			marked = gameMap.boundsInPixels().copy();
 		}
 		if (k == KEY_BLOCK_FILL) {
 			if (hasMarked()) {
@@ -933,14 +997,18 @@ public class Mapper implements ButtonPressServices {
 		}
 
 		blockSelectionKeys(k);
-		blockMarking(k);
+		blockMarking();
 
 		if (k == Locks.LOCK_ALL + KEY_MOD_BLOCK_CHASE) {
 			loadBlockSet().legacyCapture(gameMap);
 		}
+
+		globalActions();
+		draw();
 	}
 
-	public void blockMarking(int k) {
+	public void blockMarking() {
+		int k = k();
 		if (k == KEY_SET_MARKER) {
 			if (marking == null) {
 				marking = mmp.worldPixels();
@@ -950,9 +1018,14 @@ public class Mapper implements ButtonPressServices {
 				marking = null;
 			}
 		}
+		if (k == ACTION_UNSELECT) {
+			marking = null;
+			marked = null;
+		}
 	}
 
-	public void changeMode(int k) {
+	public void changeMode() {
+		int k = k();
 		if (changeMode(k, ACTION_MODE_ALIEN, Mode.ALIEN, "Alien Mode")) {
 			generateButtons(selectedAlien);
 		}
@@ -1093,13 +1166,16 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	private void specificationMode(int k) {
+	private void specificationMode() {
 		ButtonRecord button = findButton();
 		hoverStatus.move(button);
 		checkPropMouseOver();
-		if (k == Pointer.KEY_LEFT && button != null) {
-			handleButtonPress(k, button);
+		if (k() == Pointer.KEY_LEFT && button != null) {
+			handleButtonPress(button);
 		}
+
+		globalActions();
+		draw();
 	}
 
 	public void simulationModeInit() {
@@ -1112,7 +1188,7 @@ public class Mapper implements ButtonPressServices {
 		});
 	}
 
-	private void simulationMode(int k) {
+	private void simulationMode() {
 		flagSelectionKeys();
 
 		if (keyboard.isDown(Pointer.KEY_LEFT)) {
@@ -1125,12 +1201,15 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 
-		if (k == Pointer.KEY_RIGHT) {
+		if (k() == Pointer.KEY_RIGHT) {
 			simulationModeInit();
 		}
 
-		Coord diff = getNudge(k);
+		Coord diff = getNudge();
 		if (diff != null) simDiff(diff);
+
+		globalActions();
+		draw();
 	}
 
 	public void simDiff(Coord diff) {
@@ -1141,11 +1220,11 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	private void alienMode(int k) {
+	private void alienMode() {
 		checkPropMouseOver();
 
-		if (k == KEY_SELECT_ALIEN) {
-			startPen(k, new Pen() {
+		if (k() == KEY_SELECT_ALIEN) {
+			startPen(new Pen() {
 				@Override
 				void stroke() {
 					selectNearestAlien(mmp.worldPixels());
@@ -1154,14 +1233,14 @@ public class Mapper implements ButtonPressServices {
 		}
 
 		final BatRecord bat = batRecords.find(mmp.worldPixels());
-		int kns = k & (~Locks.LOCK_SHIFT);
+		int kns = k() & (~Locks.LOCK_SHIFT);
 
 		ButtonRecord button = findButton();
 		hoverStatus.move(button);
 
 		if (kns == Pointer.KEY_LEFT) {
-			if (button != null && k == kns) {
-				handleButtonPress(k, button);
+			if (button != null && k() == kns) {
+				handleButtonPress(button);
 			}
 			else if (bat != null) {
 				final Coord firstMousePos = mmp.worldPixels();
@@ -1203,7 +1282,7 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 		else {
-			Coord nudge = getNudge(k);
+			Coord nudge = getNudge();
 			if (nudge != null && bat != null) {
 				startObjectEdit();
 				Coord firstBatPos = bat.box().centre();
@@ -1213,34 +1292,37 @@ public class Mapper implements ButtonPressServices {
 			}
 		}
 		if (haveAlien()) {
-			if (k == KEY_BLOCK_DELETE) deleteSelectedAlien();
-			if (k == KEY_ALIEN_DUPLICATE) copySelectedAlien();
+			if (k() == KEY_BLOCK_DELETE) deleteSelectedAlien();
+			if (k() == KEY_ALIEN_DUPLICATE) copySelectedAlien();
 		}
-		if (k == KEY_SEARCH_FORWARD) findType(1);
-		if (k == KEY_SEARCH_BACKWARD) findType(-1);
-		if (k == KEY_CREATE_ALIEN) createAlien();
-		if (k == KEY_PASTE) {
+		if (k() == KEY_SEARCH_FORWARD) findType(1);
+		if (k() == KEY_SEARCH_BACKWARD) findType(-1);
+		if (k() == KEY_CREATE_ALIEN) createAlien();
+		if (k() == KEY_PASTE) {
 			pasteAliens();
 		}
-		if (k == KEY_COPY && hasMarked()) {
+		if (k() == KEY_COPY && hasMarked()) {
 			copyAliens();
 		}
 
-		blockMarking(k);
+		blockMarking();
 
 		flagSelectionKeys();
 
-		if (k == ACTION_ENLIVEN) enliven();
+		if (k() == ACTION_ENLIVEN) enliven();
 
-		if (k == KEY_EYE_DROPPER && haveAlien()) {
+		if (k() == KEY_EYE_DROPPER && haveAlien()) {
 			alienPalette.find(getSelectedAlien().alienInfo);
 		}
-		if (k == ACTION_PREVIOUS_ALIEN_TYPE) {
+		if (k() == ACTION_PREVIOUS_ALIEN_TYPE) {
 			changeAlien(-1);
 		}
-		if (k == ACTION_NEXT_ALIEN_TYPE) {
+		if (k() == ACTION_NEXT_ALIEN_TYPE) {
 			changeAlien(1);
 		}
+
+		globalActions();
+		draw();
 	}
 
 	private void changeAlien(int i) {
@@ -1260,9 +1342,9 @@ public class Mapper implements ButtonPressServices {
 		}
 	}
 
-	public void handleButtonPress(int k, ButtonRecord button) {
+	public void handleButtonPress(ButtonRecord button) {
 		hoverStatus.down(button);
-		startPen(k, new Pen() {
+		startPen(new Pen() {
 			@Override
 			void stroke() {
 				hoverStatus.move(findButton());
@@ -1315,7 +1397,11 @@ public class Mapper implements ButtonPressServices {
 		return buttonRecords.find(mmp.screenPixels());
 	}
 
-	private void startPen(final int k, final Pen p) {
+	private void startPen(final Pen p) {
+		startPen(k(), p);
+	}
+
+	public void startPen(final int k, final Pen p) {
 		penFullScreen = p.fullScreen();
 		pen = new Runnable() {
 			@Override
@@ -1617,8 +1703,8 @@ public class Mapper implements ButtonPressServices {
 		return alienTracker;
 	}
 
-	private Coord getNudge(int k) {
-		switch (k) {
+	private Coord getNudge() {
+		switch (k()) {
 		case Keyboard.KEY_UP:
 			return new Coord(0, -1);
 		case Keyboard.KEY_DOWN:

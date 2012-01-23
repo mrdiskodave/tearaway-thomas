@@ -27,6 +27,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 
 	@Override
 	public void fillRectangle(int x, int y, int w, int h, int col) {
+		assert inside;
 		GlTools.configureFor2dRect(col);
 		GL11.glRecti(x, y, x + w, y + h);
 		GlTools.configureFor2dBobs();
@@ -78,6 +79,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 
 	@Override
 	public void aperture(int radius, int x, int y, int c) {
+		assert inside;
 		GlTools.configureFor2dRect(c);
 
 		int w = screenWidth();
