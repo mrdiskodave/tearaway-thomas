@@ -373,7 +373,7 @@
 "gwall"		GFXgwall
 0,0,-1
 
-"glift"		GFXtlift
+"tlift"		GFXtlift
 0,0,-1
 
 "tcar0"		GFXcar0
