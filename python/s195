@@ -1,3 +1,4 @@
+* TEARAWAY THOMAS! *   (C)Copyright 1992   David Hanney + Nick Frampton
 
 
 drawingmap=-1
@@ -9908,7 +9909,8 @@ jumping_off
 	st	touch_floor
 	rts
 
-llground	subq.w	#1,d3		BUGSPOT: was this supposed to be an add to reverse the sub above?
+llground	* we're still in the ground unfortunately
+	subq.w	#1,d3		BUGSPOT: was this supposed to be an add to reverse the sub above? (yes it was)
 	sf	touch_floor
 	rts
 
