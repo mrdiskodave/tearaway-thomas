@@ -1,0 +1,451 @@
+
+object_info
+	dc.l	lift_alien,-just_draw_Vlift	0
+	dc.b	0,0
+	dc.w	60,60,330,330
+
+	dc.l	lift_alien2,-just_draw_Hlift	1
+	dc.b	0,0
+	dc.w	330,330,60,60
+
+	dc.l	gem_alien,-GA4mapper	2
+	dc.b	0,0
+	dc.w	13,-1,3,13
+
+	dc.l	gem_alien,-GA4mapper	3
+	dc.b	0,0
+	dc.w	13,-1,3,13
+
+	dc.l	exit_alien,GFXexit	4
+	dc.b	0,0
+	dc.w	32,32,32,32
+
+	dc.l	shield_alien,GFXshield	5
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	bgem_alien,GFXbgem	6
+bgem_mod	dc.b	6,15
+	dc.w	16,16,4,35
+
+	dc.l	clock_alien,GFXclock	7
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	arrow_alienV,GFXup	8 
+	dc.b	0,0
+	dc.w	50,50,50,50
+
+	dc.l	arrow_alienV,GFXdown	9 
+	dc.b	0,0
+	dc.w	50,50,50,50
+
+	dc.l	arrow_alienH,GFXleft	10
+	dc.b	0,0
+	dc.w	50,50,50,50
+
+	dc.l	arrow_alienH,GFXright	11
+	dc.b	0,0
+	dc.w	50,50,50,50
+
+	dc.l	tele_alien,GFXtele	12
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	stop_alien,GFXstop	13
+	dc.b	0,0
+	dc.w	16,16,128,128
+
+	dc.l	wing_alien,GFXwings	14
+	dc.b	0,0
+	dc.w	13,13,9,9
+
+	dc.l	spl1_alien,GFXspl1	15
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	spl2_alien,GFXspl2	16
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	spl3_alien,GFXspl3	17
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	add_bobS0,GFXcld0	18
+	dc.b	0,0
+	dc.w	40,35,0,25
+
+	dc.l	add_bobS0,GFXcld1	19
+	dc.b	0,0
+	dc.w	20,30,0,20
+
+	dc.l	add_bobS0,GFXcld2	20
+	dc.b	0,0
+	dc.w	16,20,0,13
+
+	dc.l	score_alien,GFXscor	21
+	dc.b	0,0
+	dc.w	16,1,20,20
+
+	dc.l	life_alien,GFXlife	22
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	supr_alien,GFXsupr	23
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	magc_alien,GFXmagc	24
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	tank_alien,GFXtank	25
+	dc.b	0,40
+	dc.w	250,250,60,100
+
+	dc.l	jitb_alien,GFXjitb	26
+	dc.b	0,0
+	dc.w	64,64,100,100
+
+	dc.l	lrry_alien,GFXlrry	27
+	dc.b	0,39
+	dc.w	250,250,60,100
+
+	dc.l	jmbo_alien,GFXjmbo	28
+	dc.b	0,20
+	dc.w	250,250,70,70
+
+	dc.l	car0_alien,GFXcar0	29
+	dc.b	0,30
+	dc.w	250,250,60,100
+
+	dc.l	patn_alien,GFXpatn	30
+	dc.b	0,0
+	dc.w	10,10,10,10
+
+	dc.l	gwall_alien,GFXgwall	31
+	dc.b	0,0
+	dc.w	32,0,96,0
+
+	dc.l	Fferis_alien,GFXflft1	32
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	icefruit_alien,GFXzero	33
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	hidescore_alien,GFXscrv	34 <UNUSED>
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	pici_alien,GFXpic4	35
+	dc.b	0,0
+	dc.w	32,0,40,0
+
+	dc.l	fran_alien,GFXfran	36
+	dc.b	4,59
+	dc.w	100,100,100,100
+
+	dc.l	batt_alien,GFXbatt	37
+	dc.b	0,0
+	dc.w	100,100,100,100
+
+	dc.l	add_bobS0,GFXpara	38
+	dc.b	0,0
+	dc.w	0,0,0,0
+
+	dc.l	spik_alien,GFXspik	39
+	dc.b	0,0
+	dc.w	8,8,4,35
+
+	dc.l	pici_alien,GFXpic0	40
+	dc.b	0,0
+	dc.w	32,0,40,0
+
+	dc.l	pici_alien,GFXpic1	41
+	dc.b	0,0
+	dc.w	32,0,40,0
+
+	dc.l	add_bobS0,GFXpic2	42
+	dc.b	0,0
+	dc.w	32,0,40,0
+
+	dc.l	pici_alien,GFXpic3	43
+	dc.b	0,0
+	dc.w	32,0,40,0
+
+	dc.l	feris_alien,GFXilift	44 stay out
+	dc.b	0,0
+	dc.w	1,1,1,1
+
+	dc.l	add_bobS0,GFXgtrch	45
+	dc.b	0,0
+	dc.w	22,22,8,33
+
+	dc.l	lflm_alien,GFXglflm	46
+	dc.b	0,0
+	dc.w	0,50,15,15
+
+	dc.l	rflm_alien,GFXgrflm	47
+	dc.b	0,0
+	dc.w	50,0,15,15
+
+	dc.l	ghost_alien,GFXgghst	48
+	dc.b	0,0
+	dc.w	120,120,70,90
+
+	dc.l	flift_alien,GFXflift	49
+	dc.b	0,0
+	dc.w	45,0,32,32
+
+	dc.l	Tferis_alien,GFXtlift	50 stay out
+	dc.b	0,0
+	dc.w	1,1,1,1
+
+	dc.l	rend_alien,GFXfrend	51
+	dc.b	0,0
+	dc.w	64,64,64,64
+
+	dc.l	bend_alien,GFXfbend	52
+	dc.b	0,0
+	dc.w	64,64,64,64
+
+	dc.l	lend_alien,GFXflend	53
+	dc.b	0,0
+	dc.w	64,64,64,64
+
+	dc.l	ilift_alien,GFXilift	54
+	dc.b	0,0
+	dc.w	320,320,256,256
+
+	dc.l	bird_alien,GFXibird	55
+	dc.b	4,21
+	dc.w	200,200,70,70
+
+	dc.l	igem_alien,GFXigem	56
+	dc.b	0,0
+	dc.w	32,32,32,32
+
+	dc.l	peng_alien,GFXpeng	57
+	dc.b	3,43
+	dc.w	200,200,90,90
+
+	dc.l	tram_alien,GFXitram	58
+	dc.b	0,0
+	dc.w	34,0,1,16
+
+	dc.l	bomb_alien,GFXibomb	59 \
+	dc.b	0,0
+	dc.w	0,0,0,0	(STAY)
+
+	dc.l	blln_alien,GFXiblln	60 /
+	dc.b	0,0
+	dc.w	200,200,150,150
+
+	dc.l	bear_alien,GFXibear	61
+	dc.b	3,50
+	dc.w	200,200,30,80
+
+	dc.l	hone_alien,GFXhone	62
+	dc.b	6,30
+	dc.w	16,16,1,32
+
+	dc.l	abee_alien,GFXabee	63
+	dc.b	0,0
+	dc.w	200,200,128,128
+
+	dc.l	worm_alien,GFXworm	64
+	dc.b	0,0
+	dc.w	20,20,10,10
+
+	dc.l	add_bobS0,GFXfce0	65
+	dc.b	0,0
+	dc.w	17,17,2,33
+
+	dc.l	add_bobS0,GFXfce1	66
+	dc.b	0,0
+	dc.w	17,17,2,33
+
+	dc.l	add_bobS0,GFXfce2	67
+	dc.b	0,0
+	dc.w	17,17,2,33
+
+	dc.l	flr0_alien,GFXflr0	68
+	dc.b	0,0
+	dc.w	28,28,0,60
+
+	dc.l	flr1_alien,GFXflr1	69
+	dc.b	0,0
+	dc.w	16,16,0,40
+
+	dc.l	add_bobS0,GFXtrk0	70
+	dc.b	0,0
+	dc.w	17,17,2,33
+
+	dc.l	add_bobS0,GFXtrk1	71
+	dc.b	0,0
+	dc.w	17,17,2,33
+
+	dc.l	boblift_alien,GFXlift	72
+	dc.b	0,0
+	dc.w	80,80,80,80
+
+	dc.l	tram_alien,GFXwtram	73
+	dc.b	0,0
+	dc.w	34,0,1,16
+
+	dc.l	ybrd_alien,GFXwybrd	74
+	dc.b	1,27
+	dc.w	60,60,60,60
+
+	dc.l	bird_alien,GFXwbird	75
+	dc.b	4,25
+	dc.w	200,200,70,70
+
+	dc.l	bear_alien,GFXwbear	76
+	dc.b	3,50
+	dc.w	200,200,80,80
+
+	dc.l	scrv_alien,GFXscrv	77
+	dc.b	0,0
+	dc.w	32,32,32,32
+
+	dc.l	scrh_alien,GFXscrh	78
+	dc.b	0,0
+	dc.w	16,16,200,200
+
+	dc.l	spdr_alien,GFXspdr	79
+	dc.b	0,0
+	dc.w	100,100,100,100
+
+	dc.l	frt0_alien,GFXfrt0	80
+	dc.b	2,10
+	dc.w	32,32,32,32
+
+	dc.l	frt1_alien,GFXfrt1	81
+	dc.b	3,10
+	dc.w	32,32,32,32
+
+	dc.l	frt2_alien,GFXfrt2	82
+	dc.b	4,10
+	dc.w	32,32,32,32
+
+	dc.l	frt3_alien,GFXfrt3	83
+	dc.b	5,10
+	dc.w	32,32,32,32
+
+	dc.l	frt4_alien,GFXfrt4	84
+	dc.b	6,10
+	dc.w	32,32,32,32
+
+	dc.l	frt5_alien,GFXfrt5	85
+	dc.b	7,10
+	dc.w	32,32,32,32
+
+	dc.l	hgem_alien,GFXhgem	86
+hgem_mod	dc.b	12,30
+	dc.w	32,32,22,48
+
+	dc.l	shel_alien,GFXshel	87 stay out
+	dc.b	0,0
+	dc.w	10,10,10,10
+
+	dc.l	elec_alien,GFXelec	88
+	dc.b	0,0
+	dc.w	16,16,40,40
+
+	dc.l	rgun_alien,GFXrgun	89
+	dc.b	0,0
+	dc.w	32,32,120,120
+
+	dc.l	lgun_alien,GFXlgun	90
+	dc.b	0,0
+	dc.w	32,32,120,120
+
+	dc.l	dgun_alien,GFXdgun	91
+	dc.b	0,0
+	dc.w	32,32,120,120
+
+	dc.l	lsr2_alien,GFXlsr2	92 stay out
+	dc.b	0,0
+	dc.w	16,16,16,16
+
+	dc.l	add_bobS0,GFXfnsh	93
+	dc.b	0,0
+	dc.w	100,100,100,100
+
+	dc.l	endchall_alien,GFXzero	94
+	dc.b	0,0
+	dc.w	32,32,32,32
+
+	dc.l	star_alien,GFXstar	95
+	dc.b	0,0
+	dc.w	32,32,32,32
+
+	dc.l	r2d2_alien,GFXr2d2	96
+	dc.b	0,0
+	dc.w	150,150,90,90
+
+	dc.l	spin_alien,GFXspin	97
+	dc.b	0,0
+	dc.w	150,150,150,150
+
+	dc.l	flift1_alien,GFXflft2	98
+	dc.b	0,0
+	dc.w	150,150,150,150
+
+	dc.l	ftrmp_alien,GFXftrmp	99
+	dc.b	0,0
+	dc.w	32,32,32,32
+
+	dc.l	tlift_alien,GFXtlift	100
+	dc.b	0,0
+	dc.w	150,150,150,150
+
+	dc.l	glift_alien,GFXglift	101
+	dc.b	0,0
+	dc.w	150,150,150,150
+
+	dc.l	gkey0_alien,GFXgkey0	102
+	dc.b	0,0
+	dc.w	20,20,20,20
+
+	dc.l	xitl_alien,GFXxitl	103
+	dc.b	0,0
+	dc.w	64,64,64,64
+
+	dc.l	xitr_alien,GFXxitr	104
+	dc.b	0,0
+	dc.w	64,64,64,64
+
+	dc.l	l_alien,GFXeT	105
+	dc.b	0,0
+	dc.w	55,55,55,55
+
+	dc.l	l_alien,GFXeE	106
+	dc.b	0,0
+	dc.w	55,55,55,55
+
+	dc.l	l_alien,GFXeA	107
+	dc.b	0,0
+	dc.w	55,55,55,55
+
+	dc.l	l_alien,GFXeR	108
+	dc.b	0,0
+	dc.w	55,55,55,55
+
+	dc.l	l_alien,GFXeW	109
+	dc.b	0,0
+	dc.w	55,55,55,55
+
+	dc.l	l_alien,GFXeY	110
+	dc.b	0,0
+	dc.w	55,55,55,55
+
+	dc.l	fuzz_alien,GFXfuzz	111
+	dc.b	0,0
+	dc.w	35,35,35,35
+
+	; CHANGE NUMTYPES AT TOP OF FILE!
