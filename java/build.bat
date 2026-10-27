@@ -1,5 +1,5 @@
 @echo off
-rem Builds tearaway-thomas.jar. Needs only a JDK (11 or later; the jar itself runs on Java 8+) on the PATH.
+rem Builds tearaway-thomas.jar. Needs only a JDK (21 or later) on the PATH.
 setlocal
 cd /d "%~dp0"
 if exist build\jar rmdir /s /q build\jar
@@ -10,7 +10,7 @@ dir /s /b src\*.java | findstr /v /i /r /c:"Test\.java$" /c:"\\sandbox\\" /c:"\\
 rem javac @files need forward slashes or quoted paths
 powershell -NoProfile -Command "(Get-Content build\sources.txt) | ForEach-Object { '\"' + ($_ -replace '\\','/') + '\"' } | Set-Content build\sources.txt"
 
-javac --release 8 -nowarn -encoding UTF-8 -d build\jar @build\sources.txt
+javac --release 21 -nowarn -encoding UTF-8 -d build\jar @build\sources.txt
 if errorlevel 1 goto :fail
 
 rem resources (pngs, maps, music...) live alongside the code

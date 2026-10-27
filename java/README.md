@@ -6,7 +6,7 @@ A Java remake of Tearaway Thomas (Amiga, 1992, David Hanney and Nick Frampton).
 
     java -jar tearaway-thomas.jar
 
-Needs Java 8 or later. No other libraries are needed.
+Needs Java 21 or later. No other libraries are needed.
 
 | Action | Keys |
 |---|---|
@@ -28,7 +28,7 @@ Options:
     build.bat        (Windows)
     ./build.sh       (macOS / Linux)
 
-Both need only a JDK (11 or later) and produce `tearaway-thomas.jar`.
+Both need only a JDK (21 or later) and produce `tearaway-thomas.jar`.
 
 ## Code layout
 

@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.nney.coroutines.CoTerminated;
 import com.nney.coroutines.Coroutine;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.FallingAlien;
@@ -1362,48 +1361,45 @@ public class World implements AlienServices, Disposable {
 
 		dimFade.target(Curtain.CLOSED);
 
-		cr = new Coroutine("timeBonus") {
-			@Override
-			public void run() {
-				// wait around a bit
-				pause(60);
+		cr = new Coroutine("timeBonus", co -> {
+			// wait around a bit
+			co.pause(60);
 
-				//
-				// turn time into score
-				//
-				int fastScore = 0;
-				while (timeRemainingInFrames != 0) {
-					if (firePressed) {
-						fastScore += 10;
-					}
-					else {
-						awardScore(10, null);
-						playSoundEffect("tink");
-						pause(4);
-					}
-					timeRemainingInFrames = Math.max(0, timeRemainingInFrames - Const.FPS);
+			//
+			// turn time into score
+			//
+			int fastScore = 0;
+			while (timeRemainingInFrames != 0) {
+				if (firePressed) {
+					fastScore += 10;
 				}
-				awardScore(fastScore, null);
-
-				// a pause so you get to look at it
-				pause(25);
-
-				//
-				// wait for fire
-				//
-				while (!firePressed) {
-					pause();
+				else {
+					awardScore(10, null);
+					playSoundEffect("tink");
+					co.pause(4);
 				}
-
-				//
-				// fade to black
-				//
-				totalFade.target(Curtain.CLOSED);
-				while (!totalFade.isDone()) {
-					pause();
-				}
+				timeRemainingInFrames = Math.max(0, timeRemainingInFrames - Const.FPS);
 			}
-		};
+			awardScore(fastScore, null);
+
+			// a pause so you get to look at it
+			co.pause(25);
+
+			//
+			// wait for fire
+			//
+			while (!firePressed) {
+				co.pause();
+			}
+
+			//
+			// fade to black
+			//
+			totalFade.target(Curtain.CLOSED);
+			while (!totalFade.isDone()) {
+				co.pause();
+			}
+		});
 
 		// captureRecording();
 		// while (!pauseAntiAutofire()) {
@@ -1440,14 +1436,10 @@ public class World implements AlienServices, Disposable {
 			totalFade.update();
 			drawHudAndBorders(true);
 
-			try {
-				cr.step();
-			}
-			catch (CoTerminated ct) {
-				done = true;
-			}
+			if (!cr.step()) done = true;
 			end();
 		}
+		cr.close();
 		ow.levelNumber++;
 		throw new ExitException();
 	}
