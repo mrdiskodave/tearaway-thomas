@@ -7,9 +7,9 @@
 # * p[0] produces the new chunky MSB
 # * p[s-1] produces the new chunky LSB
 def chunkify(p, s):
-	#print "planes:"+repr(p)
+	#print("planes:"+repr(p))
 	answer = []
-	for x in xrange(s):
+	for x in range(s):
 		ba = 0
 		for c in p:
 			bitpos = s-x-1

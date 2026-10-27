@@ -1,4 +1,4 @@
-#!/usr/bin/python -3
+#!/usr/bin/env python3
 
 #
 # fish the level information out of the original source
@@ -343,14 +343,15 @@ for l in s.split('\n'):
 			title = m.group(1)
 			level['title'] = title
 		if cycle==2:
-			#print "ITEMS:"+l
+			#print("ITEMS:"+l)
 			items = l.split(',')
-			items = [ eval(x) for x in items ]
+			# Python 3 won't eval numbers with leading zeros like 01, so drop them first
+			items = [ eval(re.sub(r'\b0+(\d)', r'\1', x)) for x in items ]
 			level['gemsNeeded'] = items[0]
 			level['timeGiven'] = items[1]
 			level['horizon'] = items[2]
 			s = items[3]
-			level['world'] = s/10
+			level['world'] = s//10
 			level['stage'] = s%10
 
 			if level['world']==0:
@@ -362,6 +363,6 @@ for l in s.split('\n'):
 		cycle += 1
 		cycle %= 3
 
-print json.dumps(levels, sort_keys=True, indent=4)
+print(json.dumps(levels, sort_keys=True, indent=4, separators=(', ', ': ')))
 
 

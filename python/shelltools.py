@@ -1,10 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-from __future__ import division
-from __future__ import with_statement
-
-import StringIO
-import pipes
+import shlex
 import subprocess
 import re
 
@@ -15,14 +11,15 @@ def set_debug_hook(l):
 	debug_hook = l
 
 def shell_esc(s):
-	assert isinstance(s, basestring), type(s)
-	#print "before"+repr(s)
-	s = pipes.quote(s)
-	#print "after"+repr(s)
+	assert isinstance(s, str), type(s)
+	#print("before"+repr(s))
+	s = shlex.quote(s)
+	#print("after"+repr(s))
 	return s
 
 class Result(object):
 	def __init__(self, stdout, stderr, returncode, cmd):
+		# stdout and stderr are bytes (or None if they weren't captured)
 		self.stdout = stdout
 		self.stderr = stderr
 		self.returncode = returncode
@@ -35,13 +32,13 @@ class Result(object):
 
 	def raise_error(self, rc=None):
 		if rc is None: rc = self.returncode
-		raise subprocess.CalledProcessError(rc, unicode(self.cmd))
+		raise subprocess.CalledProcessError(rc, str(self.cmd))
 
 	def stdout_lines(self):
-		return self.stdout.splitlines()
+		return self.stdout.decode('utf-8', 'replace').splitlines()
 
-	def stderr(self):
-		return self.stderr.splitlines()
+	def stderr_lines(self):
+		return self.stderr.decode('utf-8', 'replace').splitlines()
 
 class Cmd(object):
 	def __init__(self, cmd, shell):
@@ -50,25 +47,25 @@ class Cmd(object):
 
 	@staticmethod
 	def shell(s):
-		assert isinstance(s, basestring)
+		assert isinstance(s, str)
 		return Cmd(s, True)
 
 	@staticmethod
 	def shellf(t, *args):
-		assert isinstance(t, basestring)
+		assert isinstance(t, str)
 
 		def safe_get_arg(args, idx):
 			assert idx<len(args)
 			assert idx>=0
 			return args[idx]
 
-		return Cmd.shell(re.sub(r"{(\d+)}", lambda m: shell_esc(unicode(safe_get_arg(args, int(m.group(1))))), t))
+		return Cmd.shell(re.sub(r"{(\d+)}", lambda m: shell_esc(str(safe_get_arg(args, int(m.group(1))))), t))
 
 	@staticmethod
 	def args(*s):
 		assert isinstance(s, tuple)
 		assert len(s)
-		assert isinstance(s[0], basestring)
+		assert isinstance(s[0], str)
 		return Cmd(s, False)
 
 	def is_shell(self):
@@ -86,6 +83,8 @@ class Cmd(object):
 		if both:
 			stdout = True
 			stderr = True
+		if isinstance(input, str):
+			input = input.encode('utf-8')
 		o = subprocess.PIPE if stdout else None
 		e = subprocess.PIPE if stderr else None
 		s = subprocess.Popen(self._cmd, stdin=subprocess.PIPE, stdout=o, stderr=e, shell=self.is_shell())
@@ -98,22 +97,18 @@ class Cmd(object):
 		rc = s.returncode
 		return Result(stdout_text, stderr_text, rc, self)
 
-	def __unicode__(self):
+	def __str__(self):
 		if self.is_shell():
 			return self._cmd
 		else:
 			return ' '.join([ shell_esc(x) for x in self._cmd])
 
-	def __str__(self):
-		return unicode(self).encode('utf-8')
-
 if __name__ == "__main__":
 	for s in Cmd.shellf("ls {0}", ".").do(stdout=True).check().stdout_lines():
-		print "1>>>", s
+		print("1>>>", s)
 
 	for s in Cmd.shell("cat").do(input="hello", stdout=True).check().stdout_lines():
-		print "2>>>", s
+		print("2>>>", s)
 
 	for s in Cmd.args("ls", 'lard').do(stdout=True).check().stdout_lines():
-		print "3>>>", s
-
+		print("3>>>", s)

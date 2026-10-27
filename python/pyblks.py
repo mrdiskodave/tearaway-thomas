@@ -1,4 +1,4 @@
-#!/usr/bin/python -3
+#!/usr/bin/env python3
 
 import json
 import array
@@ -42,14 +42,18 @@ NONE  = ( 0xff, 0x01, 0x01 )
 
 NEWDATA = "newdata"
 
-MAP_MAGIC = struct.unpack(">L", "PGBK")[0]
+MAP_MAGIC = struct.unpack(">L", b"PGBK")[0]
 
 def load_file(name):
+	with open(name, 'rb') as f:
+		return f.read()
+
+def load_text_file(name):
 	with open(name, 'r') as f:
 		return f.read()
 
 def save_file(name, data):
-	with open(name, 'w') as f:
+	with open(name, 'w', newline='') as f:
 		f.write(data)
 
 def load_array_file(name):
@@ -67,7 +71,7 @@ def raise_colour(c):
 
 def get_palette_from_data(data, palbase):
 	words = []
-	for idx in xrange(PALCOLS):
+	for idx in range(PALCOLS):
 		words.append(get_word(data, palbase+idx*2))
 	return get_palette_from_list(words)
 
@@ -76,7 +80,7 @@ def get_palette_from_list(words):
 	for col in words:
 		c = col>>8&15, col>>4&15, col&15
 		c = raise_colour(c)
-		print "pal={0:04x} gives {1:02x} {2:02x} {3:02x}".format(col, *c)
+		print("pal={0:04x} gives {1:02x} {2:02x} {3:02x}".format(col, *c))
 		pa.append(c)
 	return pa
 
@@ -95,12 +99,12 @@ def get_block_list(data, get_masks):
 	number_of_blocks = mapsegstart-blkpals
 	assert number_of_blocks%20==0
 
-	block_pals = [ data[blkpals+x] for x in xrange(number_of_blocks) ] 
+	block_pals = [ data[blkpals+x] for x in range(number_of_blocks) ] 
 
 	if not get_masks:
-		number_of_pals = (blkpals-spals)/PALSIZE
+		number_of_pals = (blkpals-spals)//PALSIZE
 		pals = []
-		for pal in xrange(number_of_pals):
+		for pal in range(number_of_pals):
 			pa = get_palette_from_data(data, spals + pal*PALSIZE)
 			pa[0] = ( 0x00, 0x00, 0x00 )
 			pa[7] = TRANS
@@ -110,7 +114,7 @@ def get_block_list(data, get_masks):
 	assert mapsegstart+number_of_blocks*BLKSIZE == mapsegend
 
 	answer = []
-	for block_number in xrange(number_of_blocks):
+	for block_number in range(number_of_blocks):
 		blkbase = mapsegstart+block_number*BLKSIZE
 		br = blkbase
 		i = img.Img.create(16, 16)
@@ -127,7 +131,7 @@ def get_block_list(data, get_masks):
 			br += 2*16*3
 		else:
 			pal = pals[block_pals[block_number]]
-		for y in xrange(16):
+		for y in range(16):
 			if get_masks:
 				p0 = get_word(data, br)
 				br += 2
@@ -160,6 +164,7 @@ assert change_suffix("hello.ppm", "ppm", "png")=="hello.png"
 class Cascade:
 	def __init__(self, f):
 		self.f = f
+		os.makedirs(os.path.dirname(f), exist_ok=True)
 
 	def getCurrentName(self):
 		return self.f
@@ -174,11 +179,14 @@ class Cascade:
 	def toPNG(self):
 		name = self.f
 		newname = change_suffix(name, "ppm", "png")
-		print "into", newname
+		print("into", newname)
 		#f = "pnmtopng -force {0} >{1}"
 		#f = "pnmtopng {0} >{1}"
-		f = "pnmtopng -transparent =rgb:"+TRANS2+" {0} >{1}"
-		shelltools.Cmd.shellf(f, name, newname).do().check()
+		#f = "pnmtopng -transparent =rgb:"+TRANS2+" {0} >{1}"
+		# run it directly rather than through a shell so it works on Windows too
+		png = shelltools.Cmd.args("pnmtopng", "-transparent", "=rgb:"+TRANS2, name).do(stdout=True).check().stdout
+		with open(newname, 'wb') as f:
+			f.write(png)
 		self.assignNewName(newname)
 
 	def capture(self):
@@ -189,12 +197,12 @@ class Cascade:
 def save_all_blocks(world, data):
 	for mask in range(2):
 		block_list = get_block_list(data, mask)
-		rows = len(block_list)/20
+		rows = len(block_list)//20
 		d = img.Img.create(20*16, rows*16)
 		d.clear(NONE)
 		for b, i in enumerate(block_list):
 			x = b%20
-			y = b/20
+			y = b//20
 			x *= 16
 			y *= 16
 			d.view(x, y).overwrite(i)
@@ -206,7 +214,7 @@ def save_all_blocks(world, data):
 
 
 def convert_map(block_data, name, rt):
-	print "Converting", name
+	print("Converting", name)
 	block_list = get_block_list(block_data, False)
 
 	level = load_array_file("odata/"+name+".map")
@@ -215,18 +223,18 @@ def convert_map(block_data, name, rt):
 		return y*MXS+x
 
 	def is_full(map, x, y, dx, dy, r):
-		for _ in xrange(r):
+		for _ in range(r):
 			if map[mapidx(x, y)]!=0: return True
 			x += dx
 			y += dy
 		return False
 
 	map = mapunpack.get_map_from_level(level)
-	col = [ is_full(map, x, 0, 0, 1, MYS) for x in xrange(MXS) ]
-	row = [ is_full(map, 0, y, 1, 0, MXS) for y in xrange(MYS) ]
+	col = [ is_full(map, x, 0, 0, 1, MYS) for x in range(MXS) ]
+	row = [ is_full(map, 0, y, 1, 0, MXS) for y in range(MYS) ]
 
 	def schem(l):
-		#print repr(l)
+		#print(repr(l))
 		answer = []
 		v = 0
 		for t in l:
@@ -245,7 +253,7 @@ def convert_map(block_data, name, rt):
 		maprt.validate_rt(name, len(block_list), rt)
 		maprt.apply_rt(map, rt)
 	cas = Cascade(os.path.join(NEWDATA, "mapimg", name+".ppm"))
-	with open(cas.getCurrentName(), 'w') as f:
+	with open(cas.getCurrentName(), 'wb') as f:
 		img.write_p6_header(f, w*16, h*16, 255)
 		i = img.Img.create(w*16, 16)
 		for mapy, scry in enumerate(row):
@@ -262,7 +270,7 @@ def convert_world(name, rt=None):
 	save_all_blocks(name, data)
 
 	return
-	for x in xrange(10):
+	for x in range(10):
 		convert_map(data, name+str(x), rt)
 
 def convert_worlds():
@@ -283,7 +291,7 @@ class BookReader:
 		self.total_across = total_across
 
 	def start(self, counter):
-		y = counter / self.total_across
+		y = counter // self.total_across
 		x = counter % self.total_across
 		x *= self.w
 		y *= self.h
@@ -301,7 +309,7 @@ def load_ilbm(name):
 		b >>= 4
 		return r, g, b
 
-	answer = img.Img.createFromP6(shelltools.Cmd.shellf("ilbmtoppm {0}", name).do(both=True).check().stdout)
+	answer = img.Img.createFromP6(shelltools.Cmd.args("ilbmtoppm", name).do(both=True).check().stdout)
 	answer.map(lower_colour)
 	answer.map(raise_colour)
 	return answer
@@ -314,18 +322,18 @@ def convert_star():
 
 	i = load_array_file("odata/star.dat.pal");
 	size = len(i)
-	planeSize = size/3
+	planeSize = size//3
 
 	for w in range(30, 50, 2):
 		if (planeSize//w)*w==planeSize:
-			h = planeSize/w
-			print "Candidate width", w, h
+			h = planeSize//w
+			print("Candidate width", w, h)
 
 	w = 38
 	h = 256
-	print size
-	print planeSize
-	print w, h
+	print(size)
+	print(planeSize)
+	print(w, h)
 	d = img.Img.create(w*8, h)
 	for y in range(0, h):
 		if y==81:
@@ -358,7 +366,7 @@ def convert_topaz():
 	pos = 0
 
 	w = 16
-	c = img.Img.create(8*w, 8*(128/w))
+	c = img.Img.create(8*w, 8*(128//w))
 	r = BookReader(c, 8, 8)
 	c.fill(TRANS)
 	for idx in range(128):
@@ -404,11 +412,11 @@ def convert_tt():
 	all_tt_frames.findReplace((0x00,0x99,0xff),bg)
 	r = BookReader(all_tt_frames, 32, 32, 8)
 	exporter = Exporter("0tt")
-	for x in xrange(TT_FRAME_COUNT):
+	for x in range(TT_FRAME_COUNT):
 		b = r.start(x)
-		print x, b
+		print(x, b)
 		one_frame = img.Img.create(r.w, r.h)
-		#for x in xrange(one_frame.w): print x, one_frame.get(x, 0)
+		#for x in range(one_frame.w): print(x, one_frame.get(x, 0))
 		one_frame.overwrite(all_tt_frames.view(*b))
 		c = one_frame.crop(bg)
 
@@ -434,7 +442,7 @@ FRAMESKIP = {
 	#"ibear": range(15,
 	}
 
-print repr(FRAMESKIP)
+print(repr(FRAMESKIP))
 #sys.exit(1)
 
 
@@ -451,10 +459,10 @@ def convert_bob(name):
 	#BOBmaskadd=12
 	#BOBdata=14
 
-	MAGIC = struct.unpack(">L", name[1:])[0]
+	MAGIC = struct.unpack(">L", name[1:].encode('ascii'))[0]
 	magic, framecount,  = struct.unpack(">LH", i[0:6])
 	assert magic==MAGIC
-	print framecount, "frame(s)"
+	print(framecount, "frame(s)")
 
 	bobpal = get_palette_from_data(i, 6)
 
@@ -464,21 +472,21 @@ def convert_bob(name):
 	offset = 6+PALSIZE
 
 
-	for frame in xrange(framecount):
+	for frame in range(framecount):
 		addx, addy, sx, sy, pix15, rastlen, maskadd = struct.unpack(">hhHHHHH", i[offset:offset+14])
 
 		if name=="0scor":
 			# addy + 1handlepixel + addy (and it is minus)
-			addy = -((sy-1)/2)
+			addy = -((sy-1)//2)
 
 		offset += 14
 
-		print "FRAME", frame
+		print("FRAME", frame)
 
-		#print addx, addy
-		#print sx, sy
-		#print pix15
-		#print rastlen, maskadd
+		#print(addx, addy)
+		#print(sx, sy)
+		#print(pix15)
+		#print(rastlen, maskadd)
 		#	-14 -37
 		#	4 38
 		#	6
@@ -489,8 +497,8 @@ def convert_bob(name):
 		assert unused>=0
 
 		sprite = img.Img.create(sx*8-unused, sy)
-		for y in xrange(sy):
-			for x in xrange(sx/2):
+		for y in range(sy):
+			for x in range(sx//2):
 				q = offset + x*2
 				p2 = get_word(i, q)
 				q += sx
@@ -502,7 +510,7 @@ def convert_bob(name):
 
 				line = chunkify.chunkify((p0,p1,p2), 16)
 				mask = chunkify.chunkify((pm,), 16)
-				for j in xrange(0, 16):
+				for j in range(0, 16):
 					if mask[j]:
 						c = bobpal[line[j]]
 					else:
@@ -558,7 +566,7 @@ def is_mirror(a, b):
 	if h!=b.i.h: return NOT_MIRROR
 	if a.addy!=b.addy: return NOT_MIRROR
 
-	#print "Comparing pixels ..."
+	#print("Comparing pixels ...")
 	score = 0
 	
 	for y in range(h):
@@ -567,9 +575,9 @@ def is_mirror(a, b):
 			cb = b.i.get(w-1-x, y)
 			if ca==cb:
 				score += 1
-	#print "SCORE", score, "AREA", w*h
-	fscore = (score*BEST_MIRROR )/(w*h)
-	#print "ANSWER", fscore
+	#print("SCORE", score, "AREA", w*h)
+	fscore = (score*BEST_MIRROR )//(w*h)
+	#print("ANSWER", fscore)
 	return fscore
 
 
@@ -594,7 +602,7 @@ class Exporter:
 		self.name = name
 		self.sprites = []
 		self.ourFolder = os.path.join(NEWDATA, "bobs", name)
-		shelltools.Cmd.shellf("mkdir -p {0}", self.ourFolder).do().check()
+		os.makedirs(self.ourFolder, exist_ok=True)
 
 	def save(self, i, addx, addy):
 		self.sprites.append(Sprite(i,addx,addy))
@@ -605,18 +613,18 @@ class Exporter:
 
 #	def correct_mirrors(self):
 #		killframe = set()
-#		candidates = range(len(self.sprites))
+#		candidates = list(range(len(self.sprites)))
 #		while len(candidates)>=2:
 #			first = candidates.pop(0)
 #			best = NOT_MIRROR
 #			choice = None
 #			for other in candidates:
-#				#print "Comparing frames {0} and {1}".format(self._framename(first), self._framename(other))
+#				#print("Comparing frames {0} and {1}".format(self._framename(first), self._framename(other)))
 #				sfirst = self.sprites[first]
 #				sother = self.sprites[other]
 #				score = is_mirror(sfirst, sother)
 #				if score>best:
-#					#print "Scored improved"
+#					#print("Scored improved")
 #					best = score
 #					choice = other
 #					if score==BEST_MIRROR: break;
@@ -635,9 +643,9 @@ class Exporter:
 #				action, pixchange = MIRROR_ACTIONS.get(mdesc, ('?', hd))
 #				if action=='?' and best==BEST_MIRROR:
 #					action = '!'
-#				print "\t'{0}': ('{1}', {2:3}), # MIRROR score {3:5}".format(mdesc, action, pixchange, best)
+#				print("\t'{0}': ('{1}', {2:3}), # MIRROR score {3:5}".format(mdesc, action, pixchange, best))
 #				if action in ['<', '>']:
-#					#print "remove the frame"
+#					#print("remove the frame")
 #					if action=='<':
 #						yes = first
 #						no  = choice
@@ -647,16 +655,22 @@ class Exporter:
 #					killframe.add(no)
 #					
 #				if action in ['<', '>', '!']:
-#					#print "remove the candidate"
+#					#print("remove the candidate")
 #					candidates.remove(choice)
 #					pass
 #
 	def done(self):
-		print "**** DONE!!!!!!!!!!!!!!!!!!"
+		print("**** DONE!!!!!!!!!!!!!!!!!!")
 		#self.correct_mirrors()
 			
-		defs = json.dumps(graphics_definitions[self.name], sort_keys=True, indent=4)
-		save_file(os.path.join(self.ourFolder, "def.txt"), defs)
+		if self.name in graphics_definitions:
+			# Python 2's json left a space after each comma; keep the files identical
+			defs = json.dumps(graphics_definitions[self.name], sort_keys=True, indent=4, separators=(', ', ': '))
+			save_file(os.path.join(self.ourFolder, "def.txt"), defs)
+		else:
+			# e.g. 0tt, whose entry in gfx.s is commented out (it has no odata file
+			# for convert_bobs) and whose def.txt was finished off by hand
+			print("No definition in gfx.s for {0}, so no def.txt".format(self.name))
 		for frame, sprite in enumerate(self.sprites):
 			canvas = sprite.centre_on_canvas()
 
@@ -700,15 +714,21 @@ def convert_horizons():
 
 
 import gfxparse
-graphics_definitions = gfxparse.load_defs(load_file("gfx.s"))
+graphics_definitions = gfxparse.load_defs(load_text_file("gfx.s"))
 
-#convert_horizons()
-#convert_star()
-#convert_tt()
-convert_bobs()	
-#convert_font()
-#convert_topaz()
-#convert_worlds()
+CONVERTERS = {
+	"horizons": convert_horizons,
+	"star": convert_star,
+	"tt": convert_tt,
+	"bobs": convert_bobs,
+	"font": convert_font,
+	"topaz": convert_topaz,
+	"worlds": convert_worlds,
+}
+
+# say which to run, e.g. "pyblks.py tt font"; with none it runs the bobs, as it always did
+for which in sys.argv[1:] or ["bobs"]:
+	CONVERTERS[which]()
 
 _END_ = """
 

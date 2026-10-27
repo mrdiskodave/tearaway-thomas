@@ -22,7 +22,7 @@ def load_defs(s):
 					items, name = m.group(1, 2)
 					items = re.split(r",", items)
 					items = [ int(x) for x in items ]
-					#print ">>>>>>>>>", repr(items)
+					#print(">>>>>>>>>", repr(items))
 					rate = items.pop(0)
 					loop = items.pop()
 					assert items
@@ -35,7 +35,7 @@ def load_defs(s):
 					else:
 						rpos = len(items)+loop
 						assert rate!=0
-						#if rpos!=0: print "#MIDREPEAT!"
+						#if rpos!=0: print("#MIDREPEAT!")
 				anim = {}
 				anims.append(anim)
 				if name: anim['name'] = name

@@ -1,4 +1,4 @@
-#!/usr/bin/python -3
+#!/usr/bin/env python3
 
 import json
 
@@ -29,15 +29,15 @@ ghostRT	= (
 
 
 def apply_rt(map, rt):
-	#print "applying rt"
+	#print("applying rt")
 	c = 0
 	import random
-	for x in xrange(len(map)):
+	for x in range(len(map)):
 		for line in rt:
 			if map[x] in line:
 				map[x] = random.choice(line)
 				c += 1
-	#print "{0}/{1} blocks changed".format(c, len(map))
+	#print("{0}/{1} blocks changed".format(c, len(map)))
 
 def validate_rt(name, mb, rt):
 	for line in rt:
@@ -46,16 +46,16 @@ def validate_rt(name, mb, rt):
 
 
 def print_rt(rt):
-	print json.dumps(rt, sort_keys=True, indent=4)	
+	print(json.dumps(rt, sort_keys=True, indent=4, separators=(', ', ': ')))	
 
 if __name__ == "__main__":
 	s = [ "wood", woodRT, "ice", iceRT, "ghost", ghostRT ]
 	while s:
 		name, rt = s[:2]
 		s = s[2:]
-		print
-		print '-' * 75
-		print name
+		print()
+		print('-' * 75)
+		print(name)
 		print_rt(rt)
 
 

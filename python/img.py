@@ -1,10 +1,12 @@
+
 import array
 import re
 
 def write_p6_header(f, w, h, max):
-	f.write("P6\n")
-	f.write("{0} {1}\n".format(w, h))
-	f.write("{0}\n".format(max))
+	# f is a file opened in binary mode
+	f.write(b"P6\n")
+	f.write("{0} {1}\n".format(w, h).encode('ascii'))
+	f.write("{0}\n".format(max).encode('ascii'))
 
 class Img:
 	BYTES_PER_PIXEL = 3
@@ -27,7 +29,7 @@ class Img:
 
 		expect = w*h*Img.BYTES_PER_PIXEL
 		if d is None:
-			d = array.array('B', chr(0) * expect )
+			d = array.array('B', bytes(expect))
 
 		i.d = d
 
@@ -42,12 +44,13 @@ class Img:
 
 	@staticmethod
 	def createFromP6(s):
-		assert s[0] == 'P'
-		assert s[1] == '6'
+		# s is the bytes of a binary PPM file
+		assert s[0:1] == b'P'
+		assert s[1:2] == b'6'
 		s = s[2:]
 		args = []
 		while len(args)<3:
-			m = re.match(r"(.*?)(#.*)?\n", s)
+			m = re.match(rb"(.*?)(#.*)?\n", s)
 			assert m
 			stuff = m.group(1)
 			s = s[len(m.group()):]
@@ -60,8 +63,8 @@ class Img:
 		return Img.createFromData(width, height, array.array('B', s))
 
 	def clear(self, c):
-		for y in xrange(self.h):
-			for x in xrange(self.w):
+		for y in range(self.h):
+			for x in range(self.w):
 				self.put(x, y, c)
 
 	def isSubImage(self):
@@ -94,7 +97,7 @@ class Img:
 		return self.d[a], self.d[a+1], self.d[a+2]
 
 	def put(self, x, y, c):
-		#print "put {0},{1} with {2!r}".format(x, y, c)
+		#print("put {0},{1} with {2!r}".format(x, y, c))
 		a = self._ca(x, y)
 		self.d[a] = c[0]
 		self.d[a+1] = c[1]
@@ -105,20 +108,20 @@ class Img:
 		w = min(self.w, simg.w)
 		h = min(self.h, simg.h)
 		w *= 3
-		for y in xrange(h):
+		for y in range(h):
 			srco = simg._ca(0, y)
 			desto = self._ca(0, y)
 			self.d[desto:desto+w] = simg.d[srco:srco+w]
 
 	def findReplace(self, f, r):
-		for y in xrange(self.h):
-			for x in xrange(self.w):
+		for y in range(self.h):
+			for x in range(self.w):
 				if self.get(x, y)==f:
 					self.put(x, y, r)
 
 	def map(self, f):
-		for y in xrange(self.h):
-			for x in xrange(self.w):
+		for y in range(self.h):
+			for x in range(self.w):
 				c = self.get(x, y)
 				self.put(x, y, f(c))
 
@@ -147,10 +150,10 @@ class Img:
 		return answer
 
 	def test(self, c):
-		for y in xrange(self.h):
-			for x in xrange(self.w):
+		for y in range(self.h):
+			for x in range(self.w):
 				a = self.get(x, y)
-				#print "Got {0} from {1},{2}".format(a, x, y)
+				#print("Got {0} from {1},{2}".format(a, x, y))
 				if a!=c:
 					return False
 		return True
@@ -161,8 +164,8 @@ class Img:
 		return i
 
 	def fill(self, c):
-		for y in xrange(self.h):
-			for x in xrange(self.w):
+		for y in range(self.h):
+			for x in range(self.w):
 				self.put(x, y, c)
 
 	def _unsub(self):
@@ -172,7 +175,7 @@ class Img:
 
 	def saveP6(self, name):
 		self = self._unsub()
-		with open(name, 'w') as f:
+		with open(name, 'wb') as f:
 			write_p6_header(f, self.w, self.h, 255)
 			self.d.tofile(f)
 
@@ -181,5 +184,5 @@ class Img:
 		self.d.tofile(f)
 
 	def dump(self):
-		for y in xrange(self.h):
-			print [ self.get(x, y) for x in xrange(self.w) ]
+		for y in range(self.h):
+			print([ self.get(x, y) for x in range(self.w) ])

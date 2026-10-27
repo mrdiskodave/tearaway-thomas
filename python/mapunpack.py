@@ -5,13 +5,13 @@ def get_word(data, idx):
 
 def get_map_from_level(level):
 	# commision 64K of words
-	map = array.array('H', [ 0 for _ in xrange(0x8000) ])
+	map = array.array('H', [ 0 for _ in range(0x8000) ])
 	# copy the compressed level in
 	se = get_word(level, 0)
-	#print "length={0:04x}".format(se)
+	#print("length={0:04x}".format(se))
 	assert se&1==0
 	se >>= 1
-	for x in xrange(se):
+	for x in range(se):
 		map[x] = get_word(level, x*2)
 	# fix it up
 	se -= 1
@@ -34,8 +34,8 @@ def get_map_from_level(level):
 		else:
 			# it is just a single unpacked value
 			r = 1
-		for _ in xrange(r):
-			#print "src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x)
+		for _ in range(r):
+			#print("src={0:08x} dest={1:08x} repeat={2:04x}/{3:04x} value={4:04x}".format(se, de, _, r, x))
 			de -= 1
 			map[de] = x
 	assert de==0

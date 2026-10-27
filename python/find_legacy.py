@@ -19,7 +19,7 @@ def read_legacyData():
 		world = name[0]
 		filename = os.path.join(dir, name)
 		if os.path.isfile(filename):
-			#print filename
+			#print(filename)
 			with open(filename) as file:
 				for line in file:
 					m = re.match(r'.*legacyData".*"(.*?)"', line)
@@ -40,7 +40,7 @@ def read_aliens():
 			if m:
 				alien, gfx, number = m.groups()
 				number = int(number)
-				print alien, gfx, number, x
+				print(alien, gfx, number, x)
 				assert x==number
 				x += 1
 				aliens[number] = (alien, gfx)
@@ -50,11 +50,11 @@ def say(z):
 	return ','.join(z)+" "+str(len(z))
 
 def summary():
-	print say(req)
+	print(say(req))
 	for k in reqw.keys():
-		print k
+		print(k)
 		for z in reqw[k]:
-			print "  ", z, repr(aliens[z])
+			print("  ", z, repr(aliens[z]))
 
 read_legacyData()
 read_aliens()

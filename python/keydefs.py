@@ -6,10 +6,10 @@ def q(theirs, ours, def_it):
 		if ours in defined: return
 		defined.add(ours)
 	i = len(defined)
-	print "\tstatic final int "+ours+" = "+str(i)+";";
+	print("\tstatic final int "+ours+" = "+str(i)+";");
 
 def q2(theirs, ours, def_it):
-	if def_it: print "\tadd(org.lwjgl.input.Keyboard."+theirs+", "+ours+");"
+	if def_it: print("\tadd(org.lwjgl.input.Keyboard."+theirs+", "+ours+");")
 
 def p(theirs, ours=None):
 	if ours is None: ours=theirs
@@ -26,8 +26,8 @@ def pe(z):
 	q(z, z, False)
 
 def pc(z):
-	print
-	print "\t// "+z
+	print()
+	print("\t// "+z)
 
 def list_keys():
 	pc("regular keys")

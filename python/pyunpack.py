@@ -106,7 +106,7 @@ class SourceFile:
 	def _getBit(self):
 		if self.shiftreg==128:
 			a = s = self._read()
-			print "IN : {0:08x} {1:02x} {1:08b} bitstream data".format(self.pos, a)
+			print("IN : {0:08x} {1:02x} {1:08b} bitstream data".format(self.pos, a))
 			s &= 127
 			s <<= 1
 			s |= 1
@@ -120,12 +120,12 @@ class SourceFile:
 	# public methods:
 	def getByte(self):
 		a = self._read()
-		print "IN : {0:08x} {1:02x} {2:8s} unpacked data".format(self.pos, a, '')
+		print("IN : {0:08x} {1:02x} {2:8s} unpacked data".format(self.pos, a, ''))
 		return a
 
 	def getBit(self):
 		answer = self._getBit()
-		#print "bit:{0}".format(answer)
+		#print("bit:{0}".format(answer))
 		return answer
 
 	def getBits(self, count):
@@ -151,15 +151,15 @@ class DestinationFile:
 				msg = "Got {0:02x} but expected {1:02x} at {2:08x}".format(data, expected, self.pos)
 				assert False, msg
 			else:
-				print "Correct!"
+				print("Correct!")
 
 	def send(self, x):
-		print "OUT: {0:08x} {0:02x}".format(self.pos, x)
+		print("OUT: {0:08x} {1:02x}".format(self.pos, x))
 		self._write(x)
 
 	def copy(self, length, offset):
-		print "OUT: {0:08x} +{1:x}*{2:x}".format(self.pos, offset, length)
-		for _ in xrange(length):
+		print("OUT: {0:08x} +{1:x}*{2:x}".format(self.pos, offset, length))
+		for _ in range(length):
 			self._write(self.mem[self.pos+offset])
 
 	def done(self):
@@ -175,7 +175,7 @@ def get_unpacked_size(data):
 
 def decompress(data, expect=None):
 	def copy(src, dest, amount):
-		for _ in xrange(unpacked):
+		for _ in range(unpacked):
 			dest.send(src.getByte())
 
 	def read_modestore(src, modestore, kind):
@@ -239,18 +239,18 @@ if __name__ == "__main__":
 	import sys
 
 	def load_file(name):
-		with open(name, 'r') as f:
+		with open(name, 'rb') as f:
 			return array.array('B', f.read())
 
 	def save_file(name, data):
-		with open(name, 'w') as f:
+		with open(name, 'wb') as f:
 			data.tofile(f)
 
 	#data = load_file("bigTT.lbm")
 	#expect = None
 
 	# self test
-	print "=== SELF TEST"
+	print("=== SELF TEST")
 	import os
 	our_path = os.path.dirname(__file__)
 	data = load_file(os.path.join(our_path, "wfnsh.packed.bin"))
@@ -258,17 +258,17 @@ if __name__ == "__main__":
 	decompress(data, expect)
 
 	# action
-	print "=== PROCESSING"
+	print("=== PROCESSING")
 	args = sys.argv[1:]
 	for filename in args:
-		print "=== Processing {0}".format(filename)
+		print("=== Processing {0}".format(filename))
 		data = load_file(filename)
 		if get_unpacked_size(data) is None:
-			print "Not packed"
+			print("Not packed")
 		else:
-			print "Unpacking"
+			print("Unpacking")
 			data = decompress(data)
-			print "Saving "+filename
+			print("Saving "+filename)
 			save_file(filename, data)
 
 	#ilbmtoppm < answer.lbm | ppmtogif >answer.gif
