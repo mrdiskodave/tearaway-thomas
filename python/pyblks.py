@@ -597,11 +597,19 @@ MIRROR_ACTIONS = {
 	'0tt_007+0tt_008': ('<',   0), # MIRROR score 100000
 }
 
+# Sprites the game knows by a different name from the original data's.
+# The game finds the bear alien's sprite as the world letter plus "bear", and
+# in the ghost world the bear is Frankenstein (fran_alien in s195 runs the
+# same general_bear code).
+EXPORT_NAMES = {
+	"gfran": "gbear",
+}
+
 class Exporter:
 	def __init__(self, name):
 		self.name = name
 		self.sprites = []
-		self.ourFolder = os.path.join(NEWDATA, "bobs", name)
+		self.ourFolder = os.path.join(NEWDATA, "bobs", EXPORT_NAMES.get(name, name))
 		os.makedirs(self.ourFolder, exist_ok=True)
 
 	def save(self, i, addx, addy):
