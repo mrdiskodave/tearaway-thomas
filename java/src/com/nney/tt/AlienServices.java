@@ -43,6 +43,14 @@ public interface AlienServices extends PlayerPositionServices {
 
 	void drawSprite(Coord c, Sprite s, boolean drawWhite);
 
+	/**
+	 * Draw a sprite partly see-through (the ghosts).
+	 * 
+	 * @param opacity
+	 *            0 (invisible) to 1 (solid)
+	 */
+	void drawSpriteTranslucent(Coord c, Sprite s, float opacity);
+
 	boolean collideAlienWithPlayerHiRes(Coord alienPos, Sprite alienSprite);
 
 	boolean inTheGround(Coord c);

@@ -90,6 +90,14 @@ public final class GlTexture implements Blitable, PrerenderedText {
 		}
 	}
 
+	@Override
+	public void drawTranslucent(int screenX, int screenY, float opacity) {
+		// the texture's alpha is multiplied by the current colour's
+		GL11.glColor4f(1f, 1f, 1f, opacity);
+		draw(screenX, screenY);
+		GL11.glColor4f(1f, 1f, 1f, 1f);
+	}
+
 	public void draw(int screenX, int screenY, int textureX, int textureY, int tw, int th) {
 		stretchDraw(screenX, screenY, tw, th, textureX, textureY, tw, th);
 	}

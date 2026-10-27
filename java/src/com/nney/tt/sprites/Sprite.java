@@ -80,6 +80,16 @@ public class Sprite implements Disposable, Bounded {
 		}
 	}
 
+	/**
+	 * Draw the bob partly see-through, as the ghosts are.
+	 * 
+	 * @param opacity
+	 *            0 (invisible) to 1 (solid)
+	 */
+	public void drawByHandleTranslucent(int dx, int dy, float opacity) {
+		texture.drawTranslucent(dx - handleX, dy - handleY, opacity);
+	}
+
 	@Override
 	public void dispose() {
 		texture.dispose();

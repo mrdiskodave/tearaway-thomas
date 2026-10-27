@@ -1,5 +1,8 @@
 package com.nney.tt.j2d;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import com.nney.tt.gfx.Blitable;
@@ -41,6 +44,15 @@ final class J2dImage implements Blitable, PrerenderedText {
 	@Override
 	public void draw(int dx, int dy) {
 		gc.g().drawImage(image, dx, dy, null);
+	}
+
+	@Override
+	public void drawTranslucent(int dx, int dy, float opacity) {
+		Graphics2D g = gc.g();
+		Composite was = g.getComposite();
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+		g.drawImage(image, dx, dy, null);
+		g.setComposite(was);
 	}
 
 	@Override

@@ -187,11 +187,13 @@ public class World implements AlienServices, Disposable {
 		private final Coord c;
 		private final Sprite s;
 		private final boolean drawInWhite;
+		private final float opacity;
 
-		SpriteRecord(Coord c, Sprite s, boolean drawInWhite) {
+		SpriteRecord(Coord c, Sprite s, boolean drawInWhite, float opacity) {
 			this.c = c.copy();
 			this.s = s;
 			this.drawInWhite = drawInWhite;
+			this.opacity = opacity;
 		}
 	}
 
@@ -445,19 +447,33 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	final public void drawSprite(Coord c, final Sprite s, boolean drawWhite) {
+		drawSprite(c, s, drawWhite, 1f);
+	}
+
+	@Override
+	final public void drawSpriteTranslucent(Coord c, Sprite s, float opacity) {
+		drawSprite(c, s, false, opacity);
+	}
+
+	private void drawSprite(Coord c, final Sprite s, boolean drawWhite, float opacity) {
 		if (record) {
-			recording.add(new SpriteRecord(c, s, drawWhite));
+			recording.add(new SpriteRecord(c, s, drawWhite, opacity));
 		}
 		else {
-			directDrawSprite(c, s, drawWhite);
+			directDrawSprite(c, s, drawWhite, opacity);
 		}
 	}
 
-	private void directDrawSprite(Coord c, final Sprite s, boolean drawWhite) {
+	private void directDrawSprite(Coord c, final Sprite s, boolean drawWhite, float opacity) {
 		Coord screen = scr.position();
 		final int x = c.x - screen.x;
 		final int y = c.y - screen.y;
-		s.drawByHandle(x, y, drawWhite);
+		if (opacity < 1f) {
+			s.drawByHandleTranslucent(x, y, opacity);
+		}
+		else {
+			s.drawByHandle(x, y, drawWhite);
+		}
 	}
 
 	@Override
@@ -798,7 +814,7 @@ public class World implements AlienServices, Disposable {
 	public void drawRecording() {
 		drawTheMap();
 		for (SpriteRecord sr : recording) {
-			directDrawSprite(sr.c, sr.s, sr.drawInWhite);
+			directDrawSprite(sr.c, sr.s, sr.drawInWhite, sr.opacity);
 		}
 	}
 

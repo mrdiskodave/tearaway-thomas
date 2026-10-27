@@ -176,8 +176,18 @@ public abstract class Alien implements HasProps, Bounded {
 	}
 
 	protected void animateDrawAndStun(Coord c2) {
+		animateDrawAndStun(c2, 1f);
+	}
+
+	/** As {@link #animateDrawAndStun(Coord)}, drawn partly see-through. */
+	protected void animateDrawAndStun(Coord c2, float opacity) {
 		Sprite s = nextFrame();
-		srv.drawSprite(c2, s);
+		if (opacity < 1f) {
+			srv.drawSpriteTranslucent(c2, s, opacity);
+		}
+		else {
+			srv.drawSprite(c2, s);
+		}
 		if (srv.collideAlienWithPlayerHiRes(c2, s)) {
 			srv.getThePlayer().stun();
 		}

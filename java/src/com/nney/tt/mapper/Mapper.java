@@ -409,6 +409,11 @@ public class Mapper implements ButtonPressServices {
 		s.drawByHandle(x, y, drawWhite);
 	}
 
+	void directDrawSpriteTranslucent(Coord c, final Sprite s, float opacity) {
+		Coord screen = scr.position();
+		s.drawByHandleTranslucent(c.x - screen.x, c.y - screen.y, opacity);
+	}
+
 	void drawDebugText(Coord c, String text) {
 		Coord a = c.sub2(scr.position());
 		mgc.drawText(a.x, a.y, 0xff00ff00, 0xff000000, text);

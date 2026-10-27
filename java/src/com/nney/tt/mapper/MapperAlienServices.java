@@ -239,6 +239,11 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
+	public void drawSpriteTranslucent(Coord c, Sprite s, float opacity) {
+		mapper.directDrawSpriteTranslucent(c, s, opacity);
+	}
+
+	@Override
 	public void drawDebugText(Coord c, String text) {
 		mapper.drawDebugText(c, text);
 	}
