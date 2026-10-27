@@ -1,0 +1,221 @@
+package com.nney.tt.j2d;
+
+import java.util.ArrayList;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.SourceDataLine;
+
+import com.nney.tt.gfx.Disposable;
+import com.nney.tt.sounds.AudioContext;
+import com.nney.tt.sounds.Loop;
+import com.nney.tt.sounds.Sound;
+
+/**
+ * An {@link AudioContext} using the JDK's own javax.sound, so no native
+ * libraries are needed.
+ *
+ * A small software mixer combines the music and the current sound effect
+ * (like the OpenAL version, only one effect plays at a time) and resamples
+ * everything to 44.1kHz stereo.
+ */
+public class SoundAudioContext implements AudioContext, Disposable {
+	public static final int RATE = 44100;
+	private static final int SIMULTANEOUS_FX = 1;
+	private static final int CHUNK_FRAMES = 512;
+
+	/** A playing sound: a position within some stereo 16 bit data. */
+	private static final class Voice {
+		final Sound sound;
+		final float vol;
+		final double step;
+		double pos; // in frames
+
+		Voice(Sound sound, float vol) {
+			this.sound = sound;
+			this.vol = vol;
+			this.step = (double) sound.freq / RATE;
+		}
+
+		int frames() {
+			return sound.data.length / 2;
+		}
+
+		boolean finished() {
+			return pos >= frames();
+		}
+
+		/** Add up to n frames into acc; returns how many were produced. */
+		int mixInto(float[] acc, int offset, int n, float gain) {
+			short[] d = sound.data;
+			int total = frames();
+			int made = 0;
+			float g = gain * vol;
+			while (made < n && pos < total) {
+				int i = (int) pos;
+				float frac = (float) (pos - i);
+				int j = Math.min(i + 1, total - 1);
+				float l = d[i * 2] + (d[j * 2] - d[i * 2]) * frac;
+				float r = d[i * 2 + 1] + (d[j * 2 + 1] - d[i * 2 + 1]) * frac;
+				acc[(offset + made) * 2] += l * g;
+				acc[(offset + made) * 2 + 1] += r * g;
+				pos += step;
+				made++;
+			}
+			return made;
+		}
+	}
+
+	private final Loop[] musics = new Loop[SLOTS];
+	private final ArrayList<Sound> effectSounds = new ArrayList<Sound>();
+	private final ArrayList<Float> effectVols = new ArrayList<Float>();
+
+	// guarded by "this"
+	private Loop playing;
+	private Voice musicVoice;
+	private boolean inLoopPart;
+	private float musicVol = 1;
+	private final ArrayList<Voice> effects = new ArrayList<Voice>();
+
+	private SourceDataLine line;
+	private Thread thread;
+	private volatile boolean running;
+
+	/**
+	 * @param useDevice
+	 *            <code>false</code> to never open a sound device (headless
+	 *            runs); {@link #mix(short[], int)} can still be called.
+	 */
+	public SoundAudioContext(boolean useDevice) {
+		if (useDevice) openDevice();
+	}
+
+	private void openDevice() {
+		try {
+			AudioFormat fmt = new AudioFormat(RATE, 16, 2, true, false);
+			line = AudioSystem.getSourceDataLine(fmt);
+			line.open(fmt, CHUNK_FRAMES * 4 * 8);
+			line.start();
+		}
+		catch (Exception e) {
+			System.err.println("No sound available: " + e);
+			line = null;
+			return;
+		}
+		running = true;
+		thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				short[] buf = new short[CHUNK_FRAMES * 2];
+				byte[] bytes = new byte[CHUNK_FRAMES * 4];
+				while (running) {
+					mix(buf, CHUNK_FRAMES);
+					for (int i = 0; i < buf.length; i++) {
+						bytes[i * 2] = (byte) buf[i];
+						bytes[i * 2 + 1] = (byte) (buf[i] >> 8);
+					}
+					line.write(bytes, 0, bytes.length);
+				}
+			}
+		}, "tt-audio");
+		thread.setDaemon(true);
+		thread.setPriority(Thread.MAX_PRIORITY);
+		thread.start();
+	}
+
+	/**
+	 * Produce the next n stereo frames of output (interleaved L,R).
+	 */
+	public void mix(short[] out, int n) {
+		float[] acc = new float[n * 2];
+		synchronized (this) {
+			int done = 0;
+			while (musicVoice != null && done < n) {
+				done += musicVoice.mixInto(acc, done, n - done, musicVol);
+				if (musicVoice.finished()) {
+					if (playing != null && playing.hasLoop()) {
+						double over = musicVoice.pos - musicVoice.frames();
+						musicVoice = new Voice(playing.loop, 1);
+						musicVoice.pos = Math.max(0, over);
+						inLoopPart = true;
+					}
+					else {
+						musicVoice = null;
+					}
+				}
+			}
+			for (int x = effects.size() - 1; x >= 0; x--) {
+				Voice v = effects.get(x);
+				v.mixInto(acc, 0, n, 1);
+				if (v.finished()) effects.remove(x);
+			}
+		}
+		for (int i = 0; i < acc.length; i++) {
+			float s = acc[i];
+			if (s > Short.MAX_VALUE) s = Short.MAX_VALUE;
+			if (s < Short.MIN_VALUE) s = Short.MIN_VALUE;
+			out[i] = (short) s;
+		}
+	}
+
+	@Override
+	public synchronized void loadMusic(int slot, Loop music) {
+		stopMusic();
+		musics[slot] = music;
+	}
+
+	@Override
+	public synchronized void startMusic(int slot) {
+		stopMusic();
+		playing = musics[slot];
+		if (playing == null) throw new IllegalStateException("Slot " + slot + " is empty");
+		musicVoice = new Voice(playing.begin, 1);
+		inLoopPart = false;
+	}
+
+	@Override
+	public synchronized void setMusicVolume(float vol) {
+		musicVol = vol;
+	}
+
+	@Override
+	public synchronized void stopMusic() {
+		playing = null;
+		musicVoice = null;
+	}
+
+	@Override
+	public synchronized void loadEffect(float vol, Sound sound) {
+		effectSounds.add(sound);
+		effectVols.add(vol);
+	}
+
+	@Override
+	public synchronized void playEffect(int x) {
+		effects.add(new Voice(effectSounds.get(x), effectVols.get(x)));
+		while (effects.size() > SIMULTANEOUS_FX) {
+			effects.remove(0);
+		}
+	}
+
+	public synchronized boolean isMusicLooping() {
+		return inLoopPart;
+	}
+
+	@Override
+	public void dispose() {
+		running = false;
+		if (thread != null) {
+			try {
+				thread.join(500);
+			}
+			catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+		if (line != null) {
+			line.stop();
+			line.close();
+		}
+	}
+}
