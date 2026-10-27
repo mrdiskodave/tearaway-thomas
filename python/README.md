@@ -23,6 +23,8 @@ differences from what's in the game's `src/com/nney/tt/resources`:
 - `font.png` became `fonts/font2.png`, with red bars marking character widths
 - single-frame sprites were moved from `name/000.png` to `name.png`
   (`tt_singleframes.py`)
+- `gbear` is a copy of `gfran` (Frankenstein): the game looks up the bear
+  alien as the world letter plus `bear`, and in the ghost world that's him
 - Thomas's `def.txt` was written by hand: his entry in `gfx.s` is commented
   out, so `tt` writes the frames only
 
