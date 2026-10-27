@@ -3,209 +3,193 @@
 		"gemsNeeded": 0, 
 		"timeGiven": 60, 
 		"horizon": 3, 
-		"title": "challenge", 
-		"world": "f"
+		"title": "r u challenged?", 
+		"world": "f", 
+		"mode": "challenge:letters"
 	}, 
 	"objects": [
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				1194, 
 				923
-			], 
-			"legacyData": "6f000000000000000000010e80000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterA", 
 			"location": [
 				1206, 
 				1835
 			], 
-			"legacyData": "6b000000000000000000000400000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				1226, 
 				379
-			], 
-			"legacyData": "6f000000000000000000020e80000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterT", 
 			"location": [
 				128, 
 				711
 			], 
-			"legacyData": "69000000000000000000000480000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				1370, 
 				741
-			], 
-			"legacyData": "310000000000000000000002ec0000000000000000f6"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterR", 
 			"location": [
 				1409, 
 				1160
 			], 
-			"legacyData": "6c000000000000000000000400000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				1449, 
 				1595
-			], 
-			"legacyData": "6f000000000000000000010e00000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				1898, 
 				1861
-			], 
-			"legacyData": "310000000000000000000002ec0000000000000000fd"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				1994, 
 				421
-			], 
-			"legacyData": "3100000000000000000000023400000000000000006b"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				2106, 
 				1525
-			], 
-			"legacyData": "310000000000000000000002ec00000000000000004c"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterA", 
 			"location": [
 				2199, 
 				169
 			], 
-			"legacyData": "6b400000000000000000000400000000000000000000"
+			"slot": 4
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterA", 
 			"location": [
 				2281, 
 				937
 			], 
-			"legacyData": "6b000000000000000000000400000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				250, 
 				587
-			], 
-			"legacyData": "6f000000000000000000010c80000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				2602, 
 				603
-			], 
-			"legacyData": "6f000000000000000000020c00000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				2650, 
 				1483
-			], 
-			"legacyData": "6f000000000000000000030c80000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				282, 
 				923
-			], 
-			"legacyData": "6f000000000000000000000c00000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterW", 
 			"location": [
 				3150, 
 				1497
 			], 
-			"legacyData": "6d000000000000000000000780000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterY", 
 			"location": [
 				3197, 
 				730
 			], 
-			"legacyData": "6e000000000000000000000480000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				378, 
 				1077
-			], 
-			"legacyData": "310000000000000000000002ec00000000000000002d"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "letterE", 
 			"location": [
 				606, 
 				169
 			], 
-			"legacyData": "6a000000000000000000000480000000000000000000"
+			"slot": 6
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				618, 
 				1707
-			], 
-			"legacyData": "6f000000000000000000030c00000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				714, 
 				629
-			], 
-			"legacyData": "310000000000000000000002ec0000000000000000fa"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				778, 
 				309
-			], 
-			"legacyData": "310000000000000000000002ec000000000000000032"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "elevator", 
 			"location": [
 				842, 
 				1301
-			], 
-			"legacyData": "310000000000000000000002ec0000000000000000ba"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				922, 
 				1595
-			], 
-			"legacyData": "6f000000000000000000020c80000000000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

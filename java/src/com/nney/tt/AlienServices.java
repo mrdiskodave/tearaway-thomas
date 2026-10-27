@@ -167,4 +167,22 @@ public interface AlienServices extends PlayerPositionServices {
 	 * will be played rather than skipped.
 	 */
 	void secretBonusFound();
+
+	/**
+	 * The joystick as the player is using it this frame (see
+	 * {@link com.nney.tt.input.Joystick}), e.g. for lifts the player drives.
+	 */
+	int getJoystick();
+
+	/** The final challenge's letters (only meaningful on that stage). */
+	TearawayLetters getLetters();
+
+	/** Is this stage a challenge (rather than an ordinary or bonus stage)? */
+	boolean isChallenge();
+
+	/** Set the clock (the final challenge's letters put it back to 60). */
+	void setTimeRemaining(int seconds);
+
+	/** The map block at this point (the original's block numbers). */
+	int getBlockNumber(Coord c);
 }

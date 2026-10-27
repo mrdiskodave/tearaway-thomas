@@ -22,6 +22,7 @@ public class PlainLiftAlien extends LiftAlien {
 
 	/** Width the original game used for its lifts (from the AGL tables in s195). */
 	private static final int ICE_LIFT_WIDTH = 36;
+	private static final int FUTURE_LIFT_WIDTH = 38;
 	private static final int BLOCK_LIFT_WIDTH = 24;
 
 	/**
@@ -31,7 +32,8 @@ public class PlainLiftAlien extends LiftAlien {
 	 * and OBbottom, 2 pixels a frame, no pause. (The original drew it with map
 	 * blocks; we use the world's lift sprite instead.)
 	 * 
-	 * Type 54 (ilift_alien/frac_lift): goes between (OBleft, OBtop) and
+	 * Type 54 (ilift_alien/frac_lift), and 98 (flift1_alien, Futureland's
+	 * version, which uses the same code): goes between (OBleft, OBtop) and
 	 * (OBright, OBbottom), 2 pixels a frame along whichever axis is longer,
 	 * no pause. OBstatus0 says which way it was going when the map was saved
 	 * (non-zero: towards the larger coordinate). With the "climb" flag the
@@ -53,7 +55,7 @@ public class PlainLiftAlien extends LiftAlien {
 			increasing = Math2.bitTest(loadByte(OBstatus0), 0);
 		}
 		else {
-			half = ICE_LIFT_WIDTH / 2;
+			half = (type == 98 ? FUTURE_LIFT_WIDTH : ICE_LIFT_WIDTH) / 2;
 			start = new Coord((short) loadShort(OBleft) + half, (short) loadShort(OBtop));
 			end = new Coord((short) loadShort(OBright) + half, (short) loadShort(OBbottom));
 			increasing = loadByte(OBstatus0) != 0;

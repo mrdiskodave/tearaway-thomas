@@ -468,6 +468,37 @@ public class World implements AlienServices, Disposable {
 		ttSprite = s;
 	}
 
+	/** What the player's joystick says this frame (for aliens that ask). */
+	private int currentJoystick;
+
+	@Override
+	public int getJoystick() {
+		return currentJoystick;
+	}
+
+	@Override
+	public int getBlockNumber(Coord c) {
+		return getBlock(c);
+	}
+
+	/** Made afresh for each attempt, as the original did in its level setup. */
+	private final TearawayLetters letters = new TearawayLetters();
+
+	@Override
+	public TearawayLetters getLetters() {
+		return letters;
+	}
+
+	@Override
+	public boolean isChallenge() {
+		return levelInfo.title.startsWith("challenge") || levelInfo.mode.startsWith("challenge");
+	}
+
+	@Override
+	public void setTimeRemaining(int seconds) {
+		timeRemainingInFrames = seconds * Const.FPS + Const.FPS - 1;
+	}
+
 	@Override
 	public Coord getPlayerPosition() {
 		return player.readOnlyPlayerPosition();
@@ -1188,6 +1219,35 @@ public class World implements AlienServices, Disposable {
 				}
 			};
 		}
+		else if ("challenge:letters".equals(levelInfo.mode)) {
+			final String text = Messages.finalChallenge(levelNum);
+			mode = new Mode() {
+				@Override
+				public String successMessage() {
+					return Messages.challengeCompleteExtraLife(ow.levelNumber + 1, timeRemainingInFrames / Const.FPS);
+				}
+
+				@Override
+				public String failMessage() {
+					return Messages.challengeFailedNoExtraLife(ow.levelNumber + 1);
+				}
+
+				@Override
+				public void onTimeOut() {
+					performLevelFailure();
+				}
+
+				@Override
+				public String introText() {
+					return text;
+				}
+
+				@Override
+				public boolean hasExit() {
+					return false;
+				}
+			};
+		}
 		else if (levelTitle.equals(":fruit") || "fruit".equals(levelInfo.mode)) {
 			final String text = Messages.fruit(levelNum, levelInfo.timeGiven);
 			mode = new Mode() {
@@ -1396,6 +1456,7 @@ public class World implements AlienServices, Disposable {
 
 	private void mainActions(int joystickPosition) {
 		frameNumber++;
+		currentJoystick = joystickPosition;
 
 		moveLifts();
 

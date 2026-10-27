@@ -55,36 +55,64 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				2080, 
 				838
 			], 
-			"legacyData": "610006bd0279085a040702024200ffff000000000000"
+			"down": true, 
+			"right": true, 
+			"box": [
+				1725, 
+				633, 
+				2138, 
+				1031
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				2355, 
 				732
 			], 
-			"legacyData": "6100085702a409fe03c70502690000ff000000000000"
+			"down": true, 
+			"right": false, 
+			"box": [
+				2135, 
+				676, 
+				2558, 
+				967
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				2613, 
 				397
 			], 
-			"legacyData": "610008b300eb0bfa030c010235000000000000000000"
+			"down": false, 
+			"right": false, 
+			"box": [
+				2227, 
+				235, 
+				3066, 
+				780
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				2789, 
 				440
 			], 
-			"legacyData": "610008b300eb0bfa030c020275000000000000000000"
+			"down": false, 
+			"right": false, 
+			"box": [
+				2227, 
+				235, 
+				3066, 
+				780
+			]
 		}, 
 		{
 			"type": "mapBounds", 

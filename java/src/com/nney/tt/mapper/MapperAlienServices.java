@@ -95,6 +95,32 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
+	public int getJoystick() {
+		return 0;
+	}
+
+	@Override
+	public int getBlockNumber(Coord c) {
+		return 0;
+	}
+
+	private final com.nney.tt.TearawayLetters letters = new com.nney.tt.TearawayLetters();
+
+	@Override
+	public com.nney.tt.TearawayLetters getLetters() {
+		return letters;
+	}
+
+	@Override
+	public boolean isChallenge() {
+		return false;
+	}
+
+	@Override
+	public void setTimeRemaining(int seconds) {
+	}
+
+	@Override
 	public boolean headBounce(Alien alien, Sprite... alienSprites) {
 		ni();
 		return false;

@@ -5,6 +5,7 @@ import com.nney.tt.sprites.Sprite;
 
 public class TrampolineAlien extends AlienWithLocation {
 	private Box box;
+	private int openFrames;
 
 	@Override
 	public void onLoaded() {
@@ -15,6 +16,7 @@ public class TrampolineAlien extends AlienWithLocation {
 	@Override
 	public void update() {
 		Box ourBox = box.add2(c);
+		if (openFrames > 0 && --openFrames == 0) changeAnimation(0);
 		Sprite s = nextFrame();
 		srv.drawSprite(c, s);
 		int touchDownSpeed = srv.getThePlayer().getTouchDownVel();
@@ -22,6 +24,11 @@ public class TrampolineAlien extends AlienWithLocation {
 			if (srv.collideBoxWithPlayerHandle(ourBox)) {
 				srv.getThePlayer().boost(-20);
 				srv.playSoundEffect("trampoline");
+				// Futureland's has an "open" frame, shown for 18 frames
+				if (anims.size() > 1) {
+					changeAnimation(1);
+					openFrames = 18;
+				}
 			}
 		}
 		freezeBounds = ourBox;

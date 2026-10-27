@@ -6,7 +6,11 @@
     [
         "hrope",    [ 108 ],
         "vrope",    [ 107 ],
-        "ladderleft", [280, 282, 284 ]
+        "ladderleft", [280, 282, 284 ],
+        "liftstop", [ 19 ],
+        "liftstopright", [ 17 ],
+        "liftnoup", [ 58 ],
+        "liftnodown", [ 18 ]
     ],
 "invisibleBlockHiding":
     [

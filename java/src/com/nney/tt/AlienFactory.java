@@ -35,7 +35,9 @@ public class AlienFactory {
 		LEGACY_ALIASES.put(54, "plainLift"); // ilift_alien: Iceland lift
 		LEGACY_ALIASES.put(58, "trampoline"); // tram_alien: Iceland trampoline
 		LEGACY_ALIASES.put(44, "ferrisWheel"); // feris_alien: Iceland Ferris wheel
+		LEGACY_ALIASES.put(99, "trampoline"); // ftrmp_alien: Futureland trampoline
 		LEGACY_MERGED.add(44);
+		LEGACY_MERGED.add(32); // Fferis_alien: Futureland's Ferris wheel
 	}
 
 	private final Set<Integer> mergedSoFar = new HashSet<Integer>();

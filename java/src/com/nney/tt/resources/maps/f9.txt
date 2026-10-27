@@ -73,172 +73,202 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1038, 
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 11, 
+			"end": [
+				1143, 
 				1022
 			], 
-			"legacyData": "620903f603fe046403fe0002d000ff00000000000006"
+			"start": [
+				1033, 
+				1022
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringRight", 
 			"location": [
 				1287, 
 				1211
 			], 
-			"legacyData": "590404f7048204f704bb00023c005c00000000000000"
+			"track": [
+				1271, 
+				1154, 
+				1271, 
+				1211
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringRight", 
 			"location": [
 				1287, 
 				907
 			], 
-			"legacyData": "590404f7035104f7038b00023c002b00000000000000"
+			"track": [
+				1271, 
+				849, 
+				1271, 
+				907
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1317, 
-				1011
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 21, 
+			"end": [
+				1336, 
+				1093
 			], 
-			"legacyData": "6209052503b7052504450002d000ff000000000000ce"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1526, 
+			"start": [
+				1336, 
 				951
-			], 
-			"legacyData": "620905f603a705f604050002d000ff000000000000a4"
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1733, 
-				963
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 9, 
+			"end": [
+				1545, 
+				1029
 			], 
-			"legacyData": "620905f603a705f604050002d000000000000000004e"
+			"start": [
+				1545, 
+				935
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1941, 
-				1051
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 85, 
+			"end": [
+				1752, 
+				1029
 			], 
-			"legacyData": "6209076503f7076504550002d000ff0000000000006a"
+			"start": [
+				1752, 
+				935
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2150, 
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 19, 
+			"end": [
+				1960, 
+				1109
+			], 
+			"start": [
+				1960, 
 				1015
-			], 
-			"legacyData": "6209076503f7076504550002d00000000000000000fb"
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2357, 
-				1045
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 0, 
+			"end": [
+				2169, 
+				1109
 			], 
-			"legacyData": "6209093503b7093504450002d000ff00000000000073"
+			"start": [
+				2169, 
+				1015
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 33, 
+			"end": [
+				2376, 
+				1093
+			], 
+			"start": [
+				2376, 
+				951
+			]
+		}, 
+		{
+			"type": "gunFiringLeft", 
 			"location": [
 				2423, 
 				907
 			], 
-			"legacyData": "5a0504f7035104f7038b00023c001200000000000000"
+			"track": [
+				1271, 
+				849, 
+				1271, 
+				907
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2570, 
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 91, 
+			"end": [
+				2679, 
 				1022
 			], 
-			"legacyData": "620909f603ff0a6403fe0002d000000000000000002e"
+			"start": [
+				2569, 
+				1022
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2912, 
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 34, 
+			"end": [
+				2967, 
 				1022
 			], 
-			"legacyData": "62090b1603fe0b8403fe0002d000ff00000000000098"
+			"start": [
+				2857, 
+				1022
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				3022, 
-				691
+			"type": "futureFerrisWheel", 
+			"cycleLength": 256, 
+			"spinBox": [
+				3215, 
+				496, 
+				3375, 
+				656
 			], 
-			"legacyData": "200503f603fe046403fe0002d000000000060000007f"
+			"spokes": 8, 
+			"yspeed": 3, 
+			"xspeed": 2, 
+			"bounceBox": [
+				3023, 
+				321, 
+				3536, 
+				829
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				3031, 
-				630
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000050000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3058, 
-				740
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000070000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3080, 
-				594
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000040000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3119, 
-				749
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000000000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3140, 
-				603
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000030000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3168, 
-				712
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000010000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3177, 
-				652
-			], 
-			"legacyData": "200503f603fe046403fe0002d000000000020000007f"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				765, 
+			"type": "futureLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 18, 
+			"end": [
+				856, 
 				1022
 			], 
-			"legacyData": "620902d603fe034503fe0002d000ff0000000000006e"
+			"start": [
+				745, 
+				1022
+			]
 		}, 
 		{
 			"type": "mapBounds", 

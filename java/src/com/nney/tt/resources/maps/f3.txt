@@ -15,108 +15,179 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				128, 
 				951
 			], 
-			"legacyData": "5b00006403b600c303b7000205002000000000000000"
+			"track": [
+				100, 
+				950, 
+				195, 
+				951
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "robot", 
 			"location": [
 				129, 
 				367
 			], 
-			"legacyData": "6000002c016200f601600a04d300003c000000000000"
+			"goLeft": true, 
+			"range": [
+				44, 
+				246
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				140, 
 				1739
 			], 
-			"legacyData": "61040000068a011d07cf0302ee000000000000000000"
+			"down": false, 
+			"right": false, 
+			"box": [
+				0, 
+				1674, 
+				285, 
+				1999
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				140, 
 				999
 			], 
-			"legacyData": "5b00001003eb010e03e6000205000100000000000000"
+			"track": [
+				16, 
+				1003, 
+				270, 
+				998
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "robot", 
 			"location": [
 				143, 
 				237
 			], 
-			"legacyData": "6000002c016200f601600c04fb000020000000000000"
+			"goLeft": true, 
+			"range": [
+				44, 
+				246
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				153, 
 				807
 			], 
-			"legacyData": "5b00001003270110032a000205003100000000000000"
+			"track": [
+				16, 
+				807, 
+				272, 
+				810
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				169, 
 				903
 			], 
-			"legacyData": "5b0000a90388010f0389000205005000000000000000"
+			"track": [
+				169, 
+				904, 
+				271, 
+				905
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				224, 
 				402
 			], 
-			"legacyData": "61040000017b011b02d206028200ffff000000000000"
+			"down": true, 
+			"right": true, 
+			"box": [
+				0, 
+				379, 
+				283, 
+				722
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringRight", 
 			"location": [
 				23, 
 				1453
 			], 
-			"legacyData": "590000150554001905df000205000800000000000000"
+			"track": [
+				21, 
+				1364, 
+				25, 
+				1503
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				256, 
 				699
 			], 
-			"legacyData": "61050000017b011b02d2060265000000000000000000"
+			"down": false, 
+			"right": false, 
+			"box": [
+				0, 
+				379, 
+				283, 
+				722
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringLeft", 
 			"location": [
 				263, 
 				1414
 			], 
-			"legacyData": "5a00010605010107058b000205001400000000000000"
+			"track": [
+				262, 
+				1281, 
+				263, 
+				1419
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "spinner", 
 			"location": [
 				34, 
 				1874
 			], 
-			"legacyData": "61050000068a011d07cf0302620000ff000000000000"
+			"down": true, 
+			"right": false, 
+			"box": [
+				0, 
+				1674, 
+				285, 
+				1999
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				86, 
 				855
 			], 
-			"legacyData": "5b00001103580077035a000205000300000000000000"
+			"track": [
+				17, 
+				856, 
+				119, 
+				858
+			]
 		}, 
 		{
 			"type": "mapBounds", 

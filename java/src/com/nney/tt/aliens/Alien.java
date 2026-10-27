@@ -160,6 +160,21 @@ public abstract class Alien implements HasProps, Bounded {
 	public void onPropUpdate() {
 	}
 
+	/**
+	 * Is the player inside one of the original game's collision boxes (the
+	 * four numbers after "bsr easy_collideDP" or "bsr ECstun" in s195)?
+	 * 
+	 * The original measured the player's feet relative to the object, with
+	 * offsets of 160 and 128 and a player 16 wide and 30 high, so: x from x1 -
+	 * 168 to x2 - 152, feet from 128 - y1 to 158 - y2 below the object.
+	 */
+	protected boolean playerInOriginalBox(Coord at, int x1, int y1, int x2, int y2) {
+		Coord p = srv.getPlayerPosition();
+		int dx = p.x - at.x;
+		int dy = p.y - at.y;
+		return dx >= x1 - 168 && dx <= x2 - 152 && dy >= 128 - y1 && dy <= 158 - y2;
+	}
+
 	protected void animateDrawAndStun(Coord c2) {
 		Sprite s = nextFrame();
 		srv.drawSprite(c2, s);

@@ -15,12 +15,11 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "adviceScreen", 
 			"location": [
 				554, 
 				747
-			], 
-			"legacyData": "6f000000000000000000020c00000000000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

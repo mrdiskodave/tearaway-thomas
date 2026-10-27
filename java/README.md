@@ -28,6 +28,7 @@ Options:
                     N skips to the next level
     --demo NAME     (with --level) play one of the demo recordings: intro, wood,
                     toy, ghost, ice, future
+    --at X,Y        (with --level) start the player at this map position
     --mapper        start in the map editor
     --mute          no sound
     --scale N       initial window size (default 2x)
@@ -52,6 +53,9 @@ Both need only a JDK (21 or later) and produce `tearaway-thomas.jar`.
 - `com.nney.tt.lwjgl`: the original LWJGL 2 / OpenGL platform layer. It still
   compiles against `lib/*.jar` but is no longer needed or built into the jar.
 - `com.nney.tt.resources`: all the converted artwork, maps and music.
+- `com.nney.tt.tools.MapTool`: converts objects still held as raw Amiga data
+  ("legacy" objects) in the level files into proper ones, once their type has
+  a Java class. Edits just those objects. (Every level is now converted.)
 
 ## Automated testing
 

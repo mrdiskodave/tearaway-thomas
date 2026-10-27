@@ -15,204 +15,214 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				1018, 
 				648
-			], 
-			"legacyData": "58010000000000000000020200000aff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				1018, 
 				776
-			], 
-			"legacyData": "580100000000000000000002800025ff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "pipeEndLeft", 
 			"location": [
 				1375, 
 				640
-			], 
-			"legacyData": "35010000000000000000000298000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "pipeEndBottom", 
 			"location": [
 				1423, 
 				704
-			], 
-			"legacyData": "340100000000000000000002bc000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				1609, 
 				776
-			], 
-			"legacyData": "580100000000000000000202800022ff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				1721, 
 				776
-			], 
-			"legacyData": "580100000000000000000102800016ff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "robot", 
 			"location": [
 				1931, 
 				700
 			], 
-			"legacyData": "6000072002c8079e02cc020458000062000000000000"
+			"goLeft": true, 
+			"range": [
+				1824, 
+				1950
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2038, 
 				805
-			], 
-			"legacyData": "63000000000000000000000448000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "pipeEndBottom", 
 			"location": [
 				2079, 
 				704
-			], 
-			"legacyData": "340100000000000000000002bc000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringRight", 
 			"location": [
 				2391, 
 				699
 			], 
-			"legacyData": "590509570289095702bb000248002600000000000000"
+			"track": [
+				2391, 
+				649, 
+				2391, 
+				699
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				2520, 
 				776
-			], 
-			"legacyData": "58010000000000000000020280000d00000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "pipeEndBottom", 
 			"location": [
 				2527, 
 				608
-			], 
-			"legacyData": "340100000000000000000002bc000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				2601, 
 				776
-			], 
-			"legacyData": "58010000000000000000030200000500000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				266, 
 				631
 			], 
-			"legacyData": "5b0000430277010a0284000248001a00000000000000"
+			"track": [
+				67, 
+				631, 
+				266, 
+				644
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				2681, 
 				776
-			], 
-			"legacyData": "580100000000000000000202000010ff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				2841, 
 				776
-			], 
-			"legacyData": "58010000000000000000000200001100000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				2921, 
 				776
-			], 
-			"legacyData": "580100000000000000000102800018ff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "pipeEndBottom", 
 			"location": [
 				2991, 
 				608
-			], 
-			"legacyData": "340100000000000000000002bc000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				3001, 
 				776
-			], 
-			"legacyData": "58010000000000000000010200000eff000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringDown", 
 			"location": [
 				312, 
 				631
 			], 
-			"legacyData": "5b000138027e01fa0277000248002500000000000000"
+			"track": [
+				312, 
+				638, 
+				506, 
+				631
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringLeft", 
 			"location": [
 				3127, 
 				699
 			], 
-			"legacyData": "5a050c3702890c3702bb0002c8002000000000000000"
+			"track": [
+				3127, 
+				649, 
+				3127, 
+				699
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "pipeEndBottom", 
 			"location": [
 				3519, 
 				656
-			], 
-			"legacyData": "340100000000000000000002bc000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "gunFiringRight", 
 			"location": [
 				55, 
 				771
 			], 
-			"legacyData": "5900003702820037030b000248000300000000000000"
+			"track": [
+				55, 
+				642, 
+				55, 
+				779
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				904, 
 				648
-			], 
-			"legacyData": "58010000000000000000010200001600000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "electric", 
 			"location": [
 				904, 
 				776
-			], 
-			"legacyData": "58010000000000000000010280000dff000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

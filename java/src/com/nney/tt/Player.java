@@ -10,6 +10,7 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.tt.tinytools.EdgeDetector;
 import com.nney.tt.tinytools.FractionTracker;
 import com.nney.tt.tinytools.Latch;
+import com.nney.utils.Math2;
 
 /**
  * Player movement.
@@ -257,6 +258,154 @@ public class Player {
 	enum Mode {
 		WALK, LIFT, AIR, // <<-- these modes all run off the same xslicer
 		SLIDE, STUN, MONKEY, ROPE, ROPE_TWIST, LADDER,
+		/** Futureland: heading for a pipe's mouth (pipeb_mode in s195). */
+		PIPE_ENTER,
+		/** Futureland: inside a pipe (pipe_mode). */
+		PIPE,
+		/** Futureland: shot out of the end of a pipe (blasth_mode). */
+		BLAST,
+	}
+
+	// ---------------------------------------------------------------------------
+	// PIPES (Futureland)
+
+	/** A pipe end asked us in this frame (PLpipestart). */
+	private boolean pipeRequested;
+	/** Stops us going straight back into a pipe we just came out of. */
+	private boolean pipeLatch;
+	private int pipeDir;
+	private int pipeVel;
+	private final Coord pipeMouth = new Coord();
+	private boolean pipeCantFail;
+	private final Coord blastVel = new Coord();
+	private int blastDist;
+	/** In a pipe, so not drawn (PLinvis). */
+	private boolean invisible;
+
+	private static final int PIPE_START_SPEED = 7;
+	private static final int PIPE_TOP_SPEED = 12;
+	private static final int PIPE_APPROACH_SPEED = 7;
+	private static final int BLAST_STEPS = 16;
+	private static final int BLAST_FRAMES = 3;
+	private static final int AFTER_BLAST_VELOCITY = 3;
+
+	/**
+	 * Get thrown sideways (Futureland's electric fields do this): blasted
+	 * along, 16 pixels a step, for a few frames or until we hit something,
+	 * then left dizzy.
+	 */
+	public void blastAway(int vx, int vy, int frames) {
+		if (mode == Mode.BLAST || proofTimer != 0) return;
+		reset(Mode.BLAST);
+		blastVel.x = vx;
+		blastVel.y = vy;
+		blastDist = frames;
+		invisible = false;
+	}
+
+	/**
+	 * A pipe end is offering to take us (pipe_start in s195). Only taken if
+	 * we're walking or in the air, and not stunned.
+	 * 
+	 * @param direction
+	 *            Which way we'll be going through the pipe (see {@link Pipes}).
+	 * @param mouth
+	 *            Where to go to get in.
+	 */
+	public void requestPipe(int direction, Coord mouth) {
+		if (mode == Mode.WALK || mode == Mode.AIR) {
+			pipeRequested = true;
+			pipeDir = direction;
+			pipeMouth.copyFieldsFrom(mouth);
+		}
+	}
+
+	private boolean inPipeModes() {
+		return mode == Mode.PIPE_ENTER || mode == Mode.PIPE || mode == Mode.BLAST;
+	}
+
+	private void perhapsStartPipeMode() {
+		boolean requested = pipeRequested;
+		pipeRequested = false;
+		if (!requested) {
+			pipeLatch = false;
+			return;
+		}
+		if (stunTimer != 0 || pipeLatch || inPipeModes()) return;
+		reset(Mode.PIPE_ENTER);
+		pipeVel = PIPE_START_SPEED;
+	}
+
+	private void doPipeModes() {
+		setAnim("jumpleft", true);
+		if (mode == Mode.PIPE_ENTER) {
+			// head for the mouth of the pipe, then disappear into it
+			crw.x = Math2.closer(crw.x, pipeMouth.x, PIPE_APPROACH_SPEED);
+			crw.y = Math2.closer(crw.y, pipeMouth.y, PIPE_APPROACH_SPEED);
+			if (crw.equals(pipeMouth)) {
+				invisible = true;
+				pipeCantFail = true;
+				mode = Mode.PIPE;
+				if ((pipeDir & 1) != 0) crw.y &= -Const.BLOCK_SIZE;
+			}
+		}
+		else if (mode == Mode.PIPE) {
+			for (int n = 0; n <= pipeVel && mode == Mode.PIPE; n++) {
+				moveInPipe();
+			}
+			if (mode == Mode.PIPE && srv.frameTest(2) && pipeVel != PIPE_TOP_SPEED) pipeVel++;
+		}
+		else {
+			blast();
+		}
+	}
+
+	/** One pixel through the pipe (move_in_pipe). */
+	private void moveInPipe() {
+		pipeLatch = true;
+		int out = Pipes.turn(srv.getBlockNumber(cr), pipeDir);
+		if (out != pipeDir) pipeVel >>= 1; // slow down on the bends
+		if (out == Pipes.OUT) {
+			if (!pipeCantFail) {
+				leavePipe();
+				return;
+			}
+			// still getting into the pipe proper: keep going
+		}
+		else {
+			pipeDir = out;
+			pipeCantFail = false;
+		}
+		crw.add(Pipes.STEP[pipeDir]);
+	}
+
+	/** Out of the end of the pipe (pipefail). */
+	private void leavePipe() {
+		crw.add(Pipes.EXIT_OFFSET[pipeDir]);
+		blastVel.copyFieldsFrom(Pipes.BLAST[pipeDir]);
+		invisible = false;
+		mode = Mode.BLAST;
+		blastDist = BLAST_FRAMES;
+	}
+
+	/** Shot out of the pipe until we hit something or run out of puff. */
+	private void blast() {
+		for (int n = 0; n < BLAST_STEPS; n++) {
+			crw.add(blastVel);
+			if (srv.inTheGround(cr)) {
+				crw.sub(blastVel);
+				landAfterBlast();
+				return;
+			}
+		}
+		if (--blastDist < 0) landAfterBlast();
+	}
+
+	private void landAfterBlast() {
+		reset(Mode.AIR);
+		// the original always leaves you dizzy
+		stun();
+		vely = AFTER_BLAST_VELOCITY;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -886,6 +1035,13 @@ public class Player {
 
 		drawInWhite = (flashTimer & 15) > 9;
 
+		perhapsStartPipeMode();
+		if (inPipeModes()) {
+			doPipeModes();
+			lc = ic;
+			return;
+		}
+
 		perhapsStartMonkeyMode();
 		perhapsStartRopeMode();
 		perhapsStartLadderMode();
@@ -946,7 +1102,7 @@ public class Player {
 	}
 
 	public void draw() {
-		srv.drawSprite(cr, playerSprite, drawInWhite);
+		if (!invisible) srv.drawSprite(cr, playerSprite, drawInWhite);
 	}
 
 	// gifts
@@ -1104,6 +1260,11 @@ public class Player {
 	 */
 	public boolean wouldBoard(Lift caller) {
 		return (mode == Mode.AIR || mode == Mode.WALK) && caller.isScoopingUp(lc, cr);
+	}
+
+	/** Are we riding this lift? */
+	public boolean isStandingOn(Lift lift) {
+		return mode == Mode.LIFT && standingOn == lift;
 	}
 
 	/** Already standing on something (rather than landing on it)? */

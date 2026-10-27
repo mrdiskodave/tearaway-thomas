@@ -34,12 +34,11 @@
 			]
 		},
 		{
-			"type": "legacy",
+			"type": "secretPattern",
 			"location": [
 				2144,
 				1102
-			],
-			"legacyData": "1e0000000000000000000002dd000000000000000000"
+			]
 		},
 		{
 			"type": "mapBounds",

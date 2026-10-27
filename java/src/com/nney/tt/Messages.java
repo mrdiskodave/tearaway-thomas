@@ -61,6 +61,26 @@ public class Messages {
 				level, timeLeft);
 	}
 
+	/** The final challenge (chal_texts in s195). */
+	public static String finalChallenge(int level) {
+		return String.format(LEVEL_TEXT + "[p][c5][k4]--final challenge--[k]" + //
+				"[p][c]collect the letters that[n]spell [c2]tearaway[c] (in order)" + //
+				"[p][c]use screens to get advice!" + GOOD_LUCK, level);
+	}
+
+	/** ccomplete_text in s195. */
+	public static String challengeCompleteExtraLife(int level, int secondsLeft) {
+		return String.format(CHAL_TEXT + "[p][c5]challenge complete" + //
+				"[p][c]with [c2]%d[c] seconds left.[n][c4]extra life awarded!" + //
+				"[p][c2]well done!" + PRESS_FIRE, level, secondsLeft);
+	}
+
+	/** cfail_text in s195. */
+	public static String challengeFailedNoExtraLife(int level) {
+		return String.format(CHAL_TEXT + "[p][c1]challenge failed" + //
+				"[p][c]out of time![n]sorry - no extra life!" + PRESS_FIRE, level);
+	}
+
 	public static String challengeFailed(int level) {
 		return String.format(//
 				CHAL_TEXT + "[p][c1]challenge failed!" + //

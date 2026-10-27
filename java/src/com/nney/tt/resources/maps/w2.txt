@@ -288,12 +288,16 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "worm", 
 			"location": [
 				1994, 
 				1167
 			], 
-			"legacyData": "400107b8048f07d4048e030665000100000000000000"
+			"right": true, 
+			"range": [
+				1976, 
+				2004
+			]
 		}, 
 		{
 			"type": "mapBounds", 

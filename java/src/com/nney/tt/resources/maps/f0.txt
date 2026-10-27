@@ -15,172 +15,151 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				1016, 
 				1365
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				1207, 
 				1029
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				1319, 
 				1157
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				1959, 
 				885
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2263, 
 				1285
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2359, 
 				1877
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2375, 
 				885
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2583, 
 				1429
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2648, 
 				1285
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2663, 
 				357
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				2888, 
 				1733
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				295, 
 				981
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3064, 
 				357
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3127, 
 				1557
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3350, 
 				1381
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3351, 
 				1029
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3351, 
 				1205
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3351, 
 				677
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3351, 
 				853
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				3352, 
 				501
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				391, 
 				1157
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
 			"type": "turbo", 
@@ -191,20 +170,18 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				471, 
 				869
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "trampoline", 
 			"location": [
 				544, 
 				1557
-			], 
-			"legacyData": "63000000000000000000000400000000000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

@@ -86,6 +86,11 @@ public class AnimPlayer {
 		}
 	}
 
+	/** Which frame of the animation we're on. */
+	public int position() {
+		return pos;
+	}
+
 	public boolean hasAnimEnded() {
 		return animEnded;
 	}

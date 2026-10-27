@@ -373,12 +373,11 @@
 			]
 		},
 		{
-			"type": "legacy",
+			"type": "secretKey",
 			"location": [
 				1898,
 				1214
-			],
-			"legacyData": "66000000000000000000000200000000000000000000"
+			]
 		},
 		{
 			"type": "mapBounds",

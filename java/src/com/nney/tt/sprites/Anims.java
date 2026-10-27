@@ -31,6 +31,11 @@ public final class Anims implements Disposable, Bounded {
 		return answer;
 	}
 
+	/** How many animations there are. */
+	public int size() {
+		return anims.size();
+	}
+
 	public Anim find(int pos) {
 		return anims.get(pos);
 	}
