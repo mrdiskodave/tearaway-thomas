@@ -141,7 +141,15 @@ public class World implements AlienServices, Disposable {
 	 */
 	private static final boolean CTC_HARD_SCROLLING = false;
 
-	final private Random rnd = new Random();
+	/**
+	 * The same seed as the original (init_game: move.w #$a713,seed) so that,
+	 * like the original, a level plays out identically given identical input.
+	 * That's what makes recorded demos possible. A new World is made for each
+	 * level (and each life), so this restarts every time.
+	 */
+	public static final long RANDOM_SEED = 0xa713;
+
+	final private Random rnd = new Random(RANDOM_SEED);
 
 	private Player player;
 

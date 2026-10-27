@@ -10,7 +10,8 @@ public class BlockAliasTable {
 	private final HashMap<Integer, ArrayList<Integer>> expand = new HashMap<Integer, ArrayList<Integer>>(1, 0.1f);
 	private final HashMap<Integer, Integer> compress = new HashMap<Integer, Integer>(1, 0.1f);
 
-	private final Random r = new Random();
+	// seeded so the scenery comes out the same every time (handy for tests)
+	private final Random r = new Random(com.nney.tt.World.RANDOM_SEED);
 
 	public BlockAliasTable() {
 
