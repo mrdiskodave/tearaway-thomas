@@ -22,6 +22,7 @@ import com.nney.tt.gfx.Disposable;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
 import com.nney.tt.input.Joystick;
+import com.nney.tt.input.KeyEvent;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.ParsedJoystickImpl;
 import com.nney.tt.map.BlockInformation;
@@ -47,6 +48,65 @@ import com.nney.utils.Math2;
 public class World implements AlienServices, Disposable {
 	static public class ExitException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
+	}
+
+	/** How a call to {@link #playLevel()} ended. */
+	public enum Outcome {
+		/** Level done; {@link OuterWorld#levelNumber} has moved on. */
+		COMPLETED,
+		/** Lost a life; play the same level again. */
+		LIFE_LOST,
+		/** Lost the last life. */
+		GAME_OVER,
+		/** Developer pressed Esc: the map editor has been launched. */
+		TO_MAPPER,
+		/** A demo ran its course (or the demo player died or finished). */
+		DEMO_OVER,
+		/** Someone pressed fire during a demo: they want to play. */
+		DEMO_INTERRUPTED
+	}
+
+	/**
+	 * Watches a demo, frame by frame, and may draw over it (e.g. the title
+	 * sequence).
+	 */
+	public interface DemoDirector {
+		/**
+		 * Called once a frame after the game has drawn everything.
+		 * 
+		 * @return <code>false</code> to end the demo.
+		 */
+		boolean frame();
+	}
+
+	private Outcome outcome = Outcome.COMPLETED;
+
+	/** Non-null while playing a demo: where the "player's" input comes from. */
+	private Joystick demoJoystick;
+
+	private DemoDirector demoDirector;
+
+	/** Has the real fire button been up since the demo began? */
+	private boolean demoFireWasUp;
+
+	private void exit(Outcome o) {
+		outcome = o;
+		throw new ExitException();
+	}
+
+	private boolean isDemo() {
+		return demoJoystick != null;
+	}
+
+	/**
+	 * Play this level as a demo: no intro or outro, input from a recording,
+	 * ends when the director says so, when the "player" dies or finishes, or
+	 * when someone presses fire. Music is left to the caller.
+	 */
+	public void configureDemo(Joystick recording, DemoDirector director) {
+		demoJoystick = recording;
+		demoDirector = director;
+		configuredPerformIntro = false;
 	}
 
 	// 36 0x38,3c 3a 00
@@ -862,17 +922,22 @@ public class World implements AlienServices, Disposable {
 
 	private void begin() {
 		// the main game doesn't use key events so
-		// this is just to drain them
+		// this is mostly just to drain them
 		// i.e. to stop them piling up
-		keyboard.nextEvent();
+		KeyEvent keyEvent = keyboard.nextEvent();
 
 		if (ow.devMode) {
+			if (keyEvent != null && keyEvent.keyCode == Keyboard.KEY_N && !isDemo()) {
+				// skip to the next level (cheat_anylev in the original)
+				ow.levelNumber++;
+				exit(Outcome.COMPLETED);
+			}
 			if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
 				if (!configuredCalledFromMapper) {
 					// called from OuterWorld
 					ow.launchMapper(scr.position());
 				}
-				throw new ExitException();
+				exit(Outcome.TO_MAPPER);
 			}
 			if (keyboard.isDown(Keyboard.KEY_D)) {
 				timeRemainingInFrames = 0;
@@ -881,11 +946,20 @@ public class World implements AlienServices, Disposable {
 
 		firePressed |= Math2.maskTest(joystick.get(), Joystick.FIRE);
 
+		// (before beginDrawing: we mustn't leave a frame half done)
+		if (isDemo()) {
+			boolean fire = Math2.maskTest(joystick.get(), Joystick.FIRE);
+			if (!fire) demoFireWasUp = true;
+			else if (demoFireWasUp) exit(Outcome.DEMO_INTERRUPTED);
+		}
+
 		gc.beginDrawing();
 	}
 
 	private void end() {
+		boolean keepGoing = demoDirector == null || demoDirector.frame();
 		gc.endDrawing();
+		if (!keepGoing) exit(Outcome.DEMO_OVER);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1165,7 +1239,10 @@ public class World implements AlienServices, Disposable {
 		//
 		begin();
 
-		int j = (scriptReader == null) ? joystick.get() : scriptReader.get();
+		int j;
+		if (isDemo()) j = demoJoystick.get();
+		else if (scriptReader != null) j = scriptReader.get();
+		else j = joystick.get();
 		if (scriptWriter != null) scriptWriter.put(j);
 		mainActions(j);
 
@@ -1178,6 +1255,8 @@ public class World implements AlienServices, Disposable {
 		drawHudAndBorders(false);
 
 		end();
+
+		if (isLevelCompleted() && isDemo()) exit(Outcome.DEMO_OVER);
 
 		if (isLevelCompleted()) {
 			if (!delayedFinish.testAndRun()) {
@@ -1199,6 +1278,8 @@ public class World implements AlienServices, Disposable {
 	}
 
 	private void performLevelFailure() {
+		if (isDemo()) exit(Outcome.DEMO_OVER);
+
 		collisionDetection = false;
 
 		if (!player.isLostOffTheBottom()) {
@@ -1283,7 +1364,7 @@ public class World implements AlienServices, Disposable {
 			end();
 		} while (!fadeOut.isDone());
 
-		throw new ExitException();
+		exit(gameOver ? Outcome.GAME_OVER : Outcome.LIFE_LOST);
 	}
 
 	// gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
@@ -1441,7 +1522,9 @@ public class World implements AlienServices, Disposable {
 		}
 		cr.close();
 		ow.levelNumber++;
-		throw new ExitException();
+		ow.levelsCompleted++;
+		ow.gemsCollectedTotal += gemsCollected;
+		exit(Outcome.COMPLETED);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1481,18 +1564,37 @@ public class World implements AlienServices, Disposable {
 		configuredSeeMasks = b;
 	}
 
-	public void playLevel() {
+	/**
+	 * Play this level until something ends it.
+	 * 
+	 * @return What ended it.
+	 */
+	public Outcome playLevel() {
 		try {
 			create();
 			if (configuredPerformIntro) performIntro();
+			else if (isDemo()) prepareDemoStart();
 			performMain();
 		}
 		catch (ExitException ex) {
+		}
+		finally {
+			if (cr != null) cr.close();
 		}
 		if (scriptWriter != null) {
 			TTResource.saveScript(configuredScriptDestination, scriptWriter.save());
 		}
 		dispose();
+		return outcome;
+	}
+
+	private void prepareDemoStart() {
+		// iris in on the player, as at the start of a normal level
+		hole.setCentre(getPlayerCentreOnScreen());
+		hole.current(Curtain.CLOSED);
+		hole.target(Curtain.OPEN);
+		dimFade.current(Curtain.OPEN);
+		dimFade.target(Curtain.OPEN);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1510,7 +1612,7 @@ public class World implements AlienServices, Disposable {
 	@Override
 	public void dispose() {
 		// this presupposes create() ran successfully
-		ah.stopMusic();
+		if (!isDemo()) ah.stopMusic();
 		statusScreen.dispose();
 		hud.dispose();
 		statusDisplay.dispose();

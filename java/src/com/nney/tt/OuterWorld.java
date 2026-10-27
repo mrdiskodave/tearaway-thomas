@@ -50,6 +50,12 @@ public class OuterWorld implements Runnable, Disposable {
 
 	public int lives = 3;
 
+	/** For the end-of-game statistics. */
+	public int levelsCompleted = 0;
+
+	/** For the end-of-game statistics. */
+	public int gemsCollectedTotal = 0;
+
 	private MultiDisposable md = new MultiDisposable();
 
 	public ArrayList<Horizon> horizons = new ArrayList<Horizon>();
@@ -76,6 +82,8 @@ public class OuterWorld implements Runnable, Disposable {
 		levelNumber = 0;
 		score = 0;
 		lives = 3;
+		levelsCompleted = 0;
+		gemsCollectedTotal = 0;
 	}
 
 	public BlockSet loadBlockSet(BlockSet.Config config) {
@@ -133,6 +141,14 @@ public class OuterWorld implements Runnable, Disposable {
 				c = null;
 			}
 		};
+	}
+
+	/**
+	 * The whole game: title sequence and demos, play, game over, high scores,
+	 * round and round.
+	 */
+	public void launchFullGame(int startLevel) {
+		bootstrap = new com.nney.tt.flow.GameFlow(startLevel);
 	}
 
 	public void launchGame() {

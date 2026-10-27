@@ -41,7 +41,7 @@ import com.nney.tt.resources.TTResource;
  * <pre>
  * Usage: J2dMain [options]
  *   --mapper             start in the map editor rather than the game
- *   --level N            start on level N (0 is the first)
+ *   --level N            skip the titles and start a game on level N (0 is the first)
  *   --dev                developer keys (Esc = mapper, D = run out the clock)
  *   --resources DIR      read resources from DIR instead of the classpath
  *   --scale N            initial window zoom (default 2)
@@ -75,6 +75,8 @@ public class J2dMain {
 	int every = 25;
 	String inputScript;
 	File wavFile;
+	String demoName;
+	long demoFrames = -1;
 
 	public static void main(String[] args) throws Exception {
 		J2dMain m = new J2dMain();
@@ -97,6 +99,8 @@ public class J2dMain {
 			else if (a.equals("--every")) every = Integer.parseInt(args[++i]);
 			else if (a.equals("--input")) inputScript = args[++i];
 			else if (a.equals("--wav")) wavFile = new File(args[++i]);
+			else if (a.equals("--demo")) demoName = args[++i];
+			else if (a.equals("--demo-frames")) demoFrames = Long.parseLong(args[++i]);
 			else throw new IllegalArgumentException("Unknown option: " + a);
 		}
 		if (GraphicsEnvironment.isHeadless()) headless = true;
@@ -107,7 +111,7 @@ public class J2dMain {
 
 		final AwtKeyboard keys = new AwtKeyboard();
 		final SoundAudioContext audio = new SoundAudioContext(!headless && !mute);
-		final ScriptedJoystick script = inputScript == null ? null : new ScriptedJoystick(inputScript);
+		final ScriptedJoystick script = inputScript == null ? null : new ScriptedJoystick(inputScript, keys);
 		final Joystick joystick = script != null ? script : new ArrowsAndKeysJoystick(keys);
 
 		final J2dGraphicsContext[] gcHolder = new J2dGraphicsContext[1];
@@ -141,9 +145,26 @@ public class J2dMain {
 		com.nney.tt.input.Pointer p = pointer != null ? pointer : new NullPointer();
 		OuterWorld ow = new OuterWorld(gc, audio, joystick, keys, p);
 		ow.devMode = dev || mapper;
-		if (level >= 0) ow.levelNumber = level;
 		if (mapper) ow.launchMapper(new Coord(0, 0));
-		else ow.launchGame();
+		else if (demoName != null) {
+			final String dn = demoName;
+			ow.bootstrap = new com.nney.tt.Launcher() {
+				@Override
+				public void launch(OuterWorld o) {
+					com.nney.tt.World w = new com.nney.tt.World(o);
+					byte[] rec = com.nney.utils.OpenableTools.mustLoad(TTResource.demo(dn));
+					final long limit = demoFrames > 0 ? demoFrames : Long.MAX_VALUE;
+					final long start = gcHolder[0].frameCount();
+					w.configureDemo(new com.nney.tt.input.RecordedJoystick(rec, -1, false),
+							() -> gcHolder[0].frameCount() - start < limit);
+					com.nney.tt.World.Outcome outc = w.playLevel();
+					System.out.println("Demo " + dn + ": " + outc + " after " + (gcHolder[0].frameCount() - start)
+							+ " frames" + (gcHolder[0].frameCount() - start >= limit ? " (time limit)" : " (early!)"));
+					throw new J2dGraphicsContext.QuitRequested();
+				}
+			};
+		}
+		else ow.launchFullGame(level);
 
 		int rc = 0;
 		try {
@@ -370,37 +391,56 @@ public class J2dMain {
 		}
 	}
 
-	/** Joystick driven by a script, for automated tests. */
+	/**
+	 * Joystick (and keyboard) driven by a script, for automated tests.
+	 * "50:R,120:RF,200:-,300:n,302:-" means: from frame 50 hold right, from 120
+	 * right and fire, from 200 nothing, from 300 hold the N key... Upper case
+	 * U D L R F are the stick; lower case letters are keys.
+	 */
 	static final class ScriptedJoystick implements Joystick {
 		private final long[] at;
 		private final int[] value;
+		private final String[] keys;
+		private final AwtKeyboard keyboard;
 		private long frame = -1;
 		private int current;
+		private String currentKeys = "";
 		private int idx;
 
-		ScriptedJoystick(String script) {
+		ScriptedJoystick(String script, AwtKeyboard keyboard) {
+			this.keyboard = keyboard;
 			String[] parts = script.split(",");
 			at = new long[parts.length];
 			value = new int[parts.length];
+			keys = new String[parts.length];
 			for (int i = 0; i < parts.length; i++) {
 				String[] kv = parts[i].trim().split(":");
 				at[i] = Long.parseLong(kv[0]);
 				int v = 0;
-				for (char c : kv[1].toUpperCase().toCharArray()) {
+				StringBuilder k = new StringBuilder();
+				for (char c : kv[1].toCharArray()) {
 					if (c == 'U') v |= UP;
-					if (c == 'D') v |= DOWN;
-					if (c == 'L') v |= LEFT;
-					if (c == 'R') v |= RIGHT;
-					if (c == 'F') v |= FIRE;
+					else if (c == 'D') v |= DOWN;
+					else if (c == 'L') v |= LEFT;
+					else if (c == 'R') v |= RIGHT;
+					else if (c == 'F') v |= FIRE;
+					else if (c >= 'a' && c <= 'z') k.append(c);
 				}
 				value[i] = v;
+				keys[i] = k.toString();
 			}
 		}
 
 		void tick() {
 			frame++;
 			while (idx < at.length && at[idx] <= frame) {
-				current = value[idx++];
+				current = value[idx];
+				for (char c : currentKeys.toCharArray())
+					keyboard.inject(Keyboard.KEY_A + (c - 'a'), false);
+				currentKeys = keys[idx];
+				for (char c : currentKeys.toCharArray())
+					keyboard.inject(Keyboard.KEY_A + (c - 'a'), true);
+				idx++;
 			}
 		}
 

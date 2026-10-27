@@ -177,6 +177,14 @@ public class TTResource {
 		return simple("sounds/fx/%s", s);
 	}
 
+	/**
+	 * A demo recording from the original game: one joystick byte per frame,
+	 * ended by a negative byte.
+	 */
+	public static Openable demo(String name) {
+		return simple("demos/%s.bin", name);
+	}
+
 	public static Openable horizon(int name) {
 		return simple("horizons/%d.png", name);
 	}

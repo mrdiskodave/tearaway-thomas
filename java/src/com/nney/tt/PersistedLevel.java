@@ -24,7 +24,7 @@ public class PersistedLevel {
 		return levelOrder.requireElement(levelNumber).requireString();
 	}
 
-	static int levelCount() {
+	public static int levelCount() {
 		Node levelOrder = TTResource.asNode(TTResource.config("levelorder.txt"));
 		return levelOrder.requireList().length;
 	}

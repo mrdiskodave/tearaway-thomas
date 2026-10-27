@@ -140,6 +140,13 @@ public class StatusScreen implements Disposable, TextDest {
 		message.draw(x, y);
 	}
 
+	/** Render all the text now rather than a piece per frame. */
+	public void prepare() {
+		while (!isReadyToDraw()) {
+			getReadyToDraw();
+		}
+	}
+
 	public void update() {
 		getReadyToDraw();
 		if (!isReadyToDraw()) return;
