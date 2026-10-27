@@ -3,8 +3,9 @@
 		"gemsNeeded": 0, 
 		"timeGiven": 30, 
 		"horizon": 5, 
-		"title": "challenge", 
-		"world": "w"
+		"title": "fruit em up", 
+		"world": "w", 
+		"mode": "fruit"
 	}, 
 	"objects": [
 		{

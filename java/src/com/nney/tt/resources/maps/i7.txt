@@ -404,12 +404,18 @@
 			"hidden": true
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1044, 
-				959
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 24, 
+			"end": [
+				1187, 
+				836
 			], 
-			"legacyData": "360003a10431049103440002db00ff00000000000000"
+			"start": [
+				947, 
+				1073
+			]
 		}, 
 		{
 			"type": "mapBounds", 

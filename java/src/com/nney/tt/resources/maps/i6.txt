@@ -15,68 +15,15 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				1989, 
-				1153
+			"type": "ferrisWheel", 
+			"cycleLength": 256, 
+			"spinBox": [
+				2002, 
+				848, 
+				2514, 
+				1360
 			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000500000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2027, 
-				962
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000400000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2098, 
-				1316
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000600000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2190, 
-				853
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000300000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2289, 
-				1354
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000700000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2381, 
-				891
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000200000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2452, 
-				1245
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000000000026"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				2490, 
-				1054
-			], 
-			"legacyData": "2c0507c0036009c005500002ac000000000100000026"
+			"spokes": 8
 		}, 
 		{
 			"type": "mapBounds", 

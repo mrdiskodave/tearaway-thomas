@@ -9,7 +9,9 @@ import java.util.Set;
 
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.ArrowAlien;
+import com.nney.tt.aliens.BalloonAlien;
 import com.nney.tt.aliens.BatAlien;
+import com.nney.tt.aliens.BombAlien;
 import com.nney.tt.aliens.BearAlien;
 import com.nney.tt.aliens.BeeAlien;
 import com.nney.tt.aliens.BirdAlien;
@@ -27,6 +29,7 @@ import com.nney.tt.aliens.FloorFailureAlien;
 import com.nney.tt.aliens.GemAlien;
 import com.nney.tt.aliens.GhostAlien;
 import com.nney.tt.aliens.HiddenScoreGiftAlien;
+import com.nney.tt.aliens.IceGemAlien;
 import com.nney.tt.aliens.JackInTheBoxAlien;
 import com.nney.tt.aliens.JumboAlien;
 import com.nney.tt.aliens.LegacyAlien;
@@ -37,6 +40,7 @@ import com.nney.tt.aliens.PlayerAlien;
 import com.nney.tt.aliens.PortraitAlien;
 import com.nney.tt.aliens.ScoreCollectableAlien;
 import com.nney.tt.aliens.ScoreNoticeAlien;
+import com.nney.tt.aliens.SecretBonusAlien;
 import com.nney.tt.aliens.ShellAlien;
 import com.nney.tt.aliens.ShieldAlien;
 import com.nney.tt.aliens.SineLiftAlien;
@@ -101,11 +105,14 @@ public class AlienInfoMap {
 		add(new AlienInfo(48, "ghost", "gghst", GhostAlien.class));
 		add(new AlienInfo(63, "bee", "wabee", BeeAlien.class));
 		add(new AlienInfo(72, "sineLift", "wlog0", SineLiftAlien.class));
-		add(new AlienInfo(73, "trampoline", "wtrmp", TrampolineAlien.class));
+		add(new AlienInfo(73, "trampoline", "?trmp", TrampolineAlien.class));
 		add(new AlienInfo(74, "yellowBird", "wybrd", YellowBirdAlien.class));
 		add(new AlienInfo(55, "bird", "?bird", BirdAlien.class)); // poly
 		// add(new AlienInfo(204, "bird2", "?bird", Bird2Alien.class)); // poly
 		add(new AlienInfo(57, "penguin", "ipeng", BearAlien.class));
+		add(new AlienInfo(60, "balloon", "iblln", BalloonAlien.class));
+		add(new AlienInfo(56, "iceBlock", "iigem", IceGemAlien.class));
+		add(new AlienInfo(33, "secretBonus", null, SecretBonusAlien.class));
 		// add(new AlienInfo(78, null, ScreenLimiterAlien.class));
 		add(new AlienInfo(94, "endZone", null, EndZoneAlien.class));
 		add(new AlienInfo(95, "star", "0star", StarAlien.class));
@@ -177,6 +184,7 @@ public class AlienInfoMap {
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("magic"), "0magc", MagicDustAlien.class));
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("fall"), null, FallingAlien.class));
 		add(new AlienInfo(-1, AlienInfo.makeInternalName("shell"), "tshel", ShellAlien.class));
+		add(new AlienInfo(-1, AlienInfo.makeInternalName("bomb"), "ibomb", BombAlien.class));
 
 		setWorld(worldName);
 	}

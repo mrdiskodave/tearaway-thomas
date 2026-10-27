@@ -11,8 +11,20 @@ public class LiftImpl implements Lift {
 
 	final private Coord liftLast = new Coord();
 
+	/** Width to stand on, or 0 to measure it from the sprite. */
+	private final int width;
+
 	public LiftImpl(Sprite firstFrame) {
+		this(firstFrame, 0);
+	}
+
+	public LiftImpl(Sprite firstFrame, int width) {
 		ourSprite = firstFrame;
+		this.width = width;
+	}
+
+	private int width() {
+		return width > 0 ? width : ourSprite.liftWidth();
 	}
 
 	@Override
@@ -28,7 +40,7 @@ public class LiftImpl implements Lift {
 	@Override
 	public boolean horizontalOverlap(int x) {
 		int left = liftNow.x - EXTRA_WIDTH;
-		int width = ourSprite.liftWidth() + EXTRA_WIDTH * 2;
+		int width = width() + EXTRA_WIDTH * 2;
 		return x >= left && x < left + width;
 	}
 
@@ -37,7 +49,7 @@ public class LiftImpl implements Lift {
 	}
 
 	public void centre(Coord coord) {
-		coord.x -= ourSprite.liftWidth() / 2;
+		coord.x -= width() / 2;
 	}
 
 	@Override

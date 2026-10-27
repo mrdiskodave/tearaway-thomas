@@ -307,20 +307,34 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				2999, 
 				1708
 			], 
-			"legacyData": "3c000bca068cffffffff0008c80000fef09d80001e00"
+			"velocity": [
+				-99, 
+				-2
+			], 
+			"anchor": [
+				3018, 
+				1676
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				3022, 
 				1625
 			], 
-			"legacyData": "3c010b910687ffffffff00087000001b40c068000800"
+			"velocity": [
+				-64, 
+				27
+			], 
+			"anchor": [
+				2961, 
+				1671
+			]
 		}, 
 		{
 			"type": "mapBounds", 

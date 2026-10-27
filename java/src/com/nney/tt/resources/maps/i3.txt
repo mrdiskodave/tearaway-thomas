@@ -226,60 +226,84 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				1867, 
 				1129
 			], 
-			"legacyData": "3c000709049affffffff00089c000021080788000a00"
+			"velocity": [
+				7, 
+				33
+			], 
+			"anchor": [
+				1801, 
+				1178
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				1949, 
 				1196
 			], 
-			"legacyData": "3c0007da048fffffffff00089400000a58b738001300"
+			"velocity": [
+				-73, 
+				10
+			], 
+			"anchor": [
+				2010, 
+				1167
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				1953, 
 				1177
 			], 
-			"legacyData": "3c01076804b7ffffffff0008540001e7b8cbc8000500"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				3091, 
-				756
+			"velocity": [
+				-53, 
+				-25
 			], 
-			"legacyData": "36010b6103880c1e02eb000233000000000000000000"
+			"anchor": [
+				1896, 
+				1207
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 53, 
+			"end": [
+				3120, 
+				747
+			], 
+			"start": [
+				2931, 
+				904
+			]
+		}, 
+		{
+			"type": "iceBlock", 
 			"location": [
 				3776, 
 				626
-			], 
-			"legacyData": "380000000000000000000004e2000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				3926, 
 				625
-			], 
-			"legacyData": "380000000000000000000004e2000000000000000037"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				657, 
 				1713
-			], 
-			"legacyData": "380000000000000000000004e2000000000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

@@ -130,6 +130,12 @@ public interface AlienServices extends PlayerPositionServices {
 
 	void addAlien(Alien a);
 
+	/**
+	 * Make a new alien of a named type (as used in the level files) at the
+	 * given place, e.g. the gem that falls out of a smashed block of ice.
+	 */
+	void addAlien(String name, Coord where);
+
 	boolean keepInMap(Coord c);
 
 	/**
@@ -155,4 +161,10 @@ public interface AlienServices extends PlayerPositionServices {
 	 *         the right place so was stunned instead".
 	 */
 	boolean headBounce(Alien alien, Sprite... alienSprites);
+
+	/**
+	 * The player found a level's secret: the next bonus ("fruit 'em up") stage
+	 * will be played rather than skipped.
+	 */
+	void secretBonusFound();
 }

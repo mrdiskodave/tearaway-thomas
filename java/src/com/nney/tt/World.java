@@ -11,6 +11,7 @@ import com.nney.coroutines.Coroutine;
 import com.nney.tt.aliens.Alien;
 import com.nney.tt.aliens.FallingAlien;
 import com.nney.tt.aliens.GemAlien;
+import com.nney.tt.aliens.IceGemAlien;
 import com.nney.tt.aliens.LiftAlien;
 import com.nney.tt.aliens.MagicDustAlien;
 import com.nney.tt.aliens.MapBoundsAlien;
@@ -551,6 +552,11 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
+	public void secretBonusFound() {
+		ow.secretBonusFound = true;
+	}
+
+	@Override
 	public boolean headBounce(Alien alien, Sprite... alienSprites) {
 		Coord alienPos = alien.getLocation();
 
@@ -644,6 +650,14 @@ public class World implements AlienServices, Disposable {
 	@Override
 	public void addAlien(Alien a) {
 		attachConnectLoad(a);
+	}
+
+	@Override
+	public void addAlien(String name, Coord where) {
+		Alien a = alienInfoMap.instantiateAttach(alienInfoMap.getByName(name));
+		a.resetTo(where.copy());
+		a.connect(animsPool);
+		load(a);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -938,6 +952,7 @@ public class World implements AlienServices, Disposable {
 			if (keyEvent != null && keyEvent.keyCode == Keyboard.KEY_N && !isDemo()) {
 				// skip to the next level (cheat_anylev in the original)
 				ow.levelNumber++;
+				ow.starCollected = false;
 				exit(Outcome.COMPLETED);
 			}
 			if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
@@ -1059,7 +1074,8 @@ public class World implements AlienServices, Disposable {
 			animsPool.unloadReload(animsNeeded);
 		}
 
-		gemsTotal = ListUtil.count(GemAlien.class, aliens);
+		// (blocks of ice each have a gem inside)
+		gemsTotal = ListUtil.count(GemAlien.class, aliens) + ListUtil.count(IceGemAlien.class, aliens);
 		gemsNeeded = levelInfo.gemsNeeded;
 		gemsCollected = 0;
 
@@ -1172,7 +1188,7 @@ public class World implements AlienServices, Disposable {
 				}
 			};
 		}
-		else if (levelTitle.equals(":fruit")) {
+		else if (levelTitle.equals(":fruit") || "fruit".equals(levelInfo.mode)) {
 			final String text = Messages.fruit(levelNum, levelInfo.timeGiven);
 			mode = new Mode() {
 				@Override
@@ -1530,6 +1546,7 @@ public class World implements AlienServices, Disposable {
 		}
 		cr.close();
 		ow.levelNumber++;
+		ow.starCollected = player.gotStar();
 		ow.levelsCompleted++;
 		ow.gemsCollectedTotal += gemsCollected;
 		exit(Outcome.COMPLETED);

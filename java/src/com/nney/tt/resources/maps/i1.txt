@@ -432,68 +432,90 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
+			"type": "secretBonus", 
 			"location": [
 				1190, 
 				875
-			], 
-			"legacyData": "210000000000000000000002d1000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				1370, 
 				160
-			], 
-			"legacyData": "380800000000ffffffff000494000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2062, 
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 66, 
+			"end": [
+				2130, 
 				243
 			], 
-			"legacyData": "360907a100f3084000f40002330000000000000000f0"
+			"start": [
+				1971, 
+				243
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2502, 
-				526
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 16, 
+			"end": [
+				2654, 
+				356
 			], 
-			"legacyData": "3601098402600a4c0164000233000000000000000012"
+			"start": [
+				2454, 
+				608
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				2618, 
 				84
 			], 
-			"legacyData": "3c000a800077ffffffff00080b00001360ee10000300"
+			"velocity": [
+				-18, 
+				19
+			], 
+			"anchor": [
+				2688, 
+				119
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				2638, 
 				99
 			], 
-			"legacyData": "3c000a9b0096ffffffff00082b000226084200000200"
+			"velocity": [
+				66, 
+				38
+			], 
+			"anchor": [
+				2715, 
+				150
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				741, 
 				1121
-			], 
-			"legacyData": "380800000000ffffffff000494000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				927, 
 				882
-			], 
-			"legacyData": "380800000000ffffffff000494000000000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

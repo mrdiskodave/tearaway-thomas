@@ -285,12 +285,22 @@ public final class GameFlow implements Launcher {
 		ow.reset();
 		ow.levelNumber = firstLevel;
 		for (;;) {
-			Outcome o = new World(ow).playLevel();
+			World world = new World(ow);
+			if (ow.devPlayerStart != null) {
+				world.configurePlayerStart(ow.devPlayerStart);
+				ow.devPlayerStart = null;
+			}
+			Outcome o = world.playLevel();
 			System.out.println("FLOW: level " + ow.levelNumber + " -> " + o + " (lives " + ow.lives + ", score "
 					+ ow.score + ")");
 			if (!stillInCharge()) return false;
 			switch (o) {
 			case COMPLETED:
+				// (World has already moved levelNumber on by one)
+				boolean[] secret = { ow.secretBonusFound };
+				ow.levelNumber = Progression.next(ow.levelNumber - 1, ow.starCollected, secret,
+						Progression.FROM_LEVEL_FILES);
+				ow.secretBonusFound = secret[0];
 				if (ow.levelNumber >= PersistedLevel.levelCount()) {
 					ending();
 					afterGame();

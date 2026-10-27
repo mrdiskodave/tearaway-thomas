@@ -327,44 +327,63 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				2966, 
 				940
 			], 
-			"legacyData": "3c010b7103b3000000000008840002df4016f0000400"
+			"velocity": [
+				22, 
+				-33
+			], 
+			"anchor": [
+				2929, 
+				947
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				3089, 
 				935
 			], 
-			"legacyData": "3c000bd603bc000000000008cc000210c03150000b00"
+			"velocity": [
+				49, 
+				16
+			], 
+			"anchor": [
+				3030, 
+				956
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				3310, 
 				946
 			], 
-			"legacyData": "3c010cbc03bd000000000008d40001f8e04100000c00"
+			"velocity": [
+				65, 
+				-8
+			], 
+			"anchor": [
+				3260, 
+				957
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				673, 
 				481
-			], 
-			"legacyData": "380000000000000000000004c4000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				705, 
 				481
-			], 
-			"legacyData": "380100000000000000000004c4000000000000000000"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

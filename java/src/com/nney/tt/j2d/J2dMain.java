@@ -46,6 +46,7 @@ import com.nney.tt.resources.TTResource;
  *   --resources DIR      read resources from DIR instead of the classpath
  *   --scale N            initial window zoom (default 2)
  *   --mute               no sound
+ *   --at X,Y             (with --level) start the player at this map position
  *
  * Headless testing (no window, runs as fast as possible):
  *   --headless
@@ -76,6 +77,7 @@ public class J2dMain {
 	String inputScript;
 	File wavFile;
 	String demoName;
+	Coord startAt;
 	long demoFrames = -1;
 
 	public static void main(String[] args) throws Exception {
@@ -100,6 +102,10 @@ public class J2dMain {
 			else if (a.equals("--input")) inputScript = args[++i];
 			else if (a.equals("--wav")) wavFile = new File(args[++i]);
 			else if (a.equals("--demo")) demoName = args[++i];
+			else if (a.equals("--at")) {
+				String[] xy = args[++i].split(",");
+				startAt = new Coord(Integer.parseInt(xy[0].trim()), Integer.parseInt(xy[1].trim()));
+			}
 			else if (a.equals("--demo-frames")) demoFrames = Long.parseLong(args[++i]);
 			else throw new IllegalArgumentException("Unknown option: " + a);
 		}
@@ -145,6 +151,7 @@ public class J2dMain {
 		com.nney.tt.input.Pointer p = pointer != null ? pointer : new NullPointer();
 		OuterWorld ow = new OuterWorld(gc, audio, joystick, keys, p);
 		ow.devMode = dev || mapper;
+		ow.devPlayerStart = startAt;
 		if (mapper) ow.launchMapper(new Coord(0, 0));
 		else if (demoName != null) {
 			final String dn = demoName;

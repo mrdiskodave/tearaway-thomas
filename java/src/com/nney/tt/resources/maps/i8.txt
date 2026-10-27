@@ -223,28 +223,46 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2816, 
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 82, 
+			"end": [
+				3166, 
 				1787
 			], 
-			"legacyData": "360d0a4d07370c4c07340002c4000000000000000044"
+			"start": [
+				2655, 
+				1787
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2973, 
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 33, 
+			"end": [
+				3166, 
 				1847
 			], 
-			"legacyData": "360d0a4d07370c4c07340002c400ff00000000000044"
+			"start": [
+				2655, 
+				1847
+			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				3775, 
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 93, 
+			"end": [
+				3875, 
 				1797
 			], 
-			"legacyData": "360d0eb107060f1106e20002c4000000000000000044"
+			"start": [
+				3779, 
+				1797
+			]
 		}, 
 		{
 			"type": "mapBounds", 

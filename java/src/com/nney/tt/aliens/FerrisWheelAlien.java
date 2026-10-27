@@ -22,6 +22,28 @@ public class FerrisWheelAlien extends LiftAlien {
 		spinBox = Box.around(p, 50);
 	}
 
+	/** The original's lifts were this wide (AGL table); our centre is mid-lift. */
+	private static final int ICE_LIFT_WIDTH = 36;
+
+	/**
+	 * The original had one object per car (feris_alien in s195), all sharing a
+	 * wheel described in a table (ice_feris). We're the whole wheel, so the
+	 * map upgrade keeps the first car and drops the rest.
+	 * 
+	 * Ice: centre (2240, 1104), radius 256, 8 cars, angle (0-255) going up by
+	 * one a frame, x = sin and y = cos: exactly what we do already.
+	 */
+	@Override
+	public void loadFromLegacyData() {
+		int type = loadByte(OBtype);
+		if (type == 44) {
+			Coord centre = new Coord(2240 + ICE_LIFT_WIDTH / 2, 1104);
+			spinBox = Box.around(centre, 256);
+			spokes = 8;
+			cycleLength = 256;
+		}
+	}
+
 	@Override
 	public Coord getLocation() {
 		return spinBox.centre();

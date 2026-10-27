@@ -211,52 +211,77 @@
 			"hidden": false
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				1054, 
 				769
 			], 
-			"legacyData": "3c010409033affffffff00085400013398a778000900"
+			"velocity": [
+				-89, 
+				51
+			], 
+			"anchor": [
+				1033, 
+				826
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				1149, 
 				764
 			], 
-			"legacyData": "3c0004be0322ffffffff0008040000f0c0d040000100"
+			"velocity": [
+				-48, 
+				-16
+			], 
+			"anchor": [
+				1214, 
+				802
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "balloon", 
 			"location": [
 				1415, 
 				873
 			], 
-			"legacyData": "3c010558036403ffffff0008380001d7b8c428001c00"
-		}, 
-		{
-			"type": "legacy", 
-			"location": [
-				1589, 
-				866
+			"velocity": [
+				-60, 
+				-41
 			], 
-			"legacyData": "000006380358063e03b1000000000f00000000000067"
+			"anchor": [
+				1368, 
+				868
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 6, 
+			"end": [
+				1601, 
+				945
+			], 
+			"start": [
+				1601, 
+				856
+			]
+		}, 
+		{
+			"type": "trampoline", 
 			"location": [
 				2359, 
 				1075
-			], 
-			"legacyData": "3a010400000003ffffff0b02e5000000000000000000"
+			]
 		}, 
 		{
-			"type": "legacy", 
+			"type": "iceBlock", 
 			"location": [
 				634, 
 				1122
-			], 
-			"legacyData": "3801000000000000000000044a000000000000000031"
+			]
 		}, 
 		{
 			"type": "mapBounds", 

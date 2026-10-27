@@ -91,6 +91,10 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
+	public void secretBonusFound() {
+	}
+
+	@Override
 	public boolean headBounce(Alien alien, Sprite... alienSprites) {
 		ni();
 		return false;
@@ -178,6 +182,11 @@ final class MapperAlienServices implements AlienServices {
 
 	@Override
 	public void addAlien(Alien a) {
+		ni();
+	}
+
+	@Override
+	public void addAlien(String name, Coord where) {
 		ni();
 	}
 

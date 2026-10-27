@@ -395,12 +395,18 @@
 			]
 		}, 
 		{
-			"type": "legacy", 
-			"location": [
-				2501, 
-				810
+			"type": "plainLift", 
+			"speed": 2, 
+			"pause": 0, 
+			"phase": 19, 
+			"end": [
+				2513, 
+				844
 			], 
-			"legacyData": "000009b6031509b9034c000000000b00000009b50356"
+			"start": [
+				2513, 
+				789
+			]
 		}, 
 		{
 			"type": "magicwall", 

@@ -56,6 +56,18 @@ public class OuterWorld implements Runnable, Disposable {
 	/** For the end-of-game statistics. */
 	public int gemsCollectedTotal = 0;
 
+	/**
+	 * Found a level's secret (fruit_entry in the original): the next bonus
+	 * stage gets played.
+	 */
+	public boolean secretBonusFound = false;
+
+	/** Did they collect the star on the stage just completed? */
+	public boolean starCollected;
+
+	/** Developers: start the next level with the player here (or null). */
+	public Coord devPlayerStart;
+
 	private MultiDisposable md = new MultiDisposable();
 
 	public ArrayList<Horizon> horizons = new ArrayList<Horizon>();
@@ -84,6 +96,7 @@ public class OuterWorld implements Runnable, Disposable {
 		lives = 3;
 		levelsCompleted = 0;
 		gemsCollectedTotal = 0;
+		secretBonusFound = false;
 	}
 
 	public BlockSet loadBlockSet(BlockSet.Config config) {

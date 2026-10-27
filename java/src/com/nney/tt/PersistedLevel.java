@@ -10,6 +10,7 @@ import com.nney.json.JsonDataDestination;
 import com.nney.json.SafeWriter;
 import com.nney.json.StringSafeWriter;
 import com.nney.tt.aliens.Alien;
+import com.nney.tt.aliens.LegacyAlien;
 import com.nney.tt.map.GameMap;
 import com.nney.tt.mapper.APS;
 import com.nney.tt.props.OPS;
@@ -40,6 +41,10 @@ public class PersistedLevel {
 		}
 	}
 
+	public String getMapName() {
+		return mapName;
+	}
+
 	public LevelInfo getLevelInfo() {
 		return new LevelInfo(mapName, levelNode.requireField("info"));
 	}
@@ -59,6 +64,12 @@ public class PersistedLevel {
 			String type = di.requireField("type").requireString();
 			Alien alien = af.make(type);
 			OPS.loadProps(alien, di);
+			if (alien instanceof LegacyAlien) {
+				// raw data from the Amiga: if we've since written a class for
+				// its type then make one of those from it instead
+				alien = af.upgrade((LegacyAlien) alien);
+				if (alien == null) continue; // merged into an earlier one
+			}
 			aliens.add(alien);
 		}
 	}

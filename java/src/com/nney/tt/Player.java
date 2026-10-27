@@ -1093,6 +1093,24 @@ public class Player {
 		return lift.horizontalOverlap(cr.x);
 	}
 
+	/** Vertical velocity: positive is downwards. */
+	public float getVelocityY() {
+		return vely;
+	}
+
+	/**
+	 * Would this lift pick us up this frame? (So a lift can decide to do
+	 * something else instead, like the ice gem that shatters.)
+	 */
+	public boolean wouldBoard(Lift caller) {
+		return (mode == Mode.AIR || mode == Mode.WALK) && caller.isScoopingUp(lc, cr);
+	}
+
+	/** Already standing on something (rather than landing on it)? */
+	public boolean isOnTheGround() {
+		return mode == Mode.WALK || mode == Mode.LIFT;
+	}
+
 	public void performLiftBoarding(Lift caller, int landOn) {
 		if ((mode == Mode.AIR || mode == Mode.WALK) && caller.isScoopingUp(lc, cr)) {
 			startLiftMode(caller, landOn);
