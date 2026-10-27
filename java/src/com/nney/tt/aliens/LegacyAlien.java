@@ -1,6 +1,5 @@
 package com.nney.tt.aliens;
 
-import org.apache.commons.codec.binary.Hex;
 
 import com.nney.tt.props.PropAnn;
 import com.nney.utils.HexServices;
@@ -11,7 +10,7 @@ public class LegacyAlien extends AlienWithLocation {
 
 	@Override
 	public void loadFromLegacyData() {
-		data = Hex.encodeHexString(legacyData);
+		data = HexServices.encodeHex(legacyData);
 	}
 
 	public byte[] getLegacyData() {

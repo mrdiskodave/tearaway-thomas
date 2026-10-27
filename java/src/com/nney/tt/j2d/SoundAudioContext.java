@@ -23,6 +23,8 @@ public class SoundAudioContext implements AudioContext, Disposable {
 	public static final int RATE = 44100;
 	private static final int SIMULTANEOUS_FX = 1;
 	private static final int CHUNK_FRAMES = 512;
+	private static final float MASTER_GAIN = 0.7f;
+	private static final float KNEE = 0.8f;
 
 	/** A playing sound: a position within some stereo 16 bit data. */
 	private static final class Voice {
@@ -150,11 +152,17 @@ public class SoundAudioContext implements AudioContext, Disposable {
 				if (v.finished()) effects.remove(x);
 			}
 		}
+		// The music is mastered at full scale, so leave headroom for effects
+		// and round off anything that would still clip.
 		for (int i = 0; i < acc.length; i++) {
-			float s = acc[i];
-			if (s > Short.MAX_VALUE) s = Short.MAX_VALUE;
-			if (s < Short.MIN_VALUE) s = Short.MIN_VALUE;
-			out[i] = (short) s;
+			float s = acc[i] * MASTER_GAIN / 32768f;
+			float a = Math.abs(s);
+			if (a > KNEE) {
+				float over = (a - KNEE) / (1 - KNEE);
+				a = KNEE + (1 - KNEE) * (over / (1 + over));
+				s = Math.signum(s) * a;
+			}
+			out[i] = (short) Math.round(s * 32767f);
 		}
 	}
 

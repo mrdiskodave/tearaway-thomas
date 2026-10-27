@@ -3,14 +3,14 @@ package com.nney.tt.sounds;
 import java.util.HashMap;
 
 import com.nney.datanode.Node;
-import com.nney.tt.lwjgl.AlAudioContext;
+import com.nney.tt.j2d.SoundAudioContext;
 import com.nney.tt.resources.TTResource;
 import com.nney.tt.sounds.music.MusicPlayer;
 import com.nney.tt.sounds.wav.WavTools;
 import com.nney.utils.OpenableTools;
 
 public class AudioHub {
-	private static final boolean SOUND_ENABLED = false;
+	private static final boolean SOUND_ENABLED = true;
 	private MusicPlayerConnector mp = new MusicPlayerConnector(new MusicPlayer());
 	private HashMap<String, Integer> fxMap = new HashMap<String, Integer>();
 	private final AudioContext ac;
@@ -84,13 +84,12 @@ public class AudioHub {
 	}
 
 	public static void main(String[] args) {
-		AlAudioContext ac = new AlAudioContext();
+		SoundAudioContext ac = new SoundAudioContext(true);
 		AudioHub z = new AudioHub(ac);
-		z.loadMusic(0, "intro");
+		z.loadMusic(0, args.length > 0 ? args[0] : "intro");
 		z.startMusic(0);
 		for (;;) {
 			pause();
-			ac.update();
 			// z.playEffect("tink");
 		}
 	}
