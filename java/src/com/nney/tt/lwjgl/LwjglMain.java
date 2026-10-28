@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GLContext;
 
 import com.nney.tt.Const;
 import com.nney.tt.OuterWorld;
+import com.nney.tt.geom.Coord;
 import com.nney.tt.input.KeyboardJoystick;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.PointerAdaptor;
@@ -73,9 +74,31 @@ public class LwjglMain {
 
 	// ---------------------------------------------------------------------------
 
-	private void run() {
-		TTResource.setResourcePath(new File("C:\\Users\\david\\Desktop\\z"));
+	private int level = -1;
+	private boolean dev;
+	private boolean mapper;
 
+	/** The options that make sense for this front end (see J2dMain for the rest). */
+	private void parse(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			String a = args[i];
+			if (a.equals("--level")) level = Integer.parseInt(args[++i]);
+			else if (a.equals("--dev")) dev = true;
+			else if (a.equals("--mapper")) mapper = true;
+			else if (a.equals("--resources")) TTResource.setResourcePath(new File(args[++i]));
+			else throw new IllegalArgumentException(
+					"Unknown option with --lwjgl: " + a + " (it takes --level N, --dev, --mapper, --resources DIR)");
+		}
+	}
+
+	private void run() {
+		try {
+			LwjglNatives.prepare();
+		}
+		catch (IllegalStateException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
 		initLwjgl();
 		initOpenGL();
 
@@ -122,8 +145,9 @@ public class LwjglMain {
 		});
 
 		OuterWorld ow = new OuterWorld(gc, audioContext, joystick, keys, correctMouse);
-		ow.devMode = true;
-		ow.launchGame();
+		ow.devMode = dev || mapper;
+		if (mapper) ow.launchMapper(new Coord(0, 0));
+		else ow.launchFullGame(level);
 
 		try {
 			ow.run();
@@ -138,7 +162,14 @@ public class LwjglMain {
 		Display.destroy();
 	}
 
+	/**
+	 * The OpenGL front end. Normally started with
+	 * <code>java -jar tearaway-thomas.jar --lwjgl</code>.
+	 */
 	public static void main(String[] argv) {
-		new LwjglMain().run();
+		LwjglMain m = new LwjglMain();
+		m.parse(argv);
+		m.run();
+		System.exit(0);
 	}
 }

@@ -7,6 +7,7 @@ import com.nney.tt.gfx.Blitable;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.BlocksHolder;
 import com.nney.tt.gfx.Font;
+import com.nney.tt.gfx.FrameRateReport;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.Horizon;
 import com.nney.tt.gfx.RawFont;
@@ -18,9 +19,12 @@ public final class GlGraphicsContext implements GraphicsContext {
 	private final Runnable updateInputs;
 	private final Runnable onActivate;
 	private final int fps;
+	private final FrameRateReport report;
+	private long workStart;
 
 	GlGraphicsContext(int fps, Runnable updateInputs, Runnable onActivate) {
 		this.fps = fps;
+		this.report = new FrameRateReport("LWJGL", fps, false);
 		this.updateInputs = updateInputs;
 		this.onActivate = onActivate;
 	}
@@ -150,6 +154,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 		assert !inside;
 		inside = true;
 		Display.sync(fps);
+		workStart = System.nanoTime();
 		updateInputs.run();
 		GlTools.configureFor2dBobs();
 	}
@@ -158,6 +163,9 @@ public final class GlGraphicsContext implements GraphicsContext {
 	public void endDrawing() {
 		assert inside;
 		inside = false;
+		long now = System.nanoTime();
+		// the work is up to here: Display.update() waits for the vsync
+		report.frame(now, now - workStart, false, false);
 		Display.update();
 		if (Display.isCloseRequested()) {
 			throw new LwjglMain.ExitException();

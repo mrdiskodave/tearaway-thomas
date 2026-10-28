@@ -32,6 +32,10 @@ Options:
     --mapper        start in the map editor
     --mute          no sound
     --scale N       initial window size (default 2x)
+    --lwjgl         use the original LWJGL front end (OpenGL and OpenAL, Windows
+                    only) instead of Java2D; it takes --level, --dev and --mapper
+
+When run from a command prompt it prints the frame rate every 4 seconds.
 
 ## Build
 
@@ -50,8 +54,10 @@ Both need only a JDK (21 or later) and produce `tearaway-thomas.jar`.
   sequence is one, stepped once a frame by the demo it runs over.
 - `com.nney.tt.j2d`: the platform layer. Java2D graphics, javax.sound audio,
   AWT keyboard and mouse. This is the one in use.
-- `com.nney.tt.lwjgl`: the original LWJGL 2 / OpenGL platform layer. It still
-  compiles against `lib/*.jar` but is no longer needed or built into the jar.
+- `com.nney.tt.lwjgl`: the original LWJGL 2 platform layer (OpenGL, OpenAL),
+  started with `--lwjgl`. The build puts `lib/lwjgl.jar` and the Windows
+  libraries from `nlib/windows` into the jar; they're unpacked to a temp
+  folder when it starts.
 - `com.nney.tt.resources`: all the converted artwork, maps and music.
 - `com.nney.tt.tools.MapTool`: converts objects still held as raw Amiga data
   ("legacy" objects) in the level files into proper ones, once their type has

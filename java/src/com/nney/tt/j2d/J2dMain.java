@@ -47,6 +47,8 @@ import com.nney.tt.resources.TTResource;
  *   --scale N            initial window zoom (default 2)
  *   --mute               no sound
  *   --at X,Y             (with --level) start the player at this map position
+ *   --lwjgl              use the original LWJGL (OpenGL + OpenAL) front end
+ *                        instead; it takes --level, --dev, --mapper, --resources
  *
  * Headless testing (no window, runs as fast as possible):
  *   --headless
@@ -81,6 +83,12 @@ public class J2dMain {
 	long demoFrames = -1;
 
 	public static void main(String[] args) throws Exception {
+		java.util.List<String> rest = new java.util.ArrayList<String>(java.util.Arrays.asList(args));
+		if (rest.remove("--lwjgl")) {
+			// the original OpenGL front end instead
+			com.nney.tt.lwjgl.LwjglMain.main(rest.toArray(new String[0]));
+			return;
+		}
 		J2dMain m = new J2dMain();
 		m.parse(args);
 		System.exit(m.run());
