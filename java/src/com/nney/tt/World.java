@@ -339,6 +339,9 @@ public class World implements AlienServices, Disposable {
 	/** Collect every gem without losing a life on the level. */
 	private static final int PERFECT_BONUS = 10000;
 
+	/** Draw Thomas in front of all the aliens (game over). */
+	private boolean playerInFront;
+
 	/** A life has gone (time ran out) since this level began. */
 	private boolean lifeLostHere;
 
@@ -545,6 +548,11 @@ public class World implements AlienServices, Disposable {
 	@Override
 	public void setTimeRemaining(int seconds) {
 		timeRemainingInFrames = seconds * Const.FPS + Const.FPS - 1;
+	}
+
+	@Override
+	public boolean playerTouchable() {
+		return collisionDetection;
 	}
 
 	@Override
@@ -790,10 +798,13 @@ public class World implements AlienServices, Disposable {
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_LIFTS));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_COLLECTABLES));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS));
-		if (isPlayerPresent) {
+		if (isPlayerPresent && !playerInFront) {
 			player.draw();
 		}
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY));
+		if (isPlayerPresent && playerInFront) {
+			player.draw();
+		}
 
 		alienTracker.freezeAny(screenBox);
 
@@ -1292,8 +1303,8 @@ public class World implements AlienServices, Disposable {
 	}
 
 	/**
-	 * explain_level: what this level is, until fire is pressed. Thomas waits;
-	 * the aliens carry on behind the text (they can't touch him yet).
+	 * explain_level: what this level is, until fire is pressed. The game
+	 * carries on behind it, with Thomas left alone.
 	 */
 	private void explainLevel() {
 		createStatusScreen(mode.introText());
@@ -1537,14 +1548,16 @@ public class World implements AlienServices, Disposable {
 
 	/**
 	 * tell_gameover: "game" slides in from the left and "over" from the right,
-	 * a wait for fire, and they carry on across and off.
+	 * a wait for fire, and they carry on across and off. Meanwhile the game
+	 * keeps going: Thomas stands (or rides his lift) in front of everything,
+	 * shaking his head.
 	 */
 	private void performGameOver() {
 		collisionDetection = false;
 		ow.lives = Math.max(0, ow.lives - 1);
 		ah.startMusic(3);
-		isPlayerPresent = false;
-		captureRecording();
+		player.kill();
+		playerInFront = true;
 		Anims ago = animsPool.expect("0gameover");
 		final Sprite game = ago.find("game").firstSprite();
 		final Sprite over = ago.find("over").firstSprite();
@@ -1552,9 +1565,11 @@ public class World implements AlienServices, Disposable {
 		final int my = gc.screenHeight() / 2;
 		final int[] d = new int[1];
 		Runnable draw = () -> {
-			drawFrozen();
-			game.drawByHandle(mx - d[0], my - 14, false);
-			over.drawByHandle(mx + d[0], my + 13, false);
+			mainActions(0);
+			// (goy=80 and 107 for sprites 25 high on a 256 line screen:
+			// above the middle, clear of Thomas)
+			game.drawByHandle(mx - d[0], my - 35, false);
+			over.drawByHandle(mx + d[0], my - 8, false);
 			drawHudAndBorders(true);
 		};
 		IntConsumer at = x -> {
@@ -1569,7 +1584,7 @@ public class World implements AlienServices, Disposable {
 			at.accept(x);
 		}
 		fadeToBlack(() -> {
-			drawFrozen();
+			mainActions(0);
 			drawHudAndBorders(true);
 		});
 		exit(Outcome.GAME_OVER);
@@ -1764,15 +1779,13 @@ public class World implements AlienServices, Disposable {
 	}
 
 	/**
-	 * A text screen over the level, with the aliens carrying on behind it
-	 * (the original had to hide them: the text went in their bitplanes).
-	 * Thomas doesn't move, so while he's there neither do the lifts.
+	 * A text screen over the level, with the game carrying on behind it (the
+	 * original had to hide the aliens: the text went in their bitplanes). No
+	 * one's at the controls and nothing can touch Thomas, but lifts still carry
+	 * him.
 	 */
 	private void drawLiveText() {
-		frameNumber++;
-		if (!isPlayerPresent) moveLifts();
-		drawTheMap();
-		updateTheAliens();
+		mainActions(0);
 		statusScreen.get().update();
 		drawHudAndBorders(true);
 	}

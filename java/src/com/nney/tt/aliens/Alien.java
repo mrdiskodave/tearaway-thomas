@@ -169,6 +169,7 @@ public abstract class Alien implements HasProps, Bounded {
 	 * 168 to x2 - 152, feet from 128 - y1 to 158 - y2 below the object.
 	 */
 	protected boolean playerInOriginalBox(Coord at, int x1, int y1, int x2, int y2) {
+		if (!srv.playerTouchable()) return false;
 		Coord p = srv.getPlayerPosition();
 		int dx = p.x - at.x;
 		int dy = p.y - at.y;

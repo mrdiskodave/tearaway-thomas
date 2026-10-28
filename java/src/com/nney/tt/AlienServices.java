@@ -78,6 +78,12 @@ public interface AlienServices extends PlayerPositionServices {
 
 	// called by Aliens to operate on the player
 
+	/**
+	 * Can aliens touch the player just now? Not while he waits behind a text
+	 * screen, or once the game is over.
+	 */
+	boolean playerTouchable();
+
 	Coord getPlayerPosition();
 
 	Player getThePlayer();

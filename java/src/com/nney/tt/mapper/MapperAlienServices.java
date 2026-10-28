@@ -133,6 +133,11 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
+	public boolean playerTouchable() {
+		return false;
+	}
+
+	@Override
 	public Coord getPlayerPosition() {
 		ni();
 		return null;
