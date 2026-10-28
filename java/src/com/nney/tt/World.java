@@ -191,15 +191,12 @@ public class World implements AlienServices, Disposable {
 		private final Sprite s;
 		private final boolean drawInWhite;
 		private final float opacity;
-		/** Thomas rather than an alien. */
-		private final boolean isPlayer;
 
-		SpriteRecord(Coord c, Sprite s, boolean drawInWhite, float opacity, boolean isPlayer) {
+		SpriteRecord(Coord c, Sprite s, boolean drawInWhite, float opacity) {
 			this.c = c.copy();
 			this.s = s;
 			this.drawInWhite = drawInWhite;
 			this.opacity = opacity;
-			this.isPlayer = isPlayer;
 		}
 	}
 
@@ -341,12 +338,6 @@ public class World implements AlienServices, Disposable {
 
 	/** Collect every gem without losing a life on the level. */
 	private static final int PERFECT_BONUS = 10000;
-
-	/** Text screens use the bitplanes the aliens are drawn in, so they hide them. */
-	private boolean aliensHidden;
-
-	/** Set while Thomas (rather than an alien) is being drawn. */
-	private boolean drawingPlayer;
 
 	/** A life has gone (time ran out) since this level began. */
 	private boolean lifeLostHere;
@@ -498,9 +489,9 @@ public class World implements AlienServices, Disposable {
 
 	private void drawSprite(Coord c, final Sprite s, boolean drawWhite, float opacity) {
 		if (record) {
-			recording.add(new SpriteRecord(c, s, drawWhite, opacity, drawingPlayer));
+			recording.add(new SpriteRecord(c, s, drawWhite, opacity));
 		}
-		else if (!aliensHidden || drawingPlayer) {
+		else {
 			directDrawSprite(c, s, drawWhite, opacity);
 		}
 	}
@@ -800,9 +791,7 @@ public class World implements AlienServices, Disposable {
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_COLLECTABLES));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS));
 		if (isPlayerPresent) {
-			drawingPlayer = true;
 			player.draw();
-			drawingPlayer = false;
 		}
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY));
 
@@ -1295,22 +1284,27 @@ public class World implements AlienServices, Disposable {
 		for (int r = 10; r < maxRadius; r += 2) {
 			final int radius = r;
 			frame(() -> {
-				drawFrozen(true);
+				drawFrozen();
 				gc.aperture(radius, p.x, p.y, 0xff000000);
 				drawHudAndBorders(true);
 			});
 		}
 	}
 
-	/** explain_level: what this level is, until fire is pressed. */
+	/**
+	 * explain_level: what this level is, until fire is pressed. Thomas waits;
+	 * the aliens carry on behind the text (they can't touch him yet).
+	 */
 	private void explainLevel() {
 		createStatusScreen(mode.introText());
-		Runnable draw = this::drawFrozenText;
+		Runnable draw = this::drawLiveText;
+		collisionDetection = false;
 		// a press left over from before doesn't count
 		while (fireHeld()) {
 			frame(draw);
 		}
 		waitForFire(-1, draw);
+		collisionDetection = true;
 	}
 
 	public void createGameMode() {
@@ -1493,9 +1487,8 @@ public class World implements AlienServices, Disposable {
 		if (isDemo()) endDemo(Outcome.DEMO_OVER);
 		collisionDetection = false;
 		isPlayerPresent = false;
-		captureRecording();
 		createStatusScreen(mode.failMessage());
-		Runnable draw = this::drawFrozenText;
+		Runnable draw = this::drawLiveText;
 		waitForFire(WAIT4FIRE, draw);
 		fadeToBlack(draw);
 		ow.levelNumber++;
@@ -1516,7 +1509,7 @@ public class World implements AlienServices, Disposable {
 			final boolean show = phase % 2 == 1;
 			for (int f = 0; f < 13; f++) {
 				frame(() -> {
-					drawFrozen(true);
+					drawFrozen();
 					if (show) statusDisplay.drawTimeUp();
 					drawHudAndBorders(true);
 				});
@@ -1536,7 +1529,7 @@ public class World implements AlienServices, Disposable {
 		ah.stopMusic();
 		captureRecording();
 		fadeToBlack(() -> {
-			drawFrozen(true);
+			drawFrozen();
 			drawHudAndBorders(true);
 		});
 		exit(Outcome.LIFE_LOST);
@@ -1559,7 +1552,7 @@ public class World implements AlienServices, Disposable {
 		final int my = gc.screenHeight() / 2;
 		final int[] d = new int[1];
 		Runnable draw = () -> {
-			drawFrozen(true);
+			drawFrozen();
 			game.drawByHandle(mx - d[0], my - 14, false);
 			over.drawByHandle(mx + d[0], my + 13, false);
 			drawHudAndBorders(true);
@@ -1576,7 +1569,7 @@ public class World implements AlienServices, Disposable {
 			at.accept(x);
 		}
 		fadeToBlack(() -> {
-			drawFrozen(true);
+			drawFrozen();
 			drawHudAndBorders(true);
 		});
 		exit(Outcome.GAME_OVER);
@@ -1668,8 +1661,7 @@ public class World implements AlienServices, Disposable {
 		ow.gemsCollectedTotal += gemsCollected;
 
 		isPlayerPresent = false;
-		captureRecording();
-		Runnable draw = this::drawFrozenText;
+		Runnable draw = this::drawLiveText;
 		if (configuredEnding != null) {
 			for (String page : configuredEnding.get()) {
 				createStatusScreen(page);
@@ -1708,7 +1700,7 @@ public class World implements AlienServices, Disposable {
 	private void endDemo(Outcome o) {
 		captureRecording();
 		fadeToBlack(() -> {
-			drawFrozen(true);
+			drawFrozen();
 			drawHudAndBorders(true);
 		});
 		exit(o);
@@ -1763,19 +1755,24 @@ public class World implements AlienServices, Disposable {
 		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), a << 24);
 	}
 
-	/** The frozen screen: the map and what was drawn on it (perhaps not the aliens). */
-	private void drawFrozen(boolean showAliens) {
+	/** The frozen screen: the map and what was drawn on it. */
+	private void drawFrozen() {
 		drawTheMap();
 		for (SpriteRecord sr : recording) {
-			if (sr.isPlayer || (showAliens && !aliensHidden)) {
-				directDrawSprite(sr.c, sr.s, sr.drawInWhite, sr.opacity);
-			}
+			directDrawSprite(sr.c, sr.s, sr.drawInWhite, sr.opacity);
 		}
 	}
 
-	/** A text screen over the frozen screen: it takes the aliens' place. */
-	private void drawFrozenText() {
-		drawFrozen(false);
+	/**
+	 * A text screen over the level, with the aliens carrying on behind it
+	 * (the original had to hide them: the text went in their bitplanes).
+	 * Thomas doesn't move, so while he's there neither do the lifts.
+	 */
+	private void drawLiveText() {
+		frameNumber++;
+		if (!isPlayerPresent) moveLifts();
+		drawTheMap();
+		updateTheAliens();
 		statusScreen.get().update();
 		drawHudAndBorders(true);
 	}
@@ -1863,13 +1860,6 @@ public class World implements AlienServices, Disposable {
 		configuredEnding = pages;
 	}
 
-	/**
-	 * Hide the aliens (not Thomas), as the original's text screens did: they
-	 * were drawn in the aliens' bitplanes.
-	 */
-	public void setAliensHidden(boolean b) {
-		aliensHidden = b;
-	}
 
 
 	// ---------------------------------------------------------------------------

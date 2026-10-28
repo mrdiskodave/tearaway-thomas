@@ -169,15 +169,14 @@ public final class GameFlow implements Launcher {
 	/**
 	 * DSstart in s195, run as a coroutine over the intro demo: each
 	 * {@link Coroutine#pause()} is one frame. Each page goes up whole, at full
-	 * brightness, in place of the aliens, for the time its text asked for (the
-	 * 13,n codes: twice n frames). Then the demo is over.
+	 * brightness, for the time its text asked for (the 13,n codes: twice n
+	 * frames), with the demo carrying on behind it. Then the demo is over.
 	 */
 	private void titleSequence(Coroutine co) {
 		if (newHighScore != null) {
 			enterName(co, newHighScore);
 			newHighScore = null;
 		}
-		demoWorld.setAliensHidden(true);
 		showLogo(co, "0logotitle", 80);
 		showText(co, Texts.WRITTEN_BY, 200, true);
 		showText(co, Texts.THANKS_1, 140, false);
@@ -337,7 +336,6 @@ public final class GameFlow implements Launcher {
 	private void enterName(Coroutine co, HighScores.Entry e) {
 		final String letters = "abcdefghijklmnopqrstuvwxyz0123456789.-!?";
 		enteringName = true;
-		demoWorld.setAliensHidden(true);
 		StringBuilder typed = new StringBuilder();
 		int choice = 0;
 		int repeat = 0;
