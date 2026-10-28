@@ -6,47 +6,47 @@ import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
 import com.nney.tt.World;
 import com.nney.tt.World.Outcome;
+import com.nney.tt.gfx.Bounds;
 import com.nney.tt.gfx.Font;
 import com.nney.tt.gfx.GraphicsContext;
+import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.input.Joystick;
 import com.nney.tt.input.KeyEvent;
 import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.RecordedJoystick;
 import com.nney.tt.resources.TTResource;
-import com.nney.tt.gfx.Bounds;
-import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.OpenableTools;
 
 /**
- * The game from switch-on: title sequence and demos, a game, game over or the
- * ending, high scores, and round again.
+ * The game from switch-on, as the original's main and play_game in s195: the
+ * intro demo with the title pages over it, then one world's demo, then the intro
+ * again and the next world, round and round until someone presses fire. Then a
+ * game, and back to the demos. A new high score's name is entered over the
+ * next intro demo, before its title pages.
  *
  * It's written as plain straight-line code rather than a state machine. That
  * works because whoever is running draws the frames: {@link World} has its own
- * frame loops and so do the little loops in here, and each frame is shown when
+ * frame loops (and does everything that happens around a level: fades, the
+ * circle, the messages) and each frame is shown when
  * {@link GraphicsContext#endDrawing()} is called.
  *
- * The one place two things have to advance together is the title sequence,
- * which runs over a demo of level 1. There the demo is the main loop and the
- * titles are a {@link Coroutine} that it steps once a frame, just as the
+ * The title pages run over a demo, so there the demo is the main loop and the
+ * pages are a {@link Coroutine} that it steps once a frame, just as the
  * original's DSstart task was stepped by its main loop.
  */
 public final class GameFlow implements Launcher {
 	/** The original cut the intro recording off here (st $526(a0)). */
 	private static final int INTRO_DEMO_FRAMES = 1318;
 
-	/** A music slot World doesn't use. */
-	private static final int TITLE_MUSIC_SLOT = 4;
-
-	/** The attract-mode demos, from demlevs, dltimes and scriptnames in s195. */
+	/** The world demos, from demlevs, dltimes and scriptnames in s195. */
 	private static final Object[][] DEMOS = { //
-			// level (from 1), frames, recording, logo
-			{ 8, 16 * 50, "wood", "0logow" }, //
-			{ 12, 10 * 50, "toy", "0logot" }, //
-			{ 27, 21 * 50 - 25, "ghost", "0logog" }, //
-			{ 34, 30 * 50, "ice", "0logoi" }, //
-			{ 47, 17 * 50, "future", null }, //
+			// level (from 1), frames, recording
+			{ 8, 16 * 50, "wood" }, //
+			{ 12, 10 * 50, "toy" }, //
+			{ 27, 21 * 50 - 25, "ghost" }, //
+			{ 34, 30 * 50, "ice" }, //
+			{ 47, 17 * 50, "future" }, //
 	};
 
 	private static final String PRESS_TO_PLAY = "press jump to play";
@@ -59,6 +59,18 @@ public final class GameFlow implements Launcher {
 	private Joystick joystick;
 	private Keyboard keyboard;
 	private HighScores highScores;
+
+	/** The demo being played. */
+	private World demoWorld;
+
+	/** A high score waiting for its name (entered over the next intro demo). */
+	private HighScores.Entry newHighScore;
+
+	/** While a name is entered, fire picks letters rather than starting a game. */
+	private boolean enteringName;
+
+	/** Frames since switch-on, for the colour cycling. */
+	private int cycleClock;
 
 	/**
 	 * @param startLevel
@@ -96,133 +108,99 @@ public final class GameFlow implements Launcher {
 	// ATTRACT MODE
 
 	/**
-	 * Title sequence over the intro demo, then the demos of each world, round
-	 * and round until someone presses fire.
+	 * The intro demo with the title pages, then a world's demo, and again with
+	 * the next world, until someone presses fire.
 	 *
 	 * @return <code>false</code> if we've been switched off.
 	 */
 	private boolean attract() {
-		ow.ah.loadMusic(TITLE_MUSIC_SLOT, "intro");
-		ow.ah.startMusic(TITLE_MUSIC_SLOT);
-		for (;;) {
-			Outcome o = playDemo(0, "intro", INTRO_DEMO_FRAMES, true, Integer.MAX_VALUE,
+		// (reset_demo: after a game it starts again from the first world)
+		for (int next = 0;; next = (next + 1) % DEMOS.length) {
+			Outcome o = playDemo(0, "intro", INTRO_DEMO_FRAMES, true, Integer.MAX_VALUE, "intro", false,
 					new Coroutine("titles", this::titleSequence));
 			if (o != Outcome.DEMO_OVER) return o == Outcome.DEMO_INTERRUPTED;
 
-			for (Object[] d : DEMOS) {
-				final String logo = (String) d[3];
-				o = playDemo((Integer) d[0] - 1, (String) d[2], -1, false, (Integer) d[1],
-						new Coroutine("demo " + d[2], co -> demoOverlay(co, logo)));
-				if (o != Outcome.DEMO_OVER) return o == Outcome.DEMO_INTERRUPTED;
-			}
+			Object[] d = DEMOS[next];
+			o = playDemo((Integer) d[0] - 1, (String) d[2], -1, false, (Integer) d[1], null, true,
+					new Coroutine("demo " + d[2], this::worldDemo));
+			if (o != Outcome.DEMO_OVER) return o == Outcome.DEMO_INTERRUPTED;
 		}
 	}
 
 	private Outcome playDemo(int level, String recording, int maxRecordingFrames, boolean loop, final int frames,
-			final Coroutine overlay) {
+			String music, boolean worldLogo, final Coroutine overlay) {
 		ow.reset();
 		ow.levelNumber = level;
 		byte[] rec = OpenableTools.mustLoad(TTResource.demo(recording));
 		World w = new World(ow);
+		demoWorld = w;
 		final int[] frame = new int[1];
 		w.configureDemo(new RecordedJoystick(rec, maxRecordingFrames, loop), () -> {
 			frame[0]++;
+			cycleClock++;
 			boolean more = overlay.step();
 			return more && frame[0] < frames;
 		});
+		w.configureDemoMusic(music);
+		w.configureWorldLogo(worldLogo);
+		// (each demo shows its world's logo afresh)
+		ow.worldLogoShown = null;
+		w.configureDemoInterruptible(() -> !enteringName);
 		try (Coroutine c = overlay) {
 			Outcome o = w.playLevel();
 			System.out.println("FLOW: demo " + recording + " -> " + o);
 			return stillInCharge() ? o : Outcome.TO_MAPPER;
 		}
 		finally {
+			demoWorld = null;
+			enteringName = false;
 			ow.reset();
 		}
 	}
 
-	/**
-	 * The title sequence. Runs as a coroutine, drawing over the demo: each
-	 * {@link Coroutine#pause()} is one frame. Compare DSstart in s195.
-	 */
-	private void titleSequence(Coroutine co) {
-		Dimmer dim = new Dimmer(0xa0);
-		showLogo(co, dim, "0logotitle", 300);
-		showText(co, dim, Texts.WRITTEN_BY, 220, true);
-		showText(co, dim, Texts.THANKS_1, 180, true);
-		showText(co, dim, Texts.THANKS_2, 180, true);
-		showText(co, dim, Texts.THANKS_3, 180, true);
-		showText(co, dim, Texts.highScores(highScores, null, null), 300, false);
-		// back to the bare demo before handing over
-		dim.target(0);
-		while (!dim.isDone()) {
-			dim.draw();
+	/** Nothing is drawn over a world's demo. */
+	private void worldDemo(Coroutine co) {
+		for (;;) {
+			drainKeys();
 			co.pause();
 		}
 	}
 
-	/** Over the world demos: the world's logo, then just the invitation. */
-	private void demoOverlay(Coroutine co, String logo) {
-		if (logo != null) showLogo(co, null, logo, 150);
-		for (int f = 0;; f++) {
-			drawPressToPlay(f);
+	/**
+	 * DSstart in s195, run as a coroutine over the intro demo: each
+	 * {@link Coroutine#pause()} is one frame. Each page goes up whole, at full
+	 * brightness, in place of the aliens, for the time its text asked for (the
+	 * 13,n codes: twice n frames). Then the demo is over.
+	 */
+	private void titleSequence(Coroutine co) {
+		if (newHighScore != null) {
+			enterName(co, newHighScore);
+			newHighScore = null;
+		}
+		demoWorld.setAliensHidden(true);
+		showLogo(co, "0logotitle", 80);
+		showText(co, Texts.WRITTEN_BY, 200, true);
+		showText(co, Texts.THANKS_1, 140, false);
+		showText(co, Texts.THANKS_2, 140, false);
+		showText(co, Texts.THANKS_3, 140, false);
+		showText(co, Texts.highScores(highScores, null, null), 200, false);
+		// clearscreen_text: a moment with nothing, then done_level
+		for (int f = 0; f < 4; f++) {
+			drainKeys();
 			co.pause();
 		}
 	}
 
 	// ---------------------------------------------------------------------------
-	// TITLE SEQUENCE PIECES (all run inside a coroutine)
+	// TITLE PAGES (all run inside a coroutine)
 
-	private static final int FADE = 16;
-
-	/** Darkens the game behind the titles; fades between levels of darkness. */
-	private final class Dimmer {
-		private final int darkest;
-		private int current;
-		private int target;
-
-		Dimmer(int darkest) {
-			this.darkest = darkest;
-			this.target = darkest;
-		}
-
-		void target(int a) {
-			target = a;
-		}
-
-		boolean isDone() {
-			return current == target;
-		}
-
-		void draw() {
-			int step = Math.max(1, darkest / FADE);
-			if (current < target) current = Math.min(target, current + step);
-			else if (current > target) current = Math.max(target, current - step);
-			if (current > 0) gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), current << 24);
-		}
-	}
-
-	/**
-	 * Drop a picture in from the top, hold it, and lift it out.
-	 * 
-	 * @param dim
-	 *            Darken the game behind it, or <code>null</code> not to.
-	 */
-	private void showLogo(Coroutine co, Dimmer dim, String name, int frames) {
+	/** The title logo, still, in the middle of the screen. */
+	private void showLogo(Coroutine co, String name, int frames) {
 		Sprite logo = loadPicture(name);
 		try {
-			int cx = gc.screenWidth() / 2;
-			int cy = gc.screenHeight() / 2 - (dim != null ? 0 : 20);
-			int top = -logo.h;
 			for (int f = 0; f < frames; f++) {
-				if (dim != null) dim.draw();
-				int y;
-				int fromEnd = frames - f;
-				if (f < 25) y = top + (int) ((cy - top) * easeOut(f / 25f));
-				else if (fromEnd < 20) y = cy + (int) ((top - cy) * easeIn((20 - fromEnd) / 20f));
-				else y = cy;
-				logo.drawByHandle(cx, y, false);
-				// (the title picture fills the screen; no room for this on it)
-				if (dim == null) drawPressToPlay(f);
+				drainKeys();
+				logo.drawByHandle(gc.screenWidth() / 2, gc.screenHeight() / 2, false);
 				co.pause();
 			}
 		}
@@ -242,14 +220,13 @@ public final class GameFlow implements Launcher {
 		return new Sprite(gc, si.view(b), si.width() / 2 - b.left, si.height() / 2 - b.top, false);
 	}
 
-	/** A page of text, with a short blank either side of it. */
-	private void showText(Coroutine co, Dimmer dim, String markup, int frames, boolean invite) {
+	private void showText(Coroutine co, String markup, int frames, boolean invite) {
 		ScreenText text = new ScreenText(gc, font, markup);
 		try {
 			for (int f = 0; f < frames; f++) {
-				dim.draw();
-				if (f >= 6 && f < frames - 6) text.draw();
-				if (invite) drawPressToPlay(f);
+				drainKeys();
+				text.draw();
+				if (invite) drawPressToPlay();
 				co.pause();
 			}
 		}
@@ -258,20 +235,25 @@ public final class GameFlow implements Launcher {
 		}
 	}
 
-	private void drawPressToPlay(int f) {
-		if ((f / 25) % 2 == 0) return;
+	/**
+	 * "press fire to play" on the "written by" page, in the original's cycling
+	 * colour: yellow exclusive-or'd with a grey going up and down a step a
+	 * frame (cycle and tpcycle in s195).
+	 */
+	private void drawPressToPlay() {
+		int step = cycleClock % 30;
+		int level = step < 15 ? step + 1 : 30 - step; // 1..15..0
+		int grey = level * 0x111;
+		int c = 0xff0 ^ grey;
+		int argb = 0xff000000 | ((c >> 8 & 15) * 0x11) << 16 | ((c >> 4 & 15) * 0x11) << 8 | (c & 15) * 0x11;
 		int w = font.computeWidth(0, PRESS_TO_PLAY);
-		font.draw((gc.screenWidth() - w) / 2, gc.screenHeight() - 64, 0xffffff00, 0, PRESS_TO_PLAY);
+		font.draw((gc.screenWidth() - w) / 2, gc.screenHeight() - 64, argb, 0, PRESS_TO_PLAY);
 	}
 
-	private static float easeOut(float t) {
-		t = Math.max(0, Math.min(1, t));
-		return 1 - (1 - t) * (1 - t) * (1 - t);
-	}
-
-	private static float easeIn(float t) {
-		t = Math.max(0, Math.min(1, t));
-		return t * t * t;
+	private void drainKeys() {
+		while (keyboard.nextEvent() != null) {
+			// discard
+		}
 	}
 
 	// ---------------------------------------------------------------------------
@@ -284,11 +266,17 @@ public final class GameFlow implements Launcher {
 		ow.ah.stopMusic();
 		ow.reset();
 		ow.levelNumber = firstLevel;
+		// (blkset_logoed: the first level's world gets its logo too)
+		ow.worldLogoShown = null;
+		int last = PersistedLevel.levelCount() - 1;
 		for (;;) {
 			World world = new World(ow);
 			if (ow.devPlayerStart != null) {
 				world.configurePlayerStart(ow.devPlayerStart);
 				ow.devPlayerStart = null;
+			}
+			if (ow.levelNumber == last) {
+				world.configureEnding(() -> Texts.ending(ow.levelsCompleted, ow.gemsCollectedTotal));
 			}
 			Outcome o = world.playLevel();
 			System.out.println("FLOW: level " + ow.levelNumber + " -> " + o + " (lives " + ow.lives + ", score "
@@ -301,14 +289,13 @@ public final class GameFlow implements Launcher {
 				ow.levelNumber = Progression.next(ow.levelNumber - 1, ow.starCollected, secret,
 						Progression.FROM_LEVEL_FILES);
 				ow.secretBonusFound = secret[0];
-				if (ow.levelNumber >= PersistedLevel.levelCount()) {
-					ending();
-					afterGame();
-					return true;
-				}
+				// after the last level the original goes round again from the first
+				if (ow.levelNumber > last) ow.levelNumber = 0;
 				break;
 			case GAME_OVER:
-				afterGame();
+				newHighScore = highScores.add(ow.score);
+				System.out.println("FLOW: game over, score " + ow.score
+						+ (newHighScore != null ? " is a high score" : ""));
 				return true;
 			case LIFE_LOST:
 			default:
@@ -318,31 +305,8 @@ public final class GameFlow implements Launcher {
 		}
 	}
 
-	private void afterGame() {
-		HighScores.Entry e = highScores.add(ow.score);
-		System.out.println("FLOW: game ended, score " + ow.score + (e != null ? " is a high score" : ""));
-		if (e != null) {
-			enterInitials(e);
-			highScores.save();
-			showScreen(Texts.highScores(highScores, e, null), 5 * 50, 2);
-		}
-	}
-
 	// ---------------------------------------------------------------------------
-	// THE ENDING
-
-	private void ending() {
-		ow.ah.loadMusic(TITLE_MUSIC_SLOT, "intro");
-		ow.ah.startMusic(TITLE_MUSIC_SLOT);
-		String[] pages = Texts.ending(ow.levelsCompleted, ow.gemsCollectedTotal);
-		for (int i = 0; i < pages.length; i++) {
-			showScreen(pages[i], 8 * 50, i % 8);
-		}
-		ow.ah.stopMusic();
-	}
-
-	// ---------------------------------------------------------------------------
-	// SCREENS OF OUR OWN (outside any level)
+	// A NEW HIGH SCORE (over the intro demo)
 
 	/** Edge-detects the fire button and stick, one read per frame. */
 	private final class Stick {
@@ -366,45 +330,14 @@ public final class GameFlow implements Launcher {
 	}
 
 	/**
-	 * Show some text over a horizon until fire is pressed or time runs out, with
-	 * a fade in and out.
+	 * HSstart in s195: the table with "enter your name" over the demo, the
+	 * name typed (or chosen with the stick: up and down for a letter, fire to
+	 * take it, left to go back), then the finished table for 2 seconds.
 	 */
-	private void showScreen(String markup, int frames, int horizon) {
-		ScreenText text = new ScreenText(gc, font, markup);
-		Stick stick = new Stick();
-		try {
-			int out = -1;
-			for (int f = 0; out < 0 || f - out < FADE; f++) {
-				gc.beginDrawing();
-				drainKeys();
-				stick.read();
-				if (out < 0 && (f >= frames || stick.pressed(Joystick.FIRE))) out = f;
-				ow.getHorizon(horizon).draw();
-				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0x60000000);
-				text.draw();
-				int fade = out < 0 ? Math.max(0, FADE - f) : f - out;
-				if (fade > 0) gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), (0xff * fade / FADE) << 24);
-				gc.endDrawing();
-			}
-		}
-		finally {
-			text.dispose();
-		}
-	}
-
-	private void drainKeys() {
-		while (keyboard.nextEvent() != null) {
-			// discard
-		}
-	}
-
-	/**
-	 * Let the player put their initials against their new high score. Type
-	 * them, or use the stick: up/down to choose a letter, fire to take it,
-	 * left to go back.
-	 */
-	private void enterInitials(HighScores.Entry e) {
+	private void enterName(Coroutine co, HighScores.Entry e) {
 		final String letters = "abcdefghijklmnopqrstuvwxyz0123456789.-!?";
+		enteringName = true;
+		demoWorld.setAliensHidden(true);
 		StringBuilder typed = new StringBuilder();
 		int choice = 0;
 		int repeat = 0;
@@ -413,9 +346,7 @@ public final class GameFlow implements Launcher {
 		String shown = null;
 		try {
 			for (int f = 0;; f++) {
-				gc.beginDrawing();
 				stick.read();
-
 				boolean done = false;
 				KeyEvent k;
 				while ((k = keyboard.nextEvent()) != null) {
@@ -448,23 +379,29 @@ public final class GameFlow implements Launcher {
 				if (finished) e.initials = typed.toString();
 
 				String cursor = finished ? "" : (f / 8) % 2 == 0 ? String.valueOf(letters.charAt(choice)) : " ";
-				String markup = Texts.enterInitials(highScores, e, typed + cursor);
+				String markup = finished ? Texts.highScores(highScores, e, null)
+						: Texts.enterInitials(highScores, e, typed + cursor);
 				if (!markup.equals(shown)) {
 					if (text != null) text.dispose();
 					text = new ScreenText(gc, font, markup);
 					shown = markup;
 				}
-				ow.getHorizon(3).draw();
-				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0x60000000);
 				text.draw();
-				gc.endDrawing();
-				// (the table is shown again afterwards with the new entry in it)
-				if (finished) return;
+				co.pause();
+				if (finished) break;
+			}
+			highScores.save();
+			// HSdone: the finished table for 100 frames
+			for (int f = 0; f < 100; f++) {
+				drainKeys();
+				text.draw();
+				co.pause();
 			}
 		}
 		finally {
 			if (text != null) text.dispose();
 			if (e.initials.isEmpty()) e.initials = "???";
+			enteringName = false;
 		}
 	}
 }

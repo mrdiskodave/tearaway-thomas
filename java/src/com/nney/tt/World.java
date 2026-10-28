@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BooleanSupplier;
+import java.util.function.IntConsumer;
+import java.util.function.Supplier;
 
 import com.nney.coroutines.Coroutine;
 import com.nney.tt.aliens.Alien;
@@ -188,12 +191,15 @@ public class World implements AlienServices, Disposable {
 		private final Sprite s;
 		private final boolean drawInWhite;
 		private final float opacity;
+		/** Thomas rather than an alien. */
+		private final boolean isPlayer;
 
-		SpriteRecord(Coord c, Sprite s, boolean drawInWhite, float opacity) {
+		SpriteRecord(Coord c, Sprite s, boolean drawInWhite, float opacity, boolean isPlayer) {
 			this.c = c.copy();
 			this.s = s;
 			this.drawInWhite = drawInWhite;
 			this.opacity = opacity;
+			this.isPlayer = isPlayer;
 		}
 	}
 
@@ -323,6 +329,41 @@ public class World implements AlienServices, Disposable {
 	private int lowerEdge;
 
 	private boolean levelCompleted;
+
+	// ---------------------------------------------------------------------------
+	// THE SEQUENCES AROUND A LEVEL (as the original: one thing at a time)
+
+	/** fade_out and fade_in in s195: 16 steps, one a frame. */
+	private static final int FADE_FRAMES = 16;
+
+	/** wait4fire in s195 gives up after 3 seconds. */
+	private static final int WAIT4FIRE = 3 * Const.FPS;
+
+	/** Collect every gem without losing a life on the level. */
+	private static final int PERFECT_BONUS = 10000;
+
+	/** Text screens use the bitplanes the aliens are drawn in, so they hide them. */
+	private boolean aliensHidden;
+
+	/** Set while Thomas (rather than an alien) is being drawn. */
+	private boolean drawingPlayer;
+
+	/** A life has gone (time ran out) since this level began. */
+	private boolean lifeLostHere;
+
+	/** The level a perfect collection is possible on (not challenges or fruit). */
+	private boolean normalLevel;
+
+	/** Did the level just completed earn the perfect bonus? */
+	private boolean perfectLevel;
+
+	private boolean configuredWorldLogo = true;
+
+	private String configuredDemoMusic;
+
+	private BooleanSupplier demoInterruptible = () -> true;
+
+	private Supplier<String[]> configuredEnding;
 
 	public World(OuterWorld ow) {
 		this.ow = ow;
@@ -457,9 +498,9 @@ public class World implements AlienServices, Disposable {
 
 	private void drawSprite(Coord c, final Sprite s, boolean drawWhite, float opacity) {
 		if (record) {
-			recording.add(new SpriteRecord(c, s, drawWhite, opacity));
+			recording.add(new SpriteRecord(c, s, drawWhite, opacity, drawingPlayer));
 		}
-		else {
+		else if (!aliensHidden || drawingPlayer) {
 			directDrawSprite(c, s, drawWhite, opacity);
 		}
 	}
@@ -759,7 +800,9 @@ public class World implements AlienServices, Disposable {
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_COLLECTABLES));
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_ALIENS));
 		if (isPlayerPresent) {
+			drawingPlayer = true;
 			player.draw();
+			drawingPlayer = false;
 		}
 		updateList(alienTracker.getOnScreen(Alien.DEPTH_FG_SCENARY));
 
@@ -993,14 +1036,14 @@ public class World implements AlienServices, Disposable {
 		// the main game doesn't use key events so
 		// this is mostly just to drain them
 		// i.e. to stop them piling up
-		KeyEvent keyEvent = keyboard.nextEvent();
+		// (in a demo they're left for whoever is running it: name entry)
+		KeyEvent keyEvent = isDemo() ? null : keyboard.nextEvent();
 
 		if (ow.devMode) {
 			if (keyEvent != null && keyEvent.keyCode == Keyboard.KEY_N && !isDemo()) {
-				// skip to the next level (cheat_anylev in the original)
-				ow.levelNumber++;
-				ow.starCollected = false;
-				exit(Outcome.COMPLETED);
+				// finish the level (cheat_anylev in the original: done_level,
+				// so the usual summary and time bonus follow)
+				levelCompleted(null);
 			}
 			if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
 				if (!configuredCalledFromMapper) {
@@ -1020,7 +1063,7 @@ public class World implements AlienServices, Disposable {
 		if (isDemo()) {
 			boolean fire = Math2.maskTest(joystick.get(), Joystick.FIRE);
 			if (!fire) demoFireWasUp = true;
-			else if (demoFireWasUp) exit(Outcome.DEMO_INTERRUPTED);
+			else if (demoFireWasUp && demoInterruptible.getAsBoolean()) endDemo(Outcome.DEMO_INTERRUPTED);
 		}
 
 		gc.beginDrawing();
@@ -1029,7 +1072,7 @@ public class World implements AlienServices, Disposable {
 	private void end() {
 		boolean keepGoing = demoDirector == null || demoDirector.frame();
 		gc.endDrawing();
-		if (!keepGoing) exit(Outcome.DEMO_OVER);
+		if (!keepGoing) endDemo(Outcome.DEMO_OVER);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1159,41 +1202,115 @@ public class World implements AlienServices, Disposable {
 		createGameMode();
 	}
 
-	private void performIntro() {
+	/**
+	 * The start of a level, as init_game in s195: (from a black screen) the
+	 * world's logo if it's a new world, the level drawn and the circle opening
+	 * on it with everything frozen, then (in a real game) what the level is
+	 * and a wait for fire. Then the music.
+	 */
+	private void performStart() {
 		assert mode != null;
-		captureRecording();
-
-		hole.setCentre(getPlayerCentreOnScreen());
-		hole.current(Curtain.CLOSED);
-		hole.target(Curtain.OPEN);
-
-		dimFade.current(Curtain.CLOSED);
-		dimFade.target(Curtain.CLOSED);
-
-		// totalFade.current(Curtain.OPEN);
-		// totalFade.target(Curtain.OPEN);
-
-		ah.loadMusic(3, "gameover");
-		ah.loadMusic(2, "levelcomplete");
-		ah.loadMusic(1, worldName);
-		ah.loadMusic(0, "levelbegin");
-		ah.startMusic(0);
-
-		createStatusScreen(mode.introText());
-
-		//
-		// MODE START
-		//
-		while (!firePressed) {
-			begin();
-			drawTitles(false);
-			end();
+		ah.stopMusic();
+		if (configuredWorldLogo && !worldName.equals(ow.worldLogoShown)) {
+			showWorldLogo();
+			ow.worldLogoShown = worldName;
 		}
 
-		dimFade.target(Curtain.OPEN);
-		ah.startMusic(1);
+		if (isDemo()) {
+			ah.loadMusic(1, configuredDemoMusic != null ? configuredDemoMusic : worldName);
+		}
+		else {
+			ah.loadMusic(3, "gameover");
+			ah.loadMusic(2, "levelcomplete");
+			ah.loadMusic(1, worldName);
+			ah.loadMusic(0, "levelbegin");
+			ah.startMusic(0);
+		}
 
+		captureRecording();
+		openCircle();
+		if (!isDemo()) explainLevel();
 		clearRecording();
+
+		ah.startMusic(1);
+	}
+
+	/**
+	 * show_world_logo: on black, fade the logo in, show it for 3 seconds (or
+	 * until fire) and fade it out again.
+	 */
+	private void showWorldLogo() {
+		String name = "0logo" + worldName;
+		if (!TTResource.animExists(name)) return;
+		ah.loadMusic(5, "startworld");
+		ah.startMusic(5);
+		final Sprite logo = loadPicture(name);
+		try {
+			final int cx = gc.screenWidth() / 2;
+			final int cy = gc.screenHeight() / 2;
+			Runnable draw = () -> {
+				gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), 0xff000000);
+				logo.drawByHandle(cx, cy, false);
+			};
+			int f = 0;
+			for (; f < FADE_FRAMES; f++) {
+				final int dark = FADE_FRAMES - 1 - f;
+				frame(() -> {
+					draw.run();
+					darken(dark);
+				});
+			}
+			// (logo_timer: 3 seconds from when it went up)
+			for (; f < 3 * Const.FPS && !fireHeld(); f++) {
+				frame(draw);
+			}
+			fadeToBlack(draw);
+		}
+		finally {
+			logo.dispose();
+		}
+	}
+
+	/** A whole picture as a sprite with its handle in the middle. */
+	private Sprite loadPicture(String name) {
+		com.nney.tt.gfx.SimpleImage si = new com.nney.tt.gfx.SimpleImage(
+				com.nney.utils.OpenableTools.mustLoad(TTResource.bareSprite(name)));
+		com.nney.tt.gfx.Bounds b = si.bounds();
+		return new Sprite(gc, si.view(b), si.width() / 2 - b.left, si.height() / 2 - b.top, false);
+	}
+
+	/**
+	 * cartoon_circle: opens from radius 10, 2 pixels a frame, centred 16 pixels
+	 * above Thomas's feet, until it's past the furthest corner of the screen.
+	 * Nothing else moves.
+	 */
+	private void openCircle() {
+		final Coord p = player.readOnlyPlayerPosition().sub2(scr.position());
+		p.y -= 16;
+		int w = gc.screenWidth();
+		int h = gc.screenHeight();
+		int dx = (p.x > w / 2 ? 0 : w) - p.x;
+		int dy = (p.y > h / 2 ? 0 : h) - p.y;
+		int maxRadius = (int) Math.ceil(Math.sqrt((double) dx * dx + (double) dy * dy)) + 5;
+		for (int r = 10; r < maxRadius; r += 2) {
+			final int radius = r;
+			frame(() -> {
+				drawFrozen(true);
+				gc.aperture(radius, p.x, p.y, 0xff000000);
+				drawHudAndBorders(true);
+			});
+		}
+	}
+
+	/** explain_level: what this level is, until fire is pressed. */
+	private void explainLevel() {
+		createStatusScreen(mode.introText());
+		Runnable draw = this::drawFrozenText;
+		// a press left over from before doesn't count
+		while (fireHeld()) {
+			frame(draw);
+		}
+		waitForFire(-1, draw);
 	}
 
 	public void createGameMode() {
@@ -1211,7 +1328,7 @@ public class World implements AlienServices, Disposable {
 				@Override
 				public String successMessage() {
 					return Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
-							- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+							- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar(), false);
 				}
 
 				@Override
@@ -1294,18 +1411,19 @@ public class World implements AlienServices, Disposable {
 			};
 		}
 		else {
+			normalLevel = true;
 			final String text = Messages.levelStart(levelNum, levelTitle, levelInfo.gemsNeeded, gemsTotal,
 					levelInfo.timeGiven);
 			mode = new Mode() {
 				@Override
 				public String successMessage() {
 					return Messages.levelComplete(ow.levelNumber + 1, levelInfo.title, gemsCollected, gemsTotal
-							- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar());
+							- gemsCollected, timeRemainingInFrames / Const.FPS, player.gotStar(), perfectLevel);
 				}
 
 				@Override
 				public void onTimeOut() {
-					performLevelFailure();
+					timeUp();
 				}
 
 				@Override
@@ -1327,7 +1445,7 @@ public class World implements AlienServices, Disposable {
 		}
 
 		if (player.isLostOffTheBottom()) {
-			performLevelFailure();
+			offTheBottom();
 		}
 
 		if (timeRemainingInFrames == 0) {
@@ -1356,115 +1474,112 @@ public class World implements AlienServices, Disposable {
 
 		end();
 
-		if (isLevelCompleted() && isDemo()) exit(Outcome.DEMO_OVER);
+		if (isLevelCompleted() && isDemo()) endDemo(Outcome.DEMO_OVER);
 
 		if (isLevelCompleted()) {
 			if (!delayedFinish.testAndRun()) {
 				if (!didScroll || mode.pauseGameDuringOutro()) {
-					createStatusScreen(mode.successMessage());
-
-					Coord closeAround = whereWeExitedTheLevel;
-					if (closeAround == null) closeAround = getPlayerCentre();
-					closeAround.sub(scr.position());
-					hole.setCentre(closeAround);
-					hole.target(Curtain.CLOSED);
-					hole.setRate(4);
-
-					// happy outro
-					performOutro();
+					performLevelComplete();
 				}
 			}
 		}
 	}
 
+	/**
+	 * A challenge's time ran out (challenge_fail in s195): Thomas goes, the
+	 * message, and on to the next level.
+	 */
 	private void performLevelFailure() {
-		if (isDemo()) exit(Outcome.DEMO_OVER);
-
+		if (isDemo()) endDemo(Outcome.DEMO_OVER);
 		collisionDetection = false;
-
-		if (!player.isLostOffTheBottom()) {
-			player.kill();
-			// we need to keep waiting until
-			// he is on his arse and the screen has stopped scrolling
-			do {
-				if (player.isLostOffTheBottom()) break;
-				begin();
-				mainActions(0);
-				drawHudAndBorders(false);
-				end();
-			} while (!player.onArse() || didScroll);
-		}
-
-		// the magic 2 and -6 compensate for the player sitting down
-		final Coord t = getPlayerCentreOnScreen().copyAndAdd(2, -6);
-		hole.setCentre(t);
-		hole.current(Curtain.OPEN);
-		hole.target(Curtain.CLOSED);
-		hole.setRate(3);
-
-		String failMessage = mode.failMessage();
-		if (failMessage != null) {
-			createStatusScreen(failMessage);
-			// sad outro
-			performOutro();
-		}
-		else {
-			performLifeLost(t);
-		}
+		isPlayerPresent = false;
+		captureRecording();
+		createStatusScreen(mode.failMessage());
+		Runnable draw = this::drawFrozenText;
+		waitForFire(WAIT4FIRE, draw);
+		fadeToBlack(draw);
+		ow.levelNumber++;
+		ow.starCollected = false;
+		exit(Outcome.COMPLETED);
 	}
 
-	public void performLifeLost(final Coord t) {
-		boolean gameOver = ow.lives <= 1;
-		LifeLostDevice lifeLostDevice;
-
-		boolean start = false;
-		if (gameOver) {
-			lifeLostDevice = new GameOverDisplay(animsPool, gc);
-			ah.startMusic(3);
-			start = true;
-		}
-		else {
-			lifeLostDevice = new LifeLostDevice() {
-				@Override
-				public void update() {
-					statusDisplay.drawLifeLost(t.copyAndAdd(0, 28));
-				}
-
-				@Override
-				public boolean isDone() {
-					return true;
-				}
-			};
-		}
-
-		SlowBoolean decLives = new SlowBoolean(true);
-		do {
-			begin();
-			mainActions(0);
-			hole.update();
-			int p = hole.current();
-			if (p > 60) start = true;
-			if (start) {
-				if (decLives.set(false)) {
-					ow.lives--;
-				}
-				lifeLostDevice.update();
+	/**
+	 * Out of time on an ordinary level (flash_timeup in s195): "time up"
+	 * flashes with everything frozen, a life goes, the clock is refilled and
+	 * play carries on.
+	 */
+	private void timeUp() {
+		if (isDemo()) endDemo(Outcome.DEMO_OVER);
+		if (ow.lives <= 1) performGameOver();
+		captureRecording();
+		for (int phase = 0; phase < 5; phase++) {
+			final boolean show = phase % 2 == 1;
+			for (int f = 0; f < 13; f++) {
+				frame(() -> {
+					drawFrozen(true);
+					if (show) statusDisplay.drawTimeUp();
+					drawHudAndBorders(true);
+				});
 			}
-			drawHudAndBorders(false);
-			end();
-		} while (!lifeLostDevice.isDone() || !hole.isDone());
+		}
+		clearRecording();
+		ow.lives--;
+		lifeLostHere = true;
+		timeRemainingInFrames = levelInfo.timeGiven * Const.FPS + Const.FPS - 1;
+	}
 
-		Fade fadeOut = new Fade(gc, 0xff, 0.30f);
-		fadeOut.target(Curtain.CLOSED);
-		do {
-			begin();
-			lifeLostDevice.update();
-			fadeOut.update();
-			drawHudAndBorders(false);
-			end();
-		} while (!fadeOut.isDone());
+	/** Fell off the bottom: a life goes, fade to black and start the level again. */
+	private void offTheBottom() {
+		if (isDemo()) endDemo(Outcome.DEMO_OVER);
+		if (ow.lives <= 1) performGameOver();
+		ow.lives--;
+		ah.stopMusic();
+		captureRecording();
+		fadeToBlack(() -> {
+			drawFrozen(true);
+			drawHudAndBorders(true);
+		});
+		exit(Outcome.LIFE_LOST);
+	}
 
-		exit(gameOver ? Outcome.GAME_OVER : Outcome.LIFE_LOST);
+	/**
+	 * tell_gameover: "game" slides in from the left and "over" from the right,
+	 * a wait for fire, and they carry on across and off.
+	 */
+	private void performGameOver() {
+		collisionDetection = false;
+		ow.lives = Math.max(0, ow.lives - 1);
+		ah.startMusic(3);
+		isPlayerPresent = false;
+		captureRecording();
+		Anims ago = animsPool.expect("0gameover");
+		final Sprite game = ago.find("game").firstSprite();
+		final Sprite over = ago.find("over").firstSprite();
+		final int mx = gc.screenWidth() / 2;
+		final int my = gc.screenHeight() / 2;
+		final int[] d = new int[1];
+		Runnable draw = () -> {
+			drawFrozen(true);
+			game.drawByHandle(mx - d[0], my - 14, false);
+			over.drawByHandle(mx + d[0], my + 13, false);
+			drawHudAndBorders(true);
+		};
+		IntConsumer at = x -> {
+			d[0] = x;
+			frame(draw);
+		};
+		for (int x = 208; x >= 0; x -= 8) {
+			at.accept(x);
+		}
+		waitForFire(WAIT4FIRE, draw);
+		for (int x = -24; x >= -216; x -= 16) {
+			at.accept(x);
+		}
+		fadeToBlack(() -> {
+			drawFrozen(true);
+			drawHudAndBorders(true);
+		});
+		exit(Outcome.GAME_OVER);
 	}
 
 	// gc.fillRectangle(t.x, 0, 1, 1000, 0xffff00ff);
@@ -1538,95 +1653,131 @@ public class World implements AlienServices, Disposable {
 		}
 	}
 
-	private void performOutro() {
+	/**
+	 * The level's done (explain_complete in s195): Thomas goes, the jingle, the
+	 * summary (held for 3 seconds unless fire is down), the time left counted
+	 * into the score a second at a time, a wait for fire, and a fade to black.
+	 * After the last level: the ending's pages instead of the summary.
+	 */
+	private void performLevelComplete() {
 		collisionDetection = false;
-
-		dimFade.target(Curtain.CLOSED);
-
-		cr = new Coroutine("timeBonus", co -> {
-			// wait around a bit
-			co.pause(60);
-
-			//
-			// turn time into score
-			//
-			int fastScore = 0;
-			while (timeRemainingInFrames != 0) {
-				if (firePressed) {
-					fastScore += 10;
-				}
-				else {
-					awardScore(10, null);
-					playSoundEffect("tink");
-					co.pause(4);
-				}
-				timeRemainingInFrames = Math.max(0, timeRemainingInFrames - Const.FPS);
-			}
-			awardScore(fastScore, null);
-
-			// a pause so you get to look at it
-			co.pause(25);
-
-			//
-			// wait for fire
-			//
-			while (!firePressed) {
-				co.pause();
-			}
-
-			//
-			// fade to black
-			//
-			totalFade.target(Curtain.CLOSED);
-			while (!totalFade.isDone()) {
-				co.pause();
-			}
-		});
-
-		// captureRecording();
-		// while (!pauseAntiAutofire()) {
-		// begin();
-		// drawTheMap();
-		// for (SpriteRecord sr : recording) {
-		// directDrawSprite(sr.c, sr.s, sr.drawInWhite);
-		// }
-		// if (isExitOpen()) statusDisplay.drawExitOpen();
-		// hole.draw();
-		// statusDisplay.drawPaused();
-		// drawHudAndBorders(false);
-		// end();
-		// }
-
 		ah.startMusic(2);
-
-		firePressed = false;
-
-		if (mode.pauseGameDuringOutro()) {
-			captureRecording();
-		}
-		boolean done = false;
-		while (!done) {
-			begin();
-			if (mode.pauseGameDuringOutro()) {
-				drawRecording();
-			}
-			else {
-				mainActions(0);
-			}
-			hole.update();
-			statusScreen.get().update();
-			totalFade.update();
-			drawHudAndBorders(true);
-
-			if (!cr.step()) done = true;
-			end();
-		}
-		cr.close();
-		ow.levelNumber++;
-		ow.starCollected = player.gotStar();
+		perfectLevel = normalLevel && gemsCollected >= gemsTotal && !lifeLostHere;
+		if (perfectLevel) awardScore(PERFECT_BONUS, null);
 		ow.levelsCompleted++;
 		ow.gemsCollectedTotal += gemsCollected;
+
+		isPlayerPresent = false;
+		captureRecording();
+		Runnable draw = this::drawFrozenText;
+		if (configuredEnding != null) {
+			for (String page : configuredEnding.get()) {
+				createStatusScreen(page);
+				// (showmsgD: up to 12 seconds a page)
+				waitForFire(12 * Const.FPS, draw);
+			}
+		}
+		else {
+			createStatusScreen(mode.successMessage());
+			boolean fire = false;
+			for (int f = 0; f < 150 && !fire; f++) {
+				frame(draw);
+				fire = fireHeld();
+			}
+			int seconds = timeRemainingInFrames / Const.FPS;
+			while (!fire && seconds > 0) {
+				seconds--;
+				awardScore(10, null);
+				playSoundEffect("tink");
+				timeRemainingInFrames = seconds * Const.FPS;
+				frame(draw);
+				fire = fireHeld();
+			}
+			awardScore(seconds * 10, null);
+			timeRemainingInFrames = 0;
+			waitForFire(WAIT4FIRE, draw);
+		}
+		fadeToBlack(draw);
+
+		ow.levelNumber++;
+		ow.starCollected = player.gotStar();
 		exit(Outcome.COMPLETED);
+	}
+
+	/** A demo has finished (or been stopped): fade it to black. */
+	private void endDemo(Outcome o) {
+		captureRecording();
+		fadeToBlack(() -> {
+			drawFrozen(true);
+			drawHudAndBorders(true);
+		});
+		exit(o);
+	}
+
+	// ---------------------------------------------------------------------------
+	// FRAMES OF THE SEQUENCES (nothing moves; the screen is the "recording")
+
+	/** One frame of a sequence. */
+	private void frame(Runnable draw) {
+		gc.beginDrawing();
+		draw.run();
+		gc.endDrawing();
+	}
+
+	private boolean fireHeld() {
+		return Math2.maskTest(joystick.get(), Joystick.FIRE);
+	}
+
+	/**
+	 * wait4fire in s195: until fire is down (or the time is up; negative for
+	 * no limit), then two frames, then until it's let go.
+	 */
+	private void waitForFire(int frames, Runnable draw) {
+		for (int f = 0; (frames < 0 || f < frames) && !fireHeld(); f++) {
+			frame(draw);
+		}
+		if (fireHeld()) {
+			frame(draw);
+			frame(draw);
+			while (fireHeld()) {
+				frame(draw);
+			}
+		}
+	}
+
+	/** fade_out: whatever draw draws, darker each frame until it's black. */
+	private void fadeToBlack(Runnable draw) {
+		for (int f = 0; f < FADE_FRAMES; f++) {
+			final int dark = f + 1;
+			frame(() -> {
+				draw.run();
+				darken(dark);
+			});
+		}
+	}
+
+	/** Darken the screen by steps sixteenths. */
+	private void darken(int steps) {
+		if (steps <= 0) return;
+		int a = Math.min(255, 256 * steps / FADE_FRAMES);
+		gc.fillRectangle(0, 0, gc.screenWidth(), gc.screenHeight(), a << 24);
+	}
+
+	/** The frozen screen: the map and what was drawn on it (perhaps not the aliens). */
+	private void drawFrozen(boolean showAliens) {
+		drawTheMap();
+		for (SpriteRecord sr : recording) {
+			if (sr.isPlayer || (showAliens && !aliensHidden)) {
+				directDrawSprite(sr.c, sr.s, sr.drawInWhite, sr.opacity);
+			}
+		}
+	}
+
+	/** A text screen over the frozen screen: it takes the aliens' place. */
+	private void drawFrozenText() {
+		drawFrozen(false);
+		statusScreen.get().update();
+		drawHudAndBorders(true);
 	}
 
 	// ---------------------------------------------------------------------------
@@ -1674,8 +1825,7 @@ public class World implements AlienServices, Disposable {
 	public Outcome playLevel() {
 		try {
 			create();
-			if (configuredPerformIntro) performIntro();
-			else if (isDemo()) prepareDemoStart();
+			if (configuredPerformIntro || isDemo()) performStart();
 			performMain();
 		}
 		catch (ExitException ex) {
@@ -1690,14 +1840,37 @@ public class World implements AlienServices, Disposable {
 		return outcome;
 	}
 
-	private void prepareDemoStart() {
-		// iris in on the player, as at the start of a normal level
-		hole.setCentre(getPlayerCentreOnScreen());
-		hole.current(Curtain.CLOSED);
-		hole.target(Curtain.OPEN);
-		dimFade.current(Curtain.OPEN);
-		dimFade.target(Curtain.OPEN);
+	/**
+	 * Show the world's logo first if it's not the one shown last (the default
+	 * in a game; see {@link OuterWorld#worldLogoShown}).
+	 */
+	public void configureWorldLogo(boolean b) {
+		configuredWorldLogo = b;
 	}
+
+	/** In a demo: the music to play (rather than the world's). */
+	public void configureDemoMusic(String name) {
+		configuredDemoMusic = name;
+	}
+
+	/** In a demo: may fire stop it just now? (Not while a name is entered.) */
+	public void configureDemoInterruptible(BooleanSupplier b) {
+		demoInterruptible = b;
+	}
+
+	/** The last level: when it's done, these pages instead of the summary. */
+	public void configureEnding(Supplier<String[]> pages) {
+		configuredEnding = pages;
+	}
+
+	/**
+	 * Hide the aliens (not Thomas), as the original's text screens did: they
+	 * were drawn in the aliens' bitplanes.
+	 */
+	public void setAliensHidden(boolean b) {
+		aliensHidden = b;
+	}
+
 
 	// ---------------------------------------------------------------------------
 	// (RE)LOAD AND FREE

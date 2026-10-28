@@ -15,17 +15,19 @@ Needs Java 21 or later. No other libraries are needed.
 | Pause | P |
 | Full screen | Alt+Enter or F11 |
 
-It starts like the original: the title sequence runs over a demo of level 1,
-followed by demos of each world (the original Amiga demo recordings). Press
-jump to play. Game over, or finishing all 50 levels, leads to the high score
-table, then back to the titles. High scores are kept in
-`~/.tearaway-thomas/hiscores.txt` (in your user folder on Windows).
+It runs like the original: the title pages over a demo of level 1, then one
+world's demo (the original Amiga recordings), then the titles again and the
+next world, until you press jump. Each level opens with the circle, then says
+what the level is and waits for jump. After the last level the game goes round
+again from the first. After game over, a new high score's name is entered over
+the next demo. High scores are kept in `~/.tearaway-thomas/hiscores.txt` (in
+your user folder on Windows).
 
 Options:
 
     --level N       skip the titles and start a game on level N (0 = first of 50)
     --dev           developer keys: Esc opens the map editor, D runs out the clock,
-                    N skips to the next level
+                    N finishes the level
     --demo NAME     (with --level) play one of the demo recordings: intro, wood,
                     toy, ghost, ice, future
     --at X,Y        (with --level) start the player at this map position

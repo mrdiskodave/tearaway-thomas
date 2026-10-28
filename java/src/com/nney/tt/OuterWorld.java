@@ -65,6 +65,9 @@ public class OuterWorld implements Runnable, Disposable {
 	/** Did they collect the star on the stage just completed? */
 	public boolean starCollected;
 
+	/** The world whose logo was shown last (blkset_logoed in s195); null for none. */
+	public String worldLogoShown;
+
 	/** Developers: start the next level with the player here (or null). */
 	public Coord devPlayerStart;
 

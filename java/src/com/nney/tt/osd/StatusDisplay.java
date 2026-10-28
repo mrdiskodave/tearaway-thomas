@@ -16,6 +16,7 @@ public class StatusDisplay implements Disposable {
 	private final AbstractText hurryUpText;
 	private final AbstractText pausedText;
 	private final AbstractText lifeLostText;
+	private final AbstractText timeUpText;
 
 	final private MultiDisposable md = new MultiDisposable();
 	private StaticText pressJumpText;
@@ -27,9 +28,10 @@ public class StatusDisplay implements Disposable {
 		hurryUpText = new StaticText(font, COL_BAD, 0, "hurry up");
 		pausedText = new StaticText(font, 0xff00ffff, 0, "paused");
 		lifeLostText = new StaticText(font, COL_BAD, 0, "life lost");
+		timeUpText = new StaticText(font, COL_BAD, 0, "time up");
 		pressJumpText = new StaticText(font, 0xffffff00, 0, "press jump");
 
-		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText, pressJumpText);
+		md.addMany(exitOpenText, hurryUpText, pausedText, lifeLostText, timeUpText, pressJumpText);
 	}
 
 	public void drawExitOpen() {
@@ -38,6 +40,10 @@ public class StatusDisplay implements Disposable {
 
 	public void drawHurryUp() {
 		drawLow(hurryUpText);
+	}
+
+	public void drawTimeUp() {
+		drawLow(timeUpText);
 	}
 
 	public void drawPaused() {

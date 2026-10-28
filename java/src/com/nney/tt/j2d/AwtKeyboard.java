@@ -130,7 +130,12 @@ public class AwtKeyboard extends PartialHasKeysImpl implements Keyboard, KeyList
 
 	/** For scripted (headless) input. */
 	public void inject(int ourKey, boolean down) {
-		incoming.add(new Raw(ourKey, down, (char) 0));
+		inject(ourKey, down, (char) 0);
+	}
+
+	/** For scripted (headless) input: a key that types a character. */
+	public void inject(int ourKey, boolean down, char ch) {
+		incoming.add(new Raw(ourKey, down, ch));
 	}
 
 	public void update() {

@@ -30,7 +30,7 @@ public class Messages {
 	}
 
 	public static String levelComplete(int level, String name, int gemsCollected, int gemsRemaining, int timeLeft,
-			boolean starSkip) {
+			boolean starSkip, boolean perfect) {
 		String t = String.format(//
 				LEVEL_TEXT + "[p][c5]stage completed!" + //
 						"[p][t2,3][hp30]" + //
@@ -38,10 +38,10 @@ public class Messages {
 						"[c0]gems remaining[e][c4]%d[e]" + //
 						"[c0]time left[e][c4]%d[e]", level, gemsCollected, gemsRemaining, timeLeft);
 
-		if (gemsRemaining == 0 || starSkip) {
+		if (perfect || starSkip) {
 			t += "[p]";
 		}
-		if (gemsRemaining == 0) {
+		if (perfect) {
 			t += "[c2][k5]perfect gem[n]collection![k][n]";
 		}
 		if (starSkip) {

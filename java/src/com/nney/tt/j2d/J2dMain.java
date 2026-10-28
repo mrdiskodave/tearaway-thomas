@@ -454,7 +454,7 @@ public class J2dMain {
 					keyboard.inject(Keyboard.KEY_A + (c - 'a'), false);
 				currentKeys = keys[idx];
 				for (char c : currentKeys.toCharArray())
-					keyboard.inject(Keyboard.KEY_A + (c - 'a'), true);
+					keyboard.inject(Keyboard.KEY_A + (c - 'a'), true, c);
 				idx++;
 			}
 		}
