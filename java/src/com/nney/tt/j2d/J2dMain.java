@@ -17,6 +17,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -315,7 +316,15 @@ public class J2dMain {
 			frame = f[0];
 			canvas = c[0];
 			bs = canvas.getBufferStrategy();
+			System.out.println("Java2D drawing on the "
+					+ (bs.getCapabilities().getBackBufferCapabilities().isAccelerated() ? "graphics card" : "processor"));
 		}
+
+		/** The game's picture on the graphics card, so scaling it up happens there. */
+		private VolatileImage onCard;
+
+		/** Set when the window changes to or from full screen: new buffers needed. */
+		private volatile boolean newBuffers;
 
 		void toggleFullScreen() {
 			GraphicsDevice gd = frame.getGraphicsConfiguration().getDevice();
@@ -327,6 +336,7 @@ public class J2dMain {
 				windowedBounds = frame.getBounds();
 				gd.setFullScreenWindow(frame);
 			}
+			newBuffers = true;
 			canvas.requestFocus();
 		}
 
@@ -344,18 +354,42 @@ public class J2dMain {
 			int ph = (int) (H * s);
 			picture = new Rectangle((cw - pw) / 2, (ch - ph) / 2, pw, ph);
 
+			if (newBuffers) {
+				// (full screen can need buffers of its own)
+				newBuffers = false;
+				canvas.createBufferStrategy(2);
+				bs = canvas.getBufferStrategy();
+			}
+
+			// Copy the small picture to the graphics card (120,000 pixels) and
+			// scale it up there: scaling an image that changes every frame
+			// straight onto the screen is done by the processor, a pixel at a
+			// time, which is too slow full screen.
 			do {
+				if (onCard == null || onCard.validate(canvas.getGraphicsConfiguration()) == VolatileImage.IMAGE_INCOMPATIBLE) {
+					onCard = canvas.createVolatileImage(W, H);
+				}
+				Graphics2D vg = onCard.createGraphics();
+				vg.drawImage(frameImage, 0, 0, null);
+				vg.dispose();
 				do {
-					Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-					g.setColor(Color.BLACK);
-					g.fillRect(0, 0, cw, ch);
-					g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-							RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-					g.drawImage(frameImage, picture.x, picture.y, picture.width, picture.height, null);
-					g.dispose();
-				} while (bs.contentsRestored());
-				bs.show();
-			} while (bs.contentsLost());
+					do {
+						Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+						// black bars around the picture (the picture covers the rest)
+						g.setColor(Color.BLACK);
+						Rectangle r = picture;
+						if (r.y > 0) g.fillRect(0, 0, cw, r.y);
+						if (r.y + r.height < ch) g.fillRect(0, r.y + r.height, cw, ch - r.y - r.height);
+						if (r.x > 0) g.fillRect(0, r.y, r.x, r.height);
+						if (r.x + r.width < cw) g.fillRect(r.x + r.width, r.y, cw - r.x - r.width, r.height);
+						g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+								RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+						g.drawImage(onCard, r.x, r.y, r.width, r.height, null);
+						g.dispose();
+					} while (bs.contentsRestored());
+					bs.show();
+				} while (bs.contentsLost());
+			} while (onCard.contentsLost());
 			java.awt.Toolkit.getDefaultToolkit().sync();
 			return true;
 		}
