@@ -184,7 +184,7 @@ public class J2dMain {
 		final AwtKeyboard keys = new AwtKeyboard();
 		final SoundAudioContext audio = new SoundAudioContext(!headless && !mute, soundDevice);
 		final ScriptedJoystick script = inputScript == null ? null : new ScriptedJoystick(inputScript, keys);
-		final Joystick joystick = script != null ? script : new ArrowsAndKeysJoystick(keys);
+		final Joystick joystick = script != null ? script : new KeyboardJoystick(keys);
 
 		final J2dGraphicsContext[] gcHolder = new J2dGraphicsContext[1];
 		J2dGraphicsContext.Presenter presenter;
@@ -440,28 +440,6 @@ public class J2dMain {
 					throw new RuntimeException(e);
 				}
 			}
-		}
-	}
-
-	/** The original keys (Q A [ ] space) plus cursor keys with Ctrl/Space/Z to fire. */
-	static final class ArrowsAndKeysJoystick implements Joystick {
-		private final Keyboard k;
-		private final KeyboardJoystick classic;
-
-		ArrowsAndKeysJoystick(Keyboard k) {
-			this.k = k;
-			this.classic = new KeyboardJoystick(k);
-		}
-
-		@Override
-		public int get() {
-			int x = classic.get();
-			if (k.isDown(Keyboard.KEY_UP)) x |= UP;
-			if (k.isDown(Keyboard.KEY_DOWN)) x |= DOWN;
-			if (k.isDown(Keyboard.KEY_LEFT)) x |= LEFT;
-			if (k.isDown(Keyboard.KEY_RIGHT)) x |= RIGHT;
-			if (k.isDown(Keyboard.KEY_CONTROL) || k.isDown(Keyboard.KEY_Z)) x |= FIRE;
-			return x;
 		}
 	}
 
