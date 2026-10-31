@@ -339,6 +339,12 @@ public class World implements AlienServices, Disposable {
 	/** Collect every gem without losing a life on the level. */
 	private static final int PERFECT_BONUS = 10000;
 
+	/**
+	 * Leave out "exit open" and "hurry up" (the original's tspr texts): the
+	 * title screen is drawn on top.
+	 */
+	private boolean statusTextsHidden;
+
 	/** Draw Thomas in front of all the aliens (game over). */
 	private boolean playerInFront;
 
@@ -1471,8 +1477,10 @@ public class World implements AlienServices, Disposable {
 
 		dimFade.update();
 
-		if (isExitOpen()) statusDisplay.drawExitOpen();
-		drawHurryUp();
+		if (!statusTextsHidden) {
+			if (isExitOpen()) statusDisplay.drawExitOpen();
+			drawHurryUp();
+		}
 
 		hole.update();
 		drawHudAndBorders(false);
@@ -1866,6 +1874,11 @@ public class World implements AlienServices, Disposable {
 	/** In a demo: may fire stop it just now? (Not while a name is entered.) */
 	public void configureDemoInterruptible(BooleanSupplier b) {
 		demoInterruptible = b;
+	}
+
+	/** Leave out "exit open" and "hurry up", while the title screen is over the game. */
+	public void setStatusTextsHidden(boolean b) {
+		statusTextsHidden = b;
 	}
 
 	/** The last level: when it's done, these pages instead of the summary. */

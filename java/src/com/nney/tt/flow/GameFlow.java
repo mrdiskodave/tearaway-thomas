@@ -173,6 +173,8 @@ public final class GameFlow implements Launcher {
 	 * frames), with the demo carrying on behind it. Then the demo is over.
 	 */
 	private void titleSequence(Coroutine co) {
+		// "exit open" and "hurry up" would be lost under the pages
+		demoWorld.setStatusTextsHidden(true);
 		if (newHighScore != null) {
 			enterName(co, newHighScore);
 			newHighScore = null;
