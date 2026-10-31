@@ -36,32 +36,46 @@ import com.nney.tt.resources.TTResource;
 
 /**
  * Starts Tearaway Thomas using only the JDK: Java2D for graphics, javax.sound
- * for audio. No native libraries.
- *
- * <pre>
- * Usage: J2dMain [options]
- *   --mapper             start in the map editor rather than the game
- *   --level N            skip the titles and start a game on level N (0 is the first)
- *   --dev                developer keys (Esc = mapper, D = run out the clock)
- *   --resources DIR      read resources from DIR instead of the classpath
- *   --scale N            initial window zoom (default 2)
- *   --mute               no sound
- *   --at X,Y             (with --level) start the player at this map position
- *   --lwjgl              use the original LWJGL (OpenGL + OpenAL) front end
- *                        instead; it takes --level, --dev, --mapper, --resources
- *
- * Headless testing (no window, runs as fast as possible):
- *   --headless
- *   --frames N           stop after N frames
- *   --capture DIR        save frames as PNGs into DIR
- *   --every K            ...one in every K frames (default 25)
- *   --input SCRIPT       scripted joystick, e.g. "50:R,120:RF,200:-" meaning
- *                        from frame 50 hold right, from 120 right+fire, from
- *                        200 nothing (letters: U D L R F)
- *   --wav FILE           also write the audio to a WAV file
- * </pre>
+ * for audio. No native libraries. (Or, with --lwjgl, the original LWJGL front
+ * end.) The options are in {@link #USAGE}; -h or --help prints them.
  */
 public class J2dMain {
+	static final String USAGE = String.join(System.lineSeparator(), //
+			"Tearaway Thomas", //
+			"", //
+			"Usage: java -jar tearaway-thomas.jar [options]", //
+			"", //
+			"  -h, --help           show this and stop", //
+			"  --level N            skip the titles and start a game on level N (0 is the first)", //
+			"  --scale N            initial window size (default 2x)", //
+			"  --mute               no sound", //
+			"  --lwjgl              use the original LWJGL front end (OpenGL and OpenAL,", //
+			"                       Windows only) instead of Java2D; it takes --level,", //
+			"                       --dev, --mapper and --resources", //
+			"", //
+			"Developer options:", //
+			"  --dev                developer keys: Esc opens the map editor, D runs out the", //
+			"                       clock, N finishes the level", //
+			"  --mapper             start in the map editor", //
+			"  --resources DIR      read resources from DIR instead of from the jar", //
+			"  --at X,Y             (with --level) start the player at this map position", //
+			"  --demo NAME          (with --level) play a demo recording: intro, wood, toy,", //
+			"                       ghost, ice, future", //
+			"  --demo-frames N      (with --demo) stop the demo after N frames", //
+			"", //
+			"Headless testing (no window, runs as fast as possible):", //
+			"  --headless", //
+			"  --frames N           stop after N frames", //
+			"  --capture DIR        save frames as PNGs into DIR", //
+			"  --every K            ...one in every K frames (default 25)", //
+			"  --input SCRIPT       scripted joystick, e.g. \"50:R,120:RF,200:-\": from frame", //
+			"                       50 hold right, from 120 right and fire, from 200", //
+			"                       nothing (U D L R F for the stick, lower case for keys)", //
+			"  --wav FILE           also write the audio to a WAV file", //
+			"", //
+			"Keys: cursor keys (or Q A [ ]) to move, Space, Ctrl or Z to jump, P to pause,", //
+			"Alt+Enter or F11 for full screen.");
+
 	static final int W = J2dGraphicsContext.SCREEN_WIDTH;
 	static final int H = J2dGraphicsContext.SCREEN_HEIGHT;
 
@@ -84,14 +98,32 @@ public class J2dMain {
 
 	public static void main(String[] args) throws Exception {
 		java.util.List<String> rest = new java.util.ArrayList<String>(java.util.Arrays.asList(args));
+		if (rest.contains("-h") || rest.contains("--help")) {
+			System.out.println(USAGE);
+			return;
+		}
 		if (rest.remove("--lwjgl")) {
 			// the original OpenGL front end instead
 			com.nney.tt.lwjgl.LwjglMain.main(rest.toArray(new String[0]));
 			return;
 		}
 		J2dMain m = new J2dMain();
-		m.parse(args);
+		try {
+			m.parse(args);
+		}
+		catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+			badOptions(e);
+		}
 		System.exit(m.run());
+	}
+
+	/** A mistake in the options: say so briefly and stop. */
+	public static void badOptions(RuntimeException e) {
+		String why = e.getMessage();
+		if (e instanceof IndexOutOfBoundsException) why = "An option is missing its value";
+		else if (e instanceof NumberFormatException) why = "Not a number: " + why.replaceFirst("^For input string: ", "");
+		System.err.println(why + " (--help lists the options)");
+		System.exit(2);
 	}
 
 	void parse(String[] args) {

@@ -86,8 +86,7 @@ public class LwjglMain {
 			else if (a.equals("--dev")) dev = true;
 			else if (a.equals("--mapper")) mapper = true;
 			else if (a.equals("--resources")) TTResource.setResourcePath(new File(args[++i]));
-			else throw new IllegalArgumentException(
-					"Unknown option with --lwjgl: " + a + " (it takes --level N, --dev, --mapper, --resources DIR)");
+			else throw new IllegalArgumentException("Unknown option with --lwjgl: " + a);
 		}
 	}
 
@@ -168,7 +167,12 @@ public class LwjglMain {
 	 */
 	public static void main(String[] argv) {
 		LwjglMain m = new LwjglMain();
-		m.parse(argv);
+		try {
+			m.parse(argv);
+		}
+		catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+			com.nney.tt.j2d.J2dMain.badOptions(e);
+		}
 		m.run();
 		System.exit(0);
 	}

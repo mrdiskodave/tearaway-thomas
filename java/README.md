@@ -23,7 +23,7 @@ again from the first. After game over, a new high score's name is entered over
 the next demo. High scores are kept in `~/.tearaway-thomas/hiscores.txt` (in
 your user folder on Windows).
 
-Options:
+Options (`-h` or `--help` lists them all):
 
     --level N       skip the titles and start a game on level N (0 = first of 50)
     --dev           developer keys: Esc opens the map editor, D runs out the clock,
