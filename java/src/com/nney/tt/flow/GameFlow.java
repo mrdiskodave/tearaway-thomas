@@ -99,7 +99,7 @@ public final class GameFlow implements Launcher {
 		}
 	}
 
-	/** Has someone (the developer's Esc key) switched us off? */
+	/** Has someone (the developer's Tab key: the map editor) switched us off? */
 	private boolean stillInCharge() {
 		return ow.bootstrap == this;
 	}

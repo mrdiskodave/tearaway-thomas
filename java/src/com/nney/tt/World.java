@@ -1051,13 +1051,7 @@ public class World implements AlienServices, Disposable {
 				// so the usual summary and time bonus follow)
 				levelCompleted(null);
 			}
-			if (keyboard.isDown(Keyboard.KEY_ESCAPE)) {
-				if (!configuredCalledFromMapper) {
-					// called from OuterWorld
-					ow.launchMapper(scr.position());
-				}
-				exit(Outcome.TO_MAPPER);
-			}
+			devQuitAndMapperKeys();
 			if (keyboard.isDown(Keyboard.KEY_D)) {
 				timeRemainingInFrames = 0;
 			}
@@ -1734,9 +1728,25 @@ public class World implements AlienServices, Disposable {
 
 	/** One frame of a sequence. */
 	private void frame(Runnable draw) {
+		if (ow.devMode) devQuitAndMapperKeys();
 		gc.beginDrawing();
 		draw.run();
 		gc.endDrawing();
+	}
+
+	/**
+	 * Developer keys that work at any moment: Tab for the map editor (as in
+	 * the original), Esc to quit. Call before a frame is begun.
+	 */
+	private void devQuitAndMapperKeys() {
+		if (keyboard.isDown(Keyboard.KEY_TAB)) {
+			if (!configuredCalledFromMapper) {
+				// called from OuterWorld
+				ow.launchMapper(scr.position());
+			}
+			exit(Outcome.TO_MAPPER);
+		}
+		if (keyboard.isDown(Keyboard.KEY_ESCAPE)) gc.requestQuit();
 	}
 
 	private boolean fireHeld() {

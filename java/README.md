@@ -26,8 +26,8 @@ your user folder on Windows).
 Options (`-h` or `--help` lists them all):
 
     --level N       skip the titles and start a game on level N (0 = first of 50)
-    --dev           developer keys: Esc opens the map editor, D runs out the clock,
-                    N finishes the level
+    --dev           developer keys: Esc quits, Tab opens the map editor, D runs
+                    out the clock, N finishes the level
     --demo NAME     (with --level) play one of the demo recordings: intro, wood,
                     toy, ghost, ice, future
     --at X,Y        (with --level) start the player at this map position

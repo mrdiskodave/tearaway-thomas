@@ -23,4 +23,7 @@ public interface GraphicsContext {
 	Horizon loadHorizon(Openable ho);
 
 	void aperture(int radius, int x, int y, int c);
+
+	/** Stop at the end of this frame, as if the window had been closed. */
+	void requestQuit();
 }

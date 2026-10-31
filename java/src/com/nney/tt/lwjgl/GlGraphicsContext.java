@@ -148,6 +148,12 @@ public final class GlGraphicsContext implements GraphicsContext {
 
 	boolean inside;
 	boolean active = true;
+	private boolean quit;
+
+	@Override
+	public void requestQuit() {
+		quit = true;
+	}
 
 	@Override
 	public void beginDrawing() {
@@ -168,7 +174,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 		// the work is up to here: Display.update() waits for the vsync
 		report.frame(now, now - workStart, false, false);
 		Display.update();
-		if (Display.isCloseRequested()) {
+		if (Display.isCloseRequested() || quit) {
 			throw new LwjglMain.ExitException();
 		}
 		if (Display.isActive()) {

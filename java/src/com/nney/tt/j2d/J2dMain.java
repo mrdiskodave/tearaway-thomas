@@ -71,8 +71,8 @@ public class J2dMain {
 			"                       --resources", //
 			"", //
 			"Developer options:", //
-			"  --dev                developer keys: Esc opens the map editor, D runs out the", //
-			"                       clock, N finishes the level", //
+			"  --dev                developer keys: Esc quits, Tab opens the map editor,", //
+			"                       D runs out the clock, N finishes the level", //
 			"  --mapper             start in the map editor", //
 			"  --resources DIR      read resources from DIR instead of from the jar", //
 			"  --at X,Y             (with --level) start the player at this map position", //

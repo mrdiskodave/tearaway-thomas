@@ -98,12 +98,19 @@ public final class J2dGraphicsContext implements GraphicsContext {
 		screenG.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	}
 
+	private boolean quit;
+
+	@Override
+	public void requestQuit() {
+		quit = true;
+	}
+
 	@Override
 	public void endDrawing() {
 		assert inside;
 		inside = false;
 		frameCount++;
-		if (!presenter.present(screen)) {
+		if (!presenter.present(screen) || quit) {
 			throw new QuitRequested();
 		}
 	}
