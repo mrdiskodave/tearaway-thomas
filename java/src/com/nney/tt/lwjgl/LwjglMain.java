@@ -101,6 +101,30 @@ public class LwjglMain {
 		initLwjgl();
 		initOpenGL();
 
+		// the title pages are drawn from a coroutine, on another thread: the
+		// OpenGL context has to go back and forth with control
+		com.nney.coroutines.Coroutine.setHandover(new com.nney.coroutines.Coroutine.Handover() {
+			@Override
+			public void release() {
+				try {
+					if (Display.isCurrent()) Display.releaseContext();
+				}
+				catch (LWJGLException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			@Override
+			public void acquire() {
+				try {
+					if (!Display.isCurrent()) Display.makeCurrent();
+				}
+				catch (LWJGLException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+
 		final AlAudioContext audioContext = new AlAudioContext();
 
 		final LwjglKeyboard keys = new LwjglKeyboard();

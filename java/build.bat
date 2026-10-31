@@ -25,7 +25,9 @@ for %%f in (lwjgl.dll lwjgl64.dll OpenAL32.dll OpenAL64.dll) do copy /y nlib\win
 rem resources (pngs, maps, music...) live alongside the code
 robocopy src build\jar /s /xf *.java /xd sandbox /njh /njs /nfl /ndl >nul
 
+rem (Enable-Native-Access: so Java 22+ lets LWJGL load its libraries without warnings)
 echo Main-Class: com.nney.tt.j2d.J2dMain> build\manifest.txt
+echo Enable-Native-Access: ALL-UNNAMED>> build\manifest.txt
 jar cfm tearaway-thomas.jar build\manifest.txt -C build\jar .
 if errorlevel 1 goto :fail
 

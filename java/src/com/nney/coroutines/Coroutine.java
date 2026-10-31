@@ -38,6 +38,13 @@ import java.util.function.BooleanSupplier;
  * public API, which is why we go through virtual threads.)
  *
  * <p>
+ * Some things belong to whichever thread is using them: an OpenGL context, for
+ * one. {@link #setHandover(Handover)} passes such a thing back and forth as
+ * control does. Then the coroutines run on ordinary threads rather than
+ * virtual ones, because a virtual thread may move between operating system
+ * threads when it pauses and the OpenGL context wouldn't follow it.
+ *
+ * <p>
  * Exceptions thrown by the body are rethrown from {@link #step()}. Calling
  * {@link #close()} on an unfinished coroutine cancels it: its current
  * {@link #pause()} throws {@link CoTerminated} so that its <code>finally</code>
@@ -52,6 +59,28 @@ public class Coroutine implements AutoCloseable {
 
 	private enum Turn {
 		CALLER, COROUTINE
+	}
+
+	/**
+	 * Something only one thread can use at a time, passed along with control
+	 * (see {@link Coroutine#setHandover(Handover)}).
+	 */
+	public interface Handover {
+		/** The current thread is handing control over: let go of it. */
+		void release();
+
+		/** The current thread has control again: take it. */
+		void acquire();
+	}
+
+	private static volatile Handover handover;
+
+	/**
+	 * Pass something thread-bound (an OpenGL context) along with control from
+	 * now on. Set it before any coroutine starts.
+	 */
+	public static void setHandover(Handover h) {
+		handover = h;
 	}
 
 	private final String name;
@@ -105,7 +134,9 @@ public class Coroutine implements AutoCloseable {
 		try {
 			if (finished) return false;
 			if (thread == null) {
-				thread = Thread.ofVirtual().name("coroutine-" + name).unstarted(this::threadMain);
+				Thread.Builder b = handover != null ? Thread.ofPlatform().daemon(true) : Thread.ofVirtual();
+				thread = b.name("coroutine-" + name).unstarted(this::threadMain);
+				release();
 				turn = Turn.COROUTINE;
 				thread.start();
 			}
@@ -243,6 +274,7 @@ public class Coroutine implements AutoCloseable {
 	// plumbing (call with lock held)
 
 	private void handTo(Turn t) {
+		release();
 		turn = t;
 		turnChanged.signalAll();
 	}
@@ -258,7 +290,18 @@ public class Coroutine implements AutoCloseable {
 			}
 		}
 		if (interrupted) Thread.currentThread().interrupt();
+		acquire();
 		if (coroutineSide && cancelled) throw new CoTerminated();
+	}
+
+	private static void release() {
+		Handover h = handover;
+		if (h != null) h.release();
+	}
+
+	private static void acquire() {
+		Handover h = handover;
+		if (h != null) h.acquire();
 	}
 
 	private static void rethrow(Throwable t) {

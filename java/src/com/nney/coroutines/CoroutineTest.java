@@ -151,4 +151,68 @@ public class CoroutineTest extends TestCase {
 			c.step();
 		assertEquals(20000, total[0]);
 	}
+
+	/** Like an OpenGL context: one thread at a time, and only once taken. */
+	private static final class ThreadBound implements Coroutine.Handover {
+		Thread owner = Thread.currentThread();
+		int handovers;
+
+		void use() {
+			assertSame("used by a thread that doesn't hold it", owner, Thread.currentThread());
+		}
+
+		@Override
+		public void release() {
+			use();
+			owner = null;
+		}
+
+		@Override
+		public void acquire() {
+			assertNull("taken while another thread holds it", owner);
+			owner = Thread.currentThread();
+			handovers++;
+		}
+	}
+
+	public void testHandoverGoesWithControl() {
+		ThreadBound tb = new ThreadBound();
+		Coroutine.setHandover(tb);
+		try {
+			final boolean[] virtual = new boolean[1];
+			Coroutine c = new Coroutine("gl", co -> {
+				virtual[0] = Thread.currentThread().isVirtual();
+				for (int i = 0; i < 3; i++) {
+					tb.use();
+					co.pause();
+				}
+				tb.use();
+			});
+			while (c.step()) {
+				tb.use();
+			}
+			tb.use();
+			assertFalse("needs a real thread to keep the context", virtual[0]);
+			assertEquals(8, tb.handovers); // 4 in, 4 back
+
+			// cancelled part way: its finally block can still use it
+			final boolean[] tidied = new boolean[1];
+			Coroutine d = new Coroutine("gl2", co -> {
+				try {
+					co.pause(100);
+				}
+				finally {
+					tb.use();
+					tidied[0] = true;
+				}
+			});
+			d.step();
+			d.close();
+			assertTrue(tidied[0]);
+			tb.use();
+		}
+		finally {
+			Coroutine.setHandover(null);
+		}
+	}
 }
