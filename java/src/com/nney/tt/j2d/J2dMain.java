@@ -49,6 +49,8 @@ public class J2dMain {
 			"  --level N            skip the titles and start a game on level N (0 is the first)", //
 			"  --scale N            initial window size (default 2x)", //
 			"  --mute               no sound", //
+			"  --beep               sound test: a one second beep, and the sound devices", //
+			"                       Java can see (with --lwjgl: through OpenAL)", //
 			"  --lwjgl              use the original LWJGL front end (OpenGL and OpenAL,", //
 			"                       Windows only) instead of Java2D; it takes --level,", //
 			"                       --dev, --mapper and --resources", //
@@ -100,6 +102,10 @@ public class J2dMain {
 		java.util.List<String> rest = new java.util.ArrayList<String>(java.util.Arrays.asList(args));
 		if (rest.contains("-h") || rest.contains("--help")) {
 			System.out.println(USAGE);
+			return;
+		}
+		if (rest.equals(java.util.List.of("--beep"))) {
+			JavaSoundBeep.run();
 			return;
 		}
 		if (rest.remove("--lwjgl")) {

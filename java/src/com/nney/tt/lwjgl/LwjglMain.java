@@ -77,12 +77,14 @@ public class LwjglMain {
 	private int level = -1;
 	private boolean dev;
 	private boolean mapper;
+	private boolean beep;
 
 	/** The options that make sense for this front end (see J2dMain for the rest). */
 	private void parse(String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			String a = args[i];
-			if (a.equals("--level")) level = Integer.parseInt(args[++i]);
+			if (a.equals("--beep")) beep = true;
+			else if (a.equals("--level")) level = Integer.parseInt(args[++i]);
 			else if (a.equals("--dev")) dev = true;
 			else if (a.equals("--mapper")) mapper = true;
 			else if (a.equals("--resources")) TTResource.setResourcePath(new File(args[++i]));
@@ -196,6 +198,10 @@ public class LwjglMain {
 		}
 		catch (IllegalArgumentException | IndexOutOfBoundsException e) {
 			com.nney.tt.j2d.J2dMain.badOptions(e);
+		}
+		if (m.beep) {
+			AlBeep.run();
+			return;
 		}
 		m.run();
 		System.exit(0);
