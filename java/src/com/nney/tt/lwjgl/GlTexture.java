@@ -92,10 +92,13 @@ public final class GlTexture implements Blitable, PrerenderedText {
 
 	@Override
 	public void drawTranslucent(int screenX, int screenY, float opacity) {
-		// the texture's alpha is multiplied by the current colour's
+		// MODULATE multiplies the texture's alpha by the current colour's
+		// (sprites are normally drawn with REPLACE, which ignores the colour)
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 		GL11.glColor4f(1f, 1f, 1f, opacity);
 		draw(screenX, screenY);
 		GL11.glColor4f(1f, 1f, 1f, 1f);
+		GL11.glTexEnvf(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_REPLACE);
 	}
 
 	public void draw(int screenX, int screenY, int textureX, int textureY, int tw, int th) {

@@ -156,6 +156,7 @@ public final class GlGraphicsContext implements GraphicsContext {
 		Display.sync(fps);
 		workStart = System.nanoTime();
 		updateInputs.run();
+		LwjglMain.clearBorders();
 		GlTools.configureFor2dBobs();
 	}
 

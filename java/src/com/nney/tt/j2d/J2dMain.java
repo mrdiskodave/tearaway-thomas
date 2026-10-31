@@ -47,7 +47,8 @@ public class J2dMain {
 			"", //
 			"  -h, --help           show this and stop", //
 			"  --level N            skip the titles and start a game on level N (0 is the first)", //
-			"  --scale N            initial window size (default 2x)", //
+			"  --scale N|full       window size: N times 400x300 (default 2), or full", //
+			"                       screen (Alt+Enter or F11 switches, with Java2D)", //
 			"  --mute               no sound", //
 			"  --sound-device TEXT  play sound on the device with TEXT in its name (e.g.", //
 			"                       realtek) instead of Windows' default", //
@@ -55,7 +56,8 @@ public class J2dMain {
 			"                       Java can see (with --lwjgl: through OpenAL)", //
 			"  --lwjgl              use the original LWJGL front end (OpenGL and OpenAL,", //
 			"                       Windows only) instead of Java2D; it takes --level,", //
-			"                       --sound-device, --beep, --dev, --mapper, --resources", //
+			"                       --scale, --sound-device, --beep, --dev, --mapper,", //
+			"                       --resources", //
 			"", //
 			"Developer options:", //
 			"  --dev                developer keys: Esc opens the map editor, D runs out the", //
@@ -88,7 +90,8 @@ public class J2dMain {
 	int level = -1;
 	boolean dev;
 	File resources;
-	int scale = 2;
+	double scale = 2;
+	boolean fullScreen;
 	boolean mute;
 	boolean headless;
 	long maxFrames = -1;
@@ -127,6 +130,13 @@ public class J2dMain {
 		System.exit(m.run());
 	}
 
+	/** The window size for --scale: a number (2, 3, 2.5...) of times 400x300. */
+	public static double parseScale(String v) {
+		double s = Double.parseDouble(v);
+		if (!(s >= 0.5 && s <= 20)) throw new IllegalArgumentException("--scale takes a number from 0.5 to 20, or full");
+		return s;
+	}
+
 	/** A mistake in the options: say so briefly and stop. */
 	public static void badOptions(RuntimeException e) {
 		String why = e.getMessage();
@@ -145,7 +155,11 @@ public class J2dMain {
 			else if (a.equals("--level")) level = Integer.parseInt(args[++i]);
 			else if (a.equals("--dev")) dev = true;
 			else if (a.equals("--resources")) resources = new File(args[++i]);
-			else if (a.equals("--scale")) scale = Integer.parseInt(args[++i]);
+			else if (a.equals("--scale")) {
+				String v = args[++i];
+				if (v.equals("full")) fullScreen = true;
+				else scale = parseScale(v);
+			}
 			else if (a.equals("--mute")) mute = true;
 			else if (a.equals("--headless")) headless = true;
 			else if (a.equals("--frames")) maxFrames = Long.parseLong(args[++i]);
@@ -184,6 +198,7 @@ public class J2dMain {
 		}
 		else {
 			window = new Window(keys, scale);
+			if (fullScreen) SwingUtilities.invokeAndWait(window::toggleFullScreen);
 			presenter = window;
 			pointer = new AwtPointer(window.canvas, window);
 		}
@@ -255,7 +270,7 @@ public class J2dMain {
 		private Rectangle picture = new Rectangle(0, 0, W, H);
 		private Rectangle windowedBounds;
 
-		Window(final AwtKeyboard keys, final int zoom) throws Exception {
+		Window(final AwtKeyboard keys, final double zoom) throws Exception {
 			final JFrame[] f = new JFrame[1];
 			final Canvas[] c = new Canvas[1];
 			SwingUtilities.invokeAndWait(new Runnable() {
@@ -263,7 +278,7 @@ public class J2dMain {
 				public void run() {
 					JFrame fr = new JFrame("Tearaway Thomas");
 					Canvas cv = new Canvas();
-					cv.setPreferredSize(new Dimension(W * zoom, H * zoom));
+					cv.setPreferredSize(new Dimension((int) Math.round(W * zoom), (int) Math.round(H * zoom)));
 					cv.setBackground(Color.BLACK);
 					cv.setFocusTraversalKeysEnabled(false);
 					cv.addKeyListener(keys);

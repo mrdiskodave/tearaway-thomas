@@ -37,9 +37,10 @@ Options (`-h` or `--help` lists them all):
                     play sound on the device with TEXT in its name (e.g. realtek)
                     instead of Windows' default
     --beep          sound test: a beep, and the sound devices Java can see
-    --scale N       initial window size (default 2x)
+    --scale N|full  window size: N times 400x300 (default 2), or full screen
     --lwjgl         use the original LWJGL front end (OpenGL and OpenAL, Windows
-                    only) instead of Java2D; it takes --level, --dev and --mapper
+                    only) instead of Java2D; it takes --level, --scale, --dev
+                    and --mapper
 
 When run from a command prompt it prints the frame rate every 4 seconds.
 

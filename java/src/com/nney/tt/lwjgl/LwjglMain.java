@@ -27,8 +27,6 @@ public class LwjglMain {
 		private static final long serialVersionUID = 1L;
 	}
 
-	static final int ZOOM = 2;
-
 	public static final int SCREEN_WIDTH = 400;
 	public static final int SCREEN_HEIGHT = 300;
 
@@ -40,9 +38,33 @@ public class LwjglMain {
 
 	public static boolean GL_EXT_framebuffer_object;
 
+	/** Where the game's picture goes in the window (OpenGL's coordinates: from the bottom left). */
+	private static int viewX, viewY, viewW, viewH, windowW, windowH;
+
+	/**
+	 * Open the window, or go full screen, and fit the game's 4:3 picture in it:
+	 * as big as it goes, a whole-number zoom if that's close, black around it.
+	 */
 	private void initLwjgl() {
 		try {
-			Display.setDisplayMode(new DisplayMode(SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM));
+			DisplayMode dm;
+			if (fullScreen) {
+				dm = Display.getDesktopDisplayMode();
+				Display.setDisplayModeAndFullscreen(dm);
+			}
+			else {
+				dm = new DisplayMode((int) Math.round(SCREEN_WIDTH * scale), (int) Math.round(SCREEN_HEIGHT * scale));
+				Display.setDisplayMode(dm);
+			}
+			windowW = dm.getWidth();
+			windowH = dm.getHeight();
+			double s = Math.min((double) windowW / SCREEN_WIDTH, (double) windowH / SCREEN_HEIGHT);
+			if (s >= 1 && s - Math.floor(s) < 0.15) s = Math.floor(s);
+			viewW = (int) Math.round(SCREEN_WIDTH * s);
+			viewH = (int) Math.round(SCREEN_HEIGHT * s);
+			viewX = (windowW - viewW) / 2;
+			viewY = (windowH - viewH) / 2;
+			Display.setTitle("Tearaway Thomas");
 			Display.create();
 			Display.setVSyncEnabled(true);
 			Keyboard.create();
@@ -65,16 +87,30 @@ public class LwjglMain {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glClearColor(0.0f, 0.5f, 1.0f, 0.0f);
 
-		GL11.glViewport(0, 0, SCREEN_WIDTH * ZOOM, SCREEN_HEIGHT * ZOOM);
+		GL11.glViewport(viewX, viewY, viewW, viewH);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 
+	/**
+	 * At the start of each frame: black everywhere (the game draws its whole
+	 * picture, but not the borders around it), then back to the picture.
+	 */
+	static void clearBorders() {
+		if (viewW == windowW && viewH == windowH) return;
+		GL11.glViewport(0, 0, windowW, windowH);
+		GL11.glClearColor(0f, 0f, 0f, 1f);
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+		GL11.glViewport(viewX, viewY, viewW, viewH);
+	}
+
 	// ---------------------------------------------------------------------------
 
 	private int level = -1;
+	private double scale = 2;
+	private boolean fullScreen;
 	private boolean dev;
 	private boolean mapper;
 	private boolean beep;
@@ -87,6 +123,11 @@ public class LwjglMain {
 			if (a.equals("--beep")) beep = true;
 			else if (a.equals("--sound-device")) soundDevice = args[++i];
 			else if (a.equals("--level")) level = Integer.parseInt(args[++i]);
+			else if (a.equals("--scale")) {
+				String v = args[++i];
+				if (v.equals("full")) fullScreen = true;
+				else scale = com.nney.tt.j2d.J2dMain.parseScale(v);
+			}
 			else if (a.equals("--dev")) dev = true;
 			else if (a.equals("--mapper")) mapper = true;
 			else if (a.equals("--resources")) TTResource.setResourcePath(new File(args[++i]));
@@ -136,24 +177,23 @@ public class LwjglMain {
 
 		final LwjglPointer wonkyMouse = new LwjglPointer();
 		// adapt the mouse to compensate for our glOrtho/glViewport screen
-		// projection
+		// projection (the picture's position and size, and y up the window)
 		Pointer correctMouse = new PointerAdaptor(wonkyMouse) {
 			@Override
 			public int getX() {
-				return super.getX() / 2;
+				int x = (super.getX() - viewX) * SCREEN_WIDTH / viewW;
+				return Math.max(0, Math.min(SCREEN_WIDTH - 1, x));
 			}
 
 			@Override
 			public int getY() {
-				return SCREEN_HEIGHT - 1 - super.getY() / 2;
+				int y = SCREEN_HEIGHT - 1 - (super.getY() - viewY) * SCREEN_HEIGHT / viewH;
+				return Math.max(0, Math.min(SCREEN_HEIGHT - 1, y));
 			}
 
 			@Override
 			public void set(int x, int y) {
-				x *= 2;
-				y = SCREEN_HEIGHT - 1 - y;
-				y *= 2;
-				super.set(x, y);
+				super.set(viewX + x * viewW / SCREEN_WIDTH, viewY + (SCREEN_HEIGHT - 1 - y) * viewH / SCREEN_HEIGHT);
 			}
 		};
 
