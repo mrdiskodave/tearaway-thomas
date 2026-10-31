@@ -4,7 +4,6 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -326,22 +325,36 @@ public class J2dMain {
 		/** Set when the window changes to or from full screen: new buffers needed. */
 		private volatile boolean newBuffers;
 
+		private boolean fullScreen;
+
+		/**
+		 * Full screen is a borderless window the size of the screen, not Java's
+		 * exclusive full screen mode: that waits for the monitor's refresh (60Hz,
+		 * say) every frame, which fights the game's 50Hz and makes frames late.
+		 * Taking the border off means rebuilding the window, so not while a
+		 * frame is being shown (see present()). Called on the AWT thread.
+		 */
 		void toggleFullScreen() {
-			GraphicsDevice gd = frame.getGraphicsConfiguration().getDevice();
-			if (gd.getFullScreenWindow() == frame) {
-				gd.setFullScreenWindow(null);
-				if (windowedBounds != null) frame.setBounds(windowedBounds);
+			synchronized (this) {
+				frame.dispose();
+				if (fullScreen) {
+					frame.setUndecorated(false);
+					if (windowedBounds != null) frame.setBounds(windowedBounds);
+				}
+				else {
+					windowedBounds = frame.getBounds();
+					frame.setUndecorated(true);
+					frame.setBounds(frame.getGraphicsConfiguration().getBounds());
+				}
+				fullScreen = !fullScreen;
+				frame.setVisible(true);
+				newBuffers = true;
 			}
-			else {
-				windowedBounds = frame.getBounds();
-				gd.setFullScreenWindow(frame);
-			}
-			newBuffers = true;
 			canvas.requestFocus();
 		}
 
 		@Override
-		public boolean present(BufferedImage frameImage) {
+		public synchronized boolean present(BufferedImage frameImage) {
 			if (closeRequested) return false;
 			int cw = canvas.getWidth();
 			int ch = canvas.getHeight();
