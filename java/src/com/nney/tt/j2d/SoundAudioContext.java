@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
 import com.nney.tt.gfx.Disposable;
@@ -89,13 +91,64 @@ public class SoundAudioContext implements AudioContext, Disposable {
 	 *            runs); {@link #mix(short[], int)} can still be called.
 	 */
 	public SoundAudioContext(boolean useDevice) {
-		if (useDevice) openDevice();
+		this(useDevice, null);
 	}
 
-	private void openDevice() {
+	/**
+	 * @param deviceText
+	 *            Part of the name of the sound device to use (as --beep lists
+	 *            them), or null for the default.
+	 */
+	public SoundAudioContext(boolean useDevice, String deviceText) {
+		if (useDevice) openDevice(deviceText);
+	}
+
+	/** The game's sound: 44.1kHz, 16 bit stereo. */
+	static AudioFormat format() {
+		return new AudioFormat(RATE, 16, 2, true, false);
+	}
+
+	/** The devices that can play the game's sound. */
+	static java.util.List<Mixer.Info> devices() {
+		java.util.List<Mixer.Info> answer = new java.util.ArrayList<Mixer.Info>();
+		for (Mixer.Info mi : AudioSystem.getMixerInfo()) {
+			try {
+				if (AudioSystem.getMixer(mi).isLineSupported(new DataLine.Info(SourceDataLine.class, format()))) {
+					answer.add(mi);
+				}
+			}
+			catch (RuntimeException e) {
+				// not one we can use
+			}
+		}
+		return answer;
+	}
+
+	/**
+	 * The first device whose name has this in it (ignoring case), or null
+	 * (none asked for, or none matches: then say so).
+	 */
+	static Mixer.Info findDevice(String text) {
+		if (text == null) return null;
+		for (Mixer.Info mi : devices()) {
+			if (mi.getName().toLowerCase().contains(text.toLowerCase())) return mi;
+		}
+		System.out.println("No sound device has \"" + text + "\" in its name; using the default");
+		return null;
+	}
+
+	/** A line to play the game's sound on that device (or the default). */
+	static SourceDataLine openLine(Mixer.Info device) throws Exception {
+		AudioFormat fmt = format();
+		SourceDataLine l = device != null ? AudioSystem.getSourceDataLine(fmt, device) : AudioSystem.getSourceDataLine(fmt);
+		System.out.println("Sound: " + (device != null ? device.getName() : "the default device"));
+		return l;
+	}
+
+	private void openDevice(String deviceText) {
 		try {
-			AudioFormat fmt = new AudioFormat(RATE, 16, 2, true, false);
-			line = AudioSystem.getSourceDataLine(fmt);
+			AudioFormat fmt = format();
+			line = openLine(findDevice(deviceText));
 			line.open(fmt, CHUNK_FRAMES * 4 * 8);
 			line.start();
 		}

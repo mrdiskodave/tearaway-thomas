@@ -49,11 +49,13 @@ public class J2dMain {
 			"  --level N            skip the titles and start a game on level N (0 is the first)", //
 			"  --scale N            initial window size (default 2x)", //
 			"  --mute               no sound", //
+			"  --sound-device TEXT  play sound on the device with TEXT in its name (e.g.", //
+			"                       realtek) instead of Windows' default", //
 			"  --beep               sound test: a one second beep, and the sound devices", //
 			"                       Java can see (with --lwjgl: through OpenAL)", //
 			"  --lwjgl              use the original LWJGL front end (OpenGL and OpenAL,", //
 			"                       Windows only) instead of Java2D; it takes --level,", //
-			"                       --dev, --mapper and --resources", //
+			"                       --sound-device, --beep, --dev, --mapper, --resources", //
 			"", //
 			"Developer options:", //
 			"  --dev                developer keys: Esc opens the map editor, D runs out the", //
@@ -97,15 +99,13 @@ public class J2dMain {
 	String demoName;
 	Coord startAt;
 	long demoFrames = -1;
+	boolean beep;
+	String soundDevice;
 
 	public static void main(String[] args) throws Exception {
 		java.util.List<String> rest = new java.util.ArrayList<String>(java.util.Arrays.asList(args));
 		if (rest.contains("-h") || rest.contains("--help")) {
 			System.out.println(USAGE);
-			return;
-		}
-		if (rest.equals(java.util.List.of("--beep"))) {
-			JavaSoundBeep.run();
 			return;
 		}
 		if (rest.remove("--lwjgl")) {
@@ -119,6 +119,10 @@ public class J2dMain {
 		}
 		catch (IllegalArgumentException | IndexOutOfBoundsException e) {
 			badOptions(e);
+		}
+		if (m.beep) {
+			JavaSoundBeep.run(m.soundDevice);
+			return;
 		}
 		System.exit(m.run());
 	}
@@ -136,6 +140,8 @@ public class J2dMain {
 		for (int i = 0; i < args.length; i++) {
 			String a = args[i];
 			if (a.equals("--mapper")) mapper = true;
+			else if (a.equals("--beep")) beep = true;
+			else if (a.equals("--sound-device")) soundDevice = args[++i];
 			else if (a.equals("--level")) level = Integer.parseInt(args[++i]);
 			else if (a.equals("--dev")) dev = true;
 			else if (a.equals("--resources")) resources = new File(args[++i]);
@@ -162,7 +168,7 @@ public class J2dMain {
 		if (resources != null) TTResource.setResourcePath(resources);
 
 		final AwtKeyboard keys = new AwtKeyboard();
-		final SoundAudioContext audio = new SoundAudioContext(!headless && !mute);
+		final SoundAudioContext audio = new SoundAudioContext(!headless && !mute, soundDevice);
 		final ScriptedJoystick script = inputScript == null ? null : new ScriptedJoystick(inputScript, keys);
 		final Joystick joystick = script != null ? script : new ArrowsAndKeysJoystick(keys);
 

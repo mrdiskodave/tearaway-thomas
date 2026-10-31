@@ -61,8 +61,9 @@ public class AlAudioContext implements AudioContext, Disposable {
 
 	private Music playing;
 
-	public AlAudioContext() {
-		AlTools.alInit();
+	/** @param deviceText part of the sound device's name, or null for the default */
+	public AlAudioContext(String deviceText) {
+		AlTools.alInit(deviceText);
 	}
 
 	@Override

@@ -17,10 +17,15 @@ final class AlBeep {
 	private AlBeep() {
 	}
 
-	static void run() {
+	static void run(String deviceText) {
 		try {
 			LwjglNatives.prepare();
 			AL.create();
+			String want = AlTools.findDevice(deviceText);
+			if (want != null) {
+				AL.destroy();
+				AL.create(want, 44100, 60, false);
+			}
 		}
 		catch (Throwable e) {
 			System.out.println("OpenAL couldn't start: " + e);

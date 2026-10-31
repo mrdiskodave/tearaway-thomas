@@ -33,6 +33,10 @@ Options (`-h` or `--help` lists them all):
     --at X,Y        (with --level) start the player at this map position
     --mapper        start in the map editor
     --mute          no sound
+    --sound-device TEXT
+                    play sound on the device with TEXT in its name (e.g. realtek)
+                    instead of Windows' default
+    --beep          sound test: a beep, and the sound devices Java can see
     --scale N       initial window size (default 2x)
     --lwjgl         use the original LWJGL front end (OpenGL and OpenAL, Windows
                     only) instead of Java2D; it takes --level, --dev and --mapper

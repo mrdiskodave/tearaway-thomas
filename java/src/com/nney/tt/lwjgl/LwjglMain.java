@@ -78,12 +78,14 @@ public class LwjglMain {
 	private boolean dev;
 	private boolean mapper;
 	private boolean beep;
+	private String soundDevice;
 
 	/** The options that make sense for this front end (see J2dMain for the rest). */
 	private void parse(String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			String a = args[i];
 			if (a.equals("--beep")) beep = true;
+			else if (a.equals("--sound-device")) soundDevice = args[++i];
 			else if (a.equals("--level")) level = Integer.parseInt(args[++i]);
 			else if (a.equals("--dev")) dev = true;
 			else if (a.equals("--mapper")) mapper = true;
@@ -127,7 +129,7 @@ public class LwjglMain {
 			}
 		});
 
-		final AlAudioContext audioContext = new AlAudioContext();
+		final AlAudioContext audioContext = new AlAudioContext(soundDevice);
 
 		final LwjglKeyboard keys = new LwjglKeyboard();
 		final KeyboardJoystick joystick = new KeyboardJoystick(keys);
@@ -200,7 +202,7 @@ public class LwjglMain {
 			com.nney.tt.j2d.J2dMain.badOptions(e);
 		}
 		if (m.beep) {
-			AlBeep.run();
+			AlBeep.run(m.soundDevice);
 			return;
 		}
 		m.run();
