@@ -40,6 +40,17 @@ import com.nney.tt.resources.TTResource;
  * end.) The options are in {@link #USAGE}; -h or --help prints them.
  */
 public class J2dMain {
+	static {
+		// On Windows, Java2D's Direct3D drawing took twice as long as its
+		// OpenGL drawing (15ms a frame against 7.7ms full screen on David's
+		// machine), so use OpenGL unless told otherwise. This has to happen
+		// before anything starts AWT.
+		if (System.getProperty("os.name", "").startsWith("Windows")
+				&& System.getProperty("sun.java2d.opengl") == null) {
+			System.setProperty("sun.java2d.opengl", "true");
+		}
+	}
+
 	static final String USAGE = String.join(System.lineSeparator(), //
 			"Tearaway Thomas", //
 			"", //
@@ -316,7 +327,8 @@ public class J2dMain {
 			canvas = c[0];
 			bs = canvas.getBufferStrategy();
 			System.out.println("Java2D drawing on the "
-					+ (bs.getCapabilities().getBackBufferCapabilities().isAccelerated() ? "graphics card" : "processor"));
+					+ (bs.getCapabilities().getBackBufferCapabilities().isAccelerated() ? "graphics card" : "processor")
+					+ ("true".equals(System.getProperty("sun.java2d.opengl")) ? " with OpenGL" : ""));
 		}
 
 		/** The game's picture on the graphics card, so scaling it up happens there. */
