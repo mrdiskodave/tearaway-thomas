@@ -33,7 +33,6 @@ import com.nney.tt.input.LocksKeyAdaptor;
 import com.nney.tt.input.Pointer;
 import com.nney.tt.input.TeeKeyAdaptor;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.mapper.Mapper.ExitException;
 import com.nney.tt.mapper.StringEditor.State;
 import com.nney.tt.props.Bat;
 import com.nney.tt.props.Button;

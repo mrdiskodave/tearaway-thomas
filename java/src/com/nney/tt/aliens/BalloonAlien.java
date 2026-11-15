@@ -21,9 +21,12 @@ public class BalloonAlien extends AlienWithLocation {
 	@PropAnn(doc = "Starting velocity, in the original's units (1/32 pixel per frame)")
 	public Coord velocity = new Coord();
 
+	@SuppressWarnings("unused")
 	private static final int WAITING = 0;
+	@SuppressWarnings("unused")
 	private static final int READY = 1;
 	private static final int DROPPED = 2;
+	private static final int COUNT = 3;
 
 	private int fracX;
 	private int fracY;
@@ -41,7 +44,7 @@ public class BalloonAlien extends AlienWithLocation {
 	public void loadFromLegacyData() {
 		anchor = new Coord((short) loadShort(OBleft), (short) loadShort(OBtop));
 		velocity = new Coord((byte) loadByte(OBstatus3), (byte) loadByte(OBstatus1));
-		state = loadByte(OBstatus0) % 3;
+		state = loadByte(OBstatus0) % COUNT;
 		fracY = loadByte(OBstatus2);
 		fracX = loadByte(OBstatus4);
 		timer = loadByte(OBstatus6);
@@ -74,7 +77,7 @@ public class BalloonAlien extends AlienWithLocation {
 		// state machine: waiting, readying, drop, round again
 		if (--timer < 0) {
 			timer = srv.randomness(32) + 8;
-			state = (state + 1) % 3;
+			state = (state + 1) % COUNT;
 			changeAnimation(state);
 			if (state == DROPPED) {
 				srv.addAlien(new BombAlien(c.copyAndAdd(6, 6), xMove));

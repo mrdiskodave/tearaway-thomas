@@ -30,15 +30,11 @@ public class AlienInfo {
 
 	public Alien instantiateAttach(AlienServices srv) {
 		try {
-			Alien answer = alienClass.newInstance();
+			Alien answer = alienClass.getDeclaredConstructor().newInstance();
 			answer.attach(this, srv);
 			return answer;
 		}
-		catch (InstantiationException e) {
-			System.out.println(animsName);
-			throw new RuntimeException(e);
-		}
-		catch (IllegalAccessException e) {
+		catch (ReflectiveOperationException e) {
 			System.out.println(animsName);
 			throw new RuntimeException(e);
 		}

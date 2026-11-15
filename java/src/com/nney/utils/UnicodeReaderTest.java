@@ -31,15 +31,16 @@ public class UnicodeReaderTest extends TestCase {
 
 	private void assertWorks(String expectDecoded, String encoded, String defaultEncoding) throws IOException {
 		byte[] b = HexServices.mustDecodeHex(encoded);
-		Reader r = new UnicodeReader(new ByteArrayInputStream(b), defaultEncoding);
-		StringBuilder s = new StringBuilder();
-		for (;;) {
-			int c = r.read();
-			if (c < 0) {
-				break;
+		try (Reader r = new UnicodeReader(new ByteArrayInputStream(b), defaultEncoding)) {
+			StringBuilder s = new StringBuilder();
+			for (;;) {
+				int c = r.read();
+				if (c < 0) {
+					break;
+				}
+				s.append((char) c);
 			}
-			s.append((char) c);
+			assertEquals(expectDecoded, s.toString());
 		}
-		assertEquals(expectDecoded, s.toString());
 	}
 }

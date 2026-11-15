@@ -125,13 +125,14 @@ public class CoroutineTest extends TestCase {
 
 	public void testWaitUntil() {
 		final int[] counter = new int[1];
-		Coroutine co = new Coroutine("wait", c -> c.waitUntil(() -> counter[0] >= 3));
-		int steps = 0;
-		while (co.step()) {
-			counter[0]++;
-			steps++;
+		try (Coroutine co = new Coroutine("wait", c -> c.waitUntil(() -> counter[0] >= 3))) {
+			int steps = 0;
+			while (co.step()) {
+				counter[0]++;
+				steps++;
+			}
+			assertEquals(3, steps);
 		}
-		assertEquals(3, steps);
 	}
 
 	public void testManyCoroutinesAreCheap() {
