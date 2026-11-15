@@ -11,7 +11,7 @@ def save_file(name, data):
 		f.write(data)
 
 
-z = load_file("samples.bin")
+z = load_file("../68k/samples.bin")
 for s in range(6):
 	offset = struct.unpack_from('>L', z, s*4)[0];
 	len = struct.unpack_from('>H', z,offset-2)[0]*2;

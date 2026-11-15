@@ -3,14 +3,15 @@
 Scripts that turned the original Amiga data into the files the Java game
 uses. They need Python 3 (3.8 or later) and two programs from
 [Netpbm](https://netpbm.sourceforge.net/): `ilbmtoppm` and `pnmtopng`, on the
-PATH.
+PATH. Run them from this folder: the original game's source and data that
+they read are in `../68k/`.
 
 ## Graphics: pyblks.py
 
     python3 pyblks.py [converter ...]
 
-Converters: `bobs` (all the sprites listed in `gfx.s`, from `odata/`), `tt`
-(Thomas, from `orig/gfx/other/bits/tearaway.lbm`), `worlds` (block sheets
+Converters: `bobs` (all the sprites listed in `../68k/gfx.s`, from `odata/`),
+`tt` (Thomas, from `../68k/orig/gfx/other/bits/tearaway.lbm`), `worlds` (block sheets
 and masks), `font`, `topaz`, `horizons`, `star`. With none it runs `bobs`.
 Output goes to `newdata/`.
 
@@ -19,7 +20,7 @@ game looks up the bear alien's sprite as the world letter plus `bear`, and in
 the ghost world the bear is him. Other renames go in `EXPORT_NAMES`.
 
 The game's copies have been touched up by hand since, so expect these
-differences from what's in the game's `src/com/nney/tt/resources`:
+differences from what's in `../java/src/com/nney/tt/resources`:
 
 - some `def.txt` files (animation names, left and right swapped, extra frames)
 - the block sheets: a few tiles removed, and the masks have no grey grid
@@ -36,7 +37,7 @@ Everything else matches the game exactly.
 
 - `pyunpack.py FILE...`: unpacks DHp2-packed files in place (runs a self test first)
 - `mklevelinfo.py`: the level table from the original source, as JSON
-- `splitsamples.py`: splits `samples.bin` into `samp4.bin` to `samp9.bin`
+- `splitsamples.py`: splits `../68k/samples.bin` into `samp4.bin` to `samp9.bin`
 - `maprt.py`, `mudblks.py`: print block tables as JSON
 - `find_legacy.py`: lists the alien types still held as legacy data in `tmp_maps/`
 - `tt_singleframes.py`: run in an anims folder to flatten single-frame sprites (uses svn)

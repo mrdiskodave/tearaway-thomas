@@ -353,7 +353,7 @@ def convert_star():
 	cas.toPNG()
 	
 def convert_font():
-	i = load_ilbm("orig/gfx/other/bits/font.lbm")	
+	i = load_ilbm("../68k/orig/gfx/other/bits/font.lbm")	
 	i.findReplace((0x00,0x00,0x66), TRANS)
 	i.view(7*16, 2*11).fill(NONE)
 
@@ -362,7 +362,7 @@ def convert_font():
 	cas.toPNG()
 
 def convert_topaz():
-	src_data = load_array_file("orig/topaz.bin")
+	src_data = load_array_file("../68k/orig/topaz.bin")
 	pos = 0
 
 	w = 16
@@ -408,7 +408,7 @@ assert TT_FRAME_COUNT == len(PLAYER_HANDLES)
 def convert_tt():
 	bg = TRANS
 
-	all_tt_frames = load_ilbm("orig/gfx/other/bits/tearaway.lbm")	
+	all_tt_frames = load_ilbm("../68k/orig/gfx/other/bits/tearaway.lbm")	
 	all_tt_frames.findReplace((0x00,0x99,0xff),bg)
 	r = BookReader(all_tt_frames, 32, 32, 8)
 	exporter = Exporter("0tt")
@@ -722,7 +722,7 @@ def convert_horizons():
 
 
 import gfxparse
-graphics_definitions = gfxparse.load_defs(load_text_file("gfx.s"))
+graphics_definitions = gfxparse.load_defs(load_text_file("../68k/gfx.s"))
 
 CONVERTERS = {
 	"horizons": convert_horizons,
