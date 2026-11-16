@@ -38,6 +38,11 @@ Everything else matches the game exactly.
 - `pyunpack.py FILE...`: unpacks DHp2-packed files in place (runs a self test first)
 - `mklevelinfo.py`: the level table from the original source, as JSON
 - `splitsamples.py`: splits `../68k/samples.bin` into `samp4.bin` to `samp9.bin`
+- `arpsfx.py [--amiga-filter] [--original-pitch] [OUTDIR]`: renders the three
+  synthesised sound effects (`FXcollect`, `FXbgem`, `FXgem`: an 8-byte wave
+  and an arpeggio table each) as `fxcollect.wav`, `fxbgem.wav` and
+  `fxgem.wav`, in `newdata/fx` by default. They're retuned to A = 440Hz, like
+  the music; `--original-pitch` plays them 15.8 cents flat, as on a PAL Amiga
 - `maprt.py`, `mudblks.py`: print block tables as JSON
 - `find_legacy.py`: lists the alien types still held as legacy data in `tmp_maps/`
 - `tt_singleframes.py`: run in an anims folder to flatten single-frame sprites (uses svn)
