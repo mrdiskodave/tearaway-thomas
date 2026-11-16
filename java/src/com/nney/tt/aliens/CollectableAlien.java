@@ -24,8 +24,17 @@ public abstract class CollectableAlien extends AppearingAlien {
 	protected void handleCollison(Coord c, Sprite s) {
 		if (isCollisionDetected(c, s)) {
 			giveBonus();
+			srv.playSoundEffect(soundEffect());
 			done();
 		}
+	}
+
+	/**
+	 * What we sound like when collected. Shields, clocks, wings, stars and
+	 * the like all go to "collected" in s195, which plays FXcollect.
+	 */
+	protected String soundEffect() {
+		return "collect";
 	}
 
 	protected boolean isCollisionDetected(Coord c, Sprite s) {

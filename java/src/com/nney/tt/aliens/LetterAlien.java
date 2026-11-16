@@ -40,7 +40,7 @@ public class LetterAlien extends AlienWithLocation {
 		if (wanted && playerInOriginalBox(c, 149, 139, 169, 118)) {
 			letters.collect(letter(), slot);
 			srv.setTimeRemaining(60);
-			srv.playSoundEffect("gem");
+			srv.playSoundEffect("bigGem");
 			done();
 			if (letters.isComplete()) {
 				srv.awardExtraLife();

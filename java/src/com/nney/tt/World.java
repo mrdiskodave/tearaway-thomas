@@ -273,6 +273,15 @@ public class World implements AlienServices, Disposable {
 
 	private Coord teleportDestination;
 
+	/**
+	 * FXlock in s195: for this many frames after a sound effect starts, new
+	 * ones are ignored.
+	 */
+	private static final int SFX_LOCK_FRAMES = 5;
+
+	/** The frame the last sound effect started in. */
+	private int sfxFrame = -SFX_LOCK_FRAMES - 1;
+
 	private BlockSet blockSet;
 
 	private OuterWorld ow;
@@ -470,7 +479,6 @@ public class World implements AlienServices, Disposable {
 		}
 		gemsCollected++;
 		awardScore(score, noticeLocation);
-		playSoundEffect("gem");
 	}
 
 	@Override
@@ -964,6 +972,12 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void playSoundEffect(String name) {
+		// Only one effect plays at a time, as on the original's one channel.
+		// Within a frame the last one asked for wins; after that it can't be
+		// interrupted for SFX_LOCK_FRAMES.
+		int since = frameNumber - sfxFrame;
+		if (since > 0 && since <= SFX_LOCK_FRAMES) return;
+		sfxFrame = frameNumber;
 		ah.playEffect(name);
 	}
 

@@ -26,7 +26,17 @@
 	{
 		"name":		"gem",
 		"vol":		1,
-		"data":		"gem.wav"
+		"data":		"fxgem.wav"
+	},
+	{
+		"name":		"bigGem",
+		"vol":		1,
+		"data":		"fxbgem.wav"
+	},
+	{
+		"name":		"collect",
+		"vol":		1,
+		"data":		"fxcollect.wav"
 	},
 	{
 		"name":		"tink",

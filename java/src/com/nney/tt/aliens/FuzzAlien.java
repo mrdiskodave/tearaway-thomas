@@ -67,7 +67,7 @@ public class FuzzAlien extends AlienWithLocation {
 	private void show() {
 		if (!srv.isChallenge()) {
 			srv.secretBonusFound();
-			srv.playSoundEffect("gem");
+			srv.playSoundEffect("bigGem");
 			showing = BONUS;
 			state = State.SHOWING;
 			return;

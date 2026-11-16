@@ -74,7 +74,7 @@ public class WavTools {
 	}
 
 	public static void main(String[] args) {
-		byte[] data = OpenableTools.mustLoad(TTResource.fx("gem.wav"));
+		byte[] data = OpenableTools.mustLoad(TTResource.fx("fxgem.wav"));
 		read(data);
 	}
 }

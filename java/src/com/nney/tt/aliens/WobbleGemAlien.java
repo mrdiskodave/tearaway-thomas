@@ -23,6 +23,12 @@ public class WobbleGemAlien extends GemAlien {
 		wobble = !Math2.bitTest(loadByte(OBflags), FLAG_NO_WOBBLE);
 	}
 
+	/** The yellow and purple gems: FXgem (collect_gem in s195). */
+	@Override
+	protected String soundEffect() {
+		return "gem";
+	}
+
 	@Override
 	public void onLoaded() {
 		super.onLoaded();

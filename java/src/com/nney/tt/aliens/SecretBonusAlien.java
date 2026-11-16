@@ -26,7 +26,7 @@ public class SecretBonusAlien extends AlienWithLocation {
 				: playerInOriginalBox(c, 155, 131, 165, 125);
 		if (found) {
 			srv.secretBonusFound();
-			srv.playSoundEffect("gem");
+			srv.playSoundEffect("bigGem");
 			done();
 		}
 	}
