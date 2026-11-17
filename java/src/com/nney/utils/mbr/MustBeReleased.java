@@ -1,6 +1,7 @@
 package com.nney.utils.mbr;
 
 import java.io.InputStream;
+import java.lang.ref.Cleaner;
 
 /**
  * <p>
@@ -47,24 +48,49 @@ public class MustBeReleased {
 		assert assertsEnabled = true; // Intentional side effect!!!
 	}
 
-	private Throwable trace;
+	private static final Cleaner CLEANER = Cleaner.create();
 
-	private boolean hasBeenReleased;
+	/**
+	 * What the {@link Cleaner} runs. It mustn't refer back to the
+	 * {@link MustBeReleased}, or that would never become unreachable.
+	 */
+	private static final class Check implements Runnable {
+		private final Throwable trace;
+		private volatile boolean hasBeenReleased;
 
-	public MustBeReleased() {
-		trace = new Throwable();
+		Check(Throwable trace) {
+			this.trace = trace;
+		}
+
+		@Override
+		public void run() {
+			// no point throwing from in here as it won't go anywhere
+			if (!hasBeenReleased) {
+				System.err.println("MustBeReleased without release()");
+				trace.printStackTrace(System.err);
+			}
+		}
 	}
 
-	@Override
-	public void finalize() {
-		// no point throwing from in here as it won't go anywhere
-		if (assertsEnabled && !hasBeenReleased) {
-			System.err.println("MustBeReleased without release()");
-			trace.printStackTrace(System.err);
+	private final Check check;
+
+	private final Cleaner.Cleanable cleanable;
+
+	public MustBeReleased() {
+		if (assertsEnabled) {
+			check = new Check(new Throwable());
+			cleanable = CLEANER.register(this, check);
+		}
+		else {
+			check = null;
+			cleanable = null;
 		}
 	}
 
 	public void release() {
-		hasBeenReleased = true;
+		if (check != null) {
+			check.hasBeenReleased = true;
+			cleanable.clean(); // runs (silently) now, and no longer when collected
+		}
 	}
 }
