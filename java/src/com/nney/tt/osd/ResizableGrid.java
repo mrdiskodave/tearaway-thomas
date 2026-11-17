@@ -36,7 +36,7 @@ public class ResizableGrid<T> {
 	}
 
 	public String dump() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int y = 0; y < height(); y++) {
 			if (y != 0) sb.append('|');
 			for (int x = 0; x < width(); x++) {

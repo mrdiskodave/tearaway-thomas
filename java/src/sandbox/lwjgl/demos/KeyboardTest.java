@@ -148,7 +148,7 @@ public class KeyboardTest {
 			System.out.println(String.format("Received : %s %s", down ? "Press  " : "Release",
 					Keyboard.getKeyName(keyCode)));
 
-			StringBuffer b = new StringBuffer();
+			StringBuilder b = new StringBuilder();
 			int keys[] = { Keyboard.KEY_LSHIFT, Keyboard.KEY_RSHIFT };
 			for (int key : keys) {
 				if (b.length() != 0) b.append(", ");

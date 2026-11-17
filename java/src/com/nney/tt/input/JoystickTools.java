@@ -8,7 +8,7 @@ public class JoystickTools {
 	static private char[] characters = { 'l', 'r', 'u', 'd', 'f' };
 
 	static public String joystickToString(byte c) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int x = 0; x < characters.length; x++) {
 			if (Math2.maskTest(c, values[x])) sb.append(characters[x]);
 		}

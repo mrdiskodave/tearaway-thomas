@@ -81,7 +81,7 @@ public class ListUtil {
 	}
 
 	public static <T> String toString(Iterable<T> iterable, String seperator) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (T item : iterable) {
 			if (sb.length() != 0) sb.append(seperator);
 			sb.append(item);

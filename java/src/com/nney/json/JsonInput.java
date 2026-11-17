@@ -130,7 +130,7 @@ class JsonInput {
 	 *             Unterminated string.
 	 */
 	String nextString(char quote) throws JsonException {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (;;) {
 			if (eof()) {
 				throw syntaxError("Unterminated string");

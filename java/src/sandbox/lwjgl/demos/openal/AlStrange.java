@@ -92,7 +92,7 @@ public class AlStrange {
 
 		short[] waveForm = wc.makeWave(waveLengthInBytes);
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int x = 0; x < waveForm.length; x++) {
 			if (x != 0) {
 				sb.append(',');

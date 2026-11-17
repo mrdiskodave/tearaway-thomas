@@ -99,7 +99,7 @@ public class SavedMapBlock {
 
 	// public void dump() {
 	// for (int y = 0; y < h; y++) {
-	// StringBuffer sb = new StringBuffer();
+	// StringBuilder sb = new StringBuilder();
 	// for (int x = 0; x < w; x++) {
 	// if (x!=0) sb.append(',');
 	// sb.append(get(x, y));

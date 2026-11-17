@@ -110,7 +110,7 @@ public class JsonDataDestination implements DataDestination {
 
 	@Override
 	public void write(String value) {
-		StringBuffer b = new StringBuffer();
+		StringBuilder b = new StringBuilder();
 		b.append('"');
 		for (int x = 0; x < value.length(); x++) {
 			char c = value.charAt(x);

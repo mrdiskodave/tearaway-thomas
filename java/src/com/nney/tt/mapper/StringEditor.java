@@ -6,7 +6,7 @@ import com.nney.tt.input.Locks;
 import com.nney.utils.Math2;
 
 public class StringEditor {
-	private final StringBuffer content;
+	private final StringBuilder content;
 	private int cx;
 
 	// the scrollable screen is a separate concern that could be pulled out
@@ -24,7 +24,7 @@ public class StringEditor {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer(show);
+			StringBuilder sb = new StringBuilder(show);
 			sb.insert(cursor, '_');
 			return sb.toString();
 		}
@@ -32,7 +32,7 @@ public class StringEditor {
 
 	StringEditor(String content, int screenWidth) {
 		this.screenWidth = screenWidth;
-		this.content = new StringBuffer(content);
+		this.content = new StringBuilder(content);
 		cx = content.length();
 	}
 

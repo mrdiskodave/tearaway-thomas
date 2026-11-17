@@ -294,7 +294,7 @@ public class AlienInfoMap {
 	}
 
 	// public void dump() {
-	// StringBuffer sb = new StringBuffer();
+	// StringBuilder sb = new StringBuilder();
 	// for (int tc : typeCodes) {
 	// if (sb.length() != 0) sb.append(',');
 	// sb.append(tc);

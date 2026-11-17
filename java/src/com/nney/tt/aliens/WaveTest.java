@@ -5,7 +5,7 @@ import junit.framework.TestCase;
 public class WaveTest extends TestCase {
 
 	private String generate(int length, int max, int pause) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int x = 0; x < length; x++) {
 			if (x != 0) sb.append(',');
 			sb.append(Wave.sawToothWaveWithPause(x, max, pause));

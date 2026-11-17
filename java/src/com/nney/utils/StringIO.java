@@ -30,7 +30,7 @@ public class StringIO {
 
 	public static String loadText(Reader r) throws IOException {
 		char[] c = new char[4096];
-		StringBuffer ss = new StringBuffer();
+		StringBuilder ss = new StringBuilder();
 		for (;;) {
 			int got = r.read(c);
 			if (got < 0) {

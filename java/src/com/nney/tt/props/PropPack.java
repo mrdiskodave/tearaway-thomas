@@ -54,7 +54,7 @@ public class PropPack {
 	 * @return The human readable.
 	 */
 	private static String humaniseIdentifier(String s) {
-		StringBuffer b = new StringBuffer();
+		StringBuilder b = new StringBuilder();
 		b.append(s.substring(0, 1).toUpperCase());
 		for (int x = 1; x < s.length(); x++) {
 			char c = s.charAt(x);

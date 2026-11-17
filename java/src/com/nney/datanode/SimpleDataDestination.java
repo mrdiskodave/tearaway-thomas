@@ -7,7 +7,7 @@ package com.nney.datanode;
  * it is fast.
  */
 public final class SimpleDataDestination implements DataDestination {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	private void sep() {
 		sb.append('\u0000');
