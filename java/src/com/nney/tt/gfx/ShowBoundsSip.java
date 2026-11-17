@@ -11,13 +11,10 @@ import com.nney.tt.sprites.Sprite;
 public class ShowBoundsSip implements SimpleImageProcessor {
 	@Override
 	public void process(SimpleImage input) {
-		input.changePixels(new SimpleImage.ChangePixel() {
-			@Override
-			public int change(int c) {
-				int alpha = c >>> 3 * 8;
-				if (alpha != 0xff) c = 0xff00ffff;
-				return c;
-			}
+		input.changePixels(c -> {
+			int alpha = c >>> 3 * 8;
+			if (alpha != 0xff) c = 0xff00ffff;
+			return c;
 		});
 	}
 }

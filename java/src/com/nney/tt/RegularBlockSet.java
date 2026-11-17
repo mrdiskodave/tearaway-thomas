@@ -3,7 +3,6 @@ package com.nney.tt;
 import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.map.GameMap.BlockFunc;
 import com.nney.tt.resources.TTResource;
 import com.nney.utils.OpenableTools;
 
@@ -22,13 +21,7 @@ public class RegularBlockSet extends BlockSet {
 
 	@Override
 	public void expandMap(GameMap gameMap) {
-		BlockFunc f = new BlockFunc() {
-			@Override
-			public int update(int x) {
-				return wi.blockRandomisationTable.shuffle(x);
-			}
-		};
-		gameMap.apply(f);
+		gameMap.apply(x -> wi.blockRandomisationTable.shuffle(x));
 	}
 
 	@Override

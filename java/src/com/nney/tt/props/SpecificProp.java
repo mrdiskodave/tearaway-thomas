@@ -28,12 +28,7 @@ public abstract class SpecificProp<T> extends Prop {
 
 			@Override
 			public void press() {
-				bps.startEdit(SpecificProp.this, text(), new TakeTextBack() {
-					@Override
-					public void take(String text) {
-						writeText(text);
-					}
-				});
+				bps.startEdit(SpecificProp.this, text(), text -> writeText(text));
 			}
 		});
 	}

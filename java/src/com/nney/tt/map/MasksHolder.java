@@ -3,7 +3,6 @@ package com.nney.tt.map;
 import com.nney.tt.Const;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.tt.gfx.SimpleImage.ChangePixel;
 
 public final class MasksHolder {
 	private static final boolean CTC_COLOURED_MASK = true;
@@ -66,16 +65,13 @@ public final class MasksHolder {
 		}
 		else {
 			SimpleImage bsi = msi.copy();
-			bsi.changePixels(new ChangePixel() {
-				@Override
-				public int change(int col) {
-					if (colourTest(col)) {
-						// how we want to display ground?
-						return 0xff000000;
-					}
-					// how we want to display sky?
-					return 0;
+			bsi.changePixels(col -> {
+				if (colourTest(col)) {
+					// how we want to display ground?
+					return 0xff000000;
 				}
+				// how we want to display sky?
+				return 0;
 			});
 			return bsi;
 		}

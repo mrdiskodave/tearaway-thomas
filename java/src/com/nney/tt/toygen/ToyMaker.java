@@ -6,7 +6,6 @@ import java.util.Map;
 import com.nney.tt.Const;
 import com.nney.tt.gfx.BlockSource;
 import com.nney.tt.gfx.SimpleImage;
-import com.nney.tt.gfx.SimpleImage.ChangePixel;
 import com.nney.tt.map.BlockAliasTable;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.resources.TTResource;
@@ -187,16 +186,7 @@ public class ToyMaker {
 			for (int shadow = 0; shadow < 6; shadow++) {
 				int shadowIdx = SHADOW_BASE + shadow;
 				SimpleImage b = bs5.getBlock(shadowIdx);
-				b.changePixels(new ChangePixel() {
-					@Override
-					public int change(int c) {
-						int alpha = c >>> 3 * 8;
-						if (alpha == 0) {
-							return 0;
-						}
-						return 0x80000000;
-					}
-				});
+				b.changePixels(c -> (c >>> 3 * 8) == 0 ? 0 : 0x80000000);
 			}
 		}
 	}

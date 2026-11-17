@@ -15,7 +15,6 @@ import com.nney.tt.LevelInfo;
 import com.nney.tt.OuterWorld;
 import com.nney.tt.PersistedLevel;
 import com.nney.tt.PlayerPosition;
-import com.nney.tt.PlayerPositionServices;
 import com.nney.tt.ScreenPosition;
 import com.nney.tt.World;
 import com.nney.tt.aliens.Alien;
@@ -49,7 +48,6 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.tt.tinytools.SlowBoolean;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
-import com.nney.utils.SortKeyGenerator;
 
 /**
  * A level editor.
@@ -998,12 +996,7 @@ public class Mapper implements ButtonPressServices {
 
 	public AlienPredicate getRectPredicate() {
 		final Box rectangle = getMarkedInPixels();
-		return new AlienPredicate() {
-			@Override
-			public boolean is(Alien a) {
-				return rectangle.inside(a.getLocation());
-			}
-		};
+		return a -> rectangle.inside(a.getLocation());
 	}
 
 	public boolean hasMarked() {
@@ -1085,12 +1078,7 @@ public class Mapper implements ButtonPressServices {
 		}
 		if (candidates.size() > 0) {
 			// sort the candidates by their position
-			ListUtil.sort(candidates, new SortKeyGenerator<Alien, Coord>() {
-				@Override
-				public Coord gen(Alien t) {
-					return t.getLocation();
-				}
-			});
+			ListUtil.sort(candidates, Alien::getLocation);
 			int z = candidates.indexOf(getSelectedAlien());
 			// did we find the current one?
 			if (z < 0) {
@@ -1126,12 +1114,9 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void simulationModeInit() {
-		sim = new PlayerPosition(mmp.worldPixels(), new PlayerPositionServices() {
-			@Override
-			public boolean inTheGround(int x, int y) {
-				int block = gameMap.fastGetBlock(x >> Const.BLOCK_SHIFT, y >> Const.BLOCK_SHIFT);
-				return loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
-			}
+		sim = new PlayerPosition(mmp.worldPixels(), (x, y) -> {
+			int block = gameMap.fastGetBlock(x >> Const.BLOCK_SHIFT, y >> Const.BLOCK_SHIFT);
+			return loadBlockSet().maskHolder.inTheGround(block, x & Const.BLOCK_MASK, y & Const.BLOCK_MASK);
 		});
 	}
 
@@ -1369,16 +1354,13 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public void startPen(final int k, final Pen p) {
-		pen = new Runnable() {
-			@Override
-			public void run() {
-				if (keyboard.isDown(k)) {
-					p.stroke();
-				}
-				else {
-					p.up();
-					pen = null;
-				}
+		pen = () -> {
+			if (keyboard.isDown(k)) {
+				p.stroke();
+			}
+			else {
+				p.up();
+				pen = null;
 			}
 		};
 	}

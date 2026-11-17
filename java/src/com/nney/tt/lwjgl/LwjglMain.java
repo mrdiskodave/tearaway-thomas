@@ -197,19 +197,11 @@ public class LwjglMain {
 			}
 		};
 
-		GlGraphicsContext gc = new GlGraphicsContext(Const.FPS, new Runnable() {
-			@Override
-			public void run() {
-				keys.update();
-				wonkyMouse.update();
-				audioContext.update();
-			}
-		}, new Runnable() {
-			@Override
-			public void run() {
-				keys.clear();
-			}
-		});
+		GlGraphicsContext gc = new GlGraphicsContext(Const.FPS, () -> {
+			keys.update();
+			wonkyMouse.update();
+			audioContext.update();
+		}, () -> keys.clear());
 
 		OuterWorld ow = new OuterWorld(gc, audioContext, joystick, keys, correctMouse);
 		ow.devMode = dev || mapper;

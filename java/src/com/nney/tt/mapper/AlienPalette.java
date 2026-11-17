@@ -10,7 +10,6 @@ import com.nney.tt.sprites.AnimPlayer;
 import com.nney.tt.sprites.AnimsPool;
 import com.nney.tt.sprites.Sprite;
 import com.nney.utils.ListUtil;
-import com.nney.utils.SortKeyGenerator;
 
 public class AlienPalette {
 	private final MapperGC mgc;
@@ -41,12 +40,7 @@ public class AlienPalette {
 		int h = mgc.charHeight() + 4;
 		int c = 0;
 
-		ListUtil.sort(alienTypes, new SortKeyGenerator<AlienInfo, String>() {
-			@Override
-			public String gen(AlienInfo t) {
-				return nameFromAi(t);
-			}
-		});
+		ListUtil.sort(alienTypes, t -> nameFromAi(t));
 
 		int w = 0;
 		for (AlienInfo ai : alienTypes) {

@@ -8,7 +8,6 @@ import com.nney.tt.gfx.SimpleImage;
 import com.nney.tt.map.BlockAliasTable;
 import com.nney.tt.map.BlockInformation;
 import com.nney.tt.map.GameMap;
-import com.nney.tt.map.GameMap.BlockFunc;
 import com.nney.tt.map.MasksHolder;
 
 public abstract class BlockSet implements Disposable {
@@ -97,13 +96,7 @@ public abstract class BlockSet implements Disposable {
 	}
 
 	public void compressMap(GameMap gameMap) {
-		BlockFunc f = new BlockFunc() {
-			@Override
-			public int update(int x) {
-				return compressBlock(x);
-			}
-		};
-		gameMap.apply(f);
+		gameMap.apply(this::compressBlock);
 	}
 
 	public int compressBlock(int currentBlock) {

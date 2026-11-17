@@ -37,20 +37,17 @@ public class JsonParser extends JsonInput {
 		else if (consume('{')) {
 			back();
 			dd.beginObject();
-			JsonBlock block = new JsonBlock() {
-				@Override
-				public void run() throws JsonException {
-					if (!consume('"')) {
-						throw syntaxError("Expected key string");
-					}
-					String key = nextString('"');
-					skipWhiteAndComments();
-					if (!consume(':')) {
-						throw syntaxError("Expected ':' after key '" + key + "'");
-					}
-					dd.write(key);
-					nextValue();
+			JsonBlock block = () -> {
+				if (!consume('"')) {
+					throw syntaxError("Expected key string");
 				}
+				String key = nextString('"');
+				skipWhiteAndComments();
+				if (!consume(':')) {
+					throw syntaxError("Expected ':' after key '" + key + "'");
+				}
+				dd.write(key);
+				nextValue();
 			};
 			parseList('{', '}', "Object", block);
 			dd.end();
@@ -58,12 +55,7 @@ public class JsonParser extends JsonInput {
 		else if (consume('[')) {
 			back();
 			dd.beginArray();
-			JsonBlock block = new JsonBlock() {
-				@Override
-				public void run() throws JsonException {
-					nextValue();
-				}
-			};
+			JsonBlock block = () -> nextValue();
 			parseList('[', ']', "Array", block);
 			dd.end();
 		}

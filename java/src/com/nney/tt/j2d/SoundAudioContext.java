@@ -158,19 +158,16 @@ public class SoundAudioContext implements AudioContext, Disposable {
 			return;
 		}
 		running = true;
-		thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				short[] buf = new short[CHUNK_FRAMES * 2];
-				byte[] bytes = new byte[CHUNK_FRAMES * 4];
-				while (running) {
-					mix(buf, CHUNK_FRAMES);
-					for (int i = 0; i < buf.length; i++) {
-						bytes[i * 2] = (byte) buf[i];
-						bytes[i * 2 + 1] = (byte) (buf[i] >> 8);
-					}
-					line.write(bytes, 0, bytes.length);
+		thread = new Thread(() -> {
+			short[] buf = new short[CHUNK_FRAMES * 2];
+			byte[] bytes = new byte[CHUNK_FRAMES * 4];
+			while (running) {
+				mix(buf, CHUNK_FRAMES);
+				for (int i = 0; i < buf.length; i++) {
+					bytes[i * 2] = (byte) buf[i];
+					bytes[i * 2 + 1] = (byte) (buf[i] >> 8);
 				}
+				line.write(bytes, 0, bytes.length);
 			}
 		}, "tt-audio");
 		thread.setDaemon(true);

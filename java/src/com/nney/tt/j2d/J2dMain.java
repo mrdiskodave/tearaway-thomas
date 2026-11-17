@@ -216,13 +216,10 @@ public class J2dMain {
 
 		final AwtPointer finalPointer = pointer;
 		final J2dGraphicsContext gc = new J2dGraphicsContext(new FrameClock(Const.FPS, !headless), presenter,
-				new Runnable() {
-					@Override
-					public void run() {
-						keys.update();
-						if (finalPointer != null) finalPointer.update();
-						if (script != null) script.tick();
-					}
+				() -> {
+					keys.update();
+					if (finalPointer != null) finalPointer.update();
+					if (script != null) script.tick();
 				});
 		gcHolder[0] = gc;
 
@@ -233,20 +230,17 @@ public class J2dMain {
 		if (mapper) ow.launchMapper(new Coord(0, 0));
 		else if (demoName != null) {
 			final String dn = demoName;
-			ow.bootstrap = new com.nney.tt.Launcher() {
-				@Override
-				public void launch(OuterWorld o) {
-					com.nney.tt.World w = new com.nney.tt.World(o);
-					byte[] rec = com.nney.utils.OpenableTools.mustLoad(TTResource.demo(dn));
-					final long limit = demoFrames > 0 ? demoFrames : Long.MAX_VALUE;
-					final long start = gcHolder[0].frameCount();
-					w.configureDemo(new com.nney.tt.input.RecordedJoystick(rec, -1, false),
-							() -> gcHolder[0].frameCount() - start < limit);
-					com.nney.tt.World.Outcome outc = w.playLevel();
-					System.out.println("Demo " + dn + ": " + outc + " after " + (gcHolder[0].frameCount() - start)
-							+ " frames" + (gcHolder[0].frameCount() - start >= limit ? " (time limit)" : " (early!)"));
-					throw new J2dGraphicsContext.QuitRequested();
-				}
+			ow.bootstrap = o -> {
+				com.nney.tt.World w = new com.nney.tt.World(o);
+				byte[] rec = com.nney.utils.OpenableTools.mustLoad(TTResource.demo(dn));
+				final long limit = demoFrames > 0 ? demoFrames : Long.MAX_VALUE;
+				final long start = gcHolder[0].frameCount();
+				w.configureDemo(new com.nney.tt.input.RecordedJoystick(rec, -1, false),
+						() -> gcHolder[0].frameCount() - start < limit);
+				com.nney.tt.World.Outcome outc = w.playLevel();
+				System.out.println("Demo " + dn + ": " + outc + " after " + (gcHolder[0].frameCount() - start)
+						+ " frames" + (gcHolder[0].frameCount() - start >= limit ? " (time limit)" : " (early!)"));
+				throw new J2dGraphicsContext.QuitRequested();
 			};
 		}
 		else ow.launchFullGame(level);
@@ -284,44 +278,41 @@ public class J2dMain {
 		Window(final AwtKeyboard keys, final double zoom) throws Exception {
 			final JFrame[] f = new JFrame[1];
 			final Canvas[] c = new Canvas[1];
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					JFrame fr = new JFrame("Tearaway Thomas");
-					Canvas cv = new Canvas();
-					cv.setPreferredSize(new Dimension((int) Math.round(W * zoom), (int) Math.round(H * zoom)));
-					cv.setBackground(Color.BLACK);
-					cv.setFocusTraversalKeysEnabled(false);
-					cv.addKeyListener(keys);
-					cv.addKeyListener(new KeyAdapter() {
-						@Override
-						public void keyPressed(KeyEvent e) {
-							boolean altEnter = e.getKeyCode() == KeyEvent.VK_ENTER && e.isAltDown();
-							if (altEnter || e.getKeyCode() == KeyEvent.VK_F11) toggleFullScreen();
-						}
-					});
-					cv.addFocusListener(new FocusAdapter() {
-						@Override
-						public void focusLost(FocusEvent e) {
-							keys.requestClear();
-						}
-					});
-					fr.add(cv);
-					fr.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-					fr.addWindowListener(new WindowAdapter() {
-						@Override
-						public void windowClosing(WindowEvent e) {
-							closeRequested = true;
-						}
-					});
-					fr.pack();
-					fr.setLocationRelativeTo(null);
-					fr.setVisible(true);
-					cv.createBufferStrategy(2);
-					cv.requestFocus();
-					f[0] = fr;
-					c[0] = cv;
-				}
+			SwingUtilities.invokeAndWait(() -> {
+				JFrame fr = new JFrame("Tearaway Thomas");
+				Canvas cv = new Canvas();
+				cv.setPreferredSize(new Dimension((int) Math.round(W * zoom), (int) Math.round(H * zoom)));
+				cv.setBackground(Color.BLACK);
+				cv.setFocusTraversalKeysEnabled(false);
+				cv.addKeyListener(keys);
+				cv.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(KeyEvent e) {
+						boolean altEnter = e.getKeyCode() == KeyEvent.VK_ENTER && e.isAltDown();
+						if (altEnter || e.getKeyCode() == KeyEvent.VK_F11) toggleFullScreen();
+					}
+				});
+				cv.addFocusListener(new FocusAdapter() {
+					@Override
+					public void focusLost(FocusEvent e) {
+						keys.requestClear();
+					}
+				});
+				fr.add(cv);
+				fr.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				fr.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						closeRequested = true;
+					}
+				});
+				fr.pack();
+				fr.setLocationRelativeTo(null);
+				fr.setVisible(true);
+				cv.createBufferStrategy(2);
+				cv.requestFocus();
+				f[0] = fr;
+				c[0] = cv;
 			});
 			frame = f[0];
 			canvas = c[0];

@@ -33,17 +33,14 @@ public class SimpleImage {
 
 	// make sure alpha is 0x00 (transparent) or 0xff (solid)
 	// and that if it is transparent there is nothing in the RGB slots
-	static ChangePixel IMPORTER = new ChangePixel() {
-		@Override
-		public int change(int c) {
-			int alpha = c >>> 3 * 8;
-			// all
-			if (alpha != 0xff) {
-				// or nothing
-				c = 0;
-			}
-			return c;
+	static ChangePixel IMPORTER = c -> {
+		int alpha = c >>> 3 * 8;
+		// all
+		if (alpha != 0xff) {
+			// or nothing
+			c = 0;
 		}
+		return c;
 	};
 
 	private SimpleImage(int width, int height, int start, int stride, int[] pixels) {
@@ -234,12 +231,7 @@ public class SimpleImage {
 
 	public Set<Integer> collectPalette() {
 		final TreeSet<Integer> pal = new TreeSet<>();
-		visitPixels(new VisitPixel() {
-			@Override
-			public void visit(int c) {
-				pal.add(c);
-			}
-		});
+		visitPixels(c -> pal.add(c));
 		return pal;
 	}
 

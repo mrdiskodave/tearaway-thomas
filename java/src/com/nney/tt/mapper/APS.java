@@ -10,7 +10,6 @@ import com.nney.tt.geom.Coord;
 import com.nney.tt.props.OPS;
 import com.nney.tt.props.Prop;
 import com.nney.utils.ListUtil;
-import com.nney.utils.SortKeyGenerator;
 
 /**
  * Alien Property Services.
@@ -39,14 +38,11 @@ public class APS {
 	 * control system with unreadable deltas. It isn't fast.
 	 */
 	public static void orderAlienList(ArrayList<Alien> al) {
-		ListUtil.sort(al, new SortKeyGenerator<Alien, String>() {
-			@Override
-			public String gen(Alien t) {
-				DataDestination dd = new SimpleDataDestination();
-				dd.write(t.alienInfo.name);
-				OPS.saveProps(t, dd);
-				return dd.toString();
-			}
+		ListUtil.sort(al, t -> {
+			DataDestination dd = new SimpleDataDestination();
+			dd.write(t.alienInfo.name);
+			OPS.saveProps(t, dd);
+			return dd.toString();
 		});
 	}
 }
