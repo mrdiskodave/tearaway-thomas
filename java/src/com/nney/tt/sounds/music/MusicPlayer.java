@@ -87,7 +87,7 @@ public class MusicPlayer {
 		}
 		byte[] sequence = song.getSequence();
 
-		ArrayList<Integer> order = new ArrayList<Integer>();
+		ArrayList<Integer> order = new ArrayList<>();
 		bn.getRunningOrder(order, sequence.length);
 
 		int steps = 0;

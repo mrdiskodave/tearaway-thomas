@@ -42,7 +42,7 @@ import com.nney.utils.ReadOnlyIterator;
  *            The type of the object we hold.
  */
 public class Fridge<T> implements Iterable<T> {
-	private LinkedList<FridgeEntry> content = new LinkedList<FridgeEntry>();
+	private LinkedList<FridgeEntry> content = new LinkedList<>();
 
 	@SuppressWarnings("unused")
 	// it is for debug output
@@ -111,7 +111,7 @@ public class Fridge<T> implements Iterable<T> {
 	@Override
 	public Iterator<T> iterator() {
 		final Iterator<FridgeEntry> it = content.iterator();
-		return new ReadOnlyIterator<T>() {
+		return new ReadOnlyIterator<>() {
 			@Override
 			public boolean hasNext() {
 				return it.hasNext();

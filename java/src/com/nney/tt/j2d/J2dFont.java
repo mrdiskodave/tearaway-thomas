@@ -20,7 +20,7 @@ import com.nney.tt.gfx.SimpleImage;
 final class J2dFont extends PartialFontImpl {
 	private final J2dGraphicsContext gc;
 	private SimpleImage content;
-	private final HashMap<Integer, BufferedImage> tinted = new HashMap<Integer, BufferedImage>();
+	private final HashMap<Integer, BufferedImage> tinted = new HashMap<>();
 	private BufferedImage current;
 
 	J2dFont(J2dGraphicsContext gc, RawFont rf) {

@@ -233,7 +233,7 @@ public class SimpleImage {
 	}
 
 	public Set<Integer> collectPalette() {
-		final TreeSet<Integer> pal = new TreeSet<Integer>();
+		final TreeSet<Integer> pal = new TreeSet<>();
 		visitPixels(new VisitPixel() {
 			@Override
 			public void visit(int c) {

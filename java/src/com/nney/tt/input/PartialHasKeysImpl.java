@@ -8,7 +8,7 @@ public abstract class PartialHasKeysImpl implements HasKeys {
 	 */
 	private static final int MAX_EVENTS = 2048;
 
-	private ArrayList<KeyEvent> events = new ArrayList<KeyEvent>();
+	private ArrayList<KeyEvent> events = new ArrayList<>();
 
 	protected void queueEvent(int k) {
 		queueEvent(k, (char) 0);

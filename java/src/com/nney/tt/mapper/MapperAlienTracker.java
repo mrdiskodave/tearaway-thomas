@@ -11,13 +11,13 @@ import com.nney.tt.geom.Box;
 import com.nney.utils.ListUtil;
 
 public class MapperAlienTracker implements Iterable<Alien> {
-	private SquareFridge<Alien> squareFridge = new SquareFridge<Alien>();
-	final private List<Alien> alienList = new ArrayList<Alien>();
+	private SquareFridge<Alien> squareFridge = new SquareFridge<>();
+	final private List<Alien> alienList = new ArrayList<>();
 
 	private void createFridge() {
 		if (squareFridge == null) {
 			System.out.println("create fridge");
-			squareFridge = new SquareFridge<Alien>();
+			squareFridge = new SquareFridge<>();
 		}
 	}
 
@@ -51,7 +51,7 @@ public class MapperAlienTracker implements Iterable<Alien> {
 
 	@Override
 	public Iterator<Alien> iterator() {
-		ConcatenatedIterator<Alien> ci = new ConcatenatedIterator<Alien>();
+		ConcatenatedIterator<Alien> ci = new ConcatenatedIterator<>();
 		ci.add(squareFridge);
 		ci.add(alienList);
 		return ci;

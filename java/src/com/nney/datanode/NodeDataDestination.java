@@ -3,7 +3,7 @@ package com.nney.datanode;
 import java.util.Stack;
 
 public class NodeDataDestination implements DataDestination {
-	Stack<Builder> stack = new Stack<Builder>();
+	Stack<Builder> stack = new Stack<>();
 
 	Node answer;
 

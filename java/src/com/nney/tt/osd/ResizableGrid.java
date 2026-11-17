@@ -4,7 +4,7 @@ public class ResizableGrid<T> {
 	private Grid<T> grid;
 
 	ResizableGrid(int w, int h) {
-		grid = new Grid<T>(w, h);
+		grid = new Grid<>(w, h);
 	}
 
 	public T get(int x, int y) {
@@ -24,7 +24,7 @@ public class ResizableGrid<T> {
 	}
 
 	public void setSize(int w, int h) {
-		Grid<T> ng = new Grid<T>(w, h);
+		Grid<T> ng = new Grid<>(w, h);
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				T t = null;

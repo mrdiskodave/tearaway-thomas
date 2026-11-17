@@ -50,7 +50,7 @@ public class PersistedLevel {
 	}
 
 	public List<Alien> getAliens(AlienFactory af) {
-		List<Alien> aliens = new ArrayList<Alien>();
+		List<Alien> aliens = new ArrayList<>();
 		staticLoadAliens(aliens, af, levelNode.requireField("objects"));
 		return aliens;
 	}
@@ -99,7 +99,7 @@ public class PersistedLevel {
 
 	private static void staticSaveAliens(Iterable<Alien> aliens, DataDestination dd) {
 		dd.beginArray();
-		ArrayList<Alien> toSave = new ArrayList<Alien>();
+		ArrayList<Alien> toSave = new ArrayList<>();
 		for (Alien a : aliens) {
 			if (!a.alienInfo.internal()) {
 				toSave.add(a);

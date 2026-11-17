@@ -8,7 +8,7 @@ import com.nney.tt.gfx.PrerenderedText;
  * Text that can be changed.
  */
 class SmartText extends AbstractText {
-	private DisposableField<PrerenderedText> content = new DisposableField<PrerenderedText>();
+	private DisposableField<PrerenderedText> content = new DisposableField<>();
 
 	private String contentDescription;
 

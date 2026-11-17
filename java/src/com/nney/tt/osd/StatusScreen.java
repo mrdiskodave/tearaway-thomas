@@ -18,7 +18,7 @@ public class StatusScreen implements Disposable, TextDest {
 			0xff00ffff // 5: cyan
 	};
 
-	private final Stack<PreText> unrendered = new Stack<PreText>();
+	private final Stack<PreText> unrendered = new Stack<>();
 
 	private final MultiDisposable md = new MultiDisposable();
 

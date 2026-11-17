@@ -9,7 +9,7 @@ import com.nney.utils.ListUtil;
 import junit.framework.TestCase;
 
 public class LinkedListInsertionTest extends TestCase {
-	LinkedList<Integer> fixture = new LinkedList<Integer>();
+	LinkedList<Integer> fixture = new LinkedList<>();
 
 	void insert(Integer x) {
 		ListIterator<Integer> fi = fixture.listIterator();

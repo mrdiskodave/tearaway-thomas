@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 public abstract class Pool<V> {
-	protected HashMap<String, V> pool = new HashMap<String, V>();
+	protected HashMap<String, V> pool = new HashMap<>();
 
 	public V load(String k) {
 		V v = pool.get(k);

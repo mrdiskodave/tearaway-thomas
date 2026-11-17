@@ -36,7 +36,7 @@ public class OuterWorld implements Runnable, Disposable {
 	public final AnimsPool animsPool;
 
 	// Disposable:
-	public DisposableField<BlockSet> blockSet = new DisposableField<BlockSet>();
+	public DisposableField<BlockSet> blockSet = new DisposableField<>();
 
 	public final Pointer mouse;
 
@@ -73,7 +73,7 @@ public class OuterWorld implements Runnable, Disposable {
 
 	private MultiDisposable md = new MultiDisposable();
 
-	public ArrayList<Horizon> horizons = new ArrayList<Horizon>();
+	public ArrayList<Horizon> horizons = new ArrayList<>();
 
 	public OuterWorld(GraphicsContext gc, AudioContext ac, Joystick joystick, Keyboard keyboard, Pointer mouse) {
 		this.gc = gc;

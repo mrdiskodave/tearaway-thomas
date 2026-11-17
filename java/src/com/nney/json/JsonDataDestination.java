@@ -15,7 +15,7 @@ public class JsonDataDestination implements DataDestination {
 		this.target = target;
 	}
 
-	private Stack<State> stack = new Stack<State>();
+	private Stack<State> stack = new Stack<>();
 
 	private State state = State.LIST_ITEM;
 

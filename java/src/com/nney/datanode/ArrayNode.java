@@ -33,7 +33,7 @@ import java.util.ListIterator;
 import java.util.Vector;
 
 public class ArrayNode extends NodeImpl implements List<Node> {
-	Vector<Node> content = new Vector<Node>();
+	Vector<Node> content = new Vector<>();
 
 	// ---------------------------------------------------------------------------
 	// Support for DataItem

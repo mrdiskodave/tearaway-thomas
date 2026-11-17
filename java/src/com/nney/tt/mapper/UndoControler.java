@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Stack;
 
 class UndoControler {
-	private Stack<UndoRedo> undo = new Stack<UndoRedo>();
+	private Stack<UndoRedo> undo = new Stack<>();
 
-	private Stack<UndoRedo> redo = new Stack<UndoRedo>();
+	private Stack<UndoRedo> redo = new Stack<>();
 
 	private int mark = -1;
 
@@ -61,7 +61,7 @@ class UndoControler {
 		int distance = undo.size() - mark;
 		System.out.println("FOLD:" + distance);
 		if (distance > 1) {
-			List<UndoRedo> items = new ArrayList<UndoRedo>();
+			List<UndoRedo> items = new ArrayList<>();
 			while (undo.size() > mark) {
 				items.add(undo.pop());
 			}

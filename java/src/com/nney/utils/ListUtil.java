@@ -18,7 +18,7 @@ public class ListUtil {
 
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> findMany(Class<T> type, Iterable<?> it) {
-		ArrayList<T> answer = new ArrayList<T>();
+		ArrayList<T> answer = new ArrayList<>();
 		for (Object o : it) {
 			if (type.isInstance(o)) {
 				answer.add((T) o);
@@ -42,9 +42,9 @@ public class ListUtil {
 	}
 
 	public static <T, K extends Comparable<? super K>> void sort(List<T> src, SortKeyGenerator<T, K> skg) {
-		ArrayList<PairedWithKey<T, K>> kl = new ArrayList<PairedWithKey<T, K>>();
+		ArrayList<PairedWithKey<T, K>> kl = new ArrayList<>();
 		for (T t : src) {
-			kl.add(new PairedWithKey<T, K>(t, skg.gen(t)));
+			kl.add(new PairedWithKey<>(t, skg.gen(t)));
 		}
 		Collections.sort(kl);
 		src.clear();
@@ -54,7 +54,7 @@ public class ListUtil {
 	}
 
 	public static <T> Iterable<T> reversed(final List<T> l) {
-		final ReadOnlyIterator<T> i = new ReadOnlyIterator<T>() {
+		final ReadOnlyIterator<T> i = new ReadOnlyIterator<>() {
 			// could use a ListIterator but why?
 			int pos = l.size();
 
@@ -72,7 +72,7 @@ public class ListUtil {
 	}
 
 	public static <T> Iterable<T> iteratorToIteratable(final Iterator<T> i) {
-		return new Iterable<T>() {
+		return new Iterable<>() {
 			@Override
 			public Iterator<T> iterator() {
 				return i;

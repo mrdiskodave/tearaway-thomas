@@ -66,7 +66,7 @@ public class Carousel<T> {
 
 	public Carousel<T> copy() {
 		validateAndInit();
-		return new Carousel<T>(list, current);
+		return new Carousel<>(list, current);
 	}
 
 	public void find(T typeCode) {

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 public class ResizableGridTest extends TestCase {
 	public void test() throws Exception {
-		ResizableGrid<String> rg = new ResizableGrid<String>(2, 2);
+		ResizableGrid<String> rg = new ResizableGrid<>(2, 2);
 		assertEquals("null,null|null,null", rg.dump());
 		rg.set(0, 0, "a");
 		rg.set(1, 0, "b");

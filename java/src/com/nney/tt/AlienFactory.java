@@ -21,14 +21,14 @@ public class AlienFactory {
 	 * Legacy types that are now handled by a more general alien (rather than
 	 * one of their own). Its loadFromLegacyData() knows what to do.
 	 */
-	private static final Map<Integer, String> LEGACY_ALIASES = new HashMap<Integer, String>();
+	private static final Map<Integer, String> LEGACY_ALIASES = new HashMap<>();
 
 	/**
 	 * Legacy types where the original had one object for each piece (each car
 	 * of a Ferris wheel) and we have one for the whole thing: only the first
 	 * one becomes an alien.
 	 */
-	private static final Set<Integer> LEGACY_MERGED = new HashSet<Integer>();
+	private static final Set<Integer> LEGACY_MERGED = new HashSet<>();
 
 	static {
 		LEGACY_ALIASES.put(0, "plainLift"); // lift_alien: block lift, up and down
@@ -40,7 +40,7 @@ public class AlienFactory {
 		LEGACY_MERGED.add(32); // Fferis_alien: Futureland's Ferris wheel
 	}
 
-	private final Set<Integer> mergedSoFar = new HashSet<Integer>();
+	private final Set<Integer> mergedSoFar = new HashSet<>();
 
 	private String legacyName(int typeCode) {
 		String alias = LEGACY_ALIASES.get(typeCode);

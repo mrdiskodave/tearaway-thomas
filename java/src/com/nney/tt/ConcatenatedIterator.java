@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class ConcatenatedIterator<T> implements Iterator<T> {
-	ArrayList<Iterator<T>> content = new ArrayList<Iterator<T>>();
+	ArrayList<Iterator<T>> content = new ArrayList<>();
 
 	public void add(Iterator<T> t) {
 		content.add(t);

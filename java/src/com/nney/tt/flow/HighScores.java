@@ -31,7 +31,7 @@ public final class HighScores {
 			{ 500000, "deh" }, { 450000, "nic" }, { 400000, "sdb" }, { 350000, "kcv" }, { 300000, "peh" },
 			{ 250000, "atw" }, { 200000, "oli" }, { 150000, "jbw" }, { 100000, "jcw" }, { 50000, "wez" } };
 
-	private final List<Entry> entries = new ArrayList<Entry>();
+	private final List<Entry> entries = new ArrayList<>();
 	private final File file;
 
 	/**
@@ -59,7 +59,7 @@ public final class HighScores {
 	private void load() {
 		if (file == null || !file.isFile()) return;
 		try {
-			List<Entry> got = new ArrayList<Entry>();
+			List<Entry> got = new ArrayList<>();
 			for (String line : Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)) {
 				line = line.trim();
 				if (line.isEmpty() || line.startsWith("#")) continue;

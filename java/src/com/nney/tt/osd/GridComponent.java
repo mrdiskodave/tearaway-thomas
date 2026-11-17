@@ -16,7 +16,7 @@ public class GridComponent implements Component {
 	private int verticalPadding;
 
 	public GridComponent(int w, int h) {
-		items = new Grid<Cell>(w, h);
+		items = new Grid<>(w, h);
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				setCell(x, y, new Cell());

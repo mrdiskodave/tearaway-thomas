@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CountingMap<T> {
-	private final Map<T, Integer> counts = new HashMap<T, Integer>();
+	private final Map<T, Integer> counts = new HashMap<>();
 
 	public void clear() {
 		counts.clear();

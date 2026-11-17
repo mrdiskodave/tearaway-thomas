@@ -36,6 +36,6 @@ public class Mock<T> {
 	}
 
 	public static <T> Mock<T> mock(Class<T> c) {
-		return new Mock<T>(c);
+		return new Mock<>(c);
 	}
 }

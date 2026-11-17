@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class RecordingInvocationHandler implements InvocationHandler {
-	List<Event> events = new ArrayList<Event>();
+	List<Event> events = new ArrayList<>();
 	private Object rc;
 	private int pos;
 

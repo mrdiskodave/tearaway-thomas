@@ -11,7 +11,7 @@ import com.nney.tt.gfx.GraphicsContext;
 import com.nney.tt.resources.TTResource;
 
 public class AnimsPool implements Disposable {
-	private final TreeMap<String, Anims> pool = new TreeMap<String, Anims>();
+	private final TreeMap<String, Anims> pool = new TreeMap<>();
 	private final AnimsDefPool sdp;
 	private final GraphicsContext gc;
 
@@ -46,14 +46,14 @@ public class AnimsPool implements Disposable {
 
 		// we'll be loading the same frame twice if the animation goes
 		// back on itself (e.g. ladder climbing) so we'll need a cache
-		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<Integer, Sprite>() {
+		CachedLoader<Integer, Sprite> frameLoader = new CachedLoader<>() {
 			@Override
 			protected Sprite internalLoad(Integer k) {
 				return LargeImageFrameLoader.load(gc, TTResource.animSprite(animsName, k), makeWhiteVersion);
 			}
 		};
 
-		ArrayList<Anim> an = new ArrayList<Anim>();
+		ArrayList<Anim> an = new ArrayList<>();
 		Node diRoot = sdp.load(animsName);
 		if (diRoot == null) {
 			Sprite[] frames = new Sprite[] { LargeImageFrameLoader.load(gc, TTResource.bareSprite(animsName),
@@ -91,7 +91,7 @@ public class AnimsPool implements Disposable {
 
 	public void unloadReload(Set<String> needs) {
 		// kick out the ones we don't need
-		Set<String> removes = new TreeSet<String>();
+		Set<String> removes = new TreeSet<>();
 
 		Set<String> haves = pool.keySet();
 		for (String have : haves) {
@@ -114,6 +114,6 @@ public class AnimsPool implements Disposable {
 
 	@Override
 	public void close() {
-		unloadReload(new TreeSet<String>());
+		unloadReload(new TreeSet<>());
 	}
 }

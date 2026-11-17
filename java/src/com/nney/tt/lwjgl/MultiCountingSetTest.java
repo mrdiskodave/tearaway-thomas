@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 public class MultiCountingSetTest extends TestCase {
 	public void test() throws Exception {
-		MultiCountingSet<Integer, Integer> cs = new MultiCountingSet<Integer, Integer>();
+		MultiCountingSet<Integer, Integer> cs = new MultiCountingSet<>();
 		assertFalse(cs.contains(5));
 		cs.add(5, 3);
 		cs.add(5, 3);

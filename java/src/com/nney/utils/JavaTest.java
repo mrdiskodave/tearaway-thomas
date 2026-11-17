@@ -51,7 +51,7 @@ public class JavaTest extends TestCase {
 	}
 
 	public void testVectorIteratorsSupportRemove() {
-		Vector<String> v = new Vector<String>();
+		Vector<String> v = new Vector<>();
 		String a = "1";
 		String b = "2";
 		String c = "3";
@@ -244,10 +244,10 @@ public class JavaTest extends TestCase {
 
 	public void testVectorCopyCtorActuallyCopies() {
 		// as I suspect it might reference and the docs are not entirely clear
-		Vector<String> a = new Vector<String>();
+		Vector<String> a = new Vector<>();
 		a.add("lion");
 		a.add("unicorn");
-		Vector<String> b = new Vector<String>(a);
+		Vector<String> b = new Vector<>(a);
 		b.set(0, "upfront");
 
 		assertEquals("lion", a.get(0));
@@ -302,7 +302,7 @@ public class JavaTest extends TestCase {
 	 */
 	public void testNullKeys() throws Exception {
 		try {
-			TreeMap<String, String> c = new TreeMap<String, String>();
+			TreeMap<String, String> c = new TreeMap<>();
 			c.put("name", "david");
 			c.put(null, "yeah");
 			c.put("age", "34");
@@ -374,11 +374,11 @@ public class JavaTest extends TestCase {
 	}
 
 	public void testRerverse() {
-		ArrayList<Integer> ohDear = new ArrayList<Integer>();
+		ArrayList<Integer> ohDear = new ArrayList<>();
 		for (int x = 0; x < 4; x++) {
 			ohDear.add(x);
 		}
-		ArrayList<Integer> n = new ArrayList<Integer>();
+		ArrayList<Integer> n = new ArrayList<>();
 		for (int x = ohDear.size(); --x >= 0;) {
 			n.add(ohDear.get(x));
 		}
@@ -479,7 +479,7 @@ public class JavaTest extends TestCase {
 
 	public void testConcurrentModification() throws Exception {
 		try {
-			ArrayList<Integer> l = new ArrayList<Integer>();
+			ArrayList<Integer> l = new ArrayList<>();
 			l.add(1);
 			l.add(2);
 			Iterator<Integer> it = l.iterator();
@@ -494,9 +494,9 @@ public class JavaTest extends TestCase {
 	}
 
 	public void testCollectionsCopyClearsFirst() throws Exception {
-		ArrayList<Integer> d = new ArrayList<Integer>();
+		ArrayList<Integer> d = new ArrayList<>();
 		Collections.addAll(d, 1, 2, 3);
-		ArrayList<Integer> s = new ArrayList<Integer>();
+		ArrayList<Integer> s = new ArrayList<>();
 		Collections.addAll(s, 1, 2, 3);
 		Collections.copy(d, s);
 		assertEquals(3, d.size());

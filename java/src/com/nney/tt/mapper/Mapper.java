@@ -322,13 +322,13 @@ public class Mapper implements ButtonPressServices {
 
 	private EditConsolidator blockEdit;
 
-	private final CollidableList<BatRecord> batRecords = new CollidableList<BatRecord>();
-	private final CollidableList<ButtonRecord> buttonRecords = new CollidableList<ButtonRecord>();
+	private final CollidableList<BatRecord> batRecords = new CollidableList<>();
+	private final CollidableList<ButtonRecord> buttonRecords = new CollidableList<>();
 	private List<Prop> props;
 
 	private ObjectEdit alienEdit;
 
-	private final HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<ButtonRecord>();
+	private final HoverStatus<ButtonRecord> hoverStatus = new HoverStatus<>();
 	private Alien selectedAlien;
 
 	private MapperMousePosition mmp;
@@ -472,7 +472,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void createBlockSelectionScreen() {
 		BlockSet bs = loadBlockSet();
-		ArrayList<Selectable> content = new ArrayList<Selectable>();
+		ArrayList<Selectable> content = new ArrayList<>();
 		for (int b = 0; b < bs.getBlockCount(); b++) {
 			final int fb = b;
 			int x = b % bs.widthInBlocks();
@@ -752,7 +752,7 @@ public class Mapper implements ButtonPressServices {
 	public void enliven() {
 		// enliven
 		List<Alien> all = getAliens();
-		List<Alien> n = new ArrayList<Alien>();
+		List<Alien> n = new ArrayList<>();
 		int count = 0;
 		for (Iterator<Alien> iterator = all.iterator(); iterator.hasNext();) {
 			Alien a = iterator.next();
@@ -784,7 +784,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void where(boolean more) {
-		List<String> items = new ArrayList<String>();
+		List<String> items = new ArrayList<>();
 		items.add(String.format("Level: %s %s", ow.levelNumber, levelInfo.filename));
 		items.add(String.format("Gems: %s", countAliens(GemAlien.class)));
 		int u = countAliens(LegacyAlien.class);
@@ -1076,7 +1076,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	private void findType(int dir) {
-		ArrayList<Alien> candidates = new ArrayList<Alien>();
+		ArrayList<Alien> candidates = new ArrayList<>();
 		AlienInfo t = alienPalette.get();
 		for (Alien a : getAliensReadOnly()) {
 			if (a.alienInfo == t) {
@@ -1530,7 +1530,7 @@ public class Mapper implements ButtonPressServices {
 			StatusLayer sl = topDownStatusLayer;
 			for (Prop p : props) {
 				int x = PROPS_X_BUTTONS;
-				ArrayList<Button> buttons = new ArrayList<Button>();
+				ArrayList<Button> buttons = new ArrayList<>();
 				p.getButtons(buttons, this);
 				for (Button button : buttons) {
 					String buttonText = buttonLabel(button);
@@ -1572,7 +1572,7 @@ public class Mapper implements ButtonPressServices {
 		for (Prop p : props) {
 			p.drawAuxBatStuff(batGc);
 
-			ArrayList<Bat> lbats = new ArrayList<Bat>();
+			ArrayList<Bat> lbats = new ArrayList<>();
 			p.getBats(lbats);
 			for (Bat lbat : lbats) {
 				batRecords.add(new CommonBatRecord(lbat));
@@ -1821,7 +1821,7 @@ public class Mapper implements ButtonPressServices {
 
 	public void copyAliens() {
 		Box rectangle = getMarkedInPixels();
-		List<Alien> captured = new ArrayList<Alien>();
+		List<Alien> captured = new ArrayList<>();
 		for (Alien a : getAliensReadOnly()) {
 			if (rectangle.inside(a.getLocation())) {
 				captured.add(copyAlien(a));
@@ -2029,11 +2029,11 @@ public class Mapper implements ButtonPressServices {
 
 		// naive implementation but at least it is breadth first
 		// so doesn't keep too many false leads
-		HashSet<Coord> positions = new HashSet<Coord>();
+		HashSet<Coord> positions = new HashSet<>();
 		positions.add(mmp.worldBlocks());
 
 		while (!positions.isEmpty()) {
-			HashSet<Coord> nextPositions = new HashSet<Coord>();
+			HashSet<Coord> nextPositions = new HashSet<>();
 			for (Coord s : positions) {
 				if (!blockEdit.isChangeAt(s) && gameMap.safeGetBlock(s) == fillable) {
 					blockEdit.setBlock(s, getCompressedCurrentBlock());
@@ -2062,7 +2062,7 @@ public class Mapper implements ButtonPressServices {
 	}
 
 	public List<Alien> removePredicatedAliens(AlienPredicate ap) {
-		List<Alien> lost = new ArrayList<Alien>();
+		List<Alien> lost = new ArrayList<>();
 		List<Alien> as = getAliens();
 		for (Iterator<Alien> iterator = as.iterator(); iterator.hasNext();) {
 			Alien alien = iterator.next();

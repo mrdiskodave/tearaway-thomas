@@ -58,7 +58,7 @@ public class AlienPalette {
 		animateHere = new Coord(w + (mgc.screenWidth() - w) / 2, mgc.screenHeight() / 2);
 		width = w;
 
-		ArrayList<Selectable> l = new ArrayList<Selectable>();
+		ArrayList<Selectable> l = new ArrayList<>();
 		for (AlienInfo ai : alienTypes) {
 			Box b = Box.fromTopLeftAndSize(0, c, w, h);
 			l.add(new TextSelectable(b, nameFromAi(ai)));

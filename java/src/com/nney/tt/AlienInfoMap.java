@@ -73,19 +73,19 @@ public class AlienInfoMap {
 	/**
 	 * Full list of {@link AlienInfo}s.
 	 */
-	private final List<AlienInfo> aim = new ArrayList<AlienInfo>();
+	private final List<AlienInfo> aim = new ArrayList<>();
 
-	private final List<AlienInfo> present = new ArrayList<AlienInfo>();
+	private final List<AlienInfo> present = new ArrayList<>();
 
 	/**
 	 * Various indexes that all ignore aliens that are not available according
 	 * to {@link TTResource#animExists(String)}.
 	 */
-	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<String, AlienInfo>();
-	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<Class<? extends Alien>, AlienInfo>();
-	private final CountingMap<Class<? extends Alien>> classUseCount = new CountingMap<Class<? extends Alien>>();
+	private final Map<String, AlienInfo> nameToAlienInfo = new HashMap<>();
+	private final Map<Class<? extends Alien>, AlienInfo> classToAlienInfo = new HashMap<>();
+	private final CountingMap<Class<? extends Alien>> classUseCount = new CountingMap<>();
 
-	private final List<String> animList = new ArrayList<String>();
+	private final List<String> animList = new ArrayList<>();
 
 	private String worldName;
 
@@ -317,7 +317,7 @@ public class AlienInfoMap {
 	}
 
 	public ArrayList<AlienInfo> getExternal() {
-		ArrayList<AlienInfo> answer = new ArrayList<AlienInfo>();
+		ArrayList<AlienInfo> answer = new ArrayList<>();
 		for (AlienInfo ai : present) {
 			if (!ai.internal()) answer.add(ai);
 		}

@@ -3,7 +3,7 @@ package com.nney.tt.sprites;
 import java.util.TreeMap;
 
 public abstract class CachedLoader<K, V> {
-	protected TreeMap<K, V> pool = new TreeMap<K, V>();
+	protected TreeMap<K, V> pool = new TreeMap<>();
 
 	public V load(K k) {
 		V answer = pool.get(k);

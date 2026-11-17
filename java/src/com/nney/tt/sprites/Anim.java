@@ -36,7 +36,7 @@ public final class Anim implements Disposable, Bounded {
 		// "sprites" isn't a list
 		// make it into one?
 		// no getBounds() isn't called on any fast paths
-		ArrayList<Sprite> s = new ArrayList<Sprite>();
+		ArrayList<Sprite> s = new ArrayList<>();
 		for (Sprite sprite : sprites) {
 			s.add(sprite);
 		}

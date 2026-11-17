@@ -9,7 +9,7 @@ public abstract class ReadOnlyIterator<T> implements Iterator<T> {
 	}
 
 	public static <T> ReadOnlyIterator<T> wrap(final Iterator<T> target) {
-		return new ReadOnlyIterator<T>() {
+		return new ReadOnlyIterator<>() {
 			@Override
 			public boolean hasNext() {
 				return target.hasNext();

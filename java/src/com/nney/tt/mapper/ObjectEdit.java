@@ -39,7 +39,7 @@ class ObjectEdit extends SymmetricalUndoRedo {
 		}
 	}
 
-	private final List<Content> cs = new ArrayList<Content>();
+	private final List<Content> cs = new ArrayList<>();
 	private final HasProps object;
 
 	ObjectEdit(HasProps object) {

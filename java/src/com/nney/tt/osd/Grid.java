@@ -11,7 +11,7 @@ public class Grid<T> {
 		this.width = width;
 		this.height = height;
 		int t = width * height;
-		content = new ArrayList<T>(t);
+		content = new ArrayList<>(t);
 		for (int x = 0; x < t; x++) {
 			content.add(null);
 		}

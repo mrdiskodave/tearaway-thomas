@@ -15,7 +15,7 @@ public class SimpleJsonFormatter {
 		this.sw = sw;
 	}
 
-	private Stack<String> term = new Stack<String>();
+	private Stack<String> term = new Stack<>();
 	private boolean sepNext;
 
 	public void spaciousBrackets() {

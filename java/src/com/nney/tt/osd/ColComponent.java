@@ -3,7 +3,7 @@ package com.nney.tt.osd;
 import java.util.ArrayList;
 
 public class ColComponent implements Component {
-	final private ArrayList<Component> items = new ArrayList<Component>();
+	final private ArrayList<Component> items = new ArrayList<>();
 	private int justify;
 
 	public void add(Component n) {

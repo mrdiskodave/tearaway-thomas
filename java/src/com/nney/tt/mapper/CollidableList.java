@@ -6,7 +6,7 @@ import java.util.Iterator;
 import com.nney.tt.geom.Coord;
 
 public class CollidableList<T extends Collidable> implements Iterable<T> {
-	private ArrayList<T> content = new ArrayList<T>();
+	private ArrayList<T> content = new ArrayList<>();
 
 	public T get(int x) {
 		return content.get(x);

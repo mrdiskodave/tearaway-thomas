@@ -24,7 +24,7 @@ public final class GlBlocksHolder implements BlocksHolder {
 	 */
 	static final private int GRID_CAPACITY = GRID_SIZE * GRID_SIZE;
 
-	final private List<GlTexture> textures = new ArrayList<GlTexture>();
+	final private List<GlTexture> textures = new ArrayList<>();
 
 	private int listBase;
 

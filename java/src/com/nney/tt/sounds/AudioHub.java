@@ -12,7 +12,7 @@ import com.nney.utils.OpenableTools;
 public class AudioHub {
 	private static final boolean SOUND_ENABLED = true;
 	private MusicPlayerConnector mp = new MusicPlayerConnector(new MusicPlayer());
-	private HashMap<String, Integer> fxMap = new HashMap<String, Integer>();
+	private HashMap<String, Integer> fxMap = new HashMap<>();
 	private final AudioContext ac;
 	private String[] slotContents = new String[AudioContext.SLOTS];
 

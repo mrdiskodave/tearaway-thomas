@@ -7,7 +7,7 @@ public class PyUtil {
 		if (step == 0) {
 			throw new InvalidParameterException("range: 'step' cannot be zero");
 		}
-		ReadOnlyIterator<Integer> i = new ReadOnlyIterator<Integer>() {
+		ReadOnlyIterator<Integer> i = new ReadOnlyIterator<>() {
 			int pos = start;
 
 			@Override

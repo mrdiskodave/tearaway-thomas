@@ -7,8 +7,8 @@ import com.nney.tt.input.Keyboard;
 import com.nney.tt.input.PartialHasKeysImpl;
 
 public class LwjglKeyboard extends PartialHasKeysImpl implements Keyboard {
-	private HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>();
-	private TreeSet<Integer> keys = new TreeSet<Integer>();
+	private HashMap<Integer, Integer> fromThem = new HashMap<>();
+	private TreeSet<Integer> keys = new TreeSet<>();
 
 	private void add(int theirKey, int ourKey) {
 		fromThem.put(theirKey, ourKey);

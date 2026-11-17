@@ -54,7 +54,7 @@ public class MapTool {
 			boolean crlf = text.contains("\r\n");
 			boolean spaceAfterComma = text.contains(", \n") || text.contains(", \r\n");
 
-			List<String> done = new ArrayList<String>();
+			List<String> done = new ArrayList<>();
 			for (Alien a : pl.getAliens(new AlienFactory(new AlienInfoMap(li.worldName, null)) {
 				// load without upgrading so we can see the legacy ones
 				@Override

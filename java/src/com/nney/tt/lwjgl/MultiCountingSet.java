@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 class MultiCountingSet<K, V> {
-	private HashMap<K, HashSet<V>> hs = new HashMap<K, HashSet<V>>();
+	private HashMap<K, HashSet<V>> hs = new HashMap<>();
 
 	void add(K k, V v) {
 		HashSet<V> s = hs.get(k);
 		if (s == null) {
-			s = new HashSet<V>();
+			s = new HashSet<>();
 			hs.put(k, s);
 		}
 		s.add(v);

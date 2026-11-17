@@ -12,7 +12,7 @@ import com.nney.tt.map.GameMap;
  * {@link MapEdit} object.
  */
 public class EditConsolidator {
-	private final HashMap<Coord, Integer> originalBlocks = new HashMap<Coord, Integer>();
+	private final HashMap<Coord, Integer> originalBlocks = new HashMap<>();
 	private final GameMap gameMap;
 
 	public EditConsolidator(GameMap gameMap) {

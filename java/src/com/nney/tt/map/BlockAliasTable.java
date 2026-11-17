@@ -7,8 +7,8 @@ import java.util.Random;
 import com.nney.datanode.Node;
 
 public class BlockAliasTable {
-	private final HashMap<Integer, ArrayList<Integer>> expand = new HashMap<Integer, ArrayList<Integer>>(1, 0.1f);
-	private final HashMap<Integer, Integer> compress = new HashMap<Integer, Integer>(1, 0.1f);
+	private final HashMap<Integer, ArrayList<Integer>> expand = new HashMap<>(1, 0.1f);
+	private final HashMap<Integer, Integer> compress = new HashMap<>(1, 0.1f);
 
 	// seeded so the scenery comes out the same every time (handy for tests)
 	private final Random r = new Random(com.nney.tt.World.RANDOM_SEED);
@@ -19,7 +19,7 @@ public class BlockAliasTable {
 
 	public BlockAliasTable(Node di) {
 		for (Node line : di.requireList()) {
-			ArrayList<Integer> al = new ArrayList<Integer>();
+			ArrayList<Integer> al = new ArrayList<>();
 			for (Node x : line.requireList()) {
 				al.add(x.requireInt());
 			}

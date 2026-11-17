@@ -71,15 +71,15 @@ public class SoundAudioContext implements AudioContext, Disposable {
 	}
 
 	private final Loop[] musics = new Loop[SLOTS];
-	private final ArrayList<Sound> effectSounds = new ArrayList<Sound>();
-	private final ArrayList<Float> effectVols = new ArrayList<Float>();
+	private final ArrayList<Sound> effectSounds = new ArrayList<>();
+	private final ArrayList<Float> effectVols = new ArrayList<>();
 
 	// guarded by "this"
 	private Loop playing;
 	private Voice musicVoice;
 	private boolean inLoopPart;
 	private float musicVol = 1;
-	private final ArrayList<Voice> effects = new ArrayList<Voice>();
+	private final ArrayList<Voice> effects = new ArrayList<>();
 
 	private SourceDataLine line;
 	private Thread thread;

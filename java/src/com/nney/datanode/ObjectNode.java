@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class ObjectNode extends NodeImpl implements Map<String, Node> {
-	TreeMap<String, Node> content = new TreeMap<String, Node>();
+	TreeMap<String, Node> content = new TreeMap<>();
 
 	@Override
 	public Node requireField(String name) throws DataException {

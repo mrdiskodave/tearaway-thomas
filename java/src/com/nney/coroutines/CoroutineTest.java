@@ -35,7 +35,7 @@ public class CoroutineTest extends TestCase {
 	}
 
 	public void testSubclassStyle() {
-		final List<Integer> got = new ArrayList<Integer>();
+		final List<Integer> got = new ArrayList<>();
 		Coroutine co = new Coroutine("subclass") {
 			@Override
 			protected void run() {
@@ -137,7 +137,7 @@ public class CoroutineTest extends TestCase {
 
 	public void testManyCoroutinesAreCheap() {
 		// would be 10,000 operating system threads with the old design
-		List<Coroutine> all = new ArrayList<Coroutine>();
+		List<Coroutine> all = new ArrayList<>();
 		final int[] total = new int[1];
 		for (int i = 0; i < 10000; i++) {
 			all.add(new Coroutine("many" + i, c -> {

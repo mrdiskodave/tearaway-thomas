@@ -231,7 +231,7 @@ public class World implements AlienServices, Disposable {
 	 * <p>
 	 * This is where we store the recording.
 	 */
-	private final ArrayList<SpriteRecord> recording = new ArrayList<SpriteRecord>();
+	private final ArrayList<SpriteRecord> recording = new ArrayList<>();
 
 	private ScriptWriter scriptWriter;
 
@@ -255,7 +255,7 @@ public class World implements AlienServices, Disposable {
 	private boolean record;
 
 	// Disposable:
-	private DisposableField<StatusScreen> statusScreen = new DisposableField<StatusScreen>();
+	private DisposableField<StatusScreen> statusScreen = new DisposableField<>();
 
 	private Aperture hole;
 
@@ -1166,7 +1166,7 @@ public class World implements AlienServices, Disposable {
 
 		if (!configuredCalledFromMapper) {
 			// work out what Anims we need
-			TreeSet<String> animsNeeded = new TreeSet<String>();
+			TreeSet<String> animsNeeded = new TreeSet<>();
 			whatAnimsDoTheyNeed(aliens, animsNeeded);
 			animsNeeded.add("0tt");
 			animsNeeded.add("0life");

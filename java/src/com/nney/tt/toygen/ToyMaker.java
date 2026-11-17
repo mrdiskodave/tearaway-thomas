@@ -96,7 +96,7 @@ public class ToyMaker {
 	}
 
 	private void generateBlocks() {
-		where = new HashMap<Integer, Integer>();
+		where = new HashMap<>();
 
 		//
 		// basic stuff for drawing with

@@ -55,9 +55,9 @@ public class AlAudioContext implements AudioContext, Disposable {
 
 	private Music[] musics = new Music[SLOTS];
 
-	private ArrayList<Effect> effects = new ArrayList<Effect>();
+	private ArrayList<Effect> effects = new ArrayList<>();
 
-	private ArrayList<AlSource> effectPlaying = new ArrayList<AlSource>();
+	private ArrayList<AlSource> effectPlaying = new ArrayList<>();
 
 	private Music playing;
 

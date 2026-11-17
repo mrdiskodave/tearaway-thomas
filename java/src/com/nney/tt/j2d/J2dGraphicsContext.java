@@ -40,7 +40,7 @@ public final class J2dGraphicsContext implements GraphicsContext {
 	}
 
 	private final BufferedImage screen = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_RGB);
-	private final ArrayDeque<Graphics2D> targets = new ArrayDeque<Graphics2D>();
+	private final ArrayDeque<Graphics2D> targets = new ArrayDeque<>();
 	private final Presenter presenter;
 	private final Runnable updateInputs;
 	private final FrameClock clock;

@@ -188,7 +188,7 @@ public final class GameMap implements Iterable<Coord> {
 	@Override
 	public Iterator<Coord> iterator() {
 		final int s = area();
-		return new ReadOnlyIterator<Coord>() {
+		return new ReadOnlyIterator<>() {
 			int z;
 
 			@Override

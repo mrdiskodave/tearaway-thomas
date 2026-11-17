@@ -15,10 +15,10 @@ import com.nney.tt.geom.Box;
  *            The type that we contain.
  */
 public class SquareFridge<T extends Bounded> implements Iterable<T> {
-	final private Fridge<T> freezeTop = new Fridge<T>("top");
-	final private Fridge<T> freezeBottom = new Fridge<T>("bottom");
-	final private Fridge<T> freezeLeft = new Fridge<T>("left");
-	final private Fridge<T> freezeRight = new Fridge<T>("right");
+	final private Fridge<T> freezeTop = new Fridge<>("top");
+	final private Fridge<T> freezeBottom = new Fridge<>("bottom");
+	final private Fridge<T> freezeLeft = new Fridge<>("left");
+	final private Fridge<T> freezeRight = new Fridge<>("right");
 
 	private boolean froze(T t, Box screenBox) {
 		Box fb = t.getBounds();
@@ -95,7 +95,7 @@ public class SquareFridge<T extends Bounded> implements Iterable<T> {
 
 	@Override
 	public Iterator<T> iterator() {
-		ConcatenatedIterator<T> it = new ConcatenatedIterator<T>();
+		ConcatenatedIterator<T> it = new ConcatenatedIterator<>();
 		it.add(freezeLeft);
 		it.add(freezeTop);
 		it.add(freezeRight);

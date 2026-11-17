@@ -29,9 +29,9 @@ public class AwtKeyboard extends PartialHasKeysImpl implements Keyboard, KeyList
 		}
 	}
 
-	private final HashMap<Integer, Integer> fromThem = new HashMap<Integer, Integer>();
-	private final TreeSet<Integer> keys = new TreeSet<Integer>();
-	private final ConcurrentLinkedQueue<Raw> incoming = new ConcurrentLinkedQueue<Raw>();
+	private final HashMap<Integer, Integer> fromThem = new HashMap<>();
+	private final TreeSet<Integer> keys = new TreeSet<>();
+	private final ConcurrentLinkedQueue<Raw> incoming = new ConcurrentLinkedQueue<>();
 	private volatile boolean clearRequested;
 
 	private void add(int theirKey, int ourKey) {

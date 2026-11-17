@@ -16,7 +16,7 @@ import com.nney.tt.geom.XRange;
 public class OPS {
 	public static List<Prop> propsFor(Object object) {
 		assert object != null;
-		List<Prop> props = new ArrayList<Prop>();
+		List<Prop> props = new ArrayList<>();
 		Field[] fields = object.getClass().getFields();
 		for (Field field : fields) {
 			PropAnn p = field.getAnnotation(PropAnn.class);

@@ -21,16 +21,16 @@ public class SquareFridgeTest extends TestCase {
 		}
 	}
 
-	private final SquareFridge<Thing> fridge = new SquareFridge<Thing>();
+	private final SquareFridge<Thing> fridge = new SquareFridge<>();
 
 	private List<Thing> freeze(Box screen, Thing... things) {
-		List<Thing> current = new ArrayList<Thing>(List.of(things));
+		List<Thing> current = new ArrayList<>(List.of(things));
 		fridge.freezeAny(current, screen);
 		return current;
 	}
 
 	private List<Thing> defrost(Box screen) {
-		List<Thing> got = new ArrayList<Thing>();
+		List<Thing> got = new ArrayList<>();
 		fridge.defrostAny(got, screen);
 		return got;
 	}

@@ -9,7 +9,7 @@ public class PaletteChanger implements ChangePixel {
 	private final Map<Integer, Integer> map;
 
 	PaletteChanger() {
-		this.map = new HashMap<Integer, Integer>();
+		this.map = new HashMap<>();
 	}
 
 	void add(int s, int d) {

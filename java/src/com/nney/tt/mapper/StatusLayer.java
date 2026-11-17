@@ -6,7 +6,7 @@ import com.nney.tt.geom.Box;
 
 public abstract class StatusLayer {
 	private final MapperGC mgc;
-	private final HashSet<Integer> seenRow = new HashSet<Integer>();
+	private final HashSet<Integer> seenRow = new HashSet<>();
 
 	private final int screenWidthInCharacters;
 	protected final int screenHeightInCharacters;

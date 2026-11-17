@@ -8,15 +8,15 @@ import com.nney.tt.aliens.Alien;
 import com.nney.tt.geom.Box;
 
 public class GameAlienTracker {
-	final private List<List<Alien>> alienListss = new ArrayList<List<Alien>>();
+	final private List<List<Alien>> alienListss = new ArrayList<>();
 
-	final private List<Alien> delayedAdditions = new LinkedList<Alien>();
+	final private List<Alien> delayedAdditions = new LinkedList<>();
 
-	final private SquareFridge<Alien> squareFridge = new SquareFridge<Alien>();
+	final private SquareFridge<Alien> squareFridge = new SquareFridge<>();
 
 	public GameAlienTracker() {
 		for (int x = 0; x < Alien.DEPTH_MAX; x++) {
-			alienListss.add(new LinkedList<Alien>());
+			alienListss.add(new LinkedList<>());
 		}
 	}
 
@@ -48,7 +48,7 @@ public class GameAlienTracker {
 		delayedAdditions.clear();
 
 		// do defrosting
-		ArrayList<Alien> df = new ArrayList<Alien>();
+		ArrayList<Alien> df = new ArrayList<>();
 		squareFridge.defrostAny(df, screenBox);
 		add(df);
 	}

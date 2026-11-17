@@ -9,7 +9,7 @@ import com.nney.datanode.Node;
  * slippery, some are magic. This class knows about this stuff.
  */
 public class BlockInformation {
-	private final HashMap<Integer, String> specs = new HashMap<Integer, String>(1, 0.1f);
+	private final HashMap<Integer, String> specs = new HashMap<>(1, 0.1f);
 
 	public BlockInformation(Node di) {
 		Node[] z = di.requireList();

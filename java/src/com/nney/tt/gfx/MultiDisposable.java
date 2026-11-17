@@ -3,7 +3,7 @@ package com.nney.tt.gfx;
 import java.util.Stack;
 
 public class MultiDisposable implements Disposable {
-	private Stack<Disposable> stack = new Stack<Disposable>();
+	private Stack<Disposable> stack = new Stack<>();
 
 	public MultiDisposable() {
 	}
