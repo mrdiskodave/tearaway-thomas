@@ -264,7 +264,7 @@ public class SoundAudioContext implements AudioContext, Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		running = false;
 		if (thread != null) {
 			try {

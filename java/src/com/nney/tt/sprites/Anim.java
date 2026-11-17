@@ -67,9 +67,9 @@ public final class Anim implements Disposable, Bounded {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		for (Sprite sprite : sprites) {
-			sprite.dispose();
+			sprite.close();
 		}
 	}
 }

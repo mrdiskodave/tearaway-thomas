@@ -27,8 +27,8 @@ public final class GlFont extends PartialFontImpl {
 	private GlTexture texture;
 
 	@Override
-	public void dispose() {
-		if (texture != null) texture.dispose();
+	public void close() {
+		if (texture != null) texture.close();
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public final class GlFont extends PartialFontImpl {
 			GlTexture t = new GlTexture(w, h);
 			GlFrameBufferObject fbo = new GlFrameBufferObject(t);
 			draw(0, 0, fg, kern, text);
-			fbo.dispose();
+			fbo.close();
 			return t;
 		}
 

@@ -8,7 +8,7 @@ import com.nney.utils.mbr.MustBeReleased;
 
 /**
  * This object redirects GL rendering for its lifetime (i.e. from construction
- * until {@link #dispose()} is called). Rendering is redirected into the given
+ * until {@link #close()} is called). Rendering is redirected into the given
  * texture.
  */
 public final class GlFrameBufferObject implements Disposable {
@@ -16,7 +16,7 @@ public final class GlFrameBufferObject implements Disposable {
 	private final int myFBOId;
 
 	/**
-	 * Redirect rendering to a texture until {@link #dispose()} is called.
+	 * Redirect rendering to a texture until {@link #close()} is called.
 	 * 
 	 * @param t
 	 *            The texture we wish to render into.
@@ -38,7 +38,7 @@ public final class GlFrameBufferObject implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		GL11.glPopMatrix();
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glPopAttrib();

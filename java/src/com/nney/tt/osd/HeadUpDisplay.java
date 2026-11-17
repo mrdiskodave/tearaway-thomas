@@ -51,9 +51,9 @@ public class HeadUpDisplay implements Disposable {
 		}
 
 		@Override
-		public void dispose() {
-			headingText.dispose();
-			contentText.dispose();
+		public void close() {
+			headingText.close();
+			contentText.close();
 		}
 	}
 
@@ -119,7 +119,7 @@ public class HeadUpDisplay implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
-		md.dispose();
+	public void close() {
+		md.close();
 	}
 }

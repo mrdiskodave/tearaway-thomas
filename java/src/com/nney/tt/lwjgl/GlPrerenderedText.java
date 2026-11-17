@@ -36,7 +36,7 @@ public final class GlPrerenderedText implements PrerenderedText {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		GL11.glDeleteLists(id, 1);
 		mbr.release();
 	}

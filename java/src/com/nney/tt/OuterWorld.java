@@ -134,8 +134,8 @@ public class OuterWorld implements Runnable, Disposable {
 	}
 
 	@Override
-	public void dispose() {
-		md.dispose();
+	public void close() {
+		md.close();
 	}
 
 	public boolean firstLevel() {

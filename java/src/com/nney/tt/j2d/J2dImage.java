@@ -66,7 +66,7 @@ final class J2dImage implements Blitable, PrerenderedText {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		image.flush();
 	}
 }

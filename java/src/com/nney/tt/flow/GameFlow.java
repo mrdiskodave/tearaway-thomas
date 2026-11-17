@@ -206,7 +206,7 @@ public final class GameFlow implements Launcher {
 			}
 		}
 		finally {
-			logo.dispose();
+			logo.close();
 		}
 	}
 
@@ -232,7 +232,7 @@ public final class GameFlow implements Launcher {
 			}
 		}
 		finally {
-			text.dispose();
+			text.close();
 		}
 	}
 
@@ -382,7 +382,7 @@ public final class GameFlow implements Launcher {
 				String markup = finished ? Texts.highScores(highScores, e, null)
 						: Texts.enterInitials(highScores, e, typed + cursor);
 				if (!markup.equals(shown)) {
-					if (text != null) text.dispose();
+					if (text != null) text.close();
 					text = new ScreenText(gc, font, markup);
 					shown = markup;
 				}
@@ -399,7 +399,7 @@ public final class GameFlow implements Launcher {
 			}
 		}
 		finally {
-			if (text != null) text.dispose();
+			if (text != null) text.close();
 			if (e.initials.isEmpty()) e.initials = "???";
 			enteringName = false;
 		}

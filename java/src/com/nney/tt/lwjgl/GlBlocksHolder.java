@@ -134,9 +134,9 @@ public final class GlBlocksHolder implements BlocksHolder {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		for (GlTexture texture : textures) {
-			texture.dispose();
+			texture.close();
 		}
 		GL11.glDeleteLists(listBase, blockCount);
 	}

@@ -8,7 +8,7 @@ import com.nney.tt.gfx.Disposable;
  * <li>If they are non-null they must be disposed of before they are
  * overwritten.
  * <li>If they are null they must not be disposed of (e.g. during the owners own
- * dispose() method).
+ * close() method).
  * </ol>
  * 
  * <p>
@@ -29,9 +29,9 @@ public final class DisposableField<T extends Disposable> implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		if (item != null) {
-			item.dispose();
+			item.close();
 			item = null;
 		}
 	}
@@ -49,7 +49,7 @@ public final class DisposableField<T extends Disposable> implements Disposable {
 	}
 
 	public void set(T t) {
-		dispose();
+		close();
 		item = t;
 	}
 }

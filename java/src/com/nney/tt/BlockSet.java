@@ -76,8 +76,8 @@ public abstract class BlockSet implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
-		blocksHolder.dispose();
+	public void close() {
+		blocksHolder.close();
 	}
 
 	public boolean isSame(Config config2) {

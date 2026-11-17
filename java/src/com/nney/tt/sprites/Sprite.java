@@ -91,10 +91,10 @@ public class Sprite implements Disposable, Bounded {
 	}
 
 	@Override
-	public void dispose() {
-		texture.dispose();
+	public void close() {
+		texture.close();
 		if (whiteVersion != null) {
-			whiteVersion.dispose();
+			whiteVersion.close();
 		}
 	}
 

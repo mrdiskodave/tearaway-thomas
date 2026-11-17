@@ -22,7 +22,7 @@ public class AlSource implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		AL10.alDeleteSources(name);
 		AlTools.alCheck();
 	}

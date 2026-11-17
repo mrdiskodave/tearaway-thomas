@@ -40,9 +40,9 @@ public class PreText extends AbstractText {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		mustHaveContent();
-		content.dispose();
+		content.close();
 	}
 
 	private void mustHaveContent() {

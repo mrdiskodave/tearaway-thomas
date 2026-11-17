@@ -100,7 +100,7 @@ public class AnimsPool implements Disposable {
 			}
 		}
 		for (String remove : removes) {
-			pool.get(remove).dispose();
+			pool.get(remove).close();
 			pool.remove(remove);
 		}
 		// ^ done in two passes to avoid changing a structure
@@ -113,7 +113,7 @@ public class AnimsPool implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		unloadReload(new TreeSet<String>());
 	}
 }

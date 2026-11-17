@@ -162,7 +162,7 @@ public final class J2dGraphicsContext implements GraphicsContext {
 			}
 
 			@Override
-			public void dispose() {
+			public void close() {
 				bi.flush();
 			}
 		};

@@ -50,8 +50,8 @@ public final class GlGraphicsContext implements GraphicsContext {
 			}
 
 			@Override
-			public void dispose() {
-				gt.dispose();
+			public void close() {
+				gt.close();
 			}
 		};
 	}

@@ -20,8 +20,8 @@ public class AlAudioContext implements AudioContext, Disposable {
 		}
 
 		@Override
-		public void dispose() {
-			buffer.dispose();
+		public void close() {
+			buffer.close();
 		}
 	}
 
@@ -41,10 +41,10 @@ public class AlAudioContext implements AudioContext, Disposable {
 		}
 
 		@Override
-		public void dispose() {
-			begin.dispose();
+		public void close() {
+			begin.close();
 			if (hasLoop()) {
-				loop.dispose();
+				loop.close();
 			}
 		}
 	}
@@ -75,7 +75,7 @@ public class AlAudioContext implements AudioContext, Disposable {
 
 	private void freeMusic(int slot) {
 		if (musics[slot] != null) {
-			musics[slot].dispose();
+			musics[slot].close();
 		}
 	}
 
@@ -99,7 +99,7 @@ public class AlAudioContext implements AudioContext, Disposable {
 	public void stopMusic() {
 		if (musicSource == null) return;
 		musicSource.setVol(0);
-		musicSource.dispose();
+		musicSource.close();
 		musicSource = null;
 		playing = null;
 	}
@@ -131,7 +131,7 @@ public class AlAudioContext implements AudioContext, Disposable {
 	}
 
 	private void stopEffect() {
-		effectPlaying.remove(0).dispose();
+		effectPlaying.remove(0).close();
 	}
 
 	public void update() {
@@ -145,7 +145,7 @@ public class AlAudioContext implements AudioContext, Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		stopMusic();
 		// dispose of musics
 		for (int x = 0; x < SLOTS; x++) {
@@ -158,7 +158,7 @@ public class AlAudioContext implements AudioContext, Disposable {
 		}
 		// dispose of effects
 		for (Effect effect : effects) {
-			effect.dispose();
+			effect.close();
 		}
 
 		AlTools.alShutdown();

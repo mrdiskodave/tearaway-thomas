@@ -154,8 +154,8 @@ public class StatusScreen implements Disposable, TextDest {
 	}
 
 	@Override
-	public void dispose() {
-		md.dispose();
+	public void close() {
+		md.close();
 	}
 
 	void gridOn(GridComponent grid) {

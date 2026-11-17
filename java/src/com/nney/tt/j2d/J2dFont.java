@@ -104,7 +104,7 @@ final class J2dFont extends PartialFontImpl {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		for (BufferedImage bi : tinted.values()) {
 			bi.flush();
 		}

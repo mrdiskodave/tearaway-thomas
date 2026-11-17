@@ -1281,7 +1281,7 @@ public class World implements AlienServices, Disposable {
 			fadeToBlack(draw);
 		}
 		finally {
-			logo.dispose();
+			logo.close();
 		}
 	}
 
@@ -1878,7 +1878,7 @@ public class World implements AlienServices, Disposable {
 		if (scriptWriter != null) {
 			TTResource.saveScript(configuredScriptDestination, scriptWriter.save());
 		}
-		dispose();
+		close();
 		return outcome;
 	}
 
@@ -1916,7 +1916,7 @@ public class World implements AlienServices, Disposable {
 	// (RE)LOAD AND FREE
 
 	private void createStatusScreen(String text) {
-		statusScreen.dispose();
+		statusScreen.close();
 		StatusScreen ss = new StatusScreen(gc, fonts.font);
 		OsdParser osdParser = new OsdParser(ss);
 		osdParser.parse(text);
@@ -1925,12 +1925,12 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		// this presupposes create() ran successfully
 		if (!isDemo()) ah.stopMusic();
-		statusScreen.dispose();
-		hud.dispose();
-		statusDisplay.dispose();
+		statusScreen.close();
+		hud.close();
+		statusDisplay.close();
 	}
 
 	public Coord getScreenPosition() {

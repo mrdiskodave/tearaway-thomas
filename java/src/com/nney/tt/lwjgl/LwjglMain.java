@@ -222,8 +222,8 @@ public class LwjglMain {
 		catch (ExitException x) {
 		}
 
-		ow.dispose();
-		audioContext.dispose();
+		ow.close();
+		audioContext.close();
 		Mouse.destroy();
 		Keyboard.destroy();
 		Display.destroy();

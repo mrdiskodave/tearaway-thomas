@@ -29,8 +29,8 @@ public class Fonts implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
-		font.dispose();
-		debugFont.dispose();
+	public void close() {
+		font.close();
+		debugFont.close();
 	}
 }

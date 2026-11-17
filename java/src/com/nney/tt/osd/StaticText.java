@@ -29,7 +29,7 @@ class StaticText extends AbstractText {
 	}
 
 	@Override
-	public void dispose() {
-		content.dispose();
+	public void close() {
+		content.close();
 	}
 }

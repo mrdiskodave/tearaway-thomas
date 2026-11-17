@@ -24,7 +24,7 @@ final class ScreenText implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
-		ss.dispose();
+	public void close() {
+		ss.close();
 	}
 }

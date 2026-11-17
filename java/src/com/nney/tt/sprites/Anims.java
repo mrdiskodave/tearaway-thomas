@@ -41,9 +41,9 @@ public final class Anims implements Disposable, Bounded {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		for (Anim anim : anims) {
-			anim.dispose();
+			anim.close();
 		}
 	}
 

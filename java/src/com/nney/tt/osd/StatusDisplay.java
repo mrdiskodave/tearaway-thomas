@@ -84,8 +84,8 @@ public class StatusDisplay implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
-		md.dispose();
+	public void close() {
+		md.close();
 	}
 
 }

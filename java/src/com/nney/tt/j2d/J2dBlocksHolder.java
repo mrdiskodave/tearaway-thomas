@@ -51,7 +51,7 @@ final class J2dBlocksHolder implements BlocksHolder {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		for (BufferedImage bi : blocks) {
 			if (bi != null) bi.flush();
 		}

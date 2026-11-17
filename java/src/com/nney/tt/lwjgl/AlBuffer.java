@@ -30,7 +30,7 @@ public class AlBuffer implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		AL10.alDeleteBuffers(name);
 		AlTools.alCheck();
 	}

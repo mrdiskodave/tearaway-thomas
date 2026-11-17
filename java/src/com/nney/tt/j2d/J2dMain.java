@@ -264,7 +264,7 @@ public class J2dMain {
 		}
 		finally {
 			if (presenter instanceof HeadlessPresenter) ((HeadlessPresenter) presenter).finish();
-			audio.dispose();
+			audio.close();
 			if (window != null) window.close();
 		}
 		return rc;

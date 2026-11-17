@@ -135,7 +135,7 @@ public final class GlTexture implements Blitable, PrerenderedText {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		GL11.glDeleteTextures(textureId);
 		mbr.release();
 	}

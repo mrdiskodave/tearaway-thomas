@@ -25,9 +25,9 @@ public class MultiDisposable implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void close() {
 		while (!stack.empty()) {
-			stack.pop().dispose();
+			stack.pop().close();
 		}
 	}
 
