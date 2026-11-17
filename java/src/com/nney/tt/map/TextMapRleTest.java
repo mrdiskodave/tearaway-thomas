@@ -5,11 +5,11 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 public class TextMapRleTest extends TestCase {
-	public void assetResultMatchesAndRoundTripWorks(short[] input, String outpout) {
-		assertEquals(outpout, TextMapRle.pack(input));
+	public void assetResultMatchesAndRoundTripWorks(short[] input, String output) {
+		assertEquals(output, TextMapRle.pack(input));
 
 		short[] unpacked = new short[input.length];
-		TextMapRle.unpack(unpacked, 0, input.length, outpout);
+		TextMapRle.unpack(unpacked, 0, input.length, output);
 		assertTrue(Arrays.equals(unpacked, input));
 	}
 
