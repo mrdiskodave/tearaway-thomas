@@ -43,17 +43,25 @@ public class SquareFridge<T extends Bounded> implements Iterable<T> {
 		return false;
 	}
 
-	private void defrostFrom(List<T> got, Fridge<T> fridge, int restore) {
+	/**
+	 * Take out whatever the edge has reached. Something can come back past one
+	 * edge and still be off-screen past another (it was off diagonally): that
+	 * goes straight into the other fridge instead. It can't go back into the
+	 * one it came from, since it's no longer beyond that edge, and the one it
+	 * goes into won't let it out this frame either.
+	 */
+	private void defrostFrom(List<T> got, Fridge<T> fridge, int edge, Box screenBox) {
 		for (;;) {
-			T a = fridge.pop(restore);
+			T a = fridge.pop(edge);
 			if (a == null) break;
-			got.add(a);
+			if (!froze(a, screenBox)) got.add(a);
 		}
 	}
 
 	/**
-	 * Defrost any objects that have come back on-screen.
-	 * 
+	 * Defrost any objects that have come back on-screen. Ones that are still
+	 * off-screen in another direction are moved to that direction's fridge.
+	 *
 	 * @param current
 	 *            A list of objects to which on-screen ones will be added (and
 	 *            removed from this object).
@@ -61,10 +69,10 @@ public class SquareFridge<T extends Bounded> implements Iterable<T> {
 	 *            The bounds of the screen.
 	 */
 	public void defrostAny(List<T> current, Box screenBox) {
-		defrostFrom(current, freezeLeft, -screenBox.left);
-		defrostFrom(current, freezeTop, -screenBox.top);
-		defrostFrom(current, freezeRight, screenBox.right);
-		defrostFrom(current, freezeBottom, screenBox.bottom);
+		defrostFrom(current, freezeLeft, -screenBox.left, screenBox);
+		defrostFrom(current, freezeTop, -screenBox.top, screenBox);
+		defrostFrom(current, freezeRight, screenBox.right, screenBox);
+		defrostFrom(current, freezeBottom, screenBox.bottom, screenBox);
 	}
 
 	/**
