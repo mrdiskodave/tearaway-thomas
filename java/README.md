@@ -51,6 +51,14 @@ When run from a command prompt it prints the frame rate every 4 seconds.
 
 Both need only a JDK (21 or later) and produce `tearaway-thomas.jar`.
 
+## Test
+
+    ./test.sh              (Git Bash on Windows, or macOS / Linux)
+    ./test.sh Coroutine    only the test classes with that in their name
+
+Compiles everything, tests and sandbox included, and runs the JUnit 3 tests
+(JUnit is in `lib/`).
+
 ## Code layout
 
 - `com.nney.tt`: the game (World, Player, aliens, maps, sprites, music player)
