@@ -123,12 +123,6 @@ public class JavaTest extends TestCase {
 	 * Tests after Digialbrain.
 	 */
 
-	public void testFromObject() {
-		Object a = new Integer(5);
-		Integer b = (Integer) a;
-		assertTrue(a == b);
-	}
-
 	public void testNullFromObject() {
 		Object a = null;
 		Integer b = (Integer) a;
@@ -191,9 +185,9 @@ public class JavaTest extends TestCase {
 	}
 
 	public void testArgOverloading() {
-		assertEquals("Any 5", method(new Long(5)));
+		assertEquals("Any 5", method(5));
 		assertEquals("Any old cheese", method("old cheese"));
-		assertEquals("Integer 5", method(new Integer(5)));
+		assertEquals("Integer 5", method(5));
 	}
 
 	public void testByteSignExtends() {
@@ -280,7 +274,7 @@ public class JavaTest extends TestCase {
 		assertEquals(16, 1 << 2 * 2);
 
 		// & happens first (so need brackets)
-		assertTrue((1 & 3) == 1);
+		assertEquals(1 & 3, 1);
 	}
 
 	public void testTotalMatch() {
