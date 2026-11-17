@@ -168,10 +168,8 @@ public class OuterWorld implements Runnable, Disposable {
 	}
 
 	public void launchGame() {
-		bootstrap = new Launcher() {
-			@Override
-			public void launch(OuterWorld outerWorld) {
-				World w = new World(outerWorld);
+		bootstrap = outerWorld -> {
+			try (World w = new World(outerWorld)) {
 				w.playLevel();
 			}
 		};

@@ -146,7 +146,7 @@ public final class GameFlow implements Launcher {
 		// (each demo shows its world's logo afresh)
 		ow.worldLogoShown = null;
 		w.configureDemoInterruptible(() -> !enteringName);
-		try (Coroutine c = overlay) {
+		try (Coroutine c = overlay; w) {
 			Outcome o = w.playLevel();
 			System.out.println("FLOW: demo " + recording + " -> " + o);
 			return stillInCharge() ? o : Outcome.TO_MAPPER;
@@ -271,15 +271,17 @@ public final class GameFlow implements Launcher {
 		ow.worldLogoShown = null;
 		int last = PersistedLevel.levelCount() - 1;
 		for (;;) {
-			World world = new World(ow);
-			if (ow.devPlayerStart != null) {
-				world.configurePlayerStart(ow.devPlayerStart);
-				ow.devPlayerStart = null;
+			Outcome o;
+			try (World world = new World(ow)) {
+				if (ow.devPlayerStart != null) {
+					world.configurePlayerStart(ow.devPlayerStart);
+					ow.devPlayerStart = null;
+				}
+				if (ow.levelNumber == last) {
+					world.configureEnding(() -> Texts.ending(ow.levelsCompleted, ow.gemsCollectedTotal));
+				}
+				o = world.playLevel();
 			}
-			if (ow.levelNumber == last) {
-				world.configureEnding(() -> Texts.ending(ow.levelsCompleted, ow.gemsCollectedTotal));
-			}
-			Outcome o = world.playLevel();
 			System.out.println("FLOW: level " + ow.levelNumber + " -> " + o + " (lives " + ow.lives + ", score "
 					+ ow.score + ")");
 			if (!stillInCharge()) return false;

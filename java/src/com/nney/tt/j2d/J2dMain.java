@@ -231,16 +231,17 @@ public class J2dMain {
 		else if (demoName != null) {
 			final String dn = demoName;
 			ow.bootstrap = o -> {
-				com.nney.tt.World w = new com.nney.tt.World(o);
-				byte[] rec = com.nney.utils.OpenableTools.mustLoad(TTResource.demo(dn));
-				final long limit = demoFrames > 0 ? demoFrames : Long.MAX_VALUE;
-				final long start = gcHolder[0].frameCount();
-				w.configureDemo(new com.nney.tt.input.RecordedJoystick(rec, -1, false),
-						() -> gcHolder[0].frameCount() - start < limit);
-				com.nney.tt.World.Outcome outc = w.playLevel();
-				System.out.println("Demo " + dn + ": " + outc + " after " + (gcHolder[0].frameCount() - start)
-						+ " frames" + (gcHolder[0].frameCount() - start >= limit ? " (time limit)" : " (early!)"));
-				throw new J2dGraphicsContext.QuitRequested();
+				try (com.nney.tt.World w = new com.nney.tt.World(o)) {
+					byte[] rec = com.nney.utils.OpenableTools.mustLoad(TTResource.demo(dn));
+					final long limit = demoFrames > 0 ? demoFrames : Long.MAX_VALUE;
+					final long start = gcHolder[0].frameCount();
+					w.configureDemo(new com.nney.tt.input.RecordedJoystick(rec, -1, false),
+							() -> gcHolder[0].frameCount() - start < limit);
+					com.nney.tt.World.Outcome outc = w.playLevel();
+					System.out.println("Demo " + dn + ": " + outc + " after " + (gcHolder[0].frameCount() - start)
+							+ " frames" + (gcHolder[0].frameCount() - start >= limit ? " (time limit)" : " (early!)"));
+					throw new J2dGraphicsContext.QuitRequested();
+				}
 			};
 		}
 		else ow.launchFullGame(level);

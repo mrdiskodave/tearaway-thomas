@@ -1860,8 +1860,9 @@ public class World implements AlienServices, Disposable {
 	}
 
 	/**
-	 * Play this level until something ends it.
-	 * 
+	 * Play this level until something ends it. It doesn't {@link #close()} the
+	 * world: whoever made it does that.
+	 *
 	 * @return What ended it.
 	 */
 	public Outcome playLevel() {
@@ -1878,7 +1879,6 @@ public class World implements AlienServices, Disposable {
 		if (scriptWriter != null) {
 			TTResource.saveScript(configuredScriptDestination, scriptWriter.save());
 		}
-		close();
 		return outcome;
 	}
 
@@ -1926,11 +1926,11 @@ public class World implements AlienServices, Disposable {
 
 	@Override
 	public void close() {
-		// this presupposes create() ran successfully
+		// (create() may not have run, or not all the way, e.g. if it threw)
 		if (!isDemo()) ah.stopMusic();
 		statusScreen.close();
-		hud.close();
-		statusDisplay.close();
+		if (hud != null) hud.close();
+		if (statusDisplay != null) statusDisplay.close();
 	}
 
 	public Coord getScreenPosition() {

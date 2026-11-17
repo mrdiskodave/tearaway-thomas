@@ -848,17 +848,18 @@ public class Mapper implements ButtonPressServices {
 
 		ow.resetStats();
 
-		World w = new World(ow);
-		if (!bigTest) {
-			w.configurePerformIntro(false);
-			w.configurePlayerStart(mmp.worldPixels());
-			// w.configureScriptRecording(levelInfo.filename);
-			w.configureSeeHidden(testFlag(FLAG_SEE_HIDDEN));
-			w.configureSeeMasks(testFlag(FLAG_SEE_MASKS));
+		try (World w = new World(ow)) {
+			if (!bigTest) {
+				w.configurePerformIntro(false);
+				w.configurePlayerStart(mmp.worldPixels());
+				// w.configureScriptRecording(levelInfo.filename);
+				w.configureSeeHidden(testFlag(FLAG_SEE_HIDDEN));
+				w.configureSeeMasks(testFlag(FLAG_SEE_MASKS));
+			}
+			w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, getAliensReadOnly()));
+			w.testLevelFromMapper();
+			setScreenPosition(w.getScreenPosition());
 		}
-		w.configureMapText(PersistedLevel.staticSave(levelInfo, gameMap, getAliensReadOnly()));
-		w.testLevelFromMapper();
-		setScreenPosition(w.getScreenPosition());
 
 		System.out.println("DONE TESTING");
 	}
