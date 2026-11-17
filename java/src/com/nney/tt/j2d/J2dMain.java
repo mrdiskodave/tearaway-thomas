@@ -247,7 +247,7 @@ public class J2dMain {
 		else ow.launchFullGame(level);
 
 		int rc = 0;
-		try {
+		try (ow) {
 			ow.run();
 		}
 		catch (J2dGraphicsContext.QuitRequested q) {

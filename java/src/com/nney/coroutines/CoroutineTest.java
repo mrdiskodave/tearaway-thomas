@@ -9,34 +9,35 @@ public class CoroutineTest extends TestCase {
 	public void testInterleaving() {
 		final StringBuilder sb = new StringBuilder();
 
-		Coroutine co = new Coroutine("interleave", c -> {
+		try (Coroutine co = new Coroutine("interleave", c -> {
 			for (int x = 0; x < 5; x++) {
 				sb.append("x" + x);
 				c.pause();
 			}
-		});
+		})) {
+			int y = 0;
+			do {
+				sb.append("y" + y++);
+			} while (co.step());
 
-		int y = 0;
-		do {
-			sb.append("y" + y++);
-		} while (co.step());
-
-		assertEquals("y0x0y1x1y2x2y3x3y4x4y5", sb.toString());
-		assertTrue(co.isFinished());
-		assertFalse("stepping a finished coroutine is harmless", co.step());
+			assertEquals("y0x0y1x1y2x2y3x3y4x4y5", sb.toString());
+			assertTrue(co.isFinished());
+			assertFalse("stepping a finished coroutine is harmless", co.step());
+		}
 	}
 
 	public void testNothingRunsUntilFirstStep() {
 		final boolean[] ran = new boolean[1];
-		Coroutine co = new Coroutine("lazy", c -> ran[0] = true);
-		assertFalse(ran[0]);
-		assertFalse(co.step());
-		assertTrue(ran[0]);
+		try (Coroutine co = new Coroutine("lazy", c -> ran[0] = true)) {
+			assertFalse(ran[0]);
+			assertFalse(co.step());
+			assertTrue(ran[0]);
+		}
 	}
 
 	public void testSubclassStyle() {
 		final List<Integer> got = new ArrayList<>();
-		Coroutine co = new Coroutine("subclass") {
+		try (Coroutine co = new Coroutine("subclass") {
 			@Override
 			protected void run() {
 				for (int i = 0; i < 3; i++) {
@@ -44,25 +45,27 @@ public class CoroutineTest extends TestCase {
 					pause();
 				}
 			}
-		};
-		co.runToCompletion();
-		assertEquals("[0, 1, 2]", got.toString());
+		}) {
+			co.runToCompletion();
+			assertEquals("[0, 1, 2]", got.toString());
+		}
 	}
 
 	public void testExceptionsReachTheCaller() {
-		Coroutine co = new Coroutine("boom", c -> {
+		try (Coroutine co = new Coroutine("boom", c -> {
 			c.pause();
 			throw new IllegalArgumentException("kaboom");
-		});
-		assertTrue(co.step());
-		try {
-			co.step();
-			fail();
+		})) {
+			assertTrue(co.step());
+			try {
+				co.step();
+				fail();
+			}
+			catch (IllegalArgumentException ex) {
+				assertEquals("kaboom", ex.getMessage());
+			}
+			assertTrue(co.isFinished());
 		}
-		catch (IllegalArgumentException ex) {
-			assertEquals("kaboom", ex.getMessage());
-		}
-		assertTrue(co.isFinished());
 	}
 
 	public void testCloseRunsFinallyBlocks() {
@@ -181,16 +184,17 @@ public class CoroutineTest extends TestCase {
 		Coroutine.setHandover(tb);
 		try {
 			final boolean[] virtual = new boolean[1];
-			Coroutine c = new Coroutine("gl", co -> {
+			try (Coroutine c = new Coroutine("gl", co -> {
 				virtual[0] = Thread.currentThread().isVirtual();
 				for (int i = 0; i < 3; i++) {
 					tb.use();
 					co.pause();
 				}
 				tb.use();
-			});
-			while (c.step()) {
-				tb.use();
+			})) {
+				while (c.step()) {
+					tb.use();
+				}
 			}
 			tb.use();
 			assertFalse("needs a real thread to keep the context", virtual[0]);
