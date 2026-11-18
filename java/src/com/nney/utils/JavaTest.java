@@ -185,8 +185,10 @@ public class JavaTest extends TestCase {
 	}
 
 	public void testArgOverloading() {
-		assertEquals("Any 5", method(5));
+		// a long boxes to a Long, which only method(Object) takes
+		assertEquals("Any 5", method(5L));
 		assertEquals("Any old cheese", method("old cheese"));
+		// an int boxes to an Integer, and method(Integer) is the closer fit
 		assertEquals("Integer 5", method(5));
 	}
 
