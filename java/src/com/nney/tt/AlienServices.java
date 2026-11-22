@@ -74,7 +74,7 @@ public interface AlienServices extends PlayerPositionServices {
 	// called by the player
 	void validatePlayerPosition(Coord c);
 
-	void registerPlayerSpriteForAlienColisions(Coord c, Sprite s);
+	void registerPlayerSpriteForAlienCollisions(Coord c, Sprite s);
 
 	// called by Aliens to operate on the player
 

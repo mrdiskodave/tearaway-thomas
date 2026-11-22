@@ -45,7 +45,6 @@ import com.nney.tt.sprites.Sprite;
 import com.nney.tt.tinytools.Countdown;
 import com.nney.tt.tinytools.EdgeDetector;
 import com.nney.tt.tinytools.Latch;
-import com.nney.tt.tinytools.SlowBoolean;
 import com.nney.utils.ListUtil;
 import com.nney.utils.Math2;
 
@@ -526,7 +525,7 @@ public class World implements AlienServices, Disposable {
 	}
 
 	@Override
-	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
+	public void registerPlayerSpriteForAlienCollisions(Coord c, Sprite s) {
 		playerSpriteTopLeft = c.copy();
 		playerSpriteTopLeft.x -= s.handleX;
 		playerSpriteTopLeft.y -= s.handleY;
@@ -931,10 +930,6 @@ public class World implements AlienServices, Disposable {
 		// that is the one for us!
 		System.out.println("Map bounds: " + bounds);
 		scr.setMapBoundsInPixels(bounds, bounds);
-	}
-
-	private Coord getPlayerCentreOnScreen() {
-		return getPlayerCentre().sub2(scr.position());
 	}
 
 	public Coord getPlayerCentre() {

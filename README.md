@@ -6,7 +6,7 @@ Tearaway Thomas (Amiga, 1992, David Hanney and Nick Frampton), and the Java
 remake of it.
 
 | Folder | What's in it |
-|---|---|
+|--------|--------------|
 | [`68k/`](68k) | The original game: its 68000 source (`s195`), graphics definitions, music, and the packed data files from the game disk |
 | [`python/`](python) | The converters (2011): they unpack the original data and turn it into the artwork, maps and music the remake uses. See [`python/README.md`](python/README.md) |
 | [`java/`](java) | The remake, begun in 2011 and taken up again in 2026. How to play, build and test it: [`java/README.md`](java/README.md) |

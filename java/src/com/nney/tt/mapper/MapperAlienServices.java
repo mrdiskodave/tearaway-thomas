@@ -36,7 +36,7 @@ final class MapperAlienServices implements AlienServices {
 	}
 
 	@Override
-	public void registerPlayerSpriteForAlienColisions(Coord c, Sprite s) {
+	public void registerPlayerSpriteForAlienCollisions(Coord c, Sprite s) {
 		ni();
 	}
 

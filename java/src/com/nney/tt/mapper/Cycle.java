@@ -20,7 +20,7 @@ public class Cycle {
 	/** How many units of x each {@link #advance()} moves on. */
 	private final int rate;
 	/** Steps in a whole cycle, up and back down. */
-	private int length;
+	private final int length;
 
 	/**
 	 * @param top the highest value (the lowest is 0)

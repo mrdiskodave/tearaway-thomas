@@ -40,7 +40,7 @@ public class Player {
 		Anim anim = playersAnimations.find(name);
 		animPlayer.changeAnimation(anim);
 		Sprite s = animate ? animPlayer.nextFrame() : animPlayer.currentFrame();
-		srv.registerPlayerSpriteForAlienColisions(cr, s);
+		srv.registerPlayerSpriteForAlienCollisions(cr, s);
 		playerSprite = s;
 	}
 
